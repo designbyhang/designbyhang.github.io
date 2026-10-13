@@ -1,0 +1,68 @@
+{
+  "title": "Facebook Monetization Split Screen",
+  "tagline": "Building a shared interaction model for Facebook’s ad experiences.",
+  "client": "Facebook",
+  "discipline": "Design Framework",
+  "sections": [
+    { "type": "figure",
+      "caption": "Inconsistent exit affordances across Facebook surfaces",
+      "image": "img_fmss_00.png",
+      "alt": "Grid of ten Facebook surfaces — Marketplace PDP, Lead Gen Form, Stories, Image Viewer, In-App Browser, Reels, Video Feed, Fullscreen Video, Was Live Video, In-App Browser — each with a different exit control circled" },
+
+    { "type": "split",
+      "label": "The problem",
+      "heading": "A fragmented experience, multiplied by a fragmented organization",
+      "paragraphs": [
+        "Facebook had accumulated years of localized product decisions, leaving people with inconsistent and unpredictable navigation patterns. The problem was especially visible in monetization. Different teams were independently building split screen experiences for different ad objectives, each optimized for their immediate needs.",
+        "Without a unified framework and strategy, every new ad objective introduced a new way of interacting with split screen. The ad experience became harder to predict, and consistency became even harder to achieve."
+      ],
+      "carousel": [
+        { "image": "img_fmss_01.png", "alt": "Split screen examples with inconsistent exit and media controls" },
+        { "image": "img_fmss_02.png", "alt": "Split screen example 2" },
+        { "image": "img_fmss_03.png", "alt": "Split screen example 3" },
+        { "image": "img_fmss_04.png", "alt": "Split screen example 4" }
+      ] },
+
+    { "type": "row", "cards": [
+      { "style": "red", "label": "Key Insights", "items": [
+        { "heading": "Different objectives, same user task", "text": "Ads served a range of objectives, including Onsite and Offsite Conversions, Lead Generation, Business Messages, and App Installs, but they shared an underlying task: moving people from discovery to engagement." },
+        { "heading": "Lack of infrastructure, duplicated effort", "text": "Without reusable components and shared guidance, teams had to reinvent solutions independently, increasing development costs and making it harder to evolve the ad experience as a whole." } ] },
+      { "style": "dark", "label": "The opportunity", "heading": "Build a shared interaction model that", "headingSize": 28, "numbered": [
+        "Create familiarity for people by making ad interactions more predictable.",
+        "Creates leverage for teams through reusable infrastructure that reduces duplication and accelerates new experiences." ] }
+    ] },
+
+    { "type": "image", "style": "blue", "image": "img_fmss_10.png",
+      "alt": "Five split screen ad objectives: Offsite Conversions, Lead Generation, Business Messages, Onsite Conversions, App Installs" },
+
+    { "type": "columns",
+      "left": [
+        { "style": "blue", "label": "The solution", "heading": "FMSS: a shared model for monetization",
+          "paragraphs": ["A design framework that establishes shared principles and interaction patterns across ad objectives and Facebook surfaces, while giving individual products the flexibility to support their unique needs."] },
+        { "style": "dark", "heading": "Building alignment & driving adoption", "muted": true, "paragraphs": [
+          "I brought FMSS to product and design leaders across Facebook to align on its principles, scope, and application.",
+          "With leadership support, I partnered with Facebook’s Design Systems team to formalize the framework through reusable components, guidance, and shared resources, making it accessible to teams beyond the original monetization organization. I then worked across Browser Ecosystem, App & Gaming, Business Messaging, and other teams to validate and expand the framework through real product applications. The work evolved from a design solution into shared infrastructure for the app." ] },
+        { "placeholder": true, "label": "Image 04", "title": "Prototype flow", "note": "Replace with project imagery" },
+        { "style": "blue2", "label": "The impact", "big": "$51M" },
+        { "placeholder": true, "size": "tall", "label": "Image 06", "title": "Framework rollout", "note": "Replace with project imagery" },
+        { "placeholder": true, "label": "Image 08", "title": "Adoption across surfaces", "note": "Replace with project imagery" }
+      ],
+      "right": [
+        { "style": "white", "scroll": true, "image": "img_fmss_05.png", "alt": "Facebook Monetization Split Screen documentation page in the design system, showing overview and anatomy" },
+        { "placeholder": true, "label": "Image 05", "title": "Early concepts and explorations", "note": "Replace with project imagery" },
+        { "style": "dark", "heading": "Changing how monetization scales", "muted": true, "paragraphs": [
+          "FMSS evolved from a solution for fragmented ad experiences into a shared foundation for monetization across Facebook. By separating common split screen infrastructure from experience specific logic, teams could build faster, extend the framework across surfaces and platforms, and continue innovating without rebuilding the foundation.",
+          "The system enabled new experiences, including bringing split screen to Facebook on iPad for the first time, and now powers Caption & Browse, H Scroll Split Screen, Profile & Browse, and more." ] },
+        { "placeholder": true, "size": "mid", "label": "Image 07", "title": "Component behavior", "note": "Replace with project imagery" },
+        { "style": "plain", "label": "Adoption", "big": "Document how the framework moved from a feature to shared infrastructure." },
+        { "style": "orange", "label": "Impact", "stats": [
+          { "value": "$51M iRev", "term": "Incremental Revenue", "text": "generated for Meta in 2025 through feature, surface, and platform expansion enabled by FMSS." },
+          { "value": "6.4 EYS", "term": "Engineering Years Saved", "text": "for Facebook through reduced operational costs in product development, testing, and SEV response, enabled by FMSS." } ] },
+        { "style": "red", "summary": true, "image": "img_fmss_00.png", "label": "Summary",
+          "heading": "Building a shared interaction model for Facebook’s ad experiences.", "paragraphs": [
+          "In 2023, I created Facebook Monetization Split Screen (FMSS), a design framework to bring consistency to how people navigate and engage with ads across Facebook.",
+          "I championed the framework across multiple Meta organizations, partnered with Design Systems to formalize it as reusable infrastructure, and drove adoption across products and platforms.",
+          "By 2025, FMSS had enabled $51M in incremental revenue and saved an estimated 6.4 engineering years through reduced development and operational costs." ] }
+      ] }
+  ]
+}
