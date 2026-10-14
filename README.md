@@ -56,3 +56,16 @@ publicly downloadable from GitHub Pages, and anyone can read a public repo.
 ## Deploy
 Push the folder's contents to the root of a repo named `designbyhang.github.io`, then enable Pages
 (Settings → Pages → Deploy from branch → main / root). All paths are relative.
+
+## FMSS scroll story (projects/fmss.html)
+A scroll-driven version of the FMSS Figma presentation, rendered by `js/scroll-story.js` from
+`content/projects/fmss/scenes.json` and `content/projects/fmss/images/`. Each scene is a 1920×1080
+artboard scaled to the viewport. Each scene has `steps` (one per Figma frame) holding
+`[x, y, w, h, opacity]` per element key:
+- An element in step N+1 that wasn't in step N fades and slides in.
+- An element in both steps animates to its new position (smart animate).
+- The page crossfades between scenes.
+
+Text elements (`"kind":"text"`) are live HTML, so edit their `text` (and `runs`, if present) directly.
+To swap in a real video, see `content/projects/fmss/VIDEO_PLACEHOLDERS.md`.
+The JSON was generated from the Figma file. Hand edits are kept unless the export is re-run.

@@ -1,0 +1,22 @@
+body.story{background:#000;margin:0}
+.ss-view{position:fixed;inset:0;overflow:hidden;background:#000}
+.ss-scene{position:absolute;inset:0;visibility:hidden;will-change:opacity}
+.ss-art{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden}
+.ss-art *{box-sizing:border-box}
+.ss-art>div,.ss-art>img,.ss-art>video,.ss-b>*{position:absolute;left:0;top:0;transform-origin:0 0}
+.ss-i{display:block;object-fit:fill;max-width:none}
+.ss-t{display:flex;flex-direction:column;white-space:pre-wrap;overflow-wrap:break-word;margin:0}
+.ss-spacer{position:relative;pointer-events:none}
+.ss-bar{position:fixed;left:0;right:0;bottom:0;height:3px;z-index:20;background:rgba(127,127,127,.2)}
+.ss-bar i{display:block;height:100%;background:#ff6848;transform-origin:0 0;transform:scaleX(0)}
+.ss-back{position:fixed;right:20px;top:16px;z-index:21;font:500 12px/1 "DM Sans",system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;mix-blend-mode:difference;text-decoration:none;padding:8px}
+.ss-back:focus-visible{outline:2px solid #ff6848}
+.ss-panel{display:none}
+.ss-mobile .ss-panel{display:block;position:fixed;left:0;right:0;bottom:0;overflow:auto;padding:0 22px 28px;color:#eee;font:400 15px/1.5 "Instrument Sans",system-ui,sans-serif;z-index:5;background:var(--pbg,#000);transition:background .4s}
+.ss-panel.light{color:#222}.ss-panel.light p.h{color:#000}
+.ss-panel p{margin:0 0 12px;white-space:pre-line}.ss-panel p.h{font-size:22px;line-height:1.15;color:#fff;margin-bottom:14px;letter-spacing:-.01em}
+.ss-mobile .ss-view{background:#000}.ss-mobile .ss-scene{bottom:auto;height:100%}
+.ss-err{color:#fff;padding:120px 24px;font-family:system-ui}
+.ss-hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:21;color:#fff;mix-blend-mode:difference;font:500 11px/1 "DM Sans",system-ui;letter-spacing:.14em;text-transform:uppercase;transition:opacity .4s}
+@media (prefers-reduced-motion:reduce){.ss-hint{transition:none}}
+.ss-li{position:relative;padding-left:1.5em}.ss-li::before{content:attr(data-m);position:absolute;left:0;width:1.15em;text-align:right}
