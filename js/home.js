@@ -10,9 +10,9 @@ function measure(){on=!mqM.matches;if(!on){strip.style.transform='';return;}
   // landing: intro ≈73% of viewport width, capped so it fits ~62% of the rail height
   s0=mqR.matches?1:Math.max(1,Math.min(.73*W/cw,.82*H/ch));
   t=clamp(t,0,max);x=t;render();}
-// screenX(p) = W/2 + (p - c0 - x)·s ; scale eases 1→0 over the first card's width
+// screenX(p) = W/2 + (p - c0 - x)·s ; scale eases s0→1 over the first card's width, and back 1→s0 over the last (About)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
-  const p=clamp(x/span,0,1),s=s0+(1-s0)*ease(p);
+  const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
   strip.dataset.p=p.toFixed(3);
   if(cur&&track)cur.style.transform=`translate3d(${(max?x/max:0)*(track.offsetWidth-18)}px,0,0)`;}
