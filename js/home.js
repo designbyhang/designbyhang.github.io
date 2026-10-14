@@ -4,7 +4,7 @@ const cards=[...strip.children];let act=-1;
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>to(centers[i]-c0));dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 // liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
-const BASE=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ring-d'))||24.2,K=380,DAMP=17,VK=.045,VMAX=10,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
+const BASE=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ring-d'))||24.2,K=380,DAMP=17,VK=.045,VMAX=12.5,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
 const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
   to(c){if(this.c===null){this.c=this.pc=c;}this.c=c;if(!this.raf){this.last=performance.now();this.raf=requestAnimationFrame(t=>this.step(t));}},
   step(now){const dt=Math.min(.05,(now-this.last)/1000)||.016;this.last=now;
@@ -60,7 +60,7 @@ document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
-// intro card: "HANG" construction poster (after Paul Rand) — letters cropped by dotted grid cells, mono words on grid lines
+// intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
 (()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg');
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],ys:[64,244,284,452,492,622],
@@ -83,9 +83,11 @@ P={W:600,H:871.5,
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
   dots:[[550,432,4],[550,820,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
-function inkL(ch,fs,top,bot,font){const S=400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
+function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
   for(let y=0;y<y1-y0;y++)for(let x=0;x<m&&x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){m=x;break;}return m===1e9?0:(m-pad)*k;}
+function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,S*.3,base);
+  const d=inkC.getImageData(0,0,cv.width,cv.height).data;for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127)return(y-base)*k;return 0;}
 function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
   const m=(port?.08:.065)*VW,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
@@ -100,7 +102,9 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
-  const lx=l=>{if(!l[5])return l[3];const w=G.words.find(p=>p[0]===l[5]);const wl=w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);const c=l[1];return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans);};
+  const lx=l=>{if(!l[5])return l[3];const w=G.words.find(p=>p[0]===l[5]);const wl=w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);const c=l[1];
+    l[4]=c[1]+(wl-c[0])-inkT(l[0],l[2],'500 # '+sans,(devicePixelRatio||1)/px); // top gap = left gap (ink to cell line)
+    return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans,(devicePixelRatio||1)/px);};
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${(p[1]+wo).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
