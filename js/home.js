@@ -96,7 +96,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
   const YS=G0.ys,Bw=YS[2]-YS[1],nR=Math.ceil(YS.length/2),Rh=(YS[YS.length-1]-YS[0]-(nR-1)*Bw)/nR,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
   const yq=y=>{for(let i=1;i<YS.length;i++)if(y<=YS[i]||i===YS.length-1)return YN[i-1]+(y-YS[i-1])*(YN[i]-YN[i-1])/(YS[i]-YS[i-1]);};
-  const m=(port?.08:.065)*VW,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
+  const m=(port?.075294:.060924)*VW /* inset: 6.0924cqi = 64px at 1440 (card 1050.5px; was 6.5cqi = 68.3px); mobile 8cqi x 64/68 = 7.5294cqi */,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
   const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(x-gx0)*sx,Y=y=>m+(yq(y)-gy0)*sy;
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),

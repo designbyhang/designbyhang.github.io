@@ -182,3 +182,8 @@ button.poster-cta:focus-visible{outline:1px solid #111;outline-offset:4px}
 .poster-cta:hover .cta-t::after,.poster-cta:focus-visible .cta-t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.poster-cta .cta-t::after{transition:none}}
 .home .brand{justify-self:start;width:fit-content}.home .brand:hover,.home .brand:focus-visible{color:var(--ink)!important;text-decoration:none}
+/* links: underline the text only, never the arrow */
+.contact a{background:none!important}
+.contact a .t{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease)}
+.contact a:hover .t,.contact a:focus-visible .t{background-size:100% 1px}
+@media (prefers-reduced-motion:reduce){.contact a .t{transition:none}}
