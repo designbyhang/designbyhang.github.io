@@ -90,8 +90,10 @@ function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base
   const d=inkC.getImageData(0,0,cv.width,cv.height).data;for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127)return(y-base)*k;return 0;}
 function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
+  const YS=G0.ys,Bw=YS[2]-YS[1],nR=Math.ceil(YS.length/2),Rh=(YS[YS.length-1]-YS[0]-(nR-1)*Bw)/nR,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
+  const yq=y=>{for(let i=1;i<YS.length;i++)if(y<=YS[i]||i===YS.length-1)return YN[i-1]+(y-YS[i-1])*(YN[i]-YN[i-1])/(YS[i]-YS[i-1]);};
   const m=(port?.08:.065)*VW,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
-  const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(x-gx0)*sx,Y=y=>m+(y-gy0)*sy;
+  const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(x-gx0)*sx,Y=y=>m+(yq(y)-gy0)*sy;
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
@@ -102,15 +104,26 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
-  const lx=l=>{if(!l[5])return l[3];const w=G.words.find(p=>p[0]===l[5]);const wl=w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);const c=l[1];
+  const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-h[1][0];})();
+  const lx=l=>{const c=l[1];let wl=c[0]+gap0;if(l[5]){const w=G.words.find(p=>p[0]===l[5]);wl=w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);}
     l[4]=c[1]+(wl-c[0])-inkT(l[0],l[2],'500 # '+sans,(devicePixelRatio||1)/px); // top gap = left gap (ink to cell line)
     return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans,(devicePixelRatio||1)/px);};
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${(p[1]+wo).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*f*.9}"/>`;});
+  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
   const R=G.ring,rr=7.5*px*f;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px*f}"/>`;
-  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;}
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
+  // knockouts: card colour behind mono words so grid lines stop short of the type
+  const ko=getComputedStyle(root.closest('.media-wrap')).backgroundColor;root.style.setProperty('--ko',ko&&ko!=='rgba(0, 0, 0, 0)'?ko:'#fff');const kp=3*px;
+  svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a');r.setAttribute('style',t.getAttribute('style'));
+    r.setAttribute('x',b.x-kp);r.setAttribute('y',b.y);r.setAttribute('width',b.width+2*kp);r.setAttribute('height',b.height);t.before(r);});
+  // caption: same ink gap from the grid lines as the H/A/N letters
+  const cap=root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
+    const tt=cap.querySelector('.poster-title'),hh=cap.querySelector('.poster-hint'),ts=getComputedStyle(tt),hs=getComputedStyle(hh),tf=parseFloat(ts.fontSize),hf=parseFloat(hs.fontSize);
+    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans);inkC.font=hs.fontSize+' '+hs.fontFamily;const mt=inkC.measureText(hh.textContent.trim()),below=(hf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent-mt.actualBoundingBoxDescent;
+    cap.style.left=(mp+gp-tl).toFixed(2)+'px';cap.style.bottom=(mp+gp-below).toFixed(2)+'px';}
+  }
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
 addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});})();
