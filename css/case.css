@@ -149,8 +149,9 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 /* v2 (Hang's edits) — case page only; case.css is not loaded by the home page */
 body.cs .hero{padding-top:clamp(20px,5vw,72px)}
 body.cs .meta{grid-template-columns:repeat(3,minmax(0,1fr))}
-body.cs .sheet,body.cs .media,body.cs .media img,body.cs .media.cover,body.cs .media.cover img,body.cs .phones,body.cs .phones img,body.cs .strip,body.cs .strip img,
+body.cs .media,body.cs .media img,body.cs .media.cover,body.cs .media.cover img,body.cs .phones,body.cs .phones img,body.cs .strip,body.cs .strip img,
 body.cs .res,body.cs .next,body.cs .next img,body.cs .layer,body.cs .stats,body.cs .media.pad img{border-radius:0}
 body.cs .media.cover{border:1px solid var(--line)}
 body.cs .res{outline:1px solid var(--line);outline-offset:-1px}
-@media (max-width:640px){body.cs .sheet{border-radius:0}body.cs .meta{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
+@media (max-width:640px){body.cs .meta{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
+/* outer white panel keeps its original rounded corners; inner containers stay square */
