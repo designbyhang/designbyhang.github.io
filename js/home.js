@@ -1,7 +1,7 @@
 (()=>{const rail=document.getElementById('work'),strip=document.getElementById('strip'),dotsEl=document.getElementById('dots');
 const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px)');
 const cards=[...strip.children];let act=-1;
-const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>{cancelSnap();to(centers[i]-c0);});dotsEl.appendChild(b);return b;}):[];
+const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>to(centers[i]-c0));dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 // liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
 const BASE=15,K=380,DAMP=17,VK=.045,VMAX=10,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
@@ -34,45 +34,29 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
     if(st!==('settled' in dotsEl.dataset)){if(st)dotsEl.dataset.settled='';else delete dotsEl.dataset.settled;}}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
-// soft snap: after input goes idle, ease the nearest card to centre (time-based ease-out, interruptible)
-let tw=null,snapT=0;const eo=p=>1-Math.pow(1-p,3);
+let tw=null;const eo=p=>1-Math.pow(1-p,3);
 function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*eo(p);if(p>=1){x=t=tw.b;tw=null;}}
   else{const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;}
   render();raf=(tw||x!==t)?requestAnimationFrame(loop):0;}
-function nearest(v){let b=centers[0]-c0,bd=1e9;centers.forEach(c=>{const d=Math.abs(c-c0-v);if(d<bd){bd=d;b=c-c0;}});return clamp(b,0,max);}
-// directional: from the card centred when the gesture began, go one card in the gesture's direction
-// (or further on a fling, to the first card past the current position); jitter under TH snaps back
-let gest=null;const TH=8;
-function gestStart(){if(!gest&&on){const n=nearest(t);gest={i:centers.findIndex(c=>Math.abs(c-c0-n)<.5),t0:t};}}
-function snap(){if(!on||sx!=null)return;const g=gest;gest=null;let b=nearest(t);
-  if(g&&g.i>=0){const net=t-g.t0,pos=centers.map(c=>c-c0),n=pos.length;let k=g.i;
-    if(net>TH){k=g.i+1;for(let i=g.i+1;i<n;i++){k=i;if(pos[i]>=t-.5)break;}}
-    else if(net<-TH){k=g.i-1;for(let i=g.i-1;i>=0;i--){k=i;if(pos[i]<=t+.5)break;}}
-    k=clamp(k,0,n-1);b=clamp(pos[k],0,max);}
-  if(Math.abs(b-x)<.5&&Math.abs(b-t)<.5){x=t=b;render();return;}
-  if(mqR.matches){tw=null;x=t=b;render();return;}
-  tw={a:x,b,s:performance.now(),d:600};if(!raf)raf=requestAnimationFrame(loop);}
-function cancelSnap(){clearTimeout(snapT);gest=null;}
-function snapSoon(){clearTimeout(snapT);snapT=setTimeout(snap,140);}
 function to(v){if(!on)return;tw=null;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
 addEventListener('wheel',e=>{if(!on||e.ctrlKey)return;if(e.target.closest&&e.target.closest('.scroll')&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){const sc=e.target.closest('.scroll');if(sc.scrollHeight>sc.clientHeight+1)return;}
-  e.preventDefault();gestStart();const k=e.deltaMode===1?16:e.deltaMode===2?W:1;to(t+(e.deltaX+e.deltaY)*k);snapSoon();},{passive:false});
+  e.preventDefault();const k=e.deltaMode===1?16:e.deltaMode===2?W:1;to(t+(e.deltaX+e.deltaY)*k);},{passive:false});
 // touch / pen drag
 let sx=null,sy,st,lock=null;
-rail.addEventListener('touchstart',e=>{if(!on)return;clearTimeout(snapT);tw=null;gestStart();const q=e.touches[0];sx=q.clientX;sy=q.clientY;st=t;lock=null;},{passive:true});
+rail.addEventListener('touchstart',e=>{if(!on)return;tw=null;const q=e.touches[0];sx=q.clientX;sy=q.clientY;st=t;lock=null;},{passive:true});
 rail.addEventListener('touchmove',e=>{if(!on||sx==null)return;const q=e.touches[0],dx=q.clientX-sx,dy=q.clientY-sy;
   if(lock==null&&Math.hypot(dx,dy)>6)lock=Math.abs(dx)>Math.abs(dy)?'x':'y';
   if(lock){e.preventDefault();to(st-(lock==='x'?dx:dy)*1.4);}},{passive:false});
-rail.addEventListener('touchend',()=>{sx=null;if(on)snapSoon();},{passive:true});
+rail.addEventListener('touchend',()=>{sx=null;},{passive:true});
 // keys: card to card
 function idx(){let i=0,b=1e9;centers.forEach((c,j)=>{const d=Math.abs(c-c0-t);if(d<b){b=d;i=j;}});return i;}
-addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return;if(/^(Arrow|Page|Home|End)/.test(e.key))cancelSnap();
+addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return;
   const m={ArrowRight:1,PageDown:1,ArrowDown:1,ArrowLeft:-1,PageUp:-1,ArrowUp:-1}[e.key];
   if(m){e.preventDefault();to(centers[clamp(idx()+m,0,cards.length-1)]-c0);}
   if(e.key==='Home'){e.preventDefault();to(0);}if(e.key==='End'){e.preventDefault();to(max);}});
 // keep focused links in view
 strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)to(centers[cards.indexOf(k)]-c0);});
-document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){e.preventDefault();cancelSnap();to(max);}});
+document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){e.preventDefault();to(max);}});
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
