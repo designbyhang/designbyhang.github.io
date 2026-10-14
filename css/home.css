@@ -157,15 +157,12 @@ main{flex:1;display:flex;min-height:0;position:relative}
 
 /* intro caption hint: initial cap only */
 .intro .hint.poster-hint,.intro .hint.poster-hint *{text-transform:none!important}
-.poster-title .arr{display:inline-block;margin-left:.22em;color:#111;font-family:var(--mono);font-weight:400;letter-spacing:0;transform:translateX(4px);animation:none}
-@keyframes nudgeR{0%,100%{transform:translateX(4px)}50%{transform:none}}
+.poster-title .arr{display:inline-block;margin-left:.22em;color:#111;font-family:var(--mono);font-weight:400;letter-spacing:0;animation:nudge 1.8s var(--ease) infinite}
 @media (prefers-reduced-motion:reduce){.poster-title .arr{animation:none}}
 .poster-title .arr svg{display:block;width:.86em;height:.6em;overflow:visible}.poster-title .arr path{stroke:#111;stroke-width:2px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 .poster-title .arr{vertical-align:.02em}
 button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;font-family:var(--sans);font-weight:400;color:#111;text-align:left;cursor:pointer;line-height:1}
 button.poster-cta:focus-visible{outline:1px solid #111;outline-offset:4px}
-.poster-cta:hover .arr,.poster-cta:focus-visible .arr{animation:nudgeR 1.8s var(--ease) infinite}
-@media (prefers-reduced-motion:reduce){.poster-cta:hover .arr,.poster-cta:focus-visible .arr{animation:none}}
 /* gauge: 40px below the (scaled) cards, centred on the page; JS sets --gy */
 .top nav{grid-column:3}
 main>.dots{position:absolute;left:50%;top:var(--gy,auto);bottom:auto;transform:translateX(-50%);z-index:2}
@@ -178,3 +175,7 @@ main>.dots{position:absolute;left:50%;top:var(--gy,auto);bottom:auto;transform:t
 .home .brand::after,.home .top nav a::after,.home .bot a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
 .home .brand:hover::after,.home .brand:focus-visible::after,.home .top nav a:hover::after,.home .top nav a:focus-visible::after,.home .bot a:hover::after,.home .bot a:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.home .brand::after,.home .top nav a::after,.home .bot a::after{transition:none}}
+.poster-cta .cta-t{position:relative}
+.poster-cta .cta-t::after{content:"";position:absolute;left:0;right:0;bottom:-.12em;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.poster-cta:hover .cta-t::after,.poster-cta:focus-visible .cta-t::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.poster-cta .cta-t::after{transition:none}}
