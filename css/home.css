@@ -24,12 +24,14 @@ main{flex:1;display:flex;min-height:0;position:relative}
   transform-origin:0 50%;will-change:transform;backface-visibility:hidden}
 .card{flex:none;width:var(--cw);position:relative}
 .hit{display:block;text-decoration:none;color:inherit}
-.lbl{display:block;height:28px;padding:0 2px;font:400 12px/28px var(--sans);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.intro .lbl{display:none}
-/* soon pill sits on the card */
-.media-wrap>.soon{position:absolute;top:12px;right:12px;z-index:2;padding:7px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mute);background:rgba(252,252,252,.92);font:400 11px/1 var(--mono);backdrop-filter:blur(6px)}
+.lbl{display:flex;align-items:baseline;gap:10px;height:28px;padding:0 2px;font:400 12px/1 var(--sans);color:var(--faint);white-space:nowrap}
+.lbl .lt{color:var(--mute)}
+.lbl .lm{font-family:var(--mono);font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.lbl .st{margin-left:auto;font:400 11px/1 var(--mono)}
+.lbl .go{color:var(--ink);opacity:.55;transition:opacity .25s}.live .hit:hover .go{opacity:1}
+.lbl .soon{color:var(--faint)}
 /* every card shares one surface: same size, radius, outline */
-.media-wrap{display:block;position:relative;width:100%;aspect-ratio:1440/820;border-radius:3.3333% / 5.8537%;overflow:hidden;isolation:isolate;transform:translateZ(0);
+.media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:3.3333% / 5.8537%;overflow:hidden;isolation:isolate;transform:translateZ(0);
   box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
 .media-wrap.surface{background:#fff}
 .media-wrap img,.type-cover{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
@@ -68,7 +70,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
  .strip{position:static;margin:0;transform:none!important;flex-direction:column;gap:28px;padding:4px 16px 24px;--cw:calc(100vw - 32px)}
  .intro .media-wrap{aspect-ratio:auto;height:auto}
  .intro-in{height:auto;justify-content:flex-start;padding:22px 22px 20px}
- .hint{display:none}
+ .hint{display:none}.lbl .lm{display:none}
  .line{font-size:22px}
  .media-wrap.scroll{aspect-ratio:auto;height:auto;overflow:visible}
  .bio{font-size:15px}
