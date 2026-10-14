@@ -71,7 +71,7 @@ const L={W:1200,H:683.4,
     ['G',[610,492,830,622],360,596,744]],
   words:[['Craft',110,244],['Visual',610,244],['Scale',880,244],['Systems',830,452],['Strategy',392,452]],
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
-  dots:[[1060,452,5],[610,284,4]],ring:[880,622],title:[114,610,40]},
+  dots:[[1060,452,5],[610,284,4],[330,452,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
   xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
   letters:[
@@ -81,7 +81,7 @@ P={W:600,H:871.5,
     ['G',[50,468,290,638],300,40,678]],
   words:[['Craft',50,226],['Visual',346,226],['Systems',50,638],['Scale',346,638],['Strategy',50,432]],
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
-  dots:[[550,432,4],[550,820,4]],ring:[550,674],title:[54,806,40]};
+  dots:[[550,432,4],[550,820,4],[290,262,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
