@@ -83,7 +83,7 @@ const L={W:1200,H:683.4,
     ['A',[880,64,1060,244],360,868,316,'Strategy'],
     ['N',[392,284,610,452],360,396,536,'Systems'],
     ['G',[610,492,830,622],360,596,744]],
-  words:[['Vision',110,244],['Strategy',880,244],['Systems',392,452],['Craft',880,492]],
+  words:[['Vision',110,284,330,452],['Strategy',392,64,610,244],['Systems',610,284,830,452],['Craft',880,492,1060,622]], /* v18: each keyword centred in a big box */
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
@@ -93,7 +93,7 @@ P={W:600,H:871.5,
     ['A',[346,56,550,226],300,336,266,'Strategy'],
     ['N',[50,262,290,432],300,54,472,'Systems'],
     ['G',[50,468,290,638],300,40,678]],
-  words:[['Vision',50,226],['Strategy',346,226],['Systems',50,432],['Craft',346,468]],
+  words:[['Vision',50,226],['Strategy',346,226],['Systems',346,262,550,432],['Craft',346,468,550,638]], /* v18 mobile: no free big box beside H/A, so VISION/STRATEGY stay in their thin row (centred on the letter); SYSTEMS/CRAFT centred in the empty box right of N/G */
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
   dots:[[550,432,4],[550,820,4],[290,262,4],[346,56,4],[346,468,4],[50,674,4],[290,820,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
@@ -112,7 +112,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
-    words:G0.words.map(p=>[p[0],X(p[1]),Y(p[2]),p[3]]),dots:G0.dots.map(d=>[X(d[0]),Y(d[1]),d[2]]),ring:[X(G0.ring[0]),Y(G0.ring[1])]};
+    words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],X(p[1]),Y(p[2])]),dots:G0.dots.map(d=>[X(d[0]),Y(d[1]),d[2]]),ring:[X(G0.ring[0]),Y(G0.ring[1])]};
   const mono=12*px;/* all mono text 12px */let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
   const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
@@ -137,8 +137,9 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const Hl=G.letters.find(l=>l[0]==='H'),wx=p=>{const L=colL(p[1],p[2]);const nb=G.ys.find(v=>v>p[2]+.01)-p[2],adj=Math.abs(p[2]-L[1][3])<1||Math.abs(p[2]+nb-L[1][1])<1;return (p[3]||L[0]==='G'&&!adj?p[1]+(Hl[6]-Hl[1][0]):L[6])-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);};
   const lx=l=>l[3];
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
-  const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
-  const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px',iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
+  const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},inkVt=(str,fpx,font)=>{const S=8,F=fpx*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});const w=Math.ceil(F*str.length)+20,h=Math.ceil(F*2),b=Math.round(F*1.4);cv.width=w;cv.height=h;c2.font=font.replace('#',F+'px');c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}return[(b-t0)/S,(t1+1-b)/S];},
+  wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
+  const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
   const R=G.ring;body+=`<circle class="a" style="--d:1650" fill="#eeeeee" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
@@ -150,10 +151,11 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   // caption: same ink gap from the grid lines as the H/A/N letters
   const cap=root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
     const tt=cap.querySelector('.poster-title'),ts=getComputedStyle(tt),tf=parseFloat(ts.fontSize);
-    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),capH=mt.actualBoundingBoxAscent,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
+    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),inkV=(()=>{const S=8,str=tt.textContent.trim(),fpx=tf*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});c2.font='400 '+fpx+'px '+ts.fontFamily;c2.letterSpacing=ts.letterSpacing==='normal'?'0px':(parseFloat(ts.letterSpacing)*S)+'px';const w=Math.ceil(c2.measureText(str).width)+20,h=Math.ceil(fpx*2),b=Math.round(fpx*1.4);cv.width=w;cv.height=h;c2.font='400 '+fpx+'px '+ts.fontFamily;c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++){for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}}return[(b-t0)/S,(t1+1-b)/S];})(),capH=inkV[0]-inkV[1] /* v18: pixel-measured ink of the CTA text (ascenders..baseline incl. overshoot) */,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
     // vertically centre the caption's cap height in the bottom grid row
     const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
-    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];cap.style.left=(LC[6]/px-tl).toFixed(2)+'px';cap.style.bottom=(VH/px-baseY-below).toFixed(2)+'px';}
+    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];cap.style.left=(LC[6]/px-tl).toFixed(2)+'px';const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
+    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate=port?'':'0 -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
   }
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
