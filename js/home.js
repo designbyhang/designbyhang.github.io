@@ -110,14 +110,17 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const inkLR=(ch,fs,top,bot)=>{const S=Math.max(100,Math.round(fs*SC)),k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=SF.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
     const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return[0,0];const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let L=1e9,R=-1;
     for(let y=0;y<y1-y0;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){if(x<L)L=x;if(x>R)R=x;}return L===1e9?[0,0]:[(L-pad)*k,(R+1-pad)*k];};
-  const place=(l,fs)=>{const c=l[1],base=c[1]+gap0-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base);return{base,e};};
+  const place=(l,fs)=>{const c=l[1],base=c[1]+gap0-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC);return{base,e};};
   let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*gap0)/(e[1]-e[0]));});
   for(let it=0;it<3;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*gap0)/(e[1]-e[0]));});fs=f2;}
-  G.letters.forEach(l=>{const c=l[1],q=place(l,fs);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];});
+  G.letters.forEach(l=>{const c=l[1],q=place(l,fs);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];});
+  // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
+  const colL=(x,y)=>{const L=G.letters.filter(l=>x>=l[1][0]-.01&&x<l[1][2]-.01).sort((a,b)=>Math.abs(y-a[1][3])-Math.abs(y-b[1][3]));if(L.length)return L[0];return G.letters.slice().sort((a,b)=>Math.abs(a[1][0]-x)-Math.abs(b[1][0]-x))[0];};
+  const wx=p=>colL(p[1],p[2])[6]-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);
   const lx=l=>l[3];
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
-  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${(p[1]+wo).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
+  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${wx(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
   const R=G.ring;body+=`<circle class="a" style="--d:1650" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
@@ -128,10 +131,10 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   // caption: same ink gap from the grid lines as the H/A/N letters
   const cap=root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
     const tt=cap.querySelector('.poster-title'),ts=getComputedStyle(tt),tf=parseFloat(ts.fontSize);
-    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),capH=mt.actualBoundingBoxAscent,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
+    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),capH=mt.actualBoundingBoxAscent,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
     // vertically centre the caption's cap height in the bottom grid row
     const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
-    cap.style.left=(mp+gp-tl).toFixed(2)+'px';cap.style.bottom=(VH/px-baseY-below).toFixed(2)+'px';}
+    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];cap.style.left=(LC[6]/px-tl).toFixed(2)+'px';cap.style.bottom=(VH/px-baseY-below).toFixed(2)+'px';}
   }
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
