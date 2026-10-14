@@ -196,7 +196,7 @@ body.cs .media.draw:hover img{transform:none}
 .bar-right a{display:block;line-height:1!important}
 .brand{line-height:1}
 @media (max-width:640px){.bar{height:50px;padding:0 16px}}
-.bar-right a .arr-back{display:inline-block;transform:scaleX(-1);margin-right:3.83px} /* same → glyph as the About LinkedIn link, mirrored */
+.bar-right a .arr-back{display:inline-block;transform:scaleX(-1)} /* same → glyph as the About LinkedIn link, mirrored */
 .bar-right a .t{position:relative;display:inline-block}
 .bar-right a .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
 .bar-right a:hover .t::after,.bar-right a:focus-visible .t::after{transform:scaleX(1)}
