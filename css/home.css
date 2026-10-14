@@ -110,3 +110,28 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .card .lbl .go{opacity:1}
 .live .hit:hover .lbl .st,.live .hit:focus-visible .lbl .st{color:var(--ink)!important}
 @media (max-width:640px){.hit{display:flex;flex-direction:column}.card .lbl{position:static;order:2;margin-top:40px;height:auto}}
+
+/* ── Intro card v2: editorial layout (revert this block + index.html intro markup + clock in home.js) ── */
+.intro .media-wrap{container-type:inline-size}
+.intro-in.ed{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto 1fr auto auto;column-gap:2cqi;height:100%;box-sizing:border-box;padding:4.6cqi 5cqi 4.2cqi;
+  background-image:linear-gradient(to right,rgba(0,0,0,.035) 1px,transparent 1px);background-size:calc((100% - 10cqi + 2cqi)/4) 100%;background-position:5cqi 0;background-repeat:repeat-x;background-clip:content-box}
+.ed .mono,.ed .hint{font-size:clamp(7px,2.05cqi,var(--mono-size))!important}
+.ed-top{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline}
+.ed-clock time{font-variant-numeric:tabular-nums;color:var(--ink)}
+.ed-line{grid-column:4/-1;align-self:center;margin:0;font:400 clamp(9px,3.75cqi,48px)/1.1 var(--sans);letter-spacing:-.025em;color:var(--ink);max-width:24ch;text-wrap:pretty}
+.ed-meta{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:2cqi;margin:0;padding-top:1.4cqi;border-top:1px solid var(--line)}
+.ed-meta dt{margin-bottom:.7cqi}
+.ed-meta dd{margin:0;font:400 clamp(7px,1.9cqi,15px)/1.3 var(--sans);letter-spacing:-.01em;color:var(--ink)}
+.ed-foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;margin-top:2.6cqi}
+.ed-foot .hint{margin:0}
+.ed .rv{animation:edUp .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--d)*90ms + 150ms)}
+@keyframes edUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ed .rv{animation:none}}
+@media (max-width:640px){
+ .intro-in.ed{height:auto;padding:20px;grid-template-rows:auto;row-gap:0;background-size:calc((100% - 40px + 16px)/2) 100%;background-position:20px 0;column-gap:16px}
+ .ed .mono{font-size:var(--mono-size)!important}
+ .ed-line{grid-column:1/-1;font-size:clamp(20px,6vw,26px);margin:36px 0 32px;max-width:none}
+ .ed-meta{grid-template-columns:1fr 1fr;row-gap:16px;column-gap:16px;padding-top:14px}
+ .ed-meta dt{margin-bottom:4px}.ed-meta dd{font-size:15px}
+ .ed-foot{margin-top:24px}
+}

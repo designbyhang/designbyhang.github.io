@@ -64,3 +64,6 @@ document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
+// intro card: live local clock (America/New_York)
+(()=>{const el=document.getElementById('clock');if(!el)return;const f=new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const tick=()=>{const d=new Date();el.textContent=f.format(d);el.dateTime=d.toISOString();setTimeout(tick,1000-d.getMilliseconds()+5);};tick();})();
