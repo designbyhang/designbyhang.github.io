@@ -188,3 +188,6 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 body.cs .media.draw{aspect-ratio:2800/1560;border:1px solid var(--line);border-radius:0;background:#000;display:flex;align-items:center;justify-content:center}
 body.cs .media.draw img{width:100%;height:100%;object-fit:contain;border-radius:0}
 body.cs .media.draw:hover img{transform:none}
+/* subsections without a label keep their content in the text column */
+.sec-grid>.prose{grid-column:2}
+@media (max-width:900px){.sec-grid>.prose{grid-column:1}}
