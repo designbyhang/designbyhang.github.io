@@ -2,6 +2,7 @@
 const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px)');
 const cards=[...strip.children];let act=-1;
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>to(centers[i]-c0));dotsEl.appendChild(b);return b;}):[];
+const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
 function measure(){on=!mqM.matches;if(!on){strip.style.transform='';return;}
@@ -17,6 +18,7 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
   strip.dataset.p=p.toFixed(3);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
+  if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;thumb.style.transform=`translate3d(${(p0+(p1-p0)*f-9).toFixed(2)}px,0,0)`;}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
 function loop(){const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;render();raf=x!==t?requestAnimationFrame(loop):0;}
 function to(v){if(!on)return;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
