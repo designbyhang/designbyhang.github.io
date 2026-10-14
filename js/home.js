@@ -69,21 +69,21 @@ addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.ad
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
-    ['H',[110,64,330,244],360,104,316,'Craft'],
-    ['A',[880,64,1060,244],360,868,316,'Vision'],
-    ['N',[392,284,610,452],360,396,536,'Strategy'],
+    ['H',[110,64,330,244],360,104,316,'Vision'],
+    ['A',[880,64,1060,244],360,868,316,'Strategy'],
+    ['N',[392,284,610,452],360,396,536,'Systems'],
     ['G',[610,492,830,622],360,596,744]],
-  words:[['Craft',110,244],['Vision',880,244],['Systems',830,452],['Strategy',392,452]],
+  words:[['Vision',110,244],['Strategy',880,244],['Systems',392,452],['Craft',610,452]],
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
   xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
   letters:[
-    ['H',[50,56,290,226],300,44,266,'Craft'],
-    ['A',[346,56,550,226],300,336,266,'Vision'],
-    ['N',[50,262,290,432],300,54,472,'Strategy'],
+    ['H',[50,56,290,226],300,44,266,'Vision'],
+    ['A',[346,56,550,226],300,336,266,'Strategy'],
+    ['N',[50,262,290,432],300,54,472,'Systems'],
     ['G',[50,468,290,638],300,40,678]],
-  words:[['Craft',50,226],['Systems',50,638],['Vision',346,638],['Strategy',50,432]],
+  words:[['Vision',50,226],['Strategy',346,226],['Systems',50,432],['Craft',50,638]],
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
   dots:[[550,432,4],[550,820,4],[290,262,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
@@ -120,7 +120,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   G.letters.forEach(l=>{const c=l[1],q=place(l,fs);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];});
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
   const colL=(x,y)=>{const L=G.letters.filter(l=>x>=l[1][0]-.01&&x<l[1][2]-.01).sort((a,b)=>Math.abs(y-a[1][3])-Math.abs(y-b[1][3]));if(L.length)return L[0];return G.letters.slice().sort((a,b)=>Math.abs(a[1][0]-x)-Math.abs(b[1][0]-x))[0];};
-  const Hl=G.letters.find(l=>l[0]==='H'),wx=p=>{const L=colL(p[1],p[2]);return (L[0]==='G'?p[1]+(Hl[6]-Hl[1][0]):L[6])-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);};
+  const Hl=G.letters.find(l=>l[0]==='H'),wx=p=>{const L=colL(p[1],p[2]);const nb=G.ys.find(v=>v>p[2]+.01)-p[2],adj=Math.abs(p[2]-L[1][3])<1||Math.abs(p[2]+nb-L[1][1])<1;return (L[0]==='G'&&!adj?p[1]+(Hl[6]-Hl[1][0]):L[6])-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);};
   const lx=l=>l[3];
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
