@@ -47,7 +47,10 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .type-cover span{align-self:end;padding:9% 0 12% 8%;font:400 calc(var(--cw)*.05)/1.05 var(--sans);letter-spacing:-.02em}
 .type-cover i{background:linear-gradient(160deg,#2d3c8f,#1b2459)}
 .media-wrap.scroll{overflow:auto;user-select:text}
-.about-in{padding:5% 6%}
+.about .media-wrap{container-type:inline-size}
+.about-in{padding:5% 6%;min-height:100%;display:flex;align-items:center;box-sizing:border-box}
+.statement{margin:0;font-family:var(--sans);font-weight:400;font-size:clamp(16px,3.3cqi,46px);line-height:1.15;letter-spacing:-.02em;color:#111;text-wrap:pretty}
+.statement b{font-weight:700}
 .k{font:400 11px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
 .bio{font-size:14px;line-height:1.55;color:#333}
 .skills{list-style:none;display:flex;flex-wrap:wrap;gap:5px}
