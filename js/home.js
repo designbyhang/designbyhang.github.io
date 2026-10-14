@@ -1,5 +1,5 @@
 (()=>{const rail=document.getElementById('work'),strip=document.getElementById('strip'),dotsEl=document.getElementById('dots');
-const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px)');
+const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)');
 const cards=[...strip.children];let act=-1;
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>{if(on)to(centers[i]-c0);else k.scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'center'});});dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
@@ -87,15 +87,15 @@ const L={W:1200,H:683.4,
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
-  xs:[50,290,346,550],xe:[50,272,328,550] /* v17: equal columns (222) */,ys:[56,226,262,432,468,638,674,820],
+  xs:[50,300,550],xe:[50,300,550] /* mobile v19: two equal columns, no gutter */,ys:[56,226,262,432,468,638,674,820],
   letters:[
-    ['H',[50,56,290,226],300,44,266,'Vision'],
-    ['A',[346,56,550,226],300,336,266,'Strategy'],
-    ['N',[50,262,290,432],300,54,472,'Systems'],
-    ['G',[50,468,290,638],300,40,678]],
-  words:[['Vision',50,226],['Strategy',346,226],['Systems',346,262,550,432],['Craft',346,468,550,638]], /* v18 mobile: no free big box beside H/A, so VISION/STRATEGY stay in their thin row (centred on the letter); SYSTEMS/CRAFT centred in the empty box right of N/G */
-  dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
-  dots:[[550,432,4],[550,820,4],[290,262,4],[346,56,4],[346,468,4],[50,674,4],[290,820,4]],ring:[550,674],title:[54,806,40]};
+    ['H',[50,56,300,226],300,44,266,'Vision'],
+    ['A',[300,56,550,226],300,336,266,'Strategy'],
+    ['N',[50,262,300,432],300,54,472,'Systems'],
+    ['G',[50,468,300,638],300,40,678]],
+  words:[['Vision',50,226],['Strategy',300,226],['Systems',300,262,550,432],['Craft',300,468,550,638]],
+  dims:[],
+  dots:[[300,56,4],[550,432,4],[300,262,4],[300,468,4],[50,674,4],[300,820,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
@@ -154,8 +154,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
     const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),inkV=(()=>{const S=8,str=tt.textContent.trim(),fpx=tf*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});c2.font='400 '+fpx+'px '+ts.fontFamily;c2.letterSpacing=ts.letterSpacing==='normal'?'0px':(parseFloat(ts.letterSpacing)*S)+'px';const w=Math.ceil(c2.measureText(str).width)+20,h=Math.ceil(fpx*2),b=Math.round(fpx*1.4);cv.width=w;cv.height=h;c2.font='400 '+fpx+'px '+ts.fontFamily;c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++){for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}}return[(b-t0)/S,(t1+1-b)/S];})(),capH=inkV[0]-inkV[1] /* v18: pixel-measured ink of the CTA text (ascenders..baseline incl. overshoot) */,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
     // vertically centre the caption's cap height in the bottom grid row
     const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
-    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];cap.style.left=(LC[6]/px-tl).toFixed(2)+'px';const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
-    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate=port?'':'0 -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
+    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];{const ar=tt.querySelector('.arr'),inkW=ar.offsetLeft+ar.offsetWidth-tt.offsetLeft-tl /* layout offsets: unaffected by the nudge transform */,Gl=G.letters.find(l=>l[0]==='G'),sL=G.xs[0]/px,sR=(port?G.xs[G.xs.length-1]:Gl[1][0])/px;cap.style.left=((sL+sR)/2-inkW/2-tl).toFixed(2)+'px';} /* v19: CTA ink (text + arrow) centred horizontally in the boxes left of the G (mobile: full row) */const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
+    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate=port?'':'-.3px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
   }
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();

@@ -61,7 +61,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @keyframes fade{to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.strip{opacity:1;animation:none}.hint .arr{animation:none}}
 @media (max-height:560px) and (min-width:641px){.strip{--cw:clamp(260px,38vw,700px)}}
-@media (max-width:640px){
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){
  .top{grid-template-columns:1fr auto;padding:18px 16px}.dots{display:none}
  html,body{height:auto}body.home{display:block;min-height:0;overflow:auto}
  main{display:block}
@@ -82,7 +82,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .contact a:hover,.contact a:focus-visible{color:var(--ink);background-size:100% 1px}
 .contact .arr{animation-play-state:paused}.contact a:hover .arr{animation-play-state:running}
 .contact a .arr{translate:0 -.4px}
-@media (max-width:640px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
 :root{--mono-size:12px;--mono-ls:.04em;--mono-color:var(--faint);--mono-tt:uppercase}
@@ -101,17 +101,17 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .dots[data-settled] .dots-cur{border-color:var(--ring-c)}
 .dots button:focus-visible{outline:1px solid #a8a8a8;outline-offset:1px;border-radius:50%}
 @media (prefers-reduced-motion:reduce){.dots button i,.dots-cur{transition:none}}
-@media (max-width:640px){.dots{display:none}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.dots{display:none}}
 /* About card: never scrolls; text sized to the card (card width derives from viewport w/h) */
 .about .media-wrap{overflow:hidden;user-select:text}
 .about .contact{font-size:var(--mono-size)!important}
-@media (max-width:640px){.about .media-wrap{aspect-ratio:auto;height:auto}.statement{font-size:clamp(14px,min(4.6vw,2.2vh),19px)}.about .contact{font-size:var(--mono-size)!important}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.about .media-wrap{aspect-ratio:auto;height:auto}.statement{font-size:clamp(14px,min(4.6vw,2.2vh),19px)}.about .contact{font-size:var(--mono-size)!important}}
 /* CTA below each card: 40px under the card, left edge on the cover title inset (≈5.6% of card width); out of flow so card centring is unchanged */
 .card .lbl{position:absolute;left:0;right:0;top:100%;height:auto;margin-top:40px;padding:0 0 0 5.6%}
 .card .lbl .st{margin-left:0;line-height:1!important}
 .card .lbl .go{opacity:1}
 .live .hit:hover .lbl .st,.live .hit:focus-visible .lbl .st{color:var(--ink)!important}
-@media (max-width:640px){.hit{display:flex;flex-direction:column}.card .lbl{position:static;order:2;margin-top:40px;height:auto}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.hit{display:flex;flex-direction:column}.card .lbl{position:static;order:2;margin-top:40px;height:auto}}
 
 /* ── Intro card v3: Swiss construction poster (SVG built in js/home.js; revert = this block + intro markup + poster JS) ── */
 .intro .media-wrap{container-type:inline-size}
@@ -149,7 +149,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @keyframes pDrawV{from{opacity:1;transform:scaleY(0)}to{opacity:1;transform:none}}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap{animation:none;opacity:1}}
-@media (max-width:640px){.intro .media-wrap{aspect-ratio:358/520;height:auto}.intro-in.poster{height:100%}.poster-cap{--pi:8cqi;gap:2.4cqi}.poster-title{font-size:6.67cqi}.poster-hint{font-size:clamp(7px,2.8cqi,var(--mono-size))!important}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.intro .media-wrap{aspect-ratio:358/520;height:auto}.intro-in.poster{height:100%}.poster-cap{--pi:8cqi;gap:2.4cqi}.poster-title{font-size:6.67cqi}.poster-hint{font-size:clamp(7px,2.8cqi,var(--mono-size))!important}}
 
 /* intro card only: mono in all caps */
 .intro .poster-svg .m,.intro .poster-svg .mk{text-transform:uppercase}
@@ -169,7 +169,7 @@ button.poster-cta:focus-visible{outline:1px solid #111;outline-offset:4px}
 /* gauge in the header: centred on the page, vertically centred on the logo/ABOUT row, fixed while swiping */
 .top{position:relative}
 .top>.dots{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2}
-@media (max-width:640px){.top>.dots{display:flex;position:static;transform:none;grid-column:1/4;grid-row:2;justify-self:center;margin-top:14px}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.top>.dots{display:none!important}} /* mobile / vertical scroll: no dot nav or gauge */
 /* home: all mono text in caps */
 .home .poster-cta .arr{text-transform:none}
 /* home chrome: logo, nav, footer share the logo style (14px Bitcount, ink) */
