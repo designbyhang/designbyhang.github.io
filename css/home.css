@@ -129,7 +129,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 
 .poster-svg .ko{fill:var(--ko,#fff)}
 .poster-title,.poster-hint{background:var(--ko,#fff);box-shadow:-2px 0 0 var(--ko,#fff),2px 0 0 var(--ko,#fff)}
-.poster-title{box-shadow:-2px 0 0 var(--ko,#fff),7px 0 0 var(--ko,#fff)}
+.poster-title{box-shadow:-2px -6px 0 var(--ko,#fff),-2px 0px 0 var(--ko,#fff),-2px 6px 0 var(--ko,#fff),0px -6px 0 var(--ko,#fff),0px 6px 0 var(--ko,#fff),7px -6px 0 var(--ko,#fff),7px 0px 0 var(--ko,#fff),7px 6px 0 var(--ko,#fff)} /* knockout: +6px above and below */
 .intro-in.poster{container-type:inline-size}
 .poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi;opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) 1.35s forwards}
 .poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:#111}
