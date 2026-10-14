@@ -35,9 +35,18 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
     if(st!==('settled' in dotsEl.dataset)){if(st)dotsEl.dataset.settled='';else delete dotsEl.dataset.settled;}}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
 let tw=null;const eo=p=>1-Math.pow(1-p,3);
-function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*eo(p);if(p>=1){x=t=tw.b;tw=null;}}
+function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*(tw.e||eo)(p);if(p>=1){x=t=tw.b;tw=null;}}
   else{const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;}
   render();raf=(tw||x!==t)?requestAnimationFrame(loop):0;}
+// tap transitions (CTA, ABOUT, SELECTED WORK): one gentle glide, 1000ms easeInOutCubic, like a soft swipe
+const GLIDE=1000;let gRaf=0;
+function glide(i){const k=cards[i];if(!k)return;
+  if(on){const b=clamp(centers[i]-c0,0,max);if(mqR.matches){tw=null;x=t=b;render();return;}tw={s:performance.now(),a:x,b,d:GLIDE,e:ease};t=b;if(!raf)raf=requestAnimationFrame(loop);return;}
+  const r=k.getBoundingClientRect(),y1=i===0?0:Math.max(0,scrollY+r.top+r.height/2-innerHeight/2);
+  if(mqR.matches){scrollTo(0,y1);return;}
+  const de=document.documentElement,snap=de.style.scrollSnapType,sb=de.style.scrollBehavior,y0=scrollY,s0=performance.now();de.style.scrollSnapType='none';de.style.scrollBehavior='auto';cancelAnimationFrame(gRaf);
+  const st=now=>{const p=Math.min(1,(now-s0)/GLIDE);scrollTo(0,y0+(y1-y0)*ease(p));if(p<1)gRaf=requestAnimationFrame(st);else{de.style.scrollSnapType=snap;de.style.scrollBehavior=sb;}};gRaf=requestAnimationFrame(st);}
+['touchstart','wheel'].forEach(ev=>addEventListener(ev,()=>cancelAnimationFrame(gRaf),{passive:true}));
 function to(v){if(!on)return;tw=null;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
 addEventListener('wheel',e=>{if(!on||e.ctrlKey)return;if(e.target.closest&&e.target.closest('.scroll')&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){const sc=e.target.closest('.scroll');if(sc.scrollHeight>sc.clientHeight+1)return;}
   e.preventDefault();const k=e.deltaMode===1?16:e.deltaMode===2?W:1;to(t+(e.deltaX+e.deltaY)*k);},{passive:false});
@@ -56,9 +65,9 @@ addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return
   if(e.key==='Home'){e.preventDefault();to(0);}if(e.key==='End'){e.preventDefault();to(max);}});
 // keep focused links in view
 strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)to(centers[cards.indexOf(k)]-c0);});
-document.querySelector('.poster-cta')?.addEventListener('click',e=>{const i=cards.findIndex(k=>k.classList.contains('intro'))+1;if(!cards[i])return;e.preventDefault();if(on)to(centers[i]-c0);else cards[i].scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'start'});});
-document.querySelectorAll('a[href="#about"]').forEach(a=>a.addEventListener('click',e=>{if(on){e.preventDefault();to(max);}}));
-document.querySelectorAll('a[href="#work"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();if(on)to(0);else window.scrollTo({top:0,behavior:'smooth'});}));
+document.querySelector('.poster-cta')?.addEventListener('click',e=>{e.preventDefault();glide(cards.findIndex(k=>k.classList.contains('intro'))+1);});
+document.querySelectorAll('a[href="#about"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(cards.length-1);}));
+document.querySelectorAll('a[href="#work"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(0);}));
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}};
