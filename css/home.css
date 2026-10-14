@@ -103,3 +103,6 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .about .media-wrap{overflow:hidden;user-select:text}
 .about .contact{font-size:clamp(8px,1.9cqi,var(--mono-size))!important}
 @media (max-width:640px){.about .media-wrap{aspect-ratio:auto;height:auto}.statement{font-size:clamp(14px,min(4.6vw,2.2vh),19px)}.about .contact{font-size:var(--mono-size)!important}}
+/* CTA pill at card bottom-right, baseline-aligned with the cover title (title inset ≈5.6% of card width, baseline ≈6.1% from bottom) */
+.card .lbl .st{position:absolute;z-index:3;right:5.6%;bottom:calc(var(--cw)*.061 - 7px);margin:0;padding:7px 10px 6px;border-radius:999px;background:rgba(20,20,20,.32);-webkit-backdrop-filter:blur(8px) saturate(1.2);backdrop-filter:blur(8px) saturate(1.2);color:#fff!important;opacity:1!important;line-height:1!important;pointer-events:none;transition:background-color .25s var(--ease)}
+.live .hit:hover .lbl .st,.live .hit:focus-visible .lbl .st{background:rgba(20,20,20,.6);color:#fff!important}
