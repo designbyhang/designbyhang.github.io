@@ -9,7 +9,7 @@ a{color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px clamp(16px,3vw,32px)}
-.brand{font:400 15px/1 "Bitcount Prop Single",var(--mono);letter-spacing:.04em;text-decoration:none}
+.brand{font:400 15px/1 "Bitcount Grid Single",var(--mono);letter-spacing:.04em;text-decoration:none}
 .top nav{justify-self:end;display:flex;gap:20px;font-size:14px}
 .top nav a{color:var(--mute);text-decoration:none;transition:color .2s}.top nav a:hover{color:var(--ink)}
 /* tick indicator (Rauno-style) */
@@ -38,7 +38,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .proj:not(.live) img,.proj:not(.live) .type-cover{filter:saturate(.85)}
 .live .hit:hover .media-wrap,.live .hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
 .intro-in{display:flex;flex-direction:column;justify-content:flex-end;height:100%;padding:6% 6.5%}
-.line{font:500 calc(var(--cw)*.042)/1.18 var(--sans);letter-spacing:-.025em;max-width:18ch}
+.line{font:400 calc(var(--cw)*.042)/1.18 var(--sans);letter-spacing:-.02em;max-width:18ch}
 .hint{margin-top:7%;font:400 11px/1 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
 .hint .arr{display:inline-block;animation:nudge 1.8s var(--ease) infinite}
 .hint-touch{display:none}@media (hover:none){.hint-desk{display:none}.hint-touch{display:inline}}

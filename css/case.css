@@ -11,7 +11,7 @@ img{display:block;max-width:100%;height:auto}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 /* top bar */
 .bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background:rgba(237,237,237,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px)}
-.brand{font:400 15px/1 "Bitcount Prop Single",var(--mono);letter-spacing:.04em;text-decoration:none;color:var(--ink)}
+.brand{font:400 15px/1 "Bitcount Grid Single",var(--mono);letter-spacing:.04em;text-decoration:none;color:var(--ink)}
 .bar-mid{font:400 13px/1 var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-right a{font-size:14px;color:var(--mute);text-decoration:none;transition:color .2s}.bar-right a:hover{color:var(--ink)}
 .prog{position:absolute;left:0;right:0;bottom:0;height:1px;background:transparent}
@@ -22,7 +22,7 @@ img{display:block;max-width:100%;height:auto}
 /* hero */
 .hero{padding-top:clamp(56px,9vw,112px);padding-bottom:48px}
 .kicker{font:400 13px/1.5 var(--mono);color:var(--mute);letter-spacing:0;margin-bottom:24px}
-.hero h1{font:500 clamp(40px,6.2vw,76px)/1.02 var(--sans);letter-spacing:-.035em;color:var(--ink);max-width:12ch}
+.hero h1{font:400 clamp(40px,6.2vw,76px)/1.02 var(--sans);letter-spacing:-.032em;color:var(--ink);max-width:12ch}
 .hero .sum{margin-top:24px;font:400 clamp(20px,2.2vw,26px)/1.4 var(--sans);letter-spacing:-.01em;color:var(--mute);max-width:30ch}
 .meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-top:56px;padding-top:24px;border-top:1px solid var(--line)}
 .meta dt{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
@@ -44,13 +44,13 @@ figcaption{font-size:13px;line-height:1.5;color:var(--faint);text-align:center;m
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:72px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .stat{padding:32px 24px 32px 0}
 .stat+.stat{padding-left:24px;border-left:1px solid var(--line)}
-.stat b{display:block;font:500 clamp(36px,4.6vw,56px)/1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat b{display:block;font:400 clamp(36px,4.6vw,56px)/1 var(--sans);letter-spacing:-.05em;color:var(--ink)}
 .stat span{display:block;margin-top:12px;font-size:14px;line-height:1.5;color:var(--mute);max-width:28ch}
 /* sections: two-column like DD (label rail + prose) */
 .sec{padding-top:clamp(72px,10vw,128px)}
 .sec-grid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:0 48px}
 .sec-label{font:400 13px/1.9 var(--mono);color:var(--faint);padding-top:6px}
-.sec h2{font:500 clamp(28px,3.2vw,36px)/1.15 var(--sans);letter-spacing:-.025em;color:var(--ink);margin-bottom:24px;max-width:22ch}
+.sec h2{font:400 clamp(28px,3.2vw,36px)/1.15 var(--sans);letter-spacing:-.04em;color:var(--ink);margin-bottom:24px;max-width:22ch}
 .prose{max-width:640px}
 .prose p{margin-bottom:20px}
 .prose p.lead{font-size:clamp(20px,2vw,23px);line-height:1.55;color:var(--ink);letter-spacing:-.01em}
@@ -86,14 +86,14 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 /* results */
 .results{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
 .res{background:var(--ink);color:#e8e8e8;border-radius:var(--r);padding:clamp(28px,4vw,44px)}
-.res b{display:block;font:500 clamp(48px,6vw,80px)/1 var(--sans);letter-spacing:-.045em;color:#fff}
+.res b{display:block;font:400 clamp(48px,6vw,80px)/1 var(--sans);letter-spacing:-.05em;color:#fff}
 .res p{margin-top:20px;font-size:15px;line-height:1.55;color:#a8a8a8}
-.res p strong{color:#fff;font-weight:600}
+.res p strong{color:#fff;font-weight:700}
 .res.alt{background:var(--accent);color:#1a0a05}.res.alt b{color:#140603}.res.alt p{color:rgba(20,6,3,.72)}.res.alt p strong{color:#140603}
 /* next */
 .next{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center;margin-top:clamp(80px,10vw,128px);padding:24px;border:1px solid var(--line);border-radius:var(--r);background:#fff}
 .next .k{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.04em}
-.next h2{font:500 clamp(26px,3vw,34px)/1.1 var(--sans);letter-spacing:-.025em;color:var(--ink);margin:10px 0}
+.next h2{font:400 clamp(26px,3vw,34px)/1.1 var(--sans);letter-spacing:-.04em;color:var(--ink);margin:10px 0}
 .next .soon{display:inline-block;font:400 12px/1 var(--mono);padding:7px 10px;border-radius:0;background:var(--frame);border:1px solid var(--line);color:var(--mute)}
 .next img{border-radius:16px;filter:saturate(.9)}
 .foot{max-width:1152px;margin:-64px auto 48px;padding:0 24px;display:flex;justify-content:space-between;font-size:13px;color:var(--faint)}
@@ -155,3 +155,5 @@ body.cs .media.cover{border:1px solid var(--line)}
 body.cs .res{outline:1px solid var(--line);outline-offset:-1px}
 @media (max-width:640px){body.cs .meta{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
 /* outer white panel keeps its original rounded corners; inner containers stay square */
+/* type matched to Figma: Instrument Sans 400, normal width (wdth 100); display tracking -3.2%…-5% */
+body.cs{font-stretch:100%}
