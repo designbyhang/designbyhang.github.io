@@ -108,7 +108,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
-  const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-h[1][0];})();
+  const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL('C',mono,-mono,0,'400 # '+mf)-h[1][0]; /* base gap: keyword inset measured on 'C' */})();
   // v11: one shared glyph size; each letter centred in its column (equal left/right ink gap), top gap = shared gap
   const SF='500 # '+sans,SC=(devicePixelRatio||1)/px;
   const inkLR=(ch,fs,top,bot)=>{const S=Math.max(100,Math.round(fs*SC)),k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=SF.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
@@ -117,7 +117,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const place=(l,fs)=>{const c=l[1],base=c[1]+gap0-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC);return{base,e};};
   let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*gap0)/(e[1]-e[0]));});
   for(let it=0;it<3;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*gap0)/(e[1]-e[0]));});fs=f2;}
-  G.letters.forEach(l=>{const c=l[1],q=place(l,fs);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];});
+  G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0];let q=place(l,fs);for(let k=0;k<4;k++){const g=(w-(q.e[1]-q.e[0]))/2,base=c[1]+g-inkT(l[0],fs,SF,SC);q={base,e:inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC)};} /* top gap = own side gap */l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];});
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
   const colL=(x,y)=>{const L=G.letters.filter(l=>x>=l[1][0]-.01&&x<l[1][2]-.01).sort((a,b)=>Math.abs(y-a[1][3])-Math.abs(y-b[1][3]));if(L.length)return L[0];return G.letters.slice().sort((a,b)=>Math.abs(a[1][0]-x)-Math.abs(b[1][0]-x))[0];};
   const Hl=G.letters.find(l=>l[0]==='H'),wx=p=>{const L=colL(p[1],p[2]);const nb=G.ys.find(v=>v>p[2]+.01)-p[2],adj=Math.abs(p[2]-L[1][3])<1||Math.abs(p[2]+nb-L[1][1])<1;return (p[3]||L[0]==='G'&&!adj?p[1]+(Hl[6]-Hl[1][0]):L[6])-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);};
