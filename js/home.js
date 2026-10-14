@@ -76,64 +76,41 @@ document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
-// intro card: Swiss construction poster — words snapped to a dotted grid, drawn in on load, slots reshuffle per visit
-(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg');const NS='http://www.w3.org/2000/svg';
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-const L={W:1200,H:683.4,cols:12,rows:7},P={W:600,H:871.5,cols:6,rows:9};
-function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,cx=G.W/G.cols,cy=G.H/G.rows,X=c=>c*cx,Y=r=>r*cy;
-  svg.setAttribute('viewBox',`0 0 ${G.W} ${G.H}`);svg.setAttribute('preserveAspectRatio','xMidYMid slice');
-  const px=G.W/root.clientWidth,mono=13*px,small=12*px;let out='',d=0;
-  const ln=(x1,y1,x2,y2,c,del)=>{out+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${del}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
-  const tx=(s,x,y,cls,fs,o={})=>{const t=`<text class="${cls} a ${o.anim||'wd'}" style="--d:${o.d||0}" x="${x}" y="${y}" font-size="${fs}"${o.w?` font-weight="${o.w}"`:''}>${s}</text>`;out+=o.rot?`<g transform="rotate(-90 ${x} ${y})">${t}</g>`:t;};
-  // dotted grid
-  for(let c=1;c<G.cols;c++)ln(X(c),0,X(c),G.H,'g',c*25);
-  for(let r=1;r<G.rows;r++)ln(0,Y(r),G.W,Y(r),'g',100+r*25);
-  // dimension marker: vertical bracket with label
-  const dimV=(x,y1,y2,lab,del,side=1)=>{ln(x,y1,x,y2,'hl',del);ln(x-6,y1,x+6,y1,'hl',del);ln(x-6,y2,x+6,y2,'hl',del);tx(lab,x+side*14-(side<0?mono*.6:0),(y1+y2)/2+mono*.35,'mk',mono,{d:del+150,anim:''});};
-  const dimH=(y,x1,x2,lab,del)=>{ln(x1,y,x2,y,'hl',del);ln(x1,y-6,x1,y+6,'hl',del);ln(x2,y-6,x2,y+6,'hl',del);tx(lab,(x1+x2)/2-mono*.3,y-12,'mk',mono,{d:del+150,anim:''});};
-  const sq=(x,y,del)=>{out+=`<rect class="a" style="--d:${del}" fill="#111" x="${x-4}" y="${y-4}" width="8" height="8"/>`;};
-  const dot=(x,y,r,del)=>{out+=`<circle class="a" style="--d:${del}" fill="#111" cx="${x}" cy="${y}" r="${r}"/>`;};
-  const ring=(x,y,r,del)=>{out+=`<circle class="hl a" style="--d:${del}" cx="${x}" cy="${y}" r="${r}"/>`;};
-  const node=(c0,c1,r0,r1,del)=>{for(let c=c0;c<=c1;c++)ln(X(c),Y(r0)-cy*.35,X(c),Y(r1)+cy*.35,'h nd',del+c*20);for(let r=r0;r<=r1;r++)ln(X(c0)-cx*.35,Y(r),X(c1)+cx*.35,Y(r),'h nd',del+60+r*20);for(let c=c0;c<=c1;c++)for(let r=r0;r<=r1;r++)sq(X(c),Y(r),del+300+(c+r)*25);};
-  const glyph=(s,x,y,fs)=>{out+=`<text class="bg a" style="--d:120" x="${x}" y="${y}" font-size="${fs}" font-weight="500">${s}</text>`;};
-  if(!port){
-    const sh=pick([0,1]);
-    glyph('H',X(7)+sh*cx,Y(7)+110,900);
-    [[6,8],[8,8],[10,8]].forEach(([c,r],i)=>ring(X(c-sh*0),Y(r),cx*2.4,600+i*80));
-    node(6,10,1,3,200);
-    tx('Craft',X(0)+24,Y(2),'w',190,{w:500,d:300});
-    tx('Systems',X(6)+10,Y(2)-12,'w',54,{d:520});
-    tx('Product',X(7)+10,Y(3)-10,'w',40,{d:620});
-    tx('Strategy',X(8)+10,Y(3)+38,'w',28,{d:720});
-    tx('Interaction',X(11)-8,Y(4.6),'w',30,{rot:1,d:820});
-    dot(X(11),Y(1),36,900);const md=pick([[8.5,1.5],[9.5,1.5]]);dot(X(md[0]),Y(md[1]),15,950);dot(X(pick([9.5,10.5])),Y(2.5),8,1000);dot(X(4.5),Y(4.5),5,1050);
-    dimV(X(5)+26,Y(2)-133,Y(2),'A',1100);
-    dimH(Y(1)-18,X(6),X(7),'C',1150);
-    dimV(X(10)+18,Y(1),Y(2),'B',1200);
-    const notes=['Hang Zheng','Senior Product Designer','Meta 2020–2026','Citi 2017–2020','10+ years'];
-    notes.forEach((n,i)=>tx(n,X(0)+30,Y(3)+i*mono*1.5,'m',mono,{d:1250+i*50,anim:''}));
-    out+=`<rect class="a" style="--d:1500" fill="#111" x="${X(0)+30}" y="${Y(3)+4*mono*1.5+mono*1.3}" width="${cx*.7}" height="${cy*.07}"/>`;
-    const intro=['Product Designer with 10+ years in','interaction design and product strategy,','turning ambiguous, complex problems','into user experiences and systems','that scale.'];
-    intro.forEach((n,i)=>tx(n,X(0)+30,Y(5)+small*.9+i*small*1.32,'s',small,{d:1550+i*50,anim:''}));
-  }else{
-    const sh=pick([0,1]);
-    glyph('H',X(2.5)-sh*cx*.5,Y(9)+60,700);
-    [[2,10],[3.5,10],[5,10]].forEach(([c,r],i)=>ring(X(c),Y(r),cx*2,600+i*80));
-    node(2,5,2,4,200);
-    tx('Craft',X(0)+20,Y(1.6),'w',150,{w:500,d:300});
-    tx('Systems',X(2)+10,Y(3)-12,'w',48,{d:520});
-    tx('Product',X(3)+10,Y(4)-10,'w',34,{d:620});
-    tx('Strategy',X(4)+10,Y(4)+34,'w',24,{d:720});
-    tx('Interaction',X(6)-10,Y(6.2),'w',28,{rot:1,d:820});
-    dot(X(5),Y(1),30,900);dot(X(4.5),Y(2.5),13,950);dot(X(2.5),Y(3.5),7,1000);dot(X(0.5),Y(4.6),4,1050);
-    dimV(X(4)+18,Y(1.6)-105,Y(1.6),'A',1100);
-    dimV(X(5)+18,Y(2),Y(3),'B',1150);
-    const notes=['Hang Zheng','Senior Product Designer','Meta 2020–2026','Citi 2017–2020','10+ years'];
-    notes.forEach((n,i)=>tx(n,X(0)+20,Y(5)+i*mono*1.5,'m',mono,{d:1250+i*50,anim:''}));
-    out+=`<rect class="a" style="--d:1500" fill="#111" x="${X(0)+20}" y="${Y(5)+4*mono*1.5+mono*1.3}" width="${cx*.7}" height="${cy*.07}"/>`;
-    const intro=['Product Designer with 10+ years in interaction','design and product strategy, turning ambiguous,','complex problems into user experiences and','systems that scale.'];
-    intro.forEach((n,i)=>tx(n,X(0)+20,Y(7)+small*.6+i*small*1.38,'s',small,{d:1550+i*50,anim:''}));
-  }
-  svg.innerHTML=out;}
-let lastPort=null;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lastPort||!svg.childNodes.length){lastPort=port;build();}else{/* keep composition; rescale mono via rebuild only on orientation change */}};
-(document.fonts?document.fonts.ready:Promise.resolve()).then(rb);rb();addEventListener('resize',()=>{lastPort=null;rb();});})();
+// intro card: "HANG" construction poster (after Paul Rand) — letters cropped by dotted grid cells, mono words on grid lines
+(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg');
+const L={W:1200,H:683.4,
+  xs:[110,330,392,610,830,880,1060],ys:[64,244,284,452,492,622],
+  letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
+    ['H',[110,64,330,244],360,104,316],
+    ['A',[880,64,1060,244],360,868,316],
+    ['N',[330,284,392,452],360,334,536],
+    ['G',[610,492,830,622],360,596,744]],
+  words:[['Craft',110,244],['Visual',610,244],['UI',880,244],['Interaction',110,452],['Product',392,452],['UX',610,452],['Systems',830,452],['Strategy',392,622]],
+  dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
+  tris:[[392,284],[830,492]],dots:[[1060,452,5],[610,284,4]],ring:[330,622]},
+P={W:600,H:871.5,
+  xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
+  letters:[
+    ['H',[50,56,290,226],300,44,266],
+    ['A',[346,56,550,226],300,336,266],
+    ['N',[290,262,346,432],300,292,472],
+    ['G',[50,468,290,638],300,40,678]],
+  words:[['Craft',50,226],['Visual',346,226],['Interaction',50,432],['Product',346,432],['Systems',50,638],['UI',290,638],['UX',346,638],['Strategy',50,820]],
+  dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
+  tris:[[290,262],[346,674]],dots:[[550,432,4],[550,674,4]],ring:[346,820]};
+function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,px=G.W/root.clientWidth,mono=11*px;let out='<defs>',body='';
+  G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
+  const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
+  const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
+  G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
+  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${l[3]}" y="${l[4]}" font-size="${l[2]}" font-weight="500">${l[0]}</text></g>`;});
+  const tick=6;G.dims.forEach((d,i)=>{const del=1150+i*45;if(d[0]==='V'){const[,x,a,b,lab,side]=d;ln(x,a,x,b,'hl',del);ln(x-tick,a,x+tick,a,'hl',del);ln(x-tick,b,x+tick,b,'hl',del);body+=`<text class="mk a" style="--d:${del+120}" x="${x+side*12}" y="${(a+b)/2+mono*.36}" font-size="${mono}" text-anchor="${side<0?'end':'start'}">${lab}</text>`;}
+    else{const[,y,a,b,lab]=d;ln(a,y,b,y,'hl',del);ln(a,y-tick,a,y+tick,'hl',del);ln(b,y-tick,b,y+tick,'hl',del);body+=`<text class="mk a" style="--d:${del+120}" x="${(a+b)/2}" y="${y-12}" font-size="${mono}" text-anchor="middle">${lab}</text>`;}});
+  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${p[1]+5}" y="${p[2]+mono*1.5}" font-size="${mono}">${p[0]}</text>`;});
+  const ts=port?22:26;G.tris.forEach((t,i)=>{body+=`<polygon class="a" style="--d:${1400+i*60}" fill="#111" points="${t[0]},${t[1]} ${t[0]+ts},${t[1]} ${t[0]},${t[1]+ts}"/>`;});
+  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*.9}"/>`;});
+  const R=G.ring,rr=7.5*px;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px}"/>`;
+  svg.setAttribute('viewBox',`0 0 ${G.W} ${G.H}`);svg.setAttribute('preserveAspectRatio','xMidYMid slice');svg.innerHTML=out+body;}
+let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
+addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});})();

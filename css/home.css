@@ -119,18 +119,21 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:#111;letter-spacing:-.035em}
-.poster-svg .m{font-family:var(--mono);fill:#9a9a9a;letter-spacing:.08em}
+.poster-svg .m{font-family:var(--mono);fill:#111;letter-spacing:.32em}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
 .poster-svg .nd{stroke:#111;stroke-opacity:.55}
 .poster-svg .g{stroke-opacity:.14}
-.poster-hint{position:absolute;right:3cqi;bottom:3cqi;margin:0!important;font-size:clamp(7px,2.05cqi,var(--mono-size))!important}
+.poster-hint{position:absolute;right:2cqi;bottom:2.4cqi;margin:0!important;font-size:clamp(7px,2.05cqi,var(--mono-size))!important}
 /* draw-in */
 .poster-svg .a{opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
 .poster-svg .ln{transform-box:fill-box;transform-origin:0 0;animation-name:pDraw}
 .poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
+.poster-svg .lt{animation-name:pSlide;animation-duration:1.1s}
+.poster-svg .dk{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
+@keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
 @keyframes pIn{to{opacity:1}}
 @keyframes pDraw{from{opacity:1;transform:scaleX(0)}to{opacity:1;transform:none}}
 @keyframes pDrawV{from{opacity:1;transform:scaleY(0)}to{opacity:1;transform:none}}
