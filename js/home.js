@@ -105,9 +105,16 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
   const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-h[1][0];})();
-  const lx=l=>{const c=l[1];let wl=c[0]+gap0;if(l[5]){const w=G.words.find(p=>p[0]===l[5]);wl=w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);}
-    l[4]=c[1]+(wl-c[0])-inkT(l[0],l[2],'500 # '+sans,(devicePixelRatio||1)/px); // top gap = left gap (ink to cell line)
-    return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans,(devicePixelRatio||1)/px);};
+  // v11: one shared glyph size; each letter centred in its column (equal left/right ink gap), top gap = shared gap
+  const SF='500 # '+sans,SC=(devicePixelRatio||1)/px;
+  const inkLR=(ch,fs,top,bot)=>{const S=Math.max(100,Math.round(fs*SC)),k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=SF.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
+    const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return[0,0];const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let L=1e9,R=-1;
+    for(let y=0;y<y1-y0;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){if(x<L)L=x;if(x>R)R=x;}return L===1e9?[0,0]:[(L-pad)*k,(R+1-pad)*k];};
+  const place=(l,fs)=>{const c=l[1],base=c[1]+gap0-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base);return{base,e};};
+  let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*gap0)/(e[1]-e[0]));});
+  for(let it=0;it<3;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*gap0)/(e[1]-e[0]));});fs=f2;}
+  G.letters.forEach(l=>{const c=l[1],q=place(l,fs);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];});
+  const lx=l=>l[3];
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${(p[1]+wo).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
