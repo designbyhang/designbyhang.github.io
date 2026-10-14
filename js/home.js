@@ -64,6 +64,64 @@ document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
-// intro card: live local clock (America/New_York)
-(()=>{const el=document.getElementById('clock');if(!el)return;const f=new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
-const tick=()=>{const d=new Date();el.textContent=f.format(d);el.dateTime=d.toISOString();setTimeout(tick,1000-d.getMilliseconds()+5);};tick();})();
+// intro card: Swiss construction poster — words snapped to a dotted grid, drawn in on load, slots reshuffle per visit
+(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg');const NS='http://www.w3.org/2000/svg';
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const L={W:1200,H:683.4,cols:12,rows:7},P={W:600,H:871.5,cols:6,rows:9};
+function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,cx=G.W/G.cols,cy=G.H/G.rows,X=c=>c*cx,Y=r=>r*cy;
+  svg.setAttribute('viewBox',`0 0 ${G.W} ${G.H}`);svg.setAttribute('preserveAspectRatio','xMidYMid slice');
+  const px=G.W/root.clientWidth,mono=13*px,small=12*px;let out='',d=0;
+  const ln=(x1,y1,x2,y2,c,del)=>{out+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${del}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
+  const tx=(s,x,y,cls,fs,o={})=>{const t=`<text class="${cls} a ${o.anim||'wd'}" style="--d:${o.d||0}" x="${x}" y="${y}" font-size="${fs}"${o.w?` font-weight="${o.w}"`:''}>${s}</text>`;out+=o.rot?`<g transform="rotate(-90 ${x} ${y})">${t}</g>`:t;};
+  // dotted grid
+  for(let c=1;c<G.cols;c++)ln(X(c),0,X(c),G.H,'g',c*25);
+  for(let r=1;r<G.rows;r++)ln(0,Y(r),G.W,Y(r),'g',100+r*25);
+  // dimension marker: vertical bracket with label
+  const dimV=(x,y1,y2,lab,del,side=1)=>{ln(x,y1,x,y2,'hl',del);ln(x-6,y1,x+6,y1,'hl',del);ln(x-6,y2,x+6,y2,'hl',del);tx(lab,x+side*14-(side<0?mono*.6:0),(y1+y2)/2+mono*.35,'mk',mono,{d:del+150,anim:''});};
+  const dimH=(y,x1,x2,lab,del)=>{ln(x1,y,x2,y,'hl',del);ln(x1,y-6,x1,y+6,'hl',del);ln(x2,y-6,x2,y+6,'hl',del);tx(lab,(x1+x2)/2-mono*.3,y-12,'mk',mono,{d:del+150,anim:''});};
+  const sq=(x,y,del)=>{out+=`<rect class="a" style="--d:${del}" fill="#111" x="${x-4}" y="${y-4}" width="8" height="8"/>`;};
+  const dot=(x,y,r,del)=>{out+=`<circle class="a" style="--d:${del}" fill="#111" cx="${x}" cy="${y}" r="${r}"/>`;};
+  const ring=(x,y,r,del)=>{out+=`<circle class="hl a" style="--d:${del}" cx="${x}" cy="${y}" r="${r}"/>`;};
+  const node=(c0,c1,r0,r1,del)=>{for(let c=c0;c<=c1;c++)ln(X(c),Y(r0)-cy*.35,X(c),Y(r1)+cy*.35,'h nd',del+c*20);for(let r=r0;r<=r1;r++)ln(X(c0)-cx*.35,Y(r),X(c1)+cx*.35,Y(r),'h nd',del+60+r*20);for(let c=c0;c<=c1;c++)for(let r=r0;r<=r1;r++)sq(X(c),Y(r),del+300+(c+r)*25);};
+  const glyph=(s,x,y,fs)=>{out+=`<text class="bg a" style="--d:120" x="${x}" y="${y}" font-size="${fs}" font-weight="500">${s}</text>`;};
+  if(!port){
+    const sh=pick([0,1]);
+    glyph('H',X(7)+sh*cx,Y(7)+110,900);
+    [[6,8],[8,8],[10,8]].forEach(([c,r],i)=>ring(X(c-sh*0),Y(r),cx*2.4,600+i*80));
+    node(6,10,1,3,200);
+    tx('Craft',X(0)+24,Y(2),'w',190,{w:500,d:300});
+    tx('Systems',X(6)+10,Y(2)-12,'w',54,{d:520});
+    tx('Product',X(7)+10,Y(3)-10,'w',40,{d:620});
+    tx('Strategy',X(8)+10,Y(3)+38,'w',28,{d:720});
+    tx('Interaction',X(11)-8,Y(4.6),'w',30,{rot:1,d:820});
+    dot(X(11),Y(1),36,900);const md=pick([[8.5,1.5],[9.5,1.5]]);dot(X(md[0]),Y(md[1]),15,950);dot(X(pick([9.5,10.5])),Y(2.5),8,1000);dot(X(4.5),Y(4.5),5,1050);
+    dimV(X(5)+26,Y(2)-133,Y(2),'A',1100);
+    dimH(Y(1)-18,X(6),X(7),'C',1150);
+    dimV(X(10)+18,Y(1),Y(2),'B',1200);
+    const notes=['Hang Zheng','Senior Product Designer','Meta 2020–2026','Citi 2017–2020','10+ years'];
+    notes.forEach((n,i)=>tx(n,X(0)+30,Y(3)+i*mono*1.5,'m',mono,{d:1250+i*50,anim:''}));
+    out+=`<rect class="a" style="--d:1500" fill="#111" x="${X(0)+30}" y="${Y(3)+4*mono*1.5+mono*1.3}" width="${cx*.7}" height="${cy*.07}"/>`;
+    const intro=['Product Designer with 10+ years in','interaction design and product strategy,','turning ambiguous, complex problems','into user experiences and systems','that scale.'];
+    intro.forEach((n,i)=>tx(n,X(0)+30,Y(5)+small*.9+i*small*1.32,'s',small,{d:1550+i*50,anim:''}));
+  }else{
+    const sh=pick([0,1]);
+    glyph('H',X(2.5)-sh*cx*.5,Y(9)+60,700);
+    [[2,10],[3.5,10],[5,10]].forEach(([c,r],i)=>ring(X(c),Y(r),cx*2,600+i*80));
+    node(2,5,2,4,200);
+    tx('Craft',X(0)+20,Y(1.6),'w',150,{w:500,d:300});
+    tx('Systems',X(2)+10,Y(3)-12,'w',48,{d:520});
+    tx('Product',X(3)+10,Y(4)-10,'w',34,{d:620});
+    tx('Strategy',X(4)+10,Y(4)+34,'w',24,{d:720});
+    tx('Interaction',X(6)-10,Y(6.2),'w',28,{rot:1,d:820});
+    dot(X(5),Y(1),30,900);dot(X(4.5),Y(2.5),13,950);dot(X(2.5),Y(3.5),7,1000);dot(X(0.5),Y(4.6),4,1050);
+    dimV(X(4)+18,Y(1.6)-105,Y(1.6),'A',1100);
+    dimV(X(5)+18,Y(2),Y(3),'B',1150);
+    const notes=['Hang Zheng','Senior Product Designer','Meta 2020–2026','Citi 2017–2020','10+ years'];
+    notes.forEach((n,i)=>tx(n,X(0)+20,Y(5)+i*mono*1.5,'m',mono,{d:1250+i*50,anim:''}));
+    out+=`<rect class="a" style="--d:1500" fill="#111" x="${X(0)+20}" y="${Y(5)+4*mono*1.5+mono*1.3}" width="${cx*.7}" height="${cy*.07}"/>`;
+    const intro=['Product Designer with 10+ years in interaction','design and product strategy, turning ambiguous,','complex problems into user experiences and','systems that scale.'];
+    intro.forEach((n,i)=>tx(n,X(0)+20,Y(7)+small*.6+i*small*1.38,'s',small,{d:1550+i*50,anim:''}));
+  }
+  svg.innerHTML=out;}
+let lastPort=null;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lastPort||!svg.childNodes.length){lastPort=port;build();}else{/* keep composition; rescale mono via rebuild only on orientation change */}};
+(document.fonts?document.fonts.ready:Promise.resolve()).then(rb);rb();addEventListener('resize',()=>{lastPort=null;rb();});})();
