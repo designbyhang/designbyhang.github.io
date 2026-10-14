@@ -86,7 +86,7 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 .layer b{display:block;color:var(--ink);font-weight:600;font-size:16px;margin-bottom:8px}
 .layer ul{list-style:none;font-size:14px;line-height:1.55;color:var(--mute)}
 /* results */
-.results{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:16px;margin-top:8px}
 .res{background:var(--ink);color:#e8e8e8;border-radius:var(--r);padding:clamp(28px,4vw,44px)}
 .res b{display:block;font:400 clamp(48px,6vw,80px)/1 var(--sans);letter-spacing:-.05em;color:#fff}
 .res p{margin-top:20px;font-size:15px;line-height:1.55;color:#a8a8a8}
@@ -166,3 +166,6 @@ body.cs .phones.two,body.cs .phones.three,body.cs .fig .media.dark:has(img[src*=
 /* hero video placeholder — same aspect as cover-fmss-square (2800×1560) */
 body.cs .hero-slot{aspect-ratio:2800/1560;background:#F8F8F8;border:1px solid var(--line)}
 body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
+
+/* every media container spans exactly the text column (.wrap content box) */
+.wrap .fig,.wrap .fig .media{max-width:100%;margin-inline:0;box-sizing:border-box}
