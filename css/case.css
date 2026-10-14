@@ -184,3 +184,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 @media (max-width:640px){.strip{grid-template-columns:repeat(3,minmax(0,1fr))}}
 /* top-bar section title: centred on the content column (sheet is centred in the same width as the bar) */
 .bar-mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:min(1152px,calc(100% - 360px));text-align:center}
+/* research drawing: same frame as hero placeholder (2800/1560), flat, light outline, drawing contained */
+body.cs .media.draw{aspect-ratio:2800/1560;border:1px solid var(--line);border-radius:0;background:#000;display:flex;align-items:center;justify-content:center}
+body.cs .media.draw img{width:100%;height:100%;object-fit:contain;border-radius:0}
+body.cs .media.draw:hover img{transform:none}
