@@ -36,7 +36,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .live .hit:hover .media-wrap,.live .hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
 .intro-in{display:flex;flex-direction:column;justify-content:flex-end;height:100%;padding:6% 6.5%}
 .line{font:400 calc(var(--cw)*.042)/1.18 var(--sans);letter-spacing:-.02em;max-width:18ch}
-.hint{margin-top:7%;font:400 11px/1 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.hint{margin-top:7%;font:400 11px/1 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.06em}
 .hint .arr{display:inline-block;animation:nudge 1.8s var(--ease) infinite}
 .hint-touch{display:none}@media (hover:none){.hint-desk{display:none}.hint-touch{display:inline}}
 @keyframes nudge{0%,100%{transform:none}50%{transform:translateX(4px)}}
@@ -48,7 +48,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .about-in{padding:5% 6%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}
 .statement{margin:0;font-family:var(--sans);font-weight:400;font-size:clamp(16px,3.3cqi,46px);line-height:1.15;letter-spacing:-.02em;color:#111;text-wrap:pretty}
 .statement b{font-weight:700}
-.k{font:400 11px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+.k{font:400 11px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.05em;margin:18px 0 8px}
 .bio{font-size:14px;line-height:1.55;color:#333}
 .skills{list-style:none;display:flex;flex-wrap:wrap;gap:5px}
 .skills li{font-size:12px;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:#fff}
@@ -84,7 +84,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @media (max-width:640px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
 
 /* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
-:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:uppercase}
+:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:none}
 .mono,.hint,.hint a,.lbl .lm,.lbl .st,.k,.bot,.top nav a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .hint a:hover,.hint a:focus-visible,.top nav a:hover,.live .hit:hover .lbl .go{color:var(--ink)!important}
 /* home card captions stay in Title Case as written */

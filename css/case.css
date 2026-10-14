@@ -27,7 +27,7 @@ img{display:block;max-width:100%;height:auto}
 .meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:56px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .meta>div{padding:32px 24px 32px 0}
 .meta>div+div{padding-left:24px;border-left:1px solid var(--line)}
-.meta dt{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.meta dt{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.04em;margin-bottom:6px}
 .meta dd{font-size:15px;line-height:1.5;color:var(--ink)}
 /* figures */
 figure{margin:0}
@@ -94,7 +94,7 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 .res.alt{background:var(--accent);color:#1a0a05}.res.alt b{color:#140603}.res.alt p{color:rgba(20,6,3,.72)}.res.alt p strong{color:#140603}
 /* next */
 .next{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center;margin-top:clamp(80px,10vw,128px);padding:24px;border:1px solid var(--line);border-radius:var(--r);background:#fff}
-.next .k{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.04em}
+.next .k{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.04em}
 .next h2{font:400 clamp(26px,3vw,34px)/1.1 var(--sans);letter-spacing:-.04em;color:var(--ink);margin:10px 0}
 .next .soon{display:inline-block;font:400 12px/1 var(--mono);padding:7px 10px;border-radius:0;background:var(--frame);border:1px solid var(--line);color:var(--mute)}
 .next img{border-radius:16px;filter:saturate(.9)}
@@ -171,7 +171,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 .wrap .fig,.wrap .fig .media{max-width:100%;margin-inline:0;box-sizing:border-box}
 
 /* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
-:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:uppercase}
+:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:none}
 .mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
