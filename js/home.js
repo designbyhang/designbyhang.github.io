@@ -71,7 +71,7 @@ const L={W:1200,H:683.4,
     ['G',[610,492,830,622],360,596,744]],
   words:[['Craft',110,244],['Visual',610,244],['UI',880,244],['UX',610,452],['Systems',830,452],['Strategy',392,452]],
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
-  tris:[[392,284],[830,492]],dots:[[1060,452,5],[610,284,4]],ring:[880,622],title:[114,610,40]},
+  dots:[[1060,452,5],[610,284,4]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
   xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
   letters:[
@@ -81,25 +81,32 @@ P={W:600,H:871.5,
     ['G',[50,468,290,638],300,40,678]],
   words:[['Craft',50,226],['Visual',346,226],['Systems',50,638],['UI',290,638],['UX',346,638],['Strategy',50,432]],
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
-  tris:[[290,262],[346,674]],dots:[[550,432,4],[550,820,4]],ring:[550,674],title:[54,806,40]};
+  dots:[[550,432,4],[550,820,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font){const S=400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
   for(let y=0;y<y1-y0;y++)for(let x=0;x<m&&x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){m=x;break;}return m===1e9?0:(m-pad)*k;}
-function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,px=G.W/root.clientWidth,mono=11*px;let out='<defs>',body='';
+function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
+  // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
+  const m=(port?.08:.065)*VW,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
+  const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(x-gx0)*sx,Y=y=>m+(y-gy0)*sy;
+  const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
+  const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
+    letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
+    words:G0.words.map(p=>[p[0],X(p[1]),Y(p[2])]),dots:G0.dots.map(d=>[X(d[0]),Y(d[1]),d[2]]),ring:[X(G0.ring[0]),Y(G0.ring[1])]};
+  const mono=11*px*f;let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
   const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
-  const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73;
-  const lx=l=>{if(!l[5])return l[3];const w=G.words.find(p=>p[0]===l[5]);const wl=w[1]+5+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);const c=l[1];return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans);};
-  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4]}" font-size="${l[2]}" font-weight="500">${l[0]}</text></g>`;});
-  const bandB=y=>{const n=G.ys.find(v=>v>y);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
-  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${p[1]+5}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-  const ts=port?22:26;G.tris.forEach((t,i)=>{body+=`<polygon class="a" style="--d:${1400+i*60}" fill="#111" points="${t[0]},${t[1]} ${t[0]+ts},${t[1]} ${t[0]},${t[1]+ts}"/>`;});
-  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*.9}"/>`;});
-  const R=G.ring,rr=7.5*px;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px}"/>`;
-  svg.setAttribute('viewBox',`0 0 ${G.W} ${G.H}`);svg.setAttribute('preserveAspectRatio','xMidYMid slice');svg.innerHTML=out+body;}
+  const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
+  const lx=l=>{if(!l[5])return l[3];const w=G.words.find(p=>p[0]===l[5]);const wl=w[1]+wo+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);const c=l[1];return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans);};
+  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
+  const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
+  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${(p[1]+wo).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
+  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*f*.9}"/>`;});
+  const R=G.ring,rr=7.5*px*f;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px*f}"/>`;
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;}
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
 addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});})();
