@@ -117,7 +117,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   // knockouts: card colour behind mono words so grid lines stop short of the type
   const ko=getComputedStyle(root.closest('.media-wrap')).backgroundColor;root.style.setProperty('--ko',ko&&ko!=='rgba(0, 0, 0, 0)'?ko:'#fff');const kp=3*px;
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a');r.setAttribute('style',t.getAttribute('style'));
-    r.setAttribute('x',b.x-kp);r.setAttribute('y',b.y);r.setAttribute('width',b.width+2*kp);r.setAttribute('height',b.height);t.before(r);});
+    const lx0=G.words.find(w=>w[0]===t.textContent)[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);t.before(r);});
   // caption: same ink gap from the grid lines as the H/A/N letters
   const cap=root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
     const tt=cap.querySelector('.poster-title'),hh=cap.querySelector('.poster-hint'),ts=getComputedStyle(tt),hs=getComputedStyle(hh),tf=parseFloat(ts.fontSize),hf=parseFloat(hs.fontSize);
