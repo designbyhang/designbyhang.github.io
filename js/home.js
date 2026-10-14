@@ -126,8 +126,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${wx(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#cccccc" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
-  const R=G.ring;body+=`<circle class="a" style="--d:1650" fill="#cccccc" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
+  G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
+  const R=G.ring;body+=`<circle class="a" style="--d:1650" fill="#eeeeee" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   const ko=getComputedStyle(root.closest('.media-wrap')).backgroundColor;root.style.setProperty('--ko',ko&&ko!=='rgba(0, 0, 0, 0)'?ko:'#fff');const kp=3*px;

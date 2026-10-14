@@ -125,8 +125,8 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
 .poster-svg .nd{stroke:#111;stroke-opacity:.55}
-.poster-svg .g{stroke:#cccccc;stroke-opacity:1;stroke-dasharray:none;shape-rendering:crispEdges}
-@media (min-resolution:2dppx){.poster-svg .g{stroke-width:.5}}
+.poster-svg .g{stroke:#eeeeee;stroke-opacity:1;stroke-dasharray:none;shape-rendering:crispEdges}
+
 .poster-svg .ko{fill:var(--ko,#fff)}
 .poster-title,.poster-hint{background:var(--ko,#fff);box-shadow:-2px 0 0 var(--ko,#fff),2px 0 0 var(--ko,#fff)}
 .poster-title{box-shadow:-2px 0 0 var(--ko,#fff),7px 0 0 var(--ko,#fff)}
