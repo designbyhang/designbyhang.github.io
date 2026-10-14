@@ -43,10 +43,10 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .type-cover{display:grid;grid-template-columns:1fr 1fr;background:#fff}
 .type-cover span{align-self:end;padding:9% 0 12% 8%;font:400 calc(var(--cw)*.05)/1.05 var(--sans);letter-spacing:-.02em}
 .type-cover i{background:linear-gradient(160deg,#2d3c8f,#1b2459)}
-.media-wrap.scroll{overflow:auto;user-select:text}
+
 .about .media-wrap{container-type:inline-size}
 .about-in{padding:5% 6%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}
-.statement{margin:0;font-family:var(--sans);font-weight:400;font-size:clamp(16px,3.3cqi,46px);line-height:1.15;letter-spacing:-.02em;color:#111;text-wrap:pretty}
+.statement{margin:0;font-family:var(--sans);font-weight:400;font-size:clamp(7px,min(3.3cqi,3.5cqi - 1.2px),46px);line-height:1.15;letter-spacing:-.02em;color:#111;text-wrap:pretty}
 .statement b{font-weight:700}
 .k{font:400 11px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.05em;margin:18px 0 8px}
 .bio{font-size:14px;line-height:1.55;color:#333}
@@ -76,7 +76,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
  .bot{flex-direction:column;gap:4px}
 }
 
-.contact{margin-top:auto;padding-top:5%;display:flex;justify-content:space-between;align-items:baseline;gap:4px 14px;width:100%}
+.contact{margin-top:auto;padding-top:3%;display:flex;justify-content:space-between;align-items:baseline;gap:4px 14px;width:100%}
 .statement{margin-top:auto}
 .contact a{color:inherit;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease),color .2s}
 .contact a:hover,.contact a:focus-visible{color:var(--ink);background-size:100% 1px}
@@ -99,3 +99,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .dots button:focus-visible{outline:1px solid #a8a8a8;outline-offset:-1px;border-radius:3px}
 @media (prefers-reduced-motion:reduce){.dots button i{transition:none}}
 @media (max-width:640px){.dots{display:none}}
+/* About card: never scrolls; text sized to the card (card width derives from viewport w/h) */
+.about .media-wrap{overflow:hidden;user-select:text}
+.about .contact{font-size:clamp(8px,1.9cqi,var(--mono-size))!important}
+@media (max-width:640px){.about .media-wrap{aspect-ratio:auto;height:auto}.statement{font-size:clamp(14px,min(4.6vw,2.2vh),19px)}.about .contact{font-size:var(--mono-size)!important}}
