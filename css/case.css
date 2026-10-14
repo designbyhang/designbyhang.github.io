@@ -159,4 +159,4 @@ body.cs .res{outline:1px solid var(--line);outline-offset:-1px}
 body.cs{font-stretch:100%}
 /* media frames align exactly to the text column (no breakout) at every width */
 body.cs .bleed{margin-left:clamp(20px,5vw,72px);margin-right:clamp(20px,5vw,72px)}
-body.cs .phones.three,body.cs .fig .media.dark:has(img[src*="watch-browse"]){max-width:none;margin-inline:0}
+body.cs .phones.two,body.cs .phones.three,body.cs .fig .media.dark:has(img[src*="watch-browse"]){max-width:none;margin-inline:0}
