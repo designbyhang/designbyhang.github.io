@@ -17,7 +17,7 @@ a{color:inherit}
 main{flex:1;display:flex;min-height:0;position:relative}
 .rail{flex:1;width:100%;position:relative;overflow:hidden;outline-offset:-4px;touch-action:pan-y;user-select:none}
 .strip{list-style:none;display:flex;align-items:flex-start;gap:var(--gap);position:absolute;left:0;top:50%;
-  --cw:clamp(300px,44vw,820px);--ch:calc(var(--cw)*.569444);margin-top:calc(var(--ch)/-2 - 14px);
+  --cw:clamp(300px,44vw,820px);--ch:calc(var(--cw)*.569444);margin-top:calc(var(--ch)/-2);
   transform-origin:0 50%;will-change:transform;backface-visibility:hidden}
 .card{flex:none;width:var(--cw);position:relative}
 .hit{display:block;text-decoration:none;color:inherit}
@@ -103,6 +103,9 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .about .media-wrap{overflow:hidden;user-select:text}
 .about .contact{font-size:clamp(8px,1.9cqi,var(--mono-size))!important}
 @media (max-width:640px){.about .media-wrap{aspect-ratio:auto;height:auto}.statement{font-size:clamp(14px,min(4.6vw,2.2vh),19px)}.about .contact{font-size:var(--mono-size)!important}}
-/* CTA pill at card bottom-right, baseline-aligned with the cover title (title inset ≈5.6% of card width, baseline ≈6.1% from bottom) */
-.card .lbl .st{position:absolute;z-index:3;right:5.6%;bottom:calc(var(--cw)*.061 - 7px);margin:0;padding:7px 10px 6px;border-radius:999px;background:rgba(20,20,20,.32);-webkit-backdrop-filter:blur(8px) saturate(1.2);backdrop-filter:blur(8px) saturate(1.2);color:#fff!important;opacity:1!important;line-height:1!important;pointer-events:none;transition:background-color .25s var(--ease)}
-.live .hit:hover .lbl .st,.live .hit:focus-visible .lbl .st{background:rgba(20,20,20,.6);color:#fff!important}
+/* CTA below each card: 40px under the card, left edge on the cover title inset (≈5.6% of card width); out of flow so card centring is unchanged */
+.card .lbl{position:absolute;left:0;right:0;top:100%;height:auto;margin-top:40px;padding:0 0 0 5.6%}
+.card .lbl .st{margin-left:0;line-height:1!important}
+.card .lbl .go{opacity:1}
+.live .hit:hover .lbl .st,.live .hit:focus-visible .lbl .st{color:var(--ink)!important}
+@media (max-width:640px){.hit{display:flex;flex-direction:column}.card .lbl{position:static;order:2;margin-top:40px;height:auto}}
