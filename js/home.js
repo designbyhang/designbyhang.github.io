@@ -22,17 +22,26 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
     if(st!==('settled' in dotsEl.dataset)){if(st)dotsEl.dataset.settled='';else delete dotsEl.dataset.settled;}}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
-function loop(){const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;render();raf=x!==t?requestAnimationFrame(loop):0;}
-function to(v){if(!on)return;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
+// soft snap: after input goes idle, ease the nearest card to centre (time-based ease-out, interruptible)
+let tw=null,snapT=0;const eo=p=>1-Math.pow(1-p,3);
+function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*eo(p);if(p>=1){x=t=tw.b;tw=null;}}
+  else{const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;}
+  render();raf=(tw||x!==t)?requestAnimationFrame(loop):0;}
+function nearest(v){let b=centers[0]-c0,bd=1e9;centers.forEach(c=>{const d=Math.abs(c-c0-v);if(d<bd){bd=d;b=c-c0;}});return clamp(b,0,max);}
+function snap(){if(!on||sx!=null)return;const b=nearest(t);if(Math.abs(b-x)<.5&&Math.abs(b-t)<.5){x=t=b;render();return;}
+  if(mqR.matches){tw=null;x=t=b;render();return;}
+  tw={a:x,b,s:performance.now(),d:600};if(!raf)raf=requestAnimationFrame(loop);}
+function snapSoon(){clearTimeout(snapT);snapT=setTimeout(snap,140);}
+function to(v){if(!on)return;tw=null;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
 addEventListener('wheel',e=>{if(!on||e.ctrlKey)return;if(e.target.closest&&e.target.closest('.scroll')&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){const sc=e.target.closest('.scroll');if(sc.scrollHeight>sc.clientHeight+1)return;}
-  e.preventDefault();const k=e.deltaMode===1?16:e.deltaMode===2?W:1;to(t+(e.deltaX+e.deltaY)*k);},{passive:false});
+  e.preventDefault();const k=e.deltaMode===1?16:e.deltaMode===2?W:1;to(t+(e.deltaX+e.deltaY)*k);snapSoon();},{passive:false});
 // touch / pen drag
 let sx=null,sy,st,lock=null;
-rail.addEventListener('touchstart',e=>{if(!on)return;const q=e.touches[0];sx=q.clientX;sy=q.clientY;st=t;lock=null;},{passive:true});
+rail.addEventListener('touchstart',e=>{if(!on)return;clearTimeout(snapT);tw=null;const q=e.touches[0];sx=q.clientX;sy=q.clientY;st=t;lock=null;},{passive:true});
 rail.addEventListener('touchmove',e=>{if(!on||sx==null)return;const q=e.touches[0],dx=q.clientX-sx,dy=q.clientY-sy;
   if(lock==null&&Math.hypot(dx,dy)>6)lock=Math.abs(dx)>Math.abs(dy)?'x':'y';
   if(lock){e.preventDefault();to(st-(lock==='x'?dx:dy)*1.4);}},{passive:false});
-rail.addEventListener('touchend',()=>{sx=null;},{passive:true});
+rail.addEventListener('touchend',()=>{sx=null;if(on)snapSoon();},{passive:true});
 // keys: card to card
 function idx(){let i=0,b=1e9;centers.forEach((c,j)=>{const d=Math.abs(c-c0-t);if(d<b){b=d;i=j;}});return i;}
 addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return;
