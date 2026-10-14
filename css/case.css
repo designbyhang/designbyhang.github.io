@@ -24,7 +24,9 @@ img{display:block;max-width:100%;height:auto}
 .kicker{font:400 13px/1.5 var(--mono);color:var(--mute);letter-spacing:0;margin-bottom:24px}
 .hero h1{font:400 clamp(40px,6.2vw,76px)/1.02 var(--sans);letter-spacing:-.032em;color:var(--ink);max-width:12ch}
 .hero .sum{margin-top:24px;font:400 clamp(20px,2.2vw,26px)/1.4 var(--sans);letter-spacing:-.01em;color:var(--mute);max-width:30ch}
-.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-top:56px;padding-top:24px;border-top:1px solid var(--line)}
+.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:56px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.meta>div{padding:32px 24px 32px 0}
+.meta>div+div{padding-left:24px;border-left:1px solid var(--line)}
 .meta dt{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
 .meta dd{font-size:15px;line-height:1.5;color:var(--ink)}
 /* figures */
@@ -113,7 +115,7 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 /* responsive */
 @media (max-width:900px){
  .sec-grid{grid-template-columns:1fr}.sec-label{padding:0 0 10px}
- .meta{grid-template-columns:1fr 1fr;gap:20px 16px}
+ .meta{grid-template-columns:1fr}.meta>div,.meta>div+div{padding:22px 0;border-left:0}.meta>div+div{border-top:1px solid var(--line)}
  .layers{grid-template-columns:1fr}
 }
 @media (max-width:640px){
@@ -129,15 +131,15 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
  .bleed{margin-left:12px;margin-right:12px}
  .foot{margin-top:-48px}
 }
-.meta{grid-template-columns:1.1fr 1fr 1.6fr 1fr}
-.meta .wide{grid-column:span 1}
-@media (min-width:901px){.meta div:nth-child(3){grid-column:span 1}}
+
+
+
 .phones.three{max-width:960px;margin-inline:auto}
 .strip{grid-auto-columns:minmax(200px,240px);justify-content:start}
 .arch{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch;margin-top:48px}
 .arch .media{height:100%}
 .arch .media img{height:100%;object-fit:cover}
-@media (max-width:900px){.arch{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}}
+@media (max-width:900px){.arch{grid-template-columns:1fr}}
 .hero h1{max-width:14ch}
 .sum{max-width:34ch}
 .bar-right a{font-size:13px}
@@ -148,15 +150,19 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 .media.cover,.media.cover img,.next img{border-radius:3.2% / 5.6%}
 /* v2 (Hang's edits) — case page only; case.css is not loaded by the home page */
 body.cs .hero{padding-top:clamp(20px,5vw,72px)}
-body.cs .meta{grid-template-columns:repeat(3,minmax(0,1fr))}
+
 body.cs .media,body.cs .media img,body.cs .media.cover,body.cs .media.cover img,body.cs .phones,body.cs .phones img,body.cs .strip,body.cs .strip img,
 body.cs .res,body.cs .next,body.cs .next img,body.cs .layer,body.cs .stats,body.cs .media.pad img{border-radius:0}
 body.cs .media.cover{border:1px solid var(--line)}
 body.cs .res{outline:1px solid var(--line);outline-offset:-1px}
-@media (max-width:640px){body.cs .meta{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
+@media (max-width:640px){body.cs .meta{grid-template-columns:1fr}.meta>div,.meta>div+div{padding:22px 0;border-left:0}.meta>div+div{border-top:1px solid var(--line)}}
 /* outer white panel keeps its original rounded corners; inner containers stay square */
 /* type matched to Figma: Instrument Sans 400, normal width (wdth 100); display tracking -3.2%…-5% */
 body.cs{font-stretch:100%}
 /* media frames align exactly to the text column (no breakout) at every width */
 body.cs .bleed{margin-left:clamp(20px,5vw,72px);margin-right:clamp(20px,5vw,72px)}
 body.cs .phones.two,body.cs .phones.three,body.cs .fig .media.dark:has(img[src*="watch-browse"]){max-width:none;margin-inline:0}
+
+/* hero video placeholder — same aspect as cover-fmss-square (2800×1560) */
+body.cs .hero-slot{aspect-ratio:2800/1560;background:#F8F8F8;border:1px solid var(--line)}
+body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
