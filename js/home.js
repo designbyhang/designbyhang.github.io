@@ -56,6 +56,7 @@ addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return
   if(e.key==='Home'){e.preventDefault();to(0);}if(e.key==='End'){e.preventDefault();to(max);}});
 // keep focused links in view
 strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)to(centers[cards.indexOf(k)]-c0);});
+document.querySelector('.poster-cta')?.addEventListener('click',e=>{const i=cards.findIndex(k=>k.classList.contains('intro'))+1;if(!cards[i])return;e.preventDefault();if(on)to(centers[i]-c0);else cards[i].scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'start'});});
 document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){e.preventDefault();to(max);}});
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);

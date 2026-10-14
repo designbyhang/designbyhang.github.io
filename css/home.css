@@ -158,8 +158,11 @@ main{flex:1;display:flex;min-height:0;position:relative}
 /* intro caption hint: initial cap only */
 .intro .hint.poster-hint,.intro .hint.poster-hint *{text-transform:none!important}
 .poster-title .arr{display:inline-block;margin-left:.22em;color:#111;font-family:var(--mono);font-weight:400;letter-spacing:0;transform:translateX(4px);animation:none}
-.intro:hover .poster-title .arr,.intro:focus-within .poster-title .arr{animation:nudgeR 1.8s var(--ease) infinite}
 @keyframes nudgeR{0%,100%{transform:translateX(4px)}50%{transform:none}}
-@media (prefers-reduced-motion:reduce){.poster-title .arr,.intro:hover .poster-title .arr,.intro:focus-within .poster-title .arr{animation:none}}
+@media (prefers-reduced-motion:reduce){.poster-title .arr{animation:none}}
 .poster-title .arr svg{display:block;width:.86em;height:.6em;overflow:visible}.poster-title .arr path{stroke:#111;stroke-width:2px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 .poster-title .arr{vertical-align:.02em}
+button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;font-family:var(--sans);font-weight:400;color:#111;text-align:left;cursor:pointer;line-height:1}
+button.poster-cta:focus-visible{outline:1px solid #111;outline-offset:4px}
+.poster-cta:hover .arr,.poster-cta:focus-visible .arr{animation:nudgeR 1.8s var(--ease) infinite}
+@media (prefers-reduced-motion:reduce){.poster-cta:hover .arr,.poster-cta:focus-visible .arr{animation:none}}
