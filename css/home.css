@@ -91,3 +91,5 @@ main{flex:1;display:flex;min-height:0;position:relative}
 :root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:uppercase}
 .mono,.hint,.hint a,.lbl .lm,.lbl .st,.k,.bot,.top nav a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .hint a:hover,.hint a:focus-visible,.top nav a:hover,.live .hit:hover .lbl .go{color:var(--ink)!important}
+/* home card captions stay in Title Case as written */
+.lbl .lm{text-transform:none!important}
