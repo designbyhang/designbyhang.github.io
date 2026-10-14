@@ -169,3 +169,8 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
 /* every media container spans exactly the text column (.wrap content box) */
 .wrap .fig,.wrap .fig .media{max-width:100%;margin-inline:0;box-sizing:border-box}
+
+/* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
+:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:uppercase}
+.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+.bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}

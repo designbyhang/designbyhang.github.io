@@ -73,7 +73,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
  .strip{position:static;margin:0;transform:none!important;flex-direction:column;gap:28px;padding:4px 16px 24px;--cw:calc(100vw - 32px)}
  .intro .media-wrap{aspect-ratio:auto;height:auto}
  .intro-in{height:auto;justify-content:flex-start;padding:22px 22px 20px}
- .hint{display:none}.lbl .lm{display:none}
+ .hint{display:none}
  .line{font-size:22px}
  .media-wrap.scroll{aspect-ratio:auto;height:auto;overflow:visible}
  .bio{font-size:15px}
@@ -86,3 +86,8 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .contact a:hover,.contact a:focus-visible{color:var(--ink);background-size:100% 1px}
 .contact .arr{animation-play-state:paused}.contact a:hover .arr{animation-play-state:running}
 @media (max-width:640px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
+
+/* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
+:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:uppercase}
+.mono,.hint,.hint a,.lbl .lm,.lbl .st,.k,.bot,.top nav a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+.hint a:hover,.hint a:focus-visible,.top nav a:hover,.live .hit:hover .lbl .go{color:var(--ink)!important}
