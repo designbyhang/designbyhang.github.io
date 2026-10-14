@@ -127,9 +127,11 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
     const lx0=G.words.find(w=>w[0]===t.textContent)[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);t.before(r);});
   // caption: same ink gap from the grid lines as the H/A/N letters
   const cap=root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
-    const tt=cap.querySelector('.poster-title'),hh=cap.querySelector('.poster-hint'),ts=getComputedStyle(tt),hs=getComputedStyle(hh),tf=parseFloat(ts.fontSize),hf=parseFloat(hs.fontSize);
-    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans);inkC.font=hs.fontSize+' '+hs.fontFamily;const mt=inkC.measureText(hh.textContent.trim()),below=(hf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent-mt.actualBoundingBoxDescent;
-    cap.style.left=(mp+gp-tl).toFixed(2)+'px';cap.style.bottom=(mp+gp-below).toFixed(2)+'px';}
+    const tt=cap.querySelector('.poster-title'),ts=getComputedStyle(tt),tf=parseFloat(ts.fontSize);
+    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),capH=mt.actualBoundingBoxAscent,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
+    // vertically centre the caption's cap height in the bottom grid row
+    const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
+    cap.style.left=(mp+gp-tl).toFixed(2)+'px';cap.style.bottom=(VH/px-baseY-below).toFixed(2)+'px';}
   }
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();

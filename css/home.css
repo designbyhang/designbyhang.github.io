@@ -156,3 +156,5 @@ main{flex:1;display:flex;min-height:0;position:relative}
 
 /* intro caption hint: initial cap only */
 .intro .hint.poster-hint,.intro .hint.poster-hint *{text-transform:none!important}
+.poster-title .arr{display:inline-block;margin-left:.28em;color:#111;animation:nudge 1.8s var(--ease) infinite}
+@media (prefers-reduced-motion:reduce){.poster-title .arr{animation:none}}
