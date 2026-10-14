@@ -165,10 +165,10 @@ button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;fo
 button.poster-cta:focus-visible{outline:1px solid #111;outline-offset:4px}
 /* gauge: 40px below the (scaled) cards, centred on the page; JS sets --gy */
 .top nav{grid-column:3}
-/* gauge lives in the footer row: centred on the page, vertically centred on the 14px footer text, fixed while swiping */
-.bot{position:relative}
-.bot>.dots{position:absolute;left:50%;top:calc(18px + 7px);transform:translate(-50%,-50%);z-index:2}
-@media (max-width:640px){.bot>.dots{display:flex;position:static;transform:none;width:max-content;margin:0 auto 14px;align-self:center}}
+/* gauge in the header: centred on the page, vertically centred on the logo/ABOUT row, fixed while swiping */
+.top{position:relative}
+.top>.dots{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2}
+@media (max-width:640px){.top>.dots{display:flex;position:static;transform:none;grid-column:1/4;grid-row:2;justify-self:center;margin-top:14px}}
 /* home: all mono text in caps */
 .home .poster-cta .arr{text-transform:none}
 /* home chrome: logo, nav, footer share the logo style (14px Bitcount, ink) */
