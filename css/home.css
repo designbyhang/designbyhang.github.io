@@ -91,11 +91,11 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .lbl .lm{text-transform:none!important}
 /* card gauge: one square dot per card */
 .dots{position:relative;display:flex;align-items:center;gap:8px;height:18px}
-.dots-cur{position:absolute;top:3.5px;left:0;width:11px;height:11px;border:1px solid #8a8a8a;border-radius:50%;box-sizing:border-box;pointer-events:none;will-change:transform}
+.dots-cur{position:absolute;top:3px;left:0;width:12px;height:12px;border:1px solid #a8a8a8;border-radius:3px;box-sizing:border-box;pointer-events:none;will-change:transform}
 .dots button{appearance:none;border:0;background:none;padding:5px 4px;cursor:pointer;display:block}
-.dots button i{display:block;width:5px;height:5px;border-radius:50%;background:#cfcfcf;transition:background-color .3s var(--ease),transform .3s var(--ease)}
+.dots button i{display:block;width:4px;height:4px;border-radius:50%;background:#cfcfcf;transition:background-color .3s var(--ease),border-radius .3s var(--ease)}
 .dots button:hover i{background:#a8a8a8}
-.dots button[aria-current="true"] i{background:#9a9a9a}
-.dots button:focus-visible{outline:1px solid #8a8a8a;outline-offset:-1px;border-radius:50%}
+.dots button[aria-current="true"] i{background:#555;border-radius:0}
+.dots button:focus-visible{outline:1px solid #a8a8a8;outline-offset:-1px;border-radius:3px}
 @media (prefers-reduced-motion:reduce){.dots button i{transition:none}}
 @media (max-width:640px){.dots{display:none}}
