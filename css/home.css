@@ -87,3 +87,8 @@ main{flex:1;display:flex;min-height:0}
  .cap .t{font-size:16px}
  .proj .fx{opacity:1}
 }
+
+/* corner fix: covers are RGBA with transparent, pre-masked corners; clip on the wrapper too */
+.proj .media-wrap{display:block;border-radius:3.3333% / 5.8537%;overflow:hidden;isolation:isolate;transform:translateZ(0);background:transparent;transition:transform .6s var(--ease),box-shadow .6s var(--ease);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.proj .media-wrap img,.proj .media-wrap .type-cover{border-radius:0;box-shadow:none!important;transform:none!important;background:transparent}
+.live .hit:hover .media-wrap,.live .hit:focus-visible .media-wrap{transform:translateY(-6px);box-shadow:0 2px 4px rgba(0,0,0,.04),0 24px 48px -24px rgba(0,0,0,.28)}
