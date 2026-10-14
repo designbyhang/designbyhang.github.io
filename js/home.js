@@ -1,6 +1,7 @@
-(()=>{const rail=document.getElementById('work'),strip=document.getElementById('strip'),cur=document.querySelector('.ticks-cur'),track=document.querySelector('.ticks-in');
+(()=>{const rail=document.getElementById('work'),strip=document.getElementById('strip'),dotsEl=document.getElementById('dots');
 const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px)');
-const cards=[...strip.children];
+const cards=[...strip.children];let act=-1;
+const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>to(centers[i]-c0));dotsEl.appendChild(b);return b;}):[];
 let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
 function measure(){on=!mqM.matches;if(!on){strip.style.transform='';return;}
@@ -15,7 +16,8 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
   strip.dataset.p=p.toFixed(3);
-  if(cur&&track)cur.style.transform=`translate3d(${(max?x/max:0)*(track.offsetWidth-18)}px,0,0)`;}
+  let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
+  if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
 function loop(){const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;render();raf=x!==t?requestAnimationFrame(loop):0;}
 function to(v){if(!on)return;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
 addEventListener('wheel',e=>{if(!on||e.ctrlKey)return;if(e.target.closest&&e.target.closest('.scroll')&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){const sc=e.target.closest('.scroll');if(sc.scrollHeight>sc.clientHeight+1)return;}

@@ -13,9 +13,6 @@ a{color:inherit}
 .top nav{justify-self:end;display:flex;gap:20px;font-size:14px}
 .top nav a{color:var(--mute);text-decoration:none;transition:color .2s}.top nav a:hover{color:var(--ink)}
 /* tick indicator (Rauno-style) */
-.ticks{position:relative;height:18px;display:flex;align-items:center}
-.ticks-in{display:block;width:160px;height:12px;background:repeating-linear-gradient(90deg,#bdbdbd 0 1px,transparent 1px 6px)}
-.ticks-cur{position:absolute;top:0;left:0;width:18px;height:18px;border:1px solid var(--ink);border-radius:3px;transition:transform .25s var(--ease)}
 /* rail — virtual horizontal scroll; JS drives one transform on .strip */
 main{flex:1;display:flex;min-height:0;position:relative}
 .rail{flex:1;width:100%;position:relative;overflow:hidden;outline-offset:-4px;touch-action:pan-y;user-select:none}
@@ -58,7 +55,6 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .links{display:flex;gap:16px;flex-wrap:wrap}
 .links a{text-decoration:none;font-size:14px;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease)}
 .links a:hover{background-size:100% 1px}
-.ticks-cur{transition:none;will-change:transform}
 .bot{display:flex;justify-content:space-between;gap:16px;padding:18px clamp(16px,3vw,32px) 22px;font:400 12px/1.5 var(--mono);color:var(--faint)}
 /* load-in: fade only (transform belongs to the scale effect) */
 .strip{opacity:0;animation:fade .8s var(--ease) .05s forwards}
@@ -66,7 +62,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @media (prefers-reduced-motion:reduce){.strip{opacity:1;animation:none}.hint .arr{animation:none}}
 @media (max-height:560px) and (min-width:641px){.strip{--cw:clamp(260px,38vw,700px)}}
 @media (max-width:640px){
- .top{grid-template-columns:1fr auto;padding:18px 16px}.ticks{display:none}
+ .top{grid-template-columns:1fr auto;padding:18px 16px}.dots{display:none}
  html,body{height:auto}body.home{display:block;min-height:0;overflow:auto}
  main{display:block}
  .rail{overflow:visible;user-select:auto;touch-action:auto}
@@ -93,3 +89,12 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .hint a:hover,.hint a:focus-visible,.top nav a:hover,.live .hit:hover .lbl .go{color:var(--ink)!important}
 /* home card captions stay in Title Case as written */
 .lbl .lm{text-transform:none!important}
+/* card gauge: one square dot per card */
+.dots{display:flex;align-items:center;gap:2px;padding:3px 6px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.5)}
+.dots button{appearance:none;border:0;background:none;padding:5px 4px;cursor:pointer;display:block}
+.dots i{display:block;width:5px;height:5px;border-radius:0;background:#9a9a9a;transition:background-color .3s var(--ease),transform .3s var(--ease)}
+.dots button:hover i{background:#6f6f6f}
+.dots button[aria-current="true"] i{background:var(--ink);transform:scale(1.4)}
+.dots button:focus-visible{outline:1px solid var(--ink);outline-offset:-1px}
+@media (prefers-reduced-motion:reduce){.dots i{transition:none}}
+@media (max-width:640px){.dots{display:none}}
