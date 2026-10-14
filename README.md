@@ -69,3 +69,13 @@ artboard scaled to the viewport. Each scene has `steps` (one per Figma frame) ho
 Text elements (`"kind":"text"`) are live HTML, so edit their `text` (and `runs`, if present) directly.
 To swap in a real video, see `content/projects/fmss/VIDEO_PLACEHOLDERS.md`.
 The JSON was generated from the Figma file. Hand edits are kept unless the export is re-run.
+
+## Home page (Rauno-style strip)
+`index.html` is a horizontal project strip. Covers are Figma 2× exports in `assets/cover-*.webp`.
+To publish a project: wrap its `.card.proj` contents in `<a class="hit" href="projects/….html">`, add
+`class="live"` to the card, and replace the `.soon` pill with `<span class="go">View case study ↗</span>`.
+
+## FMSS case study (`projects/fmss.html`)
+Long-form editorial page (not the scroll story). Edit the HTML directly — every section is a plain
+`<section>`. Images are in `content/projects/fmss/case/*.webp`. The archived scroll-story lives
+under `archive/` and is not linked.

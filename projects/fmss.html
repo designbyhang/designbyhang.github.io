@@ -5,16 +5,224 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Facebook Monetization Split Screen — Design by Hang</title>
+<meta name="description" content="Case study: FMSS, a design framework that established a consistent interaction model across Facebook ad objectives and surfaces.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Bitcount+Prop+Single:wght@400&family=DM+Sans:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/gate.css"><link rel="stylesheet" href="../css/scroll-story.css">
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@400&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/gate.css"><link rel="stylesheet" href="../css/case.css">
 <script src="../js/gate.js"></script>
 </head>
-<!-- Content: content/projects/fmss/scenes.json (+ images/). Renderer: js/scroll-story.js -->
-<body class="story">
-<a class="ss-back" href="../index.html">← All work</a>
-<main id="story" data-src="../content/projects/fmss/scenes.json" aria-label="Facebook Monetization Split Screen case study"></main>
-<p class="ss-hint" id="hint" aria-hidden="true">Scroll ↓</p>
-<script>addEventListener('scroll',()=>{document.getElementById('hint').style.opacity=scrollY>40?0:1},{passive:true});</script>
-<script src="../js/scroll-story.js"></script>
+<!--
+  HOW TO EDIT: all copy is plain HTML below; each <section> is one chapter.
+  Images live in ../content/projects/fmss/case/ (webp, 2x). Swap a file with the same name, or change src/alt.
+  Images marked data-video="…" are stills standing in for video (see content/projects/fmss/VIDEO_PLACEHOLDERS.md).
+  To swap in a video: replace the <img> with <video src="…mp4" poster="(same webp)" autoplay muted loop playsinline></video>.
+-->
+<body class="cs">
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="../index.html" aria-label="Design by Hang, home">DESIGN BY HANG</a>
+  <span class="bar-mid" id="bar-mid" aria-hidden="true">Overview</span>
+  <nav class="bar-right" aria-label="Site"><a href="../index.html">← All work</a></nav>
+  <div class="prog" aria-hidden="true"><i></i></div>
+</header>
+
+<nav class="toc" aria-label="On this page"><ol>
+  <li><a href="#overview">Overview</a></li><li><a href="#context">Context</a></li><li><a href="#research">Research &amp; insights</a></li>
+  <li><a href="#opportunity">Opportunity</a></li><li><a href="#solution">Solution</a></li><li><a href="#system">System &amp; scale</a></li>
+  <li><a href="#adoption">Validation &amp; adoption</a></li><li><a href="#evolution">Evolution</a></li><li><a href="#results">Results</a></li>
+</ol></nav>
+
+<main id="main" class="sheet">
+<section id="overview" data-title="Overview" class="wrap hero">
+  <p class="kicker fx">Case study · Facebook / Meta · Design framework</p>
+  <h1 class="fx">Facebook Monetization Split Screen</h1>
+  <p class="sum fx">Building a shared interaction model for Facebook’s ad experiences.</p>
+  <dl class="meta fx">
+    <div><dt>Role</dt><dd>Senior Product Designer — created and led the framework</dd></div>
+    <div><dt>Timeline</dt><dd>Created 2023 · results through 2025</dd></div>
+    <div><dt>Partners</dt><dd>Blueprint · Browser Ecosystem · App &amp; Gaming · Business Messaging</dd></div>
+    <div><dt>Platforms</dt><dd>Facebook app, including iPad</dd></div>
+  </dl>
+</section>
+
+<figure class="bleed hero-media fx">
+  <div class="media cover"><span class="badge">Video · still</span>
+    <img src="../assets/cover-fmss.webp" width="2880" height="1640" alt="FMSS cover: a phone showing a Nike video ad playing above the advertiser's website in split screen, on an orange gradient" data-video="cover"></div>
+</figure>
+
+<div class="wrap">
+  <div class="stats fx" role="list">
+    <div class="stat" role="listitem"><b>$51M+</b><span>incremental revenue for Meta in 2025</span></div>
+    <div class="stat" role="listitem"><b>6.4</b><span>engineering years saved through reduced operational costs</span></div>
+    <div class="stat" role="listitem"><b>Canonical</b><span>framework for Facebook Design, adopted across multiple Meta orgs</span></div>
+  </div>
+
+  <section id="context" data-title="Context" class="sec sec-grid">
+    <p class="sec-label">01 — Context</p>
+    <div class="prose fx">
+      <h2>A design framework for every ad that opens in split screen</h2>
+      <p class="lead">FMSS is a design framework I created in 2023 to bring consistency to user experiences across Facebook ad products.</p>
+      <p>I championed the vision across multiple Meta organizations, driving adoption across the app and establishing FMSS as a canonical framework for Facebook Design. Its interaction patterns went on to influence broader industry approaches to ad engagement.</p>
+      <h2 style="margin-top:48px">Watch &amp; Browse</h2>
+      <p>Split Screen is a monetization feature that lets people continue watching a video while previewing an advertiser’s website after clicking an ad in Facebook Feed. In the example below, the advertiser selected Offsite Conversions as the ad objective.</p>
+    </div>
+  </section>
+  <figure class="fig fx"><div class="media dark"><span class="badge">Video · still</span><img src="../content/projects/fmss/case/watch-browse.webp" width="2040" height="1980" loading="lazy" alt="A Facebook Feed phone showing a Sleep Number Labor Day Sale video ad, with a Pause control below" data-video="fmss_06"></div>
+    <figcaption>Watch &amp; Browse in Facebook Feed: the video keeps playing while the advertiser’s site loads.</figcaption></figure>
+</div>
+
+<div class="wrap">
+  <section id="research" data-title="Research & insights" class="sec sec-grid">
+    <p class="sec-label">02 — Research &amp; insights</p>
+    <div class="prose fx">
+      <h2>Navigation people couldn’t explain</h2>
+      <p class="lead">When asked how Facebook app’s navigation works, a participant in research drew this.</p>
+    </div>
+  </section>
+  <figure class="fig fx"><div class="media dark pad"><img src="../content/projects/fmss/case/research-drawing.webp" width="2080" height="640" loading="lazy" alt="A hand-drawn scribble of overlapping loops and ellipses"></div>
+    <figcaption>A research participant’s drawing of how navigating the Facebook app feels.</figcaption></figure>
+
+  <div class="sec-grid sec" style="padding-top:72px">
+    <p class="sec-label">The problem</p>
+    <div class="prose fx">
+      <blockquote>Years of localized optimizations, coupled with product and feature additions, have led to a cluttered Facebook interface with inconsistent, unpredictable navigation.</blockquote>
+      <p>Across surfaces, the way out of an experience changed from one screen to the next: close buttons, back chevrons, and down chevrons, each in a different place.</p>
+    </div>
+  </div>
+</div>
+<figure class="bleed fig fx"><div class="media dark"><span class="badge">Video · still</span><img src="../content/projects/fmss/case/exit-affordances.webp" width="3840" height="2052" loading="lazy" alt="Ten Facebook surfaces in two rows (Marketplace PDP, Lead Gen Form, Stories, Image Viewer, In-App Browser, Reels, Video Feed, Fullscreen Video, Was Live Video, In-App Browser), each with its exit control circled in red" data-video="fmss_04"></div>
+  <figcaption>Exit affordances across Facebook surfaces.</figcaption></figure>
+
+<div class="wrap">
+  <div class="sec-grid sec" style="padding-top:72px">
+    <p class="sec-label">Fragmentation</p>
+    <div class="prose fx">
+      <h2>More objectives, more versions</h2>
+      <p>As advertiser demand grew, Facebook expanded to support more ad objectives.</p>
+      <p>Monetization teams independently implemented their own versions to meet their needs, <mark>without considering how the split screen interaction should work across ad experiences.</mark> This led to inconsistent navigation and post-click behaviors.</p>
+      <p>Over time, these differences fragmented users’ ad journey, making it harder for people to know what to expect.</p>
+    </div>
+  </div>
+  <figure class="fig fx"><div class="media dark"><span class="badge">Video · still</span><img src="../content/projects/fmss/case/inconsistencies.webp" width="3840" height="2052" loading="lazy" alt="Three ad objectives (Offsite Conversions, Lead Generation, Onsite Conversions), each shown on two phones, with navigation affordances circled in red and video controls outlined in yellow" data-video="fmss_10"></div>
+    <figcaption>Inconsistencies across ad objectives. Red marks navigation affordances; yellow marks video controls.</figcaption></figure>
+
+  <div class="sec-grid sec" style="padding-top:72px">
+    <p class="sec-label">Key insights</p>
+    <div class="prose fx">
+      <ol class="list">
+        <li><b>Different objectives, same task</b>Ads served a range of objectives, including Onsite and Offsite Conversions, Lead Generation, Business Messages, and App Installs, but shared the same underlying task: moving people from discovery to engagement.</li>
+        <li><b>Silos made change expensive</b>Inconsistencies persisted as product teams iterated in silos, making cross product changes costly and repetitive.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section id="opportunity" data-title="Opportunity" class="sec sec-grid">
+    <p class="sec-label">03 — Opportunity</p>
+    <div class="prose fx">
+      <h2>How might we create more consistent experiences that build trust and enable people to engage with Facebook more confidently?</h2>
+      <ol class="list">
+        <li><b>A shared interaction model</b>Establish a shared interaction model to create familiarity and reinforce a consistent user mental model across ad experiences.</li>
+        <li><b>Reusable infrastructure</b>Build reusable infrastructure to enable system-level updates, reduce maintenance costs, and accelerate new monetization opportunities.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="solution" data-title="Solution" class="sec sec-grid">
+    <p class="sec-label">04 — Solution</p>
+    <div class="prose fx">
+      <h2>FMSS: one model across objectives and surfaces</h2>
+      <p class="lead">A design framework that establishes a consistent interaction model across ad objectives and Facebook surfaces.</p>
+    </div>
+  </section>
+</div>
+<figure class="bleed fig fx"><div class="media"><span class="badge">Video · still</span><img src="../content/projects/fmss/case/objectives-end.webp" width="3840" height="2052" loading="lazy" alt="Four phones in the unified split screen: Offsite Conversions (Nike product grid), Lead Generation (Meta for Work form), Business Messages (Artifox chat), App Installs (Chick-fil-A app page)" data-video="fmss_15"></div>
+  <figcaption>A unified split screen experience across ad objectives: Offsite Conversions, Lead Generation, Business Messages, and App Installs.</figcaption></figure>
+<div class="wrap"><div class="fig-row two">
+  <figure class="fx"><div class="media"><img src="../content/projects/fmss/case/objectives-start.webp" width="3840" height="2052" loading="lazy" alt="The same four ads as they first appear in Facebook Feed, before opening"></div><figcaption>Entry: each ad as it appears in Feed.</figcaption></figure>
+  <figure class="fx"><div class="media"><span class="badge">Video · still</span><img src="../content/projects/fmss/case/surfaces-end.webp" width="3840" height="2052" loading="lazy" alt="Four phones in split screen across Feed, Video (Reels), Stories, and In-Content Ads, showing product grids and the Away Flex Collection page" data-video="fmss_18"></div><figcaption>A unified experience across Facebook surfaces: Feed, Video (Reels), Stories, and In-Content Ads.</figcaption></figure>
+</div></div>
+
+<div class="wrap">
+  <section id="system" data-title="System & scale" class="sec sec-grid">
+    <p class="sec-label">05 — System &amp; scale</p>
+    <div class="prose fx">
+      <h2>From a fix to an architecture</h2>
+      <p class="lead">The unification effort went beyond fixing a fragmented user experience. It reshaped how video ad post clicks were architected by establishing a layered system that separated shared infrastructure from experience specific logic.</p>
+      <div class="layers" role="list">
+        <div class="layer" role="listitem"><em>Layer 1</em><b>Base Framework</b><ul><li>Gesture Configurations</li><li>BtmSheet Container Anchors</li><li>Overall Stateful UI Adjustments: Drag Handle, Dismiss Btn, etc.</li></ul></div>
+        <div class="layer" role="listitem"><em>Layer 2</em><b>Abstractions &amp; APIs</b><ul><li>Common UI Elements &amp; Layouts</li><li>Top View Lifecycle Management</li><li>BtmSheet Lifecycle Management</li><li>BtmSheet State Handling, Transition &amp; Logging</li></ul></div>
+        <div class="layer" role="listitem"><em>Layer 3</em><b>Product Integration</b><ul><li>Top View: Video, Image, Text, H-Scroll, etc.</li><li>BtmSheet: IAB, LG, CTM, MAI, Product Catalog, etc.</li></ul></div>
+      </div>
+      <p>This scalable foundation enabled faster iteration and system-level improvements, while creating a path for future growth. With the system in place, we brought ad split screen experiences to Facebook on iPad for the first time.</p>
+    </div>
+  </section>
+  <div class="arch fx">
+    <figure><div class="media"><img src="../content/projects/fmss/case/documentation.webp" width="3840" height="2052" loading="lazy" alt="FMSS documentation pages in the design library: properties, principles, best practices, and anatomy"></div>
+      <figcaption>Formalized in the design library.</figcaption></figure>
+    <figure><div class="media"><img src="../content/projects/fmss/case/architecture.webp" width="2000" height="1920" loading="lazy" alt="Architecture overview diagram with Layer 1 Base Framework, Layer 2 Abstractions & APIs, and Layer 3 Product Integration"></div>
+      <figcaption>The layered architecture.</figcaption></figure>
+  </div>
+
+  <section id="adoption" data-title="Validation & adoption" class="sec sec-grid">
+    <p class="sec-label">06 — Validation &amp; adoption</p>
+    <div class="prose fx">
+      <h2>Alignment, formalization, and proof</h2>
+      <p>I brought the framework to product and design leaders across Facebook for alignment on its principles, application criteria, and scope.</p>
+      <p>With leadership support in place, I partnered with Blueprint, Facebook’s Design Systems team, to formalize FMSS in the design library through reusable components, usage guidance, and shared resources. This made FMSS accessible to design teams across Meta and established the foundation for broader adoption.</p>
+      <blockquote>A framework only creates value when teams can adopt it and drive meaningful results.</blockquote>
+      <p>Because ad experiences spanned multiple organizations beyond Facebook Monetization (Browser Ecosystem, App &amp; Gaming, Business Messaging, and more), I galvanized teams around a unified vision through design advocacy, strategic reviews, and cross-functional collaboration.</p>
+      <p>Through a series of cross-org experiments, we validated the framework across existing use cases, demonstrating its ability to improve user experience and business outcomes.</p>
+    </div>
+  </section>
+
+  <section id="evolution" data-title="Evolution" class="sec sec-grid">
+    <p class="sec-label">07 — Evolution</p>
+    <div class="prose fx">
+      <h2>New experiences, same foundation</h2>
+      <p>FMSS continues to evolve, enabling new monetization opportunities across Facebook. Here are a few key projects powered by FMSS.</p>
+    </div>
+  </section>
+
+  <div class="sub fx"><h3>Caption &amp; Browse</h3><p>A Reels ad expands its caption, then the advertiser’s site rises as a bottom sheet and opens to full height.</p></div>
+  <figure class="fig fx" style="margin-top:20px"><div class="phones three"><span class="badge">Video · still</span>
+    <img src="../content/projects/fmss/case/cb-1.webp" width="750" height="1624" loading="lazy" alt="Step 1: a Nike ad in Facebook Reels with a short caption and Shop now" data-video="fmss_23">
+    <img src="../content/projects/fmss/case/cb-2.webp" width="750" height="1624" loading="lazy" alt="Step 2: the full caption with nike.com rising as a bottom sheet">
+    <img src="../content/projects/fmss/case/cb-3.webp" width="750" height="1624" loading="lazy" alt="Step 3: the sheet at full height showing a product grid"></div>
+    <figcaption>Caption &amp; Browse, step by step.</figcaption></figure>
+
+  <div class="sub fx"><h3>H-Scroll Split Screen</h3><p>A carousel ad opens into split screen: each item in the carousel updates the site below, until the browser expands to full height.</p></div>
+  <figure class="fig fx" style="margin-top:20px"><div class="strip" tabindex="0" aria-label="H-Scroll Split Screen steps, scrollable"><span class="badge">Video · still</span>
+    <figure><img src="../content/projects/fmss/case/hs-1.webp" width="750" height="1624" loading="lazy" alt="An Artifox carousel ad in Feed" data-video="fmss_26"><p class="step">01</p></figure>
+    <figure><img src="../content/projects/fmss/case/hs-2.webp" width="750" height="1624" loading="lazy" alt="Opened: desk photo above artifox.com"><p class="step">02</p></figure>
+    <figure><img src="../content/projects/fmss/case/hs-3.webp" width="750" height="1624" loading="lazy" alt="Carousel advanced: walnut nightstand"><p class="step">03</p></figure>
+    <figure><img src="../content/projects/fmss/case/hs-4.webp" width="750" height="1624" loading="lazy" alt="Carousel advanced: table lamp"><p class="step">04</p></figure>
+    <figure><img src="../content/projects/fmss/case/hs-5.webp" width="750" height="1624" loading="lazy" alt="Carousel advanced: armchair"><p class="step">05</p></figure>
+    <figure><img src="../content/projects/fmss/case/hs-6.webp" width="750" height="1624" loading="lazy" alt="Browser expanded to full height"><p class="step">06</p></figure>
+  </div><figcaption>H-Scroll Split Screen. Scroll sideways for every step.</figcaption></figure>
+
+  <div class="sub fx"><h3>Profile &amp; Browse</h3><p>The same model extended to a Reels-style ad and its advertiser profile.</p></div>
+  <figure class="fig fx" style="margin-top:20px"><div class="phones two"><span class="badge">Video · still</span>
+    <img src="../content/projects/fmss/case/pb-1.webp" width="750" height="1624" loading="lazy" alt="A Nike sponsored Reels-style ad with a Learn more button" data-video="fmss_36">
+    <img src="../content/projects/fmss/case/pb-2.webp" width="750" height="1624" loading="lazy" alt="Profile & Browse, second state"></div>
+    <figcaption>Profile &amp; Browse.</figcaption></figure>
+
+  <section id="results" data-title="Results" class="sec sec-grid">
+    <p class="sec-label">08 — Results</p>
+    <div class="prose fx"><h2>The results</h2></div>
+  </section>
+  <div class="results fx">
+    <div class="res"><b>$51M iRev</b><p><strong>Incremental Revenue</strong> generated for Meta in 2025 through feature, surface, and platform expansion enabled by FMSS.</p></div>
+    <div class="res alt"><b>6.4 EYS</b><p><strong>Engineering Years Saved</strong> for Facebook through reduced operational costs in product development, testing, and SEV response, enabled by FMSS.</p></div>
+  </div>
+
+  <aside class="next fx" aria-label="Next project">
+    <div><p class="k">Next project</p><h2>Video Ad Chaining</h2><span class="soon">Coming soon</span></div>
+    <img src="../assets/cover-vac.webp" width="2880" height="1640" loading="lazy" alt="Video Ad Chaining project cover">
+  </aside>
+</div>
+</main>
+<footer class="foot"><span>© 2026 Design by Hang</span><a href="#top" onclick="scrollTo({top:0});return false">Back to top ↑</a></footer>
+<script src="../js/case.js"></script>
 </body></html>
