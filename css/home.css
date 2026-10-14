@@ -84,7 +84,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @media (max-width:640px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
 
 /* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
-:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:none}
+:root{--mono-size:13px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:none}
 .mono,.hint,.hint a,.lbl .lm,.lbl .st,.k,.bot,.top nav a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .hint a:hover,.hint a:focus-visible,.top nav a:hover,.live .hit:hover .lbl .go{color:var(--ink)!important}
 /* home card captions stay in Title Case as written */
