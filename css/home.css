@@ -172,3 +172,9 @@ main>.dots{position:absolute;left:50%;top:var(--gy,auto);bottom:auto;transform:t
 @media (max-width:640px){main>.dots{display:flex;position:static;transform:none;width:max-content;margin:16px auto 0}}
 /* home: all mono text in caps */
 .home .poster-cta .arr{text-transform:none}
+/* home chrome: logo, nav, footer share the logo style (14px Bitcount, ink) */
+.home .brand,.home .top nav a,.home .bot,.home .bot *{font:400 14px/1 "Bitcount Grid Single",var(--mono)!important;letter-spacing:.04em!important;word-spacing:-.32em!important;color:var(--ink)!important;text-transform:uppercase!important}
+.home .brand,.home .top nav a,.home .bot a{position:relative;text-decoration:none;background:none!important}
+.home .brand::after,.home .top nav a::after,.home .bot a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.home .brand:hover::after,.home .brand:focus-visible::after,.home .top nav a:hover::after,.home .top nav a:focus-visible::after,.home .bot a:hover::after,.home .bot a:focus-visible::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.home .brand::after,.home .top nav a::after,.home .bot a::after{transition:none}}
