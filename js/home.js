@@ -65,9 +65,9 @@ addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.ad
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
-    ['H',[110,64,330,244],360,104,316],
-    ['A',[880,64,1060,244],360,868,316],
-    ['N',[330,284,392,452],360,334,536],
+    ['H',[110,64,330,244],360,104,316,'Craft'],
+    ['A',[880,64,1060,244],360,868,316,'UI'],
+    ['N',[392,284,610,452],360,396,536,'Strategy'],
     ['G',[610,492,830,622],360,596,744]],
   words:[['Craft',110,244],['Visual',610,244],['UI',880,244],['UX',610,452],['Systems',830,452],['Strategy',392,452]],
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
@@ -75,20 +75,27 @@ const L={W:1200,H:683.4,
 P={W:600,H:871.5,
   xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
   letters:[
-    ['H',[50,56,290,226],300,44,266],
-    ['A',[346,56,550,226],300,336,266],
-    ['N',[290,262,346,432],300,292,472],
+    ['H',[50,56,290,226],300,44,266,'Craft'],
+    ['A',[346,56,550,226],300,336,266,'Visual'],
+    ['N',[50,262,290,432],300,54,472,'Strategy'],
     ['G',[50,468,290,638],300,40,678]],
   words:[['Craft',50,226],['Visual',346,226],['Systems',50,638],['UI',290,638],['UX',346,638],['Strategy',50,432]],
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
   tris:[[290,262],[346,674]],dots:[[550,432,4],[550,820,4]],ring:[550,674],title:[54,806,40]};
+const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
+function inkL(ch,fs,top,bot,font){const S=400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
+  const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
+  for(let y=0;y<y1-y0;y++)for(let x=0;x<m&&x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){m=x;break;}return m===1e9?0:(m-pad)*k;}
 function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,px=G.W/root.clientWidth,mono=11*px;let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
   const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
-  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${l[3]}" y="${l[4]}" font-size="${l[2]}" font-weight="500">${l[0]}</text></g>`;});
-  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${p[1]+5}" y="${p[2]+mono*1.5}" font-size="${mono}">${p[0]}</text>`;});
+  const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73;
+  const lx=l=>{if(!l[5])return l[3];const w=G.words.find(p=>p[0]===l[5]);const wl=w[1]+5+inkL(w[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf);const c=l[1];return wl-inkL(l[0],l[2],c[1]-l[4],c[3]-l[4],'500 # '+sans);};
+  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${lx(l).toFixed(2)}" y="${l[4]}" font-size="${l[2]}" font-weight="500">${l[0]}</text></g>`;});
+  const bandB=y=>{const n=G.ys.find(v=>v>y);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
+  G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${p[1]+5}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
   const ts=port?22:26;G.tris.forEach((t,i)=>{body+=`<polygon class="a" style="--d:${1400+i*60}" fill="#111" points="${t[0]},${t[1]} ${t[0]+ts},${t[1]} ${t[0]},${t[1]+ts}"/>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*.9}"/>`;});
   const R=G.ring,rr=7.5*px;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px}"/>`;
