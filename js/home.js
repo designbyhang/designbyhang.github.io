@@ -119,7 +119,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},wb=p=>p[2]+bandB(p[2])/2+mono*CAP/2;
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${(p[1]+wo).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
-  const R=G.ring,rr=7.5*px*f;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px*f}"/>`;
+  const R=G.ring;body+=`<circle class="a" style="--d:1650" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   const ko=getComputedStyle(root.closest('.media-wrap')).backgroundColor;root.style.setProperty('--ko',ko&&ko!=='rgba(0, 0, 0, 0)'?ko:'#fff');const kp=3*px;

@@ -1,9 +1,9 @@
 html.gated body>*:not(.gate){visibility:hidden}
 html.gated{overflow:hidden}
-.gate{position:fixed;inset:0;z-index:1000;background:#121212;color:#fff;display:grid;place-items:center;font-family:"DM Sans",system-ui,sans-serif;padding:24px}
+.gate{position:fixed;inset:0;z-index:1000;background:#121212;color:#fff;display:grid;place-items:center;font-family:"Inter Tight",system-ui,sans-serif;padding:24px}
 .gate-in{width:min(512px,100%)}
-.gate-logo{font:400 18px/1 "Bitcount Grid Single",monospace;letter-spacing:.04em;margin-bottom:64px}
-.gate h1{font:400 clamp(36px,6vw,48px)/1.1 "DM Sans",sans-serif;letter-spacing:-.02em;margin:0 0 20px}
+.gate-logo{font:600 19px/1 "Inter Tight",system-ui,sans-serif;letter-spacing:-.01em;margin-bottom:64px}
+.gate h1{font:400 clamp(36px,6vw,48px)/1.1 "Inter Tight",system-ui,sans-serif;letter-spacing:-.02em;margin:0 0 20px}
 .gate-sub{font-size:13px;margin-bottom:48px}
 .gate-form{display:flex;border-bottom:1px solid #d9d9d9}
 .gate-form input{flex:1;background:none;border:0;color:#fff;font:inherit;font-size:15px;padding:12px 0}
