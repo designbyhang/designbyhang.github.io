@@ -202,3 +202,8 @@ body.cs .media.draw:hover img{transform:none}
 .bar-right a:hover .t::after,.bar-right a:focus-visible .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.bar-right a .t::after{transition:none}}
 .toc a:not([aria-current="true"]):not(:hover){color:#666!important}
+
+/* header label: Bitcount 14px #333, centred; fades in once the eyebrow has scrolled under the bar */
+.bar-mid{display:block!important;font:400 14px/1 "Bitcount Grid Single",var(--mono)!important;letter-spacing:.04em!important;word-spacing:-.32em!important;color:#333!important;text-transform:none!important;max-width:none;overflow:visible;opacity:0;transition:opacity .22s ease;pointer-events:none}
+.bar-mid.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.bar-mid{transition:none}}
