@@ -132,6 +132,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
 .poster-svg .lt{animation-name:pSlide;animation-duration:1.1s}
+.poster-svg .tt{font-family:var(--sans);fill:#111;letter-spacing:-.025em;font-weight:400}
 .poster-svg .dk{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
 @keyframes pIn{to{opacity:1}}

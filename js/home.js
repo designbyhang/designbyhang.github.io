@@ -87,7 +87,7 @@ const L={W:1200,H:683.4,
     ['G',[610,492,830,622],360,596,744]],
   words:[['Craft',110,244],['Visual',610,244],['UI',880,244],['Interaction',110,452],['Product',392,452],['UX',610,452],['Systems',830,452],['Strategy',392,622]],
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
-  tris:[[392,284],[830,492]],dots:[[1060,452,5],[610,284,4]],ring:[330,622]},
+  tris:[[392,284],[830,492]],dots:[[1060,452,5],[610,284,4]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
   xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
   letters:[
@@ -97,7 +97,7 @@ P={W:600,H:871.5,
     ['G',[50,468,290,638],300,40,678]],
   words:[['Craft',50,226],['Visual',346,226],['Interaction',50,432],['Product',346,432],['Systems',50,638],['UI',290,638],['UX',346,638],['Strategy',50,820]],
   dims:[['V',30,56,226,'A',-1],['V',30,226,262,'C',-1],['V',570,226,262,'B',1],['H',248,290,346,'C'],['V',30,468,638,'A',-1],['H',553,290,550,'D']],
-  tris:[[290,262],[346,674]],dots:[[550,432,4],[550,674,4]],ring:[346,820]};
+  tris:[[290,262],[346,674]],dots:[[550,432,4],[550,820,4]],ring:[550,674],title:[54,806,40]};
 function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,px=G.W/root.clientWidth,mono=11*px;let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
   const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
@@ -110,6 +110,7 @@ function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,px=G
   const ts=port?22:26;G.tris.forEach((t,i)=>{body+=`<polygon class="a" style="--d:${1400+i*60}" fill="#111" points="${t[0]},${t[1]} ${t[0]+ts},${t[1]} ${t[0]},${t[1]+ts}"/>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*.9}"/>`;});
   const R=G.ring,rr=7.5*px;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px}"/>`;
+  const T=G.title;body+=`<text class="tt a wd" style="--d:1350" x="${T[0]}" y="${T[1]}" font-size="${T[2]}">Selected Case Studies.</text>`;
   svg.setAttribute('viewBox',`0 0 ${G.W} ${G.H}`);svg.setAttribute('preserveAspectRatio','xMidYMid slice');svg.innerHTML=out+body;}
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
