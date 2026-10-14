@@ -125,7 +125,10 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
 .poster-svg .nd{stroke:#111;stroke-opacity:.55}
 .poster-svg .g{stroke-opacity:.14}
-.poster-hint{position:absolute;right:2cqi;bottom:2.4cqi;margin:0!important;font-size:clamp(7px,2.05cqi,var(--mono-size))!important}
+.intro-in.poster{container-type:inline-size}
+.poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi;opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) 1.35s forwards}
+.poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:#111}
+.poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
 .poster-svg .a{opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
 .poster-svg .ln{transform-box:fill-box;transform-origin:0 0;animation-name:pDraw}
@@ -139,9 +142,10 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @keyframes pDraw{from{opacity:1;transform:scaleX(0)}to{opacity:1;transform:none}}
 @keyframes pDrawV{from{opacity:1;transform:scaleY(0)}to{opacity:1;transform:none}}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.poster-svg .a{animation:none;opacity:1}}
-@media (max-width:640px){.intro .media-wrap{aspect-ratio:358/520;height:auto}.intro-in.poster{height:100%}.poster-hint{display:none}}
+@media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap{animation:none;opacity:1}}
+@media (max-width:640px){.intro .media-wrap{aspect-ratio:358/520;height:auto}.intro-in.poster{height:100%}.poster-cap{--pi:8cqi;gap:2.4cqi}.poster-title{font-size:6.67cqi}.poster-hint{font-size:clamp(7px,2.8cqi,var(--mono-size))!important}}
 
 /* intro card only: mono in all caps */
 .intro .poster-svg .m,.intro .poster-svg .mk{text-transform:uppercase}
 .intro .hint,.intro .hint *{text-transform:uppercase!important}
+.intro .hint.poster-hint{display:block}

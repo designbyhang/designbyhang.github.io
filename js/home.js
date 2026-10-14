@@ -88,13 +88,10 @@ function build(){const port=root.clientWidth/root.clientHeight<1,G=port?P:L,px=G
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g',i*40));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g',120+i*40));
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${500+i*110}" x="${l[3]}" y="${l[4]}" font-size="${l[2]}" font-weight="500">${l[0]}</text></g>`;});
-  const tick=6;G.dims.forEach((d,i)=>{const del=1150+i*45;if(d[0]==='V'){const[,x,a,b,lab,side]=d;ln(x,a,x,b,'hl',del);ln(x-tick,a,x+tick,a,'hl',del);ln(x-tick,b,x+tick,b,'hl',del);body+=`<text class="mk a" style="--d:${del+120}" x="${x+side*12}" y="${(a+b)/2+mono*.36}" font-size="${mono}" text-anchor="${side<0?'end':'start'}">${lab}</text>`;}
-    else{const[,y,a,b,lab]=d;ln(a,y,b,y,'hl',del);ln(a,y-tick,a,y+tick,'hl',del);ln(b,y-tick,b,y+tick,'hl',del);body+=`<text class="mk a" style="--d:${del+120}" x="${(a+b)/2}" y="${y-12}" font-size="${mono}" text-anchor="middle">${lab}</text>`;}});
   G.words.forEach((p,i)=>{body+=`<text class="m a" style="--d:${1050+i*60}" x="${p[1]+5}" y="${p[2]+mono*1.5}" font-size="${mono}">${p[0]}</text>`;});
   const ts=port?22:26;G.tris.forEach((t,i)=>{body+=`<polygon class="a" style="--d:${1400+i*60}" fill="#111" points="${t[0]},${t[1]} ${t[0]+ts},${t[1]} ${t[0]},${t[1]+ts}"/>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a" style="--d:${1500+i*60}" fill="#111" cx="${d[0]}" cy="${d[1]}" r="${d[2]*px*.9}"/>`;});
   const R=G.ring,rr=7.5*px;body+=`<circle class="dk a" style="--d:1650" cx="${R[0]}" cy="${R[1]}" r="${rr-.5*px}"/><circle class="a" style="--d:1700" fill="#111" cx="${R[0]}" cy="${R[1]}" r="${2*px}"/>`;
-  const T=G.title;body+=`<text class="tt a wd" style="--d:1350" x="${T[0]}" y="${T[1]}" font-size="${T[2]}">Selected Case Studies.</text>`;
   svg.setAttribute('viewBox',`0 0 ${G.W} ${G.H}`);svg.setAttribute('preserveAspectRatio','xMidYMid slice');svg.innerHTML=out+body;}
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
