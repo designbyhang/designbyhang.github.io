@@ -191,3 +191,8 @@ body.cs .media.draw:hover img{transform:none}
 
 /* project pages: logo matches the 14px Bitcount chrome */
 .brand{font-size:14px!important;color:#333!important;word-spacing:-.32em}
+/* header matches the home header: same insets, top offset (22 / 18px), 14px line-height-1 type */
+.bar{height:58px;padding:0 clamp(16px,3vw,32px)}
+.bar-right a{display:block;line-height:1!important}
+.brand{line-height:1}
+@media (max-width:640px){.bar{height:50px;padding:0 16px}}
