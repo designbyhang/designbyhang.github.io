@@ -1,7 +1,7 @@
 (()=>{const rail=document.getElementById('work'),strip=document.getElementById('strip'),dotsEl=document.getElementById('dots');
 const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px)');
 const cards=[...strip.children];let act=-1;
-const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>to(centers[i]-c0));dotsEl.appendChild(b);return b;}):[];
+const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>{if(on)to(centers[i]-c0);else k.scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'center'});});dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 // liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
 const BASE=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ring-d'))||24.2,K=380,DAMP=17,VK=.045,VMAX=14.8,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
@@ -29,6 +29,7 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
   strip.dataset.p=p.toFixed(3);
+  if(dotsEl)dotsEl.style.setProperty('--gy',(H/2+ch*s/2+40).toFixed(1)+'px'); // gauge sits 40px below the scaled cards
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
@@ -59,6 +60,9 @@ strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)
 document.querySelector('.poster-cta')?.addEventListener('click',e=>{const i=cards.findIndex(k=>k.classList.contains('intro'))+1;if(!cards[i])return;e.preventDefault();if(on)to(centers[i]-c0);else cards[i].scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'start'});});
 document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){e.preventDefault();to(max);}});
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
+const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
+  const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}};
+addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrack);setTimeout(mTrack,300);
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
 // intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
@@ -99,7 +103,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
     words:G0.words.map(p=>[p[0],X(p[1]),Y(p[2])]),dots:G0.dots.map(d=>[X(d[0]),Y(d[1]),d[2]]),ring:[X(G0.ring[0]),Y(G0.ring[1])]};
-  const mono=11*px*f;let out='<defs>',body='';
+  const mono=12*px;/* all mono text 12px */let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
   const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];

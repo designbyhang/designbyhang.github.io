@@ -11,7 +11,7 @@ img{display:block;max-width:100%;height:auto}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 /* top bar */
 .bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background:rgba(237,237,237,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px)}
-.brand{font:400 15px/1 "Bitcount Grid Single",var(--mono);letter-spacing:.04em;text-decoration:none;color:var(--ink)}
+.brand{font:400 15px/1 "Bitcount Grid Single",var(--mono);letter-spacing:.04em;word-spacing:-.32em;text-decoration:none;color:var(--ink)}
 .bar-mid{font:400 13px/1 var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-right a{font-size:14px;color:var(--mute);text-decoration:none;transition:color .2s}.bar-right a:hover{color:var(--ink)}
 .prog{position:absolute;left:0;right:0;bottom:0;height:1px;background:transparent}
@@ -171,7 +171,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 .wrap .fig,.wrap .fig .media{max-width:100%;margin-inline:0;box-sizing:border-box}
 
 /* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
-:root{--mono-size:11px;--mono-ls:.06em;--mono-color:var(--faint);--mono-tt:none}
+:root{--mono-size:12px;--mono-ls:0;--mono-color:var(--faint);--mono-tt:none}
 .mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
