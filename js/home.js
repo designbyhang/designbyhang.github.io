@@ -68,7 +68,7 @@ addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.ad
 // intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
 (()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg');
 const L={W:1200,H:683.4,
-  xs:[110,330,392,610,830,880,1060],ys:[64,244,284,452,492,622],
+  xs:[110,330,392,610,830,880,1060],xe:[110,319.5,381.5,591,800.5,850.5,1060] /* v17: four letter columns equal (209.5) */,ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
     ['H',[110,64,330,244],360,104,316,'Vision'],
     ['A',[880,64,1060,244],360,868,316,'Strategy'],
@@ -78,7 +78,7 @@ const L={W:1200,H:683.4,
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
-  xs:[50,290,346,550],ys:[56,226,262,432,468,638,674,820],
+  xs:[50,290,346,550],xe:[50,272,328,550] /* v17: equal columns (222) */,ys:[56,226,262,432,468,638,674,820],
   letters:[
     ['H',[50,56,290,226],300,44,266,'Vision'],
     ['A',[346,56,550,226],300,336,266,'Strategy'],
@@ -98,7 +98,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const YS=G0.ys,Bw=YS[2]-YS[1],nR=Math.ceil(YS.length/2),Rh=(YS[YS.length-1]-YS[0]-(nR-1)*Bw)/nR,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
   const yq=y=>{for(let i=1;i<YS.length;i++)if(y<=YS[i]||i===YS.length-1)return YN[i-1]+(y-YS[i-1])*(YN[i]-YN[i-1])/(YS[i]-YS[i-1]);};
   const m=(port?.075294:.060924)*VW /* inset: 6.0924cqi = 64px at 1440 (card 1050.5px; was 6.5cqi = 68.3px); mobile 8cqi x 64/68 = 7.5294cqi */,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
-  const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(x-gx0)*sx,Y=y=>m+(yq(y)-gy0)*sy;
+  const XS=G0.xs,XE=G0.xe,xq=x=>{for(let i=1;i<XS.length;i++)if(x<=XS[i]||i===XS.length-1)return XE[i-1]+(x-XS[i-1])*(XE[i]-XE[i-1])/(XS[i]-XS[i-1]);};
+  const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(xq(x)-gx0)*sx,Y=y=>m+(yq(y)-gy0)*sy;
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
@@ -115,10 +116,13 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const inkLR=(ch,fs,top,bot)=>{const S=Math.max(100,Math.round(fs*SC)),k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=SF.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
     const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return[0,0];const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let L=1e9,R=-1;
     for(let y=0;y<y1-y0;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){if(x<L)L=x;if(x>R)R=x;}return L===1e9?[0,0]:[(L-pad)*k,(R+1-pad)*k];};
-  const place=(l,fs)=>{const c=l[1],base=c[1]+gap0-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC);return{base,e};};
-  let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*gap0)/(e[1]-e[0]));});
-  for(let it=0;it<3;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*gap0)/(e[1]-e[0]));});fs=f2;}
-  G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0];let q=place(l,fs);for(let k=0;k<4;k++){const g=(w-(q.e[1]-q.e[0]))/2,base=c[1]+g-inkT(l[0],fs,SF,SC);q={base,e:inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC)};} /* top gap = own side gap */l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];});
+  const place=(l,fs,t=gap0)=>{const c=l[1],base=c[1]+t-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC);return{base,e};};
+  const T=.08*(G.letters[0][1][2]-G.letters[0][1][0]); /* v17 letter padding: 8% of the (equal) column width, ~H's earlier padding */
+  // v17: one shared size; every letter's top gap = T (H's padding); the widest ink (G) gets side gaps = gap0, all letters centred in equal columns
+  let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*T)/(e[1]-e[0]));});
+  for(let it=0;it<4;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs,T).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*T)/(e[1]-e[0]));});fs=f2;}
+  G.letters.forEach(l=>{const c=l[1],q=place(l,fs,T);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];});
+  
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
   const colL=(x,y)=>{const L=G.letters.filter(l=>x>=l[1][0]-.01&&x<l[1][2]-.01).sort((a,b)=>Math.abs(y-a[1][3])-Math.abs(y-b[1][3]));if(L.length)return L[0];return G.letters.slice().sort((a,b)=>Math.abs(a[1][0]-x)-Math.abs(b[1][0]-x))[0];};
   const Hl=G.letters.find(l=>l[0]==='H'),wx=p=>{const L=colL(p[1],p[2]);const nb=G.ys.find(v=>v>p[2]+.01)-p[2],adj=Math.abs(p[2]-L[1][3])<1||Math.abs(p[2]+nb-L[1][1])<1;return (p[3]||L[0]==='G'&&!adj?p[1]+(Hl[6]-Hl[1][0]):L[6])-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);};
