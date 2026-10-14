@@ -4,7 +4,7 @@ const cards=[...strip.children];let act=-1;
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>to(centers[i]-c0));dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 // liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
-const BASE=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ring-d'))||24.2,K=380,DAMP=17,VK=.045,VMAX=12.5,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
+const BASE=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ring-d'))||24.2,K=380,DAMP=17,VK=.045,VMAX=14.8,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
 const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
   to(c){if(this.c===null){this.c=this.pc=c;}this.c=c;if(!this.raf){this.last=performance.now();this.raf=requestAnimationFrame(t=>this.step(t));}},
   step(now){const dt=Math.min(.05,(now-this.last)/1000)||.016;this.last=now;
