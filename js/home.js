@@ -24,15 +24,30 @@ function measure(){on=!mqM.matches;if(!on){strip.style.transform='';return;}
   // landing: intro ≈73% of viewport width, capped so it fits ~62% of the rail height
   s0=mqR.matches?1:Math.max(1,Math.min(.73*W/cw,.82*H/ch));
   t=clamp(t,0,max);x=t;render();}
+
+// sound: synthesised dial ticks (Web Audio). Silent until the first pointer/key/wheel input. Tweak VOL (master) and DET (ticks per card).
+const sfx=(()=>{const VOL=.18,DET=4,MINGAP=38;let ac=null,out=null,nb=null,lastT=0,lastD=null,mute=localStorage.getItem('dbh-sound')==='off';
+  const unlock=()=>{if(ac){if(ac.state==='suspended')ac.resume();return;}const C=window.AudioContext||window.webkitAudioContext;if(!C)return;ac=new C();out=ac.createGain();out.gain.value=VOL;out.connect(ac.destination);
+    nb=ac.createBuffer(1,Math.round(ac.sampleRate*.03),ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);};
+  ['pointerdown','keydown','wheel','touchstart'].forEach(e=>addEventListener(e,unlock,{passive:true,capture:true}));
+  const hit=(f,q,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,s=ac.createBufferSource(),bp=ac.createBiquadFilter(),a=ac.createGain();s.buffer=nb;s.playbackRate.value=.9+Math.random()*.2;
+    bp.type='bandpass';bp.frequency.value=f*(.94+Math.random()*.12);bp.Q.value=q;a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(bp).connect(a).connect(out);s.start(t);s.stop(t+dur+.01);};
+  const body=(f,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,o=ac.createOscillator(),a=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.5,t+dur);a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(a).connect(out);o.start(t);o.stop(t+dur+.01);};
+  return{count:{tick:0,land:0,tap:0},
+    move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;const n=performance.now();if(n-lastT<MINGAP)return;lastT=n;this.count.tick++;hit(3200,6,.5,.012);},
+    land(){this.count.land++;hit(1800,3,.9,.03);body(180,.35,.05);},
+    tap(){this.count.tap++;hit(1200,2,1,.04);body(140,.6,.08);},
+    set(on){mute=!on;localStorage.setItem('dbh-sound',on?'on':'off');},get on(){return!mute;}};})();
+window.__sound=sfx;
 // screenX(p) = W/2 + (p - c0 - x)·s ; scale eases s0→1 over the first card's width, and back 1→s0 over the last (About)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
-  strip.dataset.p=p.toFixed(3);
+  strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
-    if(st!==('settled' in dotsEl.dataset)){if(st)dotsEl.dataset.settled='';else delete dotsEl.dataset.settled;}}
+    if(st!==('settled' in dotsEl.dataset)){if(st){dotsEl.dataset.settled='';sfx.land();}else delete dotsEl.dataset.settled;}}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
 let tw=null;const eo=p=>1-Math.pow(1-p,3);
 function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*(tw.e||eo)(p);if(p>=1){x=t=tw.b;tw=null;}}
@@ -68,6 +83,7 @@ strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)
 document.querySelector('.poster-cta')?.addEventListener('click',e=>{e.preventDefault();glide(cards.findIndex(k=>k.classList.contains('intro'))+1);});
 document.querySelectorAll('a[href="#about"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(cards.length-1);}));
 document.querySelectorAll('a[href="#work"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(0);}));
+strip.addEventListener('click',e=>{const k=e.target.closest('.card');if(!k||e.target.closest('.poster-cta'))return;sfx.tap();const a=e.target.closest('a[href]');if(a&&sfx.on&&!a.target&&!(e.metaKey||e.ctrlKey||e.shiftKey||e.button)){e.preventDefault();setTimeout(()=>{location.href=a.href;},90);}}); /* card tap click; 90ms so the click is heard before navigating */
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}};
