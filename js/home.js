@@ -57,7 +57,8 @@ addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return
 // keep focused links in view
 strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)to(centers[cards.indexOf(k)]-c0);});
 document.querySelector('.poster-cta')?.addEventListener('click',e=>{const i=cards.findIndex(k=>k.classList.contains('intro'))+1;if(!cards[i])return;e.preventDefault();if(on)to(centers[i]-c0);else cards[i].scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'start'});});
-document.querySelector('a[href="#about"]')?.addEventListener('click',e=>{if(on){e.preventDefault();to(max);}});
+document.querySelectorAll('a[href="#about"]').forEach(a=>a.addEventListener('click',e=>{if(on){e.preventDefault();to(max);}}));
+document.querySelectorAll('a[href="#work"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();if(on)to(0);else window.scrollTo({top:0,behavior:'smooth'});}));
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}};
