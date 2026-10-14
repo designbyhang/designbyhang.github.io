@@ -1,6 +1,6 @@
 /* FMSS case study — light, editorial. Inspired by the craft of devouringdetails.com */
 :root{--page:#ededed;--sheet:#fcfcfc;--ink:#171717;--body:#2b2b2b;--mute:#6f6f6f;--faint:#9a9a9a;--line:#e6e6e6;--frame:#f4f4f4;--accent:#ff5a36;
---sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--mono:"Bitcount Grid Single",ui-monospace,Menlo,monospace;
 --r:24px;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:88px}
@@ -170,9 +170,9 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 /* every media container spans exactly the text column (.wrap content box) */
 .wrap .fig,.wrap .fig .media{max-width:100%;margin-inline:0;box-sizing:border-box}
 
-/* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
-:root{--mono-size:12px;--mono-ls:0;--mono-color:var(--faint);--mono-tt:none}
-.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+/* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
+:root{--mono-size:12px;--mono-ls:.04em;--mono-color:var(--faint);--mono-tt:none}
+.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
 .bar-right a,.toc a,.sec-label{text-transform:none!important}

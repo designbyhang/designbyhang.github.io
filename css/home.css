@@ -1,5 +1,5 @@
 :root{--side:clamp(16px,3vw,32px);--page:#ededed;--ink:#171717;--mute:#6f6f6f;--faint:#9a9a9a;--card:#fcfcfc;--line:#e2e2e2;--accent:#ff5a36;
---sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;--ease:cubic-bezier(.2,.7,.2,1);
+--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--mono:"Bitcount Grid Single",ui-monospace,Menlo,monospace;--ease:cubic-bezier(.2,.7,.2,1);
 --h:min(68vh,640px);--gap:clamp(12px,1.6vw,24px)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -83,9 +83,9 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .contact .arr{animation-play-state:paused}.contact a:hover .arr{animation-play-state:running}
 @media (max-width:640px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
 
-/* shared mono style — one definition for every JetBrains Mono element (reference: SWIPE hint) */
-:root{--mono-size:12px;--mono-ls:0;--mono-color:var(--faint);--mono-tt:uppercase}
-.mono,.hint,.hint a,.lbl .lm,.lbl .st,.k,.bot,.top nav a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+/* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
+:root{--mono-size:12px;--mono-ls:.04em;--mono-color:var(--faint);--mono-tt:uppercase}
+.mono,.hint,.hint a,.lbl .lm,.lbl .st,.k,.bot,.top nav a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .hint a:hover,.hint a:focus-visible,.top nav a:hover,.live .hit:hover .lbl .go{color:var(--ink)!important}
 /* home card captions stay in Title Case as written */
 .lbl .lm{text-transform:none!important}
@@ -120,7 +120,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:#111;letter-spacing:-.035em}
-.poster-svg .m{font-family:var(--mono);fill:#111;letter-spacing:0}
+.poster-svg .m{font-family:var(--mono);fill:#111;letter-spacing:.04em;word-spacing:-.32em}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
