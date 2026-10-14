@@ -3,6 +3,18 @@ const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-wi
 const cards=[...strip.children];let act=-1;
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>{cancelSnap();to(centers[i]-c0);});dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
+// liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
+const BASE=15,K=380,DAMP=17,VK=.045,VMAX=10,LEAD=.32; // spring stiffness, damping, px of stretch per px/s, max stretch, lead share
+const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
+  to(c){if(this.c===null){this.c=this.pc=c;}this.c=c;if(!this.raf){this.last=performance.now();this.raf=requestAnimationFrame(t=>this.step(t));}},
+  step(now){const dt=Math.min(.05,(now-this.last)/1000)||.016;this.last=now;
+    const inst=(this.c-this.pc)/dt;this.pc=this.c;this.v+=(inst-this.v)*Math.min(1,dt*30);if(Math.abs(this.v)>1)this.dir=Math.sign(this.v);
+    const red=mqR.matches,wt=red?BASE:BASE+Math.min(VMAX,Math.abs(this.v)*VK);
+    this.wv+=(-K*(this.w-wt)-DAMP*this.wv)*dt;this.w+=this.wv*dt;if(red){this.w=BASE;this.wv=0;}
+    const w=Math.max(BASE*.9,this.w),off=this.dir*(w-BASE)*LEAD;
+    thumb.style.width=w.toFixed(2)+'px';thumb.style.transform=`translate3d(${(this.c+off-w/2).toFixed(2)}px,0,0)`;
+    const busy=Math.abs(this.v)>.5||Math.abs(this.w-BASE)>.02||Math.abs(this.wv)>.05;
+    if(busy)this.raf=requestAnimationFrame(t=>this.step(t));else{this.raf=0;this.v=0;this.w=BASE;thumb.style.width=BASE+'px';thumb.style.transform=`translate3d(${(this.c-BASE/2).toFixed(2)}px,0,0)`;}}};
 let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
 function measure(){on=!mqM.matches;if(!on){strip.style.transform='';return;}
@@ -18,7 +30,7 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
   strip.dataset.p=p.toFixed(3);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
-  if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;thumb.style.transform=`translate3d(${(p0+(p1-p0)*f-thumb.offsetWidth/2).toFixed(2)}px,0,0)`;
+  if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
     if(st!==('settled' in dotsEl.dataset)){if(st)dotsEl.dataset.settled='';else delete dotsEl.dataset.settled;}}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
