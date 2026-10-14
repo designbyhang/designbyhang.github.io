@@ -90,9 +90,9 @@ main{flex:1;display:flex;min-height:0;position:relative}
 /* home card captions stay in Title Case as written */
 .lbl .lm{text-transform:none!important}
 /* card gauge: one circle dot per card; active = ring-and-dot measured from the intro card element at 1440 */
-:root{--ring-d:24.2px;--ring-w:1px;--ring-c:#111;--ring-dot:6.63px;--ring-dot-k:.947;--dot-d:5px;--dot-c:#cfcfcf}
+:root{--ring-d:24.2px;--ring-w:1px;--gauge-ring-w:2px;--ring-c:#111;--ring-dot:6.63px;--ring-dot-k:.947;--dot-d:5px;--dot-c:#cfcfcf}
 .dots{position:relative;display:flex;align-items:center;gap:12px;height:26px}
-.dots-cur{position:absolute;top:calc((26px - var(--ring-d))/2);left:0;width:var(--ring-d);height:var(--ring-d);border:var(--ring-w) solid #a8a8a8;border-radius:999px;box-sizing:border-box;pointer-events:none;will-change:transform;transition:border-color .2s ease}
+.dots-cur{position:absolute;top:calc((26px - var(--ring-d))/2);left:0;width:var(--ring-d);height:var(--ring-d);border:var(--gauge-ring-w,var(--ring-w)) solid #a8a8a8;border-radius:999px;box-sizing:border-box;pointer-events:none;will-change:transform;transition:border-color .2s ease}
 .dots button{appearance:none;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;width:13px;height:26px}
 .dots button i{display:block;flex:none;width:var(--dot-d);height:var(--dot-d);border-radius:50%;background:var(--dot-c);transition:background-color .2s ease}
 .dots button:hover i{background:#a8a8a8}
