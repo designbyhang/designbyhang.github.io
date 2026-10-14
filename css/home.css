@@ -141,3 +141,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.poster-svg .a{animation:none;opacity:1}}
 @media (max-width:640px){.intro .media-wrap{aspect-ratio:358/520;height:auto}.intro-in.poster{height:100%}.poster-hint{display:none}}
+
+/* intro card only: mono in all caps */
+.intro .poster-svg .m,.intro .poster-svg .mk{text-transform:uppercase}
+.intro .hint,.intro .hint *{text-transform:uppercase!important}
