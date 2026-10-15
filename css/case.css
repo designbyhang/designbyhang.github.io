@@ -257,7 +257,7 @@ body.cs .media.mframe video{display:block;flex:none;width:calc(100% + 4px);heigh
 .vid-btn:focus-visible,.car-nav button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .vid-btn svg,.car-nav svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
 .vid-btn{position:absolute;right:39px;bottom:39px;z-index:3} /* 40px from the frame's outer (1px-border) edge */
-.vid-btn .i-play{display:none;fill:#fff;transform:translateX(1px)} /* filled + 1px right for optical centering */
+.vid-btn .i-play{display:none;fill:#fff}
 .vid-btn[aria-pressed=false] .i-play{display:block}.vid-btn[aria-pressed=false] .i-pause{display:none}
 .car-nav [data-dir="-1"] svg{transform:translateX(-1px)} /* optical centering */
 .car-nav [data-dir="1"] svg{transform:translateX(1px)}
