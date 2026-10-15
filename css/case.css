@@ -263,10 +263,11 @@ body.cs .media.mframe video{display:block;flex:none;width:calc(100% + 4px);heigh
 .car-nav [data-dir="1"] svg{transform:translateX(1px)}
 .car-nav{position:absolute;right:39px;bottom:39px;z-index:3;display:flex;gap:12px}
 @media (max-width:640px){.vid-btn,.car-nav{right:15px;bottom:15px}}
-.car-track{display:flex;width:100%;height:100%;transition:transform .45s cubic-bezier(.2,.7,.3,1)}
-body.cs .media.mframe .car-track img{flex:0 0 100%;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0}
+.car-track{position:relative;width:100%;height:100%}
+body.cs .media.mframe .car-track img{position:absolute;inset:0;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0;opacity:0;transition:opacity .45s ease;pointer-events:none}
+body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:1}
 .car-nav button:disabled{opacity:.35;cursor:default}
-@media (prefers-reduced-motion:reduce){.car-track{transition:none}}
+@media (prefers-reduced-motion:reduce){body.cs .media.mframe .car-track img{transition:none}}
 
 /* all captions on the case-study page: #666666 (both themes); legend swatches keep their own colours */
 body.cs figcaption,body.cs figcaption.cap16{color:#666666}
