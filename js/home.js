@@ -30,7 +30,7 @@ const sfx=window.dbhSfx; // shared dial sound (js/sfx.js)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
-  strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);
+  strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);if(on)navAct(x>max-span/2);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
@@ -72,8 +72,10 @@ document.querySelectorAll('a[href="#about"]').forEach(a=>a.addEventListener('cli
 document.querySelectorAll('a[href="#work"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(0);}));
 strip.addEventListener('click',e=>{const k=e.target.closest('.card');if(!k||e.target.closest('.poster-cta'))return;sfx.tap();const a=e.target.closest('a[href]');if(a&&sfx.on&&!a.target&&!(e.metaKey||e.ctrlKey||e.shiftKey||e.button)){e.preventDefault();setTimeout(()=>{location.href=a.href;},90);}}); /* card tap click; 90ms so the click is heard before navigating */
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
+// header nav: active underline follows position (About card >50% in view)
+let navA=null;function navAct(ab){if(ab===navA)return;navA=ab;document.querySelectorAll('.top nav a').forEach(l=>{const on2=ab?l.hash==='#about':l.hash==='#work';l.classList.toggle('is-active',on2);if(on2)l.setAttribute('aria-current','page');else l.removeAttribute('aria-current');});}
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
-  const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}};
+  const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}const ab=cards[cards.length-1].getBoundingClientRect(),vis=Math.max(0,Math.min(ab.bottom,innerHeight)-Math.max(ab.top,0))/Math.min(ab.height,innerHeight);navAct(vis>.5);};
 addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrack);setTimeout(mTrack,300);
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
