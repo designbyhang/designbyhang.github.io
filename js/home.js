@@ -158,7 +158,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
     // vertically centre the caption's cap height in the bottom grid row
     const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
     const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];{const ar=tt.querySelector('.arr'),inkW=ar.offsetLeft+ar.offsetWidth-tt.offsetLeft-tl /* layout offsets: unaffected by the nudge transform */,Gl=G.letters.find(l=>l[0]==='G'),sL=G.xs[0]/px,sR=(port?G.xs[G.xs.length-1]:Gl[1][0])/px;cap.style.left=((sL+sR)/2-inkW/2-tl).toFixed(2)+'px';} /* v19: CTA ink (text + arrow) centred horizontally in the boxes left of the G (mobile: full row) */const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
-    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate=port?'':'-.3px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
+    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate=port?'.5px 0':'-.58px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
   }
 let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
