@@ -238,8 +238,8 @@ body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watc
 .bar.mid-on .brand{opacity:0}
 @media (prefers-reduced-motion:reduce){.brand{transition:none}}
 
-/* section hairline: 1px var(--line) (same as the numbered-list dividers), spanning the content width (= full-width media), 80px above each section label */
-section.sec[data-title]{--hl-pad:clamp(40px,5vw,64px);position:relative;padding-top:calc(var(--hl-pad) + 65px)}
+/* section hairline: 1px var(--line) (same as the numbered-list dividers), spanning the content width (= full-width media), 48px above each section label */
+section.sec[data-title]{--hl-pad:clamp(40px,5vw,64px);position:relative;padding-top:calc(var(--hl-pad) + 49px)}
 section.sec[data-title]::before{content:"";position:absolute;left:0;right:0;top:var(--hl-pad);height:1px;background:var(--line);pointer-events:none}
 /* one shared media-to-caption gap for every caption on the page */
 body.cs figcaption{margin:14px auto 0}
