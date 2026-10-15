@@ -60,8 +60,7 @@ figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:
 .prose mark{background:linear-gradient(transparent 62%,rgba(255,90,54,.22) 62%);color:inherit;padding:0 1px}
 blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);font-size:var(--t-quote-size);line-height:var(--t-quote-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)}
 .list{list-style:none;counter-reset:n;margin:4px 0 24px}
-.list li{counter-increment:n;position:relative;padding:16px 0 16px 44px;border-top:1px solid var(--line)}
-.list li:last-child{border-bottom:1px solid var(--line)}
+.list li{counter-increment:n;position:relative;padding:16px 0 16px 44px}
 .list li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:18px;font:400 12px/1.6 var(--mono);color:var(--faint)}
 .list li b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
 .fig{margin-top:48px}
@@ -240,7 +239,7 @@ body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watc
 @media (prefers-reduced-motion:reduce){.brand{transition:none}}
 
 /* section hairline: 1px var(--line) (same as the numbered-list dividers), spanning the content width (= full-width media), 80px above each section label */
-section.sec[data-title]{--hl-pad:clamp(40px,5vw,64px);position:relative;padding-top:calc(var(--hl-pad) + 81px)}
+section.sec[data-title]{--hl-pad:clamp(40px,5vw,64px);position:relative;padding-top:calc(var(--hl-pad) + 65px)}
 section.sec[data-title]::before{content:"";position:absolute;left:0;right:0;top:var(--hl-pad);height:1px;background:var(--line);pointer-events:none}
 /* one shared media-to-caption gap for every caption on the page */
 body.cs figcaption{margin:14px auto 0}
