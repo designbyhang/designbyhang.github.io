@@ -190,3 +190,7 @@ button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset
 @media (prefers-reduced-motion:reduce){.contact a .t{transition:none}}
 
 .home .top nav a.is-active::after{transform:scaleX(1)}
+
+/* mobile / vertical: cards are not all 1440/820 here (intro, About are taller), so the % radius went elliptical.
+   Use a circular radius of 1/30 of the card width (= the 3.3333% horizontal radius) on every card. Desktop keeps the % radius (all cards 1440/820, scaled strip). */
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.card{container-type:inline-size}.media-wrap{border-radius:calc(100cqi / 30)}}
