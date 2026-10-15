@@ -8,7 +8,7 @@
   const body=(f,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,o=ac.createOscillator(),a=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.5,t+dur);a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(a).connect(out);o.start(t);o.stop(t+dur+.01);};
   /* broken-circuit crackle: noise only. Sparse random-amplitude noise bursts over a faint hiss, gentle non-resonant lowpass (Q .5);
      no oscillators, no sample-and-hold (it aliased into pitched tones), no resonant pops. Peak-normalised; ZAPG keeps it below the tap click's peak. */
-  const ZAPG=.5,zapBuf=(c)=>{const R=Math.random,sr=c.sampleRate,dur=.25+R()*.15,N=Math.round(sr*dur),b=c.createBuffer(1,N,sr),d=b.getChannelData(0);let burst=0,amp=0,pk=1e-9;
+  const ZAPG=.375,zapBuf=(c)=>{const R=Math.random,sr=c.sampleRate,dur=.25+R()*.15,N=Math.round(sr*dur),b=c.createBuffer(1,N,sr),d=b.getChannelData(0);let burst=0,amp=0,pk=1e-9;
     for(let i=0;i<N;i++){if(burst<=0&&R()<.0025){burst=Math.round(sr*(.001+R()*.004));amp=.3+R()*.7;}const env=Math.pow(1-i/N,1.2),cr=burst>0?(R()*2-1)*amp*(burst--/(sr*.005)+.2):0;d[i]=(cr+(R()*2-1)*.04)*env;pk=Math.max(pk,Math.abs(d[i]));}
     for(let i=0;i<N;i++)d[i]/=pk;return b;},
     zapOn=(c,dst,t)=>{const s=c.createBufferSource(),lp=c.createBiquadFilter(),g=c.createGain();s.buffer=zapBuf(c);lp.type='lowpass';lp.frequency.value=5000+Math.random()*2000;lp.Q.value=.5;g.gain.value=ZAPG;s.connect(lp).connect(g).connect(dst);s.start(t);s.stop(t+s.buffer.duration+.01);},
