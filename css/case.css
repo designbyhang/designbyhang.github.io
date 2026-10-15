@@ -222,12 +222,14 @@ body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watc
 @media (max-width:900px){.sec-label:empty{display:none}}
 
 /* Inconsistencies: 3 image cells; stack on the vertical layout */
-/* Inconsistencies: two equal columns = one media-band height (full mframe ratio), gap 24px; stack on narrow */
-.inc2 .inc-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;aspect-ratio:3840/2052;align-items:stretch}
-.inc2 .media.mframe{aspect-ratio:auto;height:100%;width:100%;max-width:none;box-sizing:border-box}
+/* Inconsistencies: two equal columns; media height matches full mframe (half-width × 1920/2052); per-col captions */
+.inc2 .inc-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.inc2 .inc-col{margin:0;min-width:0}
+.inc2 .inc-col .media.mframe{aspect-ratio:1920/2052;width:100%;height:auto;max-width:none;box-sizing:border-box}
+.inc2 .inc-col figcaption{margin:14px 0 0}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){
-  .inc2 .inc-row{grid-template-columns:1fr;aspect-ratio:auto;gap:24px}
-  .inc2 .media.mframe{aspect-ratio:3840/2052;height:auto}
+  .inc2 .inc-row{grid-template-columns:1fr;gap:32px}
+  .inc2 .inc-col .media.mframe{aspect-ratio:3840/2052}
 }
 .cap16 .lg-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 20px;margin-top:2px}
 .cap16 .lg{display:inline-flex;align-items:center;gap:8px}

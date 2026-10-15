@@ -11,8 +11,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23111'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/type.css?v=1792088415"><link rel="stylesheet" href="../css/gate.css?v=1792088415"><link rel="stylesheet" href="../css/case.css?v=1792088415"><link rel="stylesheet" href="../css/arrows.css?v=1792088415"><link rel="stylesheet" href="../css/theme.css?v=1792088415">
-<script src="../js/gate.js?v=1792088415"></script>
+<link rel="stylesheet" href="../css/type.css?v=1792090630"><link rel="stylesheet" href="../css/gate.css?v=1792090630"><link rel="stylesheet" href="../css/case.css?v=1792090630"><link rel="stylesheet" href="../css/arrows.css?v=1792090630"><link rel="stylesheet" href="../css/theme.css?v=1792090630">
+<script src="../js/gate.js?v=1792090630"></script>
 </head>
 <!--
   HOW TO EDIT: all copy is plain HTML below; each <section> is one chapter.
@@ -86,30 +86,33 @@
       <p class="t-body">Without a unified framework and strategy, every new ad objective introduced a new way of interacting with split screen. The ad experience became harder to predict, and consistency became even harder to achieve.</p>
     </div>
   </div>
-  <!-- Inconsistencies two-col: left video still PLACEHOLDER (solution demo); right carousel = inconsist-1..4 -->
-  <figure class="fig fx inc2">
+  <div class="fig fx inc2">
     <div class="inc-row">
-      <!-- PLACEHOLDER video: reuse Solution demo until inconsist-specific footage arrives -->
-      <div class="media mframe video">
-        <video class="demo-video" muted loop playsinline preload="metadata" poster="../assets/fmss/solution-demo-poster.webp" width="1920" height="1080" aria-label="PLACEHOLDER: inconsistencies demo video">
-          <source src="../assets/fmss/solution-demo-1280.mp4" type="video/mp4" media="(max-width: 900px)">
-          <source src="../assets/fmss/solution-demo-1280.webm" type="video/webm" media="(max-width: 900px)">
-          <source src="../assets/fmss/solution-demo.webm" type="video/webm">
-          <source src="../assets/fmss/solution-demo.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="media mframe carousel" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 4">
-        <div class="car-track">
-          <img class="is-active" src="../assets/fmss/inconsist-1.webp" width="1440" height="1620" alt="">
-          <img src="../assets/fmss/inconsist-2.webp" width="1440" height="1620" alt="">
-          <img src="../assets/fmss/inconsist-3.webp" width="1440" height="1620" alt="">
-          <img src="../assets/fmss/inconsist-4.webp" width="1440" height="1620" alt="">
+      <figure class="inc-col">
+        <div class="media mframe video">
+          <video class="demo-video" muted loop playsinline preload="metadata" poster="../assets/fmss/inconsist-demo-poster.webp" width="1616" height="1816" aria-label="Ad with Offsite Conversions objective">
+            <source src="../assets/fmss/inconsist-demo-1280.mp4" type="video/mp4" media="(max-width: 900px)">
+            <source src="../assets/fmss/inconsist-demo-1280.webm" type="video/webm" media="(max-width: 900px)">
+            <source src="../assets/fmss/inconsist-demo.webm" type="video/webm">
+            <source src="../assets/fmss/inconsist-demo.mp4" type="video/mp4">
+          </video>
         </div>
-        <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
-      </div>
+        <figcaption class="cap16">Ad with Offsite Conversions objective</figcaption>
+      </figure>
+      <figure class="inc-col">
+        <div class="media mframe carousel" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 4">
+          <div class="car-track">
+            <img class="is-active" src="../assets/fmss/inconsist-1.webp" width="1440" height="1620" alt="">
+            <img src="../assets/fmss/inconsist-2.webp" width="1440" height="1620" alt="">
+            <img src="../assets/fmss/inconsist-3.webp" width="1440" height="1620" alt="">
+            <img src="../assets/fmss/inconsist-4.webp" width="1440" height="1620" alt="">
+          </div>
+          <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
+        </div>
+        <figcaption class="cap16">Inconsistencies across ad objectives<span class="lg-row"><span class="lg"><i class="ring ring-r" aria-hidden="true"></i><span class="lg-t lg-t-r">Navigation Affordances</span></span><span class="lg"><i class="ring ring-y" aria-hidden="true"></i><span class="lg-t lg-t-y">Video Controls</span></span></span></figcaption>
+      </figure>
     </div>
-    <figcaption class="cap16">Inconsistencies across ad objectives<span class="lg-row"><span class="lg"><i class="ring ring-r" aria-hidden="true"></i><span class="lg-t lg-t-r">Navigation Affordances</span></span><span class="lg"><i class="ring ring-y" aria-hidden="true"></i><span class="lg-t lg-t-y">Video Controls</span></span></span></figcaption>
-  </figure>
+  </div>
 
   <section id="insights" data-title="Key insights" class="sec sec-grid">
     <p class="sec-label">03 — Key Insights</p>
@@ -245,5 +248,5 @@
 </div>
 </main>
 <footer class="foot"><span>© 2026 Design by Hang</span><a href="#top" onclick="scrollTo({top:0});return false">Back to top ↑</a></footer>
-<script src="../js/sfx.js?v=1792088415"></script><script src="../js/theme.js?v=1792088415"></script><script src="../js/case.js?v=1792088415"></script>
+<script src="../js/sfx.js?v=1792090630"></script><script src="../js/theme.js?v=1792090630"></script><script src="../js/case.js?v=1792090630"></script>
 </body></html>
