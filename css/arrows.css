@@ -1,9 +1,7 @@
-/* Shared arrow pattern (.ax): static at rest; on hover/focus the text underlines and the arrow eases outward. Gaps are explicit margins (no space glyph), calibrated to exact ink gaps. */
+/* Shared arrow pattern (.ax): static at rest; arrows are fully static; hover only shows the text underline. Gaps are explicit margins (no space glyph), calibrated to exact ink gaps. */
 .ax{--ax-move:4px;--ax-t:.25s}
-.ax .arr{display:inline-block;animation:none!important;margin-left:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px));transition:transform var(--ax-t) ease}
-.ax:is(:hover,:focus-visible) .arr{transform:translateX(calc(var(--ax-dx,0px) + var(--ax-move)))}
+.ax .arr{display:inline-block;animation:none!important;margin-left:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px));transition:none!important}
 .ax .arr.arr-back{margin-left:0;margin-right:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px)) scaleX(-1)}
-.ax:is(:hover,:focus-visible) .arr.arr-back{transform:translateX(calc(var(--ax-dx,0px) - var(--ax-move))) scaleX(-1)}
 /* --ax-dx: measured sub-pixel trim so the ink gap is exact */
 /* home CTA: 12px ink gap / 4px move at the 1440 design size (card 1050.5px wide), scaling with the card via cqi */
 .poster-cta.ax{--ax-gap:1.1423cqi;--ax-dx:-.015cqi;--ax-move:.3808cqi}
