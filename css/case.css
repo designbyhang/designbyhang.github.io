@@ -81,7 +81,7 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 .sub h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin-bottom:8px}
 .sub p{color:var(--mute);max-width:56ch;font-size:var(--t-s16)}
 .layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0 28px}
-.layer{border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;background:#fff}
+.layer{border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;background:var(--c-paper)}
 .layer em{font:400 11px/1 var(--mono);font-style:normal;color:var(--faint);display:block;margin-bottom:10px}
 .layer b{display:block;color:var(--ink);font-weight:600;font-size:var(--t-s16);margin-bottom:8px}
 .layer ul{list-style:none;font-size:var(--t-s14);line-height:1.55;color:var(--mute)}
@@ -93,7 +93,7 @@ blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);
 .res p strong{color:#fff;font-weight:700}
 .res.alt{background:var(--accent);color:#1a0a05}.res.alt b{color:#140603}.res.alt p{color:rgba(20,6,3,.72)}.res.alt p strong{color:#140603}
 /* next */
-.next{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center;margin-top:clamp(80px,10vw,128px);padding:24px;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+.next{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center;margin-top:clamp(80px,10vw,128px);padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--c-paper)}
 .next .k{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.04em}
 .next h2{font:var(--t-h2-s);letter-spacing:var(--t-h2-s-ls);color:var(--ink);margin:10px 0}
 .next .soon{display:inline-block;font:400 12px/1 var(--mono);padding:7px 10px;border-radius:0;background:var(--frame);border:1px solid var(--line);color:var(--mute)}
@@ -164,14 +164,14 @@ body.cs .bleed{margin-left:clamp(20px,5vw,72px);margin-right:clamp(20px,5vw,72px
 body.cs .phones.two,body.cs .phones.three,body.cs .fig .media.dark:has(img[src*="watch-browse"]){max-width:none;margin-inline:0}
 
 /* hero video placeholder — same aspect as cover-fmss-square (2800×1560) */
-body.cs .hero-slot{aspect-ratio:2800/1560;background:#F8F8F8;border:1px solid var(--line)}
+body.cs .hero-slot{aspect-ratio:2800/1560;background:var(--c-slot);border:1px solid var(--line)}
 body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
 /* every media container spans exactly the text column (.wrap content box) */
 .wrap .fig,.wrap .fig .media{max-width:100%;margin-inline:0;box-sizing:border-box}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
-:root{--mono-size:14px;--mono-ls:.04em;--mono-color:#333;--mono-tt:none}
+:root{--mono-size:14px;--mono-ls:.04em;--mono-color:var(--c-label);--mono-tt:none}
 .mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
@@ -190,7 +190,7 @@ body.cs .media.draw img{width:100%;height:100%;object-fit:contain;border-radius:
 body.cs .media.draw:hover img{transform:none}
 
 /* project pages: logo matches the 14px Bitcount chrome */
-.brand{font-size:14px!important;color:#333!important;word-spacing:-.32em}
+.brand{font-size:14px!important;color:var(--c-label)!important;word-spacing:-.32em}
 /* header matches the home header: same insets, top offset (22 / 18px), 14px line-height-1 type */
 .bar{height:58px;padding:0 clamp(16px,3vw,32px)}
 .bar-right a{display:block;line-height:1!important}
@@ -204,7 +204,7 @@ body.cs .media.draw:hover img{transform:none}
 .toc a:not([aria-current="true"]):not(:hover){color:#666!important}
 
 /* header label: Bitcount 14px #333, centred; fades in once the eyebrow has scrolled under the bar */
-.bar-mid{display:block!important;font:var(--t-label)!important;letter-spacing:var(--t-label-ls)!important;word-spacing:var(--t-label-ws)!important;color:#333!important;text-transform:none!important;max-width:none;overflow:visible;opacity:0;transition:opacity .22s ease;pointer-events:none}
+.bar-mid{display:block!important;font:var(--t-label)!important;letter-spacing:var(--t-label-ls)!important;word-spacing:var(--t-label-ws)!important;color:var(--c-label)!important;text-transform:none!important;max-width:none;overflow:visible;opacity:0;transition:opacity .22s ease;pointer-events:none}
 .bar-mid.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.bar-mid{transition:none}}
 
@@ -218,7 +218,7 @@ body.cs .media.draw:hover img{transform:none}
 body.cs .media.draw{aspect-ratio:3840/2052}
 body.cs .fig .media.dark:has(img[src*="watch-browse"]){aspect-ratio:3840/2052;display:flex;align-items:center;justify-content:center}
 body.cs .fig .media.dark:has(img[src*="watch-browse"]) img{width:auto;height:100%;max-width:100%;object-fit:contain}
-figcaption.cap16{font-size:var(--t-s16);line-height:1.5;color:#000;text-align:center;margin:14px auto 0;max-width:60ch}
+figcaption.cap16{font-size:var(--t-s16);line-height:1.5;color:var(--c-cap);text-align:center;margin:14px auto 0;max-width:60ch}
 body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watch-browse"]){box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
 @media (max-width:900px){.sec-label:empty{display:none}}
 

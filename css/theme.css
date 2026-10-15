@@ -1,0 +1,18 @@
+/* Colour tokens + light/dark themes. Light values equal the original hard-coded colours (zero visual change). */
+:root{--c-strong:#111;--c-paper:#fff;--c-grid:#eeeeee;--c-label:#333;--c-cap:#000;--c-slot:#F8F8F8;--c-dot:#cfcfcf;--c-res:var(--ink)}
+.poster-svg circle{fill:var(--c-grid)}
+html[data-theme=dark]{color-scheme:dark;
+  --page:#111;--card:#1a1a1a;--sheet:#1a1a1a;--ink:#f2f2f2;--body:#dcdcdc;--mute:#a6a6a6;--faint:#999;--line:#2a2a2a;--frame:#222;
+  --c-strong:#f2f2f2;--c-paper:#1a1a1a;--c-grid:#2a2a2a;--c-label:#cfcfcf;--c-cap:#f2f2f2;--c-slot:#202020;--c-dot:#555}
+html[data-theme=dark] .media.dark,html[data-theme=dark] .media.draw{border-color:#2a2a2a!important}
+html[data-theme=dark] .res{background:#0b0b0b;border:1px solid #2a2a2a}
+html[data-theme=dark] .skip{color:#111}
+html[data-theme=dark] .gate{background:#121212}
+/* smooth colour change only when toggled (class added by js/theme.js), never on load */
+html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .3s ease,color .3s ease,border-color .3s ease,fill .3s ease,stroke .3s ease!important}
+/* toggle */
+.theme-btn{appearance:none;display:inline-grid;place-items:center;width:28px;height:28px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;background:none;color:var(--ink);cursor:pointer;flex:none;vertical-align:middle}
+.theme-btn:hover,.theme-btn:focus-visible{border-color:currentColor}
+.theme-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.theme-btn .i-sun{display:none}html[data-theme=dark] .theme-btn .i-sun{display:block}html[data-theme=dark] .theme-btn .i-moon{display:none}
+.top nav,.bar-right{display:flex;align-items:center;gap:20px}

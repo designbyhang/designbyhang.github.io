@@ -30,7 +30,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 /* every card shares one surface: same size, radius, outline */
 .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:3.3333% / 5.8537%;overflow:hidden;isolation:isolate;transform:translateZ(0);
   box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
-.media-wrap.surface{background:#fff}
+.media-wrap.surface{background:var(--c-paper)}
 .media-wrap img,.type-cover{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
 .proj:not(.live) img,.proj:not(.live) .type-cover{filter:saturate(.85)}
 .live .hit:hover .media-wrap,.live .hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
@@ -40,18 +40,18 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .hint .arr{display:inline-block;animation:nudge 1.8s var(--ease) infinite}
 .hint-touch{display:none}@media (hover:none){.hint-desk{display:none}.hint-touch{display:inline}}
 @keyframes nudge{0%,100%{transform:none}50%{transform:translateX(4px)}}
-.type-cover{display:grid;grid-template-columns:1fr 1fr;background:#fff}
+.type-cover{display:grid;grid-template-columns:1fr 1fr;background:var(--c-paper)}
 .type-cover span{align-self:end;padding:9% 0 12% 8%;font:400 calc(var(--cw)*.05)/1.05 var(--sans);letter-spacing:-.02em}
 .type-cover i{background:linear-gradient(160deg,#2d3c8f,#1b2459)}
 
 .about .media-wrap{container-type:inline-size}
 .about-in{padding:5% 6%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}
-.statement{margin:0;font-family:var(--sans);font-weight:400;font-size:clamp(7px,min(3.3cqi,3.5cqi - 1.2px),46px);line-height:1.15;letter-spacing:-.02em;color:#111;text-wrap:pretty}
+.statement{margin:0;font-family:var(--sans);font-weight:400;font-size:clamp(7px,min(3.3cqi,3.5cqi - 1.2px),46px);line-height:1.15;letter-spacing:-.02em;color:var(--c-strong);text-wrap:pretty}
 .statement b{font-weight:700}
 .k{font:400 11px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.05em;margin:18px 0 8px}
-.bio{font-size:var(--t-s14);line-height:1.55;color:#333}
+.bio{font-size:var(--t-s14);line-height:1.55;color:var(--c-label)}
 .skills{list-style:none;display:flex;flex-wrap:wrap;gap:5px}
-.skills li{font-size:12px;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.skills li{font-size:12px;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:var(--c-paper)}
 .links{display:flex;gap:16px;flex-wrap:wrap}
 .links a{text-decoration:none;font-size:14px;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease)}
 .links a:hover{background-size:100% 1px}
@@ -91,7 +91,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 /* home card captions stay in Title Case as written */
 .lbl .lm{text-transform:none!important}
 /* card gauge: one circle dot per card; active = ring-and-dot measured from the intro card element at 1440 */
-:root{--ring-d:24.2px;--ring-w:1px;--gauge-ring-w:2px;--ring-c:#111;--ring-dot:6.63px;--ring-dot-k:.947;--dot-d:5px;--dot-c:#cfcfcf}
+:root{--ring-d:24.2px;--ring-w:1px;--gauge-ring-w:2px;--ring-c:var(--c-strong);--ring-dot:6.63px;--ring-dot-k:.947;--dot-d:5px;--dot-c:var(--c-dot)}
 .dots{position:relative;display:flex;align-items:center;gap:12px;height:26px}
 .dots-cur{position:absolute;top:calc((26px - var(--ring-d))/2);left:0;width:var(--ring-d);height:var(--ring-d);border:var(--gauge-ring-w,var(--ring-w)) solid #a8a8a8;border-radius:999px;box-sizing:border-box;pointer-events:none;will-change:transform;transition:border-color .2s ease}
 .dots button{appearance:none;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;width:13px;height:26px}
@@ -120,20 +120,20 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .g{stroke:#000;stroke-opacity:.22;stroke-width:1;stroke-dasharray:1 4;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
-.poster-svg .w{font-family:var(--sans);fill:#111;letter-spacing:-.035em}
-.poster-svg .m{font-family:var(--mono);fill:#111;letter-spacing:.04em;word-spacing:-.32em}
+.poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
+.poster-svg .m{font-family:var(--mono);fill:var(--c-strong);letter-spacing:.04em;word-spacing:-.32em}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
 .poster-svg .nd{stroke:#111;stroke-opacity:.55}
-.poster-svg .g{stroke:#eeeeee;stroke-opacity:1;stroke-dasharray:none;shape-rendering:crispEdges}
+.poster-svg .g{stroke:var(--c-grid);stroke-opacity:1;stroke-dasharray:none;shape-rendering:crispEdges}
 
-.poster-svg .ko{fill:var(--ko,#fff)}
-.poster-title,.poster-hint{background:var(--ko,#fff);box-shadow:-2px 0 0 var(--ko,#fff),2px 0 0 var(--ko,#fff)}
-.poster-title{box-shadow:-2px -6px 0 var(--ko,#fff),-2px 0px 0 var(--ko,#fff),-2px 6px 0 var(--ko,#fff),0px -6px 0 var(--ko,#fff),0px 6px 0 var(--ko,#fff),7px -6px 0 var(--ko,#fff),7px 0px 0 var(--ko,#fff),7px 6px 0 var(--ko,#fff)} /* knockout: +6px above and below */
+.poster-svg .ko{fill:var(--ko,var(--c-paper))}
+.poster-title,.poster-hint{background:var(--ko,var(--c-paper));box-shadow:-2px 0 0 var(--ko,var(--c-paper)),2px 0 0 var(--ko,var(--c-paper))}
+.poster-title{box-shadow:-2px -6px 0 var(--ko,var(--c-paper)),-2px 0px 0 var(--ko,var(--c-paper)),-2px 6px 0 var(--ko,var(--c-paper)),0px -6px 0 var(--ko,var(--c-paper)),0px 6px 0 var(--ko,var(--c-paper)),7px -6px 0 var(--ko,var(--c-paper)),7px 0px 0 var(--ko,var(--c-paper)),7px 6px 0 var(--ko,var(--c-paper))} /* knockout: +6px above and below */
 .intro-in.poster{container-type:inline-size}
 .poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi;opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) 1.35s forwards}
-.poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:#111}
+.poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:var(--c-strong)}
 .poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
 .poster-svg .a{opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
@@ -158,12 +158,12 @@ main{flex:1;display:flex;min-height:0;position:relative}
 
 /* intro caption hint: initial cap only */
 .intro .hint.poster-hint,.intro .hint.poster-hint *{text-transform:none!important}
-.poster-title .arr{display:inline-block;margin-left:.22em;color:#111;font-family:var(--mono);font-weight:400;letter-spacing:0;animation:nudge 1.8s var(--ease) infinite}
+.poster-title .arr{display:inline-block;margin-left:.22em;color:var(--c-strong);font-family:var(--mono);font-weight:400;letter-spacing:0;animation:nudge 1.8s var(--ease) infinite}
 @media (prefers-reduced-motion:reduce){.poster-title .arr{animation:none}}
-.poster-title .arr svg{display:block;width:.86em;height:.6em;overflow:visible}.poster-title .arr path{stroke:#111;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+.poster-title .arr svg{display:block;width:.86em;height:.6em;overflow:visible}.poster-title .arr path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 .poster-title .arr{vertical-align:.02em}
-button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;font-family:var(--sans);font-weight:400;color:#111;text-align:left;cursor:pointer;line-height:1}
-button.poster-cta:focus-visible{outline:1px solid #111;outline-offset:4px}
+button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;font-family:var(--sans);font-weight:400;color:var(--c-strong);text-align:left;cursor:pointer;line-height:1}
+button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset:4px}
 /* gauge: 40px below the (scaled) cards, centred on the page; JS sets --gy */
 .top nav{grid-column:3}
 /* gauge in the header: centred on the page, vertically centred on the logo/ABOUT row, fixed while swiping */
