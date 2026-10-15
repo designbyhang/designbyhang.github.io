@@ -28,7 +28,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .lbl .go{color:var(--ink);opacity:.55;transition:opacity .25s}.live .hit:hover .go{opacity:1}
 .lbl .soon{color:var(--faint)}
 /* every card shares one surface: same size, radius, outline */
-.media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:3.3333% / 5.8537%;overflow:hidden;isolation:isolate;transform:translateZ(0);
+.media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:calc(var(--cw) / 30); /* circular: 1/30 of the card width (= old 3.3333% horizontal), so tall intro/About cards match project cards */overflow:hidden;isolation:isolate;transform:translateZ(0);
   box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
 .media-wrap.surface{background:var(--c-paper)}
 .media-wrap img,.type-cover{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
