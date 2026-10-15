@@ -12,7 +12,7 @@ a{color:inherit}
 .brand{font:var(--t-brand);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-decoration:none}
 .top nav{justify-self:end;display:flex;gap:20px;font-size:14px}
 .top nav a{color:var(--mute);text-decoration:none;transition:color .2s}.top nav a:hover{color:var(--ink)}
-/* tick indicator (Rauno-style) */
+/* tick indicator */
 /* rail — virtual horizontal scroll; JS drives one transform on .strip */
 main{flex:1;display:flex;min-height:0;position:relative}
 .rail{flex:1;width:100%;position:relative;overflow:hidden;outline-offset:-4px;touch-action:pan-y;user-select:none}

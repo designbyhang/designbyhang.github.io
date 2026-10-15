@@ -70,7 +70,7 @@ Text elements (`"kind":"text"`) are live HTML, so edit their `text` (and `runs`,
 To swap in a real video, see `content/projects/fmss/VIDEO_PLACEHOLDERS.md`.
 The JSON was generated from the Figma file. Hand edits are kept unless the export is re-run.
 
-## Home page (Rauno-style strip)
+## Home page (project strip)
 `index.html` is a horizontal project strip. Covers are Figma 2× exports in `assets/cover-*.webp`.
 To publish a project: wrap its `.card.proj` contents in `<a class="hit" href="projects/….html">`, add
 `class="live"` to the card, and replace the `.soon` pill with `<span class="go">View case study ↗</span>`.
