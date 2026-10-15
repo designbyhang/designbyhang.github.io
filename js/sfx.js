@@ -6,10 +6,14 @@
   const hit=(f,q,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,s=ac.createBufferSource(),bp=ac.createBiquadFilter(),a=ac.createGain();s.buffer=nb;s.playbackRate.value=.9+Math.random()*.2;
     bp.type='bandpass';bp.frequency.value=f*(.94+Math.random()*.12);bp.Q.value=q;a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(bp).connect(a).connect(out);s.start(t);s.stop(t+dur+.01);};
   const body=(f,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,o=ac.createOscillator(),a=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.5,t+dur);a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(a).connect(out);o.start(t);o.stop(t+dur+.01);};
-  const zap=()=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,R=Math.random,dur=.25+R()*.15,sr=ac.sampleRate,N=Math.round(sr*dur),buf=ac.createBuffer(1,N,sr),d=buf.getChannelData(0);
-    let hold=0,v=0;const step=Math.round(6+R()*14);for(let i=0;i<N;i++){if(hold--<=0){hold=step;v=R()*2-1;}const env=Math.pow(1-i/N,1.5)*(R()<.12?.15:1);d[i]=Math.sign(v)*Math.pow(Math.abs(v),.4)*env;} /* sample-and-hold bitcrush + hard distortion + dropouts */
-    const s=ac.createBufferSource(),hp=ac.createBiquadFilter(),g=ac.createGain();s.buffer=buf;hp.type='highpass';hp.frequency.value=500+R()*400;g.gain.value=.3;s.connect(hp).connect(g).connect(out);s.start(t);
-    const pops=3+Math.floor(R()*3);for(let k=0;k<pops;k++){const pt=t+R()*dur*.9,ps=ac.createBufferSource(),pg=ac.createGain();ps.buffer=nb;pg.gain.setValueAtTime(.9,pt);pg.gain.exponentialRampToValueAtTime(.001,pt+.012);ps.connect(pg).connect(out);ps.start(pt);ps.stop(pt+.02);}};
+  /* broken-circuit crackle: noise only. Sparse random-amplitude noise bursts over a faint hiss, gentle non-resonant lowpass (Q .5);
+     no oscillators, no sample-and-hold (it aliased into pitched tones), no resonant pops. Peak-normalised; ZAPG keeps it below the tap click's peak. */
+  const ZAPG=.5,zapBuf=(c)=>{const R=Math.random,sr=c.sampleRate,dur=.25+R()*.15,N=Math.round(sr*dur),b=c.createBuffer(1,N,sr),d=b.getChannelData(0);let burst=0,amp=0,pk=1e-9;
+    for(let i=0;i<N;i++){if(burst<=0&&R()<.0025){burst=Math.round(sr*(.001+R()*.004));amp=.3+R()*.7;}const env=Math.pow(1-i/N,1.2),cr=burst>0?(R()*2-1)*amp*(burst--/(sr*.005)+.2):0;d[i]=(cr+(R()*2-1)*.04)*env;pk=Math.max(pk,Math.abs(d[i]));}
+    for(let i=0;i<N;i++)d[i]/=pk;return b;},
+    zapOn=(c,dst,t)=>{const s=c.createBufferSource(),lp=c.createBiquadFilter(),g=c.createGain();s.buffer=zapBuf(c);lp.type='lowpass';lp.frequency.value=5000+Math.random()*2000;lp.Q.value=.5;g.gain.value=ZAPG;s.connect(lp).connect(g).connect(dst);s.start(t);s.stop(t+s.buffer.duration+.01);},
+    zap=()=>{if(!ac||mute||ac.state!=='running')return;zapOn(ac,out,ac.currentTime);};
+  window.__sfxTest={zapOn,nbOf:c=>{const b=c.createBuffer(1,Math.round(c.sampleRate*.03),c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);return b;}};
   return{count:{tick:0,land:0,tap:0} /* land: clunk removed, stays 0 */,
     move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;const n=performance.now();if(n-lastT<MINGAP)return;lastT=n;this.count.tick++;hit(3200,6,.5,.012);},
     tap(){this.count.tap++;hit(1200,2,1,.04);body(140,.6,.08);},
