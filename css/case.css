@@ -59,6 +59,11 @@ figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:
 .prose strong{color:var(--ink);font-weight:600}
 .prose mark{background:linear-gradient(transparent 62%,rgba(255,90,54,.22) 62%);color:inherit;padding:0 1px}
 blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);font-size:var(--t-quote-size);line-height:var(--t-quote-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)}
+.list{list-style:none;counter-reset:n;margin:4px 0 24px}
+.list li{counter-increment:n;position:relative;padding:16px 0 16px 44px;border-top:1px solid var(--line)}
+.list li:last-child{border-bottom:1px solid var(--line)}
+.list li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:18px;font:400 12px/1.6 var(--mono);color:var(--faint)}
+.list li b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
 .fig{margin-top:48px}
 .fig-row{display:grid;gap:16px;margin-top:48px}
 .fig-row.two{grid-template-columns:1fr 1fr}
@@ -167,7 +172,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
 :root{--mono-size:14px;--mono-ls:.04em;--mono-color:var(--c-label);--mono-tt:none}
-.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
 .bar-right a,.toc a,.sec-label{text-transform:none!important}
@@ -228,10 +233,3 @@ body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watc
 .cap16 .ring{display:inline-block;width:.75em;height:.75em;border-radius:50%;border:1.5px solid;box-sizing:border-box;flex:none}
 .cap16 .ring-r{border-color:#fe4e53}.cap16 .ring-y{border-color:#fdbf00} /* sampled from the image legend */
 .cap16 .lg-t{font-size:var(--t-s13)} /* Small 13; ring keeps its em size from .lg */.cap16 .lg-t-r{color:#fe4e53}.cap16 .lg-t-y{color:#fdbf00} /* text = ring colour exactly */
-
-/* Opportunity: circled-number list (ring 1px --ink, light numeral; circle ~2.6x body line height) */
-.opp-list{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:40px}
-.opp-list li{display:flex;align-items:center;gap:32px}
-.opp-n{flex:none;display:grid;place-items:center;width:72px;height:72px;border:1px solid var(--ink);border-radius:50%;box-sizing:border-box;font:300 26px/1 var(--sans);color:var(--ink)}
-.prose .opp-list p.t-body{margin:0;min-width:0}
-@media (max-width:900px){.opp-list{gap:28px}.opp-list li{gap:18px}.opp-n{width:52px;height:52px;font-size:20px}}
