@@ -221,3 +221,12 @@ body.cs .fig .media.dark:has(img[src*="watch-browse"]) img{width:auto;height:100
 figcaption.cap16{font-size:var(--t-s16);line-height:1.5;color:#000;text-align:center;margin:14px auto 0;max-width:60ch}
 body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watch-browse"]){box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
 @media (max-width:900px){.sec-label:empty{display:none}}
+
+/* Inconsistencies: 3 image cells; stack on the vertical layout */
+.inc3 .inc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.inc3 .inc-row .media img{display:block;width:100%;height:auto}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.inc3 .inc-row{grid-template-columns:1fr}}
+.cap16 .lg-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 20px;margin-top:2px}
+.cap16 .lg{display:inline-flex;align-items:center;gap:8px}
+.cap16 .ring{display:inline-block;width:.75em;height:.75em;border-radius:50%;border:1.5px solid;box-sizing:border-box;flex:none}
+.cap16 .ring-r{border-color:#fe4e53}.cap16 .ring-y{border-color:#fdbf00} /* sampled from the image legend */
