@@ -33,9 +33,8 @@ const sfx=(()=>{const VOL=.18,DET=4,MINGAP=38;let ac=null,out=null,nb=null,lastT
   const hit=(f,q,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,s=ac.createBufferSource(),bp=ac.createBiquadFilter(),a=ac.createGain();s.buffer=nb;s.playbackRate.value=.9+Math.random()*.2;
     bp.type='bandpass';bp.frequency.value=f*(.94+Math.random()*.12);bp.Q.value=q;a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(bp).connect(a).connect(out);s.start(t);s.stop(t+dur+.01);};
   const body=(f,g,dur)=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,o=ac.createOscillator(),a=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.5,t+dur);a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(a).connect(out);o.start(t);o.stop(t+dur+.01);};
-  return{count:{tick:0,land:0,tap:0},
+  return{count:{tick:0,land:0,tap:0} /* land: clunk removed, stays 0 */,
     move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;const n=performance.now();if(n-lastT<MINGAP)return;lastT=n;this.count.tick++;hit(3200,6,.5,.012);},
-    land(){this.count.land++;hit(1800,3,.9,.03);body(180,.35,.05);},
     tap(){this.count.tap++;hit(1200,2,1,.04);body(140,.6,.08);},
     set(on){mute=!on;localStorage.setItem('dbh-sound',on?'on':'off');},get on(){return!mute;}};})();
 window.__sound=sfx;
@@ -47,7 +46,7 @@ function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0)
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
     const st=Math.abs(p1-p0)*Math.min(f,1-f)<1.5; /* within 1.5px of a dot centre = settled */
-    if(st!==('settled' in dotsEl.dataset)){if(st){dotsEl.dataset.settled='';sfx.land();}else delete dotsEl.dataset.settled;}}
+    if(st!==('settled' in dotsEl.dataset)){if(st){dotsEl.dataset.settled='';}else delete dotsEl.dataset.settled;}}
   if(a!==act){act=a;dots.forEach((b,i)=>b.setAttribute('aria-current',i===a?'true':'false'));}}
 let tw=null;const eo=p=>1-Math.pow(1-p,3);
 function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*(tw.e||eo)(p);if(p>=1){x=t=tw.b;tw=null;}}
