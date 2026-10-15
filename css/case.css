@@ -53,7 +53,7 @@ figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:
 .sec-grid{display:grid;grid-template-columns:232px minmax(0,1fr);gap:0 48px}
 .sec-label{font:400 13px/1.9 var(--mono);color:var(--faint);padding-top:6px}
 .sec h2{font:var(--t-h2);letter-spacing:var(--t-h2-ls);color:var(--ink);margin-bottom:24px;max-width:22ch}
-.prose{max-width:640px}
+.prose{max-width:560px}
 .prose p{margin-bottom:20px}
 .prose p.lead{font-size:var(--t-lead-size);line-height:var(--t-lead-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)}
 .prose strong{color:var(--ink);font-weight:600}
