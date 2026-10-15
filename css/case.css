@@ -211,7 +211,6 @@ body.cs .media.draw:hover img{transform:none}
 /* side-label-less block keeps the content column */
 @media (min-width:901px){.sec-grid>.no-label{grid-column:2}}
 .prose .t-h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin-bottom:12px}
-.prose h2.h2-28{font:var(--t-h2);font-size:28px;letter-spacing:var(--t-h2-ls);color:var(--ink);margin-bottom:12px;max-width:none} /* H2 style fixed at 28px for this headline only; spacing/width kept from the old H3 slot */
 .prose p.t-body{font:var(--t-body)}
 @media (max-width:900px){.prose p.t-body{font-size:var(--t-body-m-size)}}
 
