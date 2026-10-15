@@ -21,3 +21,6 @@ html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::a
 .theme-btn.theme-float{position:fixed;left:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);z-index:60;background:var(--sheet,#fcfcfc);border-color:var(--line);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 html[data-theme=dark] .bar{background:rgba(17,17,17,.82)}
 html[data-theme=dark] .badge{background:rgba(20,20,20,.75);color:#bbb;border-color:rgba(255,255,255,.08)}
+/* toggle must not change footer height (keeps stage/card position identical) */
+.home .bot .theme-btn{margin-block:-14px}
+html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8f!important}
