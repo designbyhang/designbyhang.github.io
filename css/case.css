@@ -222,9 +222,13 @@ body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watc
 @media (max-width:900px){.sec-label:empty{display:none}}
 
 /* Inconsistencies: 3 image cells; stack on the vertical layout */
-.inc3 .inc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.inc3 .inc-row .media img{display:block;width:100%;height:auto}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.inc3 .inc-row{grid-template-columns:1fr}}
+/* Inconsistencies: two equal columns = one media-band height (full mframe ratio), gap 24px; stack on narrow */
+.inc2 .inc-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;aspect-ratio:3840/2052;align-items:stretch}
+.inc2 .media.mframe{aspect-ratio:auto;height:100%;width:100%;max-width:none;box-sizing:border-box}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){
+  .inc2 .inc-row{grid-template-columns:1fr;aspect-ratio:auto;gap:24px}
+  .inc2 .media.mframe{aspect-ratio:3840/2052;height:auto}
+}
 .cap16 .lg-row{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 20px;margin-top:2px}
 .cap16 .lg{display:inline-flex;align-items:center;gap:8px}
 .cap16 .ring{display:inline-block;width:.75em;height:.75em;border-radius:50%;border:1.5px solid;box-sizing:border-box;flex:none}

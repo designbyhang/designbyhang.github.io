@@ -28,7 +28,7 @@ rm.addEventListener&&rm.addEventListener('change',function(){if(rm.matches)vs.fo
 
 /* solution carousel: arrows step the slides, no wrap (disabled at the ends), arrow keys when focused */
 (function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track'),n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]'),cap=c.closest('figure').querySelector('figcaption'),caps=[].map.call(tr.children,function(img){return img.getAttribute('alt')||''});
- function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=i===0;next.disabled=i===n-1;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap)cap.textContent=caps[i]||''}
+ function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=i===0;next.disabled=i===n-1;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.querySelector('.lg-row'))cap.textContent=caps[i]||''}
  function step(d){go(d)}
  prev.addEventListener('click',function(){step(-1)});next.addEventListener('click',function(){step(1)});
  c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?-1:1)}});
