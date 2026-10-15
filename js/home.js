@@ -40,7 +40,7 @@ let tw=null;const eo=p=>1-Math.pow(1-p,3);
 function loop(){if(tw){const p=Math.min(1,(performance.now()-tw.s)/tw.d);x=t=tw.a+(tw.b-tw.a)*(tw.e||eo)(p);if(p>=1){x=t=tw.b;tw=null;}}
   else{const d=t-x;x=Math.abs(d)<.3?t:x+d*.16;}
   render();raf=(tw||x!==t)?requestAnimationFrame(loop):0;}
-// tap transitions (CTA, ABOUT, SELECTED WORK): one gentle glide, 1000ms easeInOutCubic, like a soft swipe
+// tap transitions (CTA, ABOUT, CASE STUDIES): one gentle glide, 1000ms easeInOutCubic, like a soft swipe
 const GLIDE=1000;let gRaf=0;
 function glide(i){const k=cards[i];if(!k)return;
   if(on){const b=clamp(centers[i]-c0,0,max);if(mqR.matches){tw=null;x=t=b;render();return;}tw={s:performance.now(),a:x,b,d:GLIDE,e:ease};t=b;if(!raf)raf=requestAnimationFrame(loop);return;}
