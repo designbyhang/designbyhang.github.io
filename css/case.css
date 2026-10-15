@@ -58,7 +58,7 @@ figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:
 .prose p.lead{font-size:var(--t-lead-size);line-height:var(--t-lead-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)}
 .prose strong{color:var(--ink);font-weight:600}
 .prose mark{background:linear-gradient(transparent 62%,rgba(255,90,54,.22) 62%);color:inherit;padding:0 1px}
-blockquote{margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);font-size:var(--t-quote-size);line-height:var(--t-quote-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)}
+blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;margin:8px 0 28px;padding-left:20px;border-left:2px solid var(--ink);font-size:var(--t-quote-size);line-height:var(--t-quote-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)} /* shared quote treatment: blockquote and .quote (Key Insights titles) */
 .list{list-style:none;counter-reset:n;margin:4px 0 24px}
 .list li{counter-increment:n;position:relative;padding:16px 0 16px 44px}
 .list li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:18px;font:400 12px/1.6 var(--mono);color:var(--faint)}
