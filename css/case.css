@@ -269,8 +269,9 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:1}
 .car-nav button:disabled{opacity:.35;cursor:default}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe .car-track img{transition:none}}
 
-/* all captions: --c-cap (#000 light / near-white dark); legend swatches keep their own colours */
-body.cs figcaption,body.cs figcaption.cap16{color:var(--c-cap)}
+/* captions: #000 light; dark = body copy token (--body, #dcdcdc). Legend swatches keep their own colours */
+body.cs figcaption,body.cs figcaption.cap16{color:#000000}
+html[data-theme=dark] body.cs figcaption,html[data-theme=dark] body.cs figcaption.cap16{color:var(--body)}
 
 /* FMSS images fill their frames */
 body.cs .media img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
