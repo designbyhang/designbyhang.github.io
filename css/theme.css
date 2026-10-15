@@ -20,13 +20,14 @@ html[data-theme=dark] .badge{background:rgba(20,20,20,.75);color:#bbb;border-col
 /* toggle must not change footer height (keeps stage/card position identical) */
 html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8f!important}
 /* toggle v2: ring = active gauge ring (24.2px outer, 2px, --c-strong); filled icons; ring ink inset equal left/bottom = corner inset */
-.theme-btn{--tb-d:24.2px;--tb-w:2px;--tb-x:clamp(16px,3vw,32px);appearance:none;display:grid;place-items:center;width:var(--tb-d);height:var(--tb-d);padding:0;margin:0;border:0;border-radius:50%;box-sizing:border-box;background:transparent;color:var(--c-strong);cursor:pointer;position:fixed;left:calc(var(--tb-x) - var(--tb-ox,0px));bottom:calc(var(--tb-x) - var(--tb-oy,0px));z-index:60}
 .home .bot{position:relative}
 .home .bot .theme-btn{position:absolute;bottom:calc(var(--tb-x) - var(--tb-oy,0px))}
-.theme-btn:focus-visible{outline:1px solid var(--c-strong);outline-offset:2px}
-.theme-btn svg{width:16px;height:16px;fill:currentColor;stroke:none!important;display:block} /* v3: filled icons only, no ring; ink = HANG letters (--c-strong) */
 .home .bot{justify-content:flex-end!important}
 
-.home .top nav a.from-r::after{transform-origin:right}
+.home .top nav a[href='#work']::after{transform-origin:right} /* CASE STUDIES always enters/exits at its right edge */
 .theme-btn,.theme-btn *{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-.theme-btn{--tb-ox:5px;--tb-oy:5px}html[data-theme=dark] .theme-btn{--tb-oy:4px} /* icon ink (14px) sits exactly at the corner inset */
+/* toggle v4 = v1 circle (28px, 1px --line ring, v1 fills) + v3 filled icons (no stroke, --c-strong); circle edge at the corner inset */
+.theme-btn{--tb-x:clamp(16px,3vw,32px);appearance:none;display:grid;place-items:center;width:28px;height:28px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;box-sizing:border-box;background:none;color:var(--ink);cursor:pointer;position:fixed;left:var(--tb-x);bottom:var(--tb-x);z-index:60}
+.theme-btn:hover,.theme-btn:focus-visible{border-color:currentColor}
+.theme-btn svg{width:16px;height:16px;fill:var(--c-strong);stroke:none!important;display:block}
+.theme-btn.theme-float{background:var(--sheet,#fcfcfc);box-shadow:0 1px 4px rgba(0,0,0,.06)}
