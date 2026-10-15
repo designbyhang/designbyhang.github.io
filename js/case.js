@@ -14,5 +14,14 @@ function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)
  if(mid){const k=document.querySelector('.hero .kicker'),past=k?k.getBoundingClientRect().bottom<=mid.closest('.bar').getBoundingClientRect().bottom:true;mid.classList.toggle('on',past);mid.closest('.bar').classList.toggle('mid-on',past);}
  const h=document.documentElement.scrollHeight-innerHeight;bar.style.transform=`scaleX(${h>0?Math.min(1,scrollY/h):0})`;}
 let t=0;addEventListener('scroll',()=>{window.dbhSfx&&window.dbhSfx.move(scrollY,480); /* dial tick every 120px (480/4) */if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
-/* reduced motion: no autoplay — show poster with controls */
-(function(){var mq=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');function apply(){document.querySelectorAll('video.demo-video').forEach(function(v){if(mq&&mq.matches){v.removeAttribute('autoplay');v.autoplay=false;v.pause();try{v.currentTime=0}catch(e){}v.controls=true;v.load()}else{v.controls=false;v.autoplay=true;var p=v.play();if(p&&p.catch)p.catch(function(){})}})}apply();mq&&mq.addEventListener&&mq.addEventListener('change',apply)})();
+/* demo videos: play at ~50% in view, pause when out; button toggles; manual pause sticks; reduced motion never autoplays */
+(function(){var vs=document.querySelectorAll('video.demo-video');if(!vs.length)return;var rm=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
+var ico='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx="1.2"/><rect x="9.5" y="2.5" width="3" height="11" rx="1.2"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.2 2.6c0-.8.9-1.3 1.6-.9l6.8 4.4c.6.4.6 1.4 0 1.8L6.8 12.3c-.7.4-1.6-.1-1.6-.9z"/></svg>';
+vs.forEach(function(v){v.autoplay=false;v.removeAttribute('autoplay');v.pause();var b=document.createElement('button');b.type='button';b.className='vid-btn';b.innerHTML=ico;v.parentNode.appendChild(b);v._held=false;v._vis=false;
+ var sync=function(){var on=!v.paused;b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Pause video':'Play video')};
+ v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();
+ b.addEventListener('click',function(){var S=window.dbhSfx;if(S){S.toggle?S.toggle():S.tap()}if(v.paused){v._held=false;var p=v.play();if(p&&p.catch)p.catch(function(){})}else{v._held=true;v.pause()}});
+});
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;v._vis=e.intersectionRatio>=.5;if(v._vis){if(!v._held&&!rm.matches&&v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}}else if(!v.paused){v.pause()}})},{threshold:[0,.5]});vs.forEach(function(v){io.observe(v)})}
+rm.addEventListener&&rm.addEventListener('change',function(){if(rm.matches)vs.forEach(function(v){v.pause()})});
+})();
