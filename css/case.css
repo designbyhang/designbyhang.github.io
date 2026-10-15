@@ -282,3 +282,9 @@ body.cs .media img{width:100%;height:100%;object-fit:cover;object-position:50% 5
 
 /* no media hover zoom */
 body.cs .media:hover img,body.cs .phones img:hover,body.cs .strip img:hover{transform:none}
+/* Inconsistencies two-column block: light buttons for dark media */
+.inc-row .vid-btn,.inc-row .car-nav button{background:rgba(255,255,255,.85);color:#000}
+.inc-row .vid-btn:hover,.inc-row .car-nav button:hover{background:#fff}
+.inc-row .vid-btn svg,.inc-row .car-nav svg{stroke:#000}
+.inc-row .vid-btn .i-play{fill:#000}
+.inc-row .vid-btn:focus-visible,.inc-row .car-nav button:focus-visible{outline-color:#000}
