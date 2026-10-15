@@ -20,7 +20,7 @@ var ico='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5
 vs.forEach(function(v){v.autoplay=false;v.removeAttribute('autoplay');v.pause();var b=document.createElement('button');b.type='button';b.className='vid-btn';b.innerHTML=ico;v.parentNode.appendChild(b);v._held=false;v._vis=false;
  var sync=function(){var on=!v.paused;b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Pause video':'Play video')};
  v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();
- b.addEventListener('click',function(){var S=window.dbhSfx;if(S){S.toggle?S.toggle():S.tap()}if(v.paused){v._held=false;var p=v.play();if(p&&p.catch)p.catch(function(){})}else{v._held=true;v.pause()}});
+ b.addEventListener('click',function(){if(v.paused){v._held=false;var p=v.play();if(p&&p.catch)p.catch(function(){})}else{v._held=true;v.pause()}});
 });
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;v._vis=e.intersectionRatio>=.5;if(v._vis){if(!v._held&&!rm.matches&&v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}}else if(!v.paused){v.pause()}})},{threshold:[0,.5]});vs.forEach(function(v){io.observe(v)})}
 rm.addEventListener&&rm.addEventListener('change',function(){if(rm.matches)vs.forEach(function(v){v.pause()})});
@@ -29,7 +29,7 @@ rm.addEventListener&&rm.addEventListener('change',function(){if(rm.matches)vs.fo
 /* solution carousel: arrows step the slides, no wrap (disabled at the ends), arrow keys when focused */
 (function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track'),n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]');
  function go(d){i=Math.max(0,Math.min(n-1,i+d));tr.style.transform='translateX('+(-i*100)+'%)';prev.disabled=i===0;next.disabled=i===n-1;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n)}
- function step(d){var S=window.dbhSfx;if(S){S.toggle?S.toggle():S.tap()}go(d)}
+ function step(d){go(d)}
  prev.addEventListener('click',function(){step(-1)});next.addEventListener('click',function(){step(1)});
  c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?-1:1)}});
  go(0);});})();
