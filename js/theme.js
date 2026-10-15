@@ -10,6 +10,8 @@ const spark=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)retur
     e.style.cssText=`position:fixed;left:${cx+Math.cos(a)*R}px;top:${cy+Math.sin(a)*R}px;width:${len}px;height:${1+Math.round(Math.random())}px;background:${col};border-radius:1px;pointer-events:none;z-index:61;transform-origin:0 50%;box-shadow:0 0 2px ${col};transition:none!important`;
     document.body.appendChild(e);const rot=a*180/Math.PI;e.animate([{transform:`rotate(${rot}deg) translateX(0)`,opacity:1},{transform:`rotate(${rot}deg) translateX(${dist}px)`,opacity:0}],{duration:250+Math.random()*150,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>e.remove();}
   b.animate([{opacity:1},{opacity:.35,offset:.3},{opacity:1}],{duration:160});};
-b.addEventListener('click',()=>{const t=de.dataset.theme==='dark'?'light':'dark';de.classList.add('theme-anim');de.dataset.theme=t;try{localStorage.setItem('dbh-theme',t);}catch(e){}lab();
+/* home project covers: the left text panel is baked into the cover image, so dark mode swaps to a -dark variant (panel #1a1a1a, text #f2f2f2; cover art untouched) */
+const covers=()=>document.querySelectorAll('.proj img[src*="assets/cover-"]').forEach(im=>{const l=im.dataset.light||(im.dataset.light=im.getAttribute('src').replace('-dark.webp','.webp'));im.setAttribute('src',de.dataset.theme==='dark'?l.replace('.webp','-dark.webp'):l);});covers();
+b.addEventListener('click',()=>{const t=de.dataset.theme==='dark'?'light':'dark';de.classList.add('theme-anim');de.dataset.theme=t;covers();try{localStorage.setItem('dbh-theme',t);}catch(e){}lab();
   {const k=window.dbhSfx?(window.dbhSfx.toggle?window.dbhSfx.toggle():(window.dbhSfx.tap(),'tap')):'none';window.__lastToggleSound=k;if(k==='zap')spark();}setTimeout(()=>de.classList.remove('theme-anim'),350);dispatchEvent(new Event('resize'));});
 })();
