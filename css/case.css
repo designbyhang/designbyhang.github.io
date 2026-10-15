@@ -220,3 +220,4 @@ body.cs .fig .media.dark:has(img[src*="watch-browse"]){aspect-ratio:3840/2052;di
 body.cs .fig .media.dark:has(img[src*="watch-browse"]) img{width:auto;height:100%;max-width:100%;object-fit:contain}
 figcaption.cap16{font-size:var(--t-s16);line-height:1.5;color:#000;text-align:center;margin:14px auto 0;max-width:60ch}
 body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watch-browse"]){box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
+@media (max-width:900px){.sec-label:empty{display:none}}
