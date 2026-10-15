@@ -212,6 +212,7 @@ body.cs .media.draw:hover img{transform:none}
 @media (min-width:901px){.sec-grid>.no-label{grid-column:2}}
 .prose .t-h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin-bottom:12px}
 .prose p.t-body{font:var(--t-body)}
+#insights .prose p.t-body+h2{margin-top:56px} /* Key Insights: space between title/body pairs */
 @media (max-width:900px){.prose p.t-body{font-size:var(--t-body-m-size)}}
 
 /* 02 Problem: three image frames share one height (exit-affordances ratio 3840/2052); captions Small 16 black */
