@@ -214,6 +214,7 @@ body.cs .media.draw:hover img{transform:none}
 .prose p.t-body{font:var(--t-body)}
 #insights .prose p.t-body+h2{margin-top:56px} /* Key Insights: space between title/body pairs */
 @media (max-width:900px){.prose p.t-body{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
+.layer b,.sub p,.foot{line-height:1.7} /* these only inherited body line-height; keep their previous 1.7 ratio now that --t-body uses a fixed 28px/26px */
 
 /* 02 Problem: three image frames share one height (exit-affordances ratio 3840/2052); captions Small 16 black */
 body.cs .media.draw{aspect-ratio:3840/2052}
