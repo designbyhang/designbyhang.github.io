@@ -9,8 +9,6 @@
   const zap=()=>{if(!ac||mute||ac.state!=='running')return;const t=ac.currentTime,R=Math.random,dur=.25+R()*.15,sr=ac.sampleRate,N=Math.round(sr*dur),buf=ac.createBuffer(1,N,sr),d=buf.getChannelData(0);
     let hold=0,v=0;const step=Math.round(6+R()*14);for(let i=0;i<N;i++){if(hold--<=0){hold=step;v=R()*2-1;}const env=Math.pow(1-i/N,1.5)*(R()<.12?.15:1);d[i]=Math.sign(v)*Math.pow(Math.abs(v),.4)*env;} /* sample-and-hold bitcrush + hard distortion + dropouts */
     const s=ac.createBufferSource(),hp=ac.createBiquadFilter(),g=ac.createGain();s.buffer=buf;hp.type='highpass';hp.frequency.value=500+R()*400;g.gain.value=.3;s.connect(hp).connect(g).connect(out);s.start(t);
-    const o=ac.createOscillator(),og=ac.createGain(),f0=90+R()*40;o.type='sawtooth';o.frequency.setValueAtTime(f0,t);let tt=t;while(tt<t+dur){tt+=.03+R()*.05;o.frequency.setValueAtTime(f0*(.4+R()*.7),tt);}
-    og.gain.setValueAtTime(.15,t);og.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(og).connect(out);o.start(t);o.stop(t+dur+.02);
     const pops=3+Math.floor(R()*3);for(let k=0;k<pops;k++){const pt=t+R()*dur*.9,ps=ac.createBufferSource(),pg=ac.createGain();ps.buffer=nb;pg.gain.setValueAtTime(.9,pt);pg.gain.exponentialRampToValueAtTime(.001,pt+.012);ps.connect(pg).connect(out);ps.start(pt);ps.stop(pt+.02);}};
   return{count:{tick:0,land:0,tap:0} /* land: clunk removed, stays 0 */,
     move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;const n=performance.now();if(n-lastT<MINGAP)return;lastT=n;this.count.tick++;hit(3200,6,.5,.012);},
