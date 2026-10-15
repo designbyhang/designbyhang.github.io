@@ -119,7 +119,9 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
     words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],X(p[1]),Y(p[2])]),dots:G0.dots.map(d=>[X(d[0]),Y(d[1]),d[2]]),ring:[X(G0.ring[0]),Y(G0.ring[1])]};
-  const mono=12*px;/* all mono text 12px */let out='<defs>',body='';
+  const mono=(()=>{const m0=12*px,mf0=getComputedStyle(document.documentElement).getPropertyValue('--mono').trim(),PADX=10*px,PADY=6*px;inkC.font=m0+'px '+mf0;inkC.letterSpacing=(.04*m0)+'px';let k=1;
+    G.words.forEach(p=>{const t=inkC.measureText(p[0].toUpperCase()),iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft,bw=p.length>4?p[3]-p[1]:G.xs.find(v=>v>p[1]+.01)-p[1],nY=G.ys.find(v=>v>p[2]+.01),bh=p.length>4?p[4]-p[2]:nY-p[2];k=Math.min(k,(bw-2*PADX)/iw,(bh-2*PADY)/(.73*m0));});
+    inkC.letterSpacing='0px';return m0*Math.max(.5,k);})();/* mono text 12px, scaled down (all keywords together) only when the narrowest keyword box can't fit it with 10px/6px padding, e.g. mobile landscape */let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
   const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
