@@ -247,8 +247,20 @@ body.cs figcaption{margin:14px auto 0}
 body.cs .media.mframe{box-sizing:content-box;max-width:calc(100% - 2px);aspect-ratio:3840/2052;border:1px solid var(--line);border-radius:0;background:#000;display:flex;align-items:center;justify-content:center}
 body.cs .media.mframe img{width:100%;height:100%;object-fit:contain;border-radius:0}
 /* solution demo video in the shared media frame */
-body.cs .media.mframe video{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;background:#000;border-radius:0}
+/* video frames: the recording has a 1px darker border on every edge; overscan 2px each side (clipped by the frame) so it, and any subpixel gap against the old #000 ground, never shows */
+body.cs .media.mframe.video,body.cs .media.mframe.carousel{background:#f1f1f1}
+body.cs .media.mframe video{display:block;flex:none;width:calc(100% + 4px);height:calc(100% + 4px);margin:-2px;object-fit:cover;object-position:50% 50%;background:#f1f1f1;border-radius:0}
 /* play/pause: same look as .theme-btn (shared rules in theme.css), 40px from frame's right/bottom; 16px on phones (toggle's mobile inset) */
+/* media controls: 32px translucent black circles, white 1.5px stroke icons, same in both themes (independent of .theme-btn) */
+.vid-btn,.car-nav button{appearance:none;display:grid;place-items:center;width:32px;height:32px;padding:0;margin:0;border:0;border-radius:50%;box-sizing:border-box;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.vid-btn:hover,.car-nav button:hover{background:rgba(0,0,0,.62)}
+.vid-btn:focus-visible,.car-nav button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.vid-btn svg,.car-nav svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
 .vid-btn{position:absolute;right:39px;bottom:39px;z-index:3} /* 40px from the frame's outer (1px-border) edge */
 .vid-btn .i-play{display:none}.vid-btn[aria-pressed=false] .i-play{display:block}.vid-btn[aria-pressed=false] .i-pause{display:none}
-@media (max-width:640px){.vid-btn{right:15px;bottom:15px}}
+.car-nav{position:absolute;right:39px;bottom:39px;z-index:3;display:flex;gap:12px}
+@media (max-width:640px){.vid-btn,.car-nav{right:15px;bottom:15px}}
+.car-track{display:flex;width:100%;height:100%;transition:transform .45s cubic-bezier(.2,.7,.3,1)}
+body.cs .media.mframe .car-track img{flex:0 0 100%;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0}
+.car-nav button:disabled{opacity:.35;cursor:default}
+@media (prefers-reduced-motion:reduce){.car-track{transition:none}}
