@@ -207,3 +207,9 @@ body.cs .media.draw:hover img{transform:none}
 .bar-mid{display:block!important;font:var(--t-label)!important;letter-spacing:var(--t-label-ls)!important;word-spacing:var(--t-label-ws)!important;color:#333!important;text-transform:none!important;max-width:none;overflow:visible;opacity:0;transition:opacity .22s ease;pointer-events:none}
 .bar-mid.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.bar-mid{transition:none}}
+
+/* side-label-less block keeps the content column */
+@media (min-width:901px){.sec-grid>.no-label{grid-column:2}}
+.prose .t-h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin-bottom:12px}
+.prose p.t-body{font:var(--t-body)}
+@media (max-width:900px){.prose p.t-body{font-size:var(--t-body-m-size)}}
