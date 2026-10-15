@@ -233,3 +233,11 @@ body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watc
 .cap16 .ring{display:inline-block;width:.75em;height:.75em;border-radius:50%;border:1.5px solid;box-sizing:border-box;flex:none}
 .cap16 .ring-r{border-color:#fe4e53}.cap16 .ring-y{border-color:#fdbf00} /* sampled from the image legend */
 .cap16 .lg-t{font-size:var(--t-s13)} /* Small 13; ring keeps its em size from .lg */.cap16 .lg-t-r{color:#fe4e53}.cap16 .lg-t-y{color:#fdbf00} /* text = ring colour exactly */
+
+/* mobile / vertical: section label replaces the logo at the left inset once past the eyebrow; ellipsis before BACK; desktop unchanged */
+.brand{transition:opacity .22s ease}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){
+ .bar-mid{left:16px;transform:translateY(-50%);text-align:left;max-width:none;overflow:hidden!important;text-overflow:ellipsis;white-space:nowrap}
+ .bar.mid-on .brand{opacity:0}
+}
+@media (prefers-reduced-motion:reduce){.brand{transition:none}}
