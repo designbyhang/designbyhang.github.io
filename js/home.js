@@ -88,7 +88,7 @@ const L={W:1200,H:683.4,
     ['A',[880,64,1060,244],360,868,316,'Strategy'],
     ['N',[392,284,610,452],360,396,536,'Systems'],
     ['G',[610,492,830,622],360,596,744]],
-  words:[['Vision',110,284,330,452],['Strategy',392,64,610,244],['Systems',610,284,830,452],['Craft',880,492,1060,622]], /* v18: each keyword centred in a big box */
+  words:[['Vision',110,284,330,452],['Strategy',392,64,610,244],['Systems',610,284,830,452],['Craft',880,492,1060,622],['Creativity',880,284,1060,452]], /* v18: each keyword centred in a big box */
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:871.5,
@@ -98,7 +98,7 @@ P={W:600,H:871.5,
     ['A',[300,56,550,226],300,336,266,'Strategy'],
     ['N',[50,262,300,432],300,54,472,'Systems'],
     ['G',[50,468,300,638],300,40,678]],
-  words:[['Vision',50,226],['Strategy',300,226],['Systems',300,262,550,432],['Craft',300,468,550,638]],
+  words:[['Vision',50,226],['Strategy',300,226],['Systems',300,262,550,432],['Craft',300,468,550,638],['Creativity',300,432]] /* mobile: no free big box near A; thin row between SYSTEMS and CRAFT in A's column */,
   dims:[],
   dots:[[300,56,4],[550,432,4],[300,262,4],[300,468,4],[50,674,4],[300,820,4]],ring:[550,674],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
@@ -151,7 +151,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   const R=G.ring;body+=`<circle class="a" style="--d:1650" fill="#eeeeee" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
-  const ko=getComputedStyle(root.closest('.media-wrap')).backgroundColor;root.style.setProperty('--ko',ko&&ko!=='rgba(0, 0, 0, 0)'?ko:'#fff');const kp=3*px;
+  /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a');r.setAttribute('style',t.getAttribute('style'));
     const lx0=G.words.find(w=>w[0]===t.textContent)[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);t.before(r);});
   // caption: same ink gap from the grid lines as the H/A/N letters

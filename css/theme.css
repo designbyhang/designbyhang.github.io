@@ -29,3 +29,4 @@ html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8
 .home .bot{justify-content:flex-end!important}
 .theme-btn .i-moon{width:13px;height:13px;transform:translate(.5px,0)}
 .home .top nav a.from-r::after{transform-origin:right}
+.theme-btn,.theme-btn *{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
