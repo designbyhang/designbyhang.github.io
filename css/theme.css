@@ -11,16 +11,21 @@ html[data-theme=dark] .gate{background:#121212}
 /* smooth colour change only when toggled (class added by js/theme.js), never on load */
 html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .3s ease,color .3s ease,border-color .3s ease,fill .3s ease,stroke .3s ease!important}
 /* toggle */
-.theme-btn{appearance:none;display:inline-grid;place-items:center;width:28px;height:28px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;background:none;color:var(--ink);cursor:pointer;flex:none;vertical-align:middle}
-.theme-btn:hover,.theme-btn:focus-visible{border-color:currentColor}
-.theme-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
 .theme-btn .i-sun{display:none}html[data-theme=dark] .theme-btn .i-sun{display:block}html[data-theme=dark] .theme-btn .i-moon{display:none}
 .home .bot{align-items:center}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.home .bot{flex-direction:row;justify-content:space-between}}
 /* project pages: floating bottom-left, same inset as the header corners */
-.theme-btn.theme-float{position:fixed;left:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);z-index:60;background:var(--sheet,#fcfcfc);border-color:var(--line);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 html[data-theme=dark] .bar{background:rgba(17,17,17,.82)}
 html[data-theme=dark] .badge{background:rgba(20,20,20,.75);color:#bbb;border-color:rgba(255,255,255,.08)}
 /* toggle must not change footer height (keeps stage/card position identical) */
-.home .bot .theme-btn{margin-block:-14px}
 html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8f!important}
+/* toggle v2: ring = active gauge ring (24.2px outer, 2px, --c-strong); filled icons; ring ink inset equal left/bottom = corner inset */
+.theme-btn{--tb-d:24.2px;--tb-w:2px;--tb-x:clamp(16px,3vw,32px);appearance:none;display:grid;place-items:center;width:var(--tb-d);height:var(--tb-d);padding:0;margin:0;border:var(--tb-w) solid var(--c-strong);border-radius:50%;box-sizing:border-box;background:var(--page);color:var(--c-strong);cursor:pointer;position:fixed;left:var(--tb-x);bottom:var(--tb-x);z-index:60}
+.home .bot{position:relative}
+.home .bot .theme-btn{position:absolute;bottom:var(--tb-x)}
+.theme-btn:focus-visible{outline:1px solid var(--c-strong);outline-offset:2px}
+.theme-btn svg{width:12px;height:12px;fill:currentColor;stroke:none;display:block}
+.theme-btn .i-sun line{stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.home .bot{justify-content:flex-end!important}
+.theme-btn .i-moon{width:13px;height:13px;transform:translate(.5px,0)}
+.home .top nav a.from-r::after{transform-origin:right}
