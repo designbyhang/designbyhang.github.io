@@ -12,7 +12,7 @@
   --t-lead-hero:400 clamp(20px,2.2vw,26px)/1.4 var(--sans);         --t-lead-ls:-.01em;      /* hero summary */
   --t-lead-size:clamp(20px,2vw,23px);   --t-lead-lh:1.55;            /* p.lead */
   --t-quote-size:clamp(20px,2.1vw,24px);--t-quote-lh:1.45;           /* blockquote */
-  --t-body:400 18px/1.7 var(--sans);    --t-body-m-size:17px;        /* FMSS body (17px on mobile) */
+  --t-body:400 18px/28px var(--sans);   --t-body-m-size:17px; --t-body-m-lh:26px; /* FMSS body: 18/28 desktop, 17/26 mobile */
   --t-body-home:400 16px/1.6 var(--sans);                            /* home base */
   --t-s16:16px; --t-s15:15px; --t-s14:14px; --t-s13:13px; --t-s12:12px; /* small sans sizes */
   /* Bitcount Grid Single */
