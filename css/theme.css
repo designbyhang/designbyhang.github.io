@@ -26,9 +26,8 @@ html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8
 
 .home .top nav a[href='#work']::after{transform-origin:right} /* CASE STUDIES always enters/exits at its right edge */
 .theme-btn,.theme-btn *{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-/* toggle v4 = v1 exactly (28px soft circle: --sheet fill, 1px --line ring, shadow; 14px icons, 1.5px strokes, 8 rays) + solid moon, solid sun disc; circle edge at the corner inset */
+/* toggle v4 = v1 circle (28px, 1px --line ring, v1 fills) + v3 filled icons (no stroke, --c-strong); circle edge at the corner inset */
 .theme-btn{--tb-x:clamp(16px,3vw,32px);appearance:none;display:grid;place-items:center;width:28px;height:28px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;box-sizing:border-box;background:none;color:var(--ink);cursor:pointer;position:fixed;left:var(--tb-x);bottom:var(--tb-x);z-index:60}
 .theme-btn:hover,.theme-btn:focus-visible{border-color:currentColor}
-.theme-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;display:block}
-.theme-btn .i-moon path{fill:currentColor} /* solid: fill + same-colour stroke keeps the v1 silhouette */.theme-btn .i-sun circle{fill:currentColor}
-.theme-btn,.theme-btn.theme-float{background:var(--sheet,#fcfcfc);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.theme-btn svg{width:16px;height:16px;fill:var(--c-strong);stroke:none!important;display:block}
+.theme-btn.theme-float{background:var(--sheet,#fcfcfc);box-shadow:0 1px 4px rgba(0,0,0,.06)}
