@@ -41,3 +41,5 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
  c.addEventListener('mouseenter',function(){hover=true;clearTimeout(tm)});c.addEventListener('mouseleave',function(){hover=false;restart()});
  if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){var was=vis;vis=e.intersectionRatio>=.35;if(vis!==was)restart()})},{threshold:[0,.35]}).observe(c)}else{vis=true;restart()}
  });})();
+/* Back to top: always to scrollY 0 (#top is the hero, below the bar); smooth unless reduced motion */
+document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
