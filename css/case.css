@@ -288,3 +288,7 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-grid li{border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:6px}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
 .iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5} /* label/value pairing matches the Role / Timeline block */
+/* System & Scale boxes: full media width, 3 columns x 2 rows */
+.iter-wrap{margin-top:48px}
+.iter-wrap .iter-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
+@media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
