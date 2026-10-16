@@ -40,7 +40,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .hint .arr{display:inline-block;animation:nudge 1.8s var(--ease) infinite}
 .hint-touch{display:none}@media (hover:none){.hint-desk{display:none}.hint-touch{display:inline}}
 @keyframes nudge{0%,100%{transform:none}50%{transform:translateX(4px)}}
-.type-cover{display:grid;grid-template-columns:1fr 1fr;background:var(--c-paper)}
+.type-cover{display:grid;grid-template-columns:640fr 800fr;background:var(--c-paper)}
 .type-cover span{align-self:end;padding:9% 0 12% 8%;font:400 calc(var(--cw)*.05)/1.05 var(--sans);letter-spacing:-.02em}
 .type-cover i{background:linear-gradient(160deg,#2d3c8f,#1b2459)}
 
