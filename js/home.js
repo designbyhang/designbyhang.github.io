@@ -94,9 +94,9 @@ const L={W:1200,H:683.4,
 P={W:600,H:499.3,
   xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|A, N|G), no CTA row */,ys:[56,220,256,420,456],
   letters:[
-    ['H',[50,56,300,226],300,44,266,'Vision'],
-    ['A',[300,56,550,226],300,336,266,'Strategy'],
-    ['N',[50,262,300,432],300,54,472,'Systems'],
+    ['H',[50,56,300,220],300,44,266,'Vision'],
+    ['A',[300,56,550,220],300,336,266,'Strategy'],
+    ['N',[50,256,300,420],300,54,472,'Systems'],
     ['G',[300,256,550,420],300,296,460]],
   words:[['Vision',50,220],['Strategy',300,220],['Systems',50,420],['Creativity',300,420]],
   dims:[],
@@ -110,7 +110,7 @@ function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base
 const THIN_D=.7882 /* 16px at the 1440 design size */,THIN_P=1; /* thin-row height factors (desktop rows are empty; mobile keeps 22px for VISION/STRATEGY) */
 function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
-  const YS=G0.ys,Bw0=YS[2]-YS[1],Bw=port?Bw0*THIN_P:Bw0*THIN_D /* v19: thinner keyword rows, height given to the big rows */,nR=Math.floor(YS.length/2),Rh=(YS[YS.length-1]-YS[0]-(nR-1)*Bw)/nR,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
+  const YS=G0.ys,Bw0=YS[2]-YS[1],Bw=port?Bw0*THIN_P:Bw0*THIN_D /* v19: thinner keyword rows, height given to the big rows */,nR=Math.ceil((YS.length-1)/2),Rh=(YS[YS.length-1]-YS[0]-Math.floor((YS.length-1)/2)*Bw)/nR /* big rows + thin rows (mobile ends on a thin row) */,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
   const yq=y=>{for(let i=1;i<YS.length;i++)if(y<=YS[i]||i===YS.length-1)return YN[i-1]+(y-YS[i-1])*(YN[i]-YN[i-1])/(YS[i]-YS[i-1]);};
   const m=(port?.075294:.060924)*VW /* inset: 6.0924cqi = 64px at 1440 (card 1050.5px; was 6.5cqi = 68.3px); mobile 8cqi x 64/68 = 7.5294cqi */,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
   const XS=G0.xs,XE=G0.xe,xq=x=>{for(let i=1;i<XS.length;i++)if(x<=XS[i]||i===XS.length-1)return XE[i-1]+(x-XS[i-1])*(XE[i]-XE[i-1])/(XS[i]-XS[i-1]);};
@@ -138,6 +138,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   // v17: one shared size; every letter's top gap = T (H's padding); the widest ink (G) gets side gaps = gap0, all letters centred in equal columns
   let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*T)/(e[1]-e[0]));});
   for(let it=0;it<4;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs,T).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*T)/(e[1]-e[0]));});fs=f2;}
+  if(port)G.letters.forEach(l=>{const c=l[1],t=-inkT(l[0],100,SF,SC)/100;fs=Math.min(fs,(c[3]-c[1]-2*T)/t);}); /* mobile: cap height fits its box (top/bottom gap T), baseline never below the box line */
   G.letters.forEach(l=>{const c=l[1],q=place(l,fs,T);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];l[7]=q.e[1]-q.e[0];});
   
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
