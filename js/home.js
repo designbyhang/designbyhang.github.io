@@ -91,16 +91,16 @@ const L={W:1200,H:683.4,
   words:[['Vision',110,284,330,452],['Strategy',392,64,610,244],['Systems',610,284,830,452],['Craft',880,492,1060,622],['Creativity',880,284,1060,452]], /* v18: each keyword centred in a big box */
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
-P={W:600,H:499.3,
-  xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|N, A|G), no CTA row */,ys:[56,220,256,420,456],
+P={W:600,H:600,
+  xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|N, A|G), no CTA row */,ys:[56,220,306,470,556] /* mobile v21: square card; letter rows unchanged, label rows 36 -> 86 */,
   letters:[
     ['H',[50,56,300,220],300,44,266,'Vision'],
     ['N',[300,56,550,220],300,336,266,'Strategy'],
-    ['A',[50,256,300,420],300,54,472,'Systems'],
-    ['G',[300,256,550,420],300,296,460]],
-  words:[['Vision',50,220],['Strategy',300,220],['Systems',50,420],['Creativity',300,420]],
+    ['A',[50,306,300,470],300,54,522,'Systems'],
+    ['G',[300,306,550,470],300,296,510]],
+  words:[['Vision',50,220],['Strategy',300,220],['Systems',50,470],['Creativity',300,470]],
   dims:[],
-  dots:[[300,56,4],[550,420,4],[300,256,4],[300,456,4]],ring:[550,456],title:[54,806,40]};
+  dots:[[300,56,4],[550,470,4],[300,306,4],[300,556,4]],ring:[550,556],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
