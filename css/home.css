@@ -1,4 +1,4 @@
-:root{--side:clamp(16px,3vw,32px);--page:#ededed;--ink:#171717;--mute:#6f6f6f;--faint:#9a9a9a;--card:#fcfcfc;--line:#e2e2e2;--accent:#ff5a36;
+:root{--side:clamp(16px,3vw,32px);--m-in:16px;--page:#ededed;--ink:#171717;--mute:#6f6f6f;--faint:#9a9a9a;--card:#fcfcfc;--line:#e2e2e2;--accent:#ff5a36;
 --sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--mono:"Bitcount Grid Single",ui-monospace,Menlo,monospace;--ease:cubic-bezier(.2,.7,.2,1);
 --h:min(68vh,640px);--gap:clamp(12px,1.6vw,24px)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -57,12 +57,13 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @keyframes fade{to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.strip{opacity:1;animation:none}.hint .arr{animation:none}}
 @media (max-height:560px) and (min-width:641px){.strip{--cw:clamp(260px,38vw,700px)}}
+@media (max-width:900px){:root{--m-in:clamp(20px,5vw,72px)}.top{padding-inline:var(--m-in)}} /* mobile inset = case.css .wrap/.bar inset */
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){
- .top{grid-template-columns:1fr auto;padding:18px 16px}.dots{display:none}
+ .top{grid-template-columns:1fr auto;padding:18px var(--m-in)}.dots{display:none}
  html,body{height:auto}body.home{display:block;min-height:0;overflow:auto}
  main{display:block}
  .rail{overflow:visible;user-select:auto;touch-action:auto}
- .strip{position:static;margin:0;transform:none!important;flex-direction:column;gap:28px;padding:4px 16px 24px;--cw:calc(100vw - 32px)}
+ .strip{position:static;margin:0;transform:none!important;flex-direction:column;gap:28px;padding:4px var(--m-in) 24px;--cw:calc(100vw - 2 * var(--m-in))}
  .intro .media-wrap{aspect-ratio:auto;height:auto}
  .intro-in{height:auto;justify-content:flex-start;padding:22px 22px 20px}
  .hint{display:none}
