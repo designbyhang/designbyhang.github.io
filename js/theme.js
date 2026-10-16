@@ -16,3 +16,6 @@ const covers=()=>document.querySelectorAll('.proj img[src*="assets/cover-"]').fo
 b.addEventListener('click',()=>{const t=de.dataset.theme==='dark'?'light':'dark';de.classList.add('theme-anim');de.dataset.theme=t;covers();try{localStorage.setItem('dbh-theme',t);}catch(e){}lab();
   {const k=window.dbhSfx?(window.dbhSfx.toggle?window.dbhSfx.toggle():(window.dbhSfx.tap(),'tap')):'none';window.__lastToggleSound=k;if(k==='zap')spark();}setTimeout(()=>de.classList.remove('theme-anim'),350);dispatchEvent(new Event('resize'));});
 })();
+
+/* On touch devices, open LinkedIn in the same tab so iOS/Android hand off to the app. Desktop keeps the new-tab web link. */
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="linkedin.com"]');if(a&&matchMedia('(pointer:coarse)').matches)a.removeAttribute('target');},true);
