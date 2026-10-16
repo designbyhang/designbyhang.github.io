@@ -8,6 +8,6 @@ document.body.appendChild(g);const i=g.querySelector("input");i.focus();
 g.querySelector("form").addEventListener("submit",async e=>{e.preventDefault();
 const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(i.value));
 const hex=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");
-if(hex===HASH){sessionStorage.setItem(KEY,"1");document.documentElement.classList.remove("gated");g.remove();}
+if(hex===HASH){sessionStorage.setItem(KEY,"1");document.documentElement.classList.remove("gated");g.remove();dispatchEvent(new Event("gate:unlocked"));}
 else{g.querySelector(".gate-err").textContent="Incorrect passcode. Try again.";i.select();}});};
 document.readyState==="loading"?document.addEventListener("DOMContentLoaded",mount):mount();})();

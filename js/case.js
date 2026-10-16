@@ -1,7 +1,9 @@
 (()=>{const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fx=document.querySelectorAll('.fx');
 if(rm||!('IntersectionObserver'in window))fx.forEach(e=>e.classList.add('in'));
-else{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -10% 0px'});fx.forEach(e=>io.observe(e));}
+else{const go=()=>{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -10% 0px'});fx.forEach(e=>io.observe(e));};
+/* gated: reveal only after unlock (js/gate.js fires gate:unlocked), otherwise they finish unseen under the gate */
+document.documentElement.classList.contains('gated')?addEventListener('gate:unlocked',go,{once:true}):go();}
 const secs=[...document.querySelectorAll('section[data-title]')],links=[...document.querySelectorAll('.toc a')],mid=document.getElementById('bar-mid'),bar=document.querySelector('.prog i');
 let cur='';
 // header label: hidden until the eyebrow scrolls under the bar, then 'FMSS · <section>' (falls back to the section name, then hidden, if it can't fit between logo and BACK)

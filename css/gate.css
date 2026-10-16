@@ -1,5 +1,7 @@
 html.gated body>*:not(.gate){visibility:hidden}
 html.gated{overflow:hidden}
+/* hold page entrance animations (home poster draw-in, strip fade) at frame 0 while gated; they play from the start on unlock */
+html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:paused!important}
 .gate{position:fixed;inset:0;z-index:1000;background:var(--page);color:var(--c-strong);display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
 .gate-in{width:fit-content;max-width:min(512px,100%)} /* shrink-wrap so the centred block has no empty right side */
 .gate-logo{font:var(--t-gate-logo);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);margin-bottom:64px}
