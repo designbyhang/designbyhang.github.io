@@ -281,4 +281,4 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 /* Key Insights titles: same weight and colour as the Opportunity list titles */
 .sec .quote{font-weight:600;color:var(--ink)}
 /* Key Insights title bars: 4px thick, 1px taller at the top */
-.sec .quote::before{width:4px;top:calc((var(--t-quote-lh) - 1) * .5em + .06em - 1px)}
+.sec .quote::before{width:4px;top:calc((var(--t-quote-lh) - 1) * .5em + .06em - 3px)}
