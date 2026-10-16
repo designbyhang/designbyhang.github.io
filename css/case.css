@@ -257,7 +257,7 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:op
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe .car-track img{transition:none}}
 
 /* captions: #000 light; dark = body copy token (--body, #dcdcdc). Legend swatches keep their own colours */
-body.cs figcaption,body.cs figcaption.cap16{color:#000000}
+body.cs figcaption,body.cs figcaption.cap16{color:var(--body)}
 html[data-theme=dark] body.cs figcaption,html[data-theme=dark] body.cs figcaption.cap16{color:var(--body)}
 
 /* FMSS images fill their frames */
