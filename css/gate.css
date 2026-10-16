@@ -1,15 +1,22 @@
 html.gated body>*:not(.gate){visibility:hidden}
 html.gated{overflow:hidden}
-.gate{position:fixed;inset:0;z-index:1000;background:#121212;color:#fff;display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
+.gate{position:fixed;inset:0;z-index:1000;background:var(--c-paper);color:var(--c-strong);display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
 .gate-in{width:min(512px,100%)}
 .gate-logo{font:var(--t-gate-logo);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);margin-bottom:64px}
-.gate h1{font:var(--t-gate-h1);letter-spacing:var(--t-gate-h1-ls);margin:0 0 20px}
-.gate-sub{font-size:var(--t-s13);margin-bottom:48px}
+/* headline = home intro card CTA (.poster-title): 400, 3.33cqi of the 1050.5px active card at 1440 (=2.43vw), lh 1, -.025em, --c-strong; mobile 6.67cqi of the 358px card (=100vw-32px) */
+.gate{--g-h:2.43vw;--g-b:1.381vw}
+.gate h1{font-family:var(--sans,"Instrument Sans",system-ui,sans-serif);font-weight:400;font-size:var(--g-h);line-height:1;letter-spacing:-.025em;color:var(--c-strong);margin:0 0 20px}
+/* body + input = intro card keywords (.poster-svg .m) rendered size: 19.88px at 1440 (=1.381vw), 12px at 390 (=3.352% of the card), lh 1.6, --c-strong */
+.gate-sub,.gate-form input{font-size:var(--g-b);line-height:1.6;color:var(--c-strong)}
+.gate-sub{margin:0 0 48px}
 .gate-form{display:flex;border-bottom:1px solid #d9d9d9}
-.gate-form input{flex:1;background:none;border:0;color:#fff;font:inherit;font-size:15px;padding:12px 0}
-.gate-form input::placeholder{color:#777}
-.gate-form input:focus{outline:none}.gate-form:focus-within{border-color:#fff}
-.gate-form button{background:none;border:0;color:#fff;font-size:18px;cursor:pointer;padding:0 4px}
+.gate-form input{flex:1;background:none;border:0;font-family:inherit;padding:12px 0}
+.gate-form input::placeholder{color:var(--faint,#9a9a9a)}
+.gate-form input:focus{outline:none}.gate-form:focus-within{border-color:var(--c-strong)}
+.gate-form button{display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:0 4px;font-size:var(--g-h)}
+/* arrow = intro card CTA arrow (.poster-title .arr svg: same path, .86em x .6em, 1.5px non-scaling miter stroke, --c-strong, static per arrows.css) at half size */
+.gate-form button svg{display:block;width:.43em;height:.3em;overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-h:calc((100vw - 32px)*.0667);--g-b:calc((100vw - 32px)*.03352)}}
 .gate-err{min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
-.gate-help{font-size:var(--t-s13);color:#999}.gate-help a{color:#fff;text-decoration:none}.gate-help a:hover{text-decoration:underline}
+.gate-help{font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{color:var(--c-strong);text-decoration:none}.gate-help a:hover{text-decoration:underline}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
