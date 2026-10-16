@@ -75,10 +75,9 @@ main{flex:1;display:flex;min-height:0;position:relative}
 
 .contact{margin-top:auto;padding-top:3%;display:flex;justify-content:space-between;align-items:baseline;gap:4px 14px;width:100%}
 .statement{margin-top:auto}
-.contact a{color:inherit;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease),color .2s}
-.contact a:hover,.contact a:focus-visible{color:var(--ink);background-size:100% 1px}
+.contact a{color:inherit;text-decoration:none;transition:color .2s}.contact a .t{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease)}
+.contact a:hover,.contact a:focus-visible{color:var(--ink)}.contact a:hover .t,.contact a:focus-visible .t{background-size:100% 1px}
 .contact .arr{animation-play-state:paused}.contact a:hover .arr{animation-play-state:running}
-.contact a .arr{translate:0 -.4px}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.about .hint.contact{display:flex;margin-top:22px;padding-top:0}}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */

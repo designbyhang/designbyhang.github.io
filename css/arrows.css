@@ -1,11 +1,18 @@
 /* Shared arrow pattern (.ax): static at rest; arrows are fully static; hover only shows the text underline. Gaps are explicit margins (no space glyph), calibrated to exact ink gaps. */
 .ax{--ax-move:4px;--ax-t:.25s}
 .ax .arr{display:inline-block;animation:none!important;margin-left:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px));transition:none!important}
-.ax .arr.arr-back{margin-left:0;margin-right:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px)) scaleX(-1)}
+.ax .arr.arr-back{margin-left:0;margin-right:var(--ax-gap,8px)}
+/* SVG text arrows (same path/stroke as the intro card CTA): .716em x .5em, centred on the pixel font's cap height (.643em) */
+.contact .arr,.bar-right .arr,.foot .arr{vertical-align:.07em;line-height:0}
+.contact .arr svg,.bar-right .arr svg,.foot .arr svg{display:block;width:.716em;height:.5em;overflow:visible}
+.contact .arr path,.bar-right .arr path,.foot .arr path{stroke:currentColor;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+.ax .arr.arr-back svg{transform:scaleX(-1)}
+.ax .arr.arr-up{position:relative;width:.5em;height:.716em;vertical-align:-.036em}
+.ax .arr.arr-up svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg)}
 /* --ax-dx: measured sub-pixel trim so the ink gap is exact */
 /* home CTA: 12px ink gap / 4px move at the 1440 design size (card 1050.5px wide), scaling with the card via cqi */
 .poster-cta.ax{--ax-gap:1.1423cqi;--ax-dx:-.015cqi;--ax-move:.3808cqi}
 .poster-cta.ax .arr{margin-left:var(--ax-gap)!important}
 .contact a.ax{--ax-gap:5.92px}
-.bar-right a.ax{--ax-gap:8px;--ax-dx:.53px} /* sub-px trim via transform: glyph runs snap to whole px */
+.bar-right a.ax,.foot a.ax{--ax-gap:8px}
 @media (prefers-reduced-motion:reduce){.ax .arr{transition:none}}
