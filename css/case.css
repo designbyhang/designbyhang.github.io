@@ -310,3 +310,4 @@ html{background:var(--page)}
 .car-light .car-nav button:hover{background:#fff}
 .car-light .car-nav svg{stroke:#000}
 .car-light .car-nav button:focus-visible{outline-color:#000}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.bar .brand{display:none}.bar .bar-right{margin-left:auto}} /* mobile portrait: no logo, header label takes its spot */
