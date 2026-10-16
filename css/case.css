@@ -296,3 +296,6 @@ body.cs .media:hover img,body.cs .phones img:hover,body.cs .strip img:hover{tran
 .car-ring.run circle{opacity:1;animation:carRing linear forwards}
 @keyframes carRing{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
 .inc-row .car-ring circle{stroke:rgba(0,0,0,.36)}
+/* quote bar spans the text lines only, not the line-height leading above and below */
+blockquote,.sec .quote{position:relative;border-left:0}
+blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width:2px;background:var(--ink);top:calc((var(--t-quote-lh) - 1) * .5em + .06em);bottom:calc((var(--t-quote-lh) - 1) * .5em + .02em)}
