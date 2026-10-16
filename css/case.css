@@ -274,9 +274,8 @@ body.cs .media img{width:100%;height:100%;object-fit:cover;object-position:50% 5
 blockquote,.sec .quote{position:relative;border-left:0}
 blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width:2px;background:var(--ink);top:calc((var(--t-quote-lh) - 1) * .5em + .06em);bottom:calc((var(--t-quote-lh) - 1) * .5em + .02em)}
 /* Key Insights titles: same weight and colour as the Opportunity list titles */
-.sec .quote{font-weight:600;color:var(--ink)}
 /* Key Insights title bars: 4px thick, 1px taller at the top */
-.sec .quote::before{width:4px;top:calc((var(--t-quote-lh) - 1) * .5em + .06em - 3px)}
+.sec .quote::before{width:2px;top:calc((var(--t-quote-lh) - 1) * .5em + .06em - 3px)}
 
 /* System & Scale: iteration examples as boxes between paragraphs */
 .iter-grid{list-style:none;display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 28px;padding:0}
