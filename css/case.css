@@ -305,3 +305,8 @@ body.cs .bot{display:flex;justify-content:flex-end;align-items:center;padding:18
 
 html{background:var(--page)}
 .media.cover.hero-slot,body .media.cover.hero-slot{background:none!important;border:0!important;border-radius:0;box-shadow:none}
+/* carousel buttons follow image brightness (js sets .car-light on dark images) */
+.car-light .car-nav button{background:rgba(255,255,255,.85);color:#000}
+.car-light .car-nav button:hover{background:#fff}
+.car-light .car-nav svg{stroke:#000}
+.car-light .car-nav button:focus-visible{outline-color:#000}
