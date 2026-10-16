@@ -288,3 +288,4 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-grid li{border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:6px}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
 .iter-grid span{color:var(--mute);font-size:var(--t-s14);line-height:1.55}
+.iter-grid b{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:400;font-size:18px;letter-spacing:0}
