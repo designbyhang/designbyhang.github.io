@@ -6,7 +6,7 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-in{width:fit-content;max-width:min(512px,100%)} /* shrink-wrap so the centred block has no empty right side */
 .gate-logo{font:var(--t-gate-logo);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);margin-bottom:64px}
 /* headline = home intro card CTA (.poster-title): 400, 3.33cqi of the 1050.5px active card at 1440 (=2.43vw), lh 1, -.025em, --c-strong; mobile 6.67cqi of the 358px card (=100vw-32px) */
-.gate{--g-h:2.43vw}
+.gate{--g-h:36px}
 .gate h1{font-family:var(--sans,"Instrument Sans",system-ui,sans-serif);font-weight:400;font-size:var(--g-h);line-height:1;letter-spacing:-.025em;color:var(--c-strong);margin:0 0 20px}
 /* body + input = project-page body copy (--t-body 18/28, 17/26 under 900px), fixed */
 .gate-sub,.gate-form input{font:var(--t-body);color:var(--c-strong)}
@@ -24,7 +24,7 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 @media (prefers-reduced-motion:reduce){.gate-form button,.gate-form input:placeholder-shown+button{transition:none}}
 /* arrow = intro card CTA arrow (.poster-title .arr svg: same path, .86em x .6em, 1.5px non-scaling miter stroke, --c-strong, static per arrows.css) at half size */
 .gate-form button svg{display:block;width:var(--g-aw,18px);height:calc(var(--g-aw,18px)*.6977);overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-h:calc((100vw - 32px)*.0667);--g-aw:14px;--g-gap:8px}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-aw:14px;--g-gap:8px}}
 .gate-err{min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
 .gate-help{font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{position:relative;color:var(--c-strong);text-decoration:none}
 /* hover underline = site nav (.home .top nav a::after / .bar-right a .t::after) */
