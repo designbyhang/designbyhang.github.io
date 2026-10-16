@@ -3,9 +3,9 @@
 .ax .arr{display:inline-block;animation:none!important;margin-left:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px));transition:none!important}
 .ax .arr.arr-back{margin-left:0;margin-right:var(--ax-gap,8px)}
 /* small SVG text arrows: CTA arrow redrawn for small sizes (viewBox 20x16, longer 8-unit barbs, 1px stroke) so at .8em x .64em they read with the CTA's proportions; height = cap height, centred on it */
-.contact .arr,.bar-right .arr,.foot .arr{vertical-align:0;line-height:0}
-.contact .arr svg,.bar-right .arr svg,.foot .arr svg{display:block;width:.8em;height:.64em;overflow:visible}
-.contact .arr path,.bar-right .arr path,.foot .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+.contact .arr,.bar-right .arr,.foot .arr,.next .k .arr{vertical-align:0;line-height:0}
+.contact .arr svg,.bar-right .arr svg,.foot .arr svg,.next .k .arr svg{display:block;width:.8em;height:.64em;overflow:visible}
+.contact .arr path,.bar-right .arr path,.foot .arr path,.next .k .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 .ax .arr.arr-back svg{transform:scaleX(-1)}
 .ax .arr.arr-up{position:relative;width:.64em;height:.8em;vertical-align:-.08em}
 .ax .arr.arr-up svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg)}
