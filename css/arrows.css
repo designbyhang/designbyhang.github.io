@@ -2,12 +2,12 @@
 .ax{--ax-move:4px;--ax-t:.25s}
 .ax .arr{display:inline-block;animation:none!important;margin-left:var(--ax-gap,8px);transform:translateX(var(--ax-dx,0px));transition:none!important}
 .ax .arr.arr-back{margin-left:0;margin-right:var(--ax-gap,8px)}
-/* SVG text arrows (same path/stroke as the intro card CTA): .716em x .5em, centred on the pixel font's cap height (.643em) */
-.contact .arr,.bar-right .arr,.foot .arr{vertical-align:.07em;line-height:0}
-.contact .arr svg,.bar-right .arr svg,.foot .arr svg{display:block;width:.716em;height:.5em;overflow:visible}
-.contact .arr path,.bar-right .arr path,.foot .arr path{stroke:currentColor;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+/* small SVG text arrows: CTA arrow redrawn for small sizes (viewBox 20x16, longer 8-unit barbs, 1px stroke) so at .8em x .64em they read with the CTA's proportions; height = cap height, centred on it */
+.contact .arr,.bar-right .arr,.foot .arr{vertical-align:0;line-height:0}
+.contact .arr svg,.bar-right .arr svg,.foot .arr svg{display:block;width:.8em;height:.64em;overflow:visible}
+.contact .arr path,.bar-right .arr path,.foot .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 .ax .arr.arr-back svg{transform:scaleX(-1)}
-.ax .arr.arr-up{position:relative;width:.5em;height:.716em;vertical-align:-.036em}
+.ax .arr.arr-up{position:relative;width:.64em;height:.8em;vertical-align:-.08em}
 .ax .arr.arr-up svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg)}
 /* --ax-dx: measured sub-pixel trim so the ink gap is exact */
 /* home CTA: 12px ink gap / 4px move at the 1440 design size (card 1050.5px wide), scaling with the card via cqi */

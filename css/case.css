@@ -76,13 +76,13 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .sub h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin-bottom:8px}
 .sub p{color:var(--mute);max-width:56ch;font-size:var(--t-s16)}
 /* results */
-.meta.results{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:8px}
-.meta.results>div{padding:40px 40px 40px 0}.meta.results>div+div{padding-left:40px}
+.meta.results{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:48px;border-top:0;border-bottom:0}
+.meta.results>div{padding:0 40px 0 0}.meta.results>div+div{padding-left:40px}
 .meta.results dt{margin-bottom:16px}
 .meta.results .rv{display:block;font:var(--t-stat);letter-spacing:-.03em;color:var(--ink)}
 .meta.results p{margin-top:20px;font:var(--t-body);color:var(--body)}
 .meta.results p b{color:var(--ink);font-weight:600}
-@media (max-width:900px){.meta.results{grid-template-columns:1fr}.meta.results>div,.meta.results>div+div{padding:28px 0;border-left:0}.meta.results>div+div{border-top:1px solid var(--line)}.meta.results p{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
+@media (max-width:900px){.meta.results{grid-template-columns:1fr}.meta.results>div,.meta.results>div+div{padding:0;border-left:0}.meta.results>div+div{margin-top:28px;padding-top:28px}.meta.results>div+div{border-top:1px solid var(--line)}.meta.results p{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 /* next */
 .next{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center;margin-top:clamp(80px,10vw,128px);padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--c-paper)}
 .next .k{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.04em}
@@ -131,7 +131,6 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .media.cover{border:0;background:transparent;border-radius:clamp(14px,2.2vw,30px)}
 .media.cover img{border-radius:inherit}
 .media.dark.pad img{border-radius:0}
-.fig .media.dark:has(img[src*="watch-browse"]){max-width:760px;margin-inline:auto}
 .media.cover,.media.cover img,.next img{border-radius:3.2% / 5.6%}
 /* v2 (Hang's edits) — case page only; case.css is not loaded by the home page */
 body.cs .hero{padding-top:clamp(20px,5vw,72px)}
@@ -145,7 +144,7 @@ body.cs .media.cover{border:1px solid var(--line)}
 body.cs{font-stretch:100%}
 /* media frames align exactly to the text column (no breakout) at every width */
 body.cs .bleed{margin-left:clamp(20px,5vw,72px);margin-right:clamp(20px,5vw,72px)}
-body.cs .phones.two,body.cs .phones.three,body.cs .fig .media.dark:has(img[src*="watch-browse"]){max-width:none;margin-inline:0}
+body.cs .phones.two,body.cs .phones.three{max-width:none;margin-inline:0}
 
 /* hero video placeholder — same aspect as cover-fmss-square (2800×1560) */
 body.cs .hero-slot{aspect-ratio:2800/1560;background:var(--c-slot);border:1px solid var(--line)}
@@ -202,10 +201,8 @@ body.cs .media.draw:hover img{transform:none}
 
 /* 02 Problem: three image frames share one height (exit-affordances ratio 3840/2052); captions Small 16 black */
 body.cs .media.draw{aspect-ratio:3840/2052}
-body.cs .fig .media.dark:has(img[src*="watch-browse"]){aspect-ratio:3840/2052;display:flex;align-items:center;justify-content:center}
-body.cs .fig .media.dark:has(img[src*="watch-browse"]) img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 figcaption.cap16{font-size:var(--t-s16);line-height:1.5;color:var(--c-cap);text-align:center;max-width:60ch}
-body.cs .wrap .fig .media.draw,body.cs .wrap .fig .media.dark:has(img[src*="watch-browse"]){box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
+body.cs .wrap .fig .media.draw{box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
 @media (max-width:900px){.sec-label:empty{display:none}}
 
 /* Inconsistencies: 3 image cells; stack on the vertical layout */

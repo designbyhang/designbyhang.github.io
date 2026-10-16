@@ -55,7 +55,7 @@ ol.steps li span{flex:none;width:64px;height:64px;border:1px solid rgba(255,255,
 .summ .body{font-weight:400;max-width:none}
 .p-foot{padding:120px 0 64px;color:#777;font-size:13px;display:flex;justify-content:space-between}
 .p-foot a{color:#fff;text-decoration:none}
-.p-foot .arr{display:inline-block;margin-right:8px;vertical-align:.07em;line-height:0}.p-foot .arr svg{display:block;width:.716em;height:.5em;overflow:visible;transform:scaleX(-1)}.p-foot .arr path{stroke:currentColor;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+.p-foot .arr{display:inline-block;margin-right:8px;vertical-align:0;line-height:0}.p-foot .arr svg{display:block;width:.8em;height:.64em;overflow:visible;transform:scaleX(-1)}.p-foot .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 @media (max-width:900px){
  .proj .pw{padding:0 20px}
  .p-nav a{font-size:22px}
