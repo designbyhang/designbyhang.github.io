@@ -157,7 +157,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
 :root{--mono-size:14px;--mono-ls:.04em;--mono-color:var(--c-label);--mono-tt:none}
-.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.sec-label,.list li::before,.step,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.iter-grid b,.sec-label,.list li::before,.step,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
 .bar-right a,.toc a,.sec-label{text-transform:none!important}
@@ -287,5 +287,4 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-grid{list-style:none;display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 28px;padding:0}
 .iter-grid li{border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:6px}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
-.iter-grid span{color:var(--mute);font-size:var(--t-s14);line-height:1.55}
-.iter-grid b{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:400;font-size:18px;letter-spacing:0}
+.iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5} /* label/value pairing matches the Role / Timeline block */
