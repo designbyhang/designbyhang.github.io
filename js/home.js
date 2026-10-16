@@ -70,7 +70,7 @@ strip.addEventListener('focusin',e=>{const k=e.target.closest('.card');if(k&&on)
 document.querySelector('.poster-cta')?.addEventListener('click',e=>{e.preventDefault();glide(cards.findIndex(k=>k.classList.contains('intro'))+1);});
 document.querySelectorAll('a[href="#about"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(cards.length-1);}));
 document.querySelectorAll('a[href="#work"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();glide(0);}));
-strip.addEventListener('click',e=>{const k=e.target.closest('.card');if(!k||e.target.closest('.poster-cta'))return;sfx.tap();const a=e.target.closest('a[href]');if(a&&sfx.on&&!a.target&&!(e.metaKey||e.ctrlKey||e.shiftKey||e.button)){e.preventDefault();setTimeout(()=>{location.href=a.href;},90);}}); /* card tap click; 90ms so the click is heard before navigating */
+strip.addEventListener('click',e=>{const k=e.target.closest('.card');if(!k||e.target.closest('.poster-cta'))return;sfx.tap();const a=e.target.closest('a[href]');if(a){const ms=/projects\/([\w-]+)\.html/.exec(a.getAttribute('href'));if(ms)try{sessionStorage.setItem('dbh-ret',JSON.stringify({slug:ms[1],m:on?'h':'v',t,y:scrollY,ts:Date.now()}));}catch(_){}}if(a&&sfx.on&&!a.target&&!(e.metaKey||e.ctrlKey||e.shiftKey||e.button)){e.preventDefault();setTimeout(()=>{location.href=a.href;},90);}}); /* card tap click; 90ms so the click is heard before navigating */
 window.__homeScale={to:v=>{t=x=clamp(v,0,max);render();},span:()=>cw+parseFloat(getComputedStyle(strip).columnGap||0),max:()=>max};
 // header nav: active underline follows position (About card >50% in view)
 let navA=null,navT=0;function navAct(ab){if(ab===navA)return;navA=ab;document.querySelectorAll('.top nav a').forEach(l=>{const on2=ab?l.hash==='#about':l.hash==='#work';l.classList.toggle('is-active',on2);if(on2)l.setAttribute('aria-current','page');else l.removeAttribute('aria-current');});}
@@ -78,6 +78,15 @@ const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let 
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}const ab=cards[cards.length-1].getBoundingClientRect(),vis=Math.max(0,Math.min(ab.bottom,innerHeight)-Math.max(ab.top,0))/Math.min(ab.height,innerHeight);navAct(vis>.5);};
 addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrack);setTimeout(mTrack,300);
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
+// return from a case study: put the card where it was (same layout) or centred (other layout / next-project), no intro replay
+const R=window.__dbhRet,ri=R?cards.findIndex(k=>{const a=k.querySelector('a.hit');return a&&a.getAttribute('href')==='projects/'+R.slug+'.html';}):-1;
+function restore(){if(ri<0)return;if(on){t=x=clamp(R.m==='h'&&typeof R.t==='number'?R.t:centers[ri]-c0,0,max);tw=null;render();return;}
+  const de=document.documentElement,sb=de.style.scrollBehavior;de.style.scrollBehavior='auto';
+  if(R.m==='v'&&typeof R.y==='number')scrollTo(0,R.y);else{const r=cards[ri].getBoundingClientRect();scrollTo(0,Math.max(0,scrollY+r.top+r.height/2-innerHeight/2));}
+  de.style.scrollBehavior=sb;mTrack();}
+if(ri>=0){measure();restore();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{measure();restore();});addEventListener('load',restore,{once:true});}
+// bfcache restore: page comes back exactly as left; just drop the stored target so the next fresh visit plays the intro
+addEventListener('pageshow',e=>{if(e.persisted)try{sessionStorage.removeItem('dbh-ret');}catch(_){}});
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
 // intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
 (()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg'),MP=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)'),mqR=matchMedia('(prefers-reduced-motion: reduce)') /* portrait = the page's mobile-portrait query (the portrait card is wider than tall now) */;
@@ -178,5 +187,5 @@ const go=()=>{if(done)return;const live=document.getAnimations().filter(a=>a.eff
       y1=Math.max(0,scrollY+k.getBoundingClientRect().top-fx-16),y0=scrollY,t0=performance.now(),D=900,e=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2,end=()=>{done=true;cancelAnimationFrame(raf);de.style.scrollSnapType=snap;['wheel','touchstart','pointerdown','keydown'].forEach(x=>removeEventListener(x,end,true));};
     ['wheel','touchstart','pointerdown','keydown'].forEach(x=>addEventListener(x,end,{capture:true,passive:true}));de.style.scrollSnapType='none';
     const st=n=>{if(done)return;const p=Math.min(1,(n-t0)/D);scrollTo({top:y0+(y1-y0)*e(p),behavior:'instant'});if(p<1)raf=requestAnimationFrame(st);else end();};raf=requestAnimationFrame(st);},400);};
-if(MP.matches&&!mqR.matches&&scrollY<3){ev.forEach(e=>addEventListener(e,stop,{capture:true,passive:true}));root.addEventListener('animationend',go);}
+if(MP.matches&&!mqR.matches&&scrollY<3&&!window.__dbhRet){ev.forEach(e=>addEventListener(e,stop,{capture:true,passive:true}));root.addEventListener('animationend',go);}
 window.__posterAuto=()=>({done});})();
