@@ -33,8 +33,8 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
  c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?-1:1)}});
  go(0);
  /* countdown ring on the right arrow: auto-advances every DUR ms while ~35% in view; loops to the first slide; pauses on hover; any manual step restarts it */
- var DUR=5000,ns='http://www.w3.org/2000/svg',ring=document.createElementNS(ns,'svg');ring.setAttribute('class','car-ring');ring.setAttribute('viewBox','0 0 32 32');ring.setAttribute('aria-hidden','true');
- var cir=document.createElementNS(ns,'circle');cir.setAttribute('cx','16');cir.setAttribute('cy','16');cir.setAttribute('r','15.25');cir.setAttribute('pathLength','100');ring.appendChild(cir);next.appendChild(ring);
+ var DUR=5000,ns='http://www.w3.org/2000/svg',ring=document.createElementNS(ns,'svg');ring.setAttribute('class','car-ring');ring.setAttribute('viewBox','0 0 40 40');ring.setAttribute('aria-hidden','true');
+ var cir=document.createElementNS(ns,'circle');cir.setAttribute('cx','20');cir.setAttribute('cy','20');cir.setAttribute('r','19');cir.setAttribute('pathLength','100');ring.appendChild(cir);next.appendChild(ring);
  var vis=false,hover=false;
  function restart(){ring.classList.remove('run');void ring.getBoundingClientRect();cir.style.animationDuration=DUR+'ms';cir.style.animationPlayState=hover?'paused':'running';if(vis)ring.classList.add('run')}
  cir.addEventListener('animationend',function(){go(i>=n-1?-(n-1):1);restart()});
