@@ -92,15 +92,15 @@ const L={W:1200,H:683.4,
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
 P={W:600,H:600,
-  xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|N, A|G), no CTA row */,ys:[56,220,306,470,556] /* mobile v21: square card; letter rows unchanged, label rows 36 -> 86 */,
+  xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|N, A|G), no CTA row */,ys:[56,270,306,520,556] /* mobile v22: square card; label rows 36, letter rows 214 */,
   letters:[
-    ['H',[50,56,300,220],300,44,266,'Vision'],
-    ['N',[300,56,550,220],300,336,266,'Strategy'],
-    ['A',[50,306,300,470],300,54,522,'Systems'],
-    ['G',[300,306,550,470],300,296,510]],
-  words:[['Vision',50,220],['Strategy',300,220],['Systems',50,470],['Creativity',300,470]],
+    ['H',[50,56,300,270],300,44,316,'Vision'],
+    ['N',[300,56,550,270],300,336,316,'Strategy'],
+    ['A',[50,306,300,520],300,54,572,'Systems'],
+    ['G',[300,306,550,520],300,296,560]],
+  words:[['Vision',50,270],['Strategy',300,270],['Systems',50,520],['Creativity',300,520]],
   dims:[],
-  dots:[[300,56,4],[550,470,4],[300,306,4],[300,556,4]],ring:[550,556],title:[54,806,40]};
+  dots:[[300,56,4],[550,520,4],[300,306,4],[300,556,4]],ring:[550,556],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
@@ -138,7 +138,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   // v17: one shared size; every letter's top gap = T (H's padding); the widest ink (G) gets side gaps = gap0, all letters centred in equal columns
   let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*T)/(e[1]-e[0]));});
   for(let it=0;it<4;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs,T).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*T)/(e[1]-e[0]));});fs=f2;}
-  G.letters.forEach(l=>{const c=l[1],q=place(l,fs,T);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];l[7]=q.e[1]-q.e[0];});
+  let TT=T;if(port){const Hc=G.letters.find(l=>l[0]==='H')[1],Hw=Hc[2]-Hc[0];for(let j=0;j<4;j++){const e=place(G.letters.find(l=>l[0]==='H'),fs,TT).e;TT=(Hw-(e[1]-e[0]))/2;}} /* mobile v22: top gap = H's side gap (size unchanged) */
+  G.letters.forEach(l=>{const c=l[1],q=place(l,fs,TT);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];l[7]=q.e[1]-q.e[0];});
   
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
   const colL=(x,y)=>{const L=G.letters.filter(l=>x>=l[1][0]-.01&&x<l[1][2]-.01).sort((a,b)=>Math.abs(y-a[1][3])-Math.abs(y-b[1][3]));if(L.length)return L[0];return G.letters.slice().sort((a,b)=>Math.abs(a[1][0]-x)-Math.abs(b[1][0]-x))[0];};
