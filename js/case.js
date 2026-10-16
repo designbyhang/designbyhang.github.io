@@ -13,7 +13,7 @@ function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)
  if(s&&s.id!==cur){cur=s.id;links.forEach(a=>a.setAttribute('aria-current',a.hash==='#'+cur?'true':'false'));setMid(s.dataset.title);}
  if(mid){const k=document.querySelector('.hero .kicker'),past=k?k.getBoundingClientRect().bottom<=mid.closest('.bar').getBoundingClientRect().bottom:true;mid.classList.toggle('on',past);mid.closest('.bar').classList.toggle('mid-on',past);}
  const h=document.documentElement.scrollHeight-innerHeight;bar.style.transform=`scaleX(${h>0?Math.min(1,scrollY/h):0})`;}
-let t=0;addEventListener('scroll',()=>{/* scroll-dial / TOC tick silenced */if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
+let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
 /* demo videos: play at ~50% in view, pause when out; button toggles; manual pause sticks; always autoplays muted when in view */
 (function(){var vs=document.querySelectorAll('video.demo-video');if(!vs.length)return;var rm=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 var ico='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';

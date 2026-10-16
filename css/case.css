@@ -37,8 +37,6 @@ figure{margin:0}
 .media.pad{padding:clamp(16px,4vw,48px)}
 .media.pad img{border-radius:12px}
 figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:center;max-width:60ch}
-.badge{position:absolute;left:14px;top:14px;z-index:2;font:400 11px/1 var(--mono);letter-spacing:.02em;padding:6px 9px;border-radius:0;background:rgba(255,255,255,.88);color:#444;border:1px solid rgba(0,0,0,.06);backdrop-filter:blur(6px)}
-.media.dark .badge{background:rgba(20,20,20,.75);color:#bbb;border-color:rgba(255,255,255,.08)}
 .hero-media{margin-top:8px}
 .bleed{margin-left:clamp(12px,2vw,24px);margin-right:clamp(12px,2vw,24px)}
 /* stats */
@@ -77,11 +75,6 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .sub{margin-top:64px}
 .sub h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin-bottom:8px}
 .sub p{color:var(--mute);max-width:56ch;font-size:var(--t-s16)}
-.layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0 28px}
-.layer{border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;background:var(--c-paper)}
-.layer em{font:400 11px/1 var(--mono);font-style:normal;color:var(--faint);display:block;margin-bottom:10px}
-.layer b{display:block;color:var(--ink);font-weight:600;font-size:var(--t-s16);margin-bottom:8px}
-.layer ul{list-style:none;font-size:var(--t-s14);line-height:1.55;color:var(--mute)}
 /* results */
 .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:16px;margin-top:8px}
 .res{background:var(--ink);color:#e8e8e8;border-radius:var(--r);padding:clamp(28px,4vw,44px)}
@@ -113,7 +106,6 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 @media (max-width:900px){
  .sec-grid{grid-template-columns:1fr}.sec-label{padding:0 0 10px}
  .meta{grid-template-columns:1fr}.meta>div,.meta>div+div{padding:22px 0;border-left:0}.meta>div+div{border-top:1px solid var(--line)}
- .layers{grid-template-columns:1fr}
 }
 @media (max-width:640px){
  body.cs{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}
@@ -133,10 +125,6 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 
 .phones.three{max-width:960px;margin-inline:auto}
 .strip{grid-auto-columns:minmax(200px,240px);justify-content:start}
-.arch{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch;margin-top:48px}
-.arch .media{height:100%}
-.arch .media img{height:100%;object-fit:cover}
-@media (max-width:900px){.arch{grid-template-columns:1fr}}
 .hero h1{max-width:14ch}
 .sum{max-width:34ch}
 .bar-right a{font-size:13px}
@@ -149,7 +137,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 body.cs .hero{padding-top:clamp(20px,5vw,72px)}
 
 body.cs .media,body.cs .media img,body.cs .media.cover,body.cs .media.cover img,body.cs .phones,body.cs .phones img,body.cs .strip,body.cs .strip img,
-body.cs .res,body.cs .next,body.cs .next img,body.cs .layer,body.cs .stats,body.cs .media.pad img{border-radius:0}
+body.cs .res,body.cs .next,body.cs .next img,body.cs .stats,body.cs .media.pad img{border-radius:0}
 body.cs .media.cover{border:1px solid var(--line)}
 body.cs .res{outline:1px solid var(--line);outline-offset:-1px}
 @media (max-width:640px){body.cs .meta{grid-template-columns:1fr}.meta>div,.meta>div+div{padding:22px 0;border-left:0}.meta>div+div{border-top:1px solid var(--line)}}
@@ -169,7 +157,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
 :root{--mono-size:14px;--mono-ls:.04em;--mono-color:var(--c-label);--mono-tt:none}
-.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.badge,.media.dark .badge,.sec-label,.list li::before,.step,.layer em,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.sec-label,.list li::before,.step,.next .k,.next .soon,.toc a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
 .bar-right a,.toc a,.sec-label{text-transform:none!important}
@@ -211,7 +199,7 @@ body.cs .media.draw:hover img{transform:none}
 .prose p.t-body{font:var(--t-body)}
 #insights .prose p.t-body+h2{margin-top:56px} /* Key Insights: space between title/body pairs */
 @media (max-width:900px){.prose p.t-body{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
-.layer b,.sub p,.foot{line-height:1.7} /* these only inherited body line-height; keep their previous 1.7 ratio now that --t-body uses a fixed 28px/26px */
+.sub p,.foot{line-height:1.7} /* these only inherited body line-height; keep their previous 1.7 ratio now that --t-body uses a fixed 28px/26px */
 
 /* 02 Problem: three image frames share one height (exit-affordances ratio 3840/2052); captions Small 16 black */
 body.cs .media.draw{aspect-ratio:3840/2052}
@@ -280,8 +268,6 @@ html[data-theme=dark] body.cs figcaption,html[data-theme=dark] body.cs figcaptio
 /* FMSS images fill their frames */
 body.cs .media img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 
-/* no media hover zoom */
-body.cs .media:hover img,body.cs .phones img:hover,body.cs .strip img:hover{transform:none}
 /* Inconsistencies two-column block: light buttons for dark media */
 .inc-row .vid-btn,.inc-row .car-nav button{background:rgba(255,255,255,.85);color:#000}
 .inc-row .vid-btn:hover,.inc-row .car-nav button:hover{background:#fff}
