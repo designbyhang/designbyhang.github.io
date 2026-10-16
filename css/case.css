@@ -84,11 +84,17 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .meta.results p b{color:var(--ink);font-weight:600}
 @media (max-width:900px){.meta.results{grid-template-columns:1fr}.meta.results>div,.meta.results>div+div{padding:0;border-left:0}.meta.results>div+div{margin-top:28px;padding-top:28px}.meta.results>div+div{border-top:1px solid var(--line)}.meta.results p{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 /* next */
-.next{display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:center;margin-top:clamp(80px,10vw,128px);padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--c-paper)}
-.next .k{font:400 12px/1.5 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.04em}
-.next h2{font:var(--t-h2-s);letter-spacing:var(--t-h2-s-ls);color:var(--ink);margin:10px 0}
-.next .soon{display:inline-block;font:400 12px/1 var(--mono);padding:7px 10px;border-radius:0;background:var(--frame);border:1px solid var(--line);color:var(--mute)}
-.next img{border-radius:16px;filter:saturate(.9)}
+.next{margin-top:clamp(80px,10vw,128px);padding:0;border:1px solid var(--line);background:var(--c-slot)} /* same ground as the case media containers (--c-slot: #f8f8f8 / #202020) */
+.next-hit{display:grid;grid-template-columns:1fr 62%;align-items:center;gap:40px;padding:39px 39px 39px 40px;color:inherit;text-decoration:none} /* 39 + 1px border = 40px from the aside edge */
+.next-card{display:block;container-type:inline-size}
+.next .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:round(calc(100cqi / 30), 2px);overflow:hidden;isolation:isolate;transform:translateZ(0);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
+.next .media-wrap img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
+.next-hit:hover .media-wrap,.next-hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
+.next .k{margin:0;justify-self:start;position:relative}
+.next .k::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease} /* same underline as BACK / nav links, driven by hovering anywhere on the card */
+.next-hit:hover .k::after,.next-hit:focus-visible .k::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.next .k::after{transition:none}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.next-hit{gap:20px;padding:19px 19px 19px 20px}.next .media-wrap{border-radius:round(calc(100cqi / 20), 2px)}}
 .foot{max-width:1152px;margin:-64px auto 48px;padding:0 24px;display:flex;justify-content:center}
 .foot a{text-decoration:none;line-height:1!important;transition:color .2s}
 /* toc rail (desktop) */
@@ -112,7 +118,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
  body.cs{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}
  .sheet{margin:0 0 72px;border-radius:0 0 24px 24px}
  .stats{grid-template-columns:1fr}.stat,.stat+.stat{padding:22px 0;border-left:0}.stat+.stat{border-top:1px solid var(--line)}
- .fig-row.two,.next{grid-template-columns:1fr}
+ .fig-row.two{grid-template-columns:1fr}
  .phones.three{grid-template-columns:repeat(3,minmax(0,1fr));padding:16px;gap:8px}.phones img{border-radius:10px}
  .phones.two{padding:16px;gap:10px}
  .strip{grid-auto-columns:62%;padding:16px}
@@ -131,12 +137,12 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .media.cover{border:0;background:transparent;border-radius:clamp(14px,2.2vw,30px)}
 .media.cover img{border-radius:inherit}
 .media.dark.pad img{border-radius:0}
-.media.cover,.media.cover img,.next img{border-radius:3.2% / 5.6%}
+.media.cover,.media.cover img{border-radius:3.2% / 5.6%}
 /* v2 (Hang's edits) — case page only; case.css is not loaded by the home page */
 body.cs .hero{padding-top:clamp(20px,5vw,72px)}
 
 body.cs .media,body.cs .media img,body.cs .media.cover,body.cs .media.cover img,body.cs .phones,body.cs .phones img,body.cs .strip,body.cs .strip img,
-body.cs .next,body.cs .next img,body.cs .stats,body.cs .media.pad img{border-radius:0}
+body.cs .next,body.cs .stats,body.cs .media.pad img{border-radius:0}
 body.cs .media.cover{border:1px solid var(--line)}
 @media (max-width:640px){body.cs .meta{grid-template-columns:1fr}.meta>div,.meta>div+div{padding:22px 0;border-left:0}.meta>div+div{border-top:1px solid var(--line)}}
 /* outer white panel keeps its original rounded corners; inner containers stay square */
@@ -146,7 +152,7 @@ body.cs{font-stretch:100%}
 body.cs .bleed{margin-left:clamp(20px,5vw,72px);margin-right:clamp(20px,5vw,72px)}
 body.cs .phones.two,body.cs .phones.three{max-width:none;margin-inline:0}
 
-/* hero video placeholder — same aspect as cover-fmss-square (2800×1560) */
+/* hero video placeholder — 2800×1560 aspect */
 body.cs .hero-slot{aspect-ratio:2800/1560;background:var(--c-slot);border:1px solid var(--line)}
 body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
@@ -155,7 +161,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 
 /* shared mono style (Bitcount Grid Single, logo styling) — one definition for every mono element (reference: SWIPE hint) */
 :root{--mono-size:14px;--mono-ls:.04em;--mono-color:var(--c-label);--mono-tt:none}
-.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.iter-grid b,.sec-label,.list li::before,.step,.next .k,.next .soon,.toc a,.foot a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
+.mono,.bar-mid,.bar-right a,.kicker,.meta dt,.iter-grid b,.sec-label,.list li::before,.step,.next .k,.toc a,.foot a{font-family:var(--mono)!important;font-size:var(--mono-size)!important;letter-spacing:var(--mono-ls)!important;word-spacing:-.32em!important;color:var(--mono-color)!important;text-transform:var(--mono-tt)!important;font-weight:400!important;font-style:normal!important}
 .bar-right a:hover,.foot a:hover,.toc a:hover,.toc a[aria-current="true"]{color:var(--ink)!important}
 /* Title Case as written for nav, TOC and section captions */
 .bar-right a,.foot a,.toc a,.sec-label{text-transform:none!important}
@@ -292,7 +298,6 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .brand:hover::after,.brand:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.brand::after{transition:none}}
 body.cs .hero-slot img{display:block;width:100%;height:100%;object-fit:cover}
-.next h2 a{color:inherit;text-decoration:none}
 
 /* copyright: same markup/type as the home footer (.home .bot); bottom-right, in flow; right inset = header BACK inset */
 body.cs .bot{display:flex;justify-content:flex-end;align-items:center;padding:18px clamp(16px,3vw,32px) clamp(16px,3vw,32px);font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);color:var(--ink);text-transform:uppercase}
