@@ -7,14 +7,14 @@ document.documentElement.classList.contains('gated')?addEventListener('gate:unlo
 const secs=[...document.querySelectorAll('section[data-title]')],links=[...document.querySelectorAll('.toc a')],mid=document.getElementById('bar-mid'),bar=document.querySelector('.prog i');
 let cur='';
 // header label: hidden until the eyebrow scrolls under the bar, then 'FMSS · <section>' (falls back to the section name, then hidden, if it can't fit between logo and BACK)
-const SEP=' · ',PRJ='FMSS',brand=document.querySelector('.bar .brand'),back=document.querySelector('.bar-right');
+const SEP=' · ',PRJ=document.body.dataset.prj||'FMSS',brand=document.querySelector('.bar .brand'),back=document.querySelector('.bar-right');
 function setMid(t){if(!mid)return;mid.dataset.t=t;fit();}
-function fit(){if(!mid||!mid.dataset.t)return;const bb=mid.closest('.bar').getBoundingClientRect();mid.textContent=PRJ+SEP+mid.dataset.t;mid.style.left=Math.round(brand.getBoundingClientRect().left-bb.left)+'px';mid.style.right=Math.ceil(bb.right-back.getBoundingClientRect().left+12)+'px';} /* all widths: label replaces the logo at its left inset; ellipsis 12px before BACK */
+function fit(){if(!mid||!mid.dataset.t||!brand||!back)return;const bb=mid.closest('.bar').getBoundingClientRect();mid.textContent=PRJ+SEP+mid.dataset.t;mid.style.left=Math.round(brand.getBoundingClientRect().left-bb.left)+'px';mid.style.right=Math.ceil(bb.right-back.getBoundingClientRect().left+12)+'px';} /* all widths: label replaces the logo at its left inset; ellipsis 12px before BACK */
 addEventListener('resize',fit);
 function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)if(x.offsetTop<=y)s=x;
  if(s&&s.id!==cur){cur=s.id;links.forEach(a=>a.setAttribute('aria-current',a.hash==='#'+cur?'true':'false'));setMid(s.dataset.title);}
  if(mid){const k=document.querySelector('.hero .kicker'),past=k?k.getBoundingClientRect().bottom<=mid.closest('.bar').getBoundingClientRect().bottom:true;mid.classList.toggle('on',past);mid.closest('.bar').classList.toggle('mid-on',past);}
- const h=document.documentElement.scrollHeight-innerHeight;bar.style.transform=`scaleX(${h>0?Math.min(1,scrollY/h):0})`;}
+ const h=document.documentElement.scrollHeight-innerHeight;if(bar)bar.style.transform=`scaleX(${h>0?Math.min(1,scrollY/h):0})`;}
 let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
 /* demo videos: play at ~50% in view, pause when out; button toggles; manual pause sticks; always autoplays muted when in view */
 (function(){var vs=document.querySelectorAll('video.demo-video');if(!vs.length)return;var rm=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
@@ -28,7 +28,7 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
 })();
 
 /* solution carousel: arrows step the slides, both arrows loop infinitely, arrow keys when focused */
-(function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track'),n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]'),cap=c.closest('figure').querySelector('figcaption'),caps=[].map.call(tr.children,function(img){return img.getAttribute('alt')||''});
+(function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr||!c.querySelector('[data-dir]'))return;var n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]'),cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=[].map.call(tr.children,function(img){return img.getAttribute('alt')||''});
  function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=false;next.disabled=false;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.hasAttribute('data-static'))cap.textContent=caps[i]||''}
  function step(d){go(d)}
  prev.addEventListener('click',function(){step(i<=0?n-1:-1)});next.addEventListener('click',function(){step(i>=n-1?-(n-1):1)});
