@@ -94,7 +94,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .toc{position:fixed;right:24px;top:50%;transform:translateY(-50%);width:160px;z-index:20;text-align:right}
 .toc ol{list-style:none}
 .toc a{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:9px 0;font-size:13px;line-height:1.3;color:var(--faint);text-decoration:none;transition:color .2s}
-.toc a::after{content:"";width:12px;height:1px;background:currentColor;transition:width .3s var(--ease);flex:none}
+.toc a::after{content:"";width:8px;height:1px;background:currentColor;transition:width .3s var(--ease);flex:none}
 .toc a:hover{color:var(--body)}
 .toc a[aria-current="true"]{color:var(--ink)}.toc a[aria-current="true"]::after{width:36px}
 @media (max-width:1649px){.toc{display:none}}
