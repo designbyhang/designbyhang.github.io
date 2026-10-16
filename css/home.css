@@ -31,8 +31,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:calc(var(--cw) / 30); /* circular: 1/30 of the card width (= old 3.3333% horizontal), so tall intro/About cards match project cards */overflow:hidden;isolation:isolate;transform:translateZ(0);
   box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
 .media-wrap.surface{background:var(--c-paper)}
-.media-wrap img,.type-cover{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
-.proj:not(.live) img,.proj:not(.live) .type-cover{filter:saturate(.85)}
+.media-wrap img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
 .live .hit:hover .media-wrap,.live .hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
 .intro-in{display:flex;flex-direction:column;justify-content:flex-end;height:100%;padding:6% 6.5%}
 .line{font:400 calc(var(--cw)*.042)/1.18 var(--sans);letter-spacing:-.02em;max-width:18ch}
@@ -40,9 +39,6 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .hint .arr{display:inline-block;animation:nudge 1.8s var(--ease) infinite}
 .hint-touch{display:none}@media (hover:none){.hint-desk{display:none}.hint-touch{display:inline}}
 @keyframes nudge{0%,100%{transform:none}50%{transform:translateX(4px)}}
-.type-cover{display:grid;grid-template-columns:640fr 800fr;background:var(--c-paper)}
-.type-cover span{align-self:end;padding:9% 0 12% 8%;font:400 calc(var(--cw)*.05)/1.05 var(--sans);letter-spacing:-.02em}
-.type-cover i{background:linear-gradient(160deg,#2d3c8f,#1b2459)}
 
 .about .media-wrap{container-type:inline-size}
 .about-in{padding:5% 6%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box}
