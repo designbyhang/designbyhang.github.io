@@ -32,10 +32,10 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
  prev.addEventListener('click',function(){step(i<=0?n-1:-1)});next.addEventListener('click',function(){step(i>=n-1?-(n-1):1)});
  c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?(i<=0?n-1:-1):(i>=n-1?-(n-1):1))}});
  go(0);
- /* auto-advance every DUR ms while ~35% in view; loops; pauses on hover; any manual step restarts the timer */
- var DUR=5000,tm=0,vis=false,hover=false;
- function restart(){clearTimeout(tm);if(vis&&!hover)tm=setTimeout(function(){go(i>=n-1?-(n-1):1);restart()},DUR)}
- prev.addEventListener('click',restart);next.addEventListener('click',restart);c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight')restart()});
+ /* auto-advance every DUR ms while ~35% in view; loops; pauses on hover; stops for good once the user uses an arrow */
+ var DUR=5000,tm=0,vis=false,hover=false,stopped=false;
+ function restart(){clearTimeout(tm);if(vis&&!hover&&!stopped)tm=setTimeout(function(){go(i>=n-1?-(n-1):1);restart()},DUR)}
+ function stop(){stopped=true;clearTimeout(tm)}prev.addEventListener('click',stop);next.addEventListener('click',stop);c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight')stop()});
  c.addEventListener('mouseenter',function(){hover=true;clearTimeout(tm)});c.addEventListener('mouseleave',function(){hover=false;restart()});
  if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){var was=vis;vis=e.intersectionRatio>=.35;if(vis!==was)restart()})},{threshold:[0,.35]}).observe(c)}else{vis=true;restart()}
  });})();
