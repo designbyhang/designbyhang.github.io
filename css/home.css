@@ -198,4 +198,4 @@ button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset
 @media (prefers-reduced-motion:reduce){.brand::after{transition:none}}
 
 html{background:var(--page)}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.top .brand{display:none}.top nav{grid-column:1/-1;justify-self:start}} /* mobile portrait: no logo, nav takes its spot */
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.top .brand{display:none}.top nav{grid-column:1/-1;justify-self:stretch;justify-content:space-between}} /* mobile portrait: no logo, nav takes its spot */
