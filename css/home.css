@@ -63,7 +63,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
  html,body{height:auto}body.home{display:block;min-height:0;overflow:auto}
  main{display:block}
  .rail{overflow:visible;user-select:auto;touch-action:auto}
- .strip{position:static;margin:0;transform:none!important;flex-direction:column;gap:28px;padding:4px var(--m-in) 24px;--cw:calc(100vw - 2 * var(--m-in))}
+ .strip{position:static;margin:0;transform:none!important;flex-direction:column;gap:var(--m-in);padding:4px var(--m-in) 24px;--cw:calc(100vw - 2 * var(--m-in))}
  .intro .media-wrap{aspect-ratio:auto;height:auto}
  .intro-in{height:auto;justify-content:flex-start;padding:22px 22px 20px}
  .hint{display:none}
