@@ -268,8 +268,8 @@ body.cs .media.mframe video{display:block;flex:none;width:calc(100% + 4px);heigh
 .car-nav{position:absolute;right:39px;bottom:39px;z-index:3;display:flex;gap:12px}
 @media (max-width:640px){.vid-btn,.car-nav{right:15px;bottom:15px}}
 .car-track{position:relative;width:100%;height:100%}
-body.cs .media.mframe .car-track img{position:absolute;inset:0;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0;opacity:0;transition:opacity .45s ease;pointer-events:none}
-body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:1}
+body.cs .media.mframe .car-track img{position:absolute;inset:0;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0;opacity:0;transition:opacity 0s linear .7s;pointer-events:none} /* outgoing slide stays opaque underneath until the incoming one has fully covered it: no background flash */
+body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:opacity .7s cubic-bezier(.4,0,.2,1)}
 .car-nav button:disabled{opacity:.35;cursor:default}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe .car-track img{transition:none}}
 
