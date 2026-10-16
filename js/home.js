@@ -80,7 +80,7 @@ addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrac
 addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
 // intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
-(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg');
+(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg'),MP=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)'),mqR=matchMedia('(prefers-reduced-motion: reduce)') /* portrait = the page's mobile-portrait query (the portrait card is wider than tall now) */;
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],xe:[110,319.5,381.5,591,800.5,850.5,1060] /* v17: four letter columns equal (209.5) */,ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
@@ -91,16 +91,16 @@ const L={W:1200,H:683.4,
   words:[['Vision',110,284,330,452],['Strategy',392,64,610,244],['Systems',610,284,830,452],['Craft',880,492,1060,622],['Creativity',880,284,1060,452]], /* v18: each keyword centred in a big box */
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
   dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
-P={W:600,H:871.5,
-  xs:[50,300,550],xe:[50,300,550] /* mobile v19: two equal columns, no gutter */,ys:[56,226,262,432,468,638,674,820],
+P={W:600,H:499.3,
+  xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|A, N|G), no CTA row */,ys:[56,220,256,420,456],
   letters:[
     ['H',[50,56,300,226],300,44,266,'Vision'],
     ['A',[300,56,550,226],300,336,266,'Strategy'],
     ['N',[50,262,300,432],300,54,472,'Systems'],
-    ['G',[50,468,300,638],300,40,678]],
-  words:[['Vision',50,226],['Strategy',300,226],['Systems',300,262,550,432],['Craft',300,468,550,638],['Creativity',300,432]] /* mobile: no free big box near A; thin row between SYSTEMS and CRAFT in A's column */,
+    ['G',[300,256,550,420],300,296,460]],
+  words:[['Vision',50,220],['Strategy',300,220],['Systems',50,420],['Creativity',300,420]],
   dims:[],
-  dots:[[300,56,4],[550,432,4],[300,262,4],[300,468,4],[50,674,4],[300,820,4]],ring:[550,674],title:[54,806,40]};
+  dots:[[300,56,4],[550,420,4],[300,256,4],[300,456,4]],ring:[550,456],title:[54,806,40]};
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
@@ -108,9 +108,9 @@ function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):
 function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,S*.3,base);
   const d=inkC.getImageData(0,0,cv.width,cv.height).data;for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127)return(y-base)*k;return 0;}
 const THIN_D=.7882 /* 16px at the 1440 design size */,THIN_P=1; /* thin-row height factors (desktop rows are empty; mobile keeps 22px for VISION/STRATEGY) */
-function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
+function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
-  const YS=G0.ys,Bw0=YS[2]-YS[1],Bw=port?Bw0*THIN_P:Bw0*THIN_D /* v19: thinner keyword rows, height given to the big rows */,nR=Math.ceil(YS.length/2),Rh=(YS[YS.length-1]-YS[0]-(nR-1)*Bw)/nR,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
+  const YS=G0.ys,Bw0=YS[2]-YS[1],Bw=port?Bw0*THIN_P:Bw0*THIN_D /* v19: thinner keyword rows, height given to the big rows */,nR=Math.floor(YS.length/2),Rh=(YS[YS.length-1]-YS[0]-(nR-1)*Bw)/nR,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
   const yq=y=>{for(let i=1;i<YS.length;i++)if(y<=YS[i]||i===YS.length-1)return YN[i-1]+(y-YS[i-1])*(YN[i]-YN[i-1])/(YS[i]-YS[i-1]);};
   const m=(port?.075294:.060924)*VW /* inset: 6.0924cqi = 64px at 1440 (card 1050.5px; was 6.5cqi = 68.3px); mobile 8cqi x 64/68 = 7.5294cqi */,gx0=G0.xs[0],gx1=G0.xs[G0.xs.length-1],gy0=G0.ys[0],gy1=G0.ys[G0.ys.length-1];
   const XS=G0.xs,XE=G0.xe,xq=x=>{for(let i=1;i<XS.length;i++)if(x<=XS[i]||i===XS.length-1)return XE[i-1]+(x-XS[i-1])*(XE[i]-XE[i-1])/(XS[i]-XS[i-1]);};
@@ -157,14 +157,25 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=cw/ch<1,G0=
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a');r.setAttribute('style',t.getAttribute('style'));
     const lx0=G.words.find(w=>w[0]===t.textContent)[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);t.before(r);});
   // caption: same ink gap from the grid lines as the H/A/N letters
-  const cap=root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
+  const cap=port?null:root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
     const tt=cap.querySelector('.poster-title'),ts=getComputedStyle(tt),tf=parseFloat(ts.fontSize);
     const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),inkV=(()=>{const S=8,str=tt.textContent.trim(),fpx=tf*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});c2.font='400 '+fpx+'px '+ts.fontFamily;c2.letterSpacing=ts.letterSpacing==='normal'?'0px':(parseFloat(ts.letterSpacing)*S)+'px';const w=Math.ceil(c2.measureText(str).width)+20,h=Math.ceil(fpx*2),b=Math.round(fpx*1.4);cv.width=w;cv.height=h;c2.font='400 '+fpx+'px '+ts.fontFamily;c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++){for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}}return[(b-t0)/S,(t1+1-b)/S];})(),capH=inkV[0]-inkV[1] /* v18: pixel-measured ink of the CTA text (ascenders..baseline incl. overshoot) */,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
     // vertically centre the caption's cap height in the bottom grid row
     const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
-    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];{const ar=tt.querySelector('.arr'),inkW=ar.offsetLeft+ar.offsetWidth-tt.offsetLeft-tl /* layout offsets: unaffected by the nudge transform */,Gl=G.letters.find(l=>l[0]==='G'),sL=G.xs[0]/px,sR=(port?G.xs[G.xs.length-1]:Gl[1][0])/px;cap.style.left=((sL+sR)/2-inkW/2-tl).toFixed(2)+'px';} /* v19: CTA ink (text + arrow) centred horizontally in the boxes left of the G (mobile: full row) */const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
-    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate=port?'.5px 0':'-.58px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
+    const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];{const ar=tt.querySelector('.arr'),inkW=ar.offsetLeft+ar.offsetWidth-tt.offsetLeft-tl /* layout offsets: unaffected by the nudge transform */,Gl=G.letters.find(l=>l[0]==='G'),sL=G.xs[0]/px,sR=Gl[1][0]/px;cap.style.left=((sL+sR)/2-inkW/2-tl).toFixed(2)+'px';} /* v19: CTA ink (text + arrow) centred horizontally in the boxes left of the G (CTA hidden on mobile portrait) */const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
+    cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate='-.58px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */}
   }
-let lp=null,rt=0;const rb=()=>{const port=root.clientWidth/root.clientHeight<1;if(port!==lp){lp=port;build();}};
+let lp=null,rt=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
-addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});})();
+addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});
+// mobile portrait: once the draw-in finishes, glide the first project card into view (once; cancelled by any user input; never with reduced motion)
+let done=false,raf=0;
+const stop=()=>{done=true;cancelAnimationFrame(raf);ev.forEach(e=>removeEventListener(e,stop,true));},ev=['wheel','touchstart','pointerdown','keydown','scroll'];
+const go=()=>{if(done)return;const live=document.getAnimations().filter(a=>a.effect&&root.contains(a.effect.target)&&isFinite(a.effect.getComputedTiming().endTime)&&a.playState!=='finished');if(live.length)return;
+  setTimeout(()=>{if(done||!MP.matches||mqR.matches||scrollY>2){stop();return;}const k=root.closest('.card')?.nextElementSibling;if(!k){stop();return;}
+    ev.forEach(e=>removeEventListener(e,stop,true));const de=document.documentElement,snap=de.style.scrollSnapType,hd=document.querySelector('.top'),fx=hd&&/fixed|sticky/.test(getComputedStyle(hd).position)?hd.offsetHeight:0,
+      y1=Math.max(0,scrollY+k.getBoundingClientRect().top-fx-16),y0=scrollY,t0=performance.now(),D=900,e=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2,end=()=>{done=true;cancelAnimationFrame(raf);de.style.scrollSnapType=snap;['wheel','touchstart','pointerdown','keydown'].forEach(x=>removeEventListener(x,end,true));};
+    ['wheel','touchstart','pointerdown','keydown'].forEach(x=>addEventListener(x,end,{capture:true,passive:true}));de.style.scrollSnapType='none';
+    const st=n=>{if(done)return;const p=Math.min(1,(n-t0)/D);scrollTo({top:y0+(y1-y0)*e(p),behavior:'instant'});if(p<1)raf=requestAnimationFrame(st);else end();};raf=requestAnimationFrame(st);},400);};
+if(MP.matches&&!mqR.matches&&scrollY<3){ev.forEach(e=>addEventListener(e,stop,{capture:true,passive:true}));root.addEventListener('animationend',go);}
+window.__posterAuto=()=>({done});})();
