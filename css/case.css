@@ -290,3 +290,9 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 /* hero: optical left alignment; cancel the display font's left side bearing so the title's stems line up with the kicker and summary */
 .hero h1{margin-left:-.07em}
 .hero .sum{margin-left:-.03em}
+
+/* logo hover underline, same as BACK / nav links */
+.brand{position:relative;display:inline-block}
+.brand::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.brand:hover::after,.brand:focus-visible::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.brand::after{transition:none}}

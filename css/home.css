@@ -194,3 +194,9 @@ button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset
 /* mobile / vertical: cards are not all 1440/820 here (intro, About are taller), so the % radius went elliptical.
    Use a circular radius of 1/30 of the card width (= the 3.3333% horizontal radius) on every card. Desktop keeps the % radius (all cards 1440/820, scaled strip). */
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.card{container-type:inline-size}.media-wrap{border-radius:calc(100cqi / 30)}}
+
+/* logo hover underline, same as BACK / nav links */
+.brand{position:relative;display:inline-block}
+.brand::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.brand:hover::after,.brand:focus-visible::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.brand::after{transition:none}}
