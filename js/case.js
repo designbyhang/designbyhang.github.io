@@ -9,26 +9,10 @@ const SEP=' · ',PRJ='FMSS',brand=document.querySelector('.bar .brand'),back=doc
 function setMid(t){if(!mid)return;mid.dataset.t=t;fit();}
 function fit(){if(!mid||!mid.dataset.t)return;const bb=mid.closest('.bar').getBoundingClientRect();mid.textContent=PRJ+SEP+mid.dataset.t;mid.style.left=Math.round(brand.getBoundingClientRect().left-bb.left)+'px';mid.style.right=Math.ceil(bb.right-back.getBoundingClientRect().left+12)+'px';} /* all widths: label replaces the logo at its left inset; ellipsis 12px before BACK */
 addEventListener('resize',fit);
-var upd=function(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)if(x.offsetTop<=y)s=x;
+function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)if(x.offsetTop<=y)s=x;
  if(s&&s.id!==cur){cur=s.id;links.forEach(a=>a.setAttribute('aria-current',a.hash==='#'+cur?'true':'false'));setMid(s.dataset.title);}
  if(mid){const k=document.querySelector('.hero .kicker'),past=k?k.getBoundingClientRect().bottom<=mid.closest('.bar').getBoundingClientRect().bottom:true;mid.classList.toggle('on',past);mid.closest('.bar').classList.toggle('mid-on',past);}
  const h=document.documentElement.scrollHeight-innerHeight;bar.style.transform=`scaleX(${h>0?Math.min(1,scrollY/h):0})`;}
-// toc: one shared marker that springs to the active tick (stiffness 240, damping 30, mass 1 — overdamped, no overshoot)
-const ol=document.querySelector('.toc ol');let mk=null,my=0,mv=0,mt=null,mr=0,ml=0;
-if(ol){mk=document.createElement('i');mk.className='toc-mark';mk.setAttribute('aria-hidden','true');ol.appendChild(mk);}
-function markY(){const a=links.find(a=>a.getAttribute('aria-current')==='true');if(!a)return null;const r=a.getBoundingClientRect(),o=ol.getBoundingClientRect();return r.top-o.top+r.height/2-.5;}
-function step(now){const dt=Math.min(.064,(now-ml)/1000);ml=now;const f=-240*(my-mt)-30*mv;mv+=f*dt;my+=mv*dt;
- if(Math.abs(my-mt)<.1&&Math.abs(mv)<.1){my=mt;mv=0;mr=0;}else mr=requestAnimationFrame(step);mk.style.transform=`translateY(${my}px)`;}
-function moveMark(snap){if(!mk)return;const y=markY();if(y==null)return;mt=y;
- if(snap||rm||!mk.classList.contains('on')){cancelAnimationFrame(mr);mr=0;my=y;mv=0;mk.style.transform=`translateY(${y}px)`;mk.classList.add('on');return;}
- if(!mr){ml=performance.now();mr=requestAnimationFrame(step);}}
-const _upd=upd;upd=function(){const c=cur;_upd();if(cur!==c)moveMark(false);};
-addEventListener('resize',()=>moveMark(true));if(document.fonts)document.fonts.ready.then(()=>moveMark(true));
-// toc click: smooth scroll honouring the header offset (html scroll-padding-top), push hash without a jump
-links.forEach(a=>a.addEventListener('click',e=>{const el=document.getElementById(a.hash.slice(1));if(!el)return;e.preventDefault();
- const pad=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)||0;
- scrollTo({top:el.getBoundingClientRect().top+scrollY-pad,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
- if(location.hash!==a.hash)history.pushState(null,'',a.hash);}));
 let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
 /* demo videos: play at ~50% in view, pause when out; button toggles; manual pause sticks; always autoplays muted when in view */
 (function(){var vs=document.querySelectorAll('video.demo-video');if(!vs.length)return;var rm=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
