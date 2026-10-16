@@ -10,14 +10,14 @@ html.gated{overflow:hidden}
 .gate-sub,.gate-form input{font:var(--t-body);color:var(--c-strong)}
 @media (max-width:900px){.gate-sub,.gate-form input{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 .gate-sub{margin:0 0 48px}
-.gate-form{display:flex;border-bottom:1px solid #d9d9d9}
-.gate-form input{flex:1;background:none;border:0;font-family:inherit;padding:12px 0}
+.gate-form{display:flex;align-items:stretch;gap:var(--g-gap,12px)} /* underline on the input only; arrow sits after it, 12px gap like the home CTA */
+.gate-form input{flex:1;min-width:0;background:none;border:0;border-bottom:2px solid var(--c-strong);border-radius:0;font-family:inherit;padding:12px 0}
 .gate-form input::placeholder{color:var(--faint,#9a9a9a)}
-.gate-form input:focus{outline:none}.gate-form:focus-within{border-color:var(--c-strong)}
-.gate-form button{display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:0 4px;font-size:var(--g-h)}
+.gate-form input:focus{outline:none}
+.gate-form button{display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:0 0 2px}
 /* arrow = intro card CTA arrow (.poster-title .arr svg: same path, .86em x .6em, 1.5px non-scaling miter stroke, --c-strong, static per arrows.css) at half size */
-.gate-form button svg{display:block;width:.43em;height:.3em;overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-h:calc((100vw - 32px)*.0667)}}
+.gate-form button svg{display:block;width:var(--g-aw,18px);height:calc(var(--g-aw,18px)*.6977);overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-h:calc((100vw - 32px)*.0667);--g-aw:14px;--g-gap:8px}}
 .gate-err{min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
 .gate-help{font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{color:var(--c-strong);text-decoration:none}.gate-help a:hover{text-decoration:underline}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
