@@ -32,5 +32,5 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-help a:hover::after,.gate-help a:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.gate-help a::after{transition:none}}
 /* the site's own theme toggle (js/theme.js) stays visible and above the gate, in its normal position */
-html.gated body .theme-btn,html.gated .home .bot .theme-btn{visibility:visible;position:fixed;left:var(--tb-x);bottom:var(--tb-x);z-index:1001} /* fixed while gated: home mobile keeps it in the footer below the fold */
+html.gated body .theme-btn,html.gated .home .bot .theme-btn{visibility:visible;position:fixed;left:var(--tb-x);bottom:var(--tb-x);z-index:1001}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
