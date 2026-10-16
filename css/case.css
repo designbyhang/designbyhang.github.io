@@ -292,5 +292,3 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-wrap{margin-top:48px}
 .iter-wrap .iter-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
 @media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
-/* System & Scale: architecture figure sits between the section label and its text */
-.sec-cont{padding-top:48px}
