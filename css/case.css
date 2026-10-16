@@ -116,7 +116,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 }
 @media (max-width:640px){
  body.cs{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}
- .sheet{margin:0 0 72px;border-radius:0 0 24px 24px}
+ .sheet{margin:0 0 72px;border-radius:24px}
  .stats{grid-template-columns:1fr}.stat,.stat+.stat{padding:22px 0;border-left:0}.stat+.stat{border-top:1px solid var(--line)}
  .fig-row.two{grid-template-columns:1fr}
  .phones.three{grid-template-columns:repeat(3,minmax(0,1fr));padding:16px;gap:8px}.phones img{border-radius:10px}
