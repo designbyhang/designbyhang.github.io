@@ -4,10 +4,11 @@ html.gated{overflow:hidden}
 .gate-in{width:min(512px,100%)}
 .gate-logo{font:var(--t-gate-logo);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);margin-bottom:64px}
 /* headline = home intro card CTA (.poster-title): 400, 3.33cqi of the 1050.5px active card at 1440 (=2.43vw), lh 1, -.025em, --c-strong; mobile 6.67cqi of the 358px card (=100vw-32px) */
-.gate{--g-h:2.43vw;--g-b:1.381vw}
+.gate{--g-h:2.43vw}
 .gate h1{font-family:var(--sans,"Instrument Sans",system-ui,sans-serif);font-weight:400;font-size:var(--g-h);line-height:1;letter-spacing:-.025em;color:var(--c-strong);margin:0 0 20px}
-/* body + input = intro card keywords (.poster-svg .m) rendered size: 19.88px at 1440 (=1.381vw), 12px at 390 (=3.352% of the card), lh 1.6, --c-strong */
-.gate-sub,.gate-form input{font-size:var(--g-b);line-height:1.6;color:var(--c-strong)}
+/* body + input = project-page body copy (--t-body 18/28, 17/26 under 900px), fixed */
+.gate-sub,.gate-form input{font:var(--t-body);color:var(--c-strong)}
+@media (max-width:900px){.gate-sub,.gate-form input{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 .gate-sub{margin:0 0 48px}
 .gate-form{display:flex;border-bottom:1px solid #d9d9d9}
 .gate-form input{flex:1;background:none;border:0;font-family:inherit;padding:12px 0}
@@ -16,7 +17,7 @@ html.gated{overflow:hidden}
 .gate-form button{display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:0 4px;font-size:var(--g-h)}
 /* arrow = intro card CTA arrow (.poster-title .arr svg: same path, .86em x .6em, 1.5px non-scaling miter stroke, --c-strong, static per arrows.css) at half size */
 .gate-form button svg{display:block;width:.43em;height:.3em;overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-h:calc((100vw - 32px)*.0667);--g-b:calc((100vw - 32px)*.03352)}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-h:calc((100vw - 32px)*.0667)}}
 .gate-err{min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
 .gate-help{font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{color:var(--c-strong);text-decoration:none}.gate-help a:hover{text-decoration:underline}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
