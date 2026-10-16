@@ -288,5 +288,5 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-wrap .iter-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
 @media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
 /* hero: optical left alignment; cancel the display font's left side bearing so the title's stems line up with the kicker and summary */
-.hero h1{margin-left:-.055em}
-.hero .sum{margin-left:-.03em}
+.hero h1{margin-left:-.07em}
+.hero .sum{margin-left:-.04em}
