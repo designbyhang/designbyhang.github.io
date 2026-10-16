@@ -19,3 +19,4 @@ b.addEventListener('click',()=>{const t=de.dataset.theme==='dark'?'light':'dark'
 
 /* On touch devices, open LinkedIn in the same tab so iOS/Android hand off to the app. Desktop keeps the new-tab web link. */
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="linkedin.com"]');if(a&&matchMedia('(pointer:coarse)').matches)a.removeAttribute('target');},true);
+(()=>{const d=document.documentElement;let m=document.querySelector('meta[name="theme-color"]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}const s=()=>{m.content=d.dataset.theme==='dark'?'#111111':'#ededed';};s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme']});})(); /* Safari top bar matches page bg */

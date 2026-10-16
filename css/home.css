@@ -196,3 +196,5 @@ button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset
 .brand::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
 .brand:hover::after,.brand:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.brand::after{transition:none}}
+
+html{background:var(--page)}
