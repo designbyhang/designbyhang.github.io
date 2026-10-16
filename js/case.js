@@ -25,12 +25,12 @@ vs.forEach(function(v){v.muted=true;v.autoplay=false;v.removeAttribute('autoplay
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;v._vis=e.intersectionRatio>=.35;if(v._vis){if(!v._held&&v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}}else if(!v.paused){v.pause()}})},{threshold:[0,.35]});vs.forEach(function(v){io.observe(v)})}
 })();
 
-/* solution carousel: arrows step the slides, left arrow disabled on the first slide, right arrow loops, arrow keys when focused */
+/* solution carousel: arrows step the slides, both arrows loop infinitely, arrow keys when focused */
 (function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track'),n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]'),cap=c.closest('figure').querySelector('figcaption'),caps=[].map.call(tr.children,function(img){return img.getAttribute('alt')||''});
- function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=i===0;next.disabled=false;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.querySelector('.lg-row'))cap.textContent=caps[i]||''}
+ function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=false;next.disabled=false;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.querySelector('.lg-row'))cap.textContent=caps[i]||''}
  function step(d){go(d)}
- prev.addEventListener('click',function(){step(-1)});next.addEventListener('click',function(){step(i>=n-1?-(n-1):1)});
- c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?-1:1)}});
+ prev.addEventListener('click',function(){step(i<=0?n-1:-1)});next.addEventListener('click',function(){step(i>=n-1?-(n-1):1)});
+ c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?(i<=0?n-1:-1):(i>=n-1?-(n-1):1))}});
  go(0);
  /* countdown ring on the right arrow: auto-advances every DUR ms while ~35% in view; loops to the first slide; pauses on hover; any manual step restarts it */
  var DUR=5000,ns='http://www.w3.org/2000/svg',ring=document.createElementNS(ns,'svg');ring.setAttribute('class','car-ring');ring.setAttribute('viewBox','0 0 40 40');ring.setAttribute('aria-hidden','true');
