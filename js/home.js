@@ -178,6 +178,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
 let lp=null,rt=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
 addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});
+/* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
+const rbs=()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},120);};if(window.ResizeObserver){let lw=0,lh=0;new ResizeObserver(e=>{const r=e[0].contentRect;if(Math.abs(r.width-lw)>1||Math.abs(r.height-lh)>1){lw=r.width;lh=r.height;rbs();}}).observe(root);}addEventListener('orientationchange',()=>{rbs();setTimeout(rbs,400);setTimeout(rbs,900);});
 // mobile portrait: once the draw-in finishes, glide the first project card into view (once; cancelled by any user input; never with reduced motion)
 let done=false,raf=0;
 const stop=()=>{done=true;cancelAnimationFrame(raf);ev.forEach(e=>removeEventListener(e,stop,true));},ev=['wheel','touchstart','pointerdown','keydown','scroll'];
