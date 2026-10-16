@@ -138,7 +138,6 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   // v17: one shared size; every letter's top gap = T (H's padding); the widest ink (G) gets side gaps = gap0, all letters centred in equal columns
   let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*T)/(e[1]-e[0]));});
   for(let it=0;it<4;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs,T).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*T)/(e[1]-e[0]));});fs=f2;}
-  if(port)G.letters.forEach(l=>{const c=l[1],t=-inkT(l[0],100,SF,SC)/100;fs=Math.min(fs,(c[3]-c[1]-2*T)/t);}); /* mobile: cap height fits its box (top/bottom gap T), baseline never below the box line */
   G.letters.forEach(l=>{const c=l[1],q=place(l,fs,T);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];l[7]=q.e[1]-q.e[0];});
   
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
