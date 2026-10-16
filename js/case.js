@@ -25,10 +25,20 @@ vs.forEach(function(v){v.muted=true;v.autoplay=false;v.removeAttribute('autoplay
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;v._vis=e.intersectionRatio>=.35;if(v._vis){if(!v._held&&v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}}else if(!v.paused){v.pause()}})},{threshold:[0,.35]});vs.forEach(function(v){io.observe(v)})}
 })();
 
-/* solution carousel: arrows step the slides, no wrap (disabled at the ends), arrow keys when focused */
+/* solution carousel: arrows step the slides, left arrow disabled on the first slide, right arrow loops, arrow keys when focused */
 (function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track'),n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]'),cap=c.closest('figure').querySelector('figcaption'),caps=[].map.call(tr.children,function(img){return img.getAttribute('alt')||''});
- function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=i===0;next.disabled=i===n-1;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.querySelector('.lg-row'))cap.textContent=caps[i]||''}
+ function go(d){i=Math.max(0,Math.min(n-1,i+d));[].forEach.call(tr.children,function(img,j){img.classList.toggle('is-active',j===i)});prev.disabled=i===0;next.disabled=false;c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.querySelector('.lg-row'))cap.textContent=caps[i]||''}
  function step(d){go(d)}
- prev.addEventListener('click',function(){step(-1)});next.addEventListener('click',function(){step(1)});
+ prev.addEventListener('click',function(){step(-1)});next.addEventListener('click',function(){step(i>=n-1?-(n-1):1)});
  c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowLeft'?-1:1)}});
- go(0);});})();
+ go(0);
+ /* countdown ring on the right arrow: auto-advances every DUR ms while ~35% in view; loops to the first slide; pauses on hover; any manual step restarts it */
+ var DUR=5000,ns='http://www.w3.org/2000/svg',ring=document.createElementNS(ns,'svg');ring.setAttribute('class','car-ring');ring.setAttribute('viewBox','0 0 32 32');ring.setAttribute('aria-hidden','true');
+ var cir=document.createElementNS(ns,'circle');cir.setAttribute('cx','16');cir.setAttribute('cy','16');cir.setAttribute('r','15.25');cir.setAttribute('pathLength','100');ring.appendChild(cir);next.appendChild(ring);
+ var vis=false,hover=false;
+ function restart(){ring.classList.remove('run');void ring.getBoundingClientRect();cir.style.animationDuration=DUR+'ms';cir.style.animationPlayState=hover?'paused':'running';if(vis)ring.classList.add('run')}
+ cir.addEventListener('animationend',function(){go(i>=n-1?-(n-1):1);restart()});
+ prev.addEventListener('click',restart);next.addEventListener('click',restart);c.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight')restart()});
+ c.addEventListener('mouseenter',function(){hover=true;cir.style.animationPlayState='paused'});c.addEventListener('mouseleave',function(){hover=false;cir.style.animationPlayState='running'});
+ if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){var was=vis;vis=e.intersectionRatio>=.35;if(vis&&!was)restart();if(!vis)ring.classList.remove('run')})},{threshold:[0,.35]}).observe(c)}else{vis=true;restart()}
+ });})();
