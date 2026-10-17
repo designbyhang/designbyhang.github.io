@@ -142,7 +142,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   const inkLR=(ch,fs,top,bot)=>{const S=Math.max(100,Math.round(fs*SC)),k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=SF.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
     const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return[0,0];const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let L=1e9,R=-1;
     for(let y=0;y<y1-y0;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){if(x<L)L=x;if(x>R)R=x;}return L===1e9?[0,0]:[(L-pad)*k,(R+1-pad)*k];};
-  const place=(l,fs,t=gap0)=>{const c=l[1],base=c[1]+t-inkT(l[0],fs,SF,SC),e=inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC);return{base,e};};
+  const place=(l,fs,t=gap0)=>{const c=l[1],base=c[1]+t-inkT(port&&l[0]==='G'?'H':l[0],fs,SF,SC) /* mobile: G sits on H's cap line so its round top overshoots, as type should */,e=inkLR(l[0],fs,c[1]-base,c[3]-base-2/SC);return{base,e};};
   const T=.08*(G.letters[0][1][2]-G.letters[0][1][0]); /* v17 letter padding: 8% of the (equal) column width, ~H's earlier padding */
   // v17: one shared size; every letter's top gap = T (H's padding); the widest ink (G) gets side gaps = gap0, all letters centred in equal columns
   let fs=Infinity;G.letters.forEach(l=>{const c=l[1],w=c[2]-c[0],e=inkLR(l[0],100,-1000,1000);fs=Math.min(fs,100*(w-2*T)/(e[1]-e[0]));});
