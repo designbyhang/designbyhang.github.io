@@ -7,7 +7,7 @@
 
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Studio Model, letter morph (stepped demo) — Design by Hang</title>
+<title>Studio Model, full presentation (stepped demo) — Design by Hang</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23111'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
@@ -19,14 +19,20 @@
 #morph-track{--bar:58px;position:relative;height:calc(100vh + 60vh)}
 .mo-sticky{overscroll-behavior:contain}
 .mo-sticky{position:sticky;top:var(--bar);height:calc(100vh - var(--bar));height:calc(100svh - var(--bar));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#morph-stage{position:relative;width:min(100%,calc((100vh - var(--bar) - 88px) * 16 / 9));width:min(100%,calc((100svh - var(--bar) - 88px) * 16 / 9));aspect-ratio:16/9;overflow:hidden;border-radius:clamp(10px,1.6vw,20px);background:#fff;box-shadow:0 0 0 1px var(--line);contain:layout paint;isolation:isolate}
+#morph-stage{position:relative;width:min(100%,calc((100vh - var(--bar) - 88px) * 16 / 9));width:min(100%,calc((100svh - var(--bar) - 88px) * 16 / 9));aspect-ratio:16/9;overflow:hidden;border-radius:clamp(10px,1.6vw,20px);background:#f1f1f1;box-shadow:0 0 0 1px var(--line);contain:layout paint;isolation:isolate}
 #morph-stage-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
 #morph-stage .ml{position:absolute;box-sizing:border-box}
 #morph-stage svg{position:absolute;left:0;top:0;display:block}
+#morph-stage img{position:absolute;display:block;max-width:none;user-select:none;-webkit-user-drag:none}
+#morph-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
+/* stage container = FMSS media-box colour per theme: #f1f1f1 (light .media.mframe) / #000 (dark .media.dark) */
+html[data-theme=dark] #morph-stage{background:#000}
+/* the art switches palette instantly; keep the site-wide 0.3s theme cross-fade off the stage so letters and canvas flip together */
+html.theme-anim #morph-stage,html.theme-anim #morph-stage *{transition:none!important}
 #morph-cap{font:400 12px/1.5 var(--mono);color:var(--faint);letter-spacing:.04em;white-space:pre;min-height:1.5em}
 @media (max-width:640px){#morph-track{--bar:50px}}
 </style>
-<script src="studio-morph-demo-steps.js?v=1792271700" defer></script>
+<script src="studio-morph-demo-steps.js?v=1792275743" defer></script>
 </head>
 <body class="cs" data-prj="Studio Model">
 <a class="skip" href="#main">Skip to content</a>
@@ -39,15 +45,15 @@
 
 <main id="main" class="sheet">
 <section id="top" class="wrap hero mo-hero">
-  <p class="kicker fx">Studio Model · Motion study · Stepped</p>
-  <h1 class="fx">Letter morph</h1>
+  <p class="kicker fx">Studio Model · Presentation · Stepped</p>
+  <h1 class="fx">Studio Model, the deck</h1>
 </section>
 
 <div class="wrap">
-  <section id="morph" data-title="Letter morph" aria-label="Scroll-driven letter morph animation">
+  <section id="morph" data-title="Presentation" aria-label="Stepped Studio Model presentation, 45 slides">
     <div id="morph-track">
       <div class="mo-sticky">
-        <div id="morph-stage" role="img" aria-label="A three by three grid of squares morphs through the letters S, T, U, D, I and O, collapses into a square, and resolves into the Studio Model logo."><div id="morph-stage-inner"></div></div>
+        <div id="morph-stage" role="img" aria-label="The 45-slide Studio Model presentation: intro, the logomark built from a grid, the letter morph S T U D I O, the lockup, content grid, bulletins, screens, projects, collaborations, merch and the Studio Model logo."><div id="morph-stage-inner"></div></div>
         <p id="morph-cap" aria-hidden="true"></p>
       </div>
     </div>
