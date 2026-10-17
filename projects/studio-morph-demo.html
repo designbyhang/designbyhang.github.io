@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem("dbh-theme");if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<meta name="theme-color" content="#ededed"><script>if(document.documentElement.dataset.theme==="dark")document.querySelector("meta[name=theme-color]").content="#111111"</script>
+
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio Model, letter morph (demo) — Design by Hang</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23111'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/type.css?v=1792157005"><link rel="stylesheet" href="../css/gate.css?v=1792170000"><link rel="stylesheet" href="../css/case.css?v=1792560000"><link rel="stylesheet" href="../css/arrows.css?v=1792520000"><link rel="stylesheet" href="../css/theme.css?v=1792531000">
+<script src="../js/gate.js?v=1792158747"></script>
+<style>
+.mo-hero{padding-bottom:clamp(24px,4vw,40px)}
+.mo-hero h1{max-width:none}
+#morph-track{--bar:58px;position:relative;height:calc(100vh + var(--units,17.5) * 48vh)}
+.mo-sticky{position:sticky;top:var(--bar);height:calc(100vh - var(--bar));height:calc(100svh - var(--bar));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#morph-stage{position:relative;width:min(100%,calc((100vh - var(--bar) - 88px) * 16 / 9));width:min(100%,calc((100svh - var(--bar) - 88px) * 16 / 9));aspect-ratio:16/9;overflow:hidden;border-radius:clamp(10px,1.6vw,20px);background:#fff;box-shadow:0 0 0 1px var(--line);contain:layout paint;isolation:isolate}
+#morph-stage-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+#morph-stage .ml{position:absolute;box-sizing:border-box}
+#morph-stage svg{position:absolute;left:0;top:0;display:block}
+#morph-cap{font:400 12px/1.5 var(--mono);color:var(--faint);letter-spacing:.04em;white-space:pre;min-height:1.5em}
+@media (max-width:640px){#morph-track{--bar:50px}}
+</style>
+<script src="studio-morph-demo.js?v=1792267256" defer></script>
+</head>
+<body class="cs" data-prj="Studio Model">
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="../index.html" aria-label="Design by Hang, home">DESIGN BY HANG</a>
+  <span class="bar-mid" id="bar-mid" aria-hidden="true"></span>
+  <nav class="bar-right" aria-label="Site"><a class="ax" href="../index.html" aria-label="Back to home"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="t">BACK</span></a></nav>
+  <div class="prog" aria-hidden="true"><i></i></div>
+</header>
+
+<main id="main" class="sheet">
+<section id="top" class="wrap hero mo-hero">
+  <p class="kicker fx">Studio Model · Motion study</p>
+  <h1 class="fx">Letter morph</h1>
+</section>
+
+<div class="wrap">
+  <section id="morph" data-title="Letter morph" aria-label="Scroll-driven letter morph animation">
+    <div id="morph-track">
+      <div class="mo-sticky">
+        <div id="morph-stage" role="img" aria-label="A three by three grid of squares morphs through the letters S, T, U, D, I and O, collapses into a square, and resolves into the Studio Model logo."><div id="morph-stage-inner"></div></div>
+        <p id="morph-cap" aria-hidden="true"></p>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
+<footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
+<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script>
+</body></html>
