@@ -104,9 +104,9 @@ P={W:600,H:600,
   xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|N, A|G), no CTA row */,ys:[56,270,306,520,556] /* mobile v22: square card; label rows 36, letter rows 214 */,
   letters:[
     ['H',[50,56,300,270],300,44,316,'Vision'],
-    ['N',[300,56,550,270],300,336,316,'Strategy'],
-    ['A',[50,306,300,520],300,54,572,'Systems'],
-    ['G',[300,306,550,520],300,296,560]],
+    ['A',[300,56,550,270],300,304,322,'Strategy'],
+    ['G',[50,306,300,520],300,46,560,'Systems'],
+    ['N',[300,306,550,520],300,336,566]] /* mobile v23: H|A over G|N */,
   words:[['Vision',50,270],['Strategy',300,270],['Systems',50,520],['Creativity',300,520]],
   dims:[],
   dots:[[300,56,4],[550,520,4],[300,306,4],[300,556,4]],ring:[550,556],title:[54,806,40]};
@@ -177,9 +177,9 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   }
 let lp=null,rt=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();}};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
-addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},150);});
+addEventListener('resize',()=>rbs());
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
-const rbs=()=>{clearTimeout(rt);rt=setTimeout(()=>{lp=null;rb();},120);};if(window.ResizeObserver){let lw=0,lh=0;new ResizeObserver(e=>{const r=e[0].contentRect;if(Math.abs(r.width-lw)>1||Math.abs(r.height-lh)>1){lw=r.width;lh=r.height;rbs();}}).observe(root);}addEventListener('orientationchange',()=>{rbs();setTimeout(rbs,400);setTimeout(rbs,900);});
+let ow=innerWidth>innerHeight;const rbs=()=>{clearTimeout(rt);const nw=innerWidth>innerHeight;if(nw!==ow){ow=nw;root.style.visibility='hidden';}rt=setTimeout(()=>{lp=null;rb();requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility='';}));},450);}; /* rotation: hide letters, rebuild once layout has settled, then show */if(window.ResizeObserver){let lw=0,lh=0;new ResizeObserver(e=>{const r=e[0].contentRect;if(Math.abs(r.width-lw)>1||Math.abs(r.height-lh)>1){lw=r.width;lh=r.height;rbs();}}).observe(root);}addEventListener('orientationchange',()=>{rbs();setTimeout(rbs,400);setTimeout(rbs,900);});
 // mobile portrait: once the draw-in finishes, glide the first project card into view (once; cancelled by any user input; never with reduced motion)
 let done=false,raf=0;
 const stop=()=>{done=true;cancelAnimationFrame(raf);ev.forEach(e=>removeEventListener(e,stop,true));},ev=['wheel','touchstart','pointerdown','keydown','scroll'];
