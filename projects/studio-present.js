@@ -58,7 +58,6 @@ function chrome(){const sc=stageColor(),open=state==='open',r=inner.getBoundingC
  if(!open){delete stage.dataset.lb;stage.style.background=sc;}else{stage.dataset.lb=clear?'none':'canvas';stage.style.background=clear?'transparent':edge;}
  fs.dataset.tone=tone;fs.dataset.ntone=tone;fs.style.background=open&&!clear?edge:'';fs.style.boxShadow=open&&!clear?'0 0 0 100vmax '+edge:'';}
 
-function restoreChrome(){}
 /* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
    at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
    stale geometry until a resize). overflow:hidden on <html> + the wheel/touchmove/key handlers below stop page scrolling,
@@ -102,11 +101,13 @@ function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
 function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;flow(false);
  const from={...fullBox()};state='closing';chrome();fs.classList.add('is-closing');
- unlock();restoreChrome();
+ unlock();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
   /* focus goes back to the frame for keyboard users, without a focus ring (the ring is only for Tab navigation) */
   const hadFocus=fs.contains(document.activeElement);
   releaseToggle();fs.hidden=true;fs.classList.remove('is-closing');state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
+  /* the transparent fixed layer covered the edges while collapsing: re-sample the bars from the page (sticky header) now */
+  if(window.__dbhResample)__dbhResample();
   if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}});}
 host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first

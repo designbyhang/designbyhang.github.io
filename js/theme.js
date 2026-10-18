@@ -20,18 +20,17 @@ b.addEventListener('click',()=>{const t=de.dataset.theme==='dark'?'light':'dark'
 /* On touch devices, open LinkedIn in the same tab so iOS/Android hand off to the app. Desktop keeps the new-tab web link. */
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="linkedin.com"]');if(a&&matchMedia('(pointer:coarse)').matches)a.removeAttribute('target');},true);
 (()=>{const d=document.documentElement;let last='';const s=()=>{const dk=d.dataset.theme==='dark',fs=d.classList.contains('deck-lock'),c=fs?(dk?'#222222':'#f4f4f4'):(dk?'#111111':'#ededed');if(c+fs===last)return;last=c+fs;
-  document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove());const m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);d.style.backgroundColor=c;if(document.body)document.body.style.backgroundColor=fs?c:'';clearTimeout(s.t);s.t=setTimeout(re,420);};
-  /* toggle cross-fades backgrounds for .3s: swap the meta again once settled so browsers that sample page colours re-read the final ones */
+  document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove());const m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);d.style.backgroundColor=c;if(document.body)document.body.style.backgroundColor=fs?c:'';clearTimeout(s.t);s.t=setTimeout(re,420);if(d.classList.contains('deck-flow'))requestAnimationFrame(re);};
+  /* toggle cross-fades backgrounds for .3s: swap the meta again once settled so browsers that sample page colours re-read the final ones.
+     Studio presentation (open, html.deck-flow): html/body switch instantly (no cross-fade), so re-sample on the next frame as well */
   const re=()=>{const m=document.querySelector('meta[name="theme-color"]');if(m)m.replaceWith(m.cloneNode());
-   /* iOS 26 Safari tints its bars from fixed/sticky elements at the screen edges (project pages: the sticky header; Studio
-      presentation: the fullscreen layer) and re-reads them on scroll, not when their colour changes; the homepage has no such
-      element, so its bars follow the page background live. Nudge the scroll position by 1px for one frame (instant, no smooth
-      scroll) so Safari re-samples the edge colours once the theme cross-fade has finished. */
-   /* Studio presentation (html.deck-lock): its layer paints nothing at the edges, so the same document nudge applies; the scroll
-      lock (overflow:hidden) is lifted for the nudge frames on touch screens (html.deck-nudge; overlay scrollbars, nothing shows)
-      so the 1px is a real document scroll. The deck ignores it (__dbhNudge). */
+   /* iOS 26 Safari tints its bars from fixed/sticky elements at the screen edges (project pages: the sticky header), else from
+      html/body, and re-reads them on scroll, not when their colour changes. Nudge the scroll position by 1px for one frame
+      (instant, no smooth scroll) so Safari re-samples. Studio presentation (html.deck-lock): the open deck is the document
+      itself with 2px of scroll range (projects/studio.html), and the scroll lock (overflow:hidden) is lifted for the nudge
+      frames on touch screens (html.deck-nudge) so the 1px is a real document scroll. The deck ignores it (__dbhNudge). */
    const se=document.scrollingElement||d,y=se.scrollTop,lk=d.classList.contains('deck-lock'),lift=lk&&matchMedia('(pointer:coarse)').matches;
-   const done=()=>{if(lift)d.classList.remove('deck-nudge');dispatchEvent(new Event('dbh-resample'));};
+   const done=()=>{if(lift)d.classList.remove('deck-nudge');};
    if(lift)d.classList.add('deck-nudge');const max=se.scrollHeight-se.clientHeight;if(max<1){done();return;}
    window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>{se.scrollTo({top:y,behavior:'instant'});done();}));};
   window.__dbhResample=re;s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme','class']});})(); /* html.deck-lock = Studio presentation fullscreen: bars + html/body take the stage colour (#f4f4f4 / #222222), restored on close */ /* Safari top bar: replace the meta (iOS ignores content edits) and set html bg directly so it switches with the toggle */
