@@ -21,6 +21,15 @@ const S=D.slides,N=S.length,DUR=D.dur,TYP=D.type,W=1920,H=1080,AS=D.assets,BASE=
 if(!D._lmk){D._lmk=1;const ni=new Set(D.noinv||[]);S.forEach((s,n)=>{if(!ni.has(n))return;const m=new Map(s.items);
  for(const[k,l]of s.items){const g=/^(.*\/Logo Card)\/Logomark[^/]*\/.+/.exec(k);if(!g||l.t!=='SHAPE'||!l.f||Math.min(l.f[0],l.f[1],l.f[2])<250)continue;
   const bg=m.get(g[1]+'/BG');if(bg&&bg.o===0)l.fl=[22,22,22,l.f[3]];}});}
+/* photos are never altered, and neither is what frames them:
+   - pf: a filled box that holds a photo (the swag tiles on studio_43: tee, tote, back hoodie) is the photo's own studio-white
+     surround. It keeps its Figma fill in both themes and gets no anti-seam spread (the photo already bleeds 1px past it). Mapped
+     to the dark palette it showed as dark bands beside the tee, and the spread drew a thin outline around the tote / back hoodie.
+   - ph: a slide made only of photos (studio_43) keeps its Figma canvas, so the gaps between the tiles stay black in dark mode
+     too instead of turning into white lines around the boxes. */
+if(!D._pf){D._pf=1;for(const s of S){const m=new Map(s.items),kids=new Set(s.items.map(([,l])=>l.p));
+ for(const[,l]of s.items)if(l.t==='IMG'&&l.p){const b=m.get(l.p);if(b&&b.t==='BOX'&&b.f)b.pf=1;}
+ const leaves=s.items.filter(([k,l])=>!kids.has(k)&&l.o>0);if(leaves.length&&leaves.every(([,l])=>l.t==='IMG'))s.ph=1;}}
 if(!D._unit){D._unit=1;const keys=new Set();for(const s of S)for(const[k]of s.items)if(/^Mock \d+$/.test(k))keys.add(k);
  for(const m of keys){let ref=-1,rw=0;S.forEach((s,i)=>{const e=s.items.find(x=>x[0]===m);if(e&&e[1].o>=.999&&e[1].w>rw){rw=e[1].w;ref=i;}});if(ref<0)continue;
   const R=S[ref].items,re=R.find(x=>x[0]===m)[1],kids=R.filter(x=>x[0].startsWith(m+'/'));
@@ -44,7 +53,7 @@ function P(c,bg,w){if(!c)return c;w=w===undefined?DW:w;const r=c[0],g=c[1],b=c[2
 /* stage = the site's standard .media box (--frame): #f4f4f4 light, #222 dark. studio_27-36 keep their content's Figma colours
    but their surface follows the theme: their stage is exactly that standard colour in both modes (Figma's #eee / black bg is
    not used), and it tweens to/from the neighbours' canvas with the 26->27 / 36->37 transitions. */
-function bgOf(n){if(NI.has(n))return dark?[FD,FD,FD,1]:[FL,FL,FL,1];const b=S[n].bg;return b?P(b,1,1):null;}
+function bgOf(n){if(S[n].ph)return S[n].bg;if(NI.has(n))return dark?[FD,FD,FD,1]:[FL,FL,FL,1];const b=S[n].bg;return b?P(b,1,1):null;}
 const FL=0xf4,FD=0x22;
 const mapCss=(s,ni)=>!dark||ni?s:s.replace(/rgba\((\d+),(\d+),(\d+),([\d.]+)\)/g,(m,r,g,b,a)=>{const c=P([+r,+g,+b,+a],0,1);return`rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${a})`;});
 /* ---- per-slide layer maps and child orders */
@@ -96,8 +105,8 @@ function apply(k,ia,ib,v,t){const e=el.get(k),m=cont.get(k);
  s.borderRadius=v.r.some(x=>x>.01)?v.r.map(x=>x.toFixed(2)+'px').join(' '):'';
  const clip=(ia&&ia.clip)||(ib&&ib.clip);s.overflow=clip?'hidden':'';
  const kind=(ia||ib).t,isBox=kind!=='VEC'&&kind!=='TEXT'&&kind!=='IMG';
- const fc=v.f?P(v.f,(ia||ib).bgf):null;
- if(isBox){const c=fc?rgba(fc):'';s.background=c;s.color=c;const sh=[];if(c)sh.push('0 0 0 var(--seam) currentColor');
+ const fc=v.f?((ia||ib).pf?v.f:P(v.f,(ia||ib).bgf)):null;
+ if(isBox){const c=fc?rgba(fc):'';s.background=c;s.color=c;const sh=[];if(c&&!(ia||ib).pf)sh.push('0 0 0 var(--seam) currentColor');
   /* a frame with no fill casts its shadow from its contents, as in Figma (e.g. the S app tile: a square, fill-less 'Logo Card'
      whose rounded BG vector is the visible tile). box-shadow would draw the square frame's corners under the rounded tile. */
   if(v.sh&&!c){s.boxShadow=sh.join(',');s.filter=v.sh.map(q=>`drop-shadow(${q[0]}px ${q[1]}px ${q[2]/2}px ${rgba(q[4])})`).join(' ');}
