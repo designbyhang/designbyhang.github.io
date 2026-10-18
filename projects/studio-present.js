@@ -40,7 +40,7 @@ addEventListener('resize',()=>{fitClosed();fitOpen();if(state!=='closed'){const 
    html.deck-lock is set and follows the toggle live; removing the class restores the page values. */
 function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
 function chrome(){const c=canvasColor(),v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number),lum=c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);
- fs.dataset.tone=lum<128?'dark':'light';fs.style.background=state==='open'?c:'';}
+ fs.dataset.tone=lum<128?'dark':'light';fs.style.background=state==='open'?c:'';fs.style.boxShadow=state==='open'?'0 0 0 100vmax '+c:'';}
 function restoreChrome(){}
 /* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
    at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
