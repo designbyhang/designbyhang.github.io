@@ -33,19 +33,22 @@ const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
 function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
 addEventListener('resize',()=>{fitClosed();fitOpen();if(state!=='closed'){const b=document.querySelector('.theme-btn');if(b&&b.parentNode!==fs){tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}}});
-/* status bar + overscroll colour follow the fullscreen canvas while open; CLOSE/counter take the light or dark site colours
-   to suit the slide's canvas */
-function setMeta(c){document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove());const m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);de.style.backgroundColor=c;}
+/* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
+   (theme-color + html/body bg) is the standard stage colour, #f4f4f4 light / #222222 dark: js/theme.js applies it while
+   html.deck-lock is set and follows the toggle live; removing the class restores the page values. */
 function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
 function chrome(){const c=canvasColor(),v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number),lum=c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);
- fs.dataset.tone=lum<128?'dark':'light';fs.style.background=state==='open'?c:'';setMeta(c);}
-function restoreChrome(){setMeta(de.dataset.theme==='dark'?'#111111':'#ededed');}
+ fs.dataset.tone=lum<128?'dark':'light';fs.style.background=state==='open'?c:'';}
+function restoreChrome(){}
 /* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
    at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
    stale geometry until a resize). overflow:hidden on <html> + the wheel/touchmove/key handlers below stop page scrolling,
    iOS included. */
-function lock(){de.classList.add('deck-lock');}
-function unlock(){de.classList.remove('deck-lock');}
+/* iOS: while fullscreen the layer extends under the status bar / toolbar (viewport-fit=cover; chrome is inset by env(safe-area-*)),
+   and js/theme.js paints theme-color + html/body in the stage colour while html.deck-lock is set; both restored on close. */
+const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;
+function lock(){if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fit=cover';de.classList.add('deck-lock');}
+function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;}
 /* the theme toggle joins the fullscreen layer while it is open (same layer as CLOSE, above the stage), and goes back to its
    own place in the page afterwards */
 let tb=null,tbHome=null,tbNext=null;
