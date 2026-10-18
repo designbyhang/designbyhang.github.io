@@ -1,12 +1,12 @@
 <svg width="107" height="160" viewBox="0 0 107 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-<mask id="stroke0_141015_17187" fill="#000000">
+<mask id="stroke0_141015_17187" fill="#222222">
 <path d="M0 0L106.667 48V160L0 112V0Z"/>
 </mask>
 <path d="M0 0L106.667 48V160L0 112V0Z" stroke-width="8.53333" stroke="url(#paint0_linear_141015_17187)" mask="url(#stroke0_141015_17187)"/>
 <defs>
 <linearGradient id="paint0_linear_141015_17187" x1="-7.94729e-07" y1="80" x2="106.667" y2="9.59396e-06" gradientUnits="userSpaceOnUse">
 <stop/>
-<stop offset="1" stop-color="#000000"/>
+<stop offset="1" stop-color="#222222"/>
 </linearGradient>
 </defs>
 </svg>

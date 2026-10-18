@@ -3,23 +3,19 @@
 (()=>{const stage=document.getElementById('morph-stage'),inner=document.getElementById('morph-stage-inner'),track=document.getElementById('morph-track'),cap=document.getElementById('morph-cap');
 if(!stage||!inner||!track||!window.StudioDeck)return;
 const deck=StudioDeck.create({inner,stage,cap});const N=deck.N;
-const GAP=180,TOUCH_PX=30;let pendingKey=0;
+const TOUCH_PX=30;
 function inZone(){const r=track.getBoundingClientRect(),bar=document.querySelector('.bar'),bb=bar?bar.getBoundingClientRect().bottom:0;return r.top<=bb+2&&r.bottom>=innerHeight-2;}
 const canStep=d=>deck.canStep(d);
-function step(dir){return deck.step(dir,()=>{if(pendingKey){const d=pendingKey;pendingKey=0;step(d);}});}
-let wLast=-1e9,wOwner=null,wStartIn=false;
-addEventListener('wheel',e=>{const now=performance.now(),dy=e.deltaY,dx=e.deltaX;
- if((now-wLast)>GAP&&!deck.animating){wOwner=null;wStartIn=inZone();}
- wLast=now;
- if(Math.abs(dx)>Math.abs(dy))return;
- if(wOwner==='page')return;
- if(wOwner==='demo'){if(inZone()||deck.animating)e.preventDefault();return;}
- if(!inZone())return;
- if(!wStartIn){wOwner='demo';e.preventDefault();return;}
- if(Math.abs(dy)<1){e.preventDefault();return;}
- const dir=dy>0?1:-1;
- if(!canStep(dir)){wOwner='page';return;}
- wOwner='demo';e.preventDefault();step(dir);},{passive:false});
+function step(dir){return deck.request(dir);}
+/* wheel: the shared detector marks the start of each physical gesture (gap >120ms, direction change, or a rise after the
+   previous swipe's inertia decayed); each start = one requested step, queued (max one) while a transition runs */
+const wheelGesture=StudioDeck.wheelDetector();let wOwner=null,wDir=0;
+addEventListener('wheel',e=>{const g=wheelGesture(e),zone=inZone();
+ if(g){wOwner=null;wDir=g.dir;
+  if(!zone)wOwner='page';
+  else if(!canStep(g.dir)&&!deck.animating)wOwner='page';
+  else{wOwner='demo';e.preventDefault();step(g.dir);return;}}
+ if(wOwner==='demo'&&(zone||deck.animating))e.preventDefault();},{passive:false});
 let tStart=null;
 addEventListener('touchstart',e=>{if(e.touches.length!==1){tStart=null;return;}const t=e.touches[0];
  tStart={y:t.clientY,x:t.clientX,t:performance.now(),owner:inZone()?null:'page',done:false};},{passive:true});
@@ -40,7 +36,7 @@ addEventListener('keydown',e=>{const k=e.key,dir=NEXT.includes(k)?1:PREV.include
  if(!inZone())return;
  if(!canStep(dir)&&!deck.animating)return;
  e.preventDefault();if(e.repeat)return;
- if(deck.animating){pendingKey=dir;return;}step(dir);});
+ step(dir);});
 function fit(){deck.layout(stage.clientWidth,stage.clientHeight,'contain',stage.clientWidth/1920);}
 addEventListener('resize',fit);if(window.ResizeObserver)new ResizeObserver(fit).observe(stage);
 fit();deck.show(0);

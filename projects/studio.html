@@ -14,29 +14,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/type.css?v=1792157005"><link rel="stylesheet" href="../css/gate.css?v=1792170000"><link rel="stylesheet" href="../css/case.css?v=1792560000"><link rel="stylesheet" href="../css/arrows.css?v=1792520000"><link rel="stylesheet" href="../css/theme.css?v=1792531000">
 <style id="deck-css">
-/* Studio Model presentation (02): deck in the media frame, expands to fullscreen (studio-present.js) */
-body.cs .media.mframe.deck{display:block;background:#f1f1f1;cursor:pointer;outline-offset:3px}
-html[data-theme=dark] body.cs .media.mframe.deck{background:#000}
-.deck-stage{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;background:#f1f1f1;contain:layout paint;isolation:isolate}
-html[data-theme=dark] .deck-stage{background:#000}
-.deck-stage.is-fs{position:absolute}
+/* Studio Model presentation (02): deck in the media frame, expands to fullscreen (studio-present.js). Frame and stage use the
+   site's standard media box colour (--frame: #f4f4f4 light, #222 dark) */
+body.cs .media.mframe.deck{display:block;background:var(--frame);cursor:pointer}
+body.cs .media.mframe.deck.deck-quiet:focus{outline:none}
+.deck-stage{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;background:var(--frame);contain:layout paint;isolation:isolate}
 .deck-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
 .deck-stage .ml{position:absolute;box-sizing:border-box}
 .deck-stage svg{position:absolute;left:0;top:0;display:block}
 body.cs .deck-stage img,.deck-stage img{position:absolute;display:block;max-width:none;object-fit:fill;transform:none;transition:none;border-radius:0;user-select:none;-webkit-user-drag:none}
 .deck-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
-@media (prefers-reduced-motion:reduce){.deck-x .t::after{transition:none}}
 html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-fs,html.theme-anim .deck-fs *{transition:none!important}
 .deck-fs{position:fixed;inset:0;z-index:2147483000;overflow:hidden;overscroll-behavior:none;touch-action:none;outline:none}
 .deck-fs[hidden]{display:none}
-.deck-x{position:absolute;z-index:2;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));display:flex;align-items:center;gap:8px;padding:8px 0 8px 8px;margin:0;border:0;background:none;color:#fff;mix-blend-mode:difference;font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.deck-x .t{position:relative;display:inline-block}
-.deck-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.deck-x:hover .t::after,.deck-x:focus-visible .t::after{transform:scaleX(1)}
-.deck-x:focus-visible{outline:1px solid #fff;outline-offset:2px}
-.deck-x svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5}
-.deck-n{position:absolute;z-index:2;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));margin:0;color:#fff;mix-blend-mode:difference;font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);pointer-events:none;font-variant-numeric:tabular-nums}
-@media (min-width:900px){.deck-x{top:max(24px,env(safe-area-inset-top));right:max(28px,env(safe-area-inset-right))}.deck-n{right:max(28px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom))}}
+/* CLOSE: the header bar itself (same height, padding and BACK styles at every breakpoint), transparent, right-aligned */
+.deck-fs .bar.deck-bar{position:absolute;top:0;left:0;right:0;z-index:2;justify-content:flex-end;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.deck-fs[data-tone=light] .deck-bar,.deck-fs[data-tone=light] .deck-n{--mono-color:#333;--ink:#171717}
+.deck-fs[data-tone=dark] .deck-bar,.deck-fs[data-tone=dark] .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}
+.deck-n{position:absolute;z-index:2;right:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
+@media (max-width:900px){.deck-n{right:clamp(20px,5vw,72px)}}
 html.deck-open .theme-btn{z-index:2147483001}
 </style>
 <script src="../js/gate.js?v=1792158747"></script>
@@ -51,7 +47,7 @@ html.deck-open .theme-btn{z-index:2147483001}
 </header>
 
 <nav class="toc" aria-label="On this page"><ol>
-  <li><a href="#overview">Overview</a></li><li><a href="#presentation">Presentation</a></li><li><a href="#frameworks">Frameworks</a></li><li><a href="#pods">Pods</a></li><li><a href="#collab">Collaboration</a></li>
+  <li><a href="#overview">Overview</a></li><li><a href="#presentation">Presentation</a></li>
 </ol></nav>
 
 <main id="main" class="sheet">
@@ -84,56 +80,6 @@ html.deck-open .theme-btn{z-index:2147483001}
 </div>
 <figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe deck" id="deck" tabindex="0" role="region" aria-roledescription="presentation" aria-label="Studio Model presentation, 43 slides. Scroll, swipe or use the arrow keys to step through it; Escape closes it"><div class="deck-stage"><div class="deck-inner"></div></div></div></figure>
 <div class="wrap">
-  <section id="frameworks" data-title="Frameworks" class="sec sec-grid">
-    <p class="sec-label">03 — Frameworks</p>
-  </section>
-</div>
-<figure class="bleed fig fx"><div class="media mframe"><img src="../assets/studio/studio-26.webp" width="2880" height="1620" loading="lazy" alt="Four framework graphics labelled Spatial Model, App Layering, Attention Signaling and Private Sharing"></div>
-  <figcaption class="cap16">Disclaimer: graphics on this slide are from external sources and for illustrative purpose only.</figcaption></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 3">
-  <div class="car-track">
-    <img class="is-active" src="../assets/studio/studio-27.webp" width="2880" height="1620" loading="lazy" alt="A playbook for shipping frameworks">
-    <img src="../assets/studio/studio-28.webp" width="2880" height="1620" loading="lazy" alt="Studio Model Quarterly Bulletin Q1 2024">
-    <img src="../assets/studio/studio-29.webp" width="2880" height="1620" loading="lazy" alt="Strategy to Reality: Driving Material Change in Product">
-  </div>
-  <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
-</div>
-  <figcaption class="cap16">A playbook for shipping frameworks</figcaption></figure>
-<div class="wrap">
-  <section id="pods" data-title="Pods" class="sec sec-grid">
-    <p class="sec-label">04 — Pods</p>
-  </section>
-</div>
-<figure class="bleed fig fx"><div class="media mframe"><img src="../assets/studio/studio-31.webp" width="2880" height="1620" loading="lazy" alt="A grid of Facebook app screens around the Studio Model logomark"></div></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 4">
-  <div class="car-track">
-    <img class="is-active" src="../assets/studio/studio-33.webp" width="2880" height="1620" loading="lazy" alt="Creation · Creative Expression with AI · In Design">
-    <img src="../assets/studio/studio-34.webp" width="2880" height="1620" loading="lazy" alt="Navigation · Cross Product Pathing · In Design">
-    <img src="../assets/studio/studio-35.webp" width="2880" height="1620" loading="lazy" alt="Controls · Private Massaging · In Review">
-    <img src="../assets/studio/studio-36.webp" width="2880" height="1620" loading="lazy" alt="Account Access · Profile Permissions &amp; Access · Shipped">
-  </div>
-  <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
-</div>
-  <figcaption class="cap16">Creation · Creative Expression with AI · In Design</figcaption></figure>
-<div class="wrap">
-  <section id="collab" data-title="Collaboration" class="sec sec-grid">
-    <p class="sec-label">05 — Collaboration</p>
-  </section>
-</div>
-<figure class="bleed fig fx"><div class="media mframe carousel" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 5">
-  <div class="car-track">
-    <img class="is-active" src="../assets/studio/studio-38.webp" width="2880" height="1620" loading="lazy" alt="Studio Model × Messenger">
-    <img src="../assets/studio/studio-39.webp" width="2880" height="1620" loading="lazy" alt="Studio Model × Instagram">
-    <img src="../assets/studio/studio-40.webp" width="2880" height="1620" loading="lazy" alt="Studio Model × Blueprint">
-    <img src="../assets/studio/studio-41.webp" width="2880" height="1620" loading="lazy" alt="Studio Model × FM">
-    <img src="../assets/studio/studio-42.webp" width="2880" height="1620" loading="lazy" alt="Studio Model × Marketplace">
-  </div>
-  <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
-</div>
-  <figcaption class="cap16">Studio Model × Messenger</figcaption></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe"><img src="../assets/studio/studio-43.webp" width="2880" height="1620" loading="lazy" alt="Studio Model apparel: hoodies, a T-shirt, a tote bag and a pencil"></div>
-  <figcaption class="cap16">Studio Model Swag</figcaption></figure>
-<div class="wrap">
   <aside class="next fx" aria-label="Next project">
     <a class="next-hit proj" href="usps.html" aria-label="Next project: USPS Innovations"><p class="k ax" aria-hidden="true"><span class="t">NEXT CASE STUDY</span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-usps-home.webp?v=1792161912" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
   </aside>
@@ -141,5 +87,5 @@ html.deck-open .theme-btn{z-index:2147483001}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792287717" defer></script><script src="studio-deck.js?v=1792287717" defer></script><script src="studio-present.js?v=1792287717" defer></script>
+<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792290600" defer></script>
 </body></html>
