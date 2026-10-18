@@ -148,19 +148,35 @@ let lastDraw=[0,0],shownN=-1,rawU=null,rawDir=1;
    1.667s in Figma because the grid fades out with it; its box keeps the 0.833s fade inside that transition. */
 const CELLT=D.cellT||{};
 function cellT(i,t){const c=CELLT[i];if(!c)return t;const u=rawU!==null?rawU:(rawDir>0?t:1-t);const e=FIG[c[1]](c[0])(Math.min(1,u*DUR[i]/c[0]));return rawDir>0?e:1-e;}
-/* grid draw-in (first step after entering, studio_02 -> 03): same as the homepage intro card's lines (home.js/home.css):
-   verticals draw top->bottom at i*40ms, horizontals left->right at 120+i*40ms, 900ms each, cubic-bezier(.2,.7,.2,1).
-   Implemented as a mask of growing strips over the real Grid layer, so the drawn lines are exactly the slide's lines. */
-/* drawn on EVERY studio_02 -> 03 step (1.18s total: 8 verticals + 4 horizontals). The step only lands (tick, AUTO PLAY wait,
-   `animating` false) when the last line is fully drawn; a new gesture during the draw completes it at once and lands there. */
-const GRID=D.grid||null,gEase=bezF(.2,.7,.2,1);let gfx=null;
-function gridMask(now){const g=el.get('Grid');if(!g||!gfx)return;const t=now-gfx.t0;let imgs=[],pos=[],siz=[],done=true;
- const p=d=>{const u=Math.min(1,Math.max(0,(t-d)/900));if(u<1)done=false;return gEase(u);};
- GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*40);imgs.push('linear-gradient(#000,#000)');pos.push(`${x-GRID.sw}px ${GRID.y0}px`);siz.push(`${2*GRID.sw}px ${h}px`);});
- GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(120+i*40);imgs.push('linear-gradient(#000,#000)');pos.push(`${GRID.x0}px ${y-GRID.sw}px`);siz.push(`${w}px ${2*GRID.sw}px`);});
+/* grid draw-in on EVERY studio_02 -> 03 step, after Apple's 'Designed by Apple - Intention' opening, in sequential phases:
+   (1) the studio_02 copy fades out as one block (the deck's own opacity tween, 0-0.83s);
+   (2) solid dots in the line colour POP in at the 32 grid intersections, scale 0->1 in 100ms, no fade or overshoot, in rings
+       from the centre (550-770ms);
+   (3) the lines GROW out of their dots, strong ease-out, 500ms each, 25ms apart: verticals from the top-row dots (mostly
+       downward), then horizontals from the left-column dots (mostly rightward);
+   (4) each dot scales away (120ms) as the horizontal line reaches it, so the end state is exactly the Figma grid (no dots).
+   Lines are a mask of growing strips over the real Grid layer, so the drawn lines are exactly the slide's lines. All lines are
+   drawn at 1.95s; only then does the step land (tick, AUTO PLAY wait, `animating` false). A gesture during the draw completes
+   it at once and lands there; reduced motion skips it. */
+const GRID=D.grid||null,gLine=bezF(.16,1,.3,1),gPop=bezF(.33,1,.68,1),G_DOT=550,G_RING=220,G_POP=100,G_V=880,G_H=1400,G_STG=25,G_LEN=500,G_SHR=120;let gfx=null;
+function gridDots(g){if(gfx.dots)return;const G=GRID,k=root.getBoundingClientRect().width/W||1,px=Math.min(4,Math.max(3,k*6))/k,
+ ps=g.querySelector('path'),col=(ps&&getComputedStyle(ps).fill)||(dark?'#e9e9e9':'#161616'),box=document.createElement('div');
+ box.style.cssText='position:absolute;left:0;top:0;width:'+W+'px;height:'+H+'px;pointer-events:none;z-index:9';const L=[];let md=0;
+ G.hz.forEach((y,r)=>G.v.forEach(x=>{const ax=x-G.x0,ay=y-G.y0;if(ax<0||ax>W||ay<0||ay>H)return;const d=document.createElement('i');
+  d.style.cssText=`position:absolute;left:${ax-px/2}px;top:${ay-px/2}px;width:${px}px;height:${px}px;border-radius:50%;background:${col};transform:scale(0)`;
+  box.appendChild(d);const dist=Math.hypot(ax-W/2,ay-H/2);md=Math.max(md,dist);L.push({d,r,x,dist,hit:null});}));
+ L.forEach(o=>o.t=G_DOT+G_RING*(md?o.dist/md:0));root.appendChild(box);gfx.dots=L;gfx.box=box;}
+function gridMask(now){const g=el.get('Grid');if(!g||!gfx)return;gridDots(g);const G=GRID,t=now-gfx.t0;let imgs=[],pos=[],siz=[],done=true;
+ const p=d=>{const u=Math.min(1,Math.max(0,(t-d)/G_LEN));if(u<1)done=false;return gLine(u);};
+ const yd=G.hz[0],xd=G.v[0],hp=[];
+ G.v.forEach((x,i)=>{const q=p(G_V+i*G_STG);imgs.push('linear-gradient(#000,#000)');pos.push(`${x-G.sw}px ${yd-q*(yd-G.y0)}px`);siz.push(`${2*G.sw}px ${q*G.h0}px`);});
+ G.hz.forEach((y,i)=>{const q=p(G_H+i*G_STG);hp[i]=q;imgs.push('linear-gradient(#000,#000)');pos.push(`${xd-q*(xd-G.x0)}px ${y-G.sw}px`);siz.push(`${q*G.w0}px ${2*G.sw}px`);});
+ gfx.dots.forEach(o=>{const pop=gPop(Math.min(1,Math.max(0,(t-o.t)/G_POP)));
+  if(o.hit===null&&t>=G_H+o.r*G_STG&&xd+hp[o.r]*(G.x0+G.w0-xd)>=o.x)o.hit=t;
+  const sh=o.hit===null?1:1-Math.min(1,(t-o.hit)/G_SHR),sc=pop*sh*sh;if(o.hit===null||sh>0)done=false;o.d.style.transform=`scale(${sc})`;});
  const s=g.style;s.webkitMaskImage=s.maskImage=imgs.join(',');s.webkitMaskPosition=s.maskPosition=pos.join(',');s.webkitMaskSize=s.maskSize=siz.join(',');s.webkitMaskRepeat=s.maskRepeat='no-repeat';s.opacity='1';
  if(done)endGrid();}
-function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.n,L.done);}
+function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;if(gfx&&gfx.box)gfx.box.remove();gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.n,L.done);}
 function gridTick(now){if(!gfx)return;gridMask(now);if(gfx)gfx.raf=requestAnimationFrame(gridTick);}
 function startGrid(){if(!GRID||rm.matches)return;if(gfx)cancelGrid();gfx={t0:performance.now(),land:null};gridMask(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
 function cancelGrid(){if(gfx){cancelAnimationFrame(gfx.raf);endGrid();}}
