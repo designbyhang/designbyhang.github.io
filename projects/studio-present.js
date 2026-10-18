@@ -75,8 +75,20 @@ function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;}
 let tb=null,tbHome=null,tbNext=null;
 function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
 function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(tb,tbNext);else tbHome.appendChild(tb);}
-function anim(from,to,done){cancelAnimationFrame(raf);const t0=performance.now();
- const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();
+/* the page's section menu (.toc: fixed at the right edge, wide screens only) sits where the fullscreen counter goes. While
+   the stage expands it slides out to the right, fully off-screen, and fades, on the expand's own progress (same DUR and
+   ease); on close it slides back in on the collapse's progress and lands as it ends. The counter stays hidden until the
+   menu has passed it and fades in over the rest of the expand (out first on close), so the two never share a frame.
+   Uses the independent CSS translate property, so the menu's own translateY(-50%) is untouched; fixed boxes add no
+   scroll overflow. Without a visible menu (narrow screens) nothing changes. */
+const toc=document.querySelector('.toc');let tg=null;
+function asideMeasure(){tg=null;if(!toc)return;toc.style.translate='';const t=toc.getBoundingClientRect();if(!t.width)return;
+ const off=innerWidth-t.left;tg={off,clr:Math.min(1,Math.max(0,cnt.getBoundingClientRect().right-t.left)/off)};}
+function aside(p){if(!tg)return;toc.style.translate=(p*tg.off).toFixed(2)+'px 0';toc.style.opacity=String(1-p);
+ const c=tg.clr<1?Math.max(0,(p-tg.clr)/(1-tg.clr)):+(p>=1);cnt.style.opacity=String(c*c*(3-2*c));}
+function asideReset(){tg=null;if(toc)toc.style.translate=toc.style.opacity='';cnt.style.opacity='';}
+function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
+ const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
@@ -84,8 +96,8 @@ const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=h
 const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
- fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
- anim(from,fullBox,()=>{state='open';flow(true);fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();});}
+ fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
+ anim(from,fullBox,()=>{state='open';flow(true);cnt.style.opacity='';fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
@@ -104,15 +116,15 @@ function apFire(){apT=0;if(!apOn||state!=='open')return;if(deck.animating){apWai
 function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&&deck.cur===0&&!deck.animating){autoAt=performance.now();deck.request(1,()=>close('end'));}},AUTO_MS);}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
 function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;flow(false);
- const from={...fullBox()};state='closing';chrome();fs.classList.add('is-closing');
+ const from={...fullBox()};state='closing';chrome();fs.classList.add('is-closing');asideMeasure();aside(1);
  unlock();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
   /* focus goes back to the frame for keyboard users, without a focus ring (the ring is only for Tab navigation) */
   const hadFocus=fs.contains(document.activeElement);
-  releaseToggle();fs.hidden=true;fs.classList.remove('is-closing');state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
+  releaseToggle();asideReset();fs.hidden=true;fs.classList.remove('is-closing');state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
   /* the transparent fixed layer covered the edges while collapsing: re-sample the bars from the page (sticky header) now */
   if(window.__dbhResample)__dbhResample();
-  if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}});}
+  if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}},e=>aside(1-e));}
 host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
    slide or the remembered one. Coming from below it never expands: the page scrolls past and the container keeps showing its
