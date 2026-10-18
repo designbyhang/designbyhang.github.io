@@ -19,7 +19,7 @@
     /* one gauge detent tick (home dial; also each Studio presentation step) */
     tick(){const n=performance.now();if(n-lastT<MINGAP)return false;lastT=n;this.count.tick++;hit(3200,6,.5,.012);return true;},
     tap(){this.count.tap++;hit(1200,2,1,.04);body(140,.6,.08);},
-    /* easter egg: 7th+ consecutive theme toggle (counter resets after 6s idle) = broken-circuit short */
-    _tg:0,_tgT:0,toggle(){const n=performance.now();if(n-this._tgT>6000)this._tg=0;this._tgT=n;this._tg++;if(this._tg<7){this.tap();return'tap';}this.count.zap=(this.count.zap||0)+1;zap();return'zap';},
+    /* easter egg: 7th+ consecutive theme toggle (counter resets after 2s idle) = broken-circuit short */
+    _tg:0,_tgT:0,toggle(){const n=performance.now();if(n-this._tgT>2000)this._tg=0;this._tgT=n;this._tg++;if(this._tg<7){this.tap();return'tap';}this.count.zap=(this.count.zap||0)+1;zap();return'zap';},
     set(on){mute=!on;localStorage.setItem('dbh-sound',on?'on':'off');},get on(){return!mute;}};})();
 window.dbhSfx=window.__sound=sfx;})();
