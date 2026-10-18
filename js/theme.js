@@ -26,11 +26,8 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
   const re=()=>{const m=document.querySelector('meta[name="theme-color"]');if(m)m.replaceWith(m.cloneNode());
    /* iOS 26 Safari tints its bars from fixed/sticky elements at the screen edges (project pages: the sticky header), else from
       html/body, and re-reads them on scroll, not when their colour changes. Nudge the scroll position by 1px for one frame
-      (instant, no smooth scroll) so Safari re-samples. Studio presentation (html.deck-lock): the open deck is the document
-      itself with 2px of scroll range (projects/studio.html), and the scroll lock (overflow:hidden) is lifted for the nudge
-      frames on touch screens (html.deck-nudge) so the 1px is a real document scroll. The deck ignores it (__dbhNudge). */
-   const se=document.scrollingElement||d,y=se.scrollTop,lk=d.classList.contains('deck-lock'),lift=lk&&matchMedia('(pointer:coarse)').matches;
-   const done=()=>{if(lift)d.classList.remove('deck-nudge');};
-   if(lift)d.classList.add('deck-nudge');const max=se.scrollHeight-se.clientHeight;if(max<1){done();return;}
-   window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>{se.scrollTo({top:y,behavior:'instant'});done();}));};
+      (instant, no smooth scroll) so Safari re-samples. Studio presentation (open, html.deck-flow): the deck is the document
+      itself with 2px of scroll range and solid fixed edge strips (projects/studio.html). The deck ignores it (__dbhNudge). */
+   const se=document.scrollingElement||d,y=se.scrollTop,max=se.scrollHeight-se.clientHeight;if(max<1)return;
+   window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>se.scrollTo({top:y,behavior:'instant'})));};
   window.__dbhResample=re;s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme','class']});})(); /* html.deck-lock = Studio presentation fullscreen: bars + html/body take the stage colour (#f4f4f4 / #222222), restored on close */ /* Safari top bar: replace the meta (iOS ignores content edits) and set html bg directly so it switches with the toggle */

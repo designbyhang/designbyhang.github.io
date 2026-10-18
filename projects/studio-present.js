@@ -13,9 +13,9 @@ fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttr
    sits with the same type, gap, icon size/stroke and hover underline at every breakpoint */
 /* AUTO PLAY (bottom-right, CLOSE's markup + the header BACK's icon/text gap): play glyph points right; pause = two bars */
 const AP_PLAY='<svg viewBox="0 0 20 16" fill="none"><path d="M5 1L17 8L5 15Z"/></svg>',AP_PAUSE='<svg viewBox="0 0 20 16" fill="none"><path d="M7 1V15M13 1V15"/></svg>';
-fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
+fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
-const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
+const edges=fs.querySelectorAll('.deck-edge'),btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 /* counter starts at the first filled logomark square (studio_04, slide index 2: the grid slides studio_02/03 before it read 00);
    from there it counts up to the total = the slides from studio_04 to the end, so the last slide reads 41/41 */
@@ -45,25 +45,27 @@ addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();
 function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
 const stageColor=()=>deck.dark?'#222222':'#f4f4f4';
 const lumOf=c=>{const v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number);return c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);};
-/* TRUE fullscreen, built like the homepage: the homepage has no fixed or sticky element at the screen edges (static header, page
-   is the document itself, html/body height:100%), so iOS 26 Safari tints its bars from the body background, which WebKit observes
-   live. Once the open animation has finished, the presentation therefore leaves the fixed overlay model: html.deck-flow hides the
-   page (display:none) and puts the layer in normal flow as the document itself (100% of the viewport, scroll 0); body = stage
-   colour (js/theme.js). Nothing fixed/sticky spans the edges any more (WebKit only samples fixed/sticky elements >=90% wide at
-   the edge, and fell back to a stale colour for the transparent fixed layer). Closing restores the fixed overlay and the page's
-   scroll position first, then animates back into the page. The layer/stage paint nothing in the letterbox, the slide canvas
-   stays inside the artboard; on tight landscape phones (CLOSE / AUTO PLAY over the art) the canvas fills the letterbox. */
+/* TRUE fullscreen: once the open animation has finished, html.deck-flow hides the page (display:none) and puts the layer in
+   normal flow as the document itself (one viewport + 2px, scroll 0; body = stage colour, js/theme.js). Closing restores the fixed
+   overlay and the page's scroll position first, then animates back into the page. The layer/stage paint nothing in the letterbox,
+   the slide canvas stays inside the artboard; on tight landscape phones (CLOSE / AUTO PLAY over the art) the canvas fills it.
+   iOS 26 Safari bars: they tint from the solid fixed/sticky element at each screen edge and WebKit re-samples it when that layer
+   repaints (that is why the project pages' solid sticky header follows the toggle live); without one it falls back to a body
+   colour it does not reliably re-read (device: the top kept the colour from opening). So the open layer gets the same thing as the
+   project pages: two solid, full-width fixed edge strips (.deck-edge: top = the header row, bottom = the band under AUTO PLAY /
+   the toggle), painted in the colour shown at that edge (stage colour, or the canvas when it fills the letterbox) by chrome(),
+   which runs synchronously on every theme change. */
 let flowY=null;function flow(on){if(on){if(flowY!==null)return;flowY=scrollY;de.classList.add('deck-flow');scrollTo({top:0,left:0,behavior:'instant'});}
  else{if(flowY===null)return;const y=flowY;flowY=null;de.classList.remove('deck-flow');scrollTo({top:y,left:0,behavior:'instant'});}}
 function chrome(){const sc=stageColor(),open=state==='open',r=inner.getBoundingClientRect(),hit=e=>{const b=e.getBoundingClientRect();return b.left<r.right&&b.right>r.left&&b.top<r.bottom&&b.bottom>r.top;},
  clear=!open||(!hit(btn)&&!hit(apBtn)),edge=clear?sc:canvasColor(),tone=lumOf(edge)<128?'dark':'light';
  if(!open){delete stage.dataset.lb;stage.style.background=sc;}else{stage.dataset.lb=clear?'none':'canvas';stage.style.background=clear?'transparent':edge;}
- fs.dataset.tone=tone;fs.dataset.ntone=tone;fs.style.background=open&&!clear?edge:'';fs.style.boxShadow=open&&!clear?'0 0 0 100vmax '+edge:'';}
+ fs.dataset.tone=tone;fs.dataset.ntone=tone;fs.dataset.lb=clear?'none':'canvas';edges.forEach(e=>e.style.background=edge);fs.style.background=open&&!clear?edge:'';fs.style.boxShadow=open&&!clear?'0 0 0 100vmax '+edge:'';}
 
 /* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
    at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
-   stale geometry until a resize). overflow:hidden on <html> + the wheel/touchmove/key handlers below stop page scrolling,
-   iOS included. */
+   stale geometry until a resize). The wheel/touchmove/key handlers below stop page scrolling; overflow:hidden on <html> only
+   during the open/close animation and, once open, on non-touch screens (touch screens keep a normally scrollable root). */
 /* iOS: while fullscreen the layer extends under the status bar / toolbar (viewport-fit=cover; chrome is inset by env(safe-area-*)),
    and js/theme.js paints theme-color + html/body in the stage colour while html.deck-lock is set; both restored on close. */
 const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;

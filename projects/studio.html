@@ -53,20 +53,30 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 @media (orientation:portrait){.deck-n .n{display:flex;flex-direction:column;align-items:center;gap:6px}.deck-n .s{display:block;width:1.1em;height:1px;background:currentColor;font-size:0;overflow:hidden}}
 html.deck-open .theme-btn{z-index:2147483001}
 html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
-html.deck-lock.deck-nudge{overflow:auto} /* js/theme.js: 1px document scroll nudge (touch screens) so iOS Safari re-samples the bars */
+/* touch screens: once open, the root is a normal scrollable document like the project pages (2px range, user scrolling is consumed by
+   studio-present.js); desktop keeps overflow:hidden so no scrollbar shows for the 2px */
+@media (hover:none) and (pointer:coarse){html.deck-lock.deck-flow{overflow:auto}}
 /* html/body (= the bar colour) switch instantly with the toggle while presenting, like the deck itself: no 0.3s cross-fade that
    Safari could sample half-way (old colour) */
 html.deck-lock.theme-anim,html.deck-lock.theme-anim body{transition:none!important}
 /* open (after the expand animation): true fullscreen like the homepage. The layer is the document itself in normal flow, the page
    is display:none, nothing fixed/sticky spans the screen edges, so iOS Safari tints its bars from body (= stage colour, live) */
 html.deck-flow,html.deck-flow body{height:100%}
-/* body keeps 2px of (stage-coloured) scroll range below the layer: the toggle / open re-sample nudge must be a REAL scroll, which a
-   document exactly one viewport tall cannot do (scrollHeight = clientHeight, the nudge was a no-op and the bars kept the old colour).
-   content-box: body = 100% + 2px (the layer stays exactly one viewport). User scrolling stays blocked (wheel / touchmove / keys
-   are consumed by studio-present.js). */
+/* body keeps 2px of (stage-coloured) scroll range below the layer, so the open document scrolls like a page and js/theme.js's
+   1px re-sample nudge is a real scroll. content-box: body = 100% + 2px (the layer stays exactly one viewport). */
 html.deck-flow body{margin:0;padding:0 0 2px;box-sizing:content-box}
 html.deck-flow body>:not(.deck-fs){display:none!important}
 html.deck-flow .deck-fs{position:relative;inset:auto;width:100%;height:100%}
+/* iOS 26 Safari bar tint (studio-present.js): solid full-width fixed strips at the top and bottom screen edges while open, like the
+   project pages' solid sticky header; background = the colour at that edge (inline, chrome()), so they are invisible. Top = the
+   header row (CLOSE), bottom = the band under AUTO PLAY / the toggle; below the controls, above the stage. When the canvas fills
+   the letterbox (tight landscape, art can reach the edges) they shrink to 4px */
+.deck-edge{display:none;position:fixed;left:0;right:0;z-index:1} /* no pointer-events:none: WebKit's edge sampler hit-tests; the stage takes no pointer events anyway, controls sit above */
+html.deck-flow .deck-edge{display:block}
+.deck-edge-t{top:0;height:calc(58px + env(safe-area-inset-top,0px))}
+@media (max-width:640px){.deck-edge-t{height:calc(50px + env(safe-area-inset-top,0px))}}
+.deck-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
+.deck-fs[data-lb=canvas] .deck-edge{height:4px}
 /* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
 /* AUTO PLAY: CLOSE's bar, pinned bottom-right; 28px row centred on the light/dark toggle (same bottom inset), safe areas respected */
 .deck-fs .bar.deck-bar.deck-auto-bar{top:auto;height:28px;bottom:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
@@ -127,5 +137,5 @@ html.deck-flow .deck-fs{position:relative;inset:auto;width:100%;height:100%}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792350207"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792350398" defer></script><script src="studio-present.js?v=1792350398" defer></script>
+<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792351814"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792350398" defer></script><script src="studio-present.js?v=1792351814" defer></script>
 </body></html>
