@@ -1,4 +1,6 @@
 /* light/dark toggle (initial theme is set by the inline head script before first paint) */
+/* opt-in header test for iOS bar tint (see css/theme.css): ?bar=solid|static, ?bar=off clears */
+(()=>{try{const q=new URLSearchParams(location.search).get('bar'),K='dbh-bar';if(q)q==='off'?sessionStorage.removeItem(K):sessionStorage.setItem(K,q);const v=sessionStorage.getItem(K);if(v)document.documentElement.dataset.bar=v;}catch(e){}})();
 (()=>{const de=document.documentElement;
 const svg='<svg class="i-moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M14.4 10.2A6.7 6.7 0 0 1 5.8 1.6 6.7 6.7 0 1 0 14.4 10.2z"/></svg><svg class="i-sun" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.5"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(0 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(60 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(120 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(180 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(240 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(300 8 8)"/></svg>';
 const foot=document.querySelector('footer.bot');
