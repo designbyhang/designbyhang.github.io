@@ -76,7 +76,7 @@ function autoStop(){clearTimeout(autoT);autoT=0;}
    opening hold, same timing, so there is no double step); toggle state itself is not remembered; one step every AP_MS counted from the end of the previous transition (so any
    manual scroll/swipe/key step restarts the wait); waits out running transitions; turns itself off on the last slide and on
    exit. Steps go through deck.request like any gesture (gauge tick, reduced motion = instant change). */
-const AP_MS=1000;let apOn=false,apT=0;
+const AP_MS=500;let apOn=false,apT=0;
 function apSet(v){apOn=!!v;clearTimeout(apT);apT=0;apBtn.setAttribute('aria-pressed',String(apOn));apBtn.classList.toggle('on',apOn);apIco.innerHTML=apOn?AP_PAUSE:AP_PLAY;if(apOn){autoStop();autoAt=0;apWait();}}
 function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')return;if(deck.animating){apT=setTimeout(apWait,60);return;}
  if(!deck.canStep(1)){apSet(false);return;}apT=setTimeout(apFire,AP_MS);}
