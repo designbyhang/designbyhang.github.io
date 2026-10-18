@@ -12,6 +12,16 @@ sysDark.addEventListener?sysDark.addEventListener('change',onSys):sysDark.addLis
    (scaled by layout()), `stage` gets the slide canvas colour. Returns a small controller API. */
 function create(opts){const D=window.__STUDIO__;
 const S=D.slides,N=S.length,DUR=D.dur,TYP=D.type,W=1920,H=1080,AS=D.assets,BASE=opts.base||D.base;
+/* posts that zoom between slides (Mock 1-3: the playbook / Jen S. bulletin posts) are one unit: on every slide the post keeps
+   the inner layout of the slide where it is shown at full size (same text boxes, sizes and line breaks) and only its frame
+   is scaled (q = transform: scale from the top-left), so text never reflows, rewraps or cross-fades between sizes. */
+if(!D._unit){D._unit=1;const keys=new Set();for(const s of S)for(const[k]of s.items)if(/^Mock \d+$/.test(k))keys.add(k);
+ for(const m of keys){let ref=-1,rw=0;S.forEach((s,i)=>{const e=s.items.find(x=>x[0]===m);if(e&&e[1].o>=.999&&e[1].w>rw){rw=e[1].w;ref=i;}});if(ref<0)continue;
+  const R=S[ref].items,re=R.find(x=>x[0]===m)[1],kids=R.filter(x=>x[0].startsWith(m+'/'));
+  /* single-line texts (box no taller than 1.5 lines) never wrap: browser metrics can't push 'Jen S.' onto two lines */
+  for(const[,v]of kids)if(v.t==='TEXT'){const lh=parseFloat((/line-height:([\d.]+)px/.exec(D.texts[v.tx][0])||[])[1]);if(lh&&v.h<=lh*1.5)v.nw=1;}
+  S.forEach((s,i)=>{if(i===ref)return;if(!s.items.some(x=>x[0]===m))return;const rest=s.items.filter(x=>!x[0].startsWith(m+'/')),j=rest.findIndex(x=>x[0]===m),e=rest[j][1];
+   rest[j]=[m,{...re,x:e.x,y:e.y,o:e.o,q:e.w/re.w}];rest.splice(j+1,0,...kids.map(([k,v])=>[k,{...v}]));s.items=rest;});}}
 const root=opts.inner,stage=opts.stage,cap=opts.cap||null;
 root.style.position='absolute';root.style.left='0';root.style.top='0';root.style.width=W+'px';root.style.height=H+'px';root.style.transformOrigin='0 0';
 /* ---- theme palette. Light = the Figma design as-is, except the white slide canvas becomes the site's standard media box colour #f4f4f4.
@@ -53,16 +63,16 @@ function ensureContent(k,item,s){const cm=cont.get(k),cid=cidOf(item);if(cm.has(
  if(item.t==='VEC'){c=document.createElementNS('http://www.w3.org/2000/svg','svg');c.setAttribute('overflow','visible');c.setAttribute('aria-hidden','true');
   c.innerHTML=(item.g||[]).map(id=>`<path class="pf" d="${D.paths[id][0]}" fill-rule="${D.paths[id][1]==='E'?'evenodd':'nonzero'}"/>`).join('')+(item.gs||[]).map(id=>`<path class="ps" d="${D.paths[id][0]}" fill-rule="${D.paths[id][1]==='E'?'evenodd':'nonzero'}"/>`).join('');
   c._pf=[...c.querySelectorAll('.pf')];c._ps=[...c.querySelectorAll('.ps')];}
- else if(item.t==='TEXT'){c=document.createElement('div');c.className='mt';c._tx=item.tx;c._ni=KD(s|0)===0;paintText(c);}
+ else if(item.t==='TEXT'){c=document.createElement('div');c.className='mt';c._tx=item.tx;c._nw=item.nw;c._ni=KD(s|0)===0;paintText(c);}
  else if(item.t==='IMG'){c=document.createElement('img');c.alt='';c.decoding='async';c.draggable=false;c._as=item.as;c._ni=KD(s|0)===0;c.src=assetSrc(item.as,c._ni);c._src=c.src;}
  c.style.display='none';host.appendChild(c);cm.set(cid,c);return c;}
-function paintText(c){const t=D.texts[c._tx],ni=!!c._ni;c.style.cssText=mapCss(t[0],ni);c.innerHTML=mapCss(t[1],ni);c.style.position='absolute';c.style.left='0';c.style.top='0';}
+function paintText(c){const t=D.texts[c._tx],ni=!!c._ni;c.style.cssText=mapCss(t[0],ni);c.innerHTML=mapCss(t[1],ni);c.style.position='absolute';c.style.left='0';c.style.top='0';if(c._nw)c.style.whiteSpace='nowrap';}
 /* ---- interpolation helpers */
 const R0=[0,0,0,0],lerp=(a,b,t)=>a+(b-a)*t;
 function lc(a,b,t){if(!a&&!b)return null;a=a||[b[0],b[1],b[2],0];b=b||[a[0],a[1],a[2],0];return[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t),lerp(a[3],b[3],t)];}
 const rgba=c=>c?`rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${+c[3].toFixed(4)})`:'transparent';
 function la(a,b,t){let d=((b-a)%360+540)%360-180;return a+d*t;}
-function st(l){return{x:l.x,y:l.y,w:l.w,h:l.h,o:l.o,a:l.a||0,r:l.r||R0,f:l.f||null,s:l.s||null,sw:l.sw||0,sa:l.sa||'C',sh:l.sh||null};}
+function st(l){return{x:l.x,y:l.y,w:l.w,h:l.h,o:l.o,a:l.a||0,r:l.r||R0,f:l.f||null,s:l.s||null,sw:l.sw||0,sa:l.sa||'C',sh:l.sh||null,q:l.q||1};}
 let curT=0,curI=-1;
 function pair(i,k){const a=L[i].get(k),b=L[i+1]?L[i+1].get(k):null;
  if(!a&&!b)return null;if(a&&b)return[a,b,st(a),st(b)];
@@ -75,7 +85,7 @@ function vis(node,on){const v=on?'':'none';if(node.style.display!==v)node.style.
 function apply(k,ia,ib,v,t){const e=el.get(k),m=cont.get(k);
  if(!v||v.o<=0.001){vis(e,false);return;}vis(e,true);
  const s=e.style;s.left=v.x+'px';s.top=v.y+'px';s.width=v.w+'px';s.height=v.h+'px';s.opacity=v.o>=.999?'':v.o;
- const fl=(ia||ib).fx;s.transform=(Math.abs(v.a)>.01||fl)?`rotate(${v.a}deg)${fl?' scaleX(-1)':''}`:'';
+ const fl=(ia||ib).fx,q=v.q||1,sq=Math.abs(q-1)>1e-4;s.transform=sq?`scale(${q})`:(Math.abs(v.a)>.01||fl)?`rotate(${v.a}deg)${fl?' scaleX(-1)':''}`:'';s.transformOrigin=sq?'0 0':'';
  s.borderRadius=v.r.some(x=>x>.01)?v.r.map(x=>x.toFixed(2)+'px').join(' '):'';
  const clip=(ia&&ia.clip)||(ib&&ib.clip);s.overflow=clip?'hidden':'';
  const kind=(ia||ib).t,isBox=kind!=='VEC'&&kind!=='TEXT'&&kind!=='IMG';
@@ -166,7 +176,7 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
    const v=e>=.9995?{...st(T)}:{...st(T),x:cx-rr,y:cy-rr,w:2*rr,h:2*rr,r:[rr,rr,rr,rr]};v.o=1;
    apply(k,T,T,v,1);continue;}
   const to=(ia||ib).t==='CELL'&&FADE.has(i)?cellT(i,t):t;
-  apply(k,ia,ib,{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),w:lerp(a.w,b.w,t),h:lerp(a.h,b.h,t),o:lerp(a.o,b.o,to),a:la(a.a,b.a,t),r:a.r.map((r,j)=>lerp(r,b.r[j],t)),f:lc(a.f,b.f,t),s:lc(a.s,b.s,t),sw:lerp(a.sw||b.sw,b.sw||a.sw,t),sa:t<.5?a.sa:b.sa,
+  apply(k,ia,ib,{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),w:lerp(a.w,b.w,t),h:lerp(a.h,b.h,t),o:lerp(a.o,b.o,to),a:la(a.a,b.a,t),r:a.r.map((r,j)=>lerp(r,b.r[j],t)),f:lc(a.f,b.f,t),s:lc(a.s,b.s,t),sw:lerp(a.sw||b.sw,b.sw||a.sw,t),sa:t<.5?a.sa:b.sa,q:lerp(a.q,b.q,t),
    sh:(a.sh&&b.sh&&a.sh.length===b.sh.length)?a.sh.map((q,j)=>[lerp(q[0],b.sh[j][0],t),lerp(q[1],b.sh[j][1],t),lerp(q[2],b.sh[j][2],t),lerp(q[3],b.sh[j][3],t),lc(q[4],b.sh[j][4],t)]):(t<.5?a.sh:b.sh)},t);}
  if(gfx){const g=el.get('Grid');if(g)g.style.opacity='1';}
  if(cap)cap.textContent=String(n+1).padStart(2,'0')+' / '+String(N).padStart(2,'0')+(opts.capLabel===false?'':'  ·  '+D.labels[n]);}
