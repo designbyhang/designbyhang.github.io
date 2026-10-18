@@ -13,6 +13,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/type.css?v=1792157005"><link rel="stylesheet" href="../css/gate.css?v=1792170000"><link rel="stylesheet" href="../css/case.css?v=1792560000"><link rel="stylesheet" href="../css/arrows.css?v=1792520000"><link rel="stylesheet" href="../css/theme.css?v=1792531000">
+<style id="deck-css">
+/* Studio Model presentation (02): deck in the media frame, expands to fullscreen (studio-present.js) */
+body.cs .media.mframe.deck{display:block;background:#f1f1f1;cursor:pointer;outline-offset:3px}
+html[data-theme=dark] body.cs .media.mframe.deck{background:#000}
+.deck-stage{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;background:#f1f1f1;contain:layout paint;isolation:isolate}
+html[data-theme=dark] .deck-stage{background:#000}
+.deck-stage.is-fs{position:absolute}
+.deck-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.deck-stage .ml{position:absolute;box-sizing:border-box}
+.deck-stage svg{position:absolute;left:0;top:0;display:block}
+body.cs .deck-stage img,.deck-stage img{position:absolute;display:block;max-width:none;object-fit:fill;transform:none;transition:none;border-radius:0;user-select:none;-webkit-user-drag:none}
+.deck-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){.deck-x .t::after{transition:none}}
+html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-fs,html.theme-anim .deck-fs *{transition:none!important}
+.deck-fs{position:fixed;inset:0;z-index:2147483000;overflow:hidden;overscroll-behavior:none;touch-action:none;outline:none}
+.deck-fs[hidden]{display:none}
+.deck-x{position:absolute;z-index:2;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));display:flex;align-items:center;gap:8px;padding:8px 0 8px 8px;margin:0;border:0;background:none;color:#fff;mix-blend-mode:difference;font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.deck-x .t{position:relative;display:inline-block}
+.deck-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.deck-x:hover .t::after,.deck-x:focus-visible .t::after{transform:scaleX(1)}
+.deck-x:focus-visible{outline:1px solid #fff;outline-offset:2px}
+.deck-x svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5}
+.deck-n{position:absolute;z-index:2;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));margin:0;color:#fff;mix-blend-mode:difference;font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);pointer-events:none;font-variant-numeric:tabular-nums}
+@media (min-width:900px){.deck-x{top:max(24px,env(safe-area-inset-top));right:max(28px,env(safe-area-inset-right))}.deck-n{right:max(28px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom))}}
+html.deck-open .theme-btn{z-index:2147483001}
+</style>
 <script src="../js/gate.js?v=1792158747"></script>
 </head>
 <body class="cs" data-prj="Studio Model">
@@ -25,7 +51,7 @@
 </header>
 
 <nav class="toc" aria-label="On this page"><ol>
-  <li><a href="#overview">Overview</a></li><li><a href="#identity">Identity</a></li><li><a href="#frameworks">Frameworks</a></li><li><a href="#pods">Pods</a></li><li><a href="#collab">Collaboration</a></li>
+  <li><a href="#overview">Overview</a></li><li><a href="#presentation">Presentation</a></li><li><a href="#frameworks">Frameworks</a></li><li><a href="#pods">Pods</a></li><li><a href="#collab">Collaboration</a></li>
 </ol></nav>
 
 <main id="main" class="sheet">
@@ -52,26 +78,11 @@
       <p>I led the development of Studio's brand, translating its philosophy into a visual identity that unified the Pods and rallied the broader design organization around a shared way of working.</p>
     </div>
   </section>
-  <section id="identity" data-title="Identity" class="sec sec-grid">
-    <p class="sec-label">02 — Identity</p>
-    <div class="prose fx">
-      <h2 class="quote">Studio Model represents a deliberate approach to work, horizontal &amp; principled, creating a shared architecture from which Facebook can move as one</h2>
-      <p class="t-body">Pod by pod, framework by framework, we build clarity &amp; unity to solve the app's most complex challenges.</p>
-    </div>
+  <section id="presentation" data-title="Presentation" class="sec sec-grid">
+    <p class="sec-label">02 — Presentation</p>
   </section>
 </div>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 6">
-  <div class="car-track">
-    <img class="is-active" src="../assets/studio/studio-15.webp" width="2880" height="1620" loading="lazy" alt="S">
-    <img src="../assets/studio/studio-16.webp" width="2880" height="1620" loading="lazy" alt="T">
-    <img src="../assets/studio/studio-17.webp" width="2880" height="1620" loading="lazy" alt="U">
-    <img src="../assets/studio/studio-18.webp" width="2880" height="1620" loading="lazy" alt="D">
-    <img src="../assets/studio/studio-19.webp" width="2880" height="1620" loading="lazy" alt="I">
-    <img src="../assets/studio/studio-20.webp" width="2880" height="1620" loading="lazy" alt="O">
-  </div>
-  <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
-</div></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe"><img src="../assets/studio/studio-23.webp" width="2880" height="1620" loading="lazy" alt="Studio Model logomark and logotype lockup on black with spacing guides"></div></figure>
+<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe deck" id="deck" tabindex="0" role="region" aria-roledescription="presentation" aria-label="Studio Model presentation, 43 slides. Scroll, swipe or use the arrow keys to step through it; Escape closes it"><div class="deck-stage"><div class="deck-inner"></div></div></div></figure>
 <div class="wrap">
   <section id="frameworks" data-title="Frameworks" class="sec sec-grid">
     <p class="sec-label">03 — Frameworks</p>
@@ -130,5 +141,5 @@
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script>
+<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792287717" defer></script><script src="studio-deck.js?v=1792287717" defer></script><script src="studio-present.js?v=1792287717" defer></script>
 </body></html>
