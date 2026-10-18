@@ -18,7 +18,7 @@ html.theme-anim .poster-title,html.theme-anim .poster-hint{transition:color .3s 
 .home .bot{align-items:center}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.home .bot{flex-direction:row;justify-content:space-between}}
 /* project pages: floating bottom-left, same inset as the header corners */
-html[data-theme=dark] .bar{background:rgba(17,17,17,.82)}
+html[data-theme=dark] .bar{background:var(--page)}
 html[data-theme=dark] .badge{background:rgba(20,20,20,.75);color:#bbb;border-color:rgba(255,255,255,.08)}
 /* toggle must not change footer height (keeps stage/card position identical) */
 html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8f!important}
@@ -41,7 +41,3 @@ html{scrollbar-gutter:stable}
 .theme-btn.theme-float{box-shadow:0 1px 4px rgba(0,0,0,.06)}
 footer.bot>span{position:relative;top:calc((1em - 28px)/2)} /* copyright centred on the 28px toggle (both share the bottom inset) */
 
-/* iOS Safari bar-tint test switches (opt-in only, normal visitors unaffected): ?bar=solid makes the sticky project header opaque
-   page colour (no blur); ?bar=static lets it scroll away like the homepage header; ?bar=off clears. Kept per tab (sessionStorage). */
-html[data-bar=solid] .bar:not(.deck-bar){background:var(--page)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-html[data-bar=static] .bar:not(.deck-bar){position:relative!important}

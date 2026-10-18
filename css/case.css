@@ -10,7 +10,7 @@ img{display:block;max-width:100%;height:auto}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 /* top bar */
-.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background:rgba(237,237,237,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px)}
+.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background:var(--page)} /* solid page colour (= html/body bg = theme-color): iOS Safari tints the status bar from this sticky edge element; translucent/blurred gave a black bar */
 .brand{font:var(--t-brand);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-decoration:none;color:var(--ink)}
 .bar-mid{font:400 13px/1 var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-right a{font-size:14px;color:var(--mute);text-decoration:none;transition:color .2s}.bar-right a:hover{color:var(--ink)}
