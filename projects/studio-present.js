@@ -63,16 +63,17 @@ function anim(from,to,done){cancelAnimationFrame(raf);const t0=performance.now()
  raf=requestAnimationFrame(tick);}
 const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=host.clientWidth,h=host.clientHeight;return{x:r.left+b,y:r.top+b,w,h,k:kCover(w,h)};};
 const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
-function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';de.classList.add('deck-open');openQ=0;
+function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
- anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}else if(deck.cur===0)autoStart();});}
+ anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();});}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
 let autoT=0,autoAt=0;const AUTO_MS=2000;
 function autoStop(){clearTimeout(autoT);autoT=0;}
-/* autoplay: off by default, never remembered; one step every AP_MS counted from the end of the previous transition (so any
+/* autoplay: ON whenever the presentation opens (incl. resuming at a remembered slide; on studio_02 it replaces the old 2s
+   opening hold, same timing, so there is no double step); toggle state itself is not remembered; one step every AP_MS counted from the end of the previous transition (so any
    manual scroll/swipe/key step restarts the wait); waits out running transitions; turns itself off on the last slide and on
    exit. Steps go through deck.request like any gesture (gauge tick, reduced motion = instant change). */
 const AP_MS=2000;let apOn=false,apT=0;
