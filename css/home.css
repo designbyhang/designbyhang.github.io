@@ -128,23 +128,34 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-title,.poster-hint{background:var(--ko,var(--c-paper));box-shadow:-2px 0 0 var(--ko,var(--c-paper)),2px 0 0 var(--ko,var(--c-paper))}
 .poster-title{box-shadow:-2px -6px 0 var(--ko,var(--c-paper)),-2px 0px 0 var(--ko,var(--c-paper)),-2px 6px 0 var(--ko,var(--c-paper)),0px -6px 0 var(--ko,var(--c-paper)),0px 6px 0 var(--ko,var(--c-paper)),7px -6px 0 var(--ko,var(--c-paper)),7px 0px 0 var(--ko,var(--c-paper)),7px 6px 0 var(--ko,var(--c-paper))} /* knockout: +6px above and below */
 .intro-in.poster{container-type:inline-size}
-.poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi;opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) 1.35s forwards}
+.poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi}
+/* CTA rise (row clip band, --rise, --cd: js/home.js): the button slides up inside the static cap; its knockout moves to the
+   cap's ::before (static, fading in like the keyword knockouts), so no gap is dragged through the grid lines while it moves */
+.poster-cap{isolation:isolate}
+.poster-cap::before{content:"";position:absolute;inset:-6px -7px -6px -2px;z-index:-1;background:var(--ko,var(--c-paper));opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) var(--cd,0ms) forwards}
+.poster-cap .poster-title{background:none;box-shadow:none;animation:pRiseT 1.1s cubic-bezier(.2,.7,.2,1) var(--cd,0ms) both}
 .poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:var(--c-strong)}
 .poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
 .poster-svg .a{opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
 .poster-svg .ln{transform-box:fill-box;transform-origin:0 0;animation-name:pDraw}
 .poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
+.poster-svg .g.a{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1)} /* alternating grid draw, odd lines reversed (.rv); delays in js/home.js */
+.poster-svg .ln.rv{transform-origin:100% 0}.poster-svg .lv.rv{transform-origin:0 100%}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
 .poster-svg .lt{animation-name:pSlide;animation-duration:1.1s}
+.poster-svg .wr{animation-name:pRise;animation-duration:1.1s} /* keywords: rise from their cell's bottom edge (--rise, js/home.js) */
 .poster-svg .tt{font-family:var(--sans);fill:#111;letter-spacing:-.025em;font-weight:400}
 .poster-svg .dk{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
+@keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
+@keyframes pRise{from{opacity:1;transform:translateY(var(--rise,120%))}to{opacity:1;transform:none}}
 @keyframes pIn{to{opacity:1}}
 @keyframes pDraw{from{opacity:1;transform:scaleX(0)}to{opacity:1;transform:none}}
 @keyframes pDrawV{from{opacity:1;transform:scaleY(0)}to{opacity:1;transform:none}}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap::before,.poster-cap .poster-title{animation:none;opacity:1}}
+html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!important;opacity:1!important}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.intro .media-wrap{aspect-ratio:1;height:auto}.poster-cap{display:none}.intro-in.poster{height:100%}}
 
 /* intro card only: mono in all caps */
