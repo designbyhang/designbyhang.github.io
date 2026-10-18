@@ -53,6 +53,8 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 @media (orientation:portrait){.deck-n .n{display:flex;flex-direction:column;align-items:center;gap:6px}.deck-n .s{display:block;width:1.1em;height:1px;background:currentColor;font-size:0;overflow:hidden}}
 html.deck-open .theme-btn{z-index:2147483001}
 html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
+html.deck-lock.deck-nudge{overflow:auto} /* js/theme.js: 1px document scroll nudge (touch screens) so iOS Safari re-samples the bars */
+html.deck-open body>:not(.deck-fs){visibility:hidden} /* open: layer + stage are transparent, the edges show html/body (stage colour) */
 /* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
 /* AUTO PLAY: CLOSE's bar, pinned bottom-right; 28px row centred on the light/dark toggle (same bottom inset), safe areas respected */
 .deck-fs .bar.deck-bar.deck-auto-bar{top:auto;height:28px;bottom:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
@@ -113,5 +115,5 @@ html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792335191"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792335649" defer></script><script src="studio-present.js?v=1792335649" defer></script>
+<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792346977"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792346977" defer></script><script src="studio-present.js?v=1792346977" defer></script>
 </body></html>

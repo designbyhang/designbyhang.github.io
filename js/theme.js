@@ -27,7 +27,11 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
       presentation: the fullscreen layer) and re-reads them on scroll, not when their colour changes; the homepage has no such
       element, so its bars follow the page background live. Nudge the scroll position by 1px for one frame (instant, no smooth
       scroll) so Safari re-samples the edge colours once the theme cross-fade has finished. */
-   dispatchEvent(new Event('dbh-resample')); /* Studio presentation: its scroll-locked fixed layer re-samples itself */
-   const se=document.scrollingElement||d,y=se.scrollTop,max=se.scrollHeight-se.clientHeight;if(max<1)return;
-   window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>se.scrollTo({top:y,behavior:'instant'})));};
+   /* Studio presentation (html.deck-lock): its layer paints nothing at the edges, so the same document nudge applies; the scroll
+      lock (overflow:hidden) is lifted for the nudge frames on touch screens (html.deck-nudge; overlay scrollbars, nothing shows)
+      so the 1px is a real document scroll. The deck ignores it (__dbhNudge). */
+   const se=document.scrollingElement||d,y=se.scrollTop,lk=d.classList.contains('deck-lock'),lift=lk&&matchMedia('(pointer:coarse)').matches;
+   const done=()=>{if(lift)d.classList.remove('deck-nudge');dispatchEvent(new Event('dbh-resample'));};
+   if(lift)d.classList.add('deck-nudge');const max=se.scrollHeight-se.clientHeight;if(max<1){done();return;}
+   window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>{se.scrollTo({top:y,behavior:'instant'});done();}));};
   window.__dbhResample=re;s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme','class']});})(); /* html.deck-lock = Studio presentation fullscreen: bars + html/body take the stage colour (#f4f4f4 / #222222), restored on close */ /* Safari top bar: replace the meta (iOS ignores content edits) and set html bg directly so it switches with the toggle */

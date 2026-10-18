@@ -168,8 +168,9 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  /* the slide's own canvas colour fills the 1920x1080 artboard only; the stage around it (fullscreen letterbox, screen edges)
     is the standard stage colour, so black slides stay framed and iOS samples #f4f4f4 / #222222 at the edges (studio-present.js
     sets data-lb=canvas only on tight viewports where its CLOSE / AUTO PLAY chrome overlaps the art: then the canvas fills the
-    letterbox as before so the chrome stays legible) */
- const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';stage.style.background=stage.dataset.lb==='canvas'&&bg?rgba(bg):dark?'#222222':'#f4f4f4';
+    letterbox as before so the chrome stays legible; data-lb=none while the presentation is open otherwise: the stage paints
+    nothing and html/body, set to the stage colour, show through) */
+ const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';const lb=stage.dataset.lb;stage.style.background=lb==='none'?'transparent':lb==='canvas'&&bg?rgba(bg):dark?'#222222':'#f4f4f4';
  const n=t>=.5?i+1:i;stage.dataset.slide=String(n).padStart(2,'0');if(n!==shownN){shownN=n;opts.onSlide&&opts.onSlide(n);}
  /* logomark cells that switch on/off (opacity 0<->1 in Figma) are revealed with the clipped-circle sweep instead of an
     opacity fade: full colour throughout, a circle grows from the cell centre (clipped by the cell) until it covers it. */
