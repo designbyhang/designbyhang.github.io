@@ -53,7 +53,7 @@ html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 /* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
 .deck-fs .theme-btn{z-index:3}.deck-stage.is-fs{pointer-events:none}
 /* fullscreen: layers are clipped at the slide's left/right edges (the side gutters stay clear for the counter); top/bottom are not clipped */
-.deck-stage.is-fs .deck-inner{clip-path:polygon(0 -100000px,100% -100000px,100% 100000px,0 100000px)}
+.deck-stage .deck-inner{clip-path:inset(0);overflow:hidden}
 </style>
 <script src="../js/gate.js?v=1792158747"></script>
 </head>
