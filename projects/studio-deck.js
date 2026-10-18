@@ -151,16 +151,18 @@ function cellT(i,t){const c=CELLT[i];if(!c)return t;const u=rawU!==null?rawU:(ra
 /* grid draw-in (first step after entering, studio_02 -> 03): same as the homepage intro card's lines (home.js/home.css):
    verticals draw top->bottom at i*40ms, horizontals left->right at 120+i*40ms, 900ms each, cubic-bezier(.2,.7,.2,1).
    Implemented as a mask of growing strips over the real Grid layer, so the drawn lines are exactly the slide's lines. */
-const GRID=D.grid||null,gEase=bezF(.2,.7,.2,1);let gfx=null,gDrawn=false;
+/* drawn on EVERY studio_02 -> 03 step (1.18s total: 8 verticals + 4 horizontals). The step only lands (tick, AUTO PLAY wait,
+   `animating` false) when the last line is fully drawn; a new gesture during the draw completes it at once and lands there. */
+const GRID=D.grid||null,gEase=bezF(.2,.7,.2,1);let gfx=null;
 function gridMask(now){const g=el.get('Grid');if(!g||!gfx)return;const t=now-gfx.t0;let imgs=[],pos=[],siz=[],done=true;
  const p=d=>{const u=Math.min(1,Math.max(0,(t-d)/900));if(u<1)done=false;return gEase(u);};
  GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*40);imgs.push('linear-gradient(#000,#000)');pos.push(`${x-GRID.sw}px ${GRID.y0}px`);siz.push(`${2*GRID.sw}px ${h}px`);});
  GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(120+i*40);imgs.push('linear-gradient(#000,#000)');pos.push(`${GRID.x0}px ${y-GRID.sw}px`);siz.push(`${w}px ${2*GRID.sw}px`);});
  const s=g.style;s.webkitMaskImage=s.maskImage=imgs.join(',');s.webkitMaskPosition=s.maskPosition=pos.join(',');s.webkitMaskSize=s.maskSize=siz.join(',');s.webkitMaskRepeat=s.maskRepeat='no-repeat';s.opacity='1';
  if(done)endGrid();}
-function endGrid(){const g=el.get('Grid');gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);}
+function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.n,L.done);}
 function gridTick(now){if(!gfx)return;gridMask(now);if(gfx)gfx.raf=requestAnimationFrame(gridTick);}
-function startGrid(){if(!GRID||gDrawn||rm.matches)return;gDrawn=true;gfx={t0:performance.now()};gridMask(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
+function startGrid(){if(!GRID||rm.matches)return;if(gfx)cancelGrid();gfx={t0:performance.now(),land:null};gridMask(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
 function cancelGrid(){if(gfx){cancelAnimationFrame(gfx.raf);endGrid();}}
 function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  if(i!==curI)activate(i);
@@ -205,24 +207,23 @@ function show(n){cur=n;draw(Math.min(n,N-2),n>=N-1?1:0);prefetch(n);}
 function prog(now){return Math.min(1,anim.u0+(1-anim.u0)*Math.min(1,(now-anim.t0)/anim.dur));}
 function frame(){const now=performance.now(),u=prog(now),e=anim.ease(u);
  rawU=u;rawDir=anim.dir;draw(anim.i,anim.dir>0?e:1-e);rawU=null;
- if(u>=1){const done=anim.done;cur=anim.to;anim=null;raf=0;stage.dataset.steps=String(++steps);prefetch(cur);land(cur);done&&done();flush();return;}
+ if(u>=1){const done=anim.done;cur=anim.to;anim=null;raf=0;stage.dataset.steps=String(++steps);prefetch(cur);if(gfx){gfx.land={n:cur,done};return;}land(cur);done&&done();flush();return;}
  raf=requestAnimationFrame(frame);}
 /* a step reaches its stop: natural end, finished early by the next gesture (finishNow), or an instant (reduced-motion) cut */
-function land(n){opts.onLand&&opts.onLand(n);}
-function step(dir,done){if(anim||!canStep(dir))return false;const to=cur+dir,i=Math.min(cur,to);prefetch(to);opts.onStep&&opts.onStep(dir,to);
- if(dir>0&&cur===0)startGrid();else if(dir<0&&to===0)cancelGrid();
+function land(n,done){opts.onLand&&opts.onLand(n);if(done){done();flush();}}
+function step(dir,done){if(anim||!canStep(dir))return false;if(gfx)cancelGrid();const to=cur+dir,i=Math.min(cur,to);prefetch(to);opts.onStep&&opts.onStep(dir,to);
  rawDir=dir;
  if(rm.matches){cur=to;show(cur);stage.dataset.steps=String(++steps);land(cur);done&&done();return true;}
- anim={to,i,dir,t0:performance.now(),u0:0,dur:DUR[i]*1000,done,ease:easeFor(i)};raf=requestAnimationFrame(frame);return true;}
+ anim={to,i,dir,t0:performance.now(),u0:0,dur:DUR[i]*1000,done,ease:easeFor(i)};raf=requestAnimationFrame(frame);if(dir>0&&cur===0)startGrid();return true;}
 /* finish the running transition within ms (progress stays continuous), used when the next gesture is already queued */
 function hurry(ms){if(!anim)return;const now=performance.now();if(anim.dur-(now-anim.t0)<=ms)return;anim.u0=prog(now);anim.t0=now;anim.dur=ms;}
 /* request one step: steps now, or queues it (max one queued) while a transition runs; edge(dir) when there is no slide that way */
 /* complete the running transition right now (its end frame), then start whatever was queued */
-function finishNow(){if(!anim)return;if(raf)cancelAnimationFrame(raf);raf=0;const A=anim;anim=null;rawU=null;draw(A.i,A.dir>0?1:0);cur=A.to;stage.dataset.steps=String(++steps);prefetch(cur);land(cur);A.done&&A.done();flush();}
+function finishNow(){if(!anim)return;if(raf)cancelAnimationFrame(raf);raf=0;const A=anim;anim=null;rawU=null;draw(A.i,A.dir>0?1:0);cur=A.to;stage.dataset.steps=String(++steps);prefetch(cur);if(gfx){cancelGrid();}land(cur);A.done&&A.done();flush();}
 function request(dir,edge){if(anim){if(pend)finishNow();if(anim){pend=dir;pendEdge=edge||null;hurry(350);return 'queued';}}
  if(canStep(dir)){step(dir);return 'step';}edge&&edge(dir);return 'edge';}
 function flush(){if(!pend)return;const d=pend,e=pendEdge;pend=0;pendEdge=null;request(d,e);}
-function stop(){anim=null;pend=0;pendEdge=null;if(raf)cancelAnimationFrame(raf);raf=0;}
+function stop(){if(gfx){gfx.land=null;cancelGrid();}anim=null;pend=0;pendEdge=null;if(raf)cancelAnimationFrame(raf);raf=0;}
 /* jump to where the running transition was heading (used when the presentation closes mid-transition) */
 function settle(){const to=anim?anim.to:cur;stop();show(to);return to;}
 /* layout: fit the 1920x1080 artboard into a w x h box, 'contain' (letterbox) or 'cover' (crop), centred; k overrides the scale */
@@ -231,7 +232,7 @@ function layout(w,h,mode,k){k=k||(mode==='cover'?Math.max(w/W,h/H):Math.min(w/W,
 /* canvas colour of the slide currently shown (theme-mapped), for letterbox / status bar */
 function canvas(n){n=n===undefined?(stage.dataset.slide|0):n;const b=bgOf(n);return b?rgba(b):null;}
 return{N,draw:(i,t)=>{build(i);draw(i,t);},show,step,request,hurry,stop,settle,cancelGrid,get gridDrawing(){return!!gfx;},prefetch,layout,canvas,canStep,ease:easeStep,easeFor,dur:DUR,labels:D.labels,
- get cur(){return cur;},get animating(){return!!anim;},get pending(){return pend;},get steps(){return steps;},get dark(){return dark;},
+ get cur(){return cur;},get animating(){return!!anim||!!gfx;},get pending(){return pend;},get steps(){return steps;},get dark(){return dark;},
  ready:()=>Promise.all([...root.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})))};}
 /* ---- wheel gesture detector, shared by the embed and the preview page. One physical gesture = one start.
    A new gesture starts after a gap of >120ms, on a direction change, or when the delta rises again after having decayed
