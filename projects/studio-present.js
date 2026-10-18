@@ -11,20 +11,24 @@ const fs=document.createElement('div');fs.className='deck-fs';fs.hidden=true;fs.
 fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttribute('aria-label','Studio Model presentation');
 /* CLOSE reuses the page header's BACK markup and classes (.bar / .bar-right / .ax / .arr / .t), so it sits exactly where BACK
    sits with the same type, gap, icon size/stroke and hover underline at every breakpoint */
-fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><p class="deck-n" aria-hidden="true"></p>';
+fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
-const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n');
+const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 const NS=window.__STUDIO__.slides.length,pad=n=>String(n).padStart(2,'0');
-const deck=StudioDeck.create({inner,stage,onSlide:n=>{cnt.textContent=pad(n+1)+' / '+pad(NS);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();}});
-const N=deck.N;cnt.textContent='01 / '+pad(N);
+const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=pad(n+1);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();}});
+const N=deck.N;cntA.textContent=pad(deck.cur+1);cntB.textContent=pad(N);
 const ease=deck.ease,DUR=650;
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
 function fitBox(x,y,w,h,k){stage.style.left=x+'px';stage.style.top=y+'px';stage.style.width=w+'px';stage.style.height=h+'px';deck.layout(w,h,null,k);}
 const kCover=(w,h)=>Math.max(w/W,h/H),kContain=(w,h)=>Math.min(w/W,h/H);
 function fitClosed(){if(state!=='closed')return;const w=host.clientWidth,h=host.clientHeight;if(w&&h)deck.layout(w,h,'cover');}
 const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
-function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kContain(vw(),vh()));}
+/* fullscreen: the art is contain-fitted inside symmetric side gutters wide enough to clear the counter (right inset + counter
+   width + 12px), so the vertically centred counter never sits on the art; the stage (canvas colour) still fills the screen */
+function gutter(){const r=cnt.getBoundingClientRect();return r.width?Math.max(0,vw()-r.left+12):0;}
+const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
+function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
 addEventListener('resize',()=>{fitClosed();fitOpen();if(state!=='closed'){const b=document.querySelector('.theme-btn');if(b&&b.parentNode!==fs){tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}}});
 /* status bar + overscroll colour follow the fullscreen canvas while open; CLOSE/counter take the light or dark site colours
@@ -51,7 +55,7 @@ function anim(from,to,done){cancelAnimationFrame(raf);const t0=performance.now()
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=host.clientWidth,h=host.clientHeight;return{x:r.left+b,y:r.top+b,w,h,k:kCover(w,h)};};
-const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kContain(vw(),vh())});
+const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;

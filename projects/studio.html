@@ -31,12 +31,25 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 .deck-fs .bar.deck-bar{position:absolute;top:0;left:0;right:0;z-index:2;justify-content:flex-end;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .deck-fs[data-tone=light] .deck-bar,.deck-fs[data-tone=light] .deck-n{--mono-color:#333;--ink:#171717}
 .deck-fs[data-tone=dark] .deck-bar,.deck-fs[data-tone=dark] .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}
-.deck-n{position:absolute;z-index:2;right:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
+.deck-n{position:absolute;z-index:2;right:clamp(16px,3vw,32px);top:50%;transform:translateY(-50%);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
 @media (max-width:900px){.deck-n{right:clamp(20px,5vw,72px)}}
+/* counter: vertically centred on the right, same right inset as CLOSE/BACK (= the header padding at each breakpoint) */
+.deck-n{display:flex;flex-direction:column;align-items:center;gap:10px}
+.deck-n .n{display:block;white-space:nowrap}
+/* counter arrows: the BACK TO TOP arrow exactly (same SVG, .64em x .8em box, 1px non-scaling stroke); down = same, turned 180deg */
+.deck-n .arr{display:inline-block;vertical-align:0;line-height:0}
+.deck-n .arr.arr-up{position:relative;width:.64em;height:.8em}
+.deck-n .arr svg{display:block;width:.8em;height:.64em;overflow:visible;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg)}
+.deck-n .arr.arr-dn svg{transform:translate(-50%,-50%) rotate(90deg)}
+.deck-n .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+/* portrait: the number stacks (01 over 43) so the side gutters that keep the art clear stay narrow */
+@media (orientation:portrait){.deck-n .n{display:flex;flex-direction:column;align-items:center;gap:6px}.deck-n .s{display:block;width:1.1em;height:1px;background:currentColor;font-size:0;overflow:hidden}}
 html.deck-open .theme-btn{z-index:2147483001}
 html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 /* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
 .deck-fs .theme-btn{z-index:3}.deck-stage.is-fs{pointer-events:none}
+/* fullscreen: layers are clipped at the slide's left/right edges (the side gutters stay clear for the counter); top/bottom are not clipped */
+.deck-stage.is-fs .deck-inner{clip-path:polygon(0 -100000px,100% -100000px,100% 100000px,0 100000px)}
 </style>
 <script src="../js/gate.js?v=1792158747"></script>
 </head>
@@ -90,5 +103,5 @@ html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792310002" defer></script>
+<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792310004" defer></script>
 </body></html>
