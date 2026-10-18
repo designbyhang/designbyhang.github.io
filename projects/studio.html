@@ -51,10 +51,11 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 .deck-n .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 /* portrait: the number stacks (01 over 43) so the side gutters that keep the art clear stay narrow */
 @media (orientation:portrait){.deck-n .n{display:flex;flex-direction:column;align-items:center;gap:6px}.deck-n .s{display:block;width:1.1em;height:1px;background:currentColor;font-size:0;overflow:hidden}}
-/* phones in portrait: the counter sits centred under the slide, in one row (up arrow, 36 / 40, down arrow), 24px below it, so the
-   slide can use the full width less 16px each side (studio-present.js gutter()). Slide height = (100vw - 32px) x 1080/1920, centred */
+/* phones in portrait: the counter (just "36 / 40", no arrows: swipe steps) sits centred 24px under the slide, so the slide can use
+   the full width less 16px each side (studio-present.js gutter()). Slide height = (100vw - 32px) x 1080/1920, centred */
 @media (orientation:portrait) and (max-width:640px){
- .deck-n{right:auto;left:50%;top:calc(50% + (100vw - 32px) * .28125 + 24px);transform:translateX(-50%);flex-direction:row;gap:16px}
+ .deck-n{right:auto;left:50%;top:calc(50% + (100vw - 32px) * .28125 + 24px);transform:translateX(-50%)}
+ .deck-n .arr{display:none}
  .deck-n .n{display:block}
  .deck-n .s{display:inline;width:auto;height:auto;background:none;font-size:inherit;overflow:visible;margin:0 .3em}
 }
@@ -92,14 +93,26 @@ html.deck-flow .deck-edge{display:block}
 /* fullscreen: layers are clipped at the slide's left/right edges (the side gutters stay clear for the counter); top/bottom are not clipped */
 .deck-stage .deck-inner{clip-path:inset(0);overflow:hidden}
 /* phones in landscape: the controls move out of the art to the screen sides, 16px from the safe edges: CLOSE, the counter and
-   AUTO PLAY in the right gutter, the theme toggle at the left (studio-present.js sizes the art between them). The edge strips stay
+   the Play/Pause button in the right gutter, the theme toggle at the left (studio-present.js sizes the art between them). The edge strips stay
    4px (the art can come close to the top and bottom edges) */
 @media (orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse){
  .deck-fs .bar.deck-bar{padding:0 16px}
- .deck-fs .bar.deck-bar.deck-auto-bar{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
  .deck-n{right:calc(16px + env(safe-area-inset-right,0px))}
  .deck-fs .theme-btn:not(.tb-home){left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
  .deck-edge,.deck-edge-t,.deck-edge-b{height:4px}
+}
+/* Play/Pause (studio-present.js .deck-apb): phones only (portrait, and landscape as above), in place of the AUTO PLAY text; the
+   theme toggle's circle exactly (28px, 1px --line ring, --c-paper fill, its float shadow when it has one, ring = currentColor on hover / keyboard
+   focus, 16px filled --c-strong glyph), bottom right, 16px from the right and bottom safe edges, mirroring the toggle */
+.deck-apb{display:none}
+@media (orientation:portrait) and (max-width:640px),(orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse){
+ .deck-fs .deck-auto-bar{display:none}
+ .deck-apb{appearance:none;display:grid;place-items:center;position:absolute;z-index:3;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:28px;height:28px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;box-sizing:border-box;background:var(--c-paper);color:var(--ink);cursor:pointer}
+ .deck-apb.tb-float{box-shadow:0 1px 4px rgba(0,0,0,.06)}
+ .deck-apb,.deck-apb *{user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+ .deck-apb:hover,.deck-apb:focus-visible{border-color:currentColor}
+ .deck-apb svg{width:16px;height:16px;fill:var(--c-strong);display:block}
+ .deck-fs.is-closing .deck-apb{visibility:hidden}
 }
 </style>
 <script src="../js/gate.js?v=1792158747"></script>
@@ -154,5 +167,5 @@ html.deck-flow .deck-edge{display:block}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792357049" defer></script><script src="studio-deck.js?v=1792357049" defer></script><script src="studio-present.js?v=1792365098" defer></script>
+<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792357049" defer></script><script src="studio-deck.js?v=1792357049" defer></script><script src="studio-present.js?v=1792366286" defer></script>
 </body></html>

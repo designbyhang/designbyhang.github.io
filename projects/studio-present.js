@@ -13,9 +13,12 @@ fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttr
    sits with the same type, gap, icon size/stroke and hover underline at every breakpoint */
 /* AUTO PLAY (bottom-right, CLOSE's markup + the header BACK's icon/text gap): play glyph points right; pause = two bars */
 const AP_PLAY='<svg viewBox="0 0 20 16" fill="none"><path d="M5 1L17 8L5 15Z"/></svg>',AP_PAUSE='<svg viewBox="0 0 20 16" fill="none"><path d="M7 1V15M13 1V15"/></svg>';
-fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
+/* phones (portrait and landscape) get a round Play/Pause button instead (the theme toggle's circle, bottom right; studio.html):
+   filled glyphs like the toggle's icons */
+const APR_PLAY='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.5L12 8L5.5 12.5Z"/></svg>',APR_PAUSE='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3.5H7V12.5H4.5ZM9 3.5H11.5V12.5H9Z"/></svg>';
+fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><button type="button" class="deck-apb" aria-pressed="false" aria-label="Play">'+APR_PLAY+'</button><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
-const edges=fs.querySelectorAll('.deck-edge'),btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
+const edges=fs.querySelectorAll('.deck-edge'),btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),apRnd=fs.querySelector('.deck-apb'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 /* counter starts at the first filled logomark square (studio_04, slide index 2: the grid slides studio_02/03 before it read 00)
    and counts up to the swag slide (studio_43, the one before the last), 40/40; the closing logo slide (studio_44) is not counted
@@ -34,17 +37,15 @@ const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
 /* fullscreen: the art is contain-fitted inside symmetric side gutters wide enough to clear the counter (right inset + counter
    width + 12px), so the vertically centred counter never sits on the art; the stage (canvas colour) still fills the screen */
 const mPort=matchMedia('(orientation:portrait) and (max-width:640px)'); /* phones in portrait: counter under the slide (studio.html), 16px side margins */
-function gutter(){if(mPort.matches)return 16;const r=cnt.getBoundingClientRect();return r.width?Math.max(0,vw()-r.left+12):0;}
-/* phones in landscape: CLOSE, the counter and AUTO PLAY sit in a right-hand gutter by the right screen edge, the theme toggle by
-   the left edge (studio.html); the art is as large as fits between the two gutters (16px clear of each), centred in that space.
-   The stage is widened on the narrower side so it still covers the whole screen while it expands */
+/* phones in landscape: CLOSE, the counter and the Play/Pause button sit by the right screen edge, the theme toggle by the left
+   (studio.html); the art is centred between symmetric gutters sized to the wider side's controls, 16px clear of them */
 const mLand=matchMedia('(orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse)');
-function sides(){if(!mLand.matches){const g=gutter();return[g,g];}
- const R=Math.max(0,...[btn,cnt,apBtn].map(e=>{const r=e.getBoundingClientRect();return r.width?vw()-r.left+16:0;}));
- const t=fs.querySelector('.theme-btn'),L=t?parseFloat(getComputedStyle(t).left)+t.offsetWidth+16:16;return[L,R];}
-const fsGeo=()=>{const [L,R]=sides(),w=vw(),d=L-R;return{x:Math.min(0,d),y:0,w:w+Math.abs(d),h:vh(),k:Math.min(Math.max(1,w-L-R)/W,vh()/H)};};
-const kFs=()=>fsGeo().k;
-function fitOpen(){if(state==='open'){const g=fsGeo();fitBox(g.x,g.y,g.w,g.h,g.k);}}
+function gutter(){if(mPort.matches)return 16;
+ if(mLand.matches){const t=fs.querySelector('.theme-btn'),L=t?parseFloat(getComputedStyle(t).left)+t.offsetWidth+16:16;
+  return Math.max(L,...[btn,cnt,apRnd].map(e=>{const r=e.getBoundingClientRect();return r.width?vw()-r.left+16:0;}));}
+ const r=cnt.getBoundingClientRect();return r.width?Math.max(0,vw()-r.left+12):0;}
+const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
+function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
 addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();});
 /* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
@@ -66,7 +67,7 @@ const lumOf=c=>{const v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number);
 let flowY=null;function flow(on){if(on){if(flowY!==null)return;flowY=scrollY;de.classList.add('deck-flow');scrollTo({top:0,left:0,behavior:'instant'});}
  else{if(flowY===null)return;const y=flowY;flowY=null;de.classList.remove('deck-flow');scrollTo({top:y,left:0,behavior:'instant'});}}
 function chrome(){const sc=stageColor(),open=state==='open',r=inner.getBoundingClientRect(),hit=e=>{const b=e.getBoundingClientRect();return b.left<r.right&&b.right>r.left&&b.top<r.bottom&&b.bottom>r.top;},
- clear=!open||(!hit(btn)&&!hit(apBtn)),edge=clear?sc:canvasColor(),tone=lumOf(edge)<128?'dark':'light';
+ clear=!open||(!hit(btn)&&!hit(apBtn)&&!hit(apRnd)),edge=clear?sc:canvasColor(),tone=lumOf(edge)<128?'dark':'light';
  if(!open){delete stage.dataset.lb;stage.style.background=sc;}else{stage.dataset.lb=clear?'none':'canvas';stage.style.background=clear?'transparent':edge;}
  fs.dataset.tone=tone;fs.dataset.ntone=tone;fs.dataset.lb=clear?'none':'canvas';edges.forEach(e=>e.style.background=edge);fs.style.background=open&&!clear?edge:'';fs.style.boxShadow=open&&!clear?'0 0 0 100vmax '+edge:'';}
 
@@ -82,7 +83,7 @@ function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;}
 /* the theme toggle joins the fullscreen layer while it is open (same layer as CLOSE, above the stage), and goes back to its
    own place in the page afterwards */
 let tb=null,tbHome=null,tbNext=null;
-function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
+function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);apRnd.classList.toggle('tb-float',b.classList.contains('theme-float'));/* Play/Pause takes the toggle's float shadow when it has it */}
 function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(tb,tbNext);else tbHome.appendChild(tb);}
 /* page chrome that sits where the fullscreen controls go: the section menu (.toc: fixed at the right edge, wide screens only)
    under the counter, and the header's BACK (top right) under CLOSE. While the stage expands each slides out to the right
@@ -99,19 +100,19 @@ let tbOff=null;function tbMeasure(){tbOff=null;const t=fs.querySelector('.theme-
  t.classList.add('tb-home');const b=t.getBoundingClientRect();t.classList.remove('tb-home');const dx=b.left-a.left,dy=b.top-a.top;if(dx||dy)tbOff={t,dx,dy};}
 function asideMeasure(){tbMeasure();tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}
- /* phones have no section menu: the counter follows CLOSE, so it too only shows once BACK has passed; in landscape AUTO PLAY
-    as well (it sits in the right gutter, over the expanding art until that lands) */
- const g=tg.find(g=>g.mate===btn);if(g){g.more=[];if((mPort.matches||mLand.matches)&&!tg.some(g=>g.mate===cnt))g.more.push(cnt);if(mLand.matches)g.more.push(apBtn);}}
+ /* phones have no section menu: the counter follows CLOSE, so it too only shows once BACK has passed; in landscape the Play/Pause
+    button as well (it sits in the right gutter, over the expanding art until that lands) */
+ const g=tg.find(g=>g.mate===btn);if(g){g.more=[];if((mPort.matches||mLand.matches)&&!tg.some(g=>g.mate===cnt))g.more.push(cnt);if(mLand.matches)g.more.push(apRnd);}}
 function aside(p){if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
  const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1);g.mate.style.opacity=String(c*c*(3-2*c));if(g.more)for(const m of g.more)m.style.opacity=g.mate.style.opacity;}}
-function asideReset(){if(tbOff){tbOff.t.style.translate='';tbOff=null;}apBtn.style.opacity='';for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
+function asideReset(){if(tbOff){tbOff.t.style.translate='';tbOff=null;}apRnd.style.opacity='';for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=host.clientWidth,h=host.clientHeight;return{x:r.left+b,y:r.top+b,w,h,k:kCover(w,h)};};
-const fullBox=fsGeo;
+const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
@@ -127,7 +128,8 @@ function autoStop(){clearTimeout(autoT);autoT=0;}
    exit. Steps go through deck.request like any gesture (reduced motion = instant change). Per-slide holds (AP_HOLD) replace
    AP_MS: 1s on the finished grid (studio_03, after the line draw lands) and on the swag slide (studio_43, before the logo end frame). */
 const AP_MS=500,AP_HOLD={[C0-1]:1000,[window.__STUDIO__.slides.length-2]:1000};let apOn=false,apT=0;
-function apSet(v){apOn=!!v;clearTimeout(apT);apT=0;apBtn.setAttribute('aria-pressed',String(apOn));apBtn.classList.toggle('on',apOn);apIco.innerHTML=apOn?AP_PAUSE:AP_PLAY;if(apOn){autoStop();autoAt=0;apWait();}}
+function apSet(v){apOn=!!v;clearTimeout(apT);apT=0;apBtn.setAttribute('aria-pressed',String(apOn));apBtn.classList.toggle('on',apOn);apIco.innerHTML=apOn?AP_PAUSE:AP_PLAY;
+ apRnd.setAttribute('aria-pressed',String(apOn));apRnd.setAttribute('aria-label',apOn?'Pause':'Play');apRnd.innerHTML=apOn?APR_PAUSE:APR_PLAY;if(apOn){autoStop();autoAt=0;apWait();}}
 function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')return;if(deck.animating){apT=setTimeout(apWait,60);return;}
  if(!deck.canStep(1)){apSet(false);return;}apT=setTimeout(apFire,AP_HOLD[deck.cur]??AP_MS);}
 function apFire(){apT=0;if(!apOn||state!=='open')return;if(deck.animating){apWait();return;}if(!deck.canStep(1)){apSet(false);return;}deck.request(1,()=>apSet(false));}
@@ -164,7 +166,7 @@ function act(dir){if(state==='opening'){openQ=dir;return;}if(state!=='open')retu
 const wheelGesture=StudioDeck.wheelDetector();
 addEventListener('wheel',e=>{const g=wheelGesture(e);if(state==='closed')return;e.preventDefault();if(g&&state!=='closing')act(g.dir);},{passive:false});
 const TOUCH_PX=30;let tStart=null,tCtl=false;
-addEventListener('touchstart',e=>{tCtl=!!(e.target.closest&&e.target.closest('.deck-x,.deck-auto,.theme-btn'));if((state!=='open'&&state!=='opening')||e.touches.length!==1||tCtl){tStart=null;return;}const t=e.touches[0];tStart={y:t.clientY,x:t.clientX,t:performance.now(),done:false};},{passive:true});
+addEventListener('touchstart',e=>{tCtl=!!(e.target.closest&&e.target.closest('.deck-x,.deck-auto,.deck-apb,.theme-btn'));if((state!=='open'&&state!=='opening')||e.touches.length!==1||tCtl){tStart=null;return;}const t=e.touches[0];tStart={y:t.clientY,x:t.clientX,t:performance.now(),done:false};},{passive:true});
 addEventListener('touchmove',e=>{if(state==='closed'||tCtl)return;e.preventDefault();if(!tStart)return;const t=e.touches[0],dy=tStart.y-t.clientY;tStart.ly=t.clientY;
  if(!tStart.done&&Math.abs(dy)>=TOUCH_PX&&Math.abs(dy)>=Math.abs(tStart.x-t.clientX)){tStart.done=true;act(dy>0?1:-1);}},{passive:false});
 addEventListener('touchend',e=>{if(!tStart)return;const s=tStart;tStart=null;if(s.done)return;
@@ -174,12 +176,12 @@ addEventListener('touchcancel',()=>{tStart=null;},{passive:true});
 const NEXT=['ArrowDown','PageDown','ArrowRight',' '],PREV=['ArrowUp','PageUp','ArrowLeft'];
 addEventListener('keydown',e=>{if(state==='closed')return;
  if(e.key==='Escape'){e.preventDefault();close('esc');return;}
- if(e.key==='Tab'){e.preventDefault();const tb=document.querySelector('.theme-btn'),f=[btn,apBtn,tb].filter(Boolean),i=f.indexOf(document.activeElement);f[(i+(e.shiftKey?f.length-1:1))%f.length].focus();return;}
+ if(e.key==='Tab'){e.preventDefault();const tb=document.querySelector('.theme-btn'),f=[btn,apBtn,apRnd,tb].filter(e=>e&&e.getClientRects().length),i=f.indexOf(document.activeElement);f[(i+(e.shiftKey?f.length-1:1))%f.length].focus();return;}
  const dir=NEXT.includes(e.key)?1:PREV.includes(e.key)?-1:0;if(!dir||e.altKey||e.ctrlKey||e.metaKey)return;
  if((e.key===' '||e.key==='Enter')&&/^(BUTTON|A)$/.test(document.activeElement&&document.activeElement.tagName))return;
  e.preventDefault();if(e.repeat||state==='closing')return;act(dir);});
 btn.addEventListener('click',e=>{e.preventDefault();close('esc');});
-apBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(state==='open')apSet(!apOn);});
+for(const b of [apBtn,apRnd])b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(state==='open')apSet(!apOn);});
 /* the container shows the current (or remembered) slide; a click, Enter or Space reopens on exactly that slide */
 host.addEventListener('click',()=>{if(state==='closed')open(deck.cur);});
 host.addEventListener('keydown',e=>{if(state==='closed'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(deck.cur);}});
