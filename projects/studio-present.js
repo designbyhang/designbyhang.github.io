@@ -13,16 +13,17 @@ fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttr
    sits with the same type, gap, icon size/stroke and hover underline at every breakpoint */
 /* AUTO PLAY (bottom-right, CLOSE's markup + the header BACK's icon/text gap): play glyph points right; pause = two bars */
 const AP_PLAY='<svg viewBox="0 0 20 16" fill="none"><path d="M5 1L17 8L5 15Z"/></svg>',AP_PAUSE='<svg viewBox="0 0 20 16" fill="none"><path d="M7 1V15M13 1V15"/></svg>';
-fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n">SCROLL</span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
+fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
-const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr');
+const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
-const deck=StudioDeck.create({inner,stage,onSlide:()=>{if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
+const NS=window.__STUDIO__.slides.length,pad=n=>String(n).padStart(2,'0');
+const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=pad(n+1);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
  /* homepage gauge tick (js/sfx.js: same synthesis, volume, min gap, unlock-on-first-input and dbh-sound mute) once per step, fullscreen only */
  onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}},
  /* gauge tick on landing (transition end), not at step start: on beat with the slide settling */
  onLand:()=>{const x=window.dbhSfx;if(state==='open'&&x&&x.tick)x.tick();}});
-
+const N=deck.N;cntA.textContent=pad(deck.cur+1);cntB.textContent=pad(N);
 const ease=deck.ease,DUR=650;
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
 function fitBox(x,y,w,h,k){stage.style.left=x+'px';stage.style.top=y+'px';stage.style.width=w+'px';stage.style.height=h+'px';deck.layout(w,h,null,k);}
