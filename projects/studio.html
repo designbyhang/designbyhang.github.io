@@ -26,6 +26,10 @@ body.cs .deck-stage img,.deck-stage img{position:absolute;display:block;max-widt
 .deck-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
 html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-fs,html.theme-anim .deck-fs *{transition:none!important}
 .deck-fs{position:fixed;inset:0;z-index:2147483000;overflow:hidden;overscroll-behavior:none;touch-action:none;outline:none}
+/* while the fullscreen layer collapses (650ms) it is transparent but still covered the whole page: it no longer takes
+   pointer events then and CLOSE is gone at once, so the page's own BACK (same spot), the toggle and everything else are
+   clickable straight away */
+.deck-fs.is-closing{pointer-events:none}.deck-fs.is-closing .deck-bar{visibility:hidden}.deck-fs.is-closing .theme-btn{pointer-events:auto}
 .deck-fs[hidden]{display:none}
 /* CLOSE: the header bar itself (same height, padding and BACK styles at every breakpoint), transparent, right-aligned */
 .deck-fs .bar.deck-bar{position:absolute;top:0;left:0;right:0;z-index:2;justify-content:flex-end;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -103,5 +107,5 @@ html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792310004" defer></script>
+<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792310005" defer></script>
 </body></html>

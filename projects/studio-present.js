@@ -62,12 +62,12 @@ function open(n){if(state!=='closed')return;const from=hostBox();lock();state='o
  anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}});}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
 function close(how){if(state!=='open'&&state!=='opening')return;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
- const from={...fullBox()};state='closing';fs.style.background='';
+ const from={...fullBox()};state='closing';fs.style.background='';fs.classList.add('is-closing');
  unlock();restoreChrome();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
   /* focus goes back to the frame for keyboard users, without a focus ring (the ring is only for Tab navigation) */
   const hadFocus=fs.contains(document.activeElement);
-  releaseToggle();fs.hidden=true;state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
+  releaseToggle();fs.hidden=true;fs.classList.remove('is-closing');state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
   if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}});}
 host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
