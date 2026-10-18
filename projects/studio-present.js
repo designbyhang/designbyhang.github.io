@@ -94,18 +94,24 @@ function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.par
    nav, so case.js's header measurements are unchanged). The fixed menu adds no scroll overflow; the sticky header clips
    horizontally while BACK is out (else it widened the page, and on phones the layout viewport with it, CLOSE included). Anything not shown (the menu on narrow screens) is left alone. */
 const asides=[[document.querySelector('.toc'),cnt],[document.querySelector('body>.bar .bar-right a'),btn]].filter(p=>p[0]);let tg=[];const hdr=document.querySelector('body>.bar');
+/* the header's top-left label (the logo, or the 'Studio Model · Presentation' label that replaces it; whichever shows) does the
+   same to the LEFT: moved by its text's right edge, so it just clears the left screen edge, on the same progress. It fades with
+   filter:opacity (case.js owns their opacity and its .22s transition) and is inert while out (not clickable or focusable) */
+const lefts=[hdr&&hdr.querySelector('.brand'),document.getElementById('bar-mid')].filter(Boolean);let lt=[];
+const inkRight=el=>{const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return b.width?b.right:el.getBoundingClientRect().right;};
 /* the theme toggle sits closer to the screen edge while presenting on phones in landscape: it moves between its page spot
    (measured with .tb-home, which drops the fullscreen position) and that spot on the expand's progress */
 let tbOff=null;function tbMeasure(){tbOff=null;const t=fs.querySelector('.theme-btn');if(!t)return;t.style.translate='';const a=t.getBoundingClientRect();
  t.classList.add('tb-home');const b=t.getBoundingClientRect();t.classList.remove('tb-home');const dx=b.left-a.left,dy=b.top-a.top;if(dx||dy)tbOff={t,dx,dy};}
-function asideMeasure(){tbMeasure();tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
+function asideMeasure(){tbMeasure();lt=[];for(const el of lefts){el.style.translate='';el.inert=true;const r=inkRight(el);if(r>0)lt.push({el,off:-r});}
+ tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}
  /* phones have no section menu: the counter follows CLOSE, so it too only shows once BACK has passed; in landscape the Play/Pause
     button as well (it sits in the right gutter, over the expanding art until that lands) */
  const g=tg.find(g=>g.mate===btn);if(g){g.more=[];if((mPort.matches||mLand.matches)&&!tg.some(g=>g.mate===cnt))g.more.push(cnt);if(mLand.matches)g.more.push(apRnd);}}
-function aside(p){if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
+function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
  const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1);g.mate.style.opacity=String(c*c*(3-2*c));if(g.more)for(const m of g.more)m.style.opacity=g.mate.style.opacity;}}
-function asideReset(){if(tbOff){tbOff.t.style.translate='';tbOff=null;}apRnd.style.opacity='';for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
+function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];if(tbOff){tbOff.t.style.translate='';tbOff=null;}apRnd.style.opacity='';for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));

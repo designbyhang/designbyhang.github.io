@@ -9,7 +9,7 @@ let cur='';
 // header label: hidden until the eyebrow scrolls under the bar, then 'FMSS · <section>' (falls back to the section name, then hidden, if it can't fit between logo and BACK)
 const SEP=' · ',PRJ=document.body.dataset.prj||'FMSS',brand=document.querySelector('.bar .brand'),back=document.querySelector('.bar-right');
 function setMid(t){if(!mid)return;mid.dataset.t=t;fit();}
-function fit(){if(!mid||!mid.dataset.t||!brand||!back)return;const bb=mid.closest('.bar').getBoundingClientRect();mid.textContent=PRJ+SEP+mid.dataset.t;mid.style.left=(brand.offsetParent?Math.round(brand.getBoundingClientRect().left-bb.left):Math.round(parseFloat(getComputedStyle(brand.parentNode).paddingLeft)))+'px';mid.style.right=Math.ceil(bb.right-back.getBoundingClientRect().left+12)+'px';} /* all widths: label replaces the logo at its left inset; ellipsis 12px before BACK */
+function fit(){if(!mid||!mid.dataset.t||!brand||!back)return;const bb=mid.closest('.bar').getBoundingClientRect();mid.textContent=PRJ+SEP+mid.dataset.t;mid.style.left=(brand.offsetParent?Math.round(brand.getBoundingClientRect().left-(parseFloat(brand.style.translate)||0)-bb.left):Math.round(parseFloat(getComputedStyle(brand.parentNode).paddingLeft)))+'px';mid.style.right=Math.ceil(bb.right-back.getBoundingClientRect().left+12)+'px';} /* all widths: label replaces the logo at its left inset (its resting spot: minus any slide-out translate, studio-present.js); ellipsis 12px before BACK */
 addEventListener('resize',fit);
 function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)if(x.offsetTop<=y)s=x;
  if(s&&s.id!==cur){cur=s.id;links.forEach(a=>a.setAttribute('aria-current',a.hash==='#'+cur?'true':'false'));setMid(s.dataset.title);}
