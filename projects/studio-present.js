@@ -75,18 +75,20 @@ function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;}
 let tb=null,tbHome=null,tbNext=null;
 function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
 function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(tb,tbNext);else tbHome.appendChild(tb);}
-/* the page's section menu (.toc: fixed at the right edge, wide screens only) sits where the fullscreen counter goes. While
-   the stage expands it slides out to the right, fully off-screen, and fades, on the expand's own progress (same DUR and
-   ease); on close it slides back in on the collapse's progress and lands as it ends. The counter stays hidden until the
-   menu has passed it and fades in over the rest of the expand (out first on close), so the two never share a frame.
-   Uses the independent CSS translate property, so the menu's own translateY(-50%) is untouched; fixed boxes add no
-   scroll overflow. Without a visible menu (narrow screens) nothing changes. */
-const toc=document.querySelector('.toc');let tg=null;
-function asideMeasure(){tg=null;if(!toc)return;toc.style.translate='';const t=toc.getBoundingClientRect();if(!t.width)return;
- const off=innerWidth-t.left;tg={off,clr:Math.min(1,Math.max(0,cnt.getBoundingClientRect().right-t.left)/off)};}
-function aside(p){if(!tg)return;toc.style.translate=(p*tg.off).toFixed(2)+'px 0';toc.style.opacity=String(1-p);
- const c=tg.clr<1?Math.max(0,(p-tg.clr)/(1-tg.clr)):+(p>=1);cnt.style.opacity=String(c*c*(3-2*c));}
-function asideReset(){tg=null;if(toc)toc.style.translate=toc.style.opacity='';cnt.style.opacity='';}
+/* page chrome that sits where the fullscreen controls go: the section menu (.toc: fixed at the right edge, wide screens only)
+   under the counter, and the header's BACK (top right) under CLOSE. While the stage expands each slides out to the right
+   (the edge it sits at, so it never has to pass the stage's centre), fully off-screen, and fades, on the expand's own
+   progress (same DUR and ease); on close it slides back in on the collapse's progress and lands as it ends. Its control stays
+   hidden until it has passed it and fades in over the rest of the expand (out first on close), so the two never share a frame.
+   Uses the independent CSS translate property (the menu's own translateY(-50%) is untouched; BACK moves inside its static
+   nav, so case.js's header measurements are unchanged). The fixed menu adds no scroll overflow; the sticky header clips
+   horizontally while BACK is out (else it widened the page, and on phones the layout viewport with it, CLOSE included). Anything not shown (the menu on narrow screens) is left alone. */
+const asides=[[document.querySelector('.toc'),cnt],[document.querySelector('body>.bar .bar-right a'),btn]].filter(p=>p[0]);let tg=[];const hdr=document.querySelector('body>.bar');
+function asideMeasure(){tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
+ const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}}
+function aside(p){for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
+ const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1);g.mate.style.opacity=String(c*c*(3-2*c));}}
+function asideReset(){for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
@@ -97,7 +99,7 @@ const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
- anim(from,fullBox,()=>{state='open';flow(true);cnt.style.opacity='';fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
+ anim(from,fullBox,()=>{state='open';flow(true);for(const a of asides)a[1].style.opacity='';fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
@@ -124,8 +126,12 @@ function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet
   releaseToggle();asideReset();fs.hidden=true;fs.classList.remove('is-closing');state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
   /* the transparent fixed layer covered the edges while collapsing: re-sample the bars from the page (sticky header) now */
   if(window.__dbhResample)__dbhResample();
-  if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}},e=>aside(1-e));}
-host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
+  if(hadFocus)host.focus({preventScroll:true,focusVisible:false});},e=>aside(1-e));}
+/* the frame's focus ring (site :focus-visible, accent orange) only when it was reached with Tab: browsers also match
+   :focus-visible after programmatic focus or any key press while it is focused (Escape during the opening, arrows), which
+   left an orange outline round the frame after opening and closing */
+let tabAt=-1e9;addEventListener('keydown',e=>{if(e.key==='Tab')tabAt=performance.now();},true);
+host.addEventListener('focus',()=>host.classList.toggle('deck-kbd',performance.now()-tabAt<500));host.addEventListener('blur',()=>host.classList.remove('deck-kbd'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
    slide or the remembered one. Coming from below it never expands: the page scrolls past and the container keeps showing its
    current slide; a click or Enter opens it. */
@@ -150,7 +156,7 @@ addEventListener('touchend',e=>{if(!tStart)return;const s=tStart;tStart=null;if(
  if(Math.abs(dy)>=10&&(dtm<=300||Math.abs(dy)/Math.max(dtm,1)>=.3))act(dy>0?1:-1);},{passive:true});
 addEventListener('touchcancel',()=>{tStart=null;},{passive:true});
 const NEXT=['ArrowDown','PageDown','ArrowRight',' '],PREV=['ArrowUp','PageUp','ArrowLeft'];
-addEventListener('keydown',e=>{if(e.key==='Tab')host.classList.remove('deck-quiet');if(state==='closed')return;
+addEventListener('keydown',e=>{if(state==='closed')return;
  if(e.key==='Escape'){e.preventDefault();close('esc');return;}
  if(e.key==='Tab'){e.preventDefault();const tb=document.querySelector('.theme-btn'),f=[btn,apBtn,tb].filter(Boolean),i=f.indexOf(document.activeElement);f[(i+(e.shiftKey?f.length-1:1))%f.length].focus();return;}
  const dir=NEXT.includes(e.key)?1:PREV.includes(e.key)?-1:0;if(!dir||e.altKey||e.ctrlKey||e.metaKey)return;
