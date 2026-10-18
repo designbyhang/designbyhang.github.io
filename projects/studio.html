@@ -34,6 +34,9 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 .deck-n{position:absolute;z-index:2;right:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
 @media (max-width:900px){.deck-n{right:clamp(20px,5vw,72px)}}
 html.deck-open .theme-btn{z-index:2147483001}
+html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
+/* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
+.deck-fs .theme-btn{z-index:3}.deck-stage.is-fs{pointer-events:none}
 </style>
 <script src="../js/gate.js?v=1792158747"></script>
 </head>
@@ -87,5 +90,5 @@ html.deck-open .theme-btn{z-index:2147483001}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792310001" defer></script>
+<script src="../js/sfx.js?v=1792094758"></script><script src="../js/theme.js?v=1792560000"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792290600" defer></script><script src="studio-present.js?v=1792310002" defer></script>
 </body></html>

@@ -14,7 +14,7 @@ fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttr
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><p class="deck-n" aria-hidden="true"></p>';
 body.appendChild(fs);
 const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n');
-let state='closed',y0=0,armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
+let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 const NS=window.__STUDIO__.slides.length,pad=n=>String(n).padStart(2,'0');
 const deck=StudioDeck.create({inner,stage,onSlide:n=>{cnt.textContent=pad(n+1)+' / '+pad(NS);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();}});
 const N=deck.N;cnt.textContent='01 / '+pad(N);
@@ -26,7 +26,7 @@ function fitClosed(){if(state!=='closed')return;const w=host.clientWidth,h=host.
 const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
 function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kContain(vw(),vh()));}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
-addEventListener('resize',()=>{fitClosed();fitOpen();});
+addEventListener('resize',()=>{fitClosed();fitOpen();if(state!=='closed'){const b=document.querySelector('.theme-btn');if(b&&b.parentNode!==fs){tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}}});
 /* status bar + overscroll colour follow the fullscreen canvas while open; CLOSE/counter take the light or dark site colours
    to suit the slide's canvas */
 function setMeta(c){document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove());const m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);de.style.backgroundColor=c;}
@@ -34,9 +34,17 @@ function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
 function chrome(){const c=canvasColor(),v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number),lum=c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);
  fs.dataset.tone=lum<128?'dark':'light';fs.style.background=state==='open'?c:'';setMeta(c);}
 function restoreChrome(){setMeta(de.dataset.theme==='dark'?'#111111':'#ededed');}
-/* scroll lock that also holds on iOS Safari: pin the body at -scrollY, restore the exact position afterwards */
-function lock(){y0=scrollY;const s=body.style;s.position='fixed';s.top=-y0+'px';s.left='0';s.right='0';s.width='100%';s.overflow='hidden';}
-function unlock(){const s=body.style;s.position=s.top=s.left=s.right=s.width=s.overflow='';scrollTo({top:y0,left:0,behavior:'instant'});}
+/* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
+   at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
+   stale geometry until a resize). overflow:hidden on <html> + the wheel/touchmove/key handlers below stop page scrolling,
+   iOS included. */
+function lock(){de.classList.add('deck-lock');}
+function unlock(){de.classList.remove('deck-lock');}
+/* the theme toggle joins the fullscreen layer while it is open (same layer as CLOSE, above the stage), and goes back to its
+   own place in the page afterwards */
+let tb=null,tbHome=null,tbNext=null;
+function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
+function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(tb,tbNext);else tbHome.appendChild(tb);}
 function anim(from,to,done){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
@@ -46,7 +54,7 @@ const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=h
 const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kContain(vw(),vh())});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
- fs.hidden=false;fs.appendChild(stage);stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
+ fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
  anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}});}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
 function close(how){if(state!=='open'&&state!=='opening')return;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
@@ -55,7 +63,7 @@ function close(how){if(state!=='open'&&state!=='opening')return;const n=deck.set
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
   /* focus goes back to the frame for keyboard users, without a focus ring (the ring is only for Tab navigation) */
   const hadFocus=fs.contains(document.activeElement);
-  fs.hidden=true;state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
+  releaseToggle();fs.hidden=true;state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
   if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}});}
 host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
@@ -73,9 +81,9 @@ document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest
 function act(dir){if(state==='opening'){openQ=dir;return;}if(state!=='open')return;deck.request(dir,()=>close('end'));}
 const wheelGesture=StudioDeck.wheelDetector();
 addEventListener('wheel',e=>{const g=wheelGesture(e);if(state==='closed')return;e.preventDefault();if(g&&state!=='closing')act(g.dir);},{passive:false});
-const TOUCH_PX=30;let tStart=null;
-addEventListener('touchstart',e=>{if((state!=='open'&&state!=='opening')||e.touches.length!==1||e.target.closest('.deck-x,.theme-btn')){tStart=null;return;}const t=e.touches[0];tStart={y:t.clientY,x:t.clientX,t:performance.now(),done:false};},{passive:true});
-addEventListener('touchmove',e=>{if(state==='closed')return;e.preventDefault();if(!tStart)return;const t=e.touches[0],dy=tStart.y-t.clientY;tStart.ly=t.clientY;
+const TOUCH_PX=30;let tStart=null,tCtl=false;
+addEventListener('touchstart',e=>{tCtl=!!(e.target.closest&&e.target.closest('.deck-x,.theme-btn'));if((state!=='open'&&state!=='opening')||e.touches.length!==1||tCtl){tStart=null;return;}const t=e.touches[0];tStart={y:t.clientY,x:t.clientX,t:performance.now(),done:false};},{passive:true});
+addEventListener('touchmove',e=>{if(state==='closed'||tCtl)return;e.preventDefault();if(!tStart)return;const t=e.touches[0],dy=tStart.y-t.clientY;tStart.ly=t.clientY;
  if(!tStart.done&&Math.abs(dy)>=TOUCH_PX&&Math.abs(dy)>=Math.abs(tStart.x-t.clientX)){tStart.done=true;act(dy>0?1:-1);}},{passive:false});
 addEventListener('touchend',e=>{if(!tStart)return;const s=tStart;tStart=null;if(s.done)return;
  const t=e.changedTouches&&e.changedTouches[0],ey=t?t.clientY:(s.ly??s.y),dy=s.y-ey,dtm=performance.now()-s.t;
