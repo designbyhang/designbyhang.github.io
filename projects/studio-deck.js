@@ -155,22 +155,32 @@ let lastDraw=[0,0],shownN=-1,rawU=null,rawDir=1;
 const CELLT=D.cellT||{};
 function cellT(i,t){const c=CELLT[i];if(!c)return t;const u=rawU!==null?rawU:(rawDir>0?t:1-t);const e=FIG[c[1]](c[0])(Math.min(1,u*DUR[i]/c[0]));return rawDir>0?e:1-e;}
 /* grid draw-in (studio_02 -> 03): alternating directions, verticals down/up from 500ms at i*150ms, horizontals right/left from
-   1.3s at i*150ms, 1.7s each, cubic-bezier(.65,0,.35,1).
-   Implemented as a mask of growing strips over the real Grid layer, so the drawn lines are exactly the slide's lines. */
+   1.3s at i*150ms, 1.7s each, cubic-bezier(.65,0,.35,1). */
 /* drawn on EVERY studio_02 -> 03 step (3.45s total: 8 verticals + 4 horizontals). The step only lands (AUTO PLAY wait,
    `animating` false) when the last line is fully drawn; a new gesture during the draw completes it at once and lands there. */
-const GRID=D.grid||null;let gfx=null;
-function gridMask(now){const g=el.get('Grid');if(!g||!gfx)return;const t=now-gfx.t0;let imgs=[],pos=[],siz=[],done=true;
+/* Each line is its own element: while drawing, the real Grid layer (a 11x5 group of 240px cells, each outlining its own border
+   with a 1px band) is hidden and an SVG of one growing rect per line stands in for it. A strip-mask over the cell group cannot
+   work: every strip also uncovers the bands of the crossing lines, so a crossing line that had not drawn yet showed as a dot /
+   short tick at each intersection. Every visible grid line is the shared border of two cells, i.e. two coincident 1px bands
+   composited on top of each other, so each line is drawn as two identical rects: same geometry, coverage and colour as the
+   finished layer (crossings get four bands in both), and swapping back to the real layer when the draw ends changes nothing. */
+const GRID=D.grid||null;let gfx=null,gsv=null;
+function gridLines(now){const g=el.get('Grid');if(!g||!gfx)return;const t=now-gfx.t0;let done=true;
+ if(!gsv){const ns='http://www.w3.org/2000/svg',it=anyItem('Grid');gsv=document.createElementNS(ns,'svg');gsv.setAttribute('aria-hidden','true');
+  gsv.setAttribute('width',it.w);gsv.setAttribute('height',it.h);gsv.setAttribute('viewBox',`0 0 ${it.w} ${it.h}`);gsv.setAttribute('overflow','visible');
+  gsv.style.cssText=`position:absolute;left:${it.x}px;top:${it.y}px;display:block;pointer-events:none`;
+  gsv._r=[...GRID.v,...GRID.hz].map(()=>[0,1].map(()=>gsv.appendChild(document.createElementNS(ns,'rect'))));
+  gsv._c=(S[1].items.find(([k,v])=>k.startsWith('Grid/')&&v.s)||[,{s:[22,22,22,1]}])[1].s;}
+ if(gsv.previousSibling!==g)g.after(gsv);gsv.style.display='';gsv.setAttribute('fill',rgba(P(gsv._c)));g.style.opacity='0';
  /* lines start 500ms in (the copy fade, ~0.83s, overlaps the first lines) */
- const W2=1.5;/* strip half-width: tight to the 1px line so crossings of undrawn lines do not show as ticks */
- const O=500,DL=1700,ST=150,p=d=>{const u=Math.min(1,Math.max(0,(t-O-d)/DL));if(u<1)done=false;return inOut(u);};
- GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*ST),y=i%2?GRID.y0+GRID.h0-h:GRID.y0;imgs.push('linear-gradient(#000,#000)');pos.push(`${x-W2}px ${y}px`);siz.push(`${2*W2}px ${h}px`);});
- GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(800+i*ST),x=i%2?GRID.x0+GRID.w0-w:GRID.x0;imgs.push('linear-gradient(#000,#000)');pos.push(`${x}px ${y-W2}px`);siz.push(`${w}px ${2*W2}px`);});
- const s=g.style;s.webkitMaskImage=s.maskImage=imgs.join(',');s.webkitMaskPosition=s.maskPosition=pos.join(',');s.webkitMaskSize=s.maskSize=siz.join(',');s.webkitMaskRepeat=s.maskRepeat='no-repeat';s.opacity='1';
+ const O=500,DL=1700,ST=150,p=d=>{const u=Math.min(1,Math.max(0,(t-O-d)/DL));if(u<1)done=false;return inOut(u);},nv=GRID.v.length;
+ const set=(j,x,y,w,h)=>{for(const r of gsv._r[j]){r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',Math.max(0,w));r.setAttribute('height',Math.max(0,h));}};
+ GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*ST);set(i,x-.5,i%2?GRID.y0+GRID.h0-h:GRID.y0,1,h);});
+ GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(800+i*ST);set(nv+i,i%2?GRID.x0+GRID.w0-w:GRID.x0,y-.5,w,1);});
  if(done)endGrid();}
-function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.done);}
-function gridTick(now){if(!gfx)return;gridMask(now);if(gfx)gfx.raf=requestAnimationFrame(gridTick);}
-function startGrid(){if(!GRID||rm.matches)return;if(gfx)cancelGrid();gfx={t0:performance.now(),land:null};gridMask(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
+function endGrid(){const L=gfx&&gfx.land;gfx=null;if(gsv)gsv.style.display='none';draw(lastDraw[0],lastDraw[1]);if(L)land(L.done);}
+function gridTick(now){if(!gfx)return;gridLines(now);if(gfx)gfx.raf=requestAnimationFrame(gridTick);}
+function startGrid(){if(!GRID||rm.matches)return;if(gfx)cancelGrid();gfx={t0:performance.now(),land:null};gridLines(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
 function cancelGrid(){if(gfx){cancelAnimationFrame(gfx.raf);endGrid();}}
 function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  if(i!==curI)activate(i);
@@ -199,7 +209,7 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
   const to=(ia||ib).t==='CELL'&&FADE.has(i)?cellT(i,t):t;
   apply(k,ia,ib,{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),w:lerp(a.w,b.w,t),h:lerp(a.h,b.h,t),o:lerp(a.o,b.o,to),a:la(a.a,b.a,t),r:a.r.map((r,j)=>lerp(r,b.r[j],t)),f:lc(a.f,b.f,t),s:lc(a.s,b.s,t),sw:lerp(a.sw||b.sw,b.sw||a.sw,t),sa:t<.5?a.sa:b.sa,q:lerp(a.q,b.q,t),
    sh:(a.sh&&b.sh&&a.sh.length===b.sh.length)?a.sh.map((q,j)=>[lerp(q[0],b.sh[j][0],t),lerp(q[1],b.sh[j][1],t),lerp(q[2],b.sh[j][2],t),lerp(q[3],b.sh[j][3],t),lc(q[4],b.sh[j][4],t)]):(t<.5?a.sh:b.sh)},t);}
- if(gfx){const g=el.get('Grid');if(g)g.style.opacity='1';}
+ if(gfx){const g=el.get('Grid');if(g)g.style.opacity='0';} /* the line SVG stands in for it while drawing */
  if(i===END)for(const k of active){const b=L[i+1].get(k);if(!b||b.p||L[i].get(k))continue;const e=el.get(k),z=lerp(END_Z,1,t);
   if(e.style.display==='none')continue;e.style.transformOrigin=`${W/2-b.x}px ${H/2-b.y}px`;e.style.transform=z>1.0001?`scale(${z})`:'';}
  if(cap)cap.textContent=String(n+1).padStart(2,'0')+' / '+String(N).padStart(2,'0')+(opts.capLabel===false?'':'  ·  '+D.labels[n]);}
