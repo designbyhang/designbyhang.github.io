@@ -22,5 +22,11 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
 (()=>{const d=document.documentElement;let last='';const s=()=>{const dk=d.dataset.theme==='dark',fs=d.classList.contains('deck-lock'),c=fs?(dk?'#222222':'#f4f4f4'):(dk?'#111111':'#ededed');if(c+fs===last)return;last=c+fs;
   document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove());const m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);d.style.backgroundColor=c;if(document.body)document.body.style.backgroundColor=fs?c:'';clearTimeout(s.t);s.t=setTimeout(re,420);};
   /* toggle cross-fades backgrounds for .3s: swap the meta again once settled so browsers that sample page colours re-read the final ones */
-  const re=()=>{const m=document.querySelector('meta[name="theme-color"]');if(!m)return;const n=m.cloneNode();m.replaceWith(n);};
+  const re=()=>{const m=document.querySelector('meta[name="theme-color"]');if(m)m.replaceWith(m.cloneNode());
+   /* iOS 26 Safari tints its bars from fixed/sticky elements at the screen edges (project pages: the sticky header; Studio
+      presentation: the fullscreen layer) and re-reads them on scroll, not when their colour changes; the homepage has no such
+      element, so its bars follow the page background live. Nudge the scroll position by 1px for one frame (instant, no smooth
+      scroll) so Safari re-samples the edge colours once the theme cross-fade has finished. */
+   const se=document.scrollingElement||d,y=se.scrollTop,max=se.scrollHeight-se.clientHeight;if(max<1)return;
+   window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>se.scrollTo({top:y,behavior:'instant'})));};
   s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme','class']});})(); /* html.deck-lock = Studio presentation fullscreen: bars + html/body take the stage colour (#f4f4f4 / #222222), restored on close */ /* Safari top bar: replace the meta (iOS ignores content edits) and set html bg directly so it switches with the toggle */

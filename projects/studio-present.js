@@ -95,7 +95,7 @@ host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
    slide or the remembered one. Coming from below it never expands: the page scrolls past and the container keeps showing its
    current slide; a click or Enter opens it. */
-function watch(){if(state!=='closed'||suppress)return;const r=host.getBoundingClientRect(),c=r.top+r.height/2,m=innerHeight/2;
+function watch(){if(state!=='closed'||suppress||performance.now()-(window.__dbhNudge||-1e9)<400)return;const r=host.getBoundingClientRect(),c=r.top+r.height/2,m=innerHeight/2;
  if(!armed){if(Math.abs(c-m)>innerHeight*.12)armed=true;prevC=c;return;}
  if(prevC!==null&&r.bottom>0&&r.top<innerHeight&&prevC>m&&c<=m)open(resume??0);
  prevC=c;}
