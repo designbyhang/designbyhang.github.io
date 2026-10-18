@@ -8,7 +8,7 @@ const de=document.documentElement,rm=matchMedia('(prefers-reduced-motion: reduce
 /* follow the OS setting live unless the visitor has picked a theme with the site toggle (registered once per page) */
 const onSys=()=>{let saved=null;try{saved=localStorage.getItem('dbh-theme');}catch(e){}if(saved==='dark'||saved==='light')return;de.dataset.theme=sysDark.matches?'dark':'light';};
 sysDark.addEventListener?sysDark.addEventListener('change',onSys):sysDark.addListener(onSys);
-/* StudioDeck.create({inner, stage, cap?, base?, onSlide?}) mounts the deck: `inner` becomes the 1920x1080 artboard
+/* StudioDeck.create({inner, stage, cap?, base?, onSlide?, onStep?}) mounts the deck: `inner` becomes the 1920x1080 artboard
    (scaled by layout()), `stage` gets the slide canvas colour. Returns a small controller API. */
 function create(opts){const D=window.__STUDIO__;
 const S=D.slides,N=S.length,DUR=D.dur,TYP=D.type,W=1920,H=1080,AS=D.assets,BASE=opts.base||D.base;
@@ -196,7 +196,7 @@ function frame(){const now=performance.now(),u=prog(now),e=anim.ease(u);
  rawU=u;rawDir=anim.dir;draw(anim.i,anim.dir>0?e:1-e);rawU=null;
  if(u>=1){const done=anim.done;cur=anim.to;anim=null;raf=0;stage.dataset.steps=String(++steps);prefetch(cur);done&&done();flush();return;}
  raf=requestAnimationFrame(frame);}
-function step(dir,done){if(anim||!canStep(dir))return false;const to=cur+dir,i=Math.min(cur,to);prefetch(to);
+function step(dir,done){if(anim||!canStep(dir))return false;const to=cur+dir,i=Math.min(cur,to);prefetch(to);opts.onStep&&opts.onStep(dir,to);
  if(dir>0&&cur===0)startGrid();else if(dir<0&&to===0)cancelGrid();
  rawDir=dir;
  if(rm.matches){cur=to;show(cur);stage.dataset.steps=String(++steps);done&&done();return true;}

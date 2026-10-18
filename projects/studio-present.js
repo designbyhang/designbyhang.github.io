@@ -16,7 +16,9 @@ body.appendChild(fs);
 const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 const NS=window.__STUDIO__.slides.length,pad=n=>String(n).padStart(2,'0');
-const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=pad(n+1);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();}});
+const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=pad(n+1);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
+ /* homepage gauge tick (js/sfx.js: same synthesis, volume, min gap, unlock-on-first-input and dbh-sound mute) once per step, fullscreen only */
+ onStep:()=>{const x=window.dbhSfx;if(state==='open'&&x&&x.tick)x.tick();}});
 const N=deck.N;cntA.textContent=pad(deck.cur+1);cntB.textContent=pad(N);
 const ease=deck.ease,DUR=650;
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;

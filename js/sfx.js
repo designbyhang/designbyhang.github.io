@@ -15,7 +15,9 @@
     zap=()=>{if(!ac||mute||ac.state!=='running')return;zapOn(ac,out,ac.currentTime);};
   window.__sfxTest={zapOn,nbOf:c=>{const b=c.createBuffer(1,Math.round(c.sampleRate*.03),c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);return b;}};
   return{count:{tick:0,land:0,tap:0} /* land: clunk removed, stays 0 */,
-    move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;const n=performance.now();if(n-lastT<MINGAP)return;lastT=n;this.count.tick++;hit(3200,6,.5,.012);},
+    move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;this.tick();},
+    /* one gauge detent tick (home dial; also each Studio presentation step) */
+    tick(){const n=performance.now();if(n-lastT<MINGAP)return false;lastT=n;this.count.tick++;hit(3200,6,.5,.012);return true;},
     tap(){this.count.tap++;hit(1200,2,1,.04);body(140,.6,.08);},
     /* easter egg: 7th+ consecutive theme toggle (counter resets after 6s idle) = broken-circuit short */
     _tg:0,_tgT:0,toggle(){const n=performance.now();if(n-this._tgT>6000)this._tg=0;this._tgT=n;this._tg++;if(this._tg<7){this.tap();return'tap';}this.count.zap=(this.count.zap||0)+1;zap();return'zap';},
