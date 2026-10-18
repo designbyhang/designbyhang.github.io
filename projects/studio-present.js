@@ -33,9 +33,18 @@ function fitClosed(){if(state!=='closed')return;const w=host.clientWidth,h=host.
 const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
 /* fullscreen: the art is contain-fitted inside symmetric side gutters wide enough to clear the counter (right inset + counter
    width + 12px), so the vertically centred counter never sits on the art; the stage (canvas colour) still fills the screen */
-function gutter(){const r=cnt.getBoundingClientRect();return r.width?Math.max(0,vw()-r.left+12):0;}
-const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
-function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
+const mPort=matchMedia('(orientation:portrait) and (max-width:640px)'); /* phones in portrait: counter under the slide (studio.html), 16px side margins */
+function gutter(){if(mPort.matches)return 16;const r=cnt.getBoundingClientRect();return r.width?Math.max(0,vw()-r.left+12):0;}
+/* phones in landscape: CLOSE, the counter and AUTO PLAY sit in a right-hand gutter by the right screen edge, the theme toggle by
+   the left edge (studio.html); the art is as large as fits between the two gutters (16px clear of each), centred in that space.
+   The stage is widened on the narrower side so it still covers the whole screen while it expands */
+const mLand=matchMedia('(orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse)');
+function sides(){if(!mLand.matches){const g=gutter();return[g,g];}
+ const R=Math.max(0,...[btn,cnt,apBtn].map(e=>{const r=e.getBoundingClientRect();return r.width?vw()-r.left+16:0;}));
+ const t=fs.querySelector('.theme-btn'),L=t?parseFloat(getComputedStyle(t).left)+t.offsetWidth+16:16;return[L,R];}
+const fsGeo=()=>{const [L,R]=sides(),w=vw(),d=L-R;return{x:Math.min(0,d),y:0,w:w+Math.abs(d),h:vh(),k:Math.min(Math.max(1,w-L-R)/W,vh()/H)};};
+const kFs=()=>fsGeo().k;
+function fitOpen(){if(state==='open'){const g=fsGeo();fitBox(g.x,g.y,g.w,g.h,g.k);}}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
 addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();});
 /* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
@@ -84,18 +93,25 @@ function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.par
    nav, so case.js's header measurements are unchanged). The fixed menu adds no scroll overflow; the sticky header clips
    horizontally while BACK is out (else it widened the page, and on phones the layout viewport with it, CLOSE included). Anything not shown (the menu on narrow screens) is left alone. */
 const asides=[[document.querySelector('.toc'),cnt],[document.querySelector('body>.bar .bar-right a'),btn]].filter(p=>p[0]);let tg=[];const hdr=document.querySelector('body>.bar');
-function asideMeasure(){tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
- const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}}
-function aside(p){for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
- const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1);g.mate.style.opacity=String(c*c*(3-2*c));}}
-function asideReset(){for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
+/* the theme toggle sits closer to the screen edge while presenting on phones in landscape: it moves between its page spot
+   (measured with .tb-home, which drops the fullscreen position) and that spot on the expand's progress */
+let tbOff=null;function tbMeasure(){tbOff=null;const t=fs.querySelector('.theme-btn');if(!t)return;t.style.translate='';const a=t.getBoundingClientRect();
+ t.classList.add('tb-home');const b=t.getBoundingClientRect();t.classList.remove('tb-home');const dx=b.left-a.left,dy=b.top-a.top;if(dx||dy)tbOff={t,dx,dy};}
+function asideMeasure(){tbMeasure();tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
+ const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}
+ /* phones have no section menu: the counter follows CLOSE, so it too only shows once BACK has passed; in landscape AUTO PLAY
+    as well (it sits in the right gutter, over the expanding art until that lands) */
+ const g=tg.find(g=>g.mate===btn);if(g){g.more=[];if((mPort.matches||mLand.matches)&&!tg.some(g=>g.mate===cnt))g.more.push(cnt);if(mLand.matches)g.more.push(apBtn);}}
+function aside(p){if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
+ const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1);g.mate.style.opacity=String(c*c*(3-2*c));if(g.more)for(const m of g.more)m.style.opacity=g.mate.style.opacity;}}
+function asideReset(){if(tbOff){tbOff.t.style.translate='';tbOff=null;}apBtn.style.opacity='';for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=host.clientWidth,h=host.clientHeight;return{x:r.left+b,y:r.top+b,w,h,k:kCover(w,h)};};
-const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
+const fullBox=fsGeo;
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
