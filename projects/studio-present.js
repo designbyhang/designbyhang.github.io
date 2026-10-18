@@ -94,11 +94,12 @@ function autoStop(){clearTimeout(autoT);autoT=0;}
 /* autoplay: ON whenever the presentation opens (incl. resuming at a remembered slide; on studio_02 it replaces the old 2s
    opening hold, same timing, so there is no double step); toggle state itself is not remembered; one step every AP_MS counted from the end of the previous transition (so any
    manual scroll/swipe/key step restarts the wait); waits out running transitions; turns itself off on the last slide and on
-   exit. Steps go through deck.request like any gesture (reduced motion = instant change). */
-const AP_MS=500;let apOn=false,apT=0;
+   exit. Steps go through deck.request like any gesture (reduced motion = instant change). Per-slide holds (AP_HOLD) replace
+   AP_MS: 1s on the finished grid (studio_03, after the line draw lands) and on the swag slide (studio_43, before the logo end frame). */
+const AP_MS=500,AP_HOLD={[C0-1]:1000,[window.__STUDIO__.slides.length-2]:1000};let apOn=false,apT=0;
 function apSet(v){apOn=!!v;clearTimeout(apT);apT=0;apBtn.setAttribute('aria-pressed',String(apOn));apBtn.classList.toggle('on',apOn);apIco.innerHTML=apOn?AP_PAUSE:AP_PLAY;if(apOn){autoStop();autoAt=0;apWait();}}
 function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')return;if(deck.animating){apT=setTimeout(apWait,60);return;}
- if(!deck.canStep(1)){apSet(false);return;}apT=setTimeout(apFire,AP_MS);}
+ if(!deck.canStep(1)){apSet(false);return;}apT=setTimeout(apFire,AP_HOLD[deck.cur]??AP_MS);}
 function apFire(){apT=0;if(!apOn||state!=='open')return;if(deck.animating){apWait();return;}if(!deck.canStep(1)){apSet(false);return;}deck.request(1,()=>apSet(false));}
 function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&&deck.cur===0&&!deck.animating){autoAt=performance.now();deck.request(1,()=>close('end'));}},AUTO_MS);}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
