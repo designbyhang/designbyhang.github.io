@@ -34,13 +34,25 @@ function gutter(){const r=cnt.getBoundingClientRect();return r.width?Math.max(0,
 const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
 function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
-addEventListener('resize',()=>{fitClosed();fitOpen();if(state!=='closed'){const b=document.querySelector('.theme-btn');if(b&&b.parentNode!==fs){tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}}});
+addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();if(state!=='closed'){const b=document.querySelector('.theme-btn');if(b&&b.parentNode!==fs){tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}}});
 /* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
    (theme-color + html/body bg) is the standard stage colour, #f4f4f4 light / #222222 dark: js/theme.js applies it while
    html.deck-lock is set and follows the toggle live; removing the class restores the page values. */
 function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
-function chrome(){const c=canvasColor(),v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number),lum=c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);
- fs.dataset.tone=lum<128?'dark':'light';fs.style.background=state==='open'?c:'';fs.style.boxShadow=state==='open'?'0 0 0 100vmax '+c:'';}
+const stageColor=()=>deck.dark?'#222222':'#f4f4f4';
+const lumOf=c=>{const v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number);return c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);};
+/* layer + letterbox = stage colour (the slide canvas stays inside the artboard) whenever CLOSE / AUTO PLAY sit clear of the art
+   (portrait phones, desktop). On tight landscape phones the art fills the height and the chrome overlaps it: there the slide canvas
+   fills the letterbox as before (data-lb=canvas, read by studio-deck.js) so the chrome reads on one colour. */
+function chrome(){const sc=stageColor(),open=state==='open',r=inner.getBoundingClientRect(),hit=e=>{const b=e.getBoundingClientRect();return b.left<r.right&&b.right>r.left&&b.top<r.bottom&&b.bottom>r.top;},
+ clear=!open||(!hit(btn)&&!hit(apBtn)),edge=clear?sc:canvasColor(),tone=lumOf(edge)<128?'dark':'light';
+ if(clear)delete stage.dataset.lb;else stage.dataset.lb='canvas';if(open)stage.style.background=edge;
+ fs.dataset.tone=tone;fs.dataset.ntone=tone;fs.style.background=open?edge:'';fs.style.boxShadow=open?'0 0 0 100vmax '+edge:'';}
+/* iOS 26 Safari tints its bars from the fixed layer at the screen edges and re-reads it on scroll/layout, not on colour change; the
+   page is scroll-locked here, so after entering and after each toggle (js/theme.js fires dbh-resample once the cross-fade is done)
+   pull the layer's bottom edge in by 1px for two frames (the 1px shows html/body, also the stage colour) to make Safari re-sample. */
+function bump(){if(state!=='open')return;fs.style.bottom='1px';requestAnimationFrame(()=>requestAnimationFrame(()=>{fs.style.bottom='';}));}
+addEventListener('dbh-resample',bump);
 function restoreChrome(){}
 /* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
    at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
@@ -66,7 +78,7 @@ const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
- anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();});}
+ anim(from,fullBox,()=>{state='open';fitOpen();chrome();if(window.__dbhResample)__dbhResample();else bump();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();});}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */

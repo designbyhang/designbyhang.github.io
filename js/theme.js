@@ -27,6 +27,7 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
       presentation: the fullscreen layer) and re-reads them on scroll, not when their colour changes; the homepage has no such
       element, so its bars follow the page background live. Nudge the scroll position by 1px for one frame (instant, no smooth
       scroll) so Safari re-samples the edge colours once the theme cross-fade has finished. */
+   dispatchEvent(new Event('dbh-resample')); /* Studio presentation: its scroll-locked fixed layer re-samples itself */
    const se=document.scrollingElement||d,y=se.scrollTop,max=se.scrollHeight-se.clientHeight;if(max<1)return;
    window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>se.scrollTo({top:y,behavior:'instant'})));};
-  s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme','class']});})(); /* html.deck-lock = Studio presentation fullscreen: bars + html/body take the stage colour (#f4f4f4 / #222222), restored on close */ /* Safari top bar: replace the meta (iOS ignores content edits) and set html bg directly so it switches with the toggle */
+  window.__dbhResample=re;s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:['data-theme','class']});})(); /* html.deck-lock = Studio presentation fullscreen: bars + html/body take the stage colour (#f4f4f4 / #222222), restored on close */ /* Safari top bar: replace the meta (iOS ignores content edits) and set html bg directly so it switches with the toggle */

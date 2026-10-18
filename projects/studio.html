@@ -36,8 +36,8 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 .deck-fs[hidden]{display:none}
 /* CLOSE: the header bar itself (same height, padding and BACK styles at every breakpoint), transparent, right-aligned */
 .deck-fs .bar.deck-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;justify-content:flex-end;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-.deck-fs[data-tone=light] .deck-bar,.deck-fs[data-tone=light] .deck-n{--mono-color:#333;--ink:#171717}
-.deck-fs[data-tone=dark] .deck-bar,.deck-fs[data-tone=dark] .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}
+.deck-fs[data-tone=light] .deck-bar,.deck-fs[data-ntone=light] .deck-n{--mono-color:#333;--ink:#171717}
+.deck-fs[data-tone=dark] .deck-bar,.deck-fs[data-ntone=dark] .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}
 .deck-n{position:absolute;z-index:2;right:calc(clamp(16px,3vw,32px) + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
 @media (max-width:900px){.deck-n{right:calc(clamp(20px,5vw,72px) + env(safe-area-inset-right,0px))}}
 /* counter: vertically centred on the right, same right inset as CLOSE/BACK (= the header padding at each breakpoint) */
@@ -113,5 +113,5 @@ html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792334430"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792297971" defer></script><script src="studio-present.js?v=1792334909" defer></script>
+<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792335191"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792335191" defer></script><script src="studio-present.js?v=1792335191" defer></script>
 </body></html>
