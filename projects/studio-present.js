@@ -37,7 +37,7 @@ function gutter(){const r=cnt.getBoundingClientRect();return r.width?Math.max(0,
 const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
 function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
-addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();if(state!=='closed'){const b=document.querySelector('.theme-btn');if(b&&b.parentNode!==fs){tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}}});
+addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();});
 /* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
    (theme-color + html/body bg) is the standard stage colour, #f4f4f4 light / #222222 dark: js/theme.js applies it while
    html.deck-lock is set and follows the toggle live; removing the class restores the page values. */
