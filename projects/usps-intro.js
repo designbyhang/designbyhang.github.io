@@ -1,0 +1,164 @@
+/* USPS Innovations case study: hero intro animation (SVG + GSAP, both local).
+   Generated from the approved standalone build (/workspace/usps-intro, v8) by usps-intro/embed/make_embed.py.
+   Plays once when the hero scrolls into view (or on load if already visible); the replay button restarts it.
+   prefers-reduced-motion: the final frame is shown, no motion, no replay button. */
+(function(){
+const host=document.querySelector('[data-usps-intro]');
+if(!host||!window.gsap)return;
+const root=host.querySelector('.ui-stage');
+root.innerHTML="<svg class=\"ui-svg\" viewBox=\"0 0 1920 1080\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\"> <defs> <mask id=\"ui-eagleMask\" maskUnits=\"userSpaceOnUse\" x=\"-5\" y=\"-5\" width=\"90\" height=\"60\"> <polygon fill=\"#fff\" points=\"66.3,47.2 76.3,0 10,0 0,47.2\"/> <path fill=\"#000\" d=\"M49.3,9.9c7.7,1.8,7.9,3.7,7.9,3.7c5,0,6.3,0,7.2,0.9c2.9,2.7-2,9.3-2,9.3C61.8,24.2,6.6,45.8,6.6,45.8h58.1 L74,1.9H11.6C11.6,1.9,48.4,9.7,49.3,9.9\"/> <path fill=\"#000\" d=\"M55,16.3c-0.8,0.4-3.2,0.8-4,0.9c-0.8,0.1-1.2,0.1-1.2,0.3c0,0.3,1.1,0.2,1.5,0.2c1.8,0,8.9-0.5,10.6-0.2 c1.3,0.2-0.2,2.8-0.6,4.4c-0.1,0.6,0.3,0.3,0.5,0c0.5-0.8,1.9-3.4,2-4.4c0.2-2-1.2-2.3-3.6-2.3h-3.7c-0.3,0-0.4,0.1-0.5,0.3 C55.7,15.8,55.2,16.1,55,16.3\"/> <path fill=\"#000\" d=\"M32,31.1L2.3,45.8l7.2-33.7h0h30c0.5,0,16.1,0,16.4,3.1h-27l4.2,12.8c4.8-2.3,16.6-7.1,23.7-7.4 c3-0.1,4.2,0.4,3.6,0.8c-0.4,0.2-3.3,0.6-5.6,1.2c-4,1-4.2,1-8.4,2.4C41.7,26.6,37.8,28.4,32,31.1\"/> </mask> <clipPath id=\"ui-tdClip\" clipPathUnits=\"userSpaceOnUse\"><rect id=\"ui-tdClipL\" x=\"440\" y=\"528\" width=\"0\" height=\"80\"/><rect id=\"ui-tdClipR\" x=\"1480\" y=\"528\" width=\"0\" height=\"80\"/></clipPath> <linearGradient id=\"ui-streakL\" x1=\"0\" x2=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"1\"/></linearGradient> <linearGradient id=\"ui-streakR\" x1=\"1\" x2=\"0\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"1\"/></linearGradient> </defs> <!-- 1. LOGO --> <g id=\"ui-logoWrap\"><g id=\"ui-logo\" class=\"glow\"> <g transform=\"translate(915,284.7) scale(1.3)\"> <rect x=\"-2\" y=\"-2\" width=\"82\" height=\"52\" fill=\"#fff\" mask=\"url(#ui-eagleMask)\"/> <path fill=\"#fff\" transform=\"translate(73.8,43.5) scale(0.61) translate(-384.5,-7.5)\" d=\"M380,7.5c0-2.6,2-4.6,4.5-4.6c2.5,0,4.5,2,4.5,4.6c0,2.7-2,4.7-4.5,4.7C381.9,12.2,380,10.2,380,7.5 M379,7.5 c0,3.1,2.5,5.5,5.5,5.5c3,0,5.5-2.4,5.5-5.5c0-3.1-2.5-5.4-5.5-5.4C381.5,2,379,4.4,379,7.5 M382.4,10.7h1V8h1.1l1.7,2.8h1.1 l-1.8-2.8c1-0.1,1.7-0.6,1.7-1.7c0-1.2-0.7-1.8-2.2-1.8h-2.5V10.7 M383.4,5.1h1.3c0.7,0,1.4,0.1,1.4,1c0,1-0.8,1.1-1.7,1.1h-1V5.1z\"/> </g> </g></g> <!-- 2. INNOVATIONS --> <text id=\"ui-hMeasure\" x=\"0\" y=\"-500\" font-size=\"161\" font-weight=\"800\" fill=\"none\">INNOVATIONS</text> <g id=\"ui-guides\" class=\"glowSoft\"></g> <g id=\"ui-headline\" class=\"glow\"></g> <!-- 3. THAT DELIVER --> <g id=\"ui-tdLines\" class=\"glowSoft\"> <line id=\"ui-hairTop\" class=\"bline\" x1=\"380\" y1=\"552.5\" x2=\"380\" y2=\"552.5\"/> <line id=\"ui-hairBot\" class=\"bline\" x1=\"1540\" y1=\"580.5\" x2=\"1540\" y2=\"580.5\"/> </g> <g clip-path=\"url(#ui-tdClip)\"><g id=\"ui-td\" class=\"glow\"> <text id=\"ui-tdText\" x=\"960\" y=\"580.5\" text-anchor=\"middle\" font-size=\"36\" font-weight=\"700\" fill=\"#fff\">THAT DELIVER</text> </g></g> <!-- 4. BODY --> <g id=\"ui-body\" class=\"glowSoft\" fill=\"#fff\" font-weight=\"600\" font-size=\"13.8\" text-anchor=\"middle\"> <text id=\"ui-b1\" x=\"960\" y=\"639.8\">ONLY USPS HAS THE INFRASTRUCTURE TO DELIVER TO EVERY ADDRESS IN AMERICA. TO DO THIS, WE’RE CONSTANTLY EVOLVING</text> <text id=\"ui-b2\" x=\"960\" y=\"672.8\">OUR SHIPPING AND MAIL TECHNOLOGIES. NOW YOU CAN SEE WHICH TOOLS, SERVICES AND IDEAS WE’RE UNVEILING NEXT.</text> </g> <!-- 5. START --> <g id=\"ui-btn\" > <g class=\"face\"><g><rect id=\"ui-bFill\" x=\"879\" y=\"728\" width=\"165\" height=\"65\" fill=\"#EBEBF6\"/></g></g> <!-- four edge lines (transitional only) --> <g id=\"ui-bLines\" class=\"glowSoft\"> <line id=\"ui-lT\" class=\"bline\" opacity=\"0\" x1=\"0\" y1=\"728\" x2=\"0\" y2=\"728\"/> <line id=\"ui-lR\" class=\"bline\" opacity=\"0\" x1=\"1044\" y1=\"0\" x2=\"1044\" y2=\"0\"/> <line id=\"ui-lB\" class=\"bline\" opacity=\"0\" x1=\"0\" y1=\"793\" x2=\"0\" y2=\"793\"/> <line id=\"ui-lL\" class=\"bline\" opacity=\"0\" x1=\"879\" y1=\"0\" x2=\"879\" y2=\"0\"/> </g> <g><text id=\"ui-bText\" x=\"962.875\" y=\"766.25\" text-anchor=\"middle\" font-size=\"16.5\" font-weight=\"700\" letter-spacing=\"2.6\" fill=\"#090C94\">START</text></g> </g> </svg>";
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById('ui-'+id);
+const CFG={hLeft:357,hRight:1563,hBase:513.5,hSize:161,hCap:113,
+  tdW:711,b1W:1085,b2W:1038};
+
+// fit letter-spacing so ink width ≈ target (text-anchor middle; compensate trailing spacing)
+function fitSpacing(el,target){
+  el.setAttribute('letter-spacing',0);
+  const n=el.getNumberOfChars(); const w=el.getComputedTextLength();
+  const ls=(target-w)/(n-1);
+  el.setAttribute('letter-spacing',ls.toFixed(3));
+  el.setAttribute('x',(960+ls/2).toFixed(2));
+}
+
+function build(){
+  // headline: one <text> per letter so each can be drawn independently
+  const m=$('hMeasure'), str=m.textContent, n=str.length;
+  m.setAttribute('letter-spacing',0);
+  const natural=m.getComputedTextLength();
+  const ls=(CFG.hRight-CFG.hLeft-natural)/(n-1)+1.5;
+  m.setAttribute('letter-spacing',ls);
+  const g=$('headline'); g.innerHTML='';
+  const boxes=[];
+  const total=natural+ls*(n-1);
+  const x0=960-total/2+-4;
+  for(let i=0;i<n;i++){
+    const ex=m.getExtentOfChar(i);
+    const x=x0+ex.x; const w=ex.width-(i<n-1?ls:0); // glyph advance without spacing
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x.toFixed(2)); t.setAttribute('y',CFG.hBase);
+    t.setAttribute('font-size',CFG.hSize); t.setAttribute('font-weight',800);
+    t.setAttribute('fill','#F8F7FC'); t.setAttribute('stroke','#FFFFFF'); t.setAttribute('stroke-width','1.6');
+    t.setAttribute('class','hl'); t.textContent=str[i];
+    g.appendChild(t);
+    boxes.push({ch:str[i],x:x,w:ex.width-ls});
+  }
+  // construction (blueprint) guides
+  const G=$('guides'); G.innerHTML='';
+  const top=CFG.hBase-CFG.hCap, base=CFG.hBase, ext=14;
+  const L=(x1,y1,x2,y2)=>{const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',x1.toFixed(1));l.setAttribute('y1',y1.toFixed(1));l.setAttribute('x2',x2.toFixed(1));l.setAttribute('y2',y2.toFixed(1));
+    l.setAttribute('class','guide');l.dataset.x1=x1;l.dataset.y1=y1;l.dataset.x2=x2;l.dataset.y2=y2;G.appendChild(l);};
+  const ext2=(x1,y1,x2,y2,e)=>{const dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy);L(x1-dx/d*e,y1-dy/d*e,x2+dx/d*e,y2+dy/d*e);};
+  // guide positions measured from the designer mockup (1920x1080 space), ordered left to right
+  const GUIDES=[[356.61,387.33,356.61,528.00],[443.72,387.33,443.72,528.00],[519.63,387.33,519.63,528.00],[574.66,387.33,574.66,528.00],[650.53,387.33,650.53,528.00],[731.00,387.33,731.00,528.00],[926.95,387.33,866.93,528.00],[967.10,387.33,904.99,528.00],[1070.78,387.33,1070.78,528.00],[1149.83,387.33,1149.83,528.00],[1262.50,387.33,1262.50,528.00],[1342.69,387.33,1342.69,528.00],[1418.58,387.33,1418.58,528.00],[1561.65,387.33,1465.40,528.00]];
+  GUIDES.forEach(g=>L(...g));
+  // supporting text fit
+  fitSpacing($('tdText'),CFG.tdW); fitSpacing($('b1'),CFG.b1W); fitSpacing($('b2'),CFG.b2W);
+}
+
+let tl;
+function makeTimeline(){
+  if(tl){tl.kill();}
+  const hls=[...root.querySelectorAll('.hl')];
+  const guides=[...root.querySelectorAll('#ui-guides line')];
+  const lineLen=el=>Math.hypot(el.x2.baseVal.value-el.x1.baseVal.value,el.y2.baseVal.value-el.y1.baseVal.value);
+  const prep=el=>{const L=lineLen(el);gsap.set(el,{attr:{'stroke-dasharray':L+' '+L,'stroke-dashoffset':L}});return L;};
+  // reset
+  gsap.set('#ui-logoWrap',{y:225});
+  gsap.set('#ui-logo',{opacity:0,scale:0.94,transformOrigin:'50% 50%'});
+  hls.forEach(t=>gsap.set(t,{attr:{'stroke-dasharray':'900 900','stroke-dashoffset':900},fillOpacity:0,strokeOpacity:1}));
+  const clamp=v=>Math.max(0,Math.min(1,v));
+  // v7: guides grow upward in place from their bottom endpoints (verticals + diagonals travel upward along their own angle; horizontals from the left)
+  const gGeo=guides.map(g=>{let a=[+g.dataset.x1,+g.dataset.y1],b=[+g.dataset.x2,+g.dataset.y2];
+    const horiz=Math.abs(b[1]-a[1])<1;
+    if(!horiz && a[1]<b[1]){const tmp=a;a=b;b=tmp;}          // a = lower end, so a->b points up
+    const dx=b[0]-a[0],dy=b[1]-a[1],d=Math.hypot(dx,dy)||1,off=0;  // v7: grow in place from the bottom endpoint (no travel)
+    return {a,b,s:[a[0]-dx/d*off,a[1]-dy/d*off]};});
+  guides.forEach(g=>g.setAttribute('opacity',0)); gsap.set('#ui-guides',{opacity:1});
+  gsap.set('#ui-hairTop',{attr:{x1:380,x2:380}}); gsap.set('#ui-hairBot',{attr:{x1:1540,x2:1540}});
+  gsap.set('#ui-tdClipL',{attr:{width:0}}); gsap.set('#ui-tdClipR',{attr:{x:1480,width:0}}); gsap.set('#ui-td',{y:0,opacity:1});
+  gsap.set(['#ui-b1','#ui-b2'],{opacity:0,y:0});
+  gsap.set('#ui-bFill',{opacity:0});
+  gsap.set('#ui-bText',{opacity:0});
+  gsap.set('#ui-bLines',{attr:{opacity:0}}); gsap.set('#ui-tdLines',{attr:{opacity:0}});
+
+  tl=gsap.timeline({paused:true,defaults:{ease:'power2.out'}});
+  // 1. logo alone, soft glow-in
+  tl.to('#ui-logo',{opacity:1,scale:1,duration:0.7,ease:'power2.out'},0.05);
+  // 2. logo pushed up as INNOVATIONS is drawn
+  tl.to('#ui-logoWrap',{y:0,duration:1.0,ease:'power3.inOut'},0.85);
+  tl.to(hls,{attr:{'stroke-dashoffset':0},duration:0.95,ease:'power1.inOut',stagger:0.04},3.07);  // letters start after guides settle (~3.04)
+  const gStep=Math.min(0.06,0.5/Math.max(1,guides.length-1));
+  // guides: CTA-style — each slides in along its own path (tail and tip travel from an offset start) and settles, staggered
+  const GD=0.65, gE=gsap.parseEase('expo.out'), GP={t:0}, gTotal=GD+gStep*(guides.length-1);
+  const updG=()=>{guides.forEach((g,i)=>{const q=clamp((GP.t-i*gStep)/GD),h=gE(q),G_=gGeo[i];
+      g.setAttribute('x1',G_.s[0]+(G_.a[0]-G_.s[0])*h); g.setAttribute('y1',G_.s[1]+(G_.a[1]-G_.s[1])*h);
+      g.setAttribute('x2',G_.s[0]+(G_.b[0]-G_.s[0])*h); g.setAttribute('y2',G_.s[1]+(G_.b[1]-G_.s[1])*h);
+      g.setAttribute('opacity',q<=0?0:Math.min(1,q/0.12));});};
+  tl.to(GP,{t:gTotal,duration:gTotal,ease:'none',onUpdate:updG,onStart:updG},1.9);  // starts after logo has settled (push ends 1.85); all grown by ~3.04
+  tl.to(hls,{fillOpacity:1,duration:0.5,ease:'power1.inOut',stagger:0.03},3.8);
+  tl.to(hls,{strokeOpacity:0,duration:0.4,stagger:0.03},4.1);
+  // guides fade away once the letters are filled (same exit as the CTA outline)
+  tl.to('#ui-guides',{opacity:0,duration:0.45,ease:'power1.inOut'},4.9);  // ~0.3s breath after fill completes (~4.6), guides fade out by 5.35
+  // 3. two light lines converge & reveal THAT DELIVER
+  const T3=5.4, D3=1.1, MID=960;  // starts only after guides have fully faded (5.35)
+  // THAT DELIVER: CTA-style plain lines. Top slides in from the left, bottom from the right; each settles with its leading end at centre.
+  // Text is revealed full height behind each leading end; reveal completes where they meet.
+  const P3={q:0}, e3=gsap.parseEase('expo.out');
+  const tdL={s0:353,a:463,b:MID+1}, tdR={s0:1567,a:1457,b:MID-1};
+  const upd=()=>{
+      const h=e3(P3.q);
+      const tTail=tdL.s0+(tdL.a-tdL.s0)*h, tHead=tdL.s0+(tdL.b-tdL.s0)*h;
+      const bTail=tdR.s0+(tdR.a-tdR.s0)*h, bHead=tdR.s0+(tdR.b-tdR.s0)*h;
+      $('hairTop').setAttribute('x1',tTail); $('hairTop').setAttribute('x2',tHead);
+      $('hairBot').setAttribute('x1',bTail); $('hairBot').setAttribute('x2',bHead);
+      $('tdClipL').setAttribute('width',Math.max(0,tHead-440));
+      $('tdClipR').setAttribute('x',bHead); $('tdClipR').setAttribute('width',Math.max(0,1480-bHead));
+  };
+  tl.set('#ui-tdLines',{attr:{opacity:1}},T3);
+  tl.to(P3,{q:1,duration:D3,ease:'none',onUpdate:upd,onStart:upd},T3);
+  tl.to('#ui-tdLines',{attr:{opacity:0},duration:0.4,ease:'power1.inOut'},T3+0.85);
+  // 4. body copy
+  tl.to(['#ui-b1','#ui-b2'],{opacity:1,duration:0.8,ease:'power1.inOut',stagger:0.14},T3+0.65);  // body keeps same offset relative to THAT DELIVER
+  // 5. START: four lines sweep in along the four sides, outlining the rectangle; fill reveals; lines leave
+  const T5=T3+1.05, X1=879, X2=1044, Y1=728, Y2=793;
+  // [id, axis, travel start, edge start(corner where tail lands), edge end(corner where tip lands)]
+  const sides=[['lT','x',X1-110,X1,X2],   // top: enters from the left
+               ['lR','y',Y1-36, Y1,Y2],   // right: drops in from above
+               ['lB','x',X2+110,X2,X1],   // bottom: enters from the right
+               ['lL','y',Y2+56, Y2,Y1]];  // left: rises from below
+  const S5={q:0}; const e5=gsap.parseEase('expo.out');
+  const upd5=()=>{
+    sides.forEach(([id,ax,s0,a,b],i)=>{
+      const q=clamp((S5.q-i*0.1)/0.7), h=e5(q);
+      const head=s0+(b-s0)*h, tail=s0+(a-s0)*h;   // streak slides in and lands exactly on its side
+      const el=$(id); el.setAttribute(ax+'1',tail); el.setAttribute(ax+'2',head);
+      el.setAttribute('opacity',q<=0?0:Math.min(1,q/0.12));
+    });
+  };
+  tl.set('#ui-bLines',{attr:{opacity:1}},T5);
+  tl.to(S5,{q:1,duration:0.85,ease:'none',onUpdate:upd5,onStart:upd5},T5);
+  tl.to('#ui-bFill',{opacity:1,duration:0.4,ease:'power1.inOut'},T5+0.72);
+  tl.to('#ui-bLines',{attr:{opacity:0},duration:0.35,ease:'power1.in'},T5+1.0);
+  tl.to('#ui-bText',{opacity:1,duration:0.5,ease:'power1.inOut'},T5+1.0);  // simple in-place fade, no mask/motion
+  return tl;
+}
+let played=false,visible=false,ready=false;
+function showFinal(){makeTimeline();tl.progress(1).pause();}
+function play(){if(reduce.matches){showFinal();return;}played=true;makeTimeline().play(0);}
+function maybePlay(){if(ready&&visible&&!played)play();}
+const io=new IntersectionObserver(es=>{es.forEach(en=>{visible=en.isIntersecting&&en.intersectionRatio>=.35;});maybePlay();},{threshold:[0,.35,.6]});
+io.observe(host);
+const btn=host.querySelector('.ui-replay');
+if(btn)btn.addEventListener('click',()=>{played=true;play();});
+reduce.addEventListener&&reduce.addEventListener('change',()=>{if(reduce.matches&&ready)showFinal();});
+const fontsReady=document.fonts?document.fonts.load('800 100px UspsMontserrat').then(()=>document.fonts.load('700 36px UspsMontserrat')).then(()=>document.fonts.load('600 14px UspsMontserrat')).catch(()=>{}):Promise.resolve();
+window.__uspsIntro={
+  ready:fontsReady.then(()=>{build();if(reduce.matches)showFinal();else makeTimeline();host.classList.add('is-ready');ready=true;maybePlay();return true;}),
+  seek:t=>{played=true;if(!tl)makeTimeline();tl.pause();tl.seek(t,false);},
+  duration:()=>tl?tl.duration():0,
+  replay:play
+};
+})();

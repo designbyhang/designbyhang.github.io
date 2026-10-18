@@ -12,7 +12,23 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23111'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/type.css?v=1792157005"><link rel="stylesheet" href="../css/gate.css?v=1792333592"><link rel="stylesheet" href="../css/case.css?v=1792334319"><link rel="stylesheet" href="../css/arrows.css?v=1792520000"><link rel="stylesheet" href="../css/theme.css?v=1792334319">
+<link rel="stylesheet" href="../css/type.css?v=1792157005"><link rel="stylesheet" href="../css/gate.css?v=1792333592"><link rel="stylesheet" href="../css/case.css?v=1792350754"><link rel="stylesheet" href="../css/arrows.css?v=1792520000"><link rel="stylesheet" href="../css/theme.css?v=1792334319">
+<style id="usps-intro-css">
+/* USPS hero intro (usps-intro.js): 1920x1080 SVG composition centred in the 2800/1560 hero slot on the USPS blue; the slot's
+   extra width is the same blue, so no visible edge. Replay button reuses the carousel arrow button (.car-nav button, .car-light) */
+@font-face{font-family:'UspsMontserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(../assets/usps-intro/montserrat-latin.woff2) format('woff2')}
+.ui-hero .ui-stage{position:absolute;inset:0;background:#090C94;overflow:hidden}
+.ui-hero .ui-svg{position:absolute;inset:0;width:100%;height:100%;display:block;visibility:hidden}
+.ui-hero.is-ready .ui-svg{visibility:visible}
+.ui-hero text{font-family:'UspsMontserrat',Montserrat,Arial,sans-serif}
+.ui-hero .glow{filter:drop-shadow(0 0 2px rgba(255,255,255,.55)) drop-shadow(0 0 7px rgba(190,195,255,.45))}
+.ui-hero .glowSoft{filter:drop-shadow(0 0 2px rgba(255,255,255,.5)) drop-shadow(0 0 5px rgba(190,195,255,.35))}
+.ui-hero .hair{stroke:#A3A6F2;stroke-width:1.25;fill:none;stroke-linecap:butt}
+.ui-hero .guide{stroke:#F4F4FF;stroke-width:1.8;fill:none;stroke-linecap:butt}
+.ui-hero .bline{stroke:#F4F4FF;stroke-width:1.8;fill:none;stroke-linecap:square}
+.ui-hero .face{filter:drop-shadow(0 0 3px rgba(255,255,255,.55)) drop-shadow(0 0 9px rgba(200,205,255,.4))}
+@media (prefers-reduced-motion:reduce){.ui-hero .car-nav{display:none}}
+</style>
 <script src="../js/gate.js?v=1792158747"></script>
 </head>
 <body class="cs" data-prj="USPS Innovations">
@@ -40,7 +56,10 @@
 </section>
 
 <figure class="bleed hero-media fx">
-  <div class="media cover hero-slot"><img src="../assets/cover-usps-hero.webp" width="2944" height="1640" alt="USPS Innovations project cover"></div>
+  <div class="media cover hero-slot ui-hero car-light" data-usps-intro>
+    <div class="ui-stage" role="img" aria-label="USPS Innovations intro animation: the USPS eagle logo, the headline Innovations That Deliver, supporting copy and a Start button"></div>
+    <div class="car-nav"><button type="button" class="ui-replay" aria-label="Replay animation"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 8a5.4 5.4 0 1 0 5.4-5.4 5.85 5.85 0 0 0-4.04 1.64L2.6 5.6"/><path d="M2.6 2.6v3h3"/></svg></button></div>
+  </div>
 </figure>
 
 <div class="wrap">
@@ -85,5 +104,5 @@
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792560000"></script>
+<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792560000"></script><script src="../assets/usps-intro/gsap.min.js?v=3.12.5" defer></script><script src="usps-intro.js?v=1792620000" defer></script>
 </body></html>
