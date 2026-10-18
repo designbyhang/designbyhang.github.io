@@ -15,6 +15,12 @@ const S=D.slides,N=S.length,DUR=D.dur,TYP=D.type,W=1920,H=1080,AS=D.assets,BASE=
 /* posts that zoom between slides (Mock 1-3: the playbook / Jen S. bulletin posts) are one unit: on every slide the post keeps
    the inner layout of the slide where it is shown at full size (same text boxes, sizes and line breaks) and only its frame
    is scaled (q = transform: scale from the top-left), so text never reflows, rewraps or cross-fades between sizes. */
+/* light mode only: on studio_27-36 slides where the S app tile's dark backing is invisible (BG opacity 0, e.g. studio_29/30), the
+   white logomark would vanish on the #f4f4f4 stage, so it takes the deck's light-mode logomark colour (#161616) instead. st() picks
+   fl in light, so the fill tweens with the transition into the slides where the tile backing fades in (and back to white). */
+if(!D._lmk){D._lmk=1;const ni=new Set(D.noinv||[]);S.forEach((s,n)=>{if(!ni.has(n))return;const m=new Map(s.items);
+ for(const[k,l]of s.items){const g=/^(.*\/Logo Card)\/Logomark[^/]*\/.+/.exec(k);if(!g||l.t!=='SHAPE'||!l.f||Math.min(l.f[0],l.f[1],l.f[2])<250)continue;
+  const bg=m.get(g[1]+'/BG');if(bg&&bg.o===0)l.fl=[22,22,22,l.f[3]];}});}
 if(!D._unit){D._unit=1;const keys=new Set();for(const s of S)for(const[k]of s.items)if(/^Mock \d+$/.test(k))keys.add(k);
  for(const m of keys){let ref=-1,rw=0;S.forEach((s,i)=>{const e=s.items.find(x=>x[0]===m);if(e&&e[1].o>=.999&&e[1].w>rw){rw=e[1].w;ref=i;}});if(ref<0)continue;
   const R=S[ref].items,re=R.find(x=>x[0]===m)[1],kids=R.filter(x=>x[0].startsWith(m+'/'));
@@ -72,7 +78,7 @@ const R0=[0,0,0,0],lerp=(a,b,t)=>a+(b-a)*t;
 function lc(a,b,t){if(!a&&!b)return null;a=a||[b[0],b[1],b[2],0];b=b||[a[0],a[1],a[2],0];return[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t),lerp(a[3],b[3],t)];}
 const rgba=c=>c?`rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${+c[3].toFixed(4)})`:'transparent';
 function la(a,b,t){let d=((b-a)%360+540)%360-180;return a+d*t;}
-function st(l){return{x:l.x,y:l.y,w:l.w,h:l.h,o:l.o,a:l.a||0,r:l.r||R0,f:l.f||null,s:l.s||null,sw:l.sw||0,sa:l.sa||'C',sh:l.sh||null,q:l.q||1};}
+function st(l){return{x:l.x,y:l.y,w:l.w,h:l.h,o:l.o,a:l.a||0,r:l.r||R0,f:(!dark&&l.fl)||l.f||null,s:l.s||null,sw:l.sw||0,sa:l.sa||'C',sh:l.sh||null,q:l.q||1};}
 let curT=0,curI=-1;
 function pair(i,k){const a=L[i].get(k),b=L[i+1]?L[i+1].get(k):null;
  if(!a&&!b)return null;if(a&&b)return[a,b,st(a),st(b)];
