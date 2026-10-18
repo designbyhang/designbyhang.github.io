@@ -43,22 +43,21 @@ addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();
 function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
 const stageColor=()=>deck.dark?'#222222':'#f4f4f4';
 const lumOf=c=>{const v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number);return c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);};
-/* iOS 26 Safari tints its status/toolbar from a fixed element touching the screen edges if there is one, and re-reads it only on
-   scroll; a full-screen fixed layer therefore froze the bars at the colour they had on entering. So while open the layer and the
-   stage paint NOTHING (transparent) and the page behind is hidden (html.deck-open: visibility, layout and scroll untouched): what
-   shows at the edges is html/body, which js/theme.js sets to the stage colour (#f4f4f4 / #222222) and updates live on toggle, the
-   same document background + 1px document scroll nudge that already works on the normal pages. The slide canvas stays inside
-   the artboard. On tight landscape phones, where CLOSE / AUTO PLAY overlap the art, the canvas fills the letterbox as before
-   (data-lb=canvas) so the chrome reads on one colour. */
+/* TRUE fullscreen, built like the homepage: the homepage has no fixed or sticky element at the screen edges (static header, page
+   is the document itself, html/body height:100%), so iOS 26 Safari tints its bars from the body background, which WebKit observes
+   live. Once the open animation has finished, the presentation therefore leaves the fixed overlay model: html.deck-flow hides the
+   page (display:none) and puts the layer in normal flow as the document itself (100% of the viewport, scroll 0); body = stage
+   colour (js/theme.js). Nothing fixed/sticky spans the edges any more (WebKit only samples fixed/sticky elements >=90% wide at
+   the edge, and fell back to a stale colour for the transparent fixed layer). Closing restores the fixed overlay and the page's
+   scroll position first, then animates back into the page. The layer/stage paint nothing in the letterbox, the slide canvas
+   stays inside the artboard; on tight landscape phones (CLOSE / AUTO PLAY over the art) the canvas fills the letterbox. */
+let flowY=null;function flow(on){if(on){if(flowY!==null)return;flowY=scrollY;de.classList.add('deck-flow');scrollTo({top:0,left:0,behavior:'instant'});}
+ else{if(flowY===null)return;const y=flowY;flowY=null;de.classList.remove('deck-flow');scrollTo({top:y,left:0,behavior:'instant'});}}
 function chrome(){const sc=stageColor(),open=state==='open',r=inner.getBoundingClientRect(),hit=e=>{const b=e.getBoundingClientRect();return b.left<r.right&&b.right>r.left&&b.top<r.bottom&&b.bottom>r.top;},
  clear=!open||(!hit(btn)&&!hit(apBtn)),edge=clear?sc:canvasColor(),tone=lumOf(edge)<128?'dark':'light';
- de.classList.toggle('deck-open',open);
  if(!open){delete stage.dataset.lb;stage.style.background=sc;}else{stage.dataset.lb=clear?'none':'canvas';stage.style.background=clear?'transparent':edge;}
  fs.dataset.tone=tone;fs.dataset.ntone=tone;fs.style.background=open&&!clear?edge:'';fs.style.boxShadow=open&&!clear?'0 0 0 100vmax '+edge:'';}
-/* fallback re-sample after entering / each toggle (js/theme.js fires dbh-resample after its document scroll nudge): re-insert the
-   layer so any edge-element bookkeeping in the browser starts over; focus is restored, nothing moves. */
-function bump(){if(state!=='open')return;const a=document.activeElement;document.body.appendChild(fs);if(a&&fs.contains(a))a.focus({preventScroll:true});}
-addEventListener('dbh-resample',bump);
+
 function restoreChrome(){}
 /* scroll lock without moving the page: the document keeps its scroll position and geometry (no position:fixed body pinned
    at -scrollY: that shifted the whole page under the fixed overlay and left browsers hit-testing the overlay's controls against
@@ -84,7 +83,7 @@ const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
- anim(from,fullBox,()=>{state='open';fitOpen();chrome();if(window.__dbhResample)__dbhResample();else bump();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();});}
+ anim(from,fullBox,()=>{state='open';flow(true);fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();});}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
@@ -101,7 +100,7 @@ function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')retu
 function apFire(){apT=0;if(!apOn||state!=='open')return;if(deck.animating){apWait();return;}if(!deck.canStep(1)){apSet(false);return;}deck.request(1,()=>apSet(false));}
 function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&&deck.cur===0&&!deck.animating){autoAt=performance.now();deck.request(1,()=>close('end'));}},AUTO_MS);}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
-function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
+function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;flow(false);
  const from={...fullBox()};state='closing';chrome();fs.classList.add('is-closing');
  unlock();restoreChrome();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
