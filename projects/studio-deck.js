@@ -29,7 +29,30 @@ if(!D._lmk){D._lmk=1;const ni=new Set(D.noinv||[]);S.forEach((s,n)=>{if(!ni.has(
      too instead of turning into white lines around the boxes. */
 if(!D._pf){D._pf=1;for(const s of S){const m=new Map(s.items),kids=new Set(s.items.map(([,l])=>l.p));
  for(const[,l]of s.items)if(l.t==='IMG'&&l.p){const b=m.get(l.p);if(b&&b.t==='BOX'&&b.f)b.pf=1;}
- const leaves=s.items.filter(([k,l])=>!kids.has(k)&&l.o>0);if(leaves.length&&leaves.every(([,l])=>l.t==='IMG'))s.ph=1;}}
+ const leaves=s.items.filter(([k,l])=>!kids.has(k)&&l.o>0);if(leaves.length&&leaves.every(([,l])=>l.t==='IMG'))s.ph=1;}
+ /* keyed on the layer, not the slide: a photo frame (or a box that is a photo on another slide) stays unthemed on every slide it
+    appears on, so the lead-in slide and every tween frame into / out of it match the final state (taken from the all-photo
+    slides, so a card that only frames a cover on one slide keeps its themed fill elsewhere) */
+ const pk=new Set();for(const s of S)if(s.ph)for(const[k,l]of s.items)if(l.pf||l.t==='IMG')pk.add(k);
+ for(const s of S)for(const[k,l]of s.items)if(l.t==='BOX'&&l.f&&pk.has(k))l.pf=1;
+ /* cover frames (a photo frame its photo fully covers: tote, back hoodie): where the photo's anti-aliased clip edge meets the
+    frame's own anti-aliased fill (or the slide edge cutting both) on the same pixel, the light fill leaks through as a hairline.
+    While the photo is shown the frame paints no fill under it (.deck-cv) and the photo stays opaque; its fade in / out is drawn
+    as the frame colour laid over it at 1-opacity (.deck-cv::after: the same mix as the photo fading over the frame), so there
+    is never a fill under the photo's edge pixels */
+ D._cv={};for(const s of S)if(s.ph){const m=new Map(s.items);for(const[k,l]of s.items){const b=l.t==='IMG'&&m.get(l.p);
+  if(b&&b.pf&&l.x<=0&&l.y<=0&&l.x+l.w>=b.w&&l.y+l.h>=b.h)D._cv[k]=l.p;}}
+ /* same hairline for a solid box laid flush against a clipping frame's edge (the bulletin cards' blue / black banners against
+    the white card): the card fill and its white BG underneath reach that clipped edge on the same pixel and leak through.
+    D._hole lists, per underlying fill (the frame itself, or an earlier flush sibling), the solid flush boxes over it; each frame
+    holes() leaves that fill out from under the box (overlapping it 1.5 device px on the inner edges). Figma strokes (outline)
+    and shadows are untouched. */
+ D._hole={};const solid=l=>l&&l.t==='BOX'&&l.f&&l.f[3]>=.999&&!(l.r&&l.r.some(x=>x>.01))&&!l.a;
+ for(const s of S){const m=new Map(s.items),kids=new Map();for(const[k,l]of s.items)if(l.p){if(!kids.has(l.p))kids.set(l.p,[]);kids.get(l.p).push(k);}
+  for(const[pk,ks]of kids){const P=m.get(pk);if(!P||!P.clip)continue;
+   ks.forEach((ck,j)=>{const C=m.get(ck);if(!solid(C))return;const fl=C.x<=.01||C.y<=.01||C.x+C.w>=P.w-.01||C.y+C.h>=P.h-.01;if(!fl)return;
+    const add=u=>{(D._hole[u]=D._hole[u]||[]).includes(ck)||D._hole[u].push(ck);};
+    if(P.f&&P.t==='BOX')add(pk);for(const uk of ks.slice(0,j)){const U=m.get(uk);if(U&&U.t==='BOX'&&U.f&&!U.a)add(uk);}});}}}
 if(!D._unit){D._unit=1;const keys=new Set();for(const s of S)for(const[k]of s.items)if(/^Mock \d+$/.test(k))keys.add(k);
  for(const m of keys){let ref=-1,rw=0;S.forEach((s,i)=>{const e=s.items.find(x=>x[0]===m);if(e&&e[1].o>=.999&&e[1].w>rw){rw=e[1].w;ref=i;}});if(ref<0)continue;
   const R=S[ref].items,re=R.find(x=>x[0]===m)[1],kids=R.filter(x=>x[0].startsWith(m+'/'));
@@ -39,6 +62,10 @@ if(!D._unit){D._unit=1;const keys=new Set();for(const s of S)for(const[k]of s.it
    rest[j]=[m,{...re,x:e.x,y:e.y,o:e.o,q:e.w/re.w}];rest.splice(j+1,0,...kids.map(([k,v])=>[k,{...v}]));s.items=rest;});}}
 const root=opts.inner,stage=opts.stage,cap=opts.cap||null;
 root.style.position='absolute';root.style.left='0';root.style.top='0';root.style.width=W+'px';root.style.height=H+'px';root.style.transformOrigin='0 0';
+/* on and into / out of an all-photo slide (studio_43) the canvas stops 1.5 device px short of the slide edge (--cvin, set in
+   fit(); padding set with the canvas colour): the edge-to-edge photo tiles then meet the stage with their own anti-aliased edge
+   alone, instead of the canvas's edge on the same pixel showing as a dark hairline */
+root.style.boxSizing='border-box';
 /* ---- theme palette. Light = the Figma design as-is, except the white slide canvas becomes the site's standard media box colour #f4f4f4.
    Dark = neutrals map linearly white -> #222 (standard media box, dark) and black -> white. Saturated colours and photos untouched. */
 let dark=de.dataset.theme==='dark';
@@ -79,7 +106,7 @@ function ensureContent(k,item,s){const cm=cont.get(k),cid=cidOf(item);if(cm.has(
   c.innerHTML=(item.g||[]).map(id=>`<path class="pf" d="${D.paths[id][0]}" fill-rule="${D.paths[id][1]==='E'?'evenodd':'nonzero'}"/>`).join('')+(item.gs||[]).map(id=>`<path class="ps" d="${D.paths[id][0]}" fill-rule="${D.paths[id][1]==='E'?'evenodd':'nonzero'}"/>`).join('');
   c._pf=[...c.querySelectorAll('.pf')];c._ps=[...c.querySelectorAll('.ps')];}
  else if(item.t==='TEXT'){c=document.createElement('div');c.className='mt';c._tx=item.tx;c._nw=item.nw;c._ni=KD(s|0)===0;paintText(c);}
- else if(item.t==='IMG'){c=document.createElement('img');c.alt='';c.decoding='async';c.draggable=false;c._as=item.as;c._ni=KD(s|0)===0;c.src=assetSrc(item.as,c._ni);c._src=c.src;}
+ else if(item.t==='IMG'){c=document.createElement('img');c.alt='';c.decoding='async';c.draggable=false;c._as=item.as;if(item.fit)c.style.objectFit=item.fit;c._ni=KD(s|0)===0;c.src=assetSrc(item.as,c._ni);c._src=c.src;}
  c.style.display='none';host.appendChild(c);cm.set(cid,c);return c;}
 function paintText(c){const t=D.texts[c._tx],ni=!!c._ni;c.style.cssText=mapCss(t[0],ni);c.innerHTML=mapCss(t[1],ni);c.style.position='absolute';c.style.left='0';c.style.top='0';if(c._nw)c.style.whiteSpace='nowrap';}
 /* ---- interpolation helpers */
@@ -99,14 +126,15 @@ function pair(i,k){const a=L[i].get(k),b=L[i+1]?L[i+1].get(k):null;
 const shown=new Map();
 function vis(node,on){const v=on?'':'none';if(node.style.display!==v)node.style.display=v;}
 function apply(k,ia,ib,v,t){const e=el.get(k),m=cont.get(k);
+ const cvp=D._cv[k]&&el.get(D._cv[k]);if(cvp){const o=v?v.o:0;cvp.classList.toggle('deck-cv',o>.001);cvp.style.setProperty('--cvfo',o>=.999?0:(1-o).toFixed(3));}
  if(!v||v.o<=0.001){vis(e,false);return;}vis(e,true);
- const s=e.style;s.left=v.x+'px';s.top=v.y+'px';s.width=v.w+'px';s.height=v.h+'px';s.opacity=v.o>=.999?'':v.o;
+ e._v=v;const s=e.style;s.left=v.x+'px';s.top=v.y+'px';s.width=v.w+'px';s.height=v.h+'px';s.opacity=v.o>=.999||cvp?'':v.o;
  const fl=(ia||ib).fx,q=v.q||1,sq=Math.abs(q-1)>1e-4;s.transform=sq?`scale(${q})`:(Math.abs(v.a)>.01||fl)?`rotate(${v.a}deg)${fl?' scaleX(-1)':''}`:'';s.transformOrigin=sq?'0 0':'';
  s.borderRadius=v.r.some(x=>x>.01)?v.r.map(x=>x.toFixed(2)+'px').join(' '):'';
  const clip=(ia&&ia.clip)||(ib&&ib.clip);s.overflow=clip?'hidden':'';
  const kind=(ia||ib).t,isBox=kind!=='VEC'&&kind!=='TEXT'&&kind!=='IMG';
- const fc=v.f?((ia||ib).pf?v.f:P(v.f,(ia||ib).bgf)):null;
- if(isBox){const c=fc?rgba(fc):'';s.background=c;s.color=c;const sh=[];if(c&&!(ia||ib).pf)sh.push('0 0 0 var(--seam) currentColor');
+ const pf=(ia&&ia.pf)||(ib&&ib.pf),fc=v.f?(pf?v.f:P(v.f,(ia||ib).bgf)):null;
+ if(isBox){const c=fc?rgba(fc):'';s.background=c;s.color=c;const sh=[];e._sh=sh;if(c&&!pf&&!v.sh)sh.push('0 0 0 var(--seam) currentColor');
   /* a frame with no fill casts its shadow from its contents, as in Figma (e.g. the S app tile: a square, fill-less 'Logo Card'
      whose rounded BG vector is the visible tile). box-shadow would draw the square frame's corners under the rounded tile. */
   if(v.sh&&!c){s.boxShadow=sh.join(',');s.filter=v.sh.map(q=>`drop-shadow(${q[0]}px ${q[1]}px ${q[2]/2}px ${rgba(q[4])})`).join(' ');}
@@ -191,6 +219,18 @@ function endGrid(){const L=gfx&&gfx.land;gfx=null;if(gsv)gsv.style.display='none
 function gridTick(now){if(!gfx)return;gridLines(now);if(gfx)gfx.raf=requestAnimationFrame(gridTick);}
 function startGrid(){if(!GRID||rm.matches)return;if(gfx)cancelGrid();gfx={t0:performance.now(),land:null};gridLines(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
 function cancelGrid(){if(gfx){cancelAnimationFrame(gfx.raf);endGrid();}}
+let CVIN=.75;
+function holes(){for(const uk in D._hole){const u=el.get(uk);if(!u||u.style.display==='none'||!u._v||!u.style.color)continue;const U=u._v;
+  if(Math.abs((U.q||1)-1)>1e-4||Math.abs(U.a||0)>.01)continue;
+  for(const ck of D._hole[uk]){const c=el.get(ck);if(!c||c.style.display==='none'||!c._v)continue;const C=c._v;
+   if(C.o<.999||!C.f||C.f[3]<.999||Math.abs((C.q||1)-1)>1e-4||Math.abs(C.a||0)>.01)continue;
+   const isPar=c.parentNode===u,pe=isPar?U:(c.parentNode&&c.parentNode._v);if(!pe)continue;
+   const ox=isPar?0:U.x,oy=isPar?0:U.y,x0=C.x-ox,y0=C.y-oy,x1=x0+C.w,y1=y0+C.h,d=CVIN,
+    fL=C.x<=.01&&(isPar||U.x<=.01),fT=C.y<=.01&&(isPar||U.y<=.01),fR=C.x+C.w>=pe.w-.01&&(isPar||U.x+U.w>=pe.w-.01),fB=C.y+C.h>=pe.h-.01&&(isPar||U.y+U.h>=pe.h-.01);
+   if(!(fL||fT||fR||fB))continue;
+   const l=fL?-1:x0+d,r=fR?U.w+1:x1-d,t=fT?-1:y0+d,b=fB?U.h+1:y1-d,col=u.style.color,band=[],R=(x,y,w,h)=>{x=Math.max(0,x);y=Math.max(0,y);w=Math.min(U.w,x+w)-x;h=Math.min(U.h,y+h)-y;if(w>0&&h>0)band.push(`linear-gradient(${col},${col}) ${x.toFixed(3)}px ${y.toFixed(3)}px/${w.toFixed(3)}px ${h.toFixed(3)}px no-repeat`);};
+   R(0,0,U.w,t);R(0,b,U.w,U.h-b);R(0,t,l,b-t);R(r,t,U.w-r,b-t);u.style.background=band.length?band.join(','):'none';
+   if(u._sh&&u._sh.length&&u._sh[0].includes('--seam'))u.style.boxShadow=u._sh.slice(1).join(',');break;}}}
 function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  if(i!==curI)activate(i);
  DW=lerp(KD(i),KD(i+1),t);
@@ -199,7 +239,7 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
     sets data-lb=canvas only on tight viewports where its CLOSE / AUTO PLAY chrome overlaps the art: then the canvas fills the
     letterbox as before so the chrome stays legible; data-lb=none while the presentation is open otherwise: the stage paints
     nothing and html/body, set to the stage colour, show through) */
- const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';const lb=stage.dataset.lb;stage.style.background=lb==='none'?'transparent':lb==='canvas'&&bg?rgba(bg):dark?'#222222':'#f4f4f4';
+ const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';{const ci=(t<1&&S[i].ph)||(t>0&&S[i+1]&&S[i+1].ph);root.style.padding=ci?'var(--cvin)':'';root.style.backgroundClip=ci?'content-box':'';}const lb=stage.dataset.lb;stage.style.background=lb==='none'?'transparent':lb==='canvas'&&bg?rgba(bg):dark?'#222222':'#f4f4f4';
  const n=t>=.5?i+1:i;stage.dataset.slide=String(n).padStart(2,'0');if(n!==shownN){shownN=n;opts.onSlide&&opts.onSlide(n);}
  /* logomark cells that switch on/off (opacity 0<->1 in Figma) are revealed with the clipped-circle sweep instead of an
     opacity fade: full colour throughout, a circle grows from the cell centre (clipped by the cell) until it covers it. */
@@ -218,6 +258,7 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
   const to=(ia||ib).t==='CELL'&&FADE.has(i)?cellT(i,t):t;
   apply(k,ia,ib,{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),w:lerp(a.w,b.w,t),h:lerp(a.h,b.h,t),o:lerp(a.o,b.o,to),a:la(a.a,b.a,t),r:a.r.map((r,j)=>lerp(r,b.r[j],t)),f:lc(a.f,b.f,t),s:lc(a.s,b.s,t),sw:lerp(a.sw||b.sw,b.sw||a.sw,t),sa:t<.5?a.sa:b.sa,q:lerp(a.q,b.q,t),
    sh:(a.sh&&b.sh&&a.sh.length===b.sh.length)?a.sh.map((q,j)=>[lerp(q[0],b.sh[j][0],t),lerp(q[1],b.sh[j][1],t),lerp(q[2],b.sh[j][2],t),lerp(q[3],b.sh[j][3],t),lc(q[4],b.sh[j][4],t)]):(t<.5?a.sh:b.sh)},t);}
+ holes();
  if(gfx){const g=el.get('Grid');if(g)g.style.opacity='0';} /* the line SVG stands in for it while drawing */
  if(i===END)for(const k of active){const b=L[i+1].get(k);if(!b||b.p||L[i].get(k))continue;const e=el.get(k),z=lerp(END_Z,1,t);
   if(e.style.display==='none')continue;e.style.transformOrigin=`${W/2-b.x}px ${H/2-b.y}px`;e.style.transform=z>1.0001?`scale(${z})`:'';}
@@ -257,7 +298,7 @@ function stop(){if(gfx){gfx.land=null;cancelGrid();}anim=null;pend=0;pendEdge=nu
 function settle(){const to=anim?anim.to:cur;stop();show(to);return to;}
 /* layout: fit the 1920x1080 artboard into a w x h box, 'contain' (letterbox) or 'cover' (crop), centred; k overrides the scale */
 function layout(w,h,mode,k){k=k||(mode==='cover'?Math.max(w/W,h/H):Math.min(w/W,h/H));const ox=(w-W*k)/2,oy=(h-H*k)/2;
- root.style.transform=`translate(${ox}px,${oy}px) scale(${k})`;root.style.setProperty('--seam',Math.min(2,.5/(k*(devicePixelRatio||1))).toFixed(3)+'px');return k;}
+ root.style.transform=`translate(${ox}px,${oy}px) scale(${k})`;root.style.setProperty('--seam',Math.min(2,.5/(k*(devicePixelRatio||1))).toFixed(3)+'px');CVIN=Math.min(8,1.5/(k*(devicePixelRatio||1)));root.style.setProperty('--cvin',CVIN.toFixed(3)+'px');return k;}
 /* canvas colour of the slide currently shown (theme-mapped), for letterbox / status bar */
 function canvas(n){n=n===undefined?(stage.dataset.slide|0):n;const b=bgOf(n);return b?rgba(b):null;}
 return{N,draw:(i,t)=>{build(i);draw(i,t);},show,step,request,hurry,stop,settle,cancelGrid,get gridDrawing(){return!!gfx;},prefetch,layout,canvas,canStep,ease:easeStep,easeFor,dur:DUR,labels:D.labels,

@@ -20,7 +20,7 @@ body.cs .media.mframe.deck{display:block;background:var(--frame);cursor:pointer}
 body.cs .media.mframe.deck.deck-quiet:focus{outline:none}
 .deck-stage{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;background:var(--frame);contain:layout paint;isolation:isolate}
 .deck-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
-.deck-stage .ml{position:absolute;box-sizing:border-box}
+.deck-stage .ml{position:absolute;box-sizing:border-box}.deck-stage .ml.deck-cv{background:none!important}.deck-stage .ml.deck-cv::after{content:"";position:absolute;inset:0;background:currentColor;opacity:var(--cvfo,0);pointer-events:none}
 .deck-stage svg{position:absolute;left:0;top:0;display:block}
 body.cs .deck-stage img,.deck-stage img{position:absolute;display:block;max-width:none;object-fit:fill;transform:none;transition:none;border-radius:0;user-select:none;-webkit-user-drag:none}
 .deck-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
@@ -137,5 +137,5 @@ html.deck-flow .deck-edge{display:block}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792354998" defer></script><script src="studio-deck.js?v=1792353743" defer></script><script src="studio-present.js?v=1792353894" defer></script>
+<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792357049" defer></script><script src="studio-deck.js?v=1792357049" defer></script><script src="studio-present.js?v=1792353894" defer></script>
 </body></html>

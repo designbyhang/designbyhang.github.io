@@ -21,7 +21,7 @@
 .mo-sticky{position:sticky;top:var(--bar);height:calc(100vh - var(--bar));height:calc(100svh - var(--bar));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 #morph-stage{position:relative;width:min(100%,calc((100vh - var(--bar) - 88px) * 16 / 9));width:min(100%,calc((100svh - var(--bar) - 88px) * 16 / 9));aspect-ratio:16/9;overflow:hidden;border-radius:clamp(10px,1.6vw,20px);background:#f4f4f4;box-shadow:0 0 0 1px var(--line);contain:layout paint;isolation:isolate}
 #morph-stage-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
-#morph-stage .ml{position:absolute;box-sizing:border-box}
+#morph-stage .ml{position:absolute;box-sizing:border-box}#morph-stage .ml.deck-cv{background:none!important}#morph-stage .ml.deck-cv::after{content:"";position:absolute;inset:0;background:currentColor;opacity:var(--cvfo,0);pointer-events:none}
 #morph-stage svg{position:absolute;left:0;top:0;display:block}
 #morph-stage img{position:absolute;display:block;max-width:none;user-select:none;-webkit-user-drag:none}
 #morph-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
@@ -32,7 +32,7 @@ html.theme-anim #morph-stage,html.theme-anim #morph-stage *{transition:none!impo
 #morph-cap{font:400 12px/1.5 var(--mono);color:var(--faint);letter-spacing:.04em;white-space:pre;min-height:1.5em}
 @media (max-width:640px){#morph-track{--bar:50px}}
 </style>
-<script src="studio-deck-data.js?v=1792354998" defer></script><script src="studio-deck.js?v=1792353743" defer></script><script src="studio-morph-demo-steps.js?v=1792289993" defer></script>
+<script src="studio-deck-data.js?v=1792357049" defer></script><script src="studio-deck.js?v=1792357049" defer></script><script src="studio-morph-demo-steps.js?v=1792289993" defer></script>
 </head>
 <body class="cs" data-prj="Studio Model">
 <a class="skip" href="#main">Skip to content</a>
