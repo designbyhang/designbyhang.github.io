@@ -51,6 +51,9 @@ html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-
 html.deck-open .theme-btn{z-index:2147483001}
 html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 /* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
+/* AUTO PLAY: CLOSE's bar, pinned bottom-right; 28px row centred on the light/dark toggle (same bottom inset), safe areas respected */
+.deck-fs .bar.deck-bar.deck-auto-bar{top:auto;height:28px;bottom:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
+.deck-fs .ax.deck-auto .arr.arr-back svg{transform:none}
 .deck-fs .theme-btn{z-index:3;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px))}.deck-stage.is-fs{pointer-events:none}
 /* fullscreen: layers are clipped at the slide's left/right edges (the side gutters stay clear for the counter); top/bottom are not clipped */
 .deck-stage .deck-inner{clip-path:inset(0);overflow:hidden}
@@ -107,5 +110,5 @@ html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792298093"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792297971" defer></script><script src="studio-present.js?v=1792298093" defer></script>
+<script src="../js/sfx.js?v=1792297838"></script><script src="../js/theme.js?v=1792298093"></script><script src="../js/case.js?v=1792560000"></script><script src="studio-deck-data.js?v=1792290600" defer></script><script src="studio-deck.js?v=1792297971" defer></script><script src="studio-present.js?v=1792300098" defer></script>
 </body></html>

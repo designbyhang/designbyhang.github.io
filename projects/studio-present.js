@@ -11,14 +11,16 @@ const fs=document.createElement('div');fs.className='deck-fs';fs.hidden=true;fs.
 fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttribute('aria-label','Studio Model presentation');
 /* CLOSE reuses the page header's BACK markup and classes (.bar / .bar-right / .ax / .arr / .t), so it sits exactly where BACK
    sits with the same type, gap, icon size/stroke and hover underline at every breakpoint */
-fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
+/* AUTO PLAY (bottom-right, CLOSE's markup + the header BACK's icon/text gap): play glyph points right; pause = two bars */
+const AP_PLAY='<svg viewBox="0 0 20 16" fill="none"><path d="M5 1L17 8L5 15Z"/></svg>',AP_PAUSE='<svg viewBox="0 0 20 16" fill="none"><path d="M7 1V15M13 1V15"/></svg>';
+fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
-const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
+const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 const NS=window.__STUDIO__.slides.length,pad=n=>String(n).padStart(2,'0');
 const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=pad(n+1);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
  /* homepage gauge tick (js/sfx.js: same synthesis, volume, min gap, unlock-on-first-input and dbh-sound mute) once per step, fullscreen only */
- onStep:()=>{const x=window.dbhSfx;if(state==='open'&&x&&x.tick)x.tick();}});
+ onStep:()=>{const x=window.dbhSfx;if(state==='open'&&x&&x.tick)x.tick();if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}}});
 const N=deck.N;cntA.textContent=pad(deck.cur+1);cntB.textContent=pad(N);
 const ease=deck.ease,DUR=650;
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
@@ -70,9 +72,17 @@ function open(n){if(state!=='closed')return;const from=hostBox();lock();state='o
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
 let autoT=0,autoAt=0;const AUTO_MS=2000;
 function autoStop(){clearTimeout(autoT);autoT=0;}
+/* autoplay: off by default, never remembered; one step every AP_MS counted from the end of the previous transition (so any
+   manual scroll/swipe/key step restarts the wait); waits out running transitions; turns itself off on the last slide and on
+   exit. Steps go through deck.request like any gesture (gauge tick, reduced motion = instant change). */
+const AP_MS=4000;let apOn=false,apT=0;
+function apSet(v){apOn=!!v;clearTimeout(apT);apT=0;apBtn.setAttribute('aria-pressed',String(apOn));apBtn.classList.toggle('on',apOn);apIco.innerHTML=apOn?AP_PAUSE:AP_PLAY;if(apOn){autoStop();autoAt=0;apWait();}}
+function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')return;if(deck.animating){apT=setTimeout(apWait,60);return;}
+ if(!deck.canStep(1)){apSet(false);return;}apT=setTimeout(apFire,AP_MS);}
+function apFire(){apT=0;if(!apOn||state!=='open')return;if(deck.animating){apWait();return;}if(!deck.canStep(1)){apSet(false);return;}deck.request(1,()=>apSet(false));}
 function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&&deck.cur===0&&!deck.animating){autoAt=performance.now();deck.request(1,()=>close('end'));}},AUTO_MS);}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
-function close(how){if(state!=='open'&&state!=='opening')return;autoStop();autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
+function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
  const from={...fullBox()};state='closing';fs.style.background='';fs.classList.add('is-closing');
  unlock();restoreChrome();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
@@ -97,7 +107,7 @@ function act(dir){if(state==='opening'){openQ=dir;return;}if(state!=='open')retu
 const wheelGesture=StudioDeck.wheelDetector();
 addEventListener('wheel',e=>{const g=wheelGesture(e);if(state==='closed')return;e.preventDefault();if(g&&state!=='closing')act(g.dir);},{passive:false});
 const TOUCH_PX=30;let tStart=null,tCtl=false;
-addEventListener('touchstart',e=>{tCtl=!!(e.target.closest&&e.target.closest('.deck-x,.theme-btn'));if((state!=='open'&&state!=='opening')||e.touches.length!==1||tCtl){tStart=null;return;}const t=e.touches[0];tStart={y:t.clientY,x:t.clientX,t:performance.now(),done:false};},{passive:true});
+addEventListener('touchstart',e=>{tCtl=!!(e.target.closest&&e.target.closest('.deck-x,.deck-auto,.theme-btn'));if((state!=='open'&&state!=='opening')||e.touches.length!==1||tCtl){tStart=null;return;}const t=e.touches[0];tStart={y:t.clientY,x:t.clientX,t:performance.now(),done:false};},{passive:true});
 addEventListener('touchmove',e=>{if(state==='closed'||tCtl)return;e.preventDefault();if(!tStart)return;const t=e.touches[0],dy=tStart.y-t.clientY;tStart.ly=t.clientY;
  if(!tStart.done&&Math.abs(dy)>=TOUCH_PX&&Math.abs(dy)>=Math.abs(tStart.x-t.clientX)){tStart.done=true;act(dy>0?1:-1);}},{passive:false});
 addEventListener('touchend',e=>{if(!tStart)return;const s=tStart;tStart=null;if(s.done)return;
@@ -107,13 +117,14 @@ addEventListener('touchcancel',()=>{tStart=null;},{passive:true});
 const NEXT=['ArrowDown','PageDown','ArrowRight',' '],PREV=['ArrowUp','PageUp','ArrowLeft'];
 addEventListener('keydown',e=>{if(e.key==='Tab')host.classList.remove('deck-quiet');if(state==='closed')return;
  if(e.key==='Escape'){e.preventDefault();close('esc');return;}
- if(e.key==='Tab'){e.preventDefault();const tb=document.querySelector('.theme-btn'),f=[btn,tb].filter(Boolean),i=f.indexOf(document.activeElement);f[(i+(e.shiftKey?f.length-1:1))%f.length].focus();return;}
+ if(e.key==='Tab'){e.preventDefault();const tb=document.querySelector('.theme-btn'),f=[btn,apBtn,tb].filter(Boolean),i=f.indexOf(document.activeElement);f[(i+(e.shiftKey?f.length-1:1))%f.length].focus();return;}
  const dir=NEXT.includes(e.key)?1:PREV.includes(e.key)?-1:0;if(!dir||e.altKey||e.ctrlKey||e.metaKey)return;
  if((e.key===' '||e.key==='Enter')&&/^(BUTTON|A)$/.test(document.activeElement&&document.activeElement.tagName))return;
  e.preventDefault();if(e.repeat||state==='closing')return;act(dir);});
 btn.addEventListener('click',e=>{e.preventDefault();close('esc');});
+apBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(state==='open')apSet(!apOn);});
 /* the container shows the current (or remembered) slide; a click, Enter or Space reopens on exactly that slide */
 host.addEventListener('click',()=>{if(state==='closed')open(deck.cur);});
 host.addEventListener('keydown',e=>{if(state==='closed'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(deck.cur);}});
 fitClosed();deck.show(0);
-window.__present={get auto(){return!!autoT;},get state(){return state;},deck,open,close,get armed(){return armed;},get resume(){return resume;}};})();
+window.__present={get auto(){return!!autoT;},get autoplay(){return apOn;},get apPending(){return!!apT;},get state(){return state;},deck,open,close,get armed(){return armed;},get resume(){return resume;}};})();
