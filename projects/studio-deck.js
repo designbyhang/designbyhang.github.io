@@ -8,7 +8,7 @@ const de=document.documentElement,rm=matchMedia('(prefers-reduced-motion: reduce
 /* follow the OS setting live unless the visitor has picked a theme with the site toggle (registered once per page) */
 const onSys=()=>{let saved=null;try{saved=localStorage.getItem('dbh-theme');}catch(e){}if(saved==='dark'||saved==='light')return;de.dataset.theme=sysDark.matches?'dark':'light';};
 sysDark.addEventListener?sysDark.addEventListener('change',onSys):sysDark.addListener(onSys);
-/* StudioDeck.create({inner, stage, cap?, base?, onSlide?, onStep?, onLand?}) mounts the deck: `inner` becomes the 1920x1080 artboard
+/* StudioDeck.create({inner, stage, cap?, base?, onSlide?, onStep?}) mounts the deck: `inner` becomes the 1920x1080 artboard
    (scaled by layout()), `stage` gets the slide canvas colour. Returns a small controller API. */
 function create(opts){const D=window.__STUDIO__;
 const S=D.slides,N=S.length,DUR=D.dur,TYP=D.type,W=1920,H=1080,AS=D.assets,BASE=opts.base||D.base;
@@ -82,7 +82,8 @@ function st(l){return{x:l.x,y:l.y,w:l.w,h:l.h,o:l.o,a:l.a||0,r:l.r||R0,f:(!dark&
 let curT=0,curI=-1;
 function pair(i,k){const a=L[i].get(k),b=L[i+1]?L[i+1].get(k):null;
  if(!a&&!b)return null;if(a&&b)return[a,b,st(a),st(b)];
- const pk=(a||b).p,pm=pk&&!(L[i].get(pk)&&L[i+1]&&L[i+1].get(pk));
+ /* pm: the layer fades with its parent instead of on its own; in the ending cross-fade (END) every slide fades as one piece */
+ const pk=(a||b).p,pm=pk&&(i===END||!(L[i].get(pk)&&L[i+1]&&L[i+1].get(pk)));
  if(TYP[i]==='D'){ /* Figma DISSOLVE: the outgoing frame stays put while the incoming one fades in on top */
   if(a){const s=st(a);return[a,null,s,{...s}];}const s=st(b);return[null,b,{...s,o:pm?s.o:0},s];}
  if(a){const s=st(a);return[a,null,s,{...s,o:pm?s.o:0}];}const s=st(b);return[null,b,{...s,o:pm?s.o:0},s];}
@@ -142,7 +143,12 @@ const bezF=(a,b,c2,d2)=>{const cx=3*a,bx=3*(c2-a)-cx,ax=1-cx-bx,cy=3*b,by=3*(d2-
  return x=>{if(x<=0)return 0;if(x>=1)return 1;let lo=0,hi=1,t=x;for(let n=0;n<40;n++){const v=X(t);if(Math.abs(v-x)<1e-6)break;if(v<x)lo=t;else hi=t;t=(lo+hi)/2;}return Y(t);};};
 const FIG={LINEAR:()=>u=>u,EASE_IN:()=>bezF(.42,0,1,1),EASE_OUT:()=>bezF(0,0,.58,1),EASE_IN_AND_OUT:()=>bezF(.42,0,.58,1),
  SLOW:spring(1,80,20),GENTLE:spring(1,100,15),QUICK:spring(1,300,20),BOUNCY:spring(1,600,15)};
-const easeFor=i=>FADE.has(i)&&D.ease&&FIG[D.ease[i]]?FIG[D.ease[i]](DUR[i]):easeStep;
+/* ending (swag studio_43 -> logo studio_44, the last transition): a soft cross-fade instead of the Figma step. The swag fades
+   out while the logo screen fades in and settles from 1.1x to 1x about the artboard centre (a gentle zoom out), 1.4s,
+   cubic-bezier(.65,0,.35,1); stepping back plays the same curve in reverse */
+const inOut=bezF(.65,0,.35,1),END=N-2,END_MS=1400,END_Z=1.1;
+const easeFor=i=>i===END?inOut:FADE.has(i)&&D.ease&&FIG[D.ease[i]]?FIG[D.ease[i]](DUR[i]):easeStep;
+const durOf=i=>i===END?END_MS:DUR[i]*1000;
 let lastDraw=[0,0],shownN=-1,rawU=null,rawDir=1;
 /* the 9 intro boxes all fade in with the same animation: Figma's SLOW spring over 0.833s. studio_11->12 (transition 9) is
    1.667s in Figma because the grid fades out with it; its box keeps the 0.833s fade inside that transition. */
@@ -151,18 +157,18 @@ function cellT(i,t){const c=CELLT[i];if(!c)return t;const u=rawU!==null?rawU:(ra
 /* grid draw-in (studio_02 -> 03): alternating directions, verticals down/up from 500ms at i*150ms, horizontals right/left from
    1.3s at i*150ms, 1.7s each, cubic-bezier(.65,0,.35,1).
    Implemented as a mask of growing strips over the real Grid layer, so the drawn lines are exactly the slide's lines. */
-/* drawn on EVERY studio_02 -> 03 step (3.45s total: 8 verticals + 4 horizontals). The step only lands (tick, AUTO PLAY wait,
+/* drawn on EVERY studio_02 -> 03 step (3.45s total: 8 verticals + 4 horizontals). The step only lands (AUTO PLAY wait,
    `animating` false) when the last line is fully drawn; a new gesture during the draw completes it at once and lands there. */
-const GRID=D.grid||null,gEase=bezF(.65,0,.35,1);let gfx=null;
+const GRID=D.grid||null;let gfx=null;
 function gridMask(now){const g=el.get('Grid');if(!g||!gfx)return;const t=now-gfx.t0;let imgs=[],pos=[],siz=[],done=true;
  /* lines start 500ms in (the copy fade, ~0.83s, overlaps the first lines) */
  const W2=1.5;/* strip half-width: tight to the 1px line so crossings of undrawn lines do not show as ticks */
- const O=500,DL=1700,ST=150,p=d=>{const u=Math.min(1,Math.max(0,(t-O-d)/DL));if(u<1)done=false;return gEase(u);};
+ const O=500,DL=1700,ST=150,p=d=>{const u=Math.min(1,Math.max(0,(t-O-d)/DL));if(u<1)done=false;return inOut(u);};
  GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*ST),y=i%2?GRID.y0+GRID.h0-h:GRID.y0;imgs.push('linear-gradient(#000,#000)');pos.push(`${x-W2}px ${y}px`);siz.push(`${2*W2}px ${h}px`);});
  GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(800+i*ST),x=i%2?GRID.x0+GRID.w0-w:GRID.x0;imgs.push('linear-gradient(#000,#000)');pos.push(`${x}px ${y-W2}px`);siz.push(`${w}px ${2*W2}px`);});
  const s=g.style;s.webkitMaskImage=s.maskImage=imgs.join(',');s.webkitMaskPosition=s.maskPosition=pos.join(',');s.webkitMaskSize=s.maskSize=siz.join(',');s.webkitMaskRepeat=s.maskRepeat='no-repeat';s.opacity='1';
  if(done)endGrid();}
-function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.n,L.done);}
+function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.done);}
 function gridTick(now){if(!gfx)return;gridMask(now);if(gfx)gfx.raf=requestAnimationFrame(gridTick);}
 function startGrid(){if(!GRID||rm.matches)return;if(gfx)cancelGrid();gfx={t0:performance.now(),land:null};gridMask(gfx.t0);gfx.raf=requestAnimationFrame(gridTick);}
 function cancelGrid(){if(gfx){cancelAnimationFrame(gfx.raf);endGrid();}}
@@ -194,6 +200,8 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
   apply(k,ia,ib,{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),w:lerp(a.w,b.w,t),h:lerp(a.h,b.h,t),o:lerp(a.o,b.o,to),a:la(a.a,b.a,t),r:a.r.map((r,j)=>lerp(r,b.r[j],t)),f:lc(a.f,b.f,t),s:lc(a.s,b.s,t),sw:lerp(a.sw||b.sw,b.sw||a.sw,t),sa:t<.5?a.sa:b.sa,q:lerp(a.q,b.q,t),
    sh:(a.sh&&b.sh&&a.sh.length===b.sh.length)?a.sh.map((q,j)=>[lerp(q[0],b.sh[j][0],t),lerp(q[1],b.sh[j][1],t),lerp(q[2],b.sh[j][2],t),lerp(q[3],b.sh[j][3],t),lc(q[4],b.sh[j][4],t)]):(t<.5?a.sh:b.sh)},t);}
  if(gfx){const g=el.get('Grid');if(g)g.style.opacity='1';}
+ if(i===END)for(const k of active){const b=L[i+1].get(k);if(!b||b.p||L[i].get(k))continue;const e=el.get(k),z=lerp(END_Z,1,t);
+  if(e.style.display==='none')continue;e.style.transformOrigin=`${W/2-b.x}px ${H/2-b.y}px`;e.style.transform=z>1.0001?`scale(${z})`:'';}
  if(cap)cap.textContent=String(n+1).padStart(2,'0')+' / '+String(N).padStart(2,'0')+(opts.capLabel===false?'':'  ·  '+D.labels[n]);}
 /* ---- theme switching: instant, also mid-transition (the next frame simply paints with the new palette) */
 function setTheme(){const d=de.dataset.theme==='dark';if(d===dark)return;dark=d;
@@ -209,19 +217,19 @@ function show(n){cur=n;draw(Math.min(n,N-2),n>=N-1?1:0);prefetch(n);}
 function prog(now){return Math.min(1,anim.u0+(1-anim.u0)*Math.min(1,(now-anim.t0)/anim.dur));}
 function frame(){const now=performance.now(),u=prog(now),e=anim.ease(u);
  rawU=u;rawDir=anim.dir;draw(anim.i,anim.dir>0?e:1-e);rawU=null;
- if(u>=1){const done=anim.done;cur=anim.to;anim=null;raf=0;stage.dataset.steps=String(++steps);prefetch(cur);if(gfx){gfx.land={n:cur,done};return;}land(cur);done&&done();flush();return;}
+ if(u>=1){const done=anim.done;cur=anim.to;anim=null;raf=0;stage.dataset.steps=String(++steps);prefetch(cur);if(gfx){gfx.land={done};return;}land(done);return;}
  raf=requestAnimationFrame(frame);}
 /* a step reaches its stop: natural end, finished early by the next gesture (finishNow), or an instant (reduced-motion) cut */
-function land(n,done){opts.onLand&&opts.onLand(n);if(done){done();flush();}}
+function land(done){done&&done();flush();}
 function step(dir,done){if(anim||!canStep(dir))return false;if(gfx)cancelGrid();const to=cur+dir,i=Math.min(cur,to);prefetch(to);opts.onStep&&opts.onStep(dir,to);
  rawDir=dir;
- if(rm.matches){cur=to;show(cur);stage.dataset.steps=String(++steps);land(cur);done&&done();return true;}
- anim={to,i,dir,t0:performance.now(),u0:0,dur:DUR[i]*1000,done,ease:easeFor(i)};raf=requestAnimationFrame(frame);if(dir>0&&cur===0)startGrid();return true;}
+ if(rm.matches){cur=to;show(cur);stage.dataset.steps=String(++steps);land(done);return true;}
+ anim={to,i,dir,t0:performance.now(),u0:0,dur:durOf(i),done,ease:easeFor(i)};raf=requestAnimationFrame(frame);if(dir>0&&cur===0)startGrid();return true;}
 /* finish the running transition within ms (progress stays continuous), used when the next gesture is already queued */
 function hurry(ms){if(!anim)return;const now=performance.now();if(anim.dur-(now-anim.t0)<=ms)return;anim.u0=prog(now);anim.t0=now;anim.dur=ms;}
 /* request one step: steps now, or queues it (max one queued) while a transition runs; edge(dir) when there is no slide that way */
 /* complete the running transition right now (its end frame), then start whatever was queued */
-function finishNow(){if(!anim)return;if(raf)cancelAnimationFrame(raf);raf=0;const A=anim;anim=null;rawU=null;draw(A.i,A.dir>0?1:0);cur=A.to;stage.dataset.steps=String(++steps);prefetch(cur);if(gfx){cancelGrid();}land(cur);A.done&&A.done();flush();}
+function finishNow(){if(!anim)return;if(raf)cancelAnimationFrame(raf);raf=0;const A=anim;anim=null;rawU=null;draw(A.i,A.dir>0?1:0);cur=A.to;stage.dataset.steps=String(++steps);prefetch(cur);if(gfx){cancelGrid();}land(A.done);}
 function request(dir,edge){if(anim){if(pend)finishNow();if(anim){pend=dir;pendEdge=edge||null;hurry(350);return 'queued';}}
  if(canStep(dir)){step(dir);return 'step';}edge&&edge(dir);return 'edge';}
 function flush(){if(!pend)return;const d=pend,e=pendEdge;pend=0;pendEdge=null;request(d,e);}

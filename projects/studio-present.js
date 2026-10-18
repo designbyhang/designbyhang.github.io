@@ -17,15 +17,14 @@ fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="
 body.appendChild(fs);
 const edges=fs.querySelectorAll('.deck-edge'),btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
-/* counter starts at the first filled logomark square (studio_04, slide index 2: the grid slides studio_02/03 before it read 00);
-   from there it counts up to the total = the slides from studio_04 to the end, so the last slide reads 41/41 */
-const C0=2,pad=n=>String(n).padStart(2,'0'),num=n=>pad(Math.max(0,n-C0+1));
+/* counter starts at the first filled logomark square (studio_04, slide index 2: the grid slides studio_02/03 before it read 00)
+   and counts up to the swag slide (studio_43, the one before the last), 40/40; the closing logo slide (studio_44) is not counted
+   and keeps showing 40/40 */
+const C0=2,CN=window.__STUDIO__.slides.length-2-C0+1,pad=n=>String(n).padStart(2,'0'),num=n=>pad(Math.min(CN,Math.max(0,n-C0+1)));
 const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
- /* homepage gauge tick (js/sfx.js: same synthesis, volume, min gap, unlock-on-first-input and dbh-sound mute) once per step, fullscreen only */
- onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}},
- /* gauge tick on landing (transition end), not at step start: on beat with the slide settling */
- onLand:()=>{const x=window.dbhSfx;if(state==='open'&&x&&x.tick)x.tick();}});
-const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(N-C0);
+ /* any step (gesture or AUTO PLAY) restarts the AUTO PLAY wait, which then waits for the landing */
+ onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}}});
+const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(CN);
 const ease=deck.ease,DUR=650;
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
 function fitBox(x,y,w,h,k){stage.style.left=x+'px';stage.style.top=y+'px';stage.style.width=w+'px';stage.style.height=h+'px';deck.layout(w,h,null,k);}
@@ -95,7 +94,7 @@ function autoStop(){clearTimeout(autoT);autoT=0;}
 /* autoplay: ON whenever the presentation opens (incl. resuming at a remembered slide; on studio_02 it replaces the old 2s
    opening hold, same timing, so there is no double step); toggle state itself is not remembered; one step every AP_MS counted from the end of the previous transition (so any
    manual scroll/swipe/key step restarts the wait); waits out running transitions; turns itself off on the last slide and on
-   exit. Steps go through deck.request like any gesture (gauge tick, reduced motion = instant change). */
+   exit. Steps go through deck.request like any gesture (reduced motion = instant change). */
 const AP_MS=500;let apOn=false,apT=0;
 function apSet(v){apOn=!!v;clearTimeout(apT);apT=0;apBtn.setAttribute('aria-pressed',String(apOn));apBtn.classList.toggle('on',apOn);apIco.innerHTML=apOn?AP_PAUSE:AP_PLAY;if(apOn){autoStop();autoAt=0;apWait();}}
 function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')return;if(deck.animating){apT=setTimeout(apWait,60);return;}
