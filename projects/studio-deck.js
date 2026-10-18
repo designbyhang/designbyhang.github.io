@@ -148,16 +148,18 @@ let lastDraw=[0,0],shownN=-1,rawU=null,rawDir=1;
    1.667s in Figma because the grid fades out with it; its box keeps the 0.833s fade inside that transition. */
 const CELLT=D.cellT||{};
 function cellT(i,t){const c=CELLT[i];if(!c)return t;const u=rawU!==null?rawU:(rawDir>0?t:1-t);const e=FIG[c[1]](c[0])(Math.min(1,u*DUR[i]/c[0]));return rawDir>0?e:1-e;}
-/* grid draw-in (first step after entering, studio_02 -> 03): same as the homepage intro card's lines (home.js/home.css):
-   verticals draw top->bottom at i*40ms, horizontals left->right at 120+i*40ms, 900ms each, cubic-bezier(.2,.7,.2,1).
+/* grid draw-in (studio_02 -> 03): alternating directions, verticals down/up from 500ms at i*150ms, horizontals right/left from
+   1.3s at i*150ms, 1.7s each, cubic-bezier(.65,0,.35,1).
    Implemented as a mask of growing strips over the real Grid layer, so the drawn lines are exactly the slide's lines. */
-/* drawn on EVERY studio_02 -> 03 step (1.18s total: 8 verticals + 4 horizontals). The step only lands (tick, AUTO PLAY wait,
+/* drawn on EVERY studio_02 -> 03 step (3.45s total: 8 verticals + 4 horizontals). The step only lands (tick, AUTO PLAY wait,
    `animating` false) when the last line is fully drawn; a new gesture during the draw completes it at once and lands there. */
-const GRID=D.grid||null,gEase=bezF(.2,.7,.2,1);let gfx=null;
+const GRID=D.grid||null,gEase=bezF(.65,0,.35,1);let gfx=null;
 function gridMask(now){const g=el.get('Grid');if(!g||!gfx)return;const t=now-gfx.t0;let imgs=[],pos=[],siz=[],done=true;
- const p=d=>{const u=Math.min(1,Math.max(0,(t-d)/900));if(u<1)done=false;return gEase(u);};
- GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*40);imgs.push('linear-gradient(#000,#000)');pos.push(`${x-GRID.sw}px ${GRID.y0}px`);siz.push(`${2*GRID.sw}px ${h}px`);});
- GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(120+i*40);imgs.push('linear-gradient(#000,#000)');pos.push(`${GRID.x0}px ${y-GRID.sw}px`);siz.push(`${w}px ${2*GRID.sw}px`);});
+ /* lines start 500ms in (the copy fade, ~0.83s, overlaps the first lines) */
+ const W2=1.5;/* strip half-width: tight to the 1px line so crossings of undrawn lines do not show as ticks */
+ const O=500,DL=1700,ST=150,p=d=>{const u=Math.min(1,Math.max(0,(t-O-d)/DL));if(u<1)done=false;return gEase(u);};
+ GRID.v.forEach((x,i)=>{const h=GRID.h0*p(i*ST),y=i%2?GRID.y0+GRID.h0-h:GRID.y0;imgs.push('linear-gradient(#000,#000)');pos.push(`${x-W2}px ${y}px`);siz.push(`${2*W2}px ${h}px`);});
+ GRID.hz.forEach((y,i)=>{const w=GRID.w0*p(800+i*ST),x=i%2?GRID.x0+GRID.w0-w:GRID.x0;imgs.push('linear-gradient(#000,#000)');pos.push(`${x}px ${y-W2}px`);siz.push(`${w}px ${2*W2}px`);});
  const s=g.style;s.webkitMaskImage=s.maskImage=imgs.join(',');s.webkitMaskPosition=s.maskPosition=pos.join(',');s.webkitMaskSize=s.maskSize=siz.join(',');s.webkitMaskRepeat=s.maskRepeat='no-repeat';s.opacity='1';
  if(done)endGrid();}
 function endGrid(){const g=el.get('Grid'),L=gfx&&gfx.land;gfx=null;if(g){const s=g.style;s.webkitMaskImage=s.maskImage='';s.webkitMaskPosition=s.maskPosition=s.webkitMaskSize=s.maskSize=s.webkitMaskRepeat=s.maskRepeat='';}draw(lastDraw[0],lastDraw[1]);if(L)land(L.n,L.done);}

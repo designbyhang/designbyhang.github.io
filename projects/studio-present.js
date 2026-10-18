@@ -17,13 +17,15 @@ fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prese
 body.appendChild(fs);
 const btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
-const NS=window.__STUDIO__.slides.length,pad=n=>String(n).padStart(2,'0');
-const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=pad(n+1);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
+/* counter starts at the first filled logomark square (studio_04, slide index 2: the grid slides studio_02/03 before it read 00);
+   from there it counts up to the total = the slides from studio_04 to the end, so the last slide reads 41/41 */
+const C0=2,pad=n=>String(n).padStart(2,'0'),num=n=>pad(Math.max(0,n-C0+1));
+const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
  /* homepage gauge tick (js/sfx.js: same synthesis, volume, min gap, unlock-on-first-input and dbh-sound mute) once per step, fullscreen only */
  onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}},
  /* gauge tick on landing (transition end), not at step start: on beat with the slide settling */
  onLand:()=>{const x=window.dbhSfx;if(state==='open'&&x&&x.tick)x.tick();}});
-const N=deck.N;cntA.textContent=pad(deck.cur+1);cntB.textContent=pad(N);
+const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(N-C0);
 const ease=deck.ease,DUR=650;
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
 function fitBox(x,y,w,h,k){stage.style.left=x+'px';stage.style.top=y+'px';stage.style.width=w+'px';stage.style.height=h+'px';deck.layout(w,h,null,k);}
