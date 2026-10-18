@@ -25,7 +25,10 @@ function P(c,bg,w){if(!c)return c;w=w===undefined?DW:w;const r=c[0],g=c[1],b=c[2
  const l=bg&&r>=250&&g>=250&&b>=250?[FL,FL,FL,c[3]]:c;if(!dark||w<=0)return l;
  const f=v=>255-v*(255-FD)/255,d=[f(r),f(g),f(b),c[3]];if(w>=1)return d.map((v,j)=>j<3?Math.round(v):v);
  return[0,1,2].map(j=>Math.round(l[j]+(d[j]-l[j])*w)).concat([c[3]]);}
-/* stage = the site's standard .media box (--frame): #f4f4f4 light, #222 dark */
+/* stage = the site's standard .media box (--frame): #f4f4f4 light, #222 dark. studio_27-36 keep their content's Figma colours
+   but their surface follows the theme: their stage is exactly that standard colour in both modes (Figma's #eee / black bg is
+   not used), and it tweens to/from the neighbours' canvas with the 26->27 / 36->37 transitions. */
+function bgOf(n){if(NI.has(n))return dark?[FD,FD,FD,1]:[FL,FL,FL,1];const b=S[n].bg;return b?P(b,1,1):null;}
 const FL=0xf4,FD=0x22;
 const mapCss=(s,ni)=>!dark||ni?s:s.replace(/rgba\((\d+),(\d+),(\d+),([\d.]+)\)/g,(m,r,g,b,a)=>{const c=P([+r,+g,+b,+a],0,1);return`rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${a})`;});
 /* ---- per-slide layer maps and child orders */
@@ -143,7 +146,7 @@ function cancelGrid(){if(gfx){cancelAnimationFrame(gfx.raf);endGrid();}}
 function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  if(i!==curI)activate(i);
  DW=lerp(KD(i),KD(i+1),t);
- const bg=lc(S[i].bg&&P(S[i].bg,1),S[i+1].bg&&P(S[i+1].bg,1),t);stage.style.background=bg?rgba(bg):'';
+ const bg=lc(bgOf(i),bgOf(i+1),t);stage.style.background=bg?rgba(bg):'';
  const n=t>=.5?i+1:i;stage.dataset.slide=String(n).padStart(2,'0');if(n!==shownN){shownN=n;opts.onSlide&&opts.onSlide(n);}
  /* logomark cells that switch on/off (opacity 0<->1 in Figma) are revealed with the clipped-circle sweep instead of an
     opacity fade: full colour throughout, a circle grows from the cell centre (clipped by the cell) until it covers it. */
@@ -200,7 +203,7 @@ function settle(){const to=anim?anim.to:cur;stop();show(to);return to;}
 function layout(w,h,mode,k){k=k||(mode==='cover'?Math.max(w/W,h/H):Math.min(w/W,h/H));const ox=(w-W*k)/2,oy=(h-H*k)/2;
  root.style.transform=`translate(${ox}px,${oy}px) scale(${k})`;root.style.setProperty('--seam',Math.min(2,.5/(k*(devicePixelRatio||1))).toFixed(3)+'px');return k;}
 /* canvas colour of the slide currently shown (theme-mapped), for letterbox / status bar */
-function canvas(n){n=n===undefined?(stage.dataset.slide|0):n;const b=S[n].bg;return b?rgba(P(b,1,KD(n))):null;}
+function canvas(n){n=n===undefined?(stage.dataset.slide|0):n;const b=bgOf(n);return b?rgba(b):null;}
 return{N,draw:(i,t)=>{build(i);draw(i,t);},show,step,request,hurry,stop,settle,cancelGrid,get gridDrawing(){return!!gfx;},prefetch,layout,canvas,canStep,ease:easeStep,easeFor,dur:DUR,labels:D.labels,
  get cur(){return cur;},get animating(){return!!anim;},get pending(){return pend;},get steps(){return steps;},get dark(){return dark;},
  ready:()=>Promise.all([...root.querySelectorAll('img')].map(im=>im.complete?0:new Promise(r=>{im.onload=im.onerror=r;})))};}
