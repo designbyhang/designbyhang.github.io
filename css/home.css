@@ -130,7 +130,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .intro-in.poster{container-type:inline-size}
 .poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi}
 /* CTA rise (row clip band, --rise, --cd: js/home.js): the button slides up inside the static cap; its knockout moves to the
-   cap's ::before (static, fading in like the keyword knockouts), so no gap is dragged through the grid lines while it moves */
+   cap's ::before (static, fades in), so no gap is dragged through the grid lines while it moves */
 .poster-cap{isolation:isolate}
 .poster-cap::before{content:"";position:absolute;inset:-6px -7px -6px -2px;z-index:-1;background:var(--ko,var(--c-paper));opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) var(--cd,0ms) forwards}
 .poster-cap .poster-title{background:none;box-shadow:none;animation:pRiseT 1.1s cubic-bezier(.2,.7,.2,1) var(--cd,0ms) both}
@@ -141,15 +141,15 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .ln{transform-box:fill-box;transform-origin:0 0;animation-name:pDraw}
 .poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
 .poster-svg .g.a{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1)} /* alternating grid draw, odd lines reversed (.rv); delays in js/home.js */
+.poster-svg .g{vector-effect:none;stroke-width:var(--gw,1)} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
 .poster-svg .ln.rv{transform-origin:100% 0}.poster-svg .lv.rv{transform-origin:0 100%}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
 .poster-svg .lt{animation-name:pSlide;animation-duration:1.1s}
-.poster-svg .wr{animation-name:pRise;animation-duration:1.1s} /* keywords: rise from their cell's bottom edge (--rise, js/home.js) */
+.poster-svg .wf{animation-duration:.7s;animation-timing-function:cubic-bezier(.4,0,.2,1)} /* keywords (+ knockouts): one soft fade together, after the letters (js/home.js) */
 .poster-svg .tt{font-family:var(--sans);fill:#111;letter-spacing:-.025em;font-weight:400}
 .poster-svg .dk{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
 @keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
-@keyframes pRise{from{opacity:1;transform:translateY(var(--rise,120%))}to{opacity:1;transform:none}}
 @keyframes pIn{to{opacity:1}}
 @keyframes pDraw{from{opacity:1;transform:scaleX(0)}to{opacity:1;transform:none}}
 @keyframes pDrawV{from{opacity:1;transform:scaleY(0)}to{opacity:1;transform:none}}
