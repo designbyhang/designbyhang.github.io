@@ -81,7 +81,10 @@ function apply(k,ia,ib,v,t){const e=el.get(k),m=cont.get(k);
  const kind=(ia||ib).t,isBox=kind!=='VEC'&&kind!=='TEXT'&&kind!=='IMG';
  const fc=v.f?P(v.f,(ia||ib).bgf):null;
  if(isBox){const c=fc?rgba(fc):'';s.background=c;s.color=c;const sh=[];if(c)sh.push('0 0 0 var(--seam) currentColor');
-  if(v.sh)for(const q of v.sh)sh.push(`${q[0]}px ${q[1]}px ${q[2]}px ${q[3]}px ${rgba(q[4])}`);s.boxShadow=sh.join(',');}
+  /* a frame with no fill casts its shadow from its contents, as in Figma (e.g. the S app tile: a square, fill-less 'Logo Card'
+     whose rounded BG vector is the visible tile). box-shadow would draw the square frame's corners under the rounded tile. */
+  if(v.sh&&!c){s.boxShadow=sh.join(',');s.filter=v.sh.map(q=>`drop-shadow(${q[0]}px ${q[1]}px ${q[2]/2}px ${rgba(q[4])})`).join(' ');}
+  else{if(v.sh)for(const q of v.sh)sh.push(`${q[0]}px ${q[1]}px ${q[2]}px ${q[3]}px ${rgba(q[4])}`);s.boxShadow=sh.join(',');if(s.filter)s.filter='';}}
  else{if(s.background)s.background='';if(v.sh){s.boxShadow=v.sh.map(q=>`${q[0]}px ${q[1]}px ${q[2]}px ${q[3]}px ${rgba(q[4])}`).join(',');}else if(s.boxShadow)s.boxShadow='';}
  if(isBox&&v.s&&v.s[3]>0){s.outline=`${v.sw}px solid ${rgba(P(v.s))}`;s.outlineOffset=(v.sa==='I'?-v.sw:v.sa==='O'?0:-v.sw/2)+'px';}else if(s.outline)s.outline='';
  /* content variants */
