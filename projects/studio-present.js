@@ -2,8 +2,8 @@
    When the container's centre crosses the viewport centre while scrolling, it expands (FLIP, steep ease) into a fullscreen
    presentation; while open, every wheel gesture / swipe / key press = one transition (one more is queued if a transition is
    running). Stepping past the last slide (or back before the first) collapses it into the container and the page scrolls on.
-   Esc or CLOSE collapses at any time and the container keeps showing that slide; clicking it, or scrolling into it again,
-   resumes there (in memory, for this page view). */
+   Esc or CLOSE collapses at any time and the container keeps showing that slide; clicking it, or scrolling down into it again,
+   resumes there (in memory, for this page view). Scrolling up into it never expands it. */
 (()=>{const host=document.getElementById('deck');if(!host||!window.StudioDeck)return;
 const stage=host.querySelector('.deck-stage'),inner=host.querySelector('.deck-inner');
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -58,10 +58,12 @@ function close(how){if(state!=='open'&&state!=='opening')return;const n=deck.set
   fs.hidden=true;state='closed';de.classList.remove('deck-open');armed=false;prevC=null;fitClosed();
   if(hadFocus){host.classList.add('deck-quiet');host.focus({preventScroll:true,focusVisible:false});}});}
 host.addEventListener('blur',()=>host.classList.remove('deck-quiet'));
-/* trigger: container centre crosses the viewport centre (down -> first slide, up -> last slide; after Esc/CLOSE -> that slide) */
+/* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
+   slide or the remembered one. Coming from below it never expands: the page scrolls past and the container keeps showing its
+   current slide; a click or Enter opens it. */
 function watch(){if(state!=='closed'||suppress)return;const r=host.getBoundingClientRect(),c=r.top+r.height/2,m=innerHeight/2;
  if(!armed){if(Math.abs(c-m)>innerHeight*.12)armed=true;prevC=c;return;}
- if(prevC!==null&&r.bottom>0&&r.top<innerHeight){if(prevC>m&&c<=m)open(resume??0);else if(prevC<m&&c>=m)open(resume??N-1);}
+ if(prevC!==null&&r.bottom>0&&r.top<innerHeight&&prevC>m&&c<=m)open(resume??0);
  prevC=c;}
 let sraf=0;addEventListener('scroll',()=>{if(!sraf)sraf=requestAnimationFrame(()=>{sraf=0;watch();});},{passive:true});
 /* in-page jumps (TOC, back to top) pass through without opening the presentation */
