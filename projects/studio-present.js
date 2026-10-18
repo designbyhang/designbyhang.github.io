@@ -59,9 +59,15 @@ const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;
- anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}});}
+ anim(from,fullBox,()=>{state='open';chrome();fitOpen();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}else if(deck.cur===0)autoStart();});}
+/* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
+   those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
+   fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
+let autoT=0,autoAt=0;const AUTO_MS=2000;
+function autoStop(){clearTimeout(autoT);autoT=0;}
+function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&&deck.cur===0&&!deck.animating){autoAt=performance.now();deck.request(1,()=>close('end'));}},AUTO_MS);}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
-function close(how){if(state!=='open'&&state!=='opening')return;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
+function close(how){if(state!=='open'&&state!=='opening')return;autoStop();autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;
  const from={...fullBox()};state='closing';fs.style.background='';fs.classList.add('is-closing');
  unlock();restoreChrome();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
@@ -82,7 +88,7 @@ let sraf=0;addEventListener('scroll',()=>{if(!sraf)sraf=requestAnimationFrame(()
 let sTimer=0;const quiet=()=>{clearTimeout(sTimer);sTimer=setTimeout(()=>{suppress=0;prevC=null;removeEventListener('scroll',quiet);},250);};
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||fs.contains(a))return;suppress=1;prevC=null;addEventListener('scroll',quiet,{passive:true});quiet();},true);
 /* stepping: one gesture = one request; the deck queues one step if a transition is running; past either end it collapses */
-function act(dir){if(state==='opening'){openQ=dir;return;}if(state!=='open')return;deck.request(dir,()=>close('end'));}
+function act(dir){if(state==='opening'){openQ=dir;return;}if(state!=='open')return;autoStop();if(autoAt){const late=performance.now()-autoAt<300;autoAt=0;if(late&&dir>0)return;}deck.request(dir,()=>close('end'));}
 const wheelGesture=StudioDeck.wheelDetector();
 addEventListener('wheel',e=>{const g=wheelGesture(e);if(state==='closed')return;e.preventDefault();if(g&&state!=='closing')act(g.dir);},{passive:false});
 const TOUCH_PX=30;let tStart=null,tCtl=false;
@@ -105,4 +111,4 @@ btn.addEventListener('click',e=>{e.preventDefault();close('esc');});
 host.addEventListener('click',()=>{if(state==='closed')open(deck.cur);});
 host.addEventListener('keydown',e=>{if(state==='closed'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(deck.cur);}});
 fitClosed();deck.show(0);
-window.__present={get state(){return state;},deck,open,close,get armed(){return armed;},get resume(){return resume;}};})();
+window.__present={get auto(){return!!autoT;},get state(){return state;},deck,open,close,get armed(){return armed;},get resume(){return resume;}};})();
