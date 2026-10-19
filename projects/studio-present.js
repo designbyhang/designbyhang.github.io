@@ -40,10 +40,12 @@ const mPort=matchMedia('(orientation:portrait) and (max-width:640px)'); /* phone
 /* phones in landscape: CLOSE, the counter and the Play/Pause button sit by the right screen edge, the theme toggle by the left
    (studio.html); the art is centred between symmetric gutters sized to the wider side's controls, 16px clear of them */
 const mLand=matchMedia('(orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse)');
+/* controls' resting left edge (without the entrance slide, uiEnter), so the fit never follows them while they move in */
+const restLeft=e=>e.getBoundingClientRect().left-(parseFloat(getComputedStyle(e).translate)||0);
 function gutter(){if(mPort.matches)return 16;
  if(mLand.matches){const t=fs.querySelector('.theme-btn'),L=t?parseFloat(getComputedStyle(t).left)+t.offsetWidth+16:16;
-  return Math.max(L,...[btn,cnt,apRnd].map(e=>{const r=e.getBoundingClientRect();return r.width?vw()-r.left+16:0;}));}
- const r=cnt.getBoundingClientRect();return r.width?Math.max(0,vw()-r.left+12):0;}
+  return Math.max(L,...[btn,cnt,apRnd].map(e=>e.getBoundingClientRect().width?vw()-restLeft(e)+16:0));}
+ return cnt.getBoundingClientRect().width?Math.max(0,vw()-restLeft(cnt)+12):0;}
 const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
 function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
@@ -89,7 +91,7 @@ function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.par
    under the counter, and the header's BACK (top right) under CLOSE. While the stage expands each slides out to the right
    (the edge it sits at, so it never has to pass the stage's centre), fully off-screen, and fades, on the expand's own
    progress (same DUR and ease); on close it slides back in on the collapse's progress and lands as it ends. Its control stays
-   hidden until it has passed it and fades in over the rest of the expand (out first on close), so the two never share a frame.
+   hidden until it has passed it, then slides in (uiEnter; out first on close), so the two never share a frame.
    Uses the independent CSS translate property (the menu's own translateY(-50%) is untouched; BACK moves inside its static
    nav, so case.js's header measurements are unchanged). The fixed menu adds no scroll overflow; the sticky header clips
    horizontally while BACK is out (else it widened the page, and on phones the layout viewport with it, CLOSE included). Anything not shown (the menu on narrow screens) is left alone. */
@@ -106,12 +108,23 @@ let tbOff=null;function tbMeasure(){tbOff=null;const t=fs.querySelector('.theme-
 function asideMeasure(){tbMeasure();lt=[];for(const el of lefts){el.style.translate='';el.inert=true;const r=inkRight(el);if(r>0)lt.push({el,off:-r});}
  tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}
- /* phones have no section menu: the counter follows CLOSE, so it too only shows once BACK has passed; in landscape the Play/Pause
-    button as well (it sits in the right gutter, over the expanding art until that lands) */
- const g=tg.find(g=>g.mate===btn);if(g){g.more=[];if((mPort.matches||mLand.matches)&&!tg.some(g=>g.mate===cnt))g.more.push(cnt);if(mLand.matches)g.more.push(apRnd);}}
+ /* the presentation's controls enter with CLOSE once BACK has passed: the counter too when the menu is not shown (phones, most
+    desktop widths), and AUTO PLAY / the Play/Pause button; top to bottom (the stagger order) */
+ for(const g of tg)g.ui=[g.mate];const g=tg.find(g=>g.mate===btn);if(g){if(!tg.some(g=>g.mate===cnt))g.ui.push(cnt);g.ui.push(apBtn,apRnd);}
+ /* closing: each exits from wherever it is (it may still be entering) */
+ for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}
+/* control entrance (Hang: slide in from the left, fading in): once its trigger is reached on the expand's progress, each control
+   moves 16px left to right into place while fading 0 to 1 over 450ms, ease-out, 40ms apart. Closing reverses it on the collapse's
+   progress (fade out while sliding back left), done before BACK comes back past it. Reduced motion: no move, straight in. */
+const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
+function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
+function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||!m.animate||!m.getClientRects().length)continue;
+ m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i++,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};}}
 function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
- const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1);g.mate.style.opacity=String(c*c*(3-2*c));if(g.more)for(const m of g.more)m.style.opacity=g.mate.style.opacity;}}
-function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];if(tbOff){tbOff.t.style.translate='';tbOff=null;}apRnd.style.opacity='';for(const [el,mate] of asides){el.style.translate=el.style.opacity='';mate.style.opacity='';}tg=[];if(hdr)hdr.style.overflowX='';}
+ if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
+ const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);
+ g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
+function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];if(tbOff){tbOff.t.style.translate='';tbOff=null;}for(const [el] of asides)el.style.translate=el.style.opacity='';for(const m of [btn,cnt,apBtn,apRnd]){uiStop(m);m.style.opacity=m.style.translate='';}tg=[];if(hdr)hdr.style.overflowX='';}
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
@@ -122,7 +135,7 @@ const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
 function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
- anim(from,fullBox,()=>{state='open';flow(true);for(const a of asides)a[1].style.opacity='';fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
+ anim(from,fullBox,()=>{state='open';flow(true);fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
