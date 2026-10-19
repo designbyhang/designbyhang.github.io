@@ -11,7 +11,8 @@ html[data-theme=dark] .skip{color:#111}
 html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .3s ease,color .3s ease,border-color .3s ease,fill .3s ease,stroke .3s ease,box-shadow .3s ease!important}
 /* intro card surface + its grid-line knockouts (CTA/hint background+box-shadow, svg .ko fills) switch instantly, together: Chrome runs the card's
    background-color transition on the compositor, so the main-thread-painted knockouts drifted out of sync and showed as a grey box mid-fade */
-html.theme-anim .intro .media-wrap.surface,html.theme-anim .poster-svg .ko{transition:none!important}
+html.theme-anim .intro .media-wrap.surface,html.theme-anim .poster-svg .ko,html.theme-anim .poster-cap::before{transition:none!important}
+/* (the CTA's knockout moved to .poster-cap::before with the CTA rise: it must switch with the card too, or its .3s background fade shows as a box) */
 html.theme-anim .poster-title,html.theme-anim .poster-hint{transition:color .3s ease!important}
 /* toggle */
 .theme-btn .i-sun{display:none}html[data-theme=dark] .theme-btn .i-sun{display:block}html[data-theme=dark] .theme-btn .i-moon{display:none}
