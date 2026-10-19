@@ -28,6 +28,21 @@
 .ui-hero .bline{stroke:#F4F4FF;stroke-width:1.8;fill:none;stroke-linecap:square}
 .ui-hero .face{filter:drop-shadow(0 0 3px rgba(255,255,255,.55)) drop-shadow(0 0 9px rgba(200,205,255,.4))}
 @media (prefers-reduced-motion:reduce){.ui-hero .car-nav{display:none}}
+/* replay icon: an open counter-clockwise arc (gap upper left) with an open chevron at its top end pointing left; a click turns it
+   one full turn counter-clockwise around the circle's centre (8, 8.4 in the 16x16 box), see the script at the end */
+.car-nav .rp-ico{transform-box:view-box;transform-origin:8px 8.4px}
+</style>
+<style id="usps-studio-css">
+/* hero: placeholder until new hero assets arrive; solid intro blue, same 2800/1560 slot */
+body .media.cover.hero-slot.hero-empty{background:#090C94!important}
+/* intro animation in the shared media frame: slice so the 1920x1080 composition fills the frame width, same framing as the old static usps-02 */
+body.cs .media.mframe.ui-hero{background:#090C94}
+/* studio display video: .sd-stage is the 16:9 display art laid out exactly like the old carousel slide (cover, width-fit, scale 1.006);
+   .sd-screen is the display's screen rect measured on the 2880x1620 art (x 389.75, y 209.75, 2100.5 x 1200.5, ~3px corner radius); the frame art is usps-04 with the screen filled bezel-dark, so sub-pixel seams never show old slide content */
+.sd-video .sd-stage{position:absolute;left:0;top:50%;width:100%;aspect-ratio:2880/1620;transform:translateY(-50%) scale(1.006)}
+body.cs .media.mframe.sd-video .sd-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:none;transition:none;pointer-events:none}
+.sd-video .sd-screen{position:absolute;left:13.5330%;top:12.9475%;width:72.9340%;height:74.1049%;overflow:hidden;border-radius:.143%/.25%;background:#000}
+body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height:100%;margin:0;object-fit:cover;object-position:50% 50%;background:#000;border-radius:inherit}
 </style>
 <script src="../js/gate.js?v=1792158747"></script>
 </head>
@@ -56,10 +71,7 @@
 </section>
 
 <figure class="bleed hero-media fx">
-  <div class="media cover hero-slot ui-hero car-light" data-usps-intro>
-    <div class="ui-stage" role="img" aria-label="USPS Innovations intro animation: the USPS eagle logo, the headline Innovations That Deliver, supporting copy and a Start button"></div>
-    <div class="car-nav"><button type="button" class="ui-replay" aria-label="Replay animation"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 8a5.4 5.4 0 1 0 5.4-5.4 5.85 5.85 0 0 0-4.04 1.64L2.6 5.6"/><path d="M2.6 2.6v3h3"/></svg></button></div>
-  </div>
+  <div class="media cover hero-slot hero-empty" aria-hidden="true"></div>
 </figure>
 
 <div class="wrap">
@@ -70,16 +82,19 @@
     </div>
   </section>
 </div>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe"><img src="../assets/usps/usps-02.webp" width="2880" height="1620" loading="lazy" alt="USPS Innovations That Deliver landing screen with a Start button"></div></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" data-btn="light" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 4">
-  <div class="car-track">
-    <img class="is-active" src="../assets/usps/usps-03.webp" width="2880" height="1620" loading="lazy" alt="USPS Innovations That Deliver on a desktop display">
-    <img src="../assets/usps/usps-04.webp" width="2880" height="1620" loading="lazy" alt="Innovations for Business and Innovations for Everyone split screen on a desktop display">
-    <img src="../assets/usps/usps-05.webp" width="2880" height="1620" loading="lazy" alt="Innovations for Business and Innovations for Everyone split screen on a desktop display">
-    <img src="../assets/usps/usps-06.webp" width="2880" height="1620" loading="lazy" alt="Innovations for Business and Innovations for Everyone split screen on a desktop display">
+<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe ui-hero car-light" data-usps-intro>
+  <div class="ui-stage" role="img" aria-label="USPS Innovations intro animation: the USPS eagle logo, the headline Innovations That Deliver, supporting copy and a Start button"></div>
+  <div class="car-nav"><button type="button" class="ui-replay" aria-label="Replay animation"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><g class="rp-ico"><path d="M3.3 6.69A5 5 0 1 0 8 3.4"/><path d="M10 1.25 7.85 3.4 10 5.55"/></g></svg></button></div>
+</div>
+  <figcaption class="cap16">Opening sequence.</figcaption></figure>
+<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe sd-video car-light" data-usps-studio>
+  <div class="sd-stage">
+    <img class="sd-frame" src="../assets/usps/usps-studio-display-frame.webp" width="2880" height="1620" loading="lazy" alt="">
+    <div class="sd-screen"><video muted playsinline preload="metadata" poster="../assets/usps/usps-menu-preview-poster.webp" width="1920" height="1080" aria-label="USPS Innovations split home, Innovations for Business and Innovations for Everyone, menu interaction on a desktop display"><source src="../assets/usps/usps-menu-preview.mp4" type="video/mp4"></video></div>
   </div>
-  <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
-</div></figure>
+  <div class="car-nav"><button type="button" class="sd-replay" aria-label="Replay video"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><g class="rp-ico"><path d="M3.3 6.69A5 5 0 1 0 8 3.4"/><path d="M10 1.25 7.85 3.4 10 5.55"/></g></svg></button></div>
+</div>
+  <figcaption class="cap16">Choose your path: Business or Everyone.</figcaption></figure>
 <figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" data-btn="light" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 2">
   <div class="car-track">
     <img class="is-active" src="../assets/usps/usps-07.webp" width="2880" height="1620" loading="lazy" alt="USPS Innovations on a desktop display and an iPad">
@@ -104,5 +119,14 @@
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792367338"></script><script src="../assets/usps-intro/gsap.min.js?v=3.12.5" defer></script><script src="usps-intro.js?v=1792620000" defer></script>
+<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792367338"></script><script src="../assets/usps-intro/gsap.min.js?v=3.12.5" defer></script><script src="usps-intro.js?v=1792700000" defer></script><script src="usps-studio-video.js?v=1792700000" defer></script><script>
+/* replay buttons: the icon spins one turn counter-clockwise (650ms). A click mid-turn carries on from the current angle (kept within one
+   turn) to the next whole turn at least half a turn away, so it never snaps back and never piles up extra turns; keyboard activation fires click too; skipped under prefers-reduced-motion */
+(function(){var rm=matchMedia('(prefers-reduced-motion: reduce)');
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.ui-replay,.sd-replay');if(!b||rm.matches)return;var g=b.querySelector('.rp-ico');if(!g||!g.animate)return;
+ var a=0,run=g._spin&&g._spin.playState==='running';if(run){a=(parseFloat(getComputedStyle(g).rotate)||0)%360;g._spin.cancel();}
+ var to=run?Math.min(-360,Math.round((a-360)/360)*360):-360;
+ g._spin=g.animate([{rotate:a+'deg'},{rotate:to+'deg'}],{duration:650,easing:run?'cubic-bezier(.3,.55,.35,1)':'cubic-bezier(.65,0,.35,1)'});
+ g._spin.onfinish=function(){g._spin=null;};});})();
+</script>
 </body></html>
