@@ -26,7 +26,6 @@ body.cs .media.mframe.ui-hero .ui-frame{position:absolute;left:0;top:0;width:288
 .ui-hero .ui-screen{position:absolute;left:389.75px;top:209.75px;width:2100.5px;height:1200.5px;border-radius:3px;overflow:hidden;background:#090C94}
 .ui-hero .ui-svg{position:absolute;left:0;top:9.484px;width:2100.5px;height:1181.531px;display:block;visibility:hidden}
 .ui-hero.is-ready .ui-svg{visibility:visible}
-@media (prefers-reduced-motion:reduce){.ui-hero .vid-btn{display:none}}
 .ui-hero text{font-family:'UspsMontserrat',Montserrat,Arial,sans-serif}
 .ui-hero .glow{filter:drop-shadow(0 0 2px rgba(255,255,255,.55)) drop-shadow(0 0 7px rgba(190,195,255,.45))}
 .ui-hero .glowSoft{filter:drop-shadow(0 0 2px rgba(255,255,255,.5)) drop-shadow(0 0 5px rgba(190,195,255,.35))}
@@ -88,10 +87,14 @@ body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height
     <p class="sec-label">02 — Interaction Design</p>
   </section>
 </div>
-<figure class="bleed fig fx"><div class="media mframe sd-video" data-usps-studio>
+<figure class="bleed fig fx"><div class="media mframe ui-hero" data-usps-intro>
+  <div class="ui-stage" role="img" aria-label="USPS Innovations intro animation, looping: the USPS eagle logo, the headline Innovations That Deliver, supporting copy and a Start button, then a zoom out to the screen of a Studio Display and back in"></div>
+</div>
+  <figcaption class="cap16">Opening sequence.</figcaption></figure>
+<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe sd-video" data-usps-studio>
   <div class="sd-stage">
     <img class="sd-frame" src="../assets/usps/usps-studio-display-frame.webp" width="2880" height="1620" loading="lazy" alt="">
-    <div class="sd-screen"><video class="demo-video" muted loop playsinline autoplay preload="metadata" poster="../assets/usps/usps-menu-preview-poster.webp" width="1920" height="1080" aria-label="USPS Innovations split home, Innovations for Business and Innovations for Everyone, menu interaction on a desktop display"><source src="../assets/usps/usps-menu-preview.mp4" type="video/mp4"></video></div>
+    <div class="sd-screen"><video class="demo-video" muted loop playsinline autoplay preload="metadata" poster="../assets/usps/usps-menu-preview-poster.webp?v=1793010000" width="1920" height="1080" aria-label="USPS Innovations split home, Innovations for Business and Innovations for Everyone, menu interaction on a desktop display"><source src="../assets/usps/usps-menu-preview.mp4?v=1793010000" type="video/mp4"></video></div>
   </div>
 </div>
   <figcaption class="cap16">Choose your path: Business or Everyone.</figcaption></figure>
@@ -115,11 +118,7 @@ body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height
     <p class="sec-label">03 — Illustration &amp; Animation</p>
   </section>
 </div>
-<figure class="bleed fig fx"><div class="media mframe ui-hero" data-usps-intro>
-  <div class="ui-stage" role="img" aria-label="USPS Innovations intro animation, looping: the USPS eagle logo, the headline Innovations That Deliver, supporting copy and a Start button, then a zoom out to the screen of a Studio Display and back in"></div>
-</div>
-  <figcaption class="cap16">Opening sequence.</figcaption></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe"><img src="../assets/usps/usps-14.webp" width="2880" height="1620" loading="lazy" alt="A grid of nine USPS illustrations"></div></figure>
+<figure class="bleed fig fx"><div class="media mframe"><img src="../assets/usps/usps-14.webp" width="2880" height="1620" loading="lazy" alt="A grid of nine USPS illustrations"></div></figure>
 <div class="wrap">
   <aside class="next fx" aria-label="Next project">
     <a class="next-hit proj" href="fmss.html" aria-label="Next project: Facebook Monetization Split Screen"><p class="k ax" aria-hidden="true"><span class="t">NEXT CASE STUDY</span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-fmss-home.webp?v=1792161912" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
@@ -128,5 +127,5 @@ body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792900000"></script><script src="../assets/usps-intro/gsap.min.js?v=3.12.5" defer></script><script src="usps-intro.js?v=1793000000" defer></script>
+<script src="../js/sfx.js?v=1792363328"></script><script src="../js/theme.js?v=1792353894"></script><script src="../js/case.js?v=1792900000"></script><script src="../assets/usps-intro/gsap.min.js?v=3.12.5" defer></script><script src="usps-intro.js?v=1793010000" defer></script>
 </body></html>
