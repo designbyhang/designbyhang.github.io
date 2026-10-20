@@ -16,16 +16,17 @@ function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)
  if(mid){const k=document.querySelector('.hero .kicker'),past=k?k.getBoundingClientRect().bottom<=mid.closest('.bar').getBoundingClientRect().bottom:true;mid.classList.toggle('on',past);mid.closest('.bar').classList.toggle('mid-on',past);}
  const h=document.documentElement.scrollHeight-innerHeight;if(bar)bar.style.transform=`scaleX(${h>0?Math.min(1,scrollY/h):0})`;}
 let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
-/* demo videos: play at ~50% in view, pause when out; button toggles; manual pause sticks; always autoplays muted when in view */
-(function(){var vs=document.querySelectorAll('video.demo-video');if(!vs.length)return;var rm=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
-var ico='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';
-vs.forEach(function(v){v.muted=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();var b=document.createElement('button');b.type='button';b.className='vid-btn';b.innerHTML=ico;v.parentNode.appendChild(b);v._held=false;v._vis=false;
- var sync=function(){var on=!v.paused;b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Pause video':'Play video')};
- v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();
- b.addEventListener('click',function(){if(v.paused){v._held=false;var p=v.play();if(p&&p.catch)p.catch(function(){})}else{v._held=true;v.pause()}});
-});
-if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target;v._vis=e.intersectionRatio>=.35;if(v._vis){if(!v._held&&v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){})}}else if(!v.paused){v.pause()}})},{threshold:[0,.35]});vs.forEach(function(v){io.observe(v)})}
-})();
+/* play/pause button (.vid-btn) on media containers: plays at ~35% in view, pauses when out; loops; the button toggles; a manual pause sticks.
+   window.dbhPlayPause(box, watch, player, noun): adds the button to box and drives player {paused(), play(), pause()} from watch's visibility; returns its state sync */
+window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false;b.type='button';b.className='vid-btn';
+ b.innerHTML='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';box.appendChild(b);
+ var sync=function(){var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};
+ b.addEventListener('click',function(){if(p.paused()){held=false;p.play()}else{held=true;p.pause()}sync()});sync();
+ if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){if(e.intersectionRatio>=.35){if(!held&&p.paused())p.play()}else if(!p.paused())p.pause();sync()})},{threshold:[0,.35]}).observe(watch);
+ return sync;};
+document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
+ var sync=dbhPlayPause(v.closest('.media')||v.parentNode,v,{paused:function(){return v.paused},play:function(){var p=v.play();if(p&&p.catch)p.catch(function(){})},pause:function(){v.pause()}},'video');
+ v.addEventListener('play',sync);v.addEventListener('pause',sync);});
 
 /* solution carousel: arrows step the slides, both arrows loop infinitely, arrow keys when focused */
 (function(){document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr||!c.querySelector('[data-dir]'))return;var n=tr.children.length,i=0,prev=c.querySelector('[data-dir="-1"]'),next=c.querySelector('[data-dir="1"]'),cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=[].map.call(tr.children,function(img){return img.getAttribute('alt')||''});
