@@ -310,3 +310,4 @@ html{background:var(--page)}
 .car-light .car-nav button:hover{background:#fff}
 .car-light .car-nav svg{stroke:#000}
 .car-light .car-nav button:focus-visible{outline-color:#000}
+@media (max-width:640px) and (orientation:portrait){.prog{display:none}} /* no header progress line on phone portrait */
