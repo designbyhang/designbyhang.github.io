@@ -211,3 +211,6 @@ button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset
 html{background:var(--page)}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.top .brand{display:none}.top nav{grid-column:1/-1;justify-self:stretch;justify-content:space-between}} /* mobile portrait: no logo, nav takes its spot */
 @media (max-width:900px){.home .bot{padding-right:var(--m-in)}} /* copyright right inset = project pages */
+/* USPS card: the case study hero GIF, centred at 97.5% of the card height on its own blue (#1A237E, matches the GIF edges) */
+.media-wrap.usps-gif{background:#1A237E;display:flex;align-items:center;justify-content:center}
+.media-wrap.usps-gif img{width:auto;height:97.5%;aspect-ratio:600/480;object-fit:contain}
