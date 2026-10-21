@@ -1,0 +1,86 @@
+{
+ "informed-visibility": {
+  "bbox4k": [
+   158,
+   670,
+   488,
+   852
+  ],
+  "cx": 323.0,
+  "cy": 761.0,
+  "w": 330,
+  "h": 182
+ },
+ "informed-delivery-mailbox": {
+  "bbox4k": [
+   934,
+   610,
+   1138,
+   872
+  ],
+  "cx": 1036.0,
+  "cy": 741.0,
+  "w": 204,
+  "h": 262
+ },
+ "intelligent-addressing-waves": {
+  "bbox4k": [
+   1562,
+   674,
+   1938,
+   848
+  ],
+  "cx": 1750.0,
+  "cy": 761.0,
+  "w": 376,
+  "h": 174
+ },
+ "share-mail-starburst": {
+  "bbox4k": [
+   2366,
+   644,
+   2600,
+   876
+  ],
+  "cx": 2483.0,
+  "cy": 760.0,
+  "w": 234,
+  "h": 232
+ },
+ "everyone-informed-delivery-spotlight": {
+  "bbox4k": [
+   220,
+   670,
+   636,
+   848
+  ],
+  "cx": 428.0,
+  "cy": 759.0,
+  "w": 416,
+  "h": 178
+ },
+ "everyone-intelligent-addressing-woman": {
+  "bbox4k": [
+   1266,
+   626,
+   1534,
+   894
+  ],
+  "cx": 1400.0,
+  "cy": 760.0,
+  "w": 268,
+  "h": 268
+ },
+ "everyone-share-mail-envelope": {
+  "bbox4k": [
+   2210,
+   566,
+   2514,
+   852
+  ],
+  "cx": 2362.0,
+  "cy": 709.0,
+  "w": 304,
+  "h": 286
+ }
+}
