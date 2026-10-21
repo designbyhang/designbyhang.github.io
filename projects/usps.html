@@ -15,7 +15,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23111'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/type.css?v=3"><link rel="stylesheet" href="../css/gate.css?v=3"><link rel="stylesheet" href="../css/case.css?v=3"><link rel="stylesheet" href="../css/arrows.css?v=3"><link rel="stylesheet" href="../css/theme.css?v=3">
+<link rel="stylesheet" href="../css/type.css?v=4"><link rel="stylesheet" href="../css/gate.css?v=4"><link rel="stylesheet" href="../css/case.css?v=4"><link rel="stylesheet" href="../css/arrows.css?v=4"><link rel="stylesheet" href="../css/theme.css?v=4">
 <style id="usps-intro-css">
 /* USPS hero intro (usps-intro.js): 1920x1080 SVG composition centred in the 2800/1560 hero slot on the USPS blue; the slot's
    extra width is the same blue, so no visible edge. Play/pause is the shared .vid-btn (css/case.css, js/case.js) */
@@ -37,6 +37,12 @@ body.cs .media.mframe.ui-hero .ui-frame{position:absolute;left:0;top:0;width:288
 .ui-hero .bline{stroke:#F4F4FF;stroke-width:1.8;fill:none;stroke-linecap:square}
 .ui-hero .face{filter:drop-shadow(0 0 3px rgba(255,255,255,.55)) drop-shadow(0 0 9px rgba(200,205,255,.4))}
 body.cs .media.mframe.ph{background:#f1f1f1} /* empty demo placeholder (sections 05–07) */
+/* More Fun: 3x3 module grid for nine GIFs, same bordered boxes and 12px gap as the FMSS feature boxes; one column on phone portrait.
+   Empty cells show the frame tint until the GIFs arrive (drop an <img> into each .gif-cell) */
+.gif-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gif-cell{border:1px solid var(--line);aspect-ratio:1/1;background:var(--frame);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.gif-cell img{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width:640px) and (orientation:portrait){.gif-grid{grid-template-columns:1fr}}
 </style>
 <style id="usps-studio-css">
 /* hero: placeholder until new hero assets arrive; solid intro blue, same 2800/1560 slot */
@@ -50,7 +56,7 @@ body.cs .media.mframe.sd-video .sd-frame{position:absolute;inset:0;width:100%;he
 .sd-video .sd-screen{position:absolute;left:13.5330%;top:12.9475%;width:72.9340%;height:74.1049%;overflow:hidden;border-radius:.143%/.25%;background:#000}
 body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height:100%;margin:0;object-fit:cover;object-position:50% 50%;background:#000;border-radius:inherit}
 </style>
-<script src="../js/gate.js?v=3"></script>
+<script src="../js/gate.js?v=4"></script>
 </head>
 <body class="cs" data-prj="USPS Innovations" data-always-play>
 <a class="skip" href="#main">Skip to content</a>
@@ -104,8 +110,8 @@ body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height
 </div>
 <figure class="bleed fig fx"><div class="media mframe sd-video" data-usps-studio>
   <div class="sd-stage">
-    <img class="sd-frame" src="../assets/usps/usps-studio-display-frame.webp?v=3" width="2880" height="1620" loading="lazy" alt="">
-    <div class="sd-screen"><video class="demo-video" muted loop playsinline autoplay preload="auto" poster="../assets/usps/usps-menu-preview-poster.webp?v=3" width="1920" height="1080" aria-label="USPS Innovations split home, Innovations for Business and Innovations for Everyone, menu interaction on a desktop display"><source src="../assets/usps/usps-menu-preview.mp4?v=3" type="video/mp4"></video></div>
+    <img class="sd-frame" src="../assets/usps/usps-studio-display-frame.webp?v=4" width="2880" height="1620" loading="lazy" alt="">
+    <div class="sd-screen"><video class="demo-video" muted loop playsinline autoplay preload="auto" poster="../assets/usps/usps-menu-preview-poster.webp?v=4" width="1920" height="1080" aria-label="USPS Innovations split home, Innovations for Business and Innovations for Everyone, menu interaction on a desktop display"><source src="../assets/usps/usps-menu-preview.mp4?v=4" type="video/mp4"></video></div>
   </div>
 </div>
   <figcaption class="cap16">Choose your path</figcaption></figure>
@@ -116,8 +122,8 @@ body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height
 </div>
 <figure class="bleed fig fx"><div class="media mframe sd-video" data-usps-studio>
   <div class="sd-stage">
-    <img class="sd-frame" src="../assets/usps/usps-studio-display-frame.webp?v=3" width="2880" height="1620" loading="lazy" alt="">
-    <div class="sd-screen"><video class="demo-video" muted loop playsinline autoplay preload="auto" poster="../assets/usps/usps-product-demo-poster.webp?v=3" width="1920" height="1080" aria-label="USPS Innovations Informed Delivery product page: opening it from the Everyone menu, dragging through its sections, jumping with the section nav and returning to the menu, on a desktop display"><source src="../assets/usps/usps-product-demo.mp4?v=3" type="video/mp4"></video></div>
+    <img class="sd-frame" src="../assets/usps/usps-studio-display-frame.webp?v=4" width="2880" height="1620" loading="lazy" alt="">
+    <div class="sd-screen"><video class="demo-video" muted loop playsinline autoplay preload="auto" poster="../assets/usps/usps-product-demo-poster.webp?v=4" width="1920" height="1080" aria-label="USPS Innovations Informed Delivery product page: opening it from the Everyone menu, dragging through its sections, jumping with the section nav and returning to the menu, on a desktop display"><source src="../assets/usps/usps-product-demo.mp4?v=4" type="video/mp4"></video></div>
   </div>
 </div>
   <figcaption class="cap16">Scroll into the details</figcaption></figure>
@@ -140,31 +146,41 @@ body.cs .media.mframe.sd-video video{position:absolute;inset:0;width:100%;height
     <p class="sec-label">07 — More Fun</p>
   </section>
 </div>
-<figure class="bleed fig fx"><div class="media mframe ph" aria-hidden="true"></div>
+<figure class="bleed fig fx"><ul class="gif-grid" aria-label="Nine USPS animations">
+    <li class="gif-cell" data-slot="01"></li>
+    <li class="gif-cell" data-slot="02"></li>
+    <li class="gif-cell" data-slot="03"></li>
+    <li class="gif-cell" data-slot="04"></li>
+    <li class="gif-cell" data-slot="05"></li>
+    <li class="gif-cell" data-slot="06"></li>
+    <li class="gif-cell" data-slot="07"></li>
+    <li class="gif-cell" data-slot="08"></li>
+    <li class="gif-cell" data-slot="09"></li>
+  </ul>
   <figcaption class="cap16">Play on</figcaption></figure>
 <figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" data-btn="light" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 2">
   <div class="car-track">
-    <img class="is-active" src="../assets/usps/usps-07.webp?v=3" width="2880" height="1620" loading="lazy" alt="USPS Innovations on a desktop display and an iPad">
-    <img src="../assets/usps/usps-08.webp?v=3" width="2880" height="1620" loading="lazy" alt="USPS Innovations on a desktop display and an iPhone">
+    <img class="is-active" src="../assets/usps/usps-07.webp?v=4" width="2880" height="1620" loading="lazy" alt="USPS Innovations on a desktop display and an iPad">
+    <img src="../assets/usps/usps-08.webp?v=4" width="2880" height="1620" loading="lazy" alt="USPS Innovations on a desktop display and an iPhone">
   </div>
   <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
 </div></figure>
 <figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe carousel" data-btn="light" tabindex="0" aria-roledescription="carousel" aria-label="Slide 1 of 3">
   <div class="car-track">
-    <img class="is-active" src="../assets/usps/usps-09.webp?v=3" width="2880" height="1620" loading="lazy" alt="USPS Innovations on three iPhones">
-    <img src="../assets/usps/usps-10.webp?v=3" width="2880" height="1620" loading="lazy" alt="USPS Innovations on three iPhones">
-    <img src="../assets/usps/usps-11.webp?v=3" width="2880" height="1620" loading="lazy" alt="USPS Innovations on three iPhones">
+    <img class="is-active" src="../assets/usps/usps-09.webp?v=4" width="2880" height="1620" loading="lazy" alt="USPS Innovations on three iPhones">
+    <img src="../assets/usps/usps-10.webp?v=4" width="2880" height="1620" loading="lazy" alt="USPS Innovations on three iPhones">
+    <img src="../assets/usps/usps-11.webp?v=4" width="2880" height="1620" loading="lazy" alt="USPS Innovations on three iPhones">
   </div>
   <div class="car-nav"><button type="button" data-dir="-1" aria-label="Previous slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3L5.5 8l5 5"/></svg></button><button type="button" data-dir="1" aria-label="Next slide"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3l5 5-5 5"/></svg></button></div>
 </div></figure>
-<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe"><img src="../assets/usps/usps-14.webp?v=3" width="2880" height="1620" loading="lazy" alt="A grid of nine USPS illustrations"></div></figure>
+<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe"><img src="../assets/usps/usps-14.webp?v=4" width="2880" height="1620" loading="lazy" alt="A grid of nine USPS illustrations"></div></figure>
 <div class="wrap">
   <aside class="next fx" aria-label="Next project">
-    <a class="next-hit proj" href="fmss.html" aria-label="Next project: Facebook Monetization Split Screen"><p class="k ax" aria-hidden="true"><span class="t">NEXT CASE STUDY</span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-fmss-home.webp?v=3" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
+    <a class="next-hit proj" href="fmss.html" aria-label="Next project: Facebook Monetization Split Screen"><p class="k ax" aria-hidden="true"><span class="t">NEXT CASE STUDY</span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-fmss-home.webp?v=4" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
   </aside>
 </div>
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=3"></script><script src="../js/theme.js?v=3"></script><script src="../js/case.js?v=3"></script><script src="../assets/usps-intro/gsap.min.js?v=3" defer></script><script src="usps-intro.js?v=3" defer></script>
+<script src="../js/sfx.js?v=4"></script><script src="../js/theme.js?v=4"></script><script src="../js/case.js?v=4"></script><script src="../assets/usps-intro/gsap.min.js?v=4" defer></script><script src="usps-intro.js?v=4" defer></script>
 </body></html>
