@@ -48,7 +48,7 @@ figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:
 /* sections: two-column like DD (label rail + prose) */
 .sec{padding-top:clamp(72px,10vw,128px)}
 .sec-grid{display:grid;grid-template-columns:232px minmax(0,1fr);gap:0 48px}
-.sec-label{font:400 13px/1.9 var(--mono);color:var(--faint);padding-top:6px}
+.sec-label{font:400 13px/1.9 var(--mono);color:var(--faint);padding-top:6px;white-space:nowrap}
 .sec h2{font:var(--t-h2);letter-spacing:var(--t-h2-ls);color:var(--ink);margin-bottom:24px;max-width:none} /* h2s fill the 480px text column (no 22ch cap) */
 .prose{max-width:480px}
 .prose p{margin-bottom:20px}
