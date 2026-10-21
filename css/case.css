@@ -311,3 +311,7 @@ html{background:var(--page)}
 .car-light .car-nav svg{stroke:#000}
 .car-light .car-nav button:focus-visible{outline-color:#000}
 @media (max-width:640px) and (orientation:portrait){.prog{display:none}} /* no header progress line on phone portrait */
+/* Hide the browser's own start-playback overlay (shown by Safari when autoplay is held back, e.g. Low Power Mode); the site's own play/pause button stays */
+video.demo-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+video.demo-video::-webkit-media-controls-overlay-play-button{display:none!important}
+video.demo-video::-webkit-media-controls{display:none!important}
