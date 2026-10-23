@@ -247,7 +247,6 @@ body.cs .media.mframe video{display:block;flex:none;width:calc(100% + 4px);heigh
 .mbtn .i-play{display:none;fill:currentColor;stroke:none}
 .mbtn[aria-pressed=false] .i-play{display:block}.mbtn[aria-pressed=false] .i-pause{display:none}
 .vid-btn{position:absolute;right:32px;bottom:32px;z-index:3} /* 32px from the media container's right and bottom edges */
-@media (max-width:640px){.vid-btn,.car-ctrl{right:16px;bottom:16px}} /* 16px inset on mobile */
 .car-track{position:relative;width:100%;height:100%}
 body.cs .media.mframe .car-track img{position:absolute;inset:0;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0;opacity:0;transition:opacity 0s linear .7s;pointer-events:none} /* outgoing slide stays opaque underneath until the incoming one has fully covered it: no background flash */
 body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:opacity .7s cubic-bezier(.4,0,.2,1)}
@@ -256,6 +255,7 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:op
    Each dot holds a 5px-tall bar: 5px wide = a dot, 24px = the active track; the active slot is 40px, the rest 24px, so the pill
    keeps one width. js/case.js sets the widths and --p (fill progress) every frame */
 .car-ctrl{position:absolute;right:32px;bottom:32px;z-index:3;display:flex;align-items:center;gap:8px}
+@media (max-width:640px){.vid-btn,.car-ctrl{right:16px;bottom:16px}} /* 16px inset on mobile; after both base rules so it wins (it sat above .car-ctrl, which kept carousels at 32px) */
 .car-dots{display:flex;align-items:center;height:32px;padding:0 4px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;color:var(--c-strong);transition:border-color .2s ease} /* same 32px height as .mbtn */
 .car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:30px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .car-dot[aria-current=true]{cursor:default}

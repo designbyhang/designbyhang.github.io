@@ -1,9 +1,9 @@
 /* Colour tokens + light/dark themes. Light values equal the original hard-coded colours (zero visual change). */
-:root{--c-strong:#111;--c-paper:#fff;--c-grid:#eeeeee;--c-label:#333;--c-cap:#000;--c-slot:#F8F8F8;--c-dot:#cfcfcf;--c-res:var(--ink)}
+:root{--ring-media:rgba(0,0,0,.08);--c-strong:#111;--c-paper:#fff;--c-grid:#eeeeee;--c-label:#333;--c-cap:#000;--c-slot:#F8F8F8;--c-dot:#cfcfcf;--c-res:var(--ink)}
 .poster-svg circle{fill:var(--c-grid)}
 html[data-theme=dark]{color-scheme:dark;
   --page:#111;--card:#1a1a1a;--sheet:#1a1a1a;--ink:#f2f2f2;--body:#dcdcdc;--mute:#a6a6a6;--faint:#999;--line:#2a2a2a;--frame:#222;
-  --c-strong:#f2f2f2;--c-paper:#1a1a1a;--c-grid:#2a2a2a;--c-label:#cfcfcf;--c-cap:#f2f2f2;--c-slot:#202020;--c-dot:#555}
+  --ring-media:rgba(255,255,255,.12);--c-strong:#f2f2f2;--c-paper:#1a1a1a;--c-grid:#2a2a2a;--c-label:#cfcfcf;--c-cap:#f2f2f2;--c-slot:#202020;--c-dot:#555}
 html[data-theme=dark] .media.dark,html[data-theme=dark] .media.draw{border-color:#2a2a2a!important}
 html[data-theme=dark] .res{background:#0b0b0b;border:1px solid #2a2a2a}
 html[data-theme=dark] .skip{color:#111}
@@ -42,8 +42,9 @@ html{scrollbar-gutter:stable}
 :root{--ring-hover:color-mix(in srgb,currentColor 40%,transparent)}
 .theme-btn:hover,.mbtn:hover,.car-dots:hover{border-color:var(--ring-hover)}
 .theme-btn:focus-visible,.mbtn:focus-visible,.car-dots:has(:focus-visible){border-color:currentColor;outline:none}
-/* buttons on media (videos, carousels, the Studio deck): glass = theme surface at 68% + 16px backdrop blur. The theme toggle stays opaque */
-.mbtn,.car-dots{background:color-mix(in srgb,var(--c-paper) 68%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+/* buttons on media (videos, carousels, the Studio deck): frosted glass = theme surface at 44% + 24px blur, saturate 1.6; resting edge
+   --ring-media (black 8% light / white 12% dark: a soft edge a touch off the fill, not an outline). The theme toggle stays opaque on --line */
+.mbtn,.car-dots{border-color:var(--ring-media);background:color-mix(in srgb,var(--c-paper) 44%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .theme-btn svg{width:16px;height:16px;fill:var(--c-strong);stroke:none!important;display:block}
 .theme-btn.theme-float{box-shadow:0 1px 4px rgba(0,0,0,.06)}
 footer.bot>span{position:relative;top:calc((1em - 28px)/2)} /* copyright centred on the 28px toggle (both share the bottom inset) */
