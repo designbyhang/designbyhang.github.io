@@ -18,8 +18,10 @@ function upd(){const y=scrollY+innerHeight*.3;let s=secs[0];for(const x of secs)
 let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;upd();});},{passive:true});addEventListener('resize',upd);upd();})();
 /* play/pause button (.vid-btn) on media containers: plays at ~35% in view, pauses when out; loops; the button toggles; a manual pause sticks.
    window.dbhPlayPause(box, watch, player, noun): adds the button to box and drives player {paused(), play(), pause()} from watch's visibility; returns its state sync */
-window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play');b.type='button';b.className='vid-btn';
- b.innerHTML='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';box.appendChild(b);
+/* the one play/pause icon pair (.mbtn): pause = two strokes, play = filled triangle */
+window.dbhPP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';
+window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play');b.type='button';b.className='mbtn vid-btn';
+ b.innerHTML=window.dbhPP;box.appendChild(b);
  var sync=function(){var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};
  b.addEventListener('click',function(){if(p.paused()){held=false;p.play()}else{held=true;p.pause()}sync()});sync();
  /* body[data-always-play] (USPS): plays from load on every screen and loops until the button pauses it; never paused for leaving the view.
@@ -41,21 +43,20 @@ document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v
    into an empty track, on one shared progress, so the pill keeps its width. The fill starts once the handoff lands. Loops forever.
    Runs while >= 35% in view; pause freezes the fill; a dot click runs the handoff and restarts the fill; arrow keys when focused.
    Reduced motion: no autoplay, no animation */
-(function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2},
- PP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.5" height="10" rx=".6"/><rect x="9.5" y="3" width="2.5" height="10" rx=".6"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';
+(function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
 document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr)return;var imgs=[].slice.call(tr.children),n=imgs.length;if(n<2)return;
  var i=0,playing=!RM.matches,vis=false,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=imgs.map(function(img){return img.getAttribute('alt')||''});
  var ctrl=document.createElement('div'),row=document.createElement('div'),pp=document.createElement('button'),sr=document.createElement('span'),bars=[],fills=[];
  ctrl.className='car-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose slide');
  var dots=imgs.map(function(img,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
   b.setAttribute('aria-label','Slide '+(k+1)+' of '+n+(caps[k]?': '+caps[k]:''));b.addEventListener('click',function(){go(k)});row.appendChild(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild);return b});
- pp.type='button';pp.className='car-pp';pp.innerHTML=PP;pp.addEventListener('click',function(){playing=!playing;sync();kick()});
+ pp.type='button';pp.className='mbtn car-pp';pp.innerHTML=window.dbhPP;pp.addEventListener('click',function(){playing=!playing;sync();kick()});
  sr.className='car-sr';ctrl.appendChild(row);ctrl.appendChild(pp);c.appendChild(ctrl);c.appendChild(sr);
  row.addEventListener('keydown',function(e){var k=dots.indexOf(document.activeElement),t=null;if(k<0)return;
   if(e.key==='ArrowRight')t=k+1;else if(e.key==='ArrowLeft')t=k-1;else if(e.key==='Home')t=0;else if(e.key==='End')t=n-1;
   if(t===null)return;e.preventDefault();e.stopPropagation();go(t);dots[i].focus()});
  c.addEventListener('keydown',function(e){if(e.target!==c)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();go(i+(e.key==='ArrowRight'?1:-1))}});
- function sync(){pp.dataset.state=playing?'playing':'paused';pp.setAttribute('aria-label',(playing?'Pause':'Play')+' slideshow');sr.setAttribute('aria-live',playing?'off':'polite')}
+ function sync(){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' slideshow');sr.setAttribute('aria-live',playing?'off':'polite')}
  /* e[k]: how open slot k is (0 dot, 1 track); a handoff eases every slot from where it is to its target, so sum(e) stays 1 */
  var e=imgs.map(function(_,k){return k?0:1}),e0=e.slice();
  function go(k,first){k=(k%n+n)%n;elapsed=0;if(k!==i){e0=e.slice();h=RM.matches?1:0;ht=performance.now()}i=k;

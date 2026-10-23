@@ -37,7 +37,13 @@ html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8
    html keeps a stable scrollbar gutter so locking scroll (presentation) never changes the viewport width, 3vw or the toggle's x */
 html{scrollbar-gutter:stable}
 .theme-btn{--tb-x:clamp(16px,3vw,32px);position:fixed;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px));z-index:60}
-.theme-btn:hover,.theme-btn:focus-visible{border-color:currentColor}
+/* one hover ring for every round control: the 1px border at 40% of its ink (currentColor), both themes. Keyboard focus keeps the full-strength
+   ring (40% #111 on white is ~2.6:1, under the 3:1 a focus indicator needs). Dots pill takes the ring while a dot has keyboard focus */
+:root{--ring-hover:color-mix(in srgb,currentColor 40%,transparent)}
+.theme-btn:hover,.mbtn:hover,.car-dots:hover{border-color:var(--ring-hover)}
+.theme-btn:focus-visible,.mbtn:focus-visible,.car-dots:has(:focus-visible){border-color:currentColor;outline:none}
+/* buttons on media (videos, carousels, the Studio deck): glass = theme surface at 68% + 16px backdrop blur. The theme toggle stays opaque */
+.mbtn,.car-dots{background:color-mix(in srgb,var(--c-paper) 68%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .theme-btn svg{width:16px;height:16px;fill:var(--c-strong);stroke:none!important;display:block}
 .theme-btn.theme-float{box-shadow:0 1px 4px rgba(0,0,0,.06)}
 footer.bot>span{position:relative;top:calc((1em - 28px)/2)} /* copyright centred on the 28px toggle (both share the bottom inset) */
