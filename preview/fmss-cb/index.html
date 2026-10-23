@@ -37,8 +37,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
 
 /* ---------- phone (Figma "Screen / Caption & Browse" 375×812; px = Figma px) ---------- */
-.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;box-shadow:0 0 0 8px #e0e0e0,40px 0 40px 8px rgba(0,0,0,.2);isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
-/* bezel: 8px #E0E0E0 drawn OUTSIDE the 375×812 screen (box-shadow spread, not clipped by the screen's overflow); outer radius 48 = screen radius 40 + 8 */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+/* bezel: 8px #E0E0E0 OUTSIDE the 375×812 screen. Figma corner smoothing 60% (iOS squircle): JS (squircle()) clips the bezel to a 391×828 r48 squircle
+   and the screen to a 375×812 r40 squircle (the two are offset 8px within 0.1px, so the bezel stays an even 8px). border-radius is the no-JS fallback
+   (the squircle lies entirely inside it). Drop shadow = Figma 40px 0 blur 40 rgba(0,0,0,.2) via filter on the static .bezel wrapper so it follows the shape. */
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:#e0e0e0;border-radius:48px}
 .abs{position:absolute;display:block}
 img.abs{pointer-events:none;-webkit-user-drag:none}
 .video{left:0;top:0;width:375px;height:734px;object-fit:cover;background:#1c2a33}
@@ -95,6 +99,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 
   <div class="mframe" id="frame" role="region" aria-roledescription="interactive prototype" aria-label="Caption and Browse prototype: a Facebook video ad that opens an in-app browser (IAB)">
     <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
         <video class="abs video" id="vid" src="assets/ad-loop.mp4" poster="assets/ad-poster.jpg" muted playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
         <div class="abs grad-top"></div>
@@ -153,6 +158,24 @@ function fit(){
   stage.style.setProperty('--s',s.toFixed(4));
 }
 new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- Figma corner smoothing (port of figma-squircle by phamfoo, after Figma's 'Desperately seeking squircles'; preserveSmoothing) ----------
+   The device scales via CSS transform, so the paths are built once at native px (375×812 screen, 391×828 bezel). */
+function squircle(w,h,R,sm){
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
+  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),D=f(d),S=f(arc),r=f(R);
+  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${D}a${r} ${r} 0 0 1 ${S} ${S}c${D} ${C} ${D} ${BC} ${D} ${ABC}`+
+    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-D} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${D} ${-BC} ${D} ${-ABC} ${D}`+
+    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-D}a${r} ${r} 0 0 1 ${-S} ${-S}c${-D} ${-C} ${-D} ${-BC} ${-D} ${-ABC}`+
+    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${D} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-D} ${BC} ${-D} ${ABC} ${-D}Z`;
+}
+if(CSS.supports('clip-path','path("M0 0H1V1Z")')){
+  phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;
+  $('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`;
+}
 
 /* ---------- render everything from one value: sheet top y ---------- */
 let y=Y1,state=1;
