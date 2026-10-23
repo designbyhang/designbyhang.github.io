@@ -51,7 +51,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .links{display:flex;gap:16px;flex-wrap:wrap}
 .links a{text-decoration:none;font-size:14px;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease)}
 .links a:hover{background-size:100% 1px}
-.bot{display:flex;justify-content:space-between;gap:16px;padding:18px var(--side) var(--side);font:400 12px/1 var(--mono);color:var(--faint)}
+.bot{display:flex;justify-content:space-between;gap:16px;padding:0 var(--side) var(--side);font:400 12px/1 var(--mono);color:var(--faint)}
 /* load-in: fade only (transform belongs to the scale effect) */
 .strip{opacity:0;animation:fade .8s var(--ease) .05s forwards}
 @keyframes fade{to{opacity:1}}
