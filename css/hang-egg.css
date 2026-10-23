@@ -18,7 +18,7 @@ footer.bot>span.hegg-trg{cursor:pointer}
 @media (max-width:900px){.hegg .bar.hegg-bar{padding:0 clamp(20px,5vw,72px)}}
 @media (max-width:640px){.hegg .bar.hegg-bar{height:50px}}
 /* link = case.css .bar-right a (14px Bitcount mono, .04em, word-spacing -.32em, --c-label, ink on hover) + hover/focus underline on .t */
-.hegg .bar-right a.hegg-x{display:block;font-family:var(--mono);font-size:14px;font-weight:400;font-style:normal;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;text-decoration:none;color:var(--c-label);transition:color .2s;cursor:pointer}
+.hegg .bar-right a.hegg-x{display:block;font-family:var(--mono);font-size:14px;font-weight:400;font-style:normal;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;text-decoration:none;color:var(--c-label);transition:color .2s}
 .hegg .bar-right a.hegg-x:hover{color:var(--ink)}
 .hegg .bar-right a.hegg-x .t{position:relative;display:inline-block}
 .hegg .bar-right a.hegg-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
