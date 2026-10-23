@@ -1,0 +1,14 @@
+/* HANG easter egg: opens from the homepage copyright line (js/hang-egg.js). Black & white only: --page background, ink lines, no glow.
+   Full-viewport layer in the page colour, z 50, so the light/dark toggle (z 60) stays on top and switches the egg live.
+   Media container 480x480; phones (<=640px): viewport width - 16px each side, square. Close = 32px media button (.mbtn look:
+   1px ring, glass fill, 16px icon, 1.5px round-capped strokes), 32px from the container's right/bottom edges, 16px on phones. */
+footer.bot>span.hegg-trg{cursor:pointer}
+.hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
+.hegg.on{opacity:1}
+.hegg-stage{position:relative;width:min(480px,calc(100% - 32px),calc(100vh - 32px));aspect-ratio:1;background:var(--page)}
+.hegg-x{appearance:none;position:absolute;right:32px;bottom:32px;z-index:1;display:grid;place-items:center;width:32px;height:32px;padding:0;margin:0;border:1px solid var(--ring-media);border-radius:50%;box-sizing:border-box;background:color-mix(in srgb,var(--c-paper) 44%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--c-strong);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .2s ease}
+.hegg-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;display:block}
+.hegg-x:hover{border-color:var(--ring-hover)}
+.hegg-x:focus-visible{border-color:currentColor;outline:none}
+@media (max-width:640px){.hegg-stage{width:min(calc(100% - 32px),calc(100vh - 32px))}.hegg-x{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.hegg,.hegg-x{transition:none}}
