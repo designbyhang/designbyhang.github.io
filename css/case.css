@@ -257,7 +257,7 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:op
    Each dot holds a 5px-tall bar: 5px wide = a dot, 24px = the active track; the active slot is 40px, the rest 24px, so the pill
    keeps one width. js/case.js sets the widths and --p (fill progress) every frame */
 .car-ctrl{position:absolute;right:32px;bottom:32px;z-index:3;display:flex;align-items:center;gap:8px}
-.car-dots{display:flex;align-items:center;height:32px;padding:0 4px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;background:var(--c-paper);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.car-dots{display:flex;align-items:center;height:32px;padding:0 4px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;background:var(--c-paper);box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--c-strong);transition:border-color .2s ease}
 .car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:30px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .car-dot[aria-current=true]{cursor:default}
 .car-bar{position:relative;display:block;flex:none;width:5px;height:5px;border-radius:2.5px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
@@ -266,11 +266,13 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:op
 .car-dot:focus-visible .car-bar{overflow:visible;outline:1px solid #a8a8a8;outline-offset:4px}
 .car-fill{position:absolute;top:0;bottom:0;left:-5px;width:calc(5px + 100% * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
 .car-pp{appearance:none;display:grid;place-items:center;flex:none;width:32px;height:32px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;box-sizing:border-box;background:var(--c-paper);box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--c-strong);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .2s ease}
-.car-pp:hover,.car-pp:focus-visible{border-color:currentColor;outline:none}
+/* one hover outline for the whole control, same as the theme toggle: 1px border goes --line -> currentColor (--c-strong), .2s ease.
+   The pill also takes it while a dot has keyboard focus (that dot keeps its own small ring to show which one) */
+.car-pp:hover,.car-pp:focus-visible,.car-dots:hover,.car-dots:has(:focus-visible){border-color:currentColor;outline:none}
 .car-pp svg{width:16px;height:16px;fill:var(--c-strong);stroke:none;display:block}
 .car-pp .i-play{display:none}.car-pp[data-state=paused] .i-play{display:block}.car-pp[data-state=paused] .i-pause{display:none}
 .car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-@media (prefers-reduced-motion:reduce){.car-bar,.car-pp{transition:none}}
+@media (prefers-reduced-motion:reduce){.car-bar,.car-pp,.car-dots{transition:none}}
 
 /* captions: #000 light; dark = body copy token (--body, #dcdcdc). Legend swatches keep their own colours */
 body.cs figcaption,body.cs figcaption.cap16{color:var(--body)}
