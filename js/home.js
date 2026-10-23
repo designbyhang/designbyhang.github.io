@@ -155,12 +155,20 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   for(let it=0;it<4;it++){let f2=Infinity;G.letters.forEach(l=>{const c=l[1],e=place(l,fs,T).e;f2=Math.min(f2,fs*(c[2]-c[0]-2*T)/(e[1]-e[0]));});fs=f2;}
   let TT=T;if(port){const Hc=G.letters.find(l=>l[0]==='H')[1],Hw=Hc[2]-Hc[0];for(let j=0;j<4;j++){const e=place(G.letters.find(l=>l[0]==='H'),fs,TT).e;TT=(Hw-(e[1]-e[0]))/2;}} /* mobile v22: top gap = H's side gap (size unchanged) */
   G.letters.forEach(l=>{const c=l[1],q=place(l,fs,TT);l[2]=fs;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-(q.e[1]-q.e[0]))/2-q.e[0];l[6]=l[3]+q.e[0];l[7]=q.e[1]-q.e[0];});
+  /* intro-card letters: custom HANG outlines, same cells + same shared-size rule as the live letters (one size: widest visible ink = column - 2T; top gap T;
+     centred on visible ink; mobile: top gap = H side gap, G raised 2x its overshoot). l[8..10] keep the live text's x/size/baseline for the slide proxy. */
+  {const HL=window.HangLetters;let s=Infinity;G.letters.forEach(l=>{l[8]=l[3];l[9]=l[2];l[10]=l[4];});
+  const lay=(l,s,t)=>{const c=l[1],base=c[1]+t+(port&&l[0]==='G'?692:704)*s,e=HL.inkX(l[0],(base-c[3])/s,(base-c[1])/s);return{base,e};};
+  G.letters.forEach(l=>{const c=l[1],b=HL.bounds(l[0]);s=Math.min(s,(c[2]-c[0]-2*T)/(b[2]-b[0]));});
+  for(let it=0;it<6;it++){let s2=Infinity;G.letters.forEach(l=>{const c=l[1],e=lay(l,s,T).e;s2=Math.min(s2,(c[2]-c[0]-2*T)/(e[1]-e[0]));});s=s2;}
+  let TT=T;if(port){const H=G.letters.find(l=>l[0]==='H'),Hw=H[1][2]-H[1][0];for(let j=0;j<4;j++){const e=lay(H,s,TT).e;TT=(Hw-(e[1]-e[0])*s)/2;}}
+  G.letters.forEach(l=>{const c=l[1],q=lay(l,s,TT),w=(q.e[1]-q.e[0])*s;l[2]=s;l[4]=q.base;l[3]=c[0]+((c[2]-c[0])-w)/2-q.e[0]*s;l[6]=l[3]+q.e[0]*s;l[7]=w;});}
   
   // v13: each keyword's ink-left = ink-left of the big letter in its column (no letter in column -> nearest letter column)
   const colL=(x,y)=>{const L=G.letters.filter(l=>x>=l[1][0]-.01&&x<l[1][2]-.01).sort((a,b)=>Math.abs(y-a[1][3])-Math.abs(y-b[1][3]));if(L.length)return L[0];return G.letters.slice().sort((a,b)=>Math.abs(a[1][0]-x)-Math.abs(b[1][0]-x))[0];};
   const Hl=G.letters.find(l=>l[0]==='H'),wx=p=>{const L=colL(p[1],p[2]);const nb=G.ys.find(v=>v>p[2]+.01)-p[2],adj=Math.abs(p[2]-L[1][3])<1||Math.abs(p[2]+nb-L[1][1])<1;return (p[3]||L[0]==='G'&&!adj?p[1]+(Hl[6]-Hl[1][0]):L[6])-inkL(p[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf,SC);};
   const lx=l=>l[3];
-  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><text class="w lt a" style="--d:${TL+i*SQ}" x="${lx(l).toFixed(2)}" y="${l[4].toFixed(2)}" font-size="${l[2].toFixed(2)}" font-weight="500">${l[0]}</text></g>`;});
+  G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><g class="w lt a" style="--d:${TL+i*SQ}"><text fill-opacity="0" x="${lx([0,0,0,l[8]]).toFixed(2)}" y="${l[10].toFixed(2)}" font-size="${l[9].toFixed(2)}" font-weight="500">${l[0]}</text><path fill-rule="evenodd" d="${window.HangLetters.path(l[0],l[3],l[4],l[2])}"/></g></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},inkVt=(str,fpx,font)=>{const S=8,F=fpx*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});const w=Math.ceil(F*str.length)+20,h=Math.ceil(F*2),b=Math.round(F*1.4);cv.width=w;cv.height=h;c2.font=font.replace('#',F+'px');c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}return[(b-t0)/S,(t1+1-b)/S];},
   wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
