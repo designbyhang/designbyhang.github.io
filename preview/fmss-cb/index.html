@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMSS · Caption &amp; Browse — interactive IAB prototype (mock)</title>
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=42"><link rel="stylesheet" href="../../css/gate.css?v=42"><link rel="stylesheet" href="../../css/theme.css?v=42">
+<script src="../../js/gate.js?v=42"></script>
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--hint:rgba(242,242,242,.56)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.theme:focus-visible{outline:2px solid #0866ff;outline-offset:2px}
+
+/* container: same proportions as the case-study .media.mframe (3840/2052 desktop, 4:5 on phones) */
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.hint{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:12px;line-height:16px;color:var(--hint);pointer-events:none;transition:opacity .6s var(--ease)}
+@media (max-width:640px){.hint{display:none}}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone (Figma "Screen / Caption & Browse" 375×812; px = Figma px) ---------- */
+.phone{position:absolute;inset:0;border-radius:48px;overflow:hidden;background:#000;box-shadow:40px 0 40px rgba(0,0,0,.2);isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+.phone::after{content:"";position:absolute;inset:0;border:8px solid #e0e0e0;border-radius:48px;pointer-events:none;z-index:50}
+.abs{position:absolute;display:block}
+img.abs{pointer-events:none;-webkit-user-drag:none}
+.video{left:0;top:0;width:375px;height:734px;object-fit:cover;background:#1c2a33}
+.grad-top{left:0;top:0;width:375px;height:178px;background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,0));pointer-events:none}
+.grad-bot{left:0;top:470px;width:375px;height:264px;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.675) 20%,rgba(0,0,0,.563) 39.65%,rgba(0,0,0,.375) 60.35%,rgba(0,0,0,.15) 80.13%,rgba(0,0,0,0) 100%)}
+.overlay{left:0;top:0;width:375px;height:812px;background:rgba(0,0,0,.64);opacity:0;pointer-events:none}
+.details{left:12px;top:570px;width:352px;height:128px;will-change:transform}
+.cap-c,.cap-x{left:0;top:48px}
+.cap-x{opacity:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:8px}
+.tap-cap{left:12px;top:614px;width:303px;height:28px;border-radius:2px;z-index:6}
+.shop{left:12px;top:650px;width:303px;height:36px;border-radius:8px;z-index:6}
+.shop img{display:block;width:303px;height:36px}
+.shop:active img{filter:brightness(.92)}
+.chip{left:12px;top:698px;width:303px;height:24px}
+.tabbar{left:0;top:734px;width:375px;height:78px}
+.navbar{left:0;top:44px;width:375px;height:52px}
+.status{left:0;top:0;width:375px;height:44px;z-index:30}
+.status-d{opacity:0;background:#fff}
+.exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px}
+.exit-area.on{display:block}
+/* sheet = Figma "Bottom Container" (IAB) */
+.sheet{left:0;top:812px;width:375px;height:860px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;transform:translateZ(0)}
+.sheet.drag{cursor:grabbing}
+.sheet:focus-visible{outline:none}
+.iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
+.iab-hh{height:52px}
+.iab-hf{height:46px;top:2px;opacity:0}
+.handle{left:0;top:0;width:375px;height:20px;z-index:3;touch-action:none}
+.web{left:0;top:52px;width:375px;height:800px;object-fit:cover;object-position:top;z-index:1}
+.footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform}
+.x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
+.x.on{display:block}
+.x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:45;pointer-events:none}
+.finger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(255,255,255,.55) 0 38%,rgba(140,140,140,.35) 40% 100%);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
+.finger.on{opacity:.9}
+.finger.down{scale:.82}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Caption &amp; Browse</h1>
+      <p>FMSS · interactive in-app browser (IAB) prototype — standalone mock</p>
+    </div>
+    <button class="theme" id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button>
+  </header>
+
+  <div class="mframe" id="frame" role="region" aria-roledescription="interactive prototype" aria-label="Caption and Browse prototype: a Facebook video ad that opens an in-app browser (IAB)">
+    <div class="stage" id="stage">
+      <div class="phone" id="phone">
+        <video class="abs video" id="vid" src="assets/ad-loop.mp4" poster="assets/ad-poster.jpg" muted playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
+        <div class="abs grad-top"></div>
+        <div class="abs grad-bot"></div>
+        <img class="abs" src="assets/ufi-rail.svg" alt="" style="left:326px;top:486px;width:50px;height:237px">
+        <div class="abs overlay" id="overlay"></div>
+        <div class="abs details" id="details" aria-hidden="true">
+          <img class="abs" src="assets/author.svg" alt="" style="left:0;top:0;width:303px;height:36px">
+          <img class="abs cap-c" id="capC" src="assets/caption-collapsed.svg" alt="" style="width:303px;height:20px">
+          <img class="abs cap-x" id="capX" src="assets/caption-expanded.svg" alt="" style="width:352px;height:80px">
+        </div>
+        <p class="sr" id="captext">Nike, Sponsored. Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it’s perfect for all your activities.</p>
+        <button class="abs btn tap-cap" id="more" type="button" aria-describedby="captext" aria-label="More: expand caption and open the in-app browser (IAB) as a half sheet"></button>
+        <button class="abs btn shop" id="shop" type="button" aria-label="Shop now: open the in-app browser (IAB) full screen"><img src="assets/cta-shop-now.svg" alt=""></button>
+        <img class="abs chip" src="assets/sponsored-chip.svg" alt="">
+        <img class="abs tabbar" src="assets/tabbar.svg" alt="">
+        <img class="abs navbar" src="assets/navbar-video.svg" alt="">
+        <button class="abs btn exit-area" id="exitArea" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
+
+        <div class="abs sheet" id="sheet" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): nike.com" aria-hidden="true">
+          <img class="abs iab-h iab-hh" id="hHalf" src="assets/iab-header-half.svg" alt="">
+          <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg" alt="">
+          <div class="abs handle" id="handle" aria-hidden="true"></div>
+          <img class="abs web" id="web" src="assets/webpage-top.webp" alt="nike.com, Womens 24.7 Collection: Get a Nike Gift Card banner, category pills, Pick Up Today toggle, 5 Results with Filter, and a product grid">
+        </div>
+        <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
+        <img class="abs status" id="statusL" src="assets/statusbar-light.svg" alt="">
+        <img class="abs status status-d" id="statusD" src="assets/statusbar-dark.svg" alt="">
+        <button class="abs btn x" id="x" type="button" aria-label="Close in-app browser (IAB)"></button>
+        <div class="abs home" id="home"></div>
+        <div class="abs finger" id="finger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="hint" id="hint">Tap the caption or Shop now · drag the in-app browser</div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">Tap the caption (“… more”) to open the in-app browser (IAB) as a half sheet; Shop now opens it full screen. Drag the sheet up to go full, down to return to half or dismiss. X or Escape closes.</p>
+  <div style="height:120vh" aria-hidden="true"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),sheet=$('sheet'),vid=$('vid');
+const Y1=812,Y2=406,Y3=44;                       // sheet top: closed / half / full (Figma px)
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ---------- fit phone to container height (8-based padding) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40;
+  const s=Math.min((r.height-pad*2)/812,(r.width-pad*2)/(375+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- render everything from one value: sheet top y ---------- */
+let y=Y1,state=1;
+function render(){
+  const t=clamp((Y1-y)/(Y1-Y2));                 // 1→2 progress
+  const p=clamp((Y2-y)/(Y2-Y3));                 // 2→3 progress
+  sheet.style.transform=`translate3d(0,${(y-Y1).toFixed(2)}px,0)`;
+  sheet.style.borderRadius=`${(16*(1-p)).toFixed(2)}px ${(16*(1-p)).toFixed(2)}px 0 0`;
+  $('overlay').style.opacity=t.toFixed(3);
+  $('details').style.transform=`translate3d(0,${(lerp(570,266,t)-570).toFixed(2)}px,0)`;
+  const e=clamp((t-.15)/.6);
+  $('capC').style.opacity=(1-e).toFixed(3);$('capX').style.opacity=e.toFixed(3);
+  $('hHalf').style.opacity=(1-clamp((p-.35)/.5)).toFixed(3);
+  $('hFull').style.opacity=clamp((p-.35)/.5).toFixed(3);
+  $('handle').style.opacity=(1-p).toFixed(3);
+  $('web').style.top=lerp(52,48,p).toFixed(2)+'px';
+  $('footer').style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*122).toFixed(2)}px,0)`;
+  $('statusD').style.opacity=clamp((84-y)/40).toFixed(3);
+  $('home').style.background=t>.5?'#000':'#fff';
+}
+function setState(s){
+  state=s;
+  $('x').classList.toggle('on',s===3);
+  $('exitArea').classList.toggle('on',s===2);
+  $('exitArea').tabIndex=s===2?0:-1;
+  sheet.setAttribute('aria-hidden',s===1?'true':'false');
+  $('more').tabIndex=s===1?0:-1;$('shop').tabIndex=s===1?0:-1;
+  $('more').setAttribute('aria-expanded',s>1?'true':'false');
+  $('live').textContent=s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen';
+}
+
+/* ---------- spring animator (critically damped; ω≈18 matches the recording: 54% @0.1s, 86% @0.2s) ---------- */
+let raf=0,anim=null;
+function springTo(target,{v=0,w=18,z=1,onDone}={}){
+  cancelAnimationFrame(raf);
+  if(RM.matches){y=target;render();onDone&&onDone();return}
+  let last=performance.now(),vel=v;                // vel in px/s
+  anim={target};
+  const step=now=>{
+    let dt=Math.min(.032,(now-last)/1000);last=now;
+    for(let i=0;i<4;i++){const h=dt/4;const a=-w*w*(y-target)-2*z*w*vel;vel+=a*h;y+=vel*h}
+    if(Math.abs(y-target)<.3&&Math.abs(vel)<8){y=target;render();anim=null;onDone&&onDone();return}
+    render();raf=requestAnimationFrame(step);
+  };
+  raf=requestAnimationFrame(step);
+}
+function go(s,opts={}){
+  const target=s===1?Y1:s===2?Y2:Y3;
+  setState(s);
+  const o=Object.assign({},opts);
+  if(s===1&&o.w==null)o.w=16;                     // close ≈0.4s
+  springTo(target,o);
+}
+const openHalf=()=>go(2), openFull=()=>go(3), close=()=>go(1);
+
+/* ---------- controls ---------- */
+$('more').addEventListener('click',()=>{if(state===1)openHalf()});
+$('shop').addEventListener('click',()=>{if(state===1)openFull()});
+$('x').addEventListener('click',()=>{close();$('shop').focus({preventScroll:true})});
+$('exitArea').addEventListener('click',()=>{close();$('more').focus({preventScroll:true})});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state!==1){userActed();close();$('more').focus({preventScroll:true})}});
+
+/* ---------- sheet drag (pointer events, 1:1, velocity + position snap) ---------- */
+let drag=null;
+function scaleNow(){return phone.getBoundingClientRect().height/812}
+function dragStart(clientY,id){
+  cancelAnimationFrame(raf);
+  anim=null;
+  drag={id,startY:clientY,y0:y,from:state,moved:false,samples:[[performance.now(),y]]};
+  sheet.classList.add('drag');
+}
+function dragMove(clientY){
+  if(!drag)return;
+  let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
+  if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
+  if(ny<Y3)ny=Y3-(Y3-ny)*.25;                     // rubber-band above full
+  y=Math.min(Y1,ny);render();
+  const now=performance.now();drag.samples.push([now,y]);
+  while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
+}
+function dragEnd(){
+  if(!drag)return;
+  const d=drag;drag=null;sheet.classList.remove('drag');
+  if(!d.moved){ if(d.from===2)return openFull(); return springTo(d.from===3?Y3:Y2) }   // Figma: tap on half sheet → full
+  const s=d.samples,a=s[0],b=s[s.length-1];
+  const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;    // px/s (+ = down)
+  const proj=y+v*.18;
+  const cands=d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
+  let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
+  // velocity flick always moves at least one step in its direction
+  if(Math.abs(v)>600){
+    const dir=v>0?1:-1, cur=d.from;
+    const want=clamp(cur+(dir>0?-1:1),1,3);
+    if(d.from===3&&want<2){}else if((dir>0&&best[0]>want)||(dir<0&&best[0]<want))best=cands.find(c=>c[0]===want)||best;
+  }
+  go(best[0],{v,z:best[0]===2?.82:1});
+}
+sheet.addEventListener('pointerdown',e=>{
+  if(e.button!==0||state===1)return;
+  userActed();
+  sheet.setPointerCapture(e.pointerId);
+  dragStart(e.clientY,e.pointerId);drag.scale=scaleNow();
+});
+sheet.addEventListener('pointermove',e=>{if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
+sheet.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id)dragEnd()});
+sheet.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.id)dragEnd()});
+
+/* ---------- theme toggle ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}} );
+
+/* ---------- idle autoplay with fake-touch indicator ---------- */
+const finger=$('finger');
+let autoOn=false,token=0,idleT=0,visible=false,interacted=false;
+const sleep=(ms,tk)=>new Promise((res,rej)=>setTimeout(()=>tk===token?res():rej('x'),ms));
+function fingerAt(x,fy){finger.style.transform=`translate3d(${x}px,${fy}px,0)`}
+async function fmove(x0,y0,x1,y1,ms,tk,onY){
+  const t0=performance.now();
+  await new Promise((res,rej)=>{const f=now=>{if(tk!==token)return rej('x');const k=clamp((now-t0)/ms);const ek=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;const cx=lerp(x0,x1,ek),cy=lerp(y0,y1,ek);fingerAt(cx,cy);onY&&onY(cy);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+}
+async function tap(x,fy,tk,fn){
+  fingerAt(x,fy);finger.classList.add('on');await sleep(380,tk);
+  finger.classList.add('down');await sleep(140,tk);fn();finger.classList.remove('down');await sleep(220,tk);finger.classList.remove('on');
+}
+async function fakeDrag(x,fromY,toY,ms,tk){
+  fingerAt(x,fromY);finger.classList.add('on');await sleep(360,tk);finger.classList.add('down');await sleep(120,tk);
+  const sc=1;dragStart(fromY,'fake');drag.scale=sc;
+  await fmove(x,fromY,x,toY,ms,tk,cy=>dragMove(cy));
+  dragEnd();finger.classList.remove('down');await sleep(200,tk);finger.classList.remove('on');
+}
+async function loop(tk){
+  if(state!==1){close();await sleep(700,tk)}
+  while(tk===token){
+    await sleep(1100,tk);
+    await tap(150,628,tk,()=>$('more').click());              // tap caption → half
+    await sleep(1500,tk);
+    await fakeDrag(187,414,150,520,tk);                         // drag up → full
+    await sleep(1700,tk);
+    await fakeDrag(187,70,330,460,tk);                          // drag down → half
+    await sleep(1300,tk);
+    await fakeDrag(187,420,620,380,tk);                         // drag down → dismiss
+    await sleep(1300,tk);
+    await tap(163,668,tk,()=>$('shop').click());                // Shop now → full
+    await sleep(2000,tk);
+    await tap(347,68,tk,()=>{close()});                         // X → close
+    await sleep(1400,tk);
+  }
+}
+function startAuto(){
+  if(autoOn||RM.matches||!visible||document.hidden)return;
+  autoOn=true;const tk=++token;frame.dataset.autoplay='on';
+  loop(tk).catch(()=>{});
+}
+function stopAuto(){
+  if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';
+  finger.classList.remove('on','down');
+  if(drag&&drag.id==='fake'){dragEnd()}
+}
+function userActed(){
+  interacted=true;$('hint').style.opacity='0';
+  stopAuto();clearTimeout(idleT);
+  idleT=setTimeout(()=>{if(!drag)startAuto()},8000);
+}
+['pointerdown','keydown','wheel'].forEach(ev=>frame.addEventListener(ev,e=>{if(e.isTrusted)userActed()},{capture:true,passive:true}));
+frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visible, :focus-within'))userActed()});
+new IntersectionObserver(es=>{
+  visible=es[0].isIntersecting;
+  if(visible){vid.play().catch(()=>{});if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,8000)}}
+  else{vid.pause();stopAuto()}
+},{threshold:.35}).observe(frame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else if(visible){vid.play().catch(()=>{});}});
+RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
+
+setState(1);render();
+window.__cb={get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},go};
+})();
+</script>
+</body>
+</html>
