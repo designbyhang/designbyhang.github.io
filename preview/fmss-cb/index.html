@@ -37,7 +37,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
 
 /* ---------- phone (Figma "Screen / Caption & Browse" 375×812; px = Figma px) ---------- */
-.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#e0e0e0;isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
 /* bezel: 8px #E0E0E0 OUTSIDE the 375×812 screen. Figma corner smoothing 60% (iOS squircle): JS (squircle()) clips the bezel to a 391×828 r48 squircle
    and the screen to a 375×812 r40 squircle (the two are offset 8px within 0.1px, so the bezel stays an even 8px). border-radius is the no-JS fallback
    (the squircle lies entirely inside it). Drop shadow = Figma 40px 0 blur 40 rgba(0,0,0,.2) via filter on the static .bezel wrapper so it follows the shape. */
