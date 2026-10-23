@@ -19,7 +19,7 @@ let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;up
 /* play/pause button (.vid-btn) on media containers: plays at ~35% in view, pauses when out; loops; the button toggles; a manual pause sticks.
    window.dbhPlayPause(box, watch, player, noun): adds the button to box and drives player {paused(), play(), pause()} from watch's visibility; returns its state sync */
 /* the one play/pause icon pair (.mbtn): pause = two strokes, play = filled triangle */
-window.dbhPP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.333 3.2v9.6L13.333 8z"/></svg>';
+window.dbhPP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.087 4L5.087 12A0.8 0.8 0 0 0 6.311 12.678L12.711 8.678A0.8 0.8 0 0 0 12.711 7.322L6.311 3.322A0.8 0.8 0 0 0 5.087 4Z"/></svg>';
 window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play');b.type='button';b.className='mbtn vid-btn';
  b.innerHTML=window.dbhPP;box.appendChild(b);
  var sync=function(){var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};

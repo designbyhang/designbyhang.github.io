@@ -217,10 +217,11 @@ body.cs .wrap .fig .media.draw{box-sizing:content-box;max-width:calc(100% - 2px)
 .inc2 .inc-col{margin:0;min-width:0}
 .inc2 .inc-col .media.mframe{aspect-ratio:1920/2052;width:100%;height:auto;max-width:none;box-sizing:border-box}
 .inc2 .inc-col figcaption{margin:14px 0 0}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){
-  .inc2 .inc-row{grid-template-columns:1fr;gap:32px}
-  .inc2 .inc-col .media.mframe{aspect-ratio:3840/2052}
-}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.inc2 .inc-row{grid-template-columns:1fr;gap:32px}}
+/* stacked media: portrait tablets keep the wide frame; phones get a 4:5 portrait frame (cover crops only the dark side margins:
+   the art is 8:9 with the phones/ad inside its middle 76%, so both phone screens and the ad text stay whole) */
+@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){.inc2 .inc-col .media.mframe{aspect-ratio:3840/2052}}
+@media (max-width:640px){.inc2 .inc-col .media.mframe{aspect-ratio:4/5}}
 
 /* section label replaces the logo once past the eyebrow (all widths) */
 .brand{transition:opacity .22s ease}
