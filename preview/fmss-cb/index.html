@@ -301,7 +301,9 @@ const glog=[];                                     // gesture log, read by the t
 let autoOn=false,token=0,idleT=0,visible=false,interacted=false;
 const sleep=(ms,tk)=>new Promise((res,rej)=>setTimeout(()=>tk===token?res():rej('x'),ms));
 const easeIO=k=>-(Math.cos(Math.PI*k)-1)/2;        // calm sine in-out
-function fingerAt(x,fy){finger.style.transform=`translate3d(${x}px,${fy}px,0)`;finger.dataset.x=x.toFixed(2);finger.dataset.y=fy.toFixed(2)}
+/* position with the individual `translate` property, NOT `transform`: CSS applies `scale` before `transform`, so a transform
+   translate would itself be scaled by the .85 press and the circle would slide toward the top-left (read as a drag). */
+function fingerAt(x,fy){finger.style.translate=`${x}px ${fy}px`;finger.dataset.x=x.toFixed(2);finger.dataset.y=fy.toFixed(2)}
 function frames(ms,tk,fn){const t0=performance.now();return new Promise((res,rej)=>{const f=now=>{if(tk!==token)return rej('x');const k=clamp((now-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)})}
 async function tap(target,x,fy,tk,fn){
   glog.push({kind:'tap',target,x,y:fy});
@@ -372,7 +374,7 @@ RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()}
 const uf=$('ufinger'),FINE=matchMedia('(hover:hover) and (pointer:fine)');
 let ux=0,uy=0,uraf=0,uShow=false,uTouch=null;
 const isFine=e=>e.pointerType!=='touch'&&FINE.matches;
-function uWrite(){uf.style.transform=`translate3d(${ux.toFixed(2)}px,${uy.toFixed(2)}px,0)`;uf.dataset.x=ux.toFixed(1);uf.dataset.y=uy.toFixed(1)}
+function uWrite(){uf.style.translate=`${ux.toFixed(2)}px ${uy.toFixed(2)}px`;uf.dataset.x=ux.toFixed(1);uf.dataset.y=uy.toFixed(1)}
 function uPos(e,sync){const r=phone.getBoundingClientRect(),s=r.height/812;ux=(e.clientX-r.left)/s;uy=(e.clientY-r.top)/s;
   if(sync){cancelAnimationFrame(uraf);uraf=0;uWrite()}else if(!uraf)uraf=requestAnimationFrame(()=>{uraf=0;uWrite()})}
 function uOn(e){uPos(e,true);if(!uShow){uShow=true;uf.classList.add('on');phone.classList.add('u-on');stopAuto()}}
