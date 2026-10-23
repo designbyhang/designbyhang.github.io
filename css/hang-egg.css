@@ -1,14 +1,26 @@
 /* HANG easter egg: opens from the homepage copyright line (js/hang-egg.js). Black & white only: --page background, ink lines, no glow.
    Full-viewport layer in the page colour, z 50, so the light/dark toggle (z 60) stays on top and switches the egg live.
-   Media container 480x480; phones (<=640px): viewport width - 16px each side, square. Close = 32px media button (.mbtn look:
-   1px ring, glass fill, 16px icon, 1.5px round-capped strokes), 32px from the container's right/bottom edges, 16px on phones. */
+   Media container 480x480; phones (<=640px): 80% of (viewport width - 16px each side), square, centred.
+   Close = the Studio presentation's "× CLOSE" (projects/studio-present.js: .bar.deck-bar > nav.bar-right > a.ax with .arr.arr-back + .t),
+   same markup and classes, top right of the viewport inside the safe area. Its icon comes from css/arrows.css (shared with the homepage);
+   the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
 footer.bot>span.hegg-trg{cursor:pointer}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
+/* iOS Safari bars (as the Studio presentation, projects/studio.html + studio-present.js): while open the layer runs under the status bar and
+   toolbar (hang-egg.js adds viewport-fit=cover; CLOSE is inset by env(safe-area-inset-*)), is a solid square-cornered full-bleed rectangle
+   with its colour spread past the screen edges, and theme-color + html/body = --page (js/theme.js) = this colour, re-sampled after the fade */
+.hegg,.hegg:focus,.hegg:focus-visible{border-radius:0;outline:none;box-shadow:0 0 0 100vmax var(--page)}
 .hegg.on{opacity:1}
 .hegg-stage{position:relative;width:min(480px,calc(100% - 32px),calc(100vh - 32px));aspect-ratio:1;background:var(--page)}
-.hegg-x{appearance:none;position:absolute;right:32px;bottom:32px;z-index:1;display:grid;place-items:center;width:32px;height:32px;padding:0;margin:0;border:1px solid var(--ring-media);border-radius:50%;box-sizing:border-box;background:color-mix(in srgb,var(--c-paper) 44%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--c-strong);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .2s ease}
-.hegg-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;display:block}
-.hegg-x:hover{border-color:var(--ring-hover)}
-.hegg-x:focus-visible{border-color:currentColor;outline:none}
-@media (max-width:640px){.hegg-stage{width:min(calc(100% - 32px),calc(100vh - 32px))}.hegg-x{right:16px;bottom:16px}}
-@media (prefers-reduced-motion:reduce){.hegg,.hegg-x{transition:none}}
+@media (max-width:640px){.hegg-stage{width:calc(min(100% - 32px,100vh - 32px) * .8)}} /* phones: 80% of (viewport - 16px each side): 274px at 375, 286px at 390 */
+/* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (absolute, safe area) */
+.hegg .bar.hegg-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+@media (max-width:900px){.hegg .bar.hegg-bar{padding:0 clamp(20px,5vw,72px)}}
+@media (max-width:640px){.hegg .bar.hegg-bar{height:50px}}
+/* link = case.css .bar-right a (14px Bitcount mono, .04em, word-spacing -.32em, --c-label, ink on hover) + hover/focus underline on .t */
+.hegg .bar-right a.hegg-x{display:block;font-family:var(--mono);font-size:14px;font-weight:400;font-style:normal;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;text-decoration:none;color:var(--c-label);transition:color .2s;cursor:pointer}
+.hegg .bar-right a.hegg-x:hover{color:var(--ink)}
+.hegg .bar-right a.hegg-x .t{position:relative;display:inline-block}
+.hegg .bar-right a.hegg-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.hegg .bar-right a.hegg-x:hover .t::after,.hegg .bar-right a.hegg-x:focus-visible .t::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.hegg{transition:none}.hegg .bar-right a.hegg-x .t::after{transition:none}}
