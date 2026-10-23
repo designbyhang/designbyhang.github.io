@@ -6,13 +6,35 @@
    the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
 footer.bot>span.hegg-trg{cursor:pointer}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
-/* iOS Safari bars (as the Studio presentation, projects/studio.html + studio-present.js): while open the layer runs under the status bar and
-   toolbar (hang-egg.js adds viewport-fit=cover; CLOSE is inset by env(safe-area-inset-*)), is a solid square-cornered full-bleed rectangle
-   with its colour spread past the screen edges, and theme-color + html/body = --page (js/theme.js) = this colour, re-sampled after the fade */
+/* iOS Safari bars, ported from the Studio presentation as it works on iPhone (projects/studio.html .deck-flow/.deck-edge, commits
+   18ac7e0, a735500, f5acbcf): iOS 26 Safari does not take its bar tint from a full-screen fixed layer. Once the layer has faded in,
+   html.hegg-flow makes it the document itself (in normal flow, one viewport tall, 2px of scroll range for js/theme.js's re-sample
+   nudge); the page is collapsed out of flow and hidden (not display:none, so the homepage intro animations are not restarted);
+   two solid full-width fixed edge strips in the layer colour sit at the top and bottom edges; html/body/theme-color = --page (theme.js).
+   While open nothing cross-fades on a theme toggle (html, body, layer, strips switch instantly), so Safari never samples a half-way colour.
+   hang-egg.js adds viewport-fit=cover while open, so the layer and the strips run under the status bar and toolbar. */
 .hegg,.hegg:focus,.hegg:focus-visible{border-radius:0;outline:none;box-shadow:0 0 0 100vmax var(--page)}
 .hegg.on{opacity:1}
-.hegg-stage{position:relative;width:min(480px,calc(100% - 32px),calc(100vh - 32px));aspect-ratio:1;background:var(--page)}
+.hegg-stage{position:relative;z-index:1;width:min(480px,calc(100% - 32px),calc(100vh - 32px));aspect-ratio:1;background:var(--page)}
 @media (max-width:640px){.hegg-stage{width:calc(min(100% - 32px,100vh - 32px) * .8)}} /* phones: 80% of (viewport - 16px each side): 274px at 375, 286px at 390 */
+html.hegg-open.theme-anim,html.hegg-open.theme-anim body,html.theme-anim .hegg,html.theme-anim .hegg *{transition:none!important}
+html.hegg-flow{overflow:hidden}
+@media (hover:none) and (pointer:coarse){html.hegg-flow{overflow:auto}}
+html.hegg-flow,html.hegg-flow body{height:100%}
+html.hegg-flow body{display:block;min-height:0;overflow:visible;margin:0;padding:0 0 2px;box-sizing:content-box}
+html.hegg-flow body>:not(.hegg){position:absolute!important;top:0!important;left:0!important;right:0!important;width:auto!important;height:0!important;min-height:0!important;overflow:hidden!important;visibility:hidden!important;pointer-events:none!important}
+html.hegg-flow .hegg{position:relative;inset:auto;width:100%;height:100%}
+/* edge strips = Studio .deck-edge: top = the header row (58px, 50px <=640px) + safe area, bottom = clamp(16px,3vw,32px) + safe area. No
+   pointer-events:none: WebKit's edge sampler hit-tests */
+.hegg-edge{display:none;position:fixed;left:0;right:0;z-index:0;background:var(--page)}
+html.hegg-flow .hegg-edge{display:block}
+.hegg-edge-t{top:0;height:calc(58px + env(safe-area-inset-top,0px))}
+@media (max-width:640px){.hegg-edge-t{height:calc(50px + env(safe-area-inset-top,0px))}}
+.hegg-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
+/* the theme toggle joins the layer while it is open (as in the Studio presentation): position from the shared .theme-btn rule */
+.hegg .theme-btn{z-index:3}
+/* the CLOSE row spans the top edge: let hits (and WebKit's edge sampler) through to the strip, except on CLOSE itself */
+.hegg .bar.hegg-bar{pointer-events:none}.hegg .hegg-bar .bar-right{pointer-events:auto}
 /* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (absolute, safe area) */
 .hegg .bar.hegg-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (max-width:900px){.hegg .bar.hegg-bar{padding:0 clamp(20px,5vw,72px)}}
