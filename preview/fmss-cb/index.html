@@ -37,13 +37,14 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
 
 /* ---------- phone (Figma "Screen / Caption & Browse" 375×812; px = Figma px) ---------- */
-.phone{position:absolute;inset:0;border-radius:48px;overflow:hidden;background:#000;box-shadow:40px 0 40px rgba(0,0,0,.2);isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
-.phone::after{content:"";position:absolute;inset:0;border:8px solid #e0e0e0;border-radius:48px;pointer-events:none;z-index:50}
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;box-shadow:0 0 0 8px #e0e0e0,40px 0 40px 8px rgba(0,0,0,.2);isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+/* bezel: 8px #E0E0E0 drawn OUTSIDE the 375×812 screen (box-shadow spread, not clipped by the screen's overflow); outer radius 48 = screen radius 40 + 8 */
 .abs{position:absolute;display:block}
 img.abs{pointer-events:none;-webkit-user-drag:none}
 .video{left:0;top:0;width:375px;height:734px;object-fit:cover;background:#1c2a33}
-.grad-top{left:0;top:0;width:375px;height:178px;background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,0));pointer-events:none}
-.grad-bot{left:0;top:470px;width:375px;height:264px;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.675) 20%,rgba(0,0,0,.563) 39.65%,rgba(0,0,0,.375) 60.35%,rgba(0,0,0,.15) 80.13%,rgba(0,0,0,0) 100%)}
+/* protective scrims: soft eased transparent→dark gradients only (no blur / backdrop-filter, no edge) */
+.grad-top{left:0;top:0;width:375px;height:132px;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.443) 19%,rgba(0,0,0,0.325) 34%,rgba(0,0,0,0.229) 47%,rgba(0,0,0,0.167) 56.5%,rgba(0,0,0,0.116) 65%,rgba(0,0,0,0.076) 73%,rgba(0,0,0,0.045) 80.2%,rgba(0,0,0,0.025) 86.1%,rgba(0,0,0,0.013) 91%,rgba(0,0,0,0.005) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%);pointer-events:none}
+.grad-bot{left:0;top:369px;width:375px;height:365px;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.517) 19%,rgba(0,0,0,0.379) 34%,rgba(0,0,0,0.267) 47%,rgba(0,0,0,0.195) 56.5%,rgba(0,0,0,0.136) 65%,rgba(0,0,0,0.088) 73%,rgba(0,0,0,0.052) 80.2%,rgba(0,0,0,0.029) 86.1%,rgba(0,0,0,0.015) 91%,rgba(0,0,0,0.006) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%)}
 .overlay{left:0;top:0;width:375px;height:812px;background:rgba(0,0,0,.64);opacity:0;pointer-events:none}
 .details{left:12px;top:570px;width:352px;height:128px;will-change:transform}
 .cap-c,.cap-x{left:0;top:48px}
@@ -75,7 +76,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .x.on{display:block}
 .x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
 .home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:45;pointer-events:none}
-.finger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(255,255,255,.55) 0 38%,rgba(140,140,140,.35) 40% 100%);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
+.finger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on{opacity:.9}
 .finger.down{scale:.82}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -148,7 +149,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 function fit(){
   const r=frame.getBoundingClientRect();
   const pad=r.width<=640?24:40;
-  const s=Math.min((r.height-pad*2)/812,(r.width-pad*2)/(375+40));
+  const s=Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));   // screen + 8px bezel each side (+ shadow room)
   stage.style.setProperty('--s',s.toFixed(4));
 }
 new ResizeObserver(fit).observe(frame);fit();
