@@ -11,11 +11,11 @@ const fs=document.createElement('div');fs.className='deck-fs';fs.hidden=true;fs.
 fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttribute('aria-label','Studio Model presentation');
 /* CLOSE reuses the page header's BACK markup and classes (.bar / .bar-right / .ax / .arr / .t), so it sits exactly where BACK
    sits with the same type, gap, icon size/stroke and hover underline at every breakpoint */
-/* AUTO PLAY (bottom-right, CLOSE's markup + the header BACK's icon/text gap): play glyph points right; pause = two bars */
+/* AUTO SCROLL (bottom-right, CLOSE's markup + the header BACK's icon/text gap): play glyph points right; pause = two bars */
 const AP_PLAY='<svg viewBox="0 0 20 16" fill="none"><path d="M4.827 1.536L4.827 14.464A0.536 0.536 0 0 0 5.635 14.925L16.563 8.461A0.536 0.536 0 0 0 16.563 7.539L5.635 1.075A0.536 0.536 0 0 0 4.827 1.536Z"/></svg>',AP_PAUSE='<svg viewBox="0 0 20 16" fill="none"><path d="M7 1V15M13 1V15"/></svg>';
 /* phones (portrait and landscape) get a round Play/Pause button instead (the theme toggle's circle, bottom right; studio.html):
    filled glyphs like the toggle's icons */
-fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Autoplay"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Autoplay"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO PLAY</span></a></nav></div><button type="button" class="deck-apb mbtn" aria-pressed="false" aria-label="Play">'+window.dbhPP+'</button><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
+fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Auto scroll"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Auto scroll"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO SCROLL</span></a></nav></div><button type="button" class="deck-apb mbtn" aria-pressed="false" aria-label="Play">'+window.dbhPP+'</button><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
 const edges=fs.querySelectorAll('.deck-edge'),btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),apRnd=fs.querySelector('.deck-apb'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
 let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
@@ -24,7 +24,7 @@ let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
    and keeps showing 40/40 */
 const C0=2,CN=window.__STUDIO__.slides.length-2-C0+1,pad=n=>String(n).padStart(2,'0'),num=n=>pad(Math.min(CN,Math.max(0,n-C0+1)));
 const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
- /* any step (gesture or AUTO PLAY) restarts the AUTO PLAY wait, which then waits for the landing */
+ /* any step (gesture or AUTO SCROLL) restarts the AUTO SCROLL wait, which then waits for the landing */
  onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}}});
 const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(CN);
 const ease=deck.ease,DUR=650;
@@ -58,11 +58,11 @@ const lumOf=c=>{const v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number);
 /* TRUE fullscreen: once the open animation has finished, html.deck-flow hides the page (display:none) and puts the layer in
    normal flow as the document itself (one viewport + 2px, scroll 0; body = stage colour, js/theme.js). Closing restores the fixed
    overlay and the page's scroll position first, then animates back into the page. The layer/stage paint nothing in the letterbox,
-   the slide canvas stays inside the artboard; on tight landscape phones (CLOSE / AUTO PLAY over the art) the canvas fills it.
+   the slide canvas stays inside the artboard; on tight landscape phones (CLOSE / AUTO SCROLL over the art) the canvas fills it.
    iOS 26 Safari bars: they tint from the solid fixed/sticky element at each screen edge and WebKit re-samples it when that layer
    repaints (that is why the project pages' solid sticky header follows the toggle live); without one it falls back to a body
    colour it does not reliably re-read (device: the top kept the colour from opening). So the open layer gets the same thing as the
-   project pages: two solid, full-width fixed edge strips (.deck-edge: top = the header row, bottom = the band under AUTO PLAY /
+   project pages: two solid, full-width fixed edge strips (.deck-edge: top = the header row, bottom = the band under AUTO SCROLL /
    the toggle), painted in the colour shown at that edge (stage colour, or the canvas when it fills the letterbox) by chrome(),
    which runs synchronously on every theme change. */
 let flowY=null;function flow(on){if(on){if(flowY!==null)return;flowY=scrollY;de.classList.add('deck-flow');scrollTo({top:0,left:0,behavior:'instant'});}
@@ -108,7 +108,7 @@ function asideMeasure(){tbMeasure();lt=[];for(const el of lefts){el.style.transl
  tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}
  /* the presentation's controls enter with CLOSE once BACK has passed: the counter too when the menu is not shown (phones, most
-    desktop widths), and AUTO PLAY / the Play/Pause button; top to bottom (the stagger order) */
+    desktop widths), and AUTO SCROLL / the Play/Pause button; top to bottom (the stagger order) */
  for(const g of tg)g.ui=[g.mate];const g=tg.find(g=>g.mate===btn);if(g){if(!tg.some(g=>g.mate===cnt))g.ui.push(cnt);g.ui.push(apBtn,apRnd);}
  /* closing: each exits from wherever it is (it may still be entering) */
  for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}

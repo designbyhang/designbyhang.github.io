@@ -15,7 +15,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='%23111'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/type.css?v=40"><link rel="stylesheet" href="../css/gate.css?v=40"><link rel="stylesheet" href="../css/case.css?v=40"><link rel="stylesheet" href="../css/arrows.css?v=40"><link rel="stylesheet" href="../css/theme.css?v=40">
+<link rel="stylesheet" href="../css/type.css?v=41"><link rel="stylesheet" href="../css/gate.css?v=41"><link rel="stylesheet" href="../css/case.css?v=41"><link rel="stylesheet" href="../css/arrows.css?v=41"><link rel="stylesheet" href="../css/theme.css?v=41">
 <style id="deck-css">
 @media (max-width:640px) and (orientation:portrait){.br-wide{display:none}}
 /* Studio Model presentation (02): deck in the media frame, expands to fullscreen (studio-present.js). Frame and stage use the
@@ -81,7 +81,7 @@ html.deck-flow body>:not(.deck-fs){display:none!important}
 html.deck-flow .deck-fs{position:relative;inset:auto;width:100%;height:100%}
 /* iOS 26 Safari bar tint (studio-present.js): solid full-width fixed strips at the top and bottom screen edges while open, like the
    project pages' solid sticky header; background = the colour at that edge (inline, chrome()), so they are invisible. Top = the
-   header row (CLOSE), bottom = the band under AUTO PLAY / the toggle; below the controls, above the stage. When the canvas fills
+   header row (CLOSE), bottom = the band under AUTO SCROLL / the toggle; below the controls, above the stage. When the canvas fills
    the letterbox (tight landscape, art can reach the edges) they shrink to 4px */
 .deck-edge{display:none;position:fixed;left:0;right:0;z-index:1} /* no pointer-events:none: WebKit's edge sampler hit-tests; the stage takes no pointer events anyway, controls sit above */
 html.deck-flow .deck-edge{display:block}
@@ -90,7 +90,7 @@ html.deck-flow .deck-edge{display:block}
 .deck-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
 .deck-fs[data-lb=canvas] .deck-edge{height:4px}
 /* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
-/* AUTO PLAY: CLOSE's bar, pinned bottom-right; 28px row centred on the light/dark toggle (same bottom inset), safe areas respected */
+/* AUTO SCROLL: CLOSE's bar, pinned bottom-right; 28px row centred on the light/dark toggle (same bottom inset), safe areas respected */
 .deck-fs .bar.deck-bar.deck-auto-bar{top:auto;height:28px;bottom:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
 .deck-fs .ax.deck-auto .arr.arr-back svg{transform:none}
 .deck-fs .theme-btn{z-index:3} /* position comes from the shared .theme-btn rule (css/theme.css) */.deck-stage.is-fs{pointer-events:none}
@@ -105,7 +105,7 @@ html.deck-flow .deck-edge{display:block}
  .deck-fs .theme-btn:not(.tb-home){left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
  .deck-edge,.deck-edge-t,.deck-edge-b{height:4px}
 }
-/* Play/Pause (studio-present.js .deck-apb): phones only (portrait, and landscape as above), in place of the AUTO PLAY text; the shared
+/* Play/Pause (studio-present.js .deck-apb): phones only (portrait, and landscape as above), in place of the AUTO SCROLL text; the shared
    .mbtn play/pause (css/case.css, glass + hover ring in css/theme.css), bottom right, 16px from the right and bottom safe edges */
 .deck-apb{display:none}
 @media (orientation:portrait) and (max-width:640px),(orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse){
@@ -113,7 +113,7 @@ html.deck-flow .deck-edge{display:block}
  .deck-apb{display:grid;position:absolute;z-index:3;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 }
 </style>
-<script src="../js/gate.js?v=40"></script>
+<script src="../js/gate.js?v=41"></script>
 </head>
 <body class="cs" data-prj="Studio Model">
 <a class="skip" href="#main">Skip to content</a>
@@ -140,7 +140,7 @@ html.deck-flow .deck-edge{display:block}
 </section>
 
 <figure class="bleed hero-media fx">
-  <div class="media cover hero-slot"><img src="../assets/cover-studio-hero.webp?v=40" width="2944" height="1640" alt="Studio Model project cover"></div>
+  <div class="media cover hero-slot"><img src="../assets/cover-studio-hero.webp?v=41" width="2944" height="1640" alt="Studio Model project cover"></div>
 </figure>
 
 <div class="wrap">
@@ -159,11 +159,11 @@ html.deck-flow .deck-edge{display:block}
 <figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe deck" id="deck" tabindex="0" role="region" aria-roledescription="presentation" aria-label="Studio Model presentation, 43 slides. Scroll, swipe or use the arrow keys to step through it; Escape closes it"><div class="deck-stage"><div class="deck-inner"></div></div></div></figure>
 <div class="wrap">
   <aside class="next fx" aria-label="Next project">
-    <a class="next-hit proj" href="usps.html" aria-label="Next project: USPS Innovations"><p class="k ax" aria-hidden="true"><span class="t">NEXT CASE STUDY</span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-usps-home.webp?v=40" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
+    <a class="next-hit proj" href="usps.html" aria-label="Next project: USPS Innovations"><p class="k ax" aria-hidden="true"><span class="t">NEXT CASE STUDY</span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-usps-home.webp?v=41" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
   </aside>
 </div>
 </main>
 <footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
 <footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
-<script src="../js/sfx.js?v=40"></script><script src="../js/theme.js?v=40"></script><script src="../js/case.js?v=40"></script><script src="studio-deck-data.js?v=40" defer></script><script src="studio-deck.js?v=40" defer></script><script src="studio-present.js?v=40" defer></script>
+<script src="../js/sfx.js?v=41"></script><script src="../js/theme.js?v=41"></script><script src="../js/case.js?v=41"></script><script src="studio-deck-data.js?v=41" defer></script><script src="studio-deck.js?v=41" defer></script><script src="studio-present.js?v=41" defer></script>
 </body></html>

@@ -193,7 +193,7 @@ const CELLT=D.cellT||{};
 function cellT(i,t){const c=CELLT[i];if(!c)return t;const u=rawU!==null?rawU:(rawDir>0?t:1-t);const e=FIG[c[1]](c[0])(Math.min(1,u*DUR[i]/c[0]));return rawDir>0?e:1-e;}
 /* grid draw-in (studio_02 -> 03): alternating directions, verticals down/up from 500ms at i*150ms, horizontals right/left from
    1.3s at i*150ms, 1.7s each, cubic-bezier(.65,0,.35,1). */
-/* drawn on EVERY studio_02 -> 03 step (3.45s total: 8 verticals + 4 horizontals). The step only lands (AUTO PLAY wait,
+/* drawn on EVERY studio_02 -> 03 step (3.45s total: 8 verticals + 4 horizontals). The step only lands (AUTO SCROLL wait,
    `animating` false) when the last line is fully drawn; a new gesture during the draw completes it at once and lands there. */
 /* Each line is its own element: while drawing, the real Grid layer (a 11x5 group of 240px cells, each outlining its own border
    with a 1px band) is hidden and an SVG of one growing rect per line stands in for it. A strip-mask over the cell group cannot
@@ -236,7 +236,7 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  DW=lerp(KD(i),KD(i+1),t);
  /* the slide's own canvas colour fills the 1920x1080 artboard only; the stage around it (fullscreen letterbox, screen edges)
     is the standard stage colour, so black slides stay framed and iOS samples #f4f4f4 / #222222 at the edges (studio-present.js
-    sets data-lb=canvas only on tight viewports where its CLOSE / AUTO PLAY chrome overlaps the art: then the canvas fills the
+    sets data-lb=canvas only on tight viewports where its CLOSE / AUTO SCROLL chrome overlaps the art: then the canvas fills the
     letterbox as before so the chrome stays legible; data-lb=none while the presentation is open otherwise: the stage paints
     nothing and html/body, set to the stage colour, show through) */
  const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';{const ci=(t<1&&S[i].ph)||(t>0&&S[i+1]&&S[i+1].ph);root.style.padding=ci?'var(--cvin)':'';root.style.backgroundClip=ci?'content-box':'';}const lb=stage.dataset.lb;stage.style.background=lb==='none'?'transparent':lb==='canvas'&&bg?rgba(bg):dark?'#222222':'#f4f4f4';
