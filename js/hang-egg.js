@@ -1,6 +1,6 @@
 /* HANG easter egg: click (or Enter/Space on) the homepage copyright line to open a full-viewport layer in the page colour with the
-   HANG letter animation (js/hang-cube.js, loaded on the first open only, same ?v= as this file). Closes on CLOSE (the Studio presentation's
-   top-right "× CLOSE", same markup/classes), Esc or a click outside the 480px container; the animation loop and its observers are destroyed on close. Colours come from the site tokens
+   HANG letter animation (js/hang-cube.js, loaded on the first open only, same ?v= as this file). Closes only on CLOSE (the Studio presentation's
+   top-right "× CLOSE", same markup/classes; click/tap, Enter or Space) or Esc; clicks elsewhere on the layer do nothing; the animation loop and its observers are destroyed on close. Colours come from the site tokens
    (--page/--ink) and follow the light/dark toggle live. prefers-reduced-motion: no fades and a static, fully formed H. */
 (()=>{const trg=document.querySelector('footer.bot>span');if(!trg)return;
 const me=document.currentScript,q=me&&me.src.indexOf('?')>0?me.src.slice(me.src.indexOf('?')):'',src=new URL('hang-cube.js'+q,me?me.src:location.href).href;
@@ -22,7 +22,6 @@ function open(){if(ov)return;ret=document.activeElement;
   const o=ov=document.createElement('div');o.className='hegg';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','HANG');
   o.innerHTML='<div class="hegg-stage" role="img" aria-label="The letters H, A, N, G drawn and turning in a loop"></div><div class="bar hegg-bar"><nav class="bar-right" aria-label="HANG"><a class="ax hegg-x" href="#" role="button" aria-label="Close"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
   o.querySelector('.hegg-x').addEventListener('click',e=>{e.preventDefault();close();});
-  o.addEventListener('click',e=>{if(!e.target.closest('.hegg-stage'))close();});
   o.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
   document.body.appendChild(o);lock();
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
