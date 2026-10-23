@@ -260,11 +260,12 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:op
 .car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:30px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .car-dot[aria-current=true]{cursor:default}
 .car-bar{position:relative;display:block;flex:none;width:5px;height:5px;border-radius:2.5px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
-.car-dot:not([aria-current=true]):hover .car-bar{background:#a8a8a8}
+.car-dot:not([aria-current=true]):hover .car-bar{background:var(--c-strong)} /* hovered inactive dot = full ink, both themes */
 html[data-theme=dark] .car-bar{background:color-mix(in srgb,var(--c-strong) 40%,transparent)} /* dark glass over a light image reads mid-grey, where #555 dots vanish; 40% ink stays visible over dark and light media */
 .car-dot:focus-visible{outline:none}
 .car-dot:focus-visible .car-bar{overflow:visible;outline:1px solid #a8a8a8;outline-offset:4px}
-.car-fill{position:absolute;top:0;bottom:0;left:-5px;width:calc(5px + 100% * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
+.car-fill{display:none;position:absolute;top:0;bottom:0;left:0;width:calc(5px + (100% - 5px) * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
+.car-dot[aria-current=true] .car-fill{display:block} /* fill starts as a full 5px head dot at the left end, then grows to the bar width */
 .car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.car-bar,.mbtn,.car-dots{transition:none}}
 
