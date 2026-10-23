@@ -241,22 +241,36 @@ body.cs .media.mframe.video,body.cs .media.mframe.carousel{background:#f1f1f1}
 body.cs .media.mframe video{display:block;flex:none;width:calc(100% + 4px);height:calc(100% + 4px);margin:-2px;object-fit:cover;object-position:50% 50%;background:#f1f1f1;border-radius:0}
 /* play/pause: same look as .theme-btn (shared rules in theme.css), 40px from frame's right/bottom; 16px on phones (toggle's mobile inset) */
 /* media controls: 32px translucent black circles, white 1.5px stroke icons, same in both themes (independent of .theme-btn) */
-.vid-btn,.car-nav button{appearance:none;display:grid;place-items:center;width:32px;height:32px;padding:0;margin:0;border:0;border-radius:50%;box-sizing:border-box;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
-.vid-btn:hover,.car-nav button:hover{background:rgba(0,0,0,.62)}
-.vid-btn:focus-visible,.car-nav button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.vid-btn svg,.car-nav svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
+.vid-btn{appearance:none;display:grid;place-items:center;width:32px;height:32px;padding:0;margin:0;border:0;border-radius:50%;box-sizing:border-box;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.vid-btn:hover{background:rgba(0,0,0,.62)}
+.vid-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.vid-btn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
 .vid-btn{position:absolute;right:32px;bottom:32px;z-index:3} /* 32px from the media container's right and bottom edges */
 .vid-btn .i-play{display:none;fill:#fff;stroke:none} /* path centroid at (8,8); no stroke so mass matches */
 .vid-btn[aria-pressed=false] .i-play{display:block}.vid-btn[aria-pressed=false] .i-pause{display:none}
-.car-nav [data-dir="-1"] svg{transform:translateX(-1px)} /* optical centering */
-.car-nav [data-dir="1"] svg{transform:translateX(1px)}
-.car-nav{position:absolute;right:32px;bottom:32px;z-index:3;display:flex;gap:12px} /* 32px inset, matches .vid-btn */
-@media (max-width:640px){.vid-btn,.car-nav{right:16px;bottom:16px}} /* 16px inset on mobile */
+@media (max-width:640px){.vid-btn,.car-ctrl{right:16px;bottom:16px}} /* 16px inset on mobile */
 .car-track{position:relative;width:100%;height:100%}
 body.cs .media.mframe .car-track img{position:absolute;inset:0;width:100%;height:100%;transform:scale(1.006);object-fit:cover;border-radius:0;opacity:0;transition:opacity 0s linear .7s;pointer-events:none} /* outgoing slide stays opaque underneath until the incoming one has fully covered it: no background flash */
 body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:opacity .7s cubic-bezier(.4,0,.2,1)}
-.car-nav button:disabled{opacity:.35;cursor:default}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe .car-track img{transition:none}}
+/* carousel controls: a light pill of 5px dots (theme-toggle surface) + 32px play/pause, 32px inset (16px on phones).
+   Each dot holds a 5px-tall bar: 5px wide = a dot, 24px = the active track; the active slot is 40px, the rest 24px, so the pill
+   keeps one width. js/case.js sets the widths and --p (fill progress) every frame */
+.car-ctrl{position:absolute;right:32px;bottom:32px;z-index:3;display:flex;align-items:center;gap:8px}
+.car-dots{display:flex;align-items:center;height:32px;padding:0 4px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;background:var(--c-paper);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:30px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.car-dot[aria-current=true]{cursor:default}
+.car-bar{position:relative;display:block;flex:none;width:5px;height:5px;border-radius:2.5px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
+.car-dot:not([aria-current=true]):hover .car-bar{background:#a8a8a8}
+.car-dot:focus-visible{outline:none}
+.car-dot:focus-visible .car-bar{overflow:visible;outline:1px solid #a8a8a8;outline-offset:4px}
+.car-fill{position:absolute;top:0;bottom:0;left:-5px;width:calc(5px + 100% * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
+.car-pp{appearance:none;display:grid;place-items:center;flex:none;width:32px;height:32px;padding:0;margin:0;border:1px solid var(--line);border-radius:50%;box-sizing:border-box;background:var(--c-paper);box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--c-strong);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .2s ease}
+.car-pp:hover,.car-pp:focus-visible{border-color:currentColor;outline:none}
+.car-pp svg{width:16px;height:16px;fill:var(--c-strong);stroke:none;display:block}
+.car-pp .i-play{display:none}.car-pp[data-state=paused] .i-play{display:block}.car-pp[data-state=paused] .i-pause{display:none}
+.car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.car-bar,.car-pp{transition:none}}
 
 /* captions: #000 light; dark = body copy token (--body, #dcdcdc). Legend swatches keep their own colours */
 body.cs figcaption,body.cs figcaption.cap16{color:var(--body)}
@@ -266,11 +280,11 @@ html[data-theme=dark] body.cs figcaption,html[data-theme=dark] body.cs figcaptio
 body.cs .media img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 
 /* Inconsistencies two-column block: light buttons for dark media */
-.inc-row .vid-btn,.inc-row .car-nav button{background:rgba(255,255,255,.85);color:#000}
-.inc-row .vid-btn:hover,.inc-row .car-nav button:hover{background:#fff}
-.inc-row .vid-btn svg,.inc-row .car-nav svg{stroke:#000}
+.inc-row .vid-btn{background:rgba(255,255,255,.85);color:#000}
+.inc-row .vid-btn:hover{background:#fff}
+.inc-row .vid-btn svg{stroke:#000}
 .inc-row .vid-btn .i-play{fill:#000}
-.inc-row .vid-btn:focus-visible,.inc-row .car-nav button:focus-visible{outline-color:#000}
+.inc-row .vid-btn:focus-visible{outline-color:#000}
 
 /* quote bar spans the text lines only, not the line-height leading above and below */
 blockquote,.sec .quote{position:relative;border-left:0}
@@ -305,11 +319,6 @@ body.cs .bot{display:flex;justify-content:flex-end;align-items:center;padding:18
 
 html{background:var(--page)}
 .media.cover.hero-slot,body .media.cover.hero-slot{background:none!important;border:0!important;border-radius:0;box-shadow:none}
-/* carousel buttons follow image brightness (js sets .car-light on dark images) */
-.car-light .car-nav button{background:rgba(255,255,255,.85);color:#000}
-.car-light .car-nav button:hover{background:#fff}
-.car-light .car-nav svg{stroke:#000}
-.car-light .car-nav button:focus-visible{outline-color:#000}
 @media (max-width:640px) and (orientation:portrait){.prog{display:none}} /* no header progress line on phone portrait */
 /* Hide the browser's own start-playback overlay (shown by Safari when autoplay is held back, e.g. Low Power Mode); the site's own play/pause button stays */
 video.demo-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
