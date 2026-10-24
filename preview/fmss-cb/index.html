@@ -353,13 +353,13 @@ function stopAuto(){
 function userActed(){
   interacted=true;$('hint').style.opacity='0';
   stopAuto();clearTimeout(idleT);
-  idleT=setTimeout(()=>{if(!drag&&!uShow)startAuto()},8000);
+  idleT=setTimeout(()=>{if(!drag&&!uShow)startAuto()},6000);
 }
 ['pointerdown','keydown','wheel'].forEach(ev=>frame.addEventListener(ev,e=>{if(e.isTrusted)userActed()},{capture:true,passive:true}));
 frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visible, :focus-within'))userActed()});
 new IntersectionObserver(es=>{
   visible=es[0].isIntersecting;
-  if(visible){vid.play().catch(()=>{});if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,8000)}}
+  if(visible){vid.play().catch(()=>{});if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
   else{vid.pause();stopAuto()}
 },{threshold:.35}).observe(frame);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else if(visible){vid.play().catch(()=>{});}});
@@ -379,7 +379,7 @@ function uPos(e,sync){const r=phone.getBoundingClientRect(),s=r.height/812;ux=(e
   if(sync){cancelAnimationFrame(uraf);uraf=0;uWrite()}else if(!uraf)uraf=requestAnimationFrame(()=>{uraf=0;uWrite()})}
 function uOn(e){uPos(e,true);if(!uShow){uShow=true;uf.classList.add('on');phone.classList.add('u-on');stopAuto()}}
 function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on');
-  if(interacted){clearTimeout(idleT);idleT=setTimeout(()=>{if(!drag&&!uShow)startAuto()},8000)}}
+  if(interacted){clearTimeout(idleT);idleT=setTimeout(()=>{if(!drag&&!uShow)startAuto()},6000)}}
 phone.addEventListener('pointerenter',e=>{if(e.isTrusted&&isFine(e)){userActed();uOn(e)}});
 phone.addEventListener('pointermove',e=>{if(!e.isTrusted)return;if(isFine(e)){uShow?uPos(e):uOn(e)}else if(e.pointerId===uTouch)uPos(e)});
 phone.addEventListener('pointerleave',e=>{if(isFine(e)&&!(drag&&drag.id===e.pointerId))uOff()});
