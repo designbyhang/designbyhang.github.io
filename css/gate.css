@@ -20,7 +20,10 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate{position:fixed;inset:0;z-index:1000;background:var(--page);color:var(--c-strong);display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
 /* Oct 23 (Hang): HANG letters gate. The letter animation (js/hang-cube.js) in the middle; field and help centred below; the group centred both ways */
 .gate-in{display:flex;flex-direction:column;align-items:center;text-align:center;width:fit-content;max-width:100%;margin:0 auto}
-.gate-stage{width:min(320px,calc(100vw - 48px));aspect-ratio:1;margin:0 0 24px}
+.gate-stage{width:min(320px,calc(100vw - 48px));aspect-ratio:1;margin:0}
+/* Hang, Oct 23 21:52: the letters alone are centred on the page; the passcode lockup hangs below them (48px gap, was 24), out of the centring */
+.gate-in{position:relative}
+.gate-below{position:absolute; /* help 16px under the field (Hang, 21:52: 12px up from 28); a wrong-passcode message appears under the help, out of flow */top:100%;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 48px);margin-top:48px;display:flex;flex-direction:column;align-items:center}
 @media (max-width:640px){.gate-stage{width:min(240px,calc(100vw - 48px))}}
 /* DESIGN BY HANG (absolute in the gate, not a fixed layer, so iOS Safari never samples it for the bars), top left (Hang, Oct 23 21:44), at the homepage header's inset and type (.top: 22px var(--side); 18px var(--m-in) on phones); plain text, not a link */
 .gate-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-start;padding:22px var(--side,32px);padding-top:calc(22px + env(safe-area-inset-top,0px));pointer-events:none}
@@ -39,14 +42,13 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-form input::placeholder{color:var(--c-strong);opacity:1} /* Hang, Oct 23: placeholder = the field line colour */
 .gate-form input:focus{outline:none}
 .gate-form button{position:absolute;right:0;top:0;bottom:1.5px;display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:0;transition:opacity .2s ease}
-/* arrow hidden (not focusable/clickable) until something is typed; Enter still submits */
-.gate-form input:placeholder-shown+button{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility 0s .2s}
-@media (prefers-reduced-motion:reduce){.gate-form button,.gate-form input:placeholder-shown+button{transition:none}}
+/* Hang, Oct 23 21:53: the arrow shows by default (no longer hidden until something is typed) */
+@media (prefers-reduced-motion:reduce){.gate-form button{transition:none}}
 /* arrow = intro card CTA arrow (.poster-title .arr svg: same path, .86em x .6em, 1.5px non-scaling miter stroke, --c-strong, static per arrows.css) at half size */
 .gate-form button svg{display:block;width:var(--g-aw,18px);height:calc(var(--g-aw,18px)*.6977);overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-aw:14px;--g-gap:8px}}
-.gate-err{min-height:20px;margin-bottom:0;font-size:13px;color:#ff6848;margin-top:8px}
-.gate-help{margin:0;font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{position:relative;color:inherit;text-decoration:none} /* Hang, Oct 23: link grey, as "Don't have one?" */
+.gate-err{position:absolute;top:100%;left:0;right:0;margin:8px 0 0;min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
+.gate-help{margin:16px 0 0;font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{position:relative;color:inherit;text-decoration:none} /* Hang, Oct 23: link grey, as "Don't have one?" */
 /* hover underline = site nav (.home .top nav a::after / .bar-right a .t::after) */
 .gate-help a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
 .gate-help a:hover::after,.gate-help a:focus-visible::after{transform:scaleX(1)}
