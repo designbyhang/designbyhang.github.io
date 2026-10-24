@@ -25,6 +25,7 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-in{position:relative}
 .gate-below{position:absolute; /* help 16px under the field (Hang, 21:52: 12px up from 28); a wrong-passcode message appears under the help, out of flow */top:100%;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 48px);margin-top:48px;display:flex;flex-direction:column;align-items:center}
 @media (max-width:640px){.gate-stage{width:min(240px,calc(100vw - 48px))}}
+@media (max-width:640px) and (orientation:portrait){.gate-below{margin-top:60px}} /* phone portrait: lockup 12px lower (Hang, 2026-10-24) */
 /* DESIGN BY HANG (absolute in the gate, not a fixed layer, so iOS Safari never samples it for the bars), top left (Hang, Oct 23 21:44), at the homepage header's inset and type (.top: 22px var(--side); 18px var(--m-in) on phones); plain text, not a link */
 .gate-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-start;padding:22px var(--side,32px);padding-top:calc(22px + env(safe-area-inset-top,0px));pointer-events:none}
 @media (max-width:900px){.gate-top{padding-inline:var(--m-in,20px)}}
