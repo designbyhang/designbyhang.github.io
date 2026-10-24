@@ -33,9 +33,27 @@ function open(){if(ov)return;ret=document.activeElement;
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
   if(reduce.matches){o.classList.add('on');flow(true);}else requestAnimationFrame(()=>requestAnimationFrame(()=>{o.classList.add('on');setTimeout(()=>{if(ov===o)flow(true);},320);}));
   lib().then(()=>{if(ov===o&&!cube)cube=window.HangCube.mount(o.querySelector('.hegg-stage'));},()=>{if(ov===o)close();});}
-function close(){if(!ov)return;const o=ov,c=cube;ov=cube=null;document.removeEventListener('keydown',keys,true);flow(false);
-  const fin=()=>{if(c)c.destroy();if(!ov){releaseToggle();unlock();}o.remove();if(!ov)resample();};o.classList.remove('on');if(reduce.matches)fin();else setTimeout(fin,300);
-  if(ret&&ret.focus&&document.contains(ret))ret.focus({preventScroll:true});else trg.focus({preventScroll:true});}
+/* exit = the Studio presentation's close (projects/studio-present.js close/aside/asideMeasure, studio-deck.js easeStep): one 650ms
+   timeline on the steep ease, p = 1 -> 0; CLOSE fades out while sliding 16px left, finished when the header BACK it shares the corner
+   with would have passed it (clr = BACK width / (BACK width + its right inset), smoothstep, from wherever it is); the layer fades
+   on the rest of the same progress. BACK is the case pages' header link (measured with the same markup inside the CLOSE row). The
+   loop stops, the layer goes and focus returns to the copyright line when it ends. Reduced motion: straight out, as Studio. */
+const DUR=650,UI_DX=16,ease=(function bez(p1x,p1y,p2x,p2y){const cx=3*p1x,bx=3*(p2x-p1x)-cx,ax=1-cx-bx,cy=3*p1y,by=3*(p2y-p1y)-cy,ay=1-cy-by;
+ const X=t=>((ax*t+bx)*t+cx)*t,Y=t=>((ay*t+by)*t+cy)*t,dX=t=>(3*ax*t+2*bx)*t+cx;
+ return x=>{if(x<=0)return 0;if(x>=1)return 1;let t=x;for(let n=0;n<8;n++){const e=X(t)-x,d=dX(t);if(Math.abs(e)<1e-6)break;if(Math.abs(d)<1e-6)break;t-=e/d;}
+  let lo=0,hi=1;if(Math.abs(X(t)-x)>1e-5){t=x;for(let n=0;n<30;n++){const v=X(t);if(Math.abs(v-x)<1e-6)break;if(v<x)lo=t;else hi=t;t=(lo+hi)/2;}}return Y(t);};})(.8,0,.2,1);
+const clrOf=x=>{const nav=x.parentNode,k=document.createElement('a');k.className='ax hegg-x';k.setAttribute('aria-hidden','true');k.style.cssText='position:absolute;visibility:hidden';
+ k.innerHTML='<span class="arr arr-back"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="t">BACK</span>';nav.appendChild(k);
+ const w=k.getBoundingClientRect().width;k.remove();const off=w+innerWidth-x.getBoundingClientRect().right;return off>0?Math.min(1,Math.max(0,w/off)):1;};
+function close(){if(!ov)return;const o=ov,c=cube;ov=cube=null;document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
+  const fin=()=>{if(c)c.destroy();o.remove();if(!ov){unlock();resample();if(ret&&ret.focus&&document.contains(ret))ret.focus({preventScroll:true});else trg.focus({preventScroll:true});}};
+  if(reduce.matches){fin();return;}
+  const x=o.querySelector('.hegg-x'),cs=getComputedStyle(x),o0=+cs.opacity,x0=parseFloat(cs.translate)||0,a0=+getComputedStyle(o).opacity,clr=clrOf(x),t0=performance.now();
+  o.style.transition='none';o.style.opacity=String(a0);
+  const tick=now=>{const u=Math.min(1,(now-t0)/DUR),p=1-ease(u),q=clr<1?Math.max(0,(p-clr)/(1-clr)):+(p>=1),k=q*q*(3-2*q);
+   x.style.opacity=(o0*k).toFixed(4);x.style.translate=(x0+(-UI_DX-x0)*(1-k)).toFixed(2)+'px 0';o.style.opacity=(a0*(clr>0?Math.min(1,p/clr):p)).toFixed(4);
+   if(u<1)requestAnimationFrame(tick);else fin();};
+  requestAnimationFrame(tick);}
 trg.addEventListener('click',open);
 trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
 window.dbhEgg={open,close,get cube(){return cube;}};

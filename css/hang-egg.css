@@ -33,14 +33,20 @@ html.hegg-flow .hegg-edge{display:block}
 .hegg-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
 /* the theme toggle joins the layer while it is open (as in the Studio presentation): position from the shared .theme-btn rule */
 .hegg .theme-btn{z-index:3}
+/* closing (Studio .deck-fs.is-closing): no clicks while CLOSE and the layer go out */
+.hegg.is-closing{pointer-events:none}
+/* CLOSE colours = the Studio presentation's bar (projects/studio.html .deck-bar per tone), so it renders the same where case.css styles
+   .bar-right a (!important, from --mono-color/--ink) and on the homepage */
+.hegg .hegg-bar{--mono-color:#333;--ink:#171717}
+html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
 /* the CLOSE row spans the top edge: let hits (and WebKit's edge sampler) through to the strip, except on CLOSE itself */
 .hegg .bar.hegg-bar{pointer-events:none}.hegg .hegg-bar .bar-right{pointer-events:auto}
 /* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (absolute, safe area) */
 .hegg .bar.hegg-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (max-width:900px){.hegg .bar.hegg-bar{padding:0 clamp(20px,5vw,72px)}}
 @media (max-width:640px){.hegg .bar.hegg-bar{height:50px}}
-/* link = case.css .bar-right a (14px Bitcount mono, .04em, word-spacing -.32em, --c-label, ink on hover) + hover/focus underline on .t */
-.hegg .bar-right a.hegg-x{display:block;font-family:var(--mono);font-size:14px;font-weight:400;font-style:normal;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;text-decoration:none;color:var(--c-label);transition:color .2s}
+/* link = case.css .bar-right a (14px Bitcount mono, .04em, word-spacing -.32em, --mono-color as the Studio bar, --ink on hover) + hover/focus underline on .t */
+.hegg .bar-right a.hegg-x{display:block;font-family:var(--mono);font-size:14px;font-weight:400;font-style:normal;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;text-decoration:none;color:var(--mono-color);transition:color .2s}
 .hegg .bar-right a.hegg-x:hover{color:var(--ink)}
 .hegg .bar-right a.hegg-x .t{position:relative;display:inline-block}
 .hegg .bar-right a.hegg-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
