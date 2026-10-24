@@ -89,7 +89,10 @@ function v1Set(key,g){
     const wall=by(c,p=>Math.abs(p[0]-Lw)<.01).map(p=>p[1]), wy=(Math.min(...wall)+Math.max(...wall))/2;   // inner left wall (straight)
     const crown=c.reduce((m,p)=>p[1]>m[1]?p:m,c[0]);                                                       // top of the bowl
     const term=c.reduce((m,p)=>Math.abs(p[0]-W)<.01&&p[1]>m[1]?p:m,[W,-1e9]);                               // terminal corner
+    // Hang (Oct 23): two more verticals — the bowl's outer left edge (V[0]) and the right stem's inner face (V[3]), each out of its own contour point
+    const L0=c.reduce((m,p)=>p[0]<m[0]?p:m,c[0]), Ri=gd.V[3], ri=by(c,p=>Math.abs(p[0]-Ri)<.01).reduce((m,p)=>p[1]>m[1]?p:m,[Ri,-1e9]);
     return [{k:'h',y:0,o:at(W,0),g:0},{k:'h',y:top,o:[crown[0],top],g:0},{k:'v',x:W,o:at(W,0),g:1},{k:'v',x:Lw,o:[Lw,wy],g:1},
+            {k:'v',x:L0[0],o:L0,g:1},{k:'v',x:Ri,o:ri,g:1},
             {k:'h',y:bt,o:at(W,bt),g:2},{k:'h',y:bb,o:at(bar,bb),g:2},{k:'c',from:sp,to:term,o:sp,g:3}]; }
   return null;
 }
