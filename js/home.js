@@ -110,6 +110,7 @@ P={W:600,H:600,
   words:[['Vision',50,270],['Strategy',300,270],['Systems',50,520],['Creativity',300,520]],
   dims:[],
   dots:[[300,56,4],[550,520,4],[300,306,4],[300,556,4]],ring:[550,556],title:[54,806,40]};
+{const g=P.letters.slice(1).map(l=>l[0]);for(let i=g.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g[i],g[j]]=[g[j],g[i]];}P.letters.slice(1).forEach((l,i)=>{l[0]=g[i];});} /* mobile: H stays top left; N, A, G take a random cell on each page load (Hang, 2026-10-24). Cells, keywords and draw order stay put */
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
