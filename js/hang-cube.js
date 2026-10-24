@@ -91,12 +91,13 @@ function v1Set(key,g){
     // Hang (Oct 23): two more verticals — the bowl's outer left edge (V[0]) and the right stem's inner face (V[3]), each out of its own contour point
     const L0=c.reduce((m,p)=>p[0]<m[0]?p:m,c[0]), Ri=gd.V[3], ri=by(c,p=>Math.abs(p[0]-Ri)<.01).reduce((m,p)=>p[1]>m[1]?p:m,[Ri,-1e9]);
     // Hang (Oct 23, 21:21): the two left verticals grow out of dots ON the bar-top line (not mid-wall), and the bar's top-left corner gets a dot
-    const gs=[{k:'h',y:0,o:at(W,0),g:0},{k:'h',y:top,o:[crown[0],top],g:0},{k:'v',x:W,o:at(W,0),g:1},{k:'v',x:Lw,o:[Lw,bt],g:1},
+    const foot=c.reduce((m,p)=>p[1]<m[1]?p:m,c[0]);   // bowl's lowest point
+    // Hang (Oct 23, 21:27): both horizontals just touch the bowl (top at the crown, bottom at the foot), so neither cuts through it
+    const gs=[{k:'h',y:foot[1],o:foot,g:0,nostart:true},{k:'h',y:top,o:[crown[0],top],g:0},{k:'v',x:W,o:at(W,0),g:1},{k:'v',x:Lw,o:[Lw,bt],g:1},
             {k:'v',x:L0[0],o:[L0[0],bt],g:1},{k:'v',x:Ri,o:ri,g:1},
             {k:'h',y:bt,o:at(W,bt),g:2},{k:'h',y:bb,o:at(bar,bb),g:2,nodot:true},{k:'c',from:sp,to:term,o:sp,g:3}];
     // Hang (Oct 23, 21:25): no dot at the bar's bottom-left corner (its line still grows from there); a dot at the bowl's lowest point (its edge, as the crown dot at the top)
-    const foot=c.reduce((m,p)=>p[1]<m[1]?p:m,c[0]);
-    gs.dots=[{p:at(bar,bt),g:2},{p:foot,g:0}]; return gs; }
+    gs.dots=[{p:at(bar,bt),g:2}]; return gs; }
   return null;
 }
 const EXT=32;
@@ -138,8 +139,8 @@ function prep(g,key){
       if(s.k==='h')ends=clip(o,[1,0]); else if(s.k==='v')ends=clip(o,[0,1]);
       else if(s.k==='l'){const L=Math.hypot(s.b[0]-s.a[0],s.b[1]-s.a[1]);ends=clip(o,[(s.b[0]-s.a[0])/L,(s.b[1]-s.a[1])/L]);}
       else if(s.k==='c'){const c=g.contours[0],i0=near(c,s.from),i1=near(c,s.to);pts=[];for(let i=i0;;i=(i+1)%c.length){pts.push(c[i]);if(i===i1)break;}}
-      return {kind:s.k==='seg'?'seg':s.k==='c'?'curve':'v1',o,b:s.b,ends,pts,grp:s.g,r:mm>1?s.g/(mm-1):0,nodot:!!s.nodot};});
-    const seen=[],D=[]; GG.forEach(s=>{if(s.nodot)return;if(!seen.some(p=>Math.hypot(p[0]-s.o[0],p[1]-s.o[1])<.5)){seen.push(s.o);D.push({p:s.o,r:s.r});}});
+      return {kind:s.k==='seg'?'seg':s.k==='c'?'curve':'v1',o,b:s.b,ends,pts,grp:s.g,r:mm>1?s.g/(mm-1):0,nodot:!!s.nodot,nostart:!!s.nostart};});
+    const seen=[],D=[]; GG.forEach(s=>{if(s.nodot)return;if(!seen.some(p=>Math.hypot(p[0]-s.o[0],p[1]-s.o[1])<.5)){seen.push(s.o);D.push({p:s.o,r:s.r,extra:s.nostart});}});
     (v1s.dots||[]).forEach(d=>{if(!seen.some(p=>Math.hypot(p[0]-d.p[0],p[1]-d.p[1])<.5)){seen.push(d.p);D.push({p:d.p,r:mm>1?d.g/(mm-1):0,extra:true});}}); // extra dots that start no guide (G bar corner, bowl foot); outline traces never start at them
     // every outline trace starts AT a seed dot: a contour start that isn't a dot moves to the dot nearest along the outline (G → spur tip)
     cl.forEach(C=>{ const isDot=i=>D.some(d=>!d.extra&&Math.hypot(d.p[0]-C.c[i][0],d.p[1]-C.c[i][1])<.5);
