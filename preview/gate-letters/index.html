@@ -14,18 +14,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=55"><link rel="stylesheet" href="../../css/home.css?v=55"><link rel="stylesheet" href="../../css/gate.css?v=55"><link rel="stylesheet" href="../../css/theme.css?v=55">
 <style>
-/* MOCK (Hang, Oct 23): the passcode screen with the HANG letter animation centred, the body line, field and help below it;
+/* MOCK (Hang, Oct 23): the passcode screen with the HANG letter animation centred, the field and help below it (Oct 23, 21:39: body line removed, field 20% narrower, left-aligned placeholder);
    the whole group centred horizontally and vertically. Same gate styles (css/gate.css); the logo and headline are replaced by the letters.
    Not wired to the real passcode: submitting does nothing. */
 html{scrollbar-gutter:auto}
 html,body{height:100%;margin:0;background:var(--page);overflow:hidden}
 .gate{position:fixed}
 .gate-in{display:flex;flex-direction:column;align-items:center;text-align:center;justify-self:center;margin:0 auto}
-.gate-sub{text-wrap:balance}
 .gl-stage{width:min(320px,calc(100vw - 48px));aspect-ratio:1;margin:0 0 24px}
 @media (max-width:640px){.gl-stage{width:min(240px,calc(100vw - 48px))}}
-.gate-fit{margin:0 auto}
-.gate-form input{text-align:center;padding-left:calc(var(--g-aw,18px) + var(--g-gap,12px))} /* arrow room on both sides, so the placeholder sits centred */
+.gate-fit{margin:0 auto;width:224px}                 /* field 20% narrower than before (280 → 224 desktop) */
+@media (max-width:640px){.gate-fit{width:264px}}   /* 327 → 264 on phones */
+.gate-form input{text-align:left} /* placeholder and typing start at the line's left end; the arrow sits at its right end */
 body .theme-btn{z-index:1001}
 .gate-help{margin:0}
 </style>
@@ -34,7 +34,7 @@ body .theme-btn{z-index:1001}
 <div class="gate" role="main">
   <div class="gate-in">
     <div class="gl-stage" role="img" aria-label="The letters H, A, N, G drawn and turning in a loop"></div>
-    <div class="gate-fit"><p class="gate-sub">This work is private. Enter passcode to continue.</p><form class="gate-form" novalidate onsubmit="return false"><label for="gate-pw" class="sr">Passcode</label><input id="gate-pw" type="password" placeholder="Passcode" autocomplete="off"><button type="submit" aria-label="Continue"><svg viewBox="0 0 20 14" fill="none" aria-hidden="true"><path d="M0 7H19M12.5 .5L19 7l-6.5 6.5"/></svg></button></form></div>
+    <div class="gate-fit"><form class="gate-form" novalidate onsubmit="return false"><label for="gate-pw" class="sr">Passcode</label><input id="gate-pw" type="password" placeholder="Enter passcode" autocomplete="off"><button type="submit" aria-label="Continue"><svg viewBox="0 0 20 14" fill="none" aria-hidden="true"><path d="M0 7H19M12.5 .5L19 7l-6.5 6.5"/></svg></button></form></div>
     <p class="gate-err" aria-hidden="true"></p>
     <p class="gate-help">Don't have one? <a href="https://www.linkedin.com/in/thisishang/" target="_blank" rel="noopener">Reach out to Hang</a>.</p>
   </div>
