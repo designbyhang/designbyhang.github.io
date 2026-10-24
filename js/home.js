@@ -139,9 +139,11 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
      horizontals alternate left->right / right->left from 800ms, 1.7s each, cubic-bezier(.65,0,.35,1) (css .g.a / .rv).
      Then the letters slide in (1.1s, 110ms apart) from 0.2s before the last line lands; once they have landed all keywords fade in
      together (.wf, 0.7s); once that fade ends the CTA rises from its row (desktop); then the dots and the last dot (former ring). */
-  const LS=1700,ST=150,HO=800,LEND=Math.max((G.xs.length-1)*ST,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
-    TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700,TD=port?TC:TC+SQ;
-  G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),i*ST));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),HO+i*ST));
+  /* phone portrait: dots land first, then the lines, letters and words; dots and lines turn grey as the words appear (Hang, 2026-10-24) */
+  const DO=port?G.dots.length*60+150+500:0,
+    LS=1700,ST=150,HO=800,LEND=DO+Math.max((G.xs.length-1)*ST,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
+    TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700,TD=port?0:TC+SQ;
+  G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*ST));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
   const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL('C',mono,-mono,0,'400 # '+mf)-h[1][0]; /* base gap: keyword inset measured on 'C' */})();
   // v11: one shared glyph size; each letter centred in its column (equal left/right ink gap), top gap = shared gap
@@ -176,7 +178,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
   G.dots.forEach((d,i)=>{body+=`<circle class="a pd" style="--d:${TD+i*60}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
   const R=G.ring;body+=`<circle class="a pd" style="--d:${TD+150}" fill="#eeeeee" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`; // former ring: now a plain 5px dot
-  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',px);svg.style.setProperty('--ge',LEND);svg.style.setProperty('--de',TD+150+900); /* grid lines ink until all are drawn (--ge), dots ink until the last has landed (--de), then each settles to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',px);svg.style.setProperty('--ge',port?TW:LEND);svg.style.setProperty('--de',port?TW:TD+150+900); /* grid lines ink until all are drawn (--ge), dots ink until the last has landed (--de), then each settles to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));
