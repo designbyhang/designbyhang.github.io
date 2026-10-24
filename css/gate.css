@@ -22,8 +22,8 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-in{display:flex;flex-direction:column;align-items:center;text-align:center;width:fit-content;max-width:100%;margin:0 auto}
 .gate-stage{width:min(320px,calc(100vw - 48px));aspect-ratio:1;margin:0 0 24px}
 @media (max-width:640px){.gate-stage{width:min(240px,calc(100vw - 48px))}}
-/* DESIGN BY HANG (absolute in the gate, not a fixed layer, so iOS Safari never samples it for the bars), top right, at the homepage header's inset and type (.top: 22px var(--side); 18px var(--m-in) on phones); plain text, not a link */
-.gate-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-end;padding:22px var(--side,32px);padding-top:calc(22px + env(safe-area-inset-top,0px));pointer-events:none}
+/* DESIGN BY HANG (absolute in the gate, not a fixed layer, so iOS Safari never samples it for the bars), top left (Hang, Oct 23 21:44), at the homepage header's inset and type (.top: 22px var(--side); 18px var(--m-in) on phones); plain text, not a link */
+.gate-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-start;padding:22px var(--side,32px);padding-top:calc(22px + env(safe-area-inset-top,0px));pointer-events:none}
 @media (max-width:900px){.gate-top{padding-inline:var(--m-in,20px)}}
 @media (max-width:640px){.gate-top{padding:calc(18px + env(safe-area-inset-top,0px)) var(--m-in,20px) 18px}}
 .gate-brand{font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);color:var(--c-strong);text-transform:uppercase;cursor:default;user-select:none;-webkit-user-select:none}
