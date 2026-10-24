@@ -31,7 +31,7 @@ function open(){if(ov)return;ret=document.activeElement;
   o.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
   document.body.appendChild(o);lock();adoptToggle(o);
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
-  if(reduce.matches){o.classList.add('on');flow(true);}else requestAnimationFrame(()=>requestAnimationFrame(()=>{o.classList.add('on');setTimeout(()=>{if(ov===o)flow(true);},320);}));
+  if(reduce.matches){o.classList.add('on');flow(true);}else{o.querySelector('.hegg-x').style.opacity='0';requestAnimationFrame(()=>requestAnimationFrame(()=>{o.classList.add('on');enter(o);setTimeout(()=>{if(ov===o)flow(true);},320);}));}
   lib().then(()=>{if(ov===o&&!cube)cube=window.HangCube.mount(o.querySelector('.hegg-stage'));},()=>{if(ov===o)close();});}
 /* exit = the Studio presentation's close (projects/studio-present.js close/aside/asideMeasure, studio-deck.js easeStep): one 650ms
    timeline on the steep ease, p = 1 -> 0; CLOSE fades out while sliding 16px left, finished when the header BACK it shares the corner
@@ -45,10 +45,19 @@ const DUR=650,UI_DX=16,ease=(function bez(p1x,p1y,p2x,p2y){const cx=3*p1x,bx=3*(
 const clrOf=x=>{const nav=x.parentNode,k=document.createElement('a');k.className='ax hegg-x';k.setAttribute('aria-hidden','true');k.style.cssText='position:absolute;visibility:hidden';
  k.innerHTML='<span class="arr arr-back"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="t">BACK</span>';nav.appendChild(k);
  const w=k.getBoundingClientRect().width;k.remove();const off=w+innerWidth-x.getBoundingClientRect().right;return off>0?Math.min(1,Math.max(0,w/off)):1;};
+/* entrance = the Studio presentation's (studio-present.js aside/uiEnter): on the same 650ms open timeline and steep ease, CLOSE stays
+   hidden until the header BACK it shares the corner with would have passed it (p >= clr), then slides 16px left to right into place
+   while fading 0 to 1 over 450ms on cubic-bezier(.2,.8,.2,1). Closing during the entrance exits from wherever it is. */
+const UI_MS=450,UI_EASE='cubic-bezier(.2,.8,.2,1)';
+const uiStop=m=>{if(m._ui){m._ui.cancel();m._ui=null;}};
+function enter(o){const x=o.querySelector('.hegg-x'),clr=clrOf(x),t0=performance.now();
+  const go=()=>{x.style.opacity=x.style.translate='';if(!x.animate)return;x._ui=x.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,easing:UI_EASE,fill:'backwards'});x._ui.onfinish=()=>{x._ui=null;};};
+  const tick=now=>{if(ov!==o)return;const p=ease(Math.min(1,(now-t0)/DUR));if(p>=clr||p>=1)go();else requestAnimationFrame(tick);};
+  requestAnimationFrame(tick);}
 function close(){if(!ov)return;const o=ov,c=cube;ov=cube=null;document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
   const fin=()=>{if(c)c.destroy();o.remove();if(!ov){unlock();resample();if(ret&&ret.focus&&document.contains(ret))ret.focus({preventScroll:true});else trg.focus({preventScroll:true});}};
   if(reduce.matches){fin();return;}
-  const x=o.querySelector('.hegg-x'),cs=getComputedStyle(x),o0=+cs.opacity,x0=parseFloat(cs.translate)||0,a0=+getComputedStyle(o).opacity,clr=clrOf(x),t0=performance.now();
+  const x=o.querySelector('.hegg-x'),cs=getComputedStyle(x),o0=+cs.opacity,x0=parseFloat(cs.translate)||0,a0=+getComputedStyle(o).opacity,clr=clrOf(x),t0=performance.now();uiStop(x);
   o.style.transition='none';o.style.opacity=String(a0);
   const tick=now=>{const u=Math.min(1,(now-t0)/DUR),p=1-ease(u),q=clr<1?Math.max(0,(p-clr)/(1-clr)):+(p>=1),k=q*q*(3-2*q);
    x.style.opacity=(o0*k).toFixed(4);x.style.translate=(x0+(-UI_DX-x0)*(1-k)).toFixed(2)+'px 0';o.style.opacity=(a0*(clr>0?Math.min(1,p/clr):p)).toFixed(4);
