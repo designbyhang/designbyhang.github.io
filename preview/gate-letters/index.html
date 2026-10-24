@@ -28,9 +28,16 @@ html,body{height:100%;margin:0;background:var(--page);overflow:hidden}
 .gate-form input{text-align:left} /* placeholder and typing start at the line's left end; the arrow sits at its right end */
 body .theme-btn{z-index:1001}
 .gate-help{margin:0}
+/* Oct 23, 21:40: DESIGN BY HANG, top right, at the homepage header's inset and type (.top padding 22px var(--side), 18px var(--m-in) on phones); plain text, not a link */
+.gl-top{position:fixed;top:0;left:0;right:0;z-index:1001;display:flex;justify-content:flex-end;padding:22px var(--side);pointer-events:none}
+@media (max-width:900px){.gl-top{padding-inline:var(--m-in)}}
+@media (max-width:640px){.gl-top{padding:18px var(--m-in)}}
+.gl-top .brand{font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);color:var(--ink);text-transform:uppercase;cursor:default;user-select:none;-webkit-user-select:none}
+.gl-top .brand::after{content:none}
 </style>
 </head>
 <body>
+<header class="gl-top"><span class="brand">DESIGN BY HANG</span></header>
 <div class="gate" role="main">
   <div class="gate-in">
     <div class="gl-stage" role="img" aria-label="The letters H, A, N, G drawn and turning in a loop"></div>
