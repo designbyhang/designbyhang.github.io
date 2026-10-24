@@ -169,6 +169,8 @@ html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!i
 @media (prefers-reduced-motion:reduce){.poster-title .arr{animation:none}}
 .poster-title .arr svg{display:block;width:.86em;height:.6em;overflow:visible}.poster-title .arr path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
 .poster-title .arr{vertical-align:.02em}
+/* Hang, Oct 23 22:03: phone landscape (CTA text ~10-17px): 1.5px read too heavy next to the text, so 1px there */
+@media (orientation:landscape) and (max-height:500px){.poster-title .arr path{stroke-width:1px}}
 button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;font-family:var(--sans);font-weight:400;color:var(--c-strong);text-align:left;cursor:pointer;line-height:1}
 button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset:4px}
 /* gauge: 40px below the (scaled) cards, centred on the page; JS sets --gy */
