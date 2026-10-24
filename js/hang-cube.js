@@ -177,7 +177,7 @@ function mount(el,opts){
     // strokes + dots scale with the box: 480 box → 1px lines, 4px dots; 1080 → ~1.75px lines, 8px dots (8pt grid halves)
     const lw=o.lw||1, dotS=o.dot||Math.max(4,Math.round(S/1080*4)*2); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,Wc,Hc);
     const fs=o.timeScale/(V1T.fps*(o.speed||SPEED)), beat=V1T.beat*fs, loop=4*beat; let t=fixed!==null?fixed:(running()?tNow:V1T.beat*fs-.001); // reduced motion: end of the H hold (H solid)
-    t=((t%loop)+loop)%loop; const k=Math.min(3,Math.floor(t/beat)), tb=t-k*beat;
+    const first=t<beat; t=((t%loop)+loop)%loop; const k=Math.min(3,Math.floor(t/beat)), tb=t-k*beat;
     const rot=-90*(k-1)-90*eTurn(clamp(tb/((o.turn||V1T.turn)*fs))); // turn at the START of the beat (original): face k-1 turns away, face k turns in
     const h=1, rad=Math.PI/180, cp=Math.cos(o.pitch*rad), sp=Math.sin(o.pitch*rad), cy=Math.cos(o.yaw*rad), sy=Math.sin(o.yaw*rad);
     const view=([x,y,z])=>{const x1=x*cy+z*sy,z1=-x*sy+z*cy;return [x1,y*cp-z1*sp,y*sp+z1*cp];};
@@ -197,7 +197,7 @@ function mount(el,opts){
     const L=seq(), kf=(o.letterCap*2*h)/CAP;
     for(const f of faces){ if(f.cos<=0)continue; const j=f.j;   // only the current letter's face carries anything; the face turning in is BLANK
       // incoming face k: blank until the blueprint starts 0.34 s into the turn; outgoing face k-1 keeps its own clock (solid, or still exiting with exitLag)
-      const tau = j===k ? tb-V1T.start*fs : j===(k+3)%4 ? tb+beat-V1T.start*fs : null; if(tau===null||tau<0)continue;
+      const tau = j===k ? tb-V1T.start*fs : j===(k+3)%4&&!first ? tb+beat-V1T.start*fs : null; if(tau===null||tau<0)continue;
       const g=GL[L[j]], pr=prep(g,L[j]), gx=g.W/2;
       const T=p=>proj(f.pt((p[0]-gx)*kf,(p[1]-CAP/2)*kf));
       const ink=o.flat?P.ink:P.letter, lc=mix(f.tone,ink,f.lit), gc=mix(f.tone,ink,(o.flat?.68:.85)*f.lit), TL=o.tl; // flat: --ink on --page, shading toward the page as it turns away (v1)
