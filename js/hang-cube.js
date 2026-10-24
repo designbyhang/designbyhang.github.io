@@ -86,14 +86,15 @@ function v1Set(key,g){
             {k:'seg',o:n[2],b:n[3],g:3},{k:'seg',o:n[7],b:n[8],g:3}]; }   // diagonal edges: one down from top-left, its 180° twin up from bottom-right
   if(key==='G'){ const c=C[0], Lw=gd.V[1], bb=gd.H[2], bt=gd.H[3], top=gd.over[1], bar=gd.V[2], sp=gd.L[0][1];
     const at=(x,y)=>c.find(p=>Math.abs(p[0]-x)<.01&&Math.abs(p[1]-y)<.01)||[x,y];
-    const wall=by(c,p=>Math.abs(p[0]-Lw)<.01).map(p=>p[1]), wy=(Math.min(...wall)+Math.max(...wall))/2;   // inner left wall (straight)
     const crown=c.reduce((m,p)=>p[1]>m[1]?p:m,c[0]);                                                       // top of the bowl
     const term=c.reduce((m,p)=>Math.abs(p[0]-W)<.01&&p[1]>m[1]?p:m,[W,-1e9]);                               // terminal corner
     // Hang (Oct 23): two more verticals — the bowl's outer left edge (V[0]) and the right stem's inner face (V[3]), each out of its own contour point
     const L0=c.reduce((m,p)=>p[0]<m[0]?p:m,c[0]), Ri=gd.V[3], ri=by(c,p=>Math.abs(p[0]-Ri)<.01).reduce((m,p)=>p[1]>m[1]?p:m,[Ri,-1e9]);
-    return [{k:'h',y:0,o:at(W,0),g:0},{k:'h',y:top,o:[crown[0],top],g:0},{k:'v',x:W,o:at(W,0),g:1},{k:'v',x:Lw,o:[Lw,wy],g:1},
-            {k:'v',x:L0[0],o:L0,g:1},{k:'v',x:Ri,o:ri,g:1},
-            {k:'h',y:bt,o:at(W,bt),g:2},{k:'h',y:bb,o:at(bar,bb),g:2},{k:'c',from:sp,to:term,o:sp,g:3}]; }
+    // Hang (Oct 23, 21:21): the two left verticals grow out of dots ON the bar-top line (not mid-wall), and the bar's top-left corner gets a dot
+    const gs=[{k:'h',y:0,o:at(W,0),g:0},{k:'h',y:top,o:[crown[0],top],g:0},{k:'v',x:W,o:at(W,0),g:1},{k:'v',x:Lw,o:[Lw,bt],g:1},
+            {k:'v',x:L0[0],o:[L0[0],bt],g:1},{k:'v',x:Ri,o:ri,g:1},
+            {k:'h',y:bt,o:at(W,bt),g:2},{k:'h',y:bb,o:at(bar,bb),g:2},{k:'c',from:sp,to:term,o:sp,g:3}];
+    gs.dots=[{p:at(bar,bt),g:2}]; return gs; }
   return null;
 }
 const EXT=32;
@@ -137,6 +138,7 @@ function prep(g,key){
       else if(s.k==='c'){const c=g.contours[0],i0=near(c,s.from),i1=near(c,s.to);pts=[];for(let i=i0;;i=(i+1)%c.length){pts.push(c[i]);if(i===i1)break;}}
       return {kind:s.k==='seg'?'seg':s.k==='c'?'curve':'v1',o,b:s.b,ends,pts,grp:s.g,r:mm>1?s.g/(mm-1):0};});
     const seen=[],D=[]; GG.forEach(s=>{if(!seen.some(p=>Math.hypot(p[0]-s.o[0],p[1]-s.o[1])<.5)){seen.push(s.o);D.push({p:s.o,r:s.r});}});
+    (v1s.dots||[]).forEach(d=>{if(!seen.some(p=>Math.hypot(p[0]-d.p[0],p[1]-d.p[1])<.5)){seen.push(d.p);D.push({p:d.p,r:mm>1?d.g/(mm-1):0});}}); // extra dots that start no guide (G bar corner)
     // every outline trace starts AT a seed dot: a contour start that isn't a dot moves to the dot nearest along the outline (G → spur tip)
     cl.forEach(C=>{ const isDot=i=>D.some(d=>Math.hypot(d.p[0]-C.c[i][0],d.p[1]-C.c[i][1])<.5);
       if(C.starts.every(isDot))return; const n=C.c.length; let best=null;
