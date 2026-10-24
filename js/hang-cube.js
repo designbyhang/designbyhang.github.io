@@ -38,8 +38,10 @@ const GL={"H":{"W":704,"contours":[[[0,0],[0,704],[184.0,704],[184.0,426.0],[520
 /* SPEED (Hang, Oct 23 18:06: "animation needs to play 50% faster"): every duration, delay and stagger in V1T is divided by SPEED at
    render time (same curves, same order/overlap). 1.5 → beat 4.2667 s = 256 frames @ 60 fps, loop 17.0667 s = 1024 frames.
    Change this one number (or pass {speed:n}) to retune. V1T stays in base (speed 1) seconds; HangCube.timing reports effective seconds. */
+/* EARLIER TURN (Hang, Oct 23 20:30: "rotation slightly earlier, overlapping the line exit"): beat 6.4 -> 5.4 base s, so the
+   next turn starts ~0.87 s (real) after the first lines start gliding away, while the later slots are still exiting. */
 const SPEED=1.6;
-const V1T={fps:1,beat:6.4,turn:1.7,turnEase:[.65,0,.3,1],start:.34,dots:[0,.68],guides:[.17,1.87],gStag:.3,outline:[.68,2.38],fill:[2.04,2.89],dotsOut:[2.89,3.57],retract:[3.67,4.69]};
+const V1T={fps:1,beat:5.4,turn:1.7,turnEase:[.65,0,.3,1],start:.34,dots:[0,.68],guides:[.17,1.87],gStag:.3,outline:[.68,2.38],fill:[2.04,2.89],dotsOut:[2.89,3.57],retract:[3.67,4.69]};
 const DEF={g:'G',timeScale:1,speed:SPEED,pitch:0,yaw:0,flat:true,size:.74,letterCap:.88,autoplay:true,exitLag:0,dist:4.2,focal:4.2,dotShape:'round'};
 const de=document.documentElement;
 const FALL={light:{page:'#ededed',ink:'#171717'},dark:{page:'#111111',ink:'#f2f2f2'}};
