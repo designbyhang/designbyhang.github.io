@@ -56,5 +56,5 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-help a:hover::after,.gate-help a:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.gate-help a::after{transition:none}}
 /* the site's own theme toggle (js/theme.js) stays visible and above the gate, in its normal position */
-html.gated body .theme-btn,html.gated .home .bot .theme-btn{visibility:visible;position:fixed;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px));z-index:1001}
+html.gated body .theme-btn,html.gated .home .bot .theme-btn{visibility:visible;position:fixed;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px));z-index:1001;pointer-events:auto} /* the footer it moves into in landscape is collapsed with pointer-events:none while gated; without this the button went dead after rotating (Hang, 2026-10-24) */
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
