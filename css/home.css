@@ -143,10 +143,11 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
 .poster-svg .g.a{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1)} /* alternating grid draw, odd lines reversed (.rv); delays in js/home.js */
 .poster-svg .g{vector-effect:none;stroke-width:var(--gw,1);shape-rendering:crispEdges} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
-.poster-svg .g.a.ln{animation-name:pDraw,pInkS}.poster-svg .g.a.lv{animation-name:pDrawV,pInkS}
-.poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s,.6s;animation-timing-function:cubic-bezier(.65,0,.35,1),ease;animation-delay:calc(var(--d,0)*1ms),calc(var(--ge,0)*1ms);animation-fill-mode:forwards,both}
-.poster-svg .pd{animation-name:pIn,pInkF;animation-duration:.9s,.6s;animation-timing-function:cubic-bezier(.2,.7,.2,1),ease;animation-delay:calc(var(--d,0)*1ms),calc(var(--de,0)*1ms);animation-fill-mode:forwards,both}
-@keyframes pInkS{from{stroke:var(--c-strong)}}@keyframes pInkF{from{fill:var(--c-strong)}} /* lines and dots draw in ink, then settle to their own grey once all are complete (no `to`: ends on the base colour) */
+.poster-svg .g.a.ln{animation-name:pDraw}.poster-svg .g.a.lv{animation-name:pDrawV}
+.poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:forwards}
+.poster-svg .pd{animation-name:pIn;animation-duration:.9s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:forwards}
+/* grid lines and dots stay solid ink, no fade to grey (Hang, 2026-10-24) */
+.poster-svg .g{stroke:var(--c-strong)}.poster-svg .pd{fill:var(--c-strong)}
 @media (prefers-reduced-motion:reduce){.poster-svg .g.a.ln,.poster-svg .g.a.lv,.poster-svg .pd{animation:none;opacity:1}}
 .poster-svg .ln.rv{transform-origin:100% 0}.poster-svg .lv.rv{transform-origin:0 100%}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
