@@ -77,7 +77,9 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 /* page-load bar: 2px hairline right under the visible header's bottom edge (half 52px, full 2+46=48px); blue = Shop now #2F4EBE on #E5E5EA */
 .load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
 .load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
-.web{left:0;top:52px;width:375px;height:800px;object-fit:cover;object-position:top;z-index:1}
+.webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;z-index:1}
+/* captured page (nike.com Womens 24.7 Collection, 375 css px wide @2x); scrolls inside .webv via the `translate` property (opacity is animated by the page load) */
+.web{left:0;top:0;width:375px;height:3135px;will-change:translate}
 .footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform}
 .x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
 .x.on{display:block}
@@ -131,7 +133,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
           <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg" alt="">
           <div class="abs handle" id="handle" aria-hidden="true"></div>
           <div class="abs load" id="load" aria-hidden="true"><i id="loadFill"></i></div>
-          <img class="abs web" id="web" src="assets/webpage-top.webp" alt="nike.com, Womens 24.7 Collection: Get a Nike Gift Card banner, category pills, Pick Up Today toggle, 5 Results with Filter, and a product grid">
+          <div class="abs webv" id="webv"><img class="abs web" id="web" src="assets/nike-247.webp" width="375" height="3135" alt="nike.com, Womens 24.7 Collection (17): Members free shipping banner, Tops and T-Shirts, Shorts and Hoodies category pills, Pick Up Today toggle, filters, and a product grid of Nike 24.7 ImpossiblySoft and PerfectStretch women's tops, pants, jackets and a dress with sale prices"></div>
         </div>
         <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
         <img class="abs status" id="statusL" src="assets/statusbar-light.svg" alt="">
@@ -145,7 +147,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
     <div class="hint" id="hint">Tap the caption or Shop now · drag the in-app browser</div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap the caption (“… more”) to open the in-app browser (IAB) as a half sheet; Shop now opens it full screen. Drag the sheet up to go full, down to return to half or dismiss. X or Escape closes.</p>
+  <p class="below">Tap the caption (“… more”) to open the in-app browser (IAB) as a half sheet; Shop now opens it full screen. Drag the sheet up to go full, down to return to half or dismiss; in full screen, swipe up on the page to scroll it. X or Escape closes.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 
@@ -202,7 +204,7 @@ function render(){
   $('hHalf').style.opacity=(1-clamp(hk*2)).toFixed(3);
   $('hFull').style.opacity=clamp(hk*2-1).toFixed(3);
   $('handle').style.opacity=(1-p).toFixed(3);
-  $('web').style.top=lerp(52,48,p).toFixed(2)+'px';
+  $('webv').style.top=lerp(52,48,p).toFixed(2)+'px';
   $('load').style.top=lerp(52,48,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 48
   $('footer').style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*122).toFixed(2)}px,0)`;
   $('statusD').style.opacity=clamp((84-y)/40).toFixed(3);
@@ -234,6 +236,29 @@ function springTo(target,{v=0,w=18,z=1,onDone}={}){
   };
   raf=requestAnimationFrame(step);
 }
+/* ---------- web content scroll (full screen only): swipe up on the page scrolls it; at the top a downward swipe hands off to the sheet ----------
+   Visible page height in full = 812 - (44 sheet + 48 header) minus the footer overlap (≈98) → max scroll = page height - 622. */
+const WEB_H=3135,SMAX=WEB_H-622;
+let sy=0,sraf=0;
+function setScroll(v){sy=v;$('web').style.translate=`0 ${(-v).toFixed(2)}px`}
+function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
+function scrollBack(){                             // rubber-band overshoot springs back to the nearest edge
+  const target=clamp(sy,0,SMAX);if(Math.abs(sy-target)<.5){setScroll(target);return}
+  let last=performance.now(),v=0;const w=16;
+  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(sy-target)-2*w*v)*h;sy+=v*h}
+    if(Math.abs(sy-target)<.3&&Math.abs(v)<8){setScroll(target);sraf=0;return}setScroll(sy);sraf=requestAnimationFrame(f)};
+  sraf=requestAnimationFrame(f);
+}
+function fling(v){                                 // iOS-like momentum: exponential decay (τ≈325ms), stops at the edges
+  stopScroll();if(RM.matches||Math.abs(v)<60)return scrollBack();
+  let last=performance.now();
+  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;v*=Math.exp(-dt/.325);let n=sy+v*dt;
+    if(n<=0||n>=SMAX){setScroll(clamp(n,0,SMAX));sraf=0;return}
+    setScroll(n);if(Math.abs(v)<12){sraf=0;return}sraf=requestAnimationFrame(f)};
+  sraf=requestAnimationFrame(f);
+}
+const rubber=v=>v<0?v*.35:v>SMAX?SMAX+(v-SMAX)*.35:v;
+
 /* ---------- page load: plays on every open from dismissed (never on half↔full), reset once dismissed ----------
    Deterministic browser-style progress: quick jump, stall near 40%, surge, stall near 75%, rush to 100%, then the whole bar
    fades out over 130ms the instant it completes (no hold). The page is blank until the fill crosses 1/3 (290ms), then fades in over 200ms. */
@@ -243,7 +268,7 @@ const LOAD_KF=[[0,0,'cubic-bezier(.2,.8,.3,1)'],[120,.26,'cubic-bezier(.3,.5,.5,
 let loadAnims=[],loads=0;
 function resetLoad(){loadAnims.forEach(a=>a.cancel());loadAnims=[]}   // back to the CSS base: page shown, bar hidden
 function load(){
-  resetLoad();loads++;
+  resetLoad();loads++;stopScroll();setScroll(0);
   if(RM.matches||!Element.prototype.animate)return;
   const T=LOAD_MS+LOAD_OUT;
   loadAnims=[
@@ -259,7 +284,7 @@ function go(s,opts={}){
   setState(s);
   render();
   const o=Object.assign({},opts);
-  if(s===1){if(o.w==null)o.w=16;const d=o.onDone;o.onDone=()=>{resetLoad();d&&d()}}   // close ≈0.4s; reset once dismissed
+  if(s===1){if(o.w==null)o.w=16;const d=o.onDone;o.onDone=()=>{resetLoad();stopScroll();setScroll(0);d&&d()}}   // close ≈0.4s; reset once dismissed
   springTo(target,o);
 }
 const openHalf=()=>go(2), openFull=()=>go(3), close=()=>go(1);
@@ -306,15 +331,39 @@ function dragEnd(){
   }
   go(best[0],{v,z:best[0]===2?.82:1});
 }
+/* full screen: a press below the header scrolls the page instead (sc); pulling down past the page top hands off to the sheet drag */
+let sc=null;
+function scStart(clientY,id,scale){stopScroll();sc={id,startY:clientY,s0:sy,scale,moved:false,samples:[[performance.now(),sy]]}}
+function scMove(clientY){
+  const want=sc.s0-(clientY-sc.startY)/sc.scale;
+  if(Math.abs(clientY-sc.startY)>4)sc.moved=true;
+  if(want<0&&sc.s0<=0){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id);drag.scale=scale;drag.moved=true;return}   // at the top: the sheet takes over
+  setScroll(rubber(want));
+  const now=performance.now();sc.samples.push([now,sy]);
+  while(sc.samples.length>2&&now-sc.samples[0][0]>100)sc.samples.shift();
+}
+function scEnd(){
+  const d=sc;sc=null;if(!d)return;
+  if(!d.moved)return scrollBack();
+  const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;
+  if(sy<0||sy>SMAX)return scrollBack();
+  fling(dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/dt:0);
+}
 sheet.addEventListener('pointerdown',e=>{
   if(e.button!==0||state===1)return;
   userActed();
   sheet.setPointerCapture(e.pointerId);
-  dragStart(e.clientY,e.pointerId);drag.scale=scaleNow();
+  const sc0=scaleNow();
+  if(state===3&&!anim&&(e.clientY-sheet.getBoundingClientRect().top)/sc0>=48){scStart(e.clientY,e.pointerId,sc0);return}
+  dragStart(e.clientY,e.pointerId);drag.scale=sc0;
 });
-sheet.addEventListener('pointermove',e=>{if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
-sheet.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.id)dragEnd()});
+sheet.addEventListener('pointermove',e=>{if(sc&&e.pointerId===sc.id)scMove(e.clientY);else if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
+sheet.addEventListener('pointerup',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
+sheet.addEventListener('pointercancel',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
+sheet.addEventListener('wheel',e=>{            // trackpad / mouse wheel scrolls the page in full screen
+  if(state!==3||anim||drag||sc)return;
+  e.preventDefault();stopScroll();setScroll(clamp(sy+(e.deltaMode===1?e.deltaY*16:e.deltaY),0,SMAX));
+},{passive:false});
 
 /* ---------- theme toggle ---------- */
 $('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}} );
@@ -322,7 +371,8 @@ $('theme').addEventListener('click',()=>{const h=document.documentElement;const 
 /* ---------- idle autoplay with fake-touch indicator ----------
    Gesture rules: a TAP is a press in place (appear, press, release, fade; the indicator never moves) and is used for the
    caption, Shop now and X. A DRAG is used ONLY on the IAB drag handle (top edge of the sheet): the indicator lands on the
-   handle and travels with the sheet edge, half→full (up), full→half (down) and half→dismissed (down). */
+   handle and travels with the sheet edge, half→full (up), full→half (down) and half→dismissed (down). The one exception is a
+   single gentle SCROLL in full screen: the indicator presses on the page and glides up with it, as a reader would. */
 const finger=$('finger');
 const HX=187.5,HO=10;                              // drag handle centre: x, and offset below the sheet top (handle is 20px tall)
 const glog=[];                                     // gesture log, read by the tests
@@ -350,6 +400,13 @@ async function handleDrag(target,toTop,ms,tk){
   await frames(140,tk,()=>fingerAt(HX,y+HO));finger.classList.remove('on');
   await frames(300,tk,()=>fingerAt(HX,y+HO));delete finger.dataset.g;                       // fade while still on the sheet edge
 }
+async function pageScroll(dist,ms,tk){
+  const x=250,fy0=560,s0=sy;glog.push({kind:'scroll',target:'page',from:s0,to:s0+dist});
+  fingerAt(x,fy0);finger.dataset.g='scroll';finger.classList.add('on');await sleep(320,tk);
+  finger.classList.add('down');await sleep(140,tk);
+  await frames(ms,tk,k=>{const e=easeIO(k);setScroll(s0+dist*e);fingerAt(x,fy0-dist*e)});
+  finger.classList.remove('down');await sleep(120,tk);finger.classList.remove('on');await sleep(280,tk);delete finger.dataset.g;
+}
 async function loop(tk){
   if(state!==1){close();await sleep(700,tk)}
   while(tk===token){
@@ -363,7 +420,9 @@ async function loop(tk){
     await handleDrag('handle-dismiss',660,460,tk);              // drag handle down → dismiss
     await sleep(1300,tk);
     await tap('shop',163,668,tk,()=>$('shop').click());        // tap Shop now → full
-    await sleep(2000,tk);
+    await sleep(1700,tk);
+    await pageScroll(326,1100,tk);                              // one calm scroll: the filter row settles under the header
+    await sleep(1100,tk);
     await tap('x',347,68,tk,()=>close());                       // tap X → close
     await sleep(1400,tk);
   }
@@ -418,7 +477,7 @@ function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');
 window.addEventListener('pointerup',uUp,true);window.addEventListener('pointercancel',uUp,true);
 
 setState(1);render();
-window.__cb={get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get loading(){return loadAnims.some(a=>a.playState==='running')},go};
+window.__cb={get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get scroll(){return sy},get loading(){return loadAnims.some(a=>a.playState==='running')},go};
 })();
 </script>
 </body>
