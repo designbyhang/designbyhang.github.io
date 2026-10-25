@@ -78,8 +78,8 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
 .load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
 .webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;z-index:1}
-/* captured page (nike.com Womens 24.7 Collection, 375 css px wide @2x); scrolls inside .webv via the `translate` property (opacity is animated by the page load) */
-.web{left:0;top:0;width:375px;height:3135px;will-change:translate}
+/* captured page (nike.com/w/nike-247-3wdkx "Nike 24.7", all genders, 375 css px wide @2x); scrolls inside .webv via the `translate` property (opacity is animated by the page load) */
+.web{left:0;top:0;width:375px;height:3052px;will-change:translate}
 .footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform}
 .x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
 .x.on{display:block}
@@ -133,7 +133,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
           <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg" alt="">
           <div class="abs handle" id="handle" aria-hidden="true"></div>
           <div class="abs load" id="load" aria-hidden="true"><i id="loadFill"></i></div>
-          <div class="abs webv" id="webv"><img class="abs web" id="web" src="assets/nike-247.webp" width="375" height="3135" alt="nike.com, Womens 24.7 Collection (17): Members free shipping banner, Tops and T-Shirts, Shorts and Hoodies category pills, Pick Up Today toggle, filters, and a product grid of Nike 24.7 ImpossiblySoft and PerfectStretch women's tops, pants, jackets and a dress with sale prices"></div>
+          <div class="abs webv" id="webv"><img class="abs web" id="web" src="assets/nike-247.webp?v=2" width="375" height="3052" alt="nike.com, Nike 24.7 (251): Members free shipping banner, Shoes, Tops and T-Shirts and Hoodies category pills, Pick Up Today toggle, filters, and a product grid of Nike 24.7 men's and women's shoes, ImpossiblySoft and PerfectStretch tops, pants, shorts, jackets and a skirt"></div>
         </div>
         <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
         <img class="abs status" id="statusL" src="assets/statusbar-light.svg" alt="">
@@ -238,7 +238,7 @@ function springTo(target,{v=0,w=18,z=1,onDone}={}){
 }
 /* ---------- web content scroll (full screen only): swipe up on the page scrolls it; at the top a downward swipe hands off to the sheet ----------
    Visible page height in full = 812 - (44 sheet + 48 header) minus the footer overlap (≈98) → max scroll = page height - 622. */
-const WEB_H=3135,SMAX=WEB_H-622;
+const WEB_H=3052,SMAX=WEB_H-622;
 let sy=0,sraf=0;
 function setScroll(v){sy=v;$('web').style.translate=`0 ${(-v).toFixed(2)}px`}
 function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
