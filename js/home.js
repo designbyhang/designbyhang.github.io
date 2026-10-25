@@ -15,7 +15,7 @@ const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
     thumb.style.width=w.toFixed(2)+'px';thumb.style.transform=`translate3d(${(this.c+off-w/2).toFixed(2)}px,0,0)`;
     const busy=Math.abs(this.v)>.5||Math.abs(this.w-BASE)>.02||Math.abs(this.wv)>.05;
     if(busy)this.raf=requestAnimationFrame(t=>this.step(t));else{this.raf=0;this.v=0;this.w=BASE;thumb.style.width=BASE+'px';thumb.style.transform=`translate3d(${(this.c-BASE/2).toFixed(2)}px,0,0)`;}}};
-let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false;
+let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false,mvT=0;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
 function measure(){on=!mqM.matches;if(!on){strip.style.transform='';return;}
   W=rail.clientWidth;H=rail.clientHeight;strip.style.transform='none';
@@ -30,6 +30,7 @@ const sfx=window.dbhSfx; // shared dial sound (js/sfx.js)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
   strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
+  strip.classList.add('mv');clearTimeout(mvT);mvT=setTimeout(()=>strip.classList.remove('mv'),200);
   strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);if(on)navAct(x>max-span/2);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
@@ -126,7 +127,11 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   const XS=G0.xs,XE=G0.xe,xq=x=>{for(let i=1;i<XS.length;i++)if(x<=XS[i]||i===XS.length-1)return XE[i-1]+(x-XS[i-1])*(XE[i]-XE[i-1])/(XS[i]-XS[i-1]);};
   const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(xq(x)-gx0)*sx,Y=y=>m+(yq(y)-gy0)*sy;
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
-  const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
+  /* crisp, even hairlines: each grid line renders exactly 1 screen px wide (the strip may be scaled, e.g. ~1.16x) and sits on the device pixel grid,
+     so no line smears across two pixels and looks thicker than its neighbours (Hang, 2026-10-24) */
+  const R0=svg.getBoundingClientRect(),kx=R0.width>0?R0.width/VW:1/px,ky=R0.height>0?R0.height/VH:1/px,dpr=window.devicePixelRatio||1,odd=Math.round(dpr)%2===1,snapOK=Math.abs(dpr-Math.round(dpr))<.01,
+    snp=(v,o,k)=>{if(!snapOK)return v;const d=(o+v*k)*dpr,t=odd?Math.floor(d)+.5:Math.round(d);return(t/dpr-o)/k;},SX=x=>snp(X(x),R0.left,kx),SY=y=>snp(Y(y),R0.top,ky);
+  const G={xs:G0.xs.map(SX),ys:G0.ys.map(SY),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
     words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],X(p[1]),Y(p[2])])};
   const mono=(()=>{const m0=12*px,mf0=getComputedStyle(document.documentElement).getPropertyValue('--mono').trim(),PADX=10*px,PADY=6*px;inkC.font=m0+'px '+mf0;inkC.letterSpacing=(.04*m0)+'px';let k=1;
@@ -179,9 +184,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
   G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-  const dk=Math.max(1,svg.getBoundingClientRect().width/cw)||1; /* landscape scales the card strip up (~1.2x): undo it so every dot renders 5px, as on portrait */
-  SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px/dk}"/>`;});
-  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',px);svg.style.setProperty('--ge',TW);svg.style.setProperty('--de',TW); /* grid lines and dots ink until the keywords appear (--ge/--de = TW), then settle to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
+    SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5/kx}"/>`;});
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',1/kx);svg.style.setProperty('--ge',TW);svg.style.setProperty('--de',TW); /* grid lines and dots ink until the keywords appear (--ge/--de = TW), then settle to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));

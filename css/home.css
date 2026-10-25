@@ -18,7 +18,8 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .rail{flex:1;width:100%;position:relative;overflow:hidden;outline-offset:-4px;touch-action:pan-y;user-select:none}
 .strip{list-style:none;display:flex;align-items:flex-start;gap:var(--gap);position:absolute;left:0;top:50%;
   --cw:clamp(300px,44vw,820px);--ch:calc(var(--cw)*.569444);margin-top:calc(var(--ch)/-2);
-  transform-origin:0 50%;will-change:transform;backface-visibility:hidden}
+  transform-origin:0 50%;backface-visibility:hidden}
+.strip.mv{will-change:transform} /* layer hint only while it moves: at rest the browser re-rasters the scaled cards at their real size, so hairlines stay crisp and even (Hang, 2026-10-24) */
 .card{flex:none;width:var(--cw);position:relative}
 .hit{display:block;text-decoration:none;color:inherit}
 .lbl{display:flex;align-items:baseline;gap:10px;height:28px;padding:0 2px;font:400 12px/1 var(--sans);color:var(--faint);white-space:nowrap}
@@ -141,7 +142,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-svg .ln{transform-box:fill-box;transform-origin:0 0;animation-name:pDraw}
 .poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
 .poster-svg .g.a{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1)} /* alternating grid draw, odd lines reversed (.rv); delays in js/home.js */
-.poster-svg .g{vector-effect:none;stroke-width:var(--gw,1)} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
+.poster-svg .g{vector-effect:none;stroke-width:var(--gw,1);shape-rendering:crispEdges} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
 .poster-svg .g.a.ln{animation-name:pDraw,pInkS}.poster-svg .g.a.lv{animation-name:pDrawV,pInkS}
 .poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s,.6s;animation-timing-function:cubic-bezier(.65,0,.35,1),ease;animation-delay:calc(var(--d,0)*1ms),calc(var(--ge,0)*1ms);animation-fill-mode:forwards,both}
 .poster-svg .pd{animation-name:pIn,pInkF;animation-duration:.9s,.6s;animation-timing-function:cubic-bezier(.2,.7,.2,1),ease;animation-delay:calc(var(--d,0)*1ms),calc(var(--de,0)*1ms);animation-fill-mode:forwards,both}
