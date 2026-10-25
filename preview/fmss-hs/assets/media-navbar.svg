@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="375" height="163" viewBox="0 0 375 163" fill="none">
+<g id="fmss_27">
+<g id="Screen">
+<g id="Navigation Bar">
+<g id="Overlay Header" opacity="0.4">
+<rect id="Text protection" width="375" height="55" fill="black" fill-opacity="0.2" />
+<g id="Easing Gradient">
+<mask id="mask0_4983_154659" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="55" width="375" height="108">
+<rect id="Easing Gradient_2" x="375" y="163" width="375" height="108" transform="rotate(-180 375 163)" fill="url(#paint0_linear_4983_154659)" />
+</mask>
+<g mask="url(#mask0_4983_154659)">
+<rect id="Color" x="375" y="230" width="375" height="175" transform="rotate(-180 375 230)" fill="black" fill-opacity="0.2" />
+</g>
+</g>
+</g>
+<g id="Header Container">
+<g id="Header content">
+<g id="Right Add On">
+<g id=".Icon Button" filter="url(#filter1_d_4983_154659)">
+<g id="nav-cross">
+<mask id="mask1_4983_154659" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="335" y="56" width="24" height="24">
+<rect id="icon-mask" x="335" y="56" width="24" height="24" fill="url(#pattern0_4983_154659)" />
+</mask>
+<g mask="url(#mask1_4983_154659)">
+<rect id="icon-fill" x="335" y="56" width="24" height="24" fill="white" />
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_4983_154659" x="-8" y="-48" width="471" height="908" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix" />
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+<feOffset dx="40" />
+<feGaussianBlur stdDeviation="20" />
+<feComposite in2="hardAlpha" operator="out" />
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" />
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4983_154659" />
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_4983_154659" result="shape" />
+</filter>
+<filter id="filter1_d_4983_154659" x="334" y="55" width="26" height="26" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix" />
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+<feOffset />
+<feGaussianBlur stdDeviation="0.5" />
+<feComposite in2="hardAlpha" operator="out" />
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.62 0" />
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4983_154659" />
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_4983_154659" result="shape" />
+</filter>
+<pattern id="pattern0_4983_154659" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_4983_154659" transform="scale(0.0208333)" />
+</pattern>
+<linearGradient id="paint0_linear_4983_154659" x1="562.5" y1="163" x2="562.5" y2="271" gradientUnits="userSpaceOnUse">
+<stop stop-opacity="0" />
+<stop offset="0.117896" stop-opacity="0.01" />
+<stop offset="0.213837" stop-opacity="0.0324148" />
+<stop offset="0.2912" stop-opacity="0.0704" />
+<stop offset="0.353363" stop-opacity="0.120652" />
+<stop offset="0.403704" stop-opacity="0.181481" />
+<stop offset="0.4456" stop-opacity="0.2512" />
+<stop offset="0.48243" stop-opacity="0.328119" />
+<stop offset="0.51757" stop-opacity="0.410548" />
+<stop offset="0.5544" stop-opacity="0.4968" />
+<stop offset="0.596296" stop-opacity="0.585185" />
+<stop offset="0.646637" stop-opacity="0.674015" />
+<stop offset="0.7088" stop-opacity="0.7616" />
+<stop offset="0.786163" stop-opacity="0.846252" />
+<stop offset="0.882104" stop-opacity="0.926281" />
+<stop offset="1" />
+</linearGradient>
+<image id="image0_4983_154659" width="48" height="48" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAADbN2wMAAABY0lEQVRoBe2YUY7DIAxEo360R+dGVW+UY7SeqEgIhWDM0NLUltAmEYzfTCCr3WXx8gQ8AU/AE/AE/iCBq3gMMtb3wDWesWq0/gb/FNp03OX+RnAADWil2rhGSLRaRSlvgPteEyV4aKMnrUoGekwcwdMNBIkCoqXR+iZq8OiDnrTCIdvbp6khrQkNPLSYH4ktCG1jzCsVQ6OkrXreA9CzVgWnnWQBsazR8pjmtQC1zDXBWBdpwB4ijpEe9vxae/itnIfrNCZy4PT+q/DRmdXEFPBWE1PBpyZq+x3bB3Pw1ih1oaicQKT1HEy1hVrh41doChNW+ClMaOCn/UWmgY9bpGXuRz4HFiDLmiFmekB61lLMMAAYGiYzP/8nZRDb8dO39zMeWG06mjeBnrRaRWkPHM9a4SNUzQR60qpkwAofwY5MUA0E6Zi/gV74mgn0pNXof76O1qcF4UKegCfgCXgCngA1gRe1DJ9UG+p4NAAAAABJRU5ErkJggg==" />
+</defs>
+</svg>

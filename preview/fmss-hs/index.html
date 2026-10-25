@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMSS · Split Screen H-scroll — interactive IAB prototype (mock)</title>
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=85"><link rel="stylesheet" href="../../css/theme.css?v=85">
+<link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp">
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--hint:rgba(242,242,242,.56)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.theme:focus-visible{outline:2px solid #0866ff;outline-offset:2px}
+
+/* container: same proportions as the case-study .media.mframe (3840/2052 desktop, 4:5 on phones) */
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.hint{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:12px;line-height:16px;color:var(--hint);pointer-events:none;transition:opacity .6s var(--ease)}
+@media (max-width:640px){.hint{display:none}}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone (Figma "Screen" 375×812; px = Figma px) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+/* bezel: 8px #E0E0E0 OUTSIDE the screen; Figma 60% corner smoothing via squircle() clip-paths (border-radius = no-JS fallback) */
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:#e0e0e0;border-radius:48px}
+.abs{position:absolute;display:block}
+img.abs{pointer-events:none;-webkit-user-drag:none}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn:focus-visible{outline:2px solid #0866ff;outline-offset:-2px;border-radius:4px}
+
+/* feed (Figma fmss_26) */
+.feedbg{left:0;top:96px;width:375px;height:9px;background:#C9CCD1}
+.post{left:0;top:105px;width:375px;height:641px}
+.navbar{left:0;top:44px;width:375px;height:52px}
+.tabbar{left:0;top:733px;width:375px;height:79px}
+.tile{z-index:12;display:none}
+.tile.on{display:block}
+.cta{left:0;top:592px;width:375px;height:74px;z-index:12;display:none}
+.cta.on{display:block}
+
+/* split screen media (Figma fmss_27–30): blurred still frame (backdrop blur 20 + rgba(0,0,0,.4), baked) */
+.mbg{left:0;top:0;width:375px;height:812px;opacity:0;pointer-events:none;will-change:opacity}
+/* product cards = Figma "Media H-Scroll" items; one element per product morphs from its feed tile to its carousel slot */
+.card{left:0;top:0;overflow:hidden;z-index:5;will-change:left,top,width,height,opacity;background:#F0F2F5;transform:translateZ(0)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.card i{position:absolute;inset:0;border:1.2px solid rgba(0,0,0,.1);pointer-events:none}
+.dots{left:162px;top:363px;width:52px;height:24px;z-index:8;pointer-events:none;opacity:0}
+.dots img{position:absolute;inset:0;width:52px;height:24px;opacity:0;transition:opacity .2s var(--ease)}
+.dots img.on{opacity:1}
+.mnav{left:0;top:0;width:375px;height:163px;z-index:9;opacity:0;pointer-events:none}
+.hs{left:0;top:0;width:375px;height:407px;z-index:10;display:none;touch-action:pan-y;cursor:grab}
+.hs.on{display:block}
+.hs.drag{cursor:grabbing}
+.overlay{left:0;top:0;width:375px;height:812px;background:rgba(0,0,0,.4);opacity:0;z-index:15;pointer-events:none}
+
+/* sheet = Figma "Bottom Container" (IAB): half top 407 (h 405, r16), full top 44 (h 768, r0) */
+.sheet{left:0;top:812px;width:375px;height:768px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;transform:translateZ(0)}
+.sheet.drag{cursor:grabbing}
+.iab-h{left:0;top:0;width:375px;z-index:2}
+.iab-hh{height:52px}
+.iab-hf{height:46px;opacity:0}
+.webv{left:0;top:52px;width:375px;height:768px;overflow:hidden;z-index:1}
+.web{left:0;top:0;width:375px;height:768px;transition:opacity .24s var(--ease)}
+.footer{left:0;top:717px;width:375px;height:95px;z-index:25;pointer-events:none;will-change:transform;transform:translate3d(0,110px,0)}
+.status{left:0;top:0;width:375px;height:44px;z-index:30}
+.status-l{z-index:11}
+.status-d{opacity:0}
+.x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
+.x.on{display:block}
+.home{left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;z-index:45;pointer-events:none}
+.finger,.ufinger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
+.finger.on,.ufinger.on{opacity:.9}
+.finger.down,.ufinger.down{scale:.85}
+.ufinger{z-index:61;transition:opacity .15s var(--ease),scale .12s var(--ease)}
+.phone.u-on .finger{opacity:0!important}
+@media (hover:hover) and (pointer:fine){.phone,.phone *{cursor:none!important}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Split Screen H-scroll</h1>
+      <p>FMSS · interactive in-app browser (IAB) prototype — standalone mock</p>
+    </div>
+    <button class="theme" id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button>
+  </header>
+
+  <div class="mframe" id="frame" role="region" aria-roledescription="interactive prototype" aria-label="Split Screen H-scroll prototype: a Facebook collection ad that opens a split screen with a swipeable product carousel above the in-app browser (IAB)">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <!-- feed -->
+        <div class="abs feedbg"></div>
+        <img class="abs post" src="assets/ad-post.svg" alt="Artifox, Sponsored: A solid hardwood Bench designed to work as a coffee table, media console, or entryway. artifox.com, 5 Ways to Refresh Your Home Office, Learn more">
+        <img class="abs navbar" src="assets/navbar-feed.svg" alt="">
+        <img class="abs tabbar" src="assets/tabbar.svg" alt="">
+        <!-- split screen media -->
+        <img class="abs mbg" id="mbg" src="assets/media-bg.jpg" alt="">
+        <div class="abs card" data-i="0"><img src="assets/p-desk.webp" alt="Artifox Desk, walnut"><i></i></div>
+        <div class="abs card" data-i="1"><img src="assets/p-side.webp" alt="Artifox Side table, walnut"><i></i></div>
+        <div class="abs card" data-i="2"><img src="assets/p-lamp.webp" alt="Artifox table lamp"><i></i></div>
+        <div class="abs card" data-i="3"><img src="assets/p-chair.webp" alt="Form armchair, green"><i></i></div>
+        <div class="abs dots" id="dots" aria-hidden="true"><img class="on" src="assets/dots-1.svg" alt=""><img src="assets/dots-2.svg" alt=""><img src="assets/dots-3.svg" alt=""><img src="assets/dots-4.svg" alt=""></div>
+        <img class="abs mnav" id="mnav" src="assets/media-navbar.svg" alt="">
+        <img class="abs status status-l" src="assets/statusbar-light.svg" alt="">
+        <div class="abs hs" id="hs" aria-hidden="true"></div>
+        <button class="abs btn tile" data-i="0" type="button" style="left:0;top:217px;width:256px;height:375px" aria-label="Desk: open the split screen"></button>
+        <button class="abs btn tile" data-i="1" type="button" style="left:261px;top:217px;width:114px;height:122px" aria-label="Side table: open the split screen"></button>
+        <button class="abs btn tile" data-i="2" type="button" style="left:261px;top:343.5px;width:114px;height:122px" aria-label="Lamp: open the split screen"></button>
+        <button class="abs btn tile" data-i="3" type="button" style="left:261px;top:470px;width:114px;height:122px" aria-label="Chair: open the split screen"></button>
+        <button class="abs btn cta" id="cta" type="button" aria-label="Learn more: open artifox.com in the in-app browser (IAB) full screen"></button>
+        <div class="abs overlay" id="overlay"></div>
+
+        <div class="abs sheet" id="sheet" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): artifox.com" aria-hidden="true">
+          <img class="abs iab-h iab-hh" id="hHalf" src="assets/iab-header-half.svg" alt="">
+          <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg" alt="">
+          <div class="abs webv" id="webv"><img class="abs web" id="webA" src="assets/page-desk.webp" alt="artifox.com product page"><img class="abs web" id="webB" src="assets/page-desk.webp" alt="" style="opacity:0"></div>
+        </div>
+        <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
+        <img class="abs status status-d" id="statusD" src="assets/statusbar-dark.svg" alt="">
+        <button class="abs btn x" id="x" type="button" aria-label="Close"></button>
+        <div class="abs home"></div>
+        <div class="abs finger" id="finger" aria-hidden="true"></div>
+        <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="hint" id="hint">Tap a product · swipe the carousel · drag the in-app browser</div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">Tap any product in the collection ad to open the split screen: the photo lifts into a swipeable carousel above the in-app browser (IAB). Swipe, drag or two-finger scroll the carousel — each product snaps into place and the page below follows. Drag the browser up for full screen and down to return or dismiss. Learn more opens the store full screen. X or Escape closes.</p>
+  <div style="height:120vh" aria-hidden="true"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),sheet=$('sheet'),hs=$('hs');
+const Y1=812,Y2=407,Y3=44;                       // sheet top: closed / split / full (Figma px)
+const N=4,PITCH=363;                             // products; px of finger travel per card (351 + 12 gap)
+const PAGES=['desk','side','lighting','seating'];
+const NAMES=['Desk','Side tables','Lighting','Seating'];
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const NOAUTO=new URLSearchParams(location.search).has('noauto');   // test hook: static page without the idle demo
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ---------- fit phone to container (8-based padding) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40;
+  const s=Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- Figma corner smoothing 60% (port of figma-squircle) ---------- */
+function squircle(w,h,R,sm){
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
+  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),D=f(d),S=f(arc),r=f(R);
+  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${D}a${r} ${r} 0 0 1 ${S} ${S}c${D} ${C} ${D} ${BC} ${D} ${ABC}`+
+    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-D} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${D} ${-BC} ${D} ${-ABC} ${D}`+
+    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-D}a${r} ${r} 0 0 1 ${-S} ${-S}c${-D} ${-C} ${-D} ${-BC} ${-D} ${-ABC}`+
+    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${D} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-D} ${BC} ${-D} ${ABC} ${-D}Z`;
+}
+if(CSS.supports('clip-path','path("M0 0H1V1Z")')){
+  phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;
+  $('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`;
+}
+
+/* ---------- geometry ---------- */
+const cards=[...document.querySelectorAll('.card')];
+const FEED=[[0,217,256,375],[261,217,114,122],[261,343.5,114,122],[261,470,114,122]];   // Figma collection tiles (x,y,w,h)
+/* carousel slot of every card for a fractional index p: active 351² r16 at x12, others 210² at .4, 12px gaps, centred in the 351px row at y44 */
+function slots(p){
+  const w=[],o=[];for(let j=0;j<N;j++){const d=clamp(Math.abs(j-p));w[j]=lerp(351,210,d);o[j]=lerp(1,.4,d)}
+  const i=clamp(Math.floor(p),0,N-2),f=p-i,L=[];
+  L[i]=12-f*(w[i]+12);
+  for(let j=i+1;j<N;j++)L[j]=L[j-1]+w[j-1]+12;
+  for(let j=i-1;j>=0;j--)L[j]=L[j+1]-12-w[j];
+  return w.map((wj,j)=>[L[j],44+(351-wj)/2,wj,wj,o[j]]);
+}
+
+/* ---------- state: sheet top y, carousel index p, mode ('hs' collection → split, 'cta' Learn more → full) ---------- */
+let y=Y1,p=0,state=1,mode='hs',hLock=0,pageIdx=-1,pageKey='';
+const webs=[$('webA'),$('webB')];let webFront=0;
+function setPage(key,instant){
+  if(key===pageKey)return;pageKey=key;
+  const src=`assets/page-${key}.webp`,alt=key==='bestsellers'?'artifox.com Best Sellers: Desk, Side, Table and Bench in walnut with prices':`artifox.com ${key} page`;
+  if(instant||RM.matches){webs[webFront].src=src;webs[webFront].alt=alt;webs[webFront].style.opacity=1;webs[1-webFront].style.opacity=0;return}
+  const back=webs[1-webFront],front=webs[webFront];
+  back.style.transition='none';back.style.opacity=0;back.src=src;back.alt=alt;back.style.zIndex=2;front.style.zIndex=1;
+  const show=()=>{back.style.transition='';requestAnimationFrame(()=>{back.style.opacity=1})};
+  back.decode?back.decode().then(show,show):show();
+  webFront=1-webFront;
+}
+function render(){
+  const m=mode==='hs'?clamp((Y1-y)/(Y1-Y2)):0;     // feed → split morph, tied to the sheet
+  const pf=mode==='hs'?clamp((Y2-y)/(Y2-Y3)):clamp((Y1-y)/(Y1-Y3));   // fullness
+  sheet.style.transform=`translate3d(0,${(y-Y1).toFixed(2)}px,0)`;
+  const r=(16*(1-pf)).toFixed(2);sheet.style.borderRadius=`${r}px ${r}px 0 0`;
+  $('mbg').style.opacity=m.toFixed(3);$('mnav').style.opacity=m.toFixed(3);$('dots').style.opacity=m.toFixed(3);
+  $('overlay').style.opacity=(mode==='cta'?pf:0).toFixed(3);
+  const S=slots(p);
+  cards.forEach((c,j)=>{
+    const F=FEED[j],s=S[j],k=m;
+    const x=lerp(F[0],s[0],k),yy=lerp(F[1],s[1],k),w=lerp(F[2],s[2],k),h=lerp(F[3],s[3],k);
+    c.style.left=x.toFixed(2)+'px';c.style.top=yy.toFixed(2)+'px';c.style.width=w.toFixed(2)+'px';c.style.height=h.toFixed(2)+'px';
+    c.style.borderRadius=(16*k).toFixed(2)+'px';c.style.opacity=lerp(1,s[4],k).toFixed(3);
+    c.style.zIndex=k>0?String(8-Math.min(3,Math.round(Math.abs(j-p)))):'5';
+    c.lastChild.style.opacity=(1-k).toFixed(3);
+  });
+  const hk=hLock?1:clamp((pf-.45)/.2);             // half → full header: fade out, then in
+  $('hHalf').style.opacity=(1-clamp(hk*2)).toFixed(3);
+  $('hFull').style.opacity=clamp(hk*2-1).toFixed(3);
+  $('webv').style.top=lerp(52,46,hk).toFixed(2)+'px';
+  $('footer').style.transform=`translate3d(0,${((1-clamp((pf-.2)/.8))*110).toFixed(2)}px,0)`;
+  $('statusD').style.opacity=(mode==='cta'?1:Math.max(1-m,clamp((84-y)/40))).toFixed(3);
+  const idx=clamp(Math.round(p),0,N-1);
+  if(idx!==pageIdx){pageIdx=idx;[...$('dots').children].forEach((d,j)=>d.classList.toggle('on',j===idx));if(mode==='hs'&&state!==1)setPage(PAGES[idx])}
+}
+function setState(s){
+  state=s;
+  $('x').classList.toggle('on',s!==1);
+  hs.classList.toggle('on',s===2&&mode==='hs');
+  document.querySelectorAll('.tile').forEach(t=>{t.classList.toggle('on',s===1)});
+  $('cta').classList.toggle('on',s===1);
+  sheet.setAttribute('aria-hidden',s===1?'true':'false');
+  $('live').textContent=s===1?'Back to feed':mode==='cta'?'artifox.com open full screen':s===2?`Split screen: ${NAMES[clamp(Math.round(p),0,N-1)]}, ${clamp(Math.round(p),0,N-1)+1} of ${N}`:'In-app browser full screen';
+}
+
+/* ---------- springs (critically damped) ---------- */
+function makeSpring(get,set){
+  let raf=0,busy=false;
+  return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
+    to(target,{v=0,w=18,z=1,onDone}={}){
+      cancelAnimationFrame(raf);
+      if(RM.matches){set(target);busy=false;onDone&&onDone();return}
+      let last=performance.now(),vel=v,x=get();busy=true;
+      const step=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;
+        for(let i=0;i<4;i++){const h=dt/4;vel+=(-w*w*(x-target)-2*z*w*vel)*h;x+=vel*h}
+        const eps=Math.abs(target)>20?.3:.002;
+        if(Math.abs(x-target)<eps&&Math.abs(vel)<(eps*25)){set(target);busy=false;onDone&&onDone();return}
+        set(x);raf=requestAnimationFrame(step)};
+      raf=requestAnimationFrame(step);
+    }};
+}
+const ySpring=makeSpring(()=>y,v=>{y=v;render()});
+const pSpring=makeSpring(()=>p,v=>{p=v;render()});
+
+function go(s,opts={}){
+  const target=s===1?Y1:s===2?Y2:Y3;
+  if(state===1&&s>1){pageIdx=-1;pageKey='';setPage(mode==='cta'?'bestsellers':PAGES[clamp(Math.round(p),0,N-1)],true)}
+  hLock=mode==='cta'?1:0;
+  setState(s);render();
+  const o=Object.assign({},opts);
+  if(s===1){if(o.w==null)o.w=16;const d=o.onDone;o.onDone=()=>{mode='hs';render();d&&d()}}
+  ySpring.to(target,o);
+}
+function openAt(i){if(state!==1)return;pSpring.stop();mode='hs';p=i;pageIdx=-1;render();go(2,{w:16})}
+function openCta(){if(state!==1)return;mode='cta';go(3,{w:16})}
+const close=()=>go(1);
+function snapTo(i,v=0){i=clamp(Math.round(i),0,N-1);pSpring.to(i,{v,w:16,onDone:()=>{if(state===2)setState(2)}})}
+
+/* ---------- controls ---------- */
+document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>openAt(+t.dataset.i)));
+$('cta').addEventListener('click',openCta);
+$('x').addEventListener('click',()=>{close();document.querySelector('.tile').focus({preventScroll:true})});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&state!==1){userActed();close()}
+  if(state===2&&mode==='hs'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')&&frame.contains(document.activeElement)){userActed();snapTo(Math.round(p)+(e.key==='ArrowRight'?1:-1))}
+});
+
+/* ---------- carousel h-scroll: pointer (touch / mouse drag) 1:1 + velocity snap; trackpad deltaX + idle snap ---------- */
+let hd=null;
+function scaleNow(){return phone.getBoundingClientRect().height/812}
+const rubberP=v=>v<0?v*.3:v>N-1?N-1+(v-(N-1))*.3:v;
+function hsStart(x,yv,id,scale){pSpring.stop();hd={id,x0:x,y0:yv,p0:p,from:Math.round(p),scale,dir:0,samples:[[performance.now(),x]]}}
+function hsMove(x,yv){
+  if(!hd)return false;
+  const dx=(x-hd.x0)/hd.scale,dy=(yv-hd.y0)/hd.scale;
+  if(!hd.dir){if(Math.hypot(dx,dy)<6)return false;hd.dir=Math.abs(dx)>=Math.abs(dy)?1:2;if(hd.dir===1)hs.classList.add('drag')}
+  if(hd.dir!==1)return false;
+  p=rubberP(hd.p0-dx/PITCH);render();
+  const now=performance.now();hd.samples.push([now,x]);
+  while(hd.samples.length>2&&now-hd.samples[0][0]>100)hd.samples.shift();
+  return true;
+}
+function hsEnd(){
+  if(!hd)return;const d=hd;hd=null;hs.classList.remove('drag');
+  if(d.dir!==1){snapTo(d.from);return}
+  const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;
+  const vpx=dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/d.scale/dt:0;   // + = finger moving right
+  let target=Math.round(p);
+  if(Math.abs(vpx)>320)target=d.from+(vpx<0?1:-1);
+  target=clamp(target,d.from-1,d.from+1);
+  snapTo(target,-vpx/PITCH);
+}
+hs.addEventListener('pointerdown',e=>{if(e.button!==0||state!==2)return;userActed();try{hs.setPointerCapture(e.pointerId)}catch(_){}hsStart(e.clientX,e.clientY,e.pointerId,scaleNow())});
+hs.addEventListener('pointermove',e=>{if(hd&&e.pointerId===hd.id)hsMove(e.clientX,e.clientY)});
+hs.addEventListener('pointerup',e=>{if(hd&&e.pointerId===hd.id)hsEnd()});
+hs.addEventListener('pointercancel',e=>{if(hd&&e.pointerId===hd.id)hsEnd()});
+let wT=0,wFrom=0,wOn=false;
+hs.addEventListener('wheel',e=>{
+  if(state!==2)return;
+  const dx=e.deltaMode===1?e.deltaX*16:e.deltaX,dy=e.deltaMode===1?e.deltaY*16:e.deltaY;
+  if(Math.abs(dx)<=Math.abs(dy))return;            // vertical wheel scrolls the page as usual
+  e.preventDefault();
+  if(!wOn){wOn=true;wFrom=Math.round(p);pSpring.stop()}
+  p=rubberP(clamp(p+dx/PITCH,-.4,N-.6));render();
+  clearTimeout(wT);wT=setTimeout(()=>{wOn=false;let t=Math.round(p);if(Math.abs(p-wFrom)>.12)t=wFrom+(p>wFrom?1:-1);snapTo(clamp(t,wFrom-1,wFrom+1))},120);
+},{passive:false});
+
+/* ---------- sheet drag (pointer events, 1:1, velocity + position snap) ---------- */
+let drag=null;
+function dragStart(clientY,id){ySpring.stop();hLock=mode==='cta'?1:0;drag={id,startY:clientY,y0:y,from:state,moved:false,samples:[[performance.now(),y]]};sheet.classList.add('drag')}
+function dragMove(clientY){
+  if(!drag)return;
+  let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
+  if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
+  if(ny<Y3)ny=Y3-(Y3-ny)*.25;
+  y=Math.min(Y1,ny);render();
+  const now=performance.now();drag.samples.push([now,y]);
+  while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
+}
+function dragEnd(){
+  if(!drag)return;
+  const d=drag;drag=null;sheet.classList.remove('drag');
+  if(!d.moved){if(d.from===2)return go(3);return ySpring.to(d.from===3?Y3:Y2)}   // tap on the split-screen sheet → full
+  const s=d.samples,a=s[0],b=s[s.length-1];
+  const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;
+  const proj=y+v*.18;
+  const cands=mode==='cta'?[[3,Y3],[1,Y1]]:d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
+  let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
+  if(Math.abs(v)>600&&mode==='hs'){
+    const want=clamp(d.from+(v>0?-1:1),1,3);
+    if(d.from===3&&want<2){}else if((v>0&&best[0]>want)||(v<0&&best[0]<want))best=cands.find(c=>c[0]===want)||best;
+  }
+  go(best[0],{v,z:best[0]===2?.9:1});
+}
+sheet.addEventListener('pointerdown',e=>{if(e.button!==0||state===1)return;userActed();try{sheet.setPointerCapture(e.pointerId)}catch(_){}dragStart(e.clientY,e.pointerId);drag.scale=scaleNow()});
+sheet.addEventListener('pointermove',e=>{if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
+sheet.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id)dragEnd()});
+sheet.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.id)dragEnd()});
+
+/* ---------- theme toggle ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+
+/* ---------- idle autoplay with fake-touch indicator ----------
+   TAP = press in place (product tile, X, Learn more). DRAG only where dragging is the real gesture:
+   swiping the carousel (indicator travels with the card) and the IAB handle (indicator rides the sheet edge). */
+const finger=$('finger');
+const HX=187.5,HO=10;
+const glog=[];
+let autoOn=false,token=0,idleT=0,visible=false,interacted=false,loops=0;
+const sleep=(ms,tk)=>new Promise((res,rej)=>setTimeout(()=>tk===token?res():rej('x'),ms));
+const easeIO=k=>-(Math.cos(Math.PI*k)-1)/2;
+function fingerAt(x,fy){finger.style.translate=`${x}px ${fy}px`;finger.dataset.x=x.toFixed(2);finger.dataset.y=fy.toFixed(2)}
+function frames(ms,tk,fn){const t0=performance.now();return new Promise((res,rej)=>{const f=now=>{if(tk!==token)return rej('x');const k=clamp((now-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)})}
+async function tap(target,x,fy,tk,fn){
+  glog.push({kind:'tap',target,x,y:fy});
+  fingerAt(x,fy);finger.dataset.g='tap';finger.classList.add('on');await sleep(320,tk);
+  finger.classList.add('down');await sleep(160,tk);
+  finger.classList.remove('down');fn();await sleep(120,tk);
+  finger.classList.remove('on');await sleep(280,tk);delete finger.dataset.g;
+}
+async function swipe(dir,tk){                       // dir +1 = next card (finger moves left)
+  const fy=212,x0=dir>0?296:80,x1=dir>0?80:296,from=Math.round(p);
+  glog.push({kind:'swipe',target:'carousel',from,to:from+dir});
+  fingerAt(x0,fy);finger.dataset.g='swipe';finger.classList.add('on');await sleep(320,tk);
+  finger.classList.add('down');await sleep(140,tk);
+  hsStart(x0,fy,'fake',1);
+  await frames(440,tk,k=>{const x=lerp(x0,x1,easeIO(k));hsMove(x,fy);fingerAt(x,fy)});
+  hd.samples=[[performance.now()-60,x1-(x1-x0)*.25],[performance.now(),x1]];   // release with a calm forward velocity
+  hsEnd();finger.classList.remove('down');await sleep(120,tk);
+  finger.classList.remove('on');await sleep(280,tk);delete finger.dataset.g;
+}
+async function handleDrag(target,toTop,ms,tk){
+  const from=y,fy0=y+HO;glog.push({kind:'drag',target,from,to:toTop});
+  fingerAt(HX,fy0);finger.dataset.g='drag';finger.classList.add('on');await sleep(320,tk);
+  finger.classList.add('down');await sleep(140,tk);
+  dragStart(fy0,'fake');drag.scale=1;
+  await frames(ms,tk,k=>{dragMove(lerp(fy0,toTop+HO,easeIO(k)));fingerAt(HX,y+HO)});
+  dragEnd();finger.classList.remove('down');
+  await frames(140,tk,()=>fingerAt(HX,y+HO));finger.classList.remove('on');
+  await frames(300,tk,()=>fingerAt(HX,y+HO));delete finger.dataset.g;
+}
+async function loop(tk){
+  if(state!==1){close();await sleep(700,tk)}
+  while(tk===token){
+    await sleep(1100,tk);
+    await tap('tile-desk',128,404,tk,()=>openAt(0));          // tap the hero photo → split screen
+    await sleep(1500,tk);
+    for(let i=0;i<3;i++){await swipe(1,tk);await sleep(1100,tk)} // swipe through side · lighting · seating
+    await sleep(200,tk);
+    await handleDrag('handle-up',Y3,620,tk);                    // drag the IAB up → full screen
+    await sleep(1600,tk);
+    await handleDrag('handle-down',Y2,580,tk);                  // drag down → back to split
+    await sleep(1000,tk);
+    await swipe(-1,tk);await sleep(1000,tk);                    // swipe back one card
+    await tap('x',347,68,tk,()=>close());                       // X → feed
+    await sleep(1400,tk);
+    await tap('learn-more',317,629,tk,()=>openCta());           // Learn more → artifox.com full screen
+    await sleep(2000,tk);
+    await tap('x',347,68,tk,()=>close());
+    await sleep(800,tk);
+    loops++;
+  }
+}
+function startAuto(){
+  if(autoOn||uShow||RM.matches||!visible||document.hidden||NOAUTO)return;
+  autoOn=true;const tk=++token;frame.dataset.autoplay='on';
+  loop(tk).catch(()=>{});
+}
+function stopAuto(){
+  if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';
+  finger.classList.remove('on','down');delete finger.dataset.g;
+  if(drag&&drag.id==='fake')dragEnd();
+  if(hd&&hd.id==='fake')hsEnd();
+}
+function userActed(){
+  interacted=true;$('hint').style.opacity='0';
+  stopAuto();clearTimeout(idleT);
+  idleT=setTimeout(()=>{if(!drag&&!hd&&!uShow)startAuto()},6000);
+}
+['pointerdown','keydown','wheel'].forEach(ev=>frame.addEventListener(ev,e=>{if(e.isTrusted)userActed()},{capture:true,passive:true}));
+frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visible, :focus-within'))userActed()});
+new IntersectionObserver(es=>{
+  visible=es[0].isIntersecting;
+  if(visible){if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
+  else stopAuto();
+},{threshold:.35}).observe(frame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto()});
+RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
+
+/* ---------- real pointer → touch-indicator circle ---------- */
+const uf=$('ufinger'),FINE=matchMedia('(hover:hover) and (pointer:fine)');
+let ux=0,uy=0,uraf=0,uShow=false,uTouch=null;
+const isFine=e=>e.pointerType!=='touch'&&FINE.matches;
+function uWrite(){uf.style.translate=`${ux.toFixed(2)}px ${uy.toFixed(2)}px`;uf.dataset.x=ux.toFixed(1);uf.dataset.y=uy.toFixed(1)}
+function uPos(e,sync){const r=phone.getBoundingClientRect(),s=r.height/812;ux=(e.clientX-r.left)/s;uy=(e.clientY-r.top)/s;
+  if(sync){cancelAnimationFrame(uraf);uraf=0;uWrite()}else if(!uraf)uraf=requestAnimationFrame(()=>{uraf=0;uWrite()})}
+function uOn(e){uPos(e,true);if(!uShow){uShow=true;uf.classList.add('on');phone.classList.add('u-on');stopAuto()}}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on');
+  if(interacted){clearTimeout(idleT);idleT=setTimeout(()=>{if(!drag&&!hd&&!uShow)startAuto()},6000)}}
+phone.addEventListener('pointerenter',e=>{if(e.isTrusted&&isFine(e)){userActed();uOn(e)}});
+phone.addEventListener('pointermove',e=>{if(!e.isTrusted)return;if(isFine(e)){uShow?uPos(e):uOn(e)}else if(e.pointerId===uTouch)uPos(e)});
+phone.addEventListener('pointerleave',e=>{if(isFine(e)&&!(drag&&drag.id===e.pointerId)&&!(hd&&hd.id===e.pointerId))uOff()});
+phone.addEventListener('pointerdown',e=>{if(!e.isTrusted)return;if(!isFine(e))uTouch=e.pointerId;uOn(e);uf.classList.add('down')});
+function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');
+  if(e.pointerId===uTouch){uTouch=null;uOff()}
+  else if(isFine(e)){const r=phone.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)uOff()}}
+window.addEventListener('pointerup',uUp,true);window.addEventListener('pointercancel',uUp,true);
+
+/* preload the other pages so swaps never flash */
+['side','lighting','seating','bestsellers'].forEach(k=>{const i=new Image();i.src=`assets/page-${k}.webp`});
+
+setState(1);render();
+window.__hs={get busy(){return ySpring.busy||pSpring.busy||!!drag||!!hd},get y(){return y},get p(){return p},get state(){return state},get mode(){return mode},get page(){return pageKey},get auto(){return autoOn},get loops(){return loops},get gestures(){return glog.slice()},get uShow(){return uShow},openAt,openCta,close,go,snapTo};
+})();
+</script>
+</body>
+</html>
