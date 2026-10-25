@@ -141,12 +141,12 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
      together (.wf, 0.7s); once that fade ends the CTA rises from its row (desktop); then the dots and the last dot (former ring). */
   /* phone portrait: dots land first, then the lines, letters and words; dots and lines turn grey as the words appear (Hang, 2026-10-24) */
   /* phone portrait: one dot where each grid line begins (shared starts merge), each timed just ahead of its own line */
-  const SD=[];if(port){const st=[];G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[G.ys.length-1]:G.ys[0],i*150]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[G.xs.length-1]:G.xs[0],y,800+i*150]));
+  const SD=[];if(port){const st=[];G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[G.ys.length-1]:G.ys[0],i*300]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[G.xs.length-1]:G.xs[0],y,800+i*150]));
     st.sort((a,b)=>a[2]-b[2]).forEach(p=>{if(!SD.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<.5))SD.push(p);});}
   const DO=port?400:0 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
-    LS=1700,ST=150,HO=800,LEND=DO+Math.max((G.xs.length-1)*ST,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
+    LS=1700,ST=150,HO=800,VS=port?300:ST /* phone portrait: first three dots + their lines step in left to right, 300ms apart */,LEND=DO+Math.max((G.xs.length-1)*VS,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
     TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700,TD=port?0:TC+SQ;
-  G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*ST));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
+  G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*VS));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
   const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL('C',mono,-mono,0,'400 # '+mf)-h[1][0]; /* base gap: keyword inset measured on 'C' */})();
   // v11: one shared glyph size; each letter centred in its column (equal left/right ink gap), top gap = shared gap
@@ -200,7 +200,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
     cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');}
   }
 let lp=null,rt=0,bw=0,bh=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
-(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();});rb();
+const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;root.getAnimations({subtree:true}).forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
 addEventListener('resize',()=>rbs());
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
 const rbs=()=>{clearTimeout(rt);const w=root.offsetWidth,h=root.offsetHeight;if(Math.abs(w-bw)<=1&&Math.abs(h-bh)<=1&&root.style.visibility!=='hidden')return;root.style.visibility='hidden';rt=setTimeout(()=>{const w2=root.offsetWidth,h2=root.offsetHeight;if(Math.abs(w2-bw)>1||Math.abs(h2-bh)>1||MP.matches!==lp){lp=null;rb();}requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility='';}));},500);}; /* rotation/resize: hide, wait until the size stops changing, rebuild once, show (one draw-in) */if(window.ResizeObserver)new ResizeObserver(rbs).observe(root);addEventListener('orientationchange',rbs);
