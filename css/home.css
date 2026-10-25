@@ -18,8 +18,8 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .rail{flex:1;width:100%;position:relative;overflow:hidden;outline-offset:-4px;touch-action:pan-y;user-select:none}
 .strip{list-style:none;display:flex;align-items:flex-start;gap:var(--gap);position:absolute;left:0;top:50%;
   --cw:clamp(300px,44vw,820px);--ch:calc(var(--cw)*.569444);margin-top:calc(var(--ch)/-2);
-  transform-origin:0 50%;backface-visibility:hidden}
-.strip.mv{will-change:transform} /* layer hint only while it moves: at rest the browser re-rasters the scaled cards at their real size, so hairlines stay crisp and even (Hang, 2026-10-24) */
+  transform-origin:0 50%}
+.strip.mv{will-change:transform;backface-visibility:hidden} /* GPU layer only while it moves: at rest the strip is painted straight to the page (2D transform, no backface/will-change), so Safari never shows the scaled cards from a layer sitting between device pixels and the grid hairlines stay even (Hang, 2026-10-24) */
 .card{flex:none;width:var(--cw);position:relative}
 .hit{display:block;text-decoration:none;color:inherit}
 .lbl{display:flex;align-items:baseline;gap:10px;height:28px;padding:0 2px;font:400 12px/1 var(--sans);color:var(--faint);white-space:nowrap}

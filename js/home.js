@@ -29,7 +29,7 @@ const sfx=window.dbhSfx; // shared dial sound (js/sfx.js)
 // screenX(p) = W/2 + (p - c0 - x)·s ; scale eases s0→1 over the first card's width, and back 1→s0 over the last (About)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
-  strip.style.transform=`translate3d(${(W/2-(c0+x)*s).toFixed(2)}px,0,0) scale(${s.toFixed(4)})`;
+  strip.style.transform=`translate(${(W/2-(c0+x)*s).toFixed(2)}px,0) scale(${s.toFixed(4)})`;
   strip.classList.add('mv');clearTimeout(mvT);mvT=setTimeout(()=>strip.classList.remove('mv'),200);
   strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);if(on)navAct(x>max-span/2);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
