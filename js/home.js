@@ -99,7 +99,7 @@ const L={W:1200,H:683.4,
     ['G',[610,492,830,622],360,596,744]],
   words:[['Vision',110,284,330,452],['Strategy',392,64,610,244],['Systems',610,284,830,452],['Craft',880,492,1060,622],['Creativity',880,284,1060,452]], /* v18: each keyword centred in a big box */
   dims:[['V',90,64,244,'A',-1],['V',90,244,284,'C',-1],['V',1080,244,284,'B',1],['H',368,392,610,'D'],['H',368,610,830,'D'],['H',270,330,392,'C'],['V',850,284,452,'A',1]],
-  dots:[[1060,452,5],[610,284,4],[330,452,5],[392,64,5],[830,244,5],[110,492,5],[392,622,5]],ring:[880,622],title:[114,610,40]},
+  title:[114,610,40]},
 P={W:600,H:600,
   xs:[50,300,550],xe:[50,300,550] /* mobile v20: two equal columns, two letter rows (H|N, A|G), no CTA row */,ys:[56,270,306,520,556] /* mobile v22: square card; label rows 36, letter rows 214 */,
   letters:[
@@ -109,7 +109,7 @@ P={W:600,H:600,
     ['G',[300,306,550,520],300,296,560]],
   words:[['Vision',50,270],['Strategy',300,270],['Systems',50,520],['Creativity',300,520]],
   dims:[],
-  dots:[[300,56,4],[550,520,4],[300,306,4],[300,556,4]],ring:[550,556],title:[54,806,40]};
+  title:[54,806,40]};
 {const g=P.letters.slice(1).map(l=>l[0]);for(let i=g.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g[i],g[j]]=[g[j],g[i]];}P.letters.slice(1).forEach((l,i)=>{l[0]=g[i];});} /* mobile: H stays top left; N, A, G take a random cell on each page load (Hang, 2026-10-24). Cells, keywords and draw order stay put */
 const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
@@ -128,7 +128,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   const G={xs:G0.xs.map(X),ys:G0.ys.map(Y),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
-    words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],X(p[1]),Y(p[2])]),dots:G0.dots.map(d=>[X(d[0]),Y(d[1]),d[2]]),ring:[X(G0.ring[0]),Y(G0.ring[1])]};
+    words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],X(p[1]),Y(p[2])])};
   const mono=(()=>{const m0=12*px,mf0=getComputedStyle(document.documentElement).getPropertyValue('--mono').trim(),PADX=10*px,PADY=6*px;inkC.font=m0+'px '+mf0;inkC.letterSpacing=(.04*m0)+'px';let k=1;
     G.words.forEach(p=>{const t=inkC.measureText(p[0].toUpperCase()),iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft,bw=p.length>4?p[3]-p[1]:G.xs.find(v=>v>p[1]+.01)-p[1],nY=G.ys.find(v=>v>p[2]+.01),bh=p.length>4?p[4]-p[2]:nY-p[2];k=Math.min(k,(bw-2*PADX)/iw,(bh-2*PADY)/(.73*m0));});
     inkC.letterSpacing='0px';return m0*Math.max(.5,k);})();/* mono text 12px, scaled down (all keywords together) only when the narrowest keyword box can't fit it with 10px/6px padding, e.g. mobile landscape */let out='<defs>',body='';
@@ -138,14 +138,14 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   /* grid draw-in (as in the Studio Model deck): one element per line, verticals alternate top->bottom / bottom->top at i*150ms,
      horizontals alternate left->right / right->left from 800ms, 1.7s each, cubic-bezier(.65,0,.35,1) (css .g.a / .rv).
      Then the letters slide in (1.1s, 110ms apart) from 0.2s before the last line lands; once they have landed all keywords fade in
-     together (.wf, 0.7s); once that fade ends the CTA rises from its row (desktop); then the dots and the last dot (former ring). */
-  /* phone portrait: dots land first, then the lines, letters and words; dots and lines turn grey as the words appear (Hang, 2026-10-24) */
-  /* phone portrait: one dot where each grid line begins (shared starts merge), each timed just ahead of its own line */
-  const SD=[];if(port){const st=[];G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[G.ys.length-1]:G.ys[0],i*300]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[G.xs.length-1]:G.xs[0],y,800+i*150]));
+     together (.wf, 0.7s); once that fade ends the CTA rises from its row (desktop). Dots: one per line start, each 400ms ahead of its line, after a 0.4s blank lead; dots + lines settle to grey as the keywords appear. */
+  /* dots land first, then the lines, letters and words; dots and lines turn grey as the words appear (Hang, 2026-10-24) */
+  /* one dot where each grid line begins (shared starts merge), each timed just ahead of its own line */
+  const SD=[];{const st=[];G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[G.ys.length-1]:G.ys[0],i*300]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[G.xs.length-1]:G.xs[0],y,800+i*150]));
     st.sort((a,b)=>a[2]-b[2]).forEach(p=>{if(!SD.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<.5))SD.push(p);});}
-  const PL=port?400:0 /* 0.4s blank before the first dot (Hang, 2026-10-24) */,DO=port?PL+400:0 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
-    LS=1700,ST=150,HO=800,VS=port?300:ST /* phone portrait: first three dots + their lines step in left to right, 300ms apart */,LEND=DO+Math.max((G.xs.length-1)*VS,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
-    TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700,TD=port?0:TC+SQ;
+  const PL=400 /* 0.4s blank before the first dot (Hang, 2026-10-24) */,DO=PL+400 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
+    LS=1700,ST=150,HO=800,VS=300 /* vertical lines' dots + lines step in left to right, 300ms apart */,LEND=DO+Math.max((G.xs.length-1)*VS,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
+    TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700;
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*VS));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
   const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL('C',mono,-mono,0,'400 # '+mf)-h[1][0]; /* base gap: keyword inset measured on 'C' */})();
@@ -179,10 +179,8 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
   G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-  if(port)SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});else{
-  G.dots.forEach((d,i)=>{body+=`<circle class="a pd" style="--d:${TD+i*60}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
-  const R=G.ring;body+=`<circle class="a pd" style="--d:${TD+150}" fill="#eeeeee" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`;} // former ring: now a plain 5px dot
-  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',px);svg.style.setProperty('--ge',port?TW:LEND);svg.style.setProperty('--de',port?TW:TD+150+900); /* grid lines ink until all are drawn (--ge), dots ink until the last has landed (--de), then each settles to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
+  SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',px);svg.style.setProperty('--ge',TW);svg.style.setProperty('--de',TW); /* grid lines and dots ink until the keywords appear (--ge/--de = TW), then settle to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));
