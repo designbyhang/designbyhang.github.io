@@ -143,7 +143,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   /* phone portrait: one dot where each grid line begins (shared starts merge), each timed just ahead of its own line */
   const SD=[];if(port){const st=[];G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[G.ys.length-1]:G.ys[0],i*300]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[G.xs.length-1]:G.xs[0],y,800+i*150]));
     st.sort((a,b)=>a[2]-b[2]).forEach(p=>{if(!SD.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<.5))SD.push(p);});}
-  const PL=port?250:0 /* 0.25s blank before the first dot (Hang, 2026-10-24) */,DO=port?PL+400:0 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
+  const PL=port?400:0 /* 0.4s blank before the first dot (Hang, 2026-10-24) */,DO=port?PL+400:0 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
     LS=1700,ST=150,HO=800,VS=port?300:ST /* phone portrait: first three dots + their lines step in left to right, 300ms apart */,LEND=DO+Math.max((G.xs.length-1)*VS,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
     TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700,TD=port?0:TC+SQ;
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*VS));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
