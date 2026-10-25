@@ -78,7 +78,7 @@ let navA=null,navT=0;function navAct(ab){if(ab===navA)return;navA=ab;document.qu
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}const ab=cards[cards.length-1].getBoundingClientRect(),vis=Math.max(0,Math.min(ab.bottom,innerHeight)-Math.max(ab.top,0))/Math.min(ab.height,innerHeight);navAct(vis>.5);};
 addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrack);setTimeout(mTrack,300);
-addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
+addEventListener('gate:unlocked',measure); /* the strip was measured at height 0 under the gate (s0 = 1): re-measure on unlock so the first card lands enlarged */addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 // return from a case study: put the card where it was (same layout) or centred (other layout / next-project), no intro replay
 const R=window.__dbhRet,ri=R?cards.findIndex(k=>{const a=k.querySelector('a.hit');return a&&a.getAttribute('href')==='projects/'+R.slug+'.html';}):-1;
 function restore(){if(ri<0)return;if(on){t=x=clamp(R.m==='h'&&typeof R.t==='number'?R.t:centers[ri]-c0,0,max);tw=null;render();return;}
@@ -204,7 +204,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   }
 let lp=null,rt=0,bw=0,bh=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
 const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;root.getAnimations({subtree:true}).forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
-addEventListener('resize',()=>rbs());
+addEventListener('resize',()=>rbs());addEventListener('gate:unlocked',()=>{lp=null;rb();}); /* rebuild the poster at its real size (it was built hidden under the gate) */
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
 const rbs=()=>{clearTimeout(rt);const w=root.offsetWidth,h=root.offsetHeight;if(Math.abs(w-bw)<=1&&Math.abs(h-bh)<=1&&root.style.visibility!=='hidden')return;root.style.visibility='hidden';rt=setTimeout(()=>{const w2=root.offsetWidth,h2=root.offsetHeight;if(Math.abs(w2-bw)>1||Math.abs(h2-bh)>1||MP.matches!==lp){lp=null;rb();}requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility='';}));},500);}; /* rotation/resize: hide, wait until the size stops changing, rebuild once, show (one draw-in) */if(window.ResizeObserver)new ResizeObserver(rbs).observe(root);addEventListener('orientationchange',rbs);
 // mobile portrait: once the draw-in finishes, glide the first project card into view (once; cancelled by any user input; never with reduced motion)
