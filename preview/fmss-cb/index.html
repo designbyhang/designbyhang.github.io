@@ -67,7 +67,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px}
 .exit-area.on{display:block}
 /* sheet = Figma "Bottom Container" (IAB) */
-.sheet{left:0;top:812px;width:375px;height:860px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;transform:translateZ(0)}
+.sheet{left:0;top:812px;width:375px;height:860px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;overscroll-behavior:none;transform:translateZ(0)}
 .sheet.drag{cursor:grabbing}
 .sheet:focus-visible{outline:none}
 .iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
@@ -77,7 +77,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 /* page-load bar: 2px hairline right under the visible header's bottom edge (half 52px, full 2+46=48px); blue = Shop now #2F4EBE on #E5E5EA */
 .load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
 .load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
-.webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;z-index:1}
+.webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;overscroll-behavior:none;z-index:1}
 /* captured page (nike.com Womens 24.7 Collection, 375 css px wide @2x); scrolls inside .webv via the `translate` property (opacity is animated by the page load) */
 .web{left:0;top:0;width:375px;height:3135px;will-change:translate}
 .footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform}
@@ -231,33 +231,27 @@ function springTo(target,{v=0,w=18,z=1,onDone}={}){
   const step=now=>{
     let dt=Math.min(.032,(now-last)/1000);last=now;
     for(let i=0;i<4;i++){const h=dt/4;const a=-w*w*(y-target)-2*z*w*vel;vel+=a*h;y+=vel*h}
+    if(target===Y3&&y<Y3){y=Y3;vel=0}              // a fast flick to full stops at the top edge (never overshoots above it)
     if(Math.abs(y-target)<.3&&Math.abs(vel)<8){y=target;render();anim=null;onDone&&onDone();return}
     render();raf=requestAnimationFrame(step);
   };
   raf=requestAnimationFrame(step);
 }
 /* ---------- web content scroll (full screen only): swipe up on the page scrolls it; at the top a downward swipe hands off to the sheet ----------
-   Visible page height in full = 812 - (44 sheet + 48 header) minus the footer overlap (≈98) → max scroll = page height - 622. */
+   Visible page height in full = 812 - (44 sheet + 48 header) minus the footer overlap (≈98) → max scroll = page height - 622.
+   Like a real IAB page the scroll is hard-clamped to [0, SMAX]: no rubber-band overshoot at the top or bottom. */
 const WEB_H=3135,SMAX=WEB_H-622;
 let sy=0,sraf=0;
-function setScroll(v){sy=v;$('web').style.translate=`0 ${(-v).toFixed(2)}px`}
+function setScroll(v){sy=clamp(v,0,SMAX);$('web').style.translate=`0 ${(-sy).toFixed(2)}px`}
 function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
-function scrollBack(){                             // rubber-band overshoot springs back to the nearest edge
-  const target=clamp(sy,0,SMAX);if(Math.abs(sy-target)<.5){setScroll(target);return}
-  let last=performance.now(),v=0;const w=16;
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(sy-target)-2*w*v)*h;sy+=v*h}
-    if(Math.abs(sy-target)<.3&&Math.abs(v)<8){setScroll(target);sraf=0;return}setScroll(sy);sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
 function fling(v){                                 // iOS-like momentum: exponential decay (τ≈325ms), stops at the edges
-  stopScroll();if(RM.matches||Math.abs(v)<60)return scrollBack();
+  stopScroll();if(RM.matches||Math.abs(v)<60)return;
   let last=performance.now();
   const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;v*=Math.exp(-dt/.325);let n=sy+v*dt;
     if(n<=0||n>=SMAX){setScroll(clamp(n,0,SMAX));sraf=0;return}
     setScroll(n);if(Math.abs(v)<12){sraf=0;return}sraf=requestAnimationFrame(f)};
   sraf=requestAnimationFrame(f);
 }
-const rubber=v=>v<0?v*.35:v>SMAX?SMAX+(v-SMAX)*.35:v;
 
 /* ---------- page load: plays on every open from dismissed (never on half↔full), reset once dismissed ----------
    Deterministic browser-style progress: quick jump, stall near 40%, surge, stall near 75%, rush to 100%, then the whole bar
@@ -309,8 +303,7 @@ function dragMove(clientY){
   if(!drag)return;
   let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
   if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
-  if(ny<Y3)ny=Y3-(Y3-ny)*.25;                     // rubber-band above full
-  y=Math.min(Y1,ny);render();
+  y=clamp(ny,Y3,Y1);render();                      // stops dead at full: no rubber-band above the top
   const now=performance.now();drag.samples.push([now,y]);
   while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
 }
@@ -338,15 +331,14 @@ function scMove(clientY){
   const want=sc.s0-(clientY-sc.startY)/sc.scale;
   if(Math.abs(clientY-sc.startY)>4)sc.moved=true;
   if(want<0&&sc.s0<=0){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id);drag.scale=scale;drag.moved=true;return}   // at the top: the sheet takes over
-  setScroll(rubber(want));
+  setScroll(want);                                 // clamped: stops cleanly at the top and bottom
   const now=performance.now();sc.samples.push([now,sy]);
   while(sc.samples.length>2&&now-sc.samples[0][0]>100)sc.samples.shift();
 }
 function scEnd(){
   const d=sc;sc=null;if(!d)return;
-  if(!d.moved)return scrollBack();
+  if(!d.moved)return;
   const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;
-  if(sy<0||sy>SMAX)return scrollBack();
   fling(dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/dt:0);
 }
 sheet.addEventListener('pointerdown',e=>{
@@ -362,7 +354,7 @@ sheet.addEventListener('pointerup',e=>{if(sc&&e.pointerId===sc.id)scEnd();else i
 sheet.addEventListener('pointercancel',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
 sheet.addEventListener('wheel',e=>{            // trackpad / mouse wheel scrolls the page in full screen
   if(state!==3||anim||drag||sc)return;
-  e.preventDefault();stopScroll();setScroll(clamp(sy+(e.deltaMode===1?e.deltaY*16:e.deltaY),0,SMAX));
+  e.preventDefault();stopScroll();setScroll(sy+(e.deltaMode===1?e.deltaY*16:e.deltaY));
 },{passive:false});
 
 /* ---------- theme toggle ---------- */
