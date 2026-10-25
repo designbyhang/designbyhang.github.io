@@ -46,6 +46,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .abs{position:absolute;display:block}
 img.abs{pointer-events:none;-webkit-user-drag:none}
 .video{left:0;top:0;width:375px;height:734px;object-fit:cover;background:#1c2a33}
+/* no-tap fallback for a refused <video> (iOS Low Power Mode): an <img> in the exact same box/crop, shown only once it has loaded */
+.vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
 /* protective scrims: soft eased transparent→dark gradients only (no blur / backdrop-filter, no edge) */
 .grad-top{left:0;top:0;width:375px;height:132px;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.443) 19%,rgba(0,0,0,0.325) 34%,rgba(0,0,0,0.229) 47%,rgba(0,0,0,0.167) 56.5%,rgba(0,0,0,0.116) 65%,rgba(0,0,0,0.076) 73%,rgba(0,0,0,0.045) 80.2%,rgba(0,0,0,0.025) 86.1%,rgba(0,0,0,0.013) 91%,rgba(0,0,0,0.005) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%);pointer-events:none}
 .grad-bot{left:0;top:369px;width:375px;height:365px;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.517) 19%,rgba(0,0,0,0.379) 34%,rgba(0,0,0,0.267) 47%,rgba(0,0,0,0.195) 56.5%,rgba(0,0,0,0.136) 65%,rgba(0,0,0,0.088) 73%,rgba(0,0,0,0.052) 80.2%,rgba(0,0,0,0.029) 86.1%,rgba(0,0,0,0.015) 91%,rgba(0,0,0,0.006) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%)}
@@ -111,6 +113,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
         <video class="abs video" id="vid" src="assets/ad-reel.mp4" poster="assets/ad-reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
+        <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
         <div class="abs grad-top"></div>
         <div class="abs grad-bot"></div>
         <img class="abs" src="assets/ufi-rail.svg" alt="" style="left:326px;top:486px;width:50px;height:237px">
@@ -455,26 +458,60 @@ frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visib
 vid.muted=true;vid.defaultMuted=true;vid.playsInline=true;vid.setAttribute('webkit-playsinline','');
 let vidArmed=false;
 const vidShould=()=>visible&&!document.hidden;
-function vidGesture(){if(!vidShould()||!vid.paused)return;vid.muted=true;const p=vid.play();if(p&&p.then)p.then(vidDisarm,()=>{})}
+function vidGesture(){if(vidMode!=='video'||!vidShould()||!vid.paused)return;vid.muted=true;const p=vid.play();if(p&&p.then)p.then(vidDisarm,()=>{})}
 function vidArm(){if(vidArmed)return;vidArmed=true;['touchend','click','keydown','pointerup'].forEach(ev=>document.addEventListener(ev,vidGesture,{capture:true,passive:true}))}
 function vidDisarm(){if(!vidArmed)return;vidArmed=false;['touchend','click','keydown','pointerup'].forEach(ev=>document.removeEventListener(ev,vidGesture,{capture:true}))}
+/* No-tap fallback. iOS Low Power Mode refuses EVERY video play() (muted inline included) until a tap, and there is no way to detect
+   LPM, so when play() is refused (NotAllowedError/NotSupportedError) or the visible video stays paused / frozen, the reel is swapped
+   for an <img> in the same box (same 375×734 object-fit:cover crop, clipped by the same squircle). Animated images are decoded by the
+   image pipeline, not the media element, so the autoplay policy (and LPM) does not apply: ad-reel.webp is the same 30s reel as an
+   animated WebP (480×854, 15 fps, infinite loop). It is shown only once loaded (the poster stays underneath until then), and the
+   <video> is then paused and hidden for good. ?alt=mp4 tries Safari's MP4-in-<img> instead (full quality; falls back to the WebP on
+   error); not the default because, unlike the WebP, a static result there cannot be detected (canvas reads give the first frame). */
+const vidAlt=$('vidAlt');
+let vidMode='video',vidSince=0,vidT0=-1;
+function altShow(){
+  vidAlt.classList.add('on');vidDisarm();
+  try{vid.pause()}catch(e){}
+  vid.style.visibility='hidden';
+}
+function altUse(mode){
+  vidMode=mode;
+  vidAlt.onload=altShow;
+  vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};
+  vidAlt.src=mode==='img-mp4'?'assets/ad-reel.mp4':'assets/ad-reel.webp?v=1';
+}
+function vidFallback(why){
+  if(vidMode!=='video')return;
+  vidAlt.dataset.why=why;
+  altUse(/[?&]alt=mp4\b/.test(location.search)?'img-mp4':'img-webp');
+}
+/* watchdog: visible, but the video is still paused after 1.5s (autoplay silently refused), or claims to play yet has not advanced for 6s → fallback */
+setInterval(()=>{
+  if(vidMode!=='video')return;
+  if(!vidShould()){vidSince=0;return}
+  const now=performance.now(),t=vid.currentTime;
+  if(!vidSince||t!==vidT0){vidSince=now;vidT0=t;return}
+  if(now-vidSince>(vid.paused?1500:6000))vidFallback(vid.paused?'paused':'stalled');
+},250);
+function vidRefused(e){return e&&(e.name==='NotAllowedError'||e.name==='NotSupportedError')}
 function playVid(){
-  if(!vidShould()||!vid.paused)return;
+  if(vidMode!=='video'||!vidShould()||!vid.paused)return;
   vid.muted=true;
   const p=vid.play();
-  if(p&&p.then)p.then(vidDisarm,()=>{if(vid.paused)vidArm()});
+  if(p&&p.then)p.then(vidDisarm,e=>{if(vid.paused){vidArm();if(vidRefused(e))vidFallback('refused')}});
 }
 vid.addEventListener('playing',vidDisarm);
 vid.addEventListener('canplay',playVid);
-vid.addEventListener('pause',()=>{if(vidShould())setTimeout(playVid,250)});
-addEventListener('gate:unlocked',()=>{vid.muted=true;const p=vid.play();p&&p.then&&p.then(()=>setTimeout(()=>{if(!vidShould())vid.pause()},400),()=>vidArm())});   // sync, inside the unlock gesture
+vid.addEventListener('pause',()=>{if(vidMode==='video'&&vidShould())setTimeout(playVid,250)});
+addEventListener('gate:unlocked',()=>{if(vidMode!=='video')return;vid.muted=true;const p=vid.play();p&&p.then&&p.then(()=>setTimeout(()=>{if(!vidShould())vid.pause()},400),e=>{vidArm();if(vidRefused(e))setTimeout(()=>{if(vid.paused&&vidShould())vidFallback('refused')},600)})});   // sync, inside the unlock gesture
 addEventListener('pageshow',playVid);
 new IntersectionObserver(es=>{
   visible=es[0].isIntersecting;
   if(visible){playVid();if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
-  else{vid.pause();stopAuto()}
+  else{if(vidMode==='video')vid.pause();stopAuto()}
 },{threshold:.35}).observe(frame);
-document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else playVid()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(vidMode==='video')vid.pause();stopAuto()}else playVid()});
 RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
 
 /* ---------- real pointer → touch-indicator circle (same look as the autoplay indicator) ----------
@@ -502,7 +539,7 @@ function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');
 window.addEventListener('pointerup',uUp,true);window.addEventListener('pointercancel',uUp,true);
 
 setState(1);render();
-window.__cb={get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get scroll(){return sy},get loading(){return loadAnims.some(a=>a.playState==='running')},go};
+window.__cb={get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get scroll(){return sy},get vidMode(){return vidMode},get loading(){return loadAnims.some(a=>a.playState==='running')},go};
 })();
 </script>
 </body>
