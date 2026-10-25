@@ -129,7 +129,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   /* crisp, even hairlines: each grid line renders exactly 1 screen px wide (the strip may be scaled, e.g. ~1.16x) and sits on the device pixel grid,
      so no line smears across two pixels and looks thicker than its neighbours (Hang, 2026-10-24) */
-  const R0=svg.getBoundingClientRect(),kx=R0.width>0?R0.width/VW:1/px,ky=R0.height>0?R0.height/VH:1/px,dpr=window.devicePixelRatio||1,odd=true /* 1 device px line: centre on a half device pixel */,snapOK=Math.abs(dpr-Math.round(dpr))<.01,
+  const R0=svg.getBoundingClientRect(),kx=R0.width>0?R0.width/VW:1/px,ky=R0.height>0?R0.height/VH:1/px,dpr=window.devicePixelRatio||1,odd=Math.round(dpr)%2===1 /* line = 1 css px = dpr device px: odd widths centre on a half device pixel */,snapOK=Math.abs(dpr-Math.round(dpr))<.01,
     snp=(v,o,k)=>{if(!snapOK)return v;const d=(o+v*k)*dpr,t=odd?Math.floor(d)+.5:Math.round(d);return(t/dpr-o)/k;},SX=x=>snp(X(x),R0.left,kx),SY=y=>snp(Y(y),R0.top,ky);
   const G={xs:G0.xs.map(SX),ys:G0.ys.map(SY),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
@@ -185,7 +185,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
   G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
     SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5/kx}"/>`;});
-  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',1.4/(kx*(snapOK?Math.round(dpr):1))); /* 1.4 device px: the Studio-grid hairline +40% (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',1/kx); /* 1 css px = 2 Retina px, whole device pixels so every line renders the same (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
   svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));
