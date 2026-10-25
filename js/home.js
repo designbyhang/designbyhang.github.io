@@ -143,7 +143,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   /* phone portrait: one dot where each grid line begins (shared starts merge), each timed just ahead of its own line */
   const SD=[];if(port){const st=[];G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[G.ys.length-1]:G.ys[0],i*300]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[G.xs.length-1]:G.xs[0],y,800+i*150]));
     st.sort((a,b)=>a[2]-b[2]).forEach(p=>{if(!SD.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<.5))SD.push(p);});}
-  const DO=port?400:0 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
+  const PL=port?250:0 /* 0.25s blank before the first dot (Hang, 2026-10-24) */,DO=port?PL+400:0 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
     LS=1700,ST=150,HO=800,VS=port?300:ST /* phone portrait: first three dots + their lines step in left to right, 300ms apart */,LEND=DO+Math.max((G.xs.length-1)*VS,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
     TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700,TD=port?0:TC+SQ;
   G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*VS));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
@@ -179,7 +179,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
   G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-  if(port)SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});else{
+  if(port)SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});else{
   G.dots.forEach((d,i)=>{body+=`<circle class="a pd" style="--d:${TD+i*60}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5*px}"/>`;});
   const R=G.ring;body+=`<circle class="a pd" style="--d:${TD+150}" fill="#eeeeee" cx="${R[0]}" cy="${R[1]}" r="${2.5*px}"/>`;} // former ring: now a plain 5px dot
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',px);svg.style.setProperty('--ge',port?TW:LEND);svg.style.setProperty('--de',port?TW:TD+150+900); /* grid lines ink until all are drawn (--ge), dots ink until the last has landed (--de), then each settles to grey (Hang, 2026-10-24) */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
