@@ -110,7 +110,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
-        <video class="abs video" id="vid" src="assets/ad-reel.mp4" poster="assets/ad-reel-poster.jpg" muted playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
+        <video class="abs video" id="vid" src="assets/ad-reel.mp4" poster="assets/ad-reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
         <div class="abs grad-top"></div>
         <div class="abs grad-bot"></div>
         <img class="abs" src="assets/ufi-rail.svg" alt="" style="left:326px;top:486px;width:50px;height:237px">
@@ -447,12 +447,34 @@ function userActed(){
 }
 ['pointerdown','keydown','wheel'].forEach(ev=>frame.addEventListener(ev,e=>{if(e.isTrusted)userActed()},{capture:true,passive:true}));
 frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visible, :focus-within'))userActed()});
+/* ---------- reel video: keep it playing (muted, inline, looped) while the prototype is on screen ----------
+   iOS Safari refuses play() (NotAllowedError) in Low Power Mode, and may refuse it while the page is still behind the passcode gate
+   or the video is not rendered; a refused play() leaves only the poster frame. So every refusal arms a one-shot retry on the next
+   user gesture anywhere on the page (touchend/click/keydown count as user activation on iOS), and play() is re-attempted on
+   gate:unlocked, pageshow, tab visibility, canplay, and whenever the video stalls paused while it should be playing. */
+vid.muted=true;vid.defaultMuted=true;vid.playsInline=true;vid.setAttribute('webkit-playsinline','');
+let vidArmed=false;
+const vidShould=()=>visible&&!document.hidden;
+function vidGesture(){if(!vidShould()||!vid.paused)return;vid.muted=true;const p=vid.play();if(p&&p.then)p.then(vidDisarm,()=>{})}
+function vidArm(){if(vidArmed)return;vidArmed=true;['touchend','click','keydown','pointerup'].forEach(ev=>document.addEventListener(ev,vidGesture,{capture:true,passive:true}))}
+function vidDisarm(){if(!vidArmed)return;vidArmed=false;['touchend','click','keydown','pointerup'].forEach(ev=>document.removeEventListener(ev,vidGesture,{capture:true}))}
+function playVid(){
+  if(!vidShould()||!vid.paused)return;
+  vid.muted=true;
+  const p=vid.play();
+  if(p&&p.then)p.then(vidDisarm,()=>{if(vid.paused)vidArm()});
+}
+vid.addEventListener('playing',vidDisarm);
+vid.addEventListener('canplay',playVid);
+vid.addEventListener('pause',()=>{if(vidShould())setTimeout(playVid,250)});
+addEventListener('gate:unlocked',()=>{vid.muted=true;const p=vid.play();p&&p.then&&p.then(()=>setTimeout(()=>{if(!vidShould())vid.pause()},400),()=>vidArm())});   // sync, inside the unlock gesture
+addEventListener('pageshow',playVid);
 new IntersectionObserver(es=>{
   visible=es[0].isIntersecting;
-  if(visible){vid.play().catch(()=>{});if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
+  if(visible){playVid();if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
   else{vid.pause();stopAuto()}
 },{threshold:.35}).observe(frame);
-document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else if(visible){vid.play().catch(()=>{});}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else playVid()});
 RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
 
 /* ---------- real pointer → touch-indicator circle (same look as the autoplay indicator) ----------
