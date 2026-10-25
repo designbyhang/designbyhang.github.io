@@ -133,7 +133,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
     snp=(v,o,k)=>{if(!snapOK)return v;const d=(o+v*k)*dpr,t=odd?Math.floor(d)+.5:Math.round(d);return(t/dpr-o)/k;},SX=x=>snp(X(x),R0.left,kx),SY=y=>snp(Y(y),R0.top,ky);
   const G={xs:G0.xs.map(SX),ys:G0.ys.map(SY),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
-    words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],X(p[1]),Y(p[2])])};
+    words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],SX(p[1]),SY(p[2])]) /* on-grid keywords use the same snapped lines as the grid, or their band lookup misses it */};
   const mono=(()=>{const m0=12*px,mf0=getComputedStyle(document.documentElement).getPropertyValue('--mono').trim(),PADX=10*px,PADY=6*px;inkC.font=m0+'px '+mf0;inkC.letterSpacing=(.04*m0)+'px';let k=1;
     G.words.forEach(p=>{const t=inkC.measureText(p[0].toUpperCase()),iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft,bw=p.length>4?p[3]-p[1]:G.xs.find(v=>v>p[1]+.01)-p[1],nY=G.ys.find(v=>v>p[2]+.01),bh=p.length>4?p[4]-p[2]:nY-p[2];k=Math.min(k,(bw-2*PADX)/iw,(bh-2*PADY)/(.73*m0));});
     inkC.letterSpacing='0px';return m0*Math.max(.5,k);})();/* mono text 12px, scaled down (all keywords together) only when the narrowest keyword box can't fit it with 10px/6px padding, e.g. mobile landscape */let out='<defs>',body='';
