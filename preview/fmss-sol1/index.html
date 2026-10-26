@@ -34,7 +34,7 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
 /* ad media: one playing <video> per phone, sized to its split-screen rect (Figma: 351 wide, 16px radius, 60% smoothing) and scaled/moved onto the full-bleed feed rect */
-.mv{position:absolute;left:12px;width:351px;overflow:hidden;transform-origin:0 0;will-change:transform}
+.mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
 .mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 /* label: Figma "Notes", Bitcount Grid Single 16/32, 40px under the screen */
 .lab{position:absolute;left:0;width:375px;top:852px;text-align:center;font:400 16px/32px "Bitcount Grid Single",ui-monospace,Menlo,monospace;letter-spacing:.32px;white-space:nowrap;color:var(--ink);transition:color .4s var(--ease)}
@@ -51,8 +51,24 @@ const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generati
 /* media rects from the Figma frames: feed (A) full bleed x0 y216 375 wide; split screen (B) x12, 351 wide, radius 16 */
 const MED=[{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:240,by:107,bh:225}];
 const V='?v=3';
-const T=15600,D=500,t1=3800,t2=7500,t3=11400,t4=14600;   // loop measured from the original Solution video: A 3.8s, B 3.2s, C 3.4s, B 2.7s, back to A; 0.5s transitions
-const EASE='cubic-bezier(.2,.7,.2,1)',X=[t1,t1+D,t2,t2+D,t3,t3+D,t4,t4+D];
+/* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
+   a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
+   ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
+   closing back to it (hs openAt()/openCta() {w:16}, go(1) forces w=16), ω=18 for split ↔ full (hs/cb go(3)/go(2), default w=18).
+   Simulated here once with the prototype's own sheet stops (hs Y1 812, Y2 407, Y3 44) and sampled per frame, so every phone shares
+   one clock. As in the prototypes' render(), every layer is a pure function of the sheet progress: the media's x, y, width, height
+   and corner radius all lerp on that one value (straight path, size not scale, radius in step), backdrops and chrome fade on it. */
+function spr(x0,tg,w){let x=x0,v=0;const o=[0],dt=1/60;for(;;){for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(x-tg)-2*w*v)*h;x+=v*h}
+  if(Math.abs(x-tg)<.3&&Math.abs(v)<7.5){o.push(1);return o}o.push((x-x0)/(tg-x0))}}
+const FR=1000/60,S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(407,812,16);
+const dur=S=>(S.length-1)*FR;
+/* holds as measured from the original Solution video (A 3.8s, B 3.2s, C 3.4s, B 2.7s, A 0.5s before the loop); only the transitions changed */
+const t1=3800,t1e=t1+dur(S1),t2=t1e+3200,t2e=t2+dur(S2),t3=t2e+3400,t3e=t3+dur(S3),t4=t3e+2700,t4e=t4+dur(S4),T=t4e+500;
+/* the loop as poses: a = surface → split progress, c = split → full progress, one sample per frame inside each transition */
+const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*FR,...f(e)}));
+  seg(t1,S1,e=>({a:e,c:0}));seg(t2,S2,e=>({a:1,c:e}));seg(t3,S3,e=>({a:1,c:1-e}));seg(t4,S4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
+const track=fn=>POSE.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const frame=document.getElementById('frame'),stage=document.getElementById('stage');
 function squircle(w,h,R,sm){
@@ -69,11 +85,6 @@ function squircle(w,h,R,sm){
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
 const mv=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   // outer bezel minus the screen shape inset 1.5px
-/* keyframes from [time, value] stops; eased between stops that differ, held otherwise */
-function kf(prop,stops,fmt){const out=[];stops.forEach(([t,v],i)=>{const k={offset:t/T};k[prop]=fmt(v);const n=stops[i+1];k.easing=n&&n[1]!==v?EASE:'linear';out.push(k)});return out}
-const ty=v=>`translateY(${v}px)`,op=v=>String(v);
-/* JS twin of EASE (cubic-bezier .2,.7,.2,1) for the pre-sampled corner radius; RS samples per 0.5s transition */
-const RS=30,ez=x=>{let lo=0,hi=1,t=x;for(let i=0;i<40;i++){t=(lo+hi)/2;const bx=3*(1-t)*(1-t)*t*.2+3*(1-t)*t*t*.2+t*t*t;if(bx<x)lo=t;else hi=t}return 3*(1-t)*(1-t)*t*.7+3*(1-t)*t*t+t*t*t};
 const anims=[],imgs=[],vids=[];
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i];
@@ -81,7 +92,7 @@ PH.forEach((p,i)=>{
   dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+
     `<img class="L a" alt="" src="assets/a${i+1}.webp${V}">`+
     `<img class="L bt" alt="" src="assets/bu${i+1}.webp${V}" style="height:${top}px">`+
-    `<div class="mv" style="top:${m.by}px;height:${m.bh}px"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/p${i+1}.webp${V}" src="assets/v${i+1}.mp4${V}"></video></div>`+
+    `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/p${i+1}.webp${V}" src="assets/v${i+1}.mp4${V}"></video></div>`+
     `<img class="L bc" alt="" src="assets/bc${i+1}.webp${V}" style="height:${top}px">`+
     `<img class="L bo" alt="" src="assets/bo${i+1}.webp${V}" style="height:${top}px">`+
     `<img class="L bs" alt="" src="assets/b${i+1}.webp${V}" style="clip-path:inset(${top}px 0 0 0)">`+
@@ -91,30 +102,24 @@ PH.forEach((p,i)=>{
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
-  const o={duration:T,iterations:Infinity,fill:'both'};
+  const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn)=>anims.push(q(el).animate(track(fn),o));
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
-  anims.push(q('.a').animate([{offset:0,opacity:1},{offset:(t1+D)/T,opacity:1},{offset:(t1+D+1)/T,opacity:0},{offset:(t4-1)/T,opacity:0},{offset:t4/T,opacity:1},{offset:1,opacity:1}],o));
-  // B top (backdrop, nav bar) dissolves in over A; the B sheet rises from the bottom edge
-  const fadeB=kf('opacity',[[0,0],[t1,0],[t1+D,1],[t4,1],[t4+D,0],[T,0]],op);
-  anims.push(q('.bt').animate(fadeB,o),q('.bo').animate(fadeB,o));
-  // shared element: the same playing video travels feed rect -> split-screen rect (position, size, corner radius) and back
-  const sx=375/351,sy=m.ah/m.bh,dy=216-m.by;
-  const mvA={transform:`translate(-12px,${dy}px) scale(${sx},${sy})`},mvB={transform:'translate(0px,0px) scale(1,1)'};
-  const mk=(t,v,e)=>Object.assign({offset:t/T,easing:e?EASE:'linear'},v);
-  anims.push(q('.mv').animate([mk(0,mvA),mk(t1,mvA,1),mk(t1+D,mvB),mk(t4,mvB,1),mk(t4+D,mvA),mk(T,mvA)],o));
-  // corner radius 0 -> 16 (60% smoothing) on the same eased curve; pre-sampled per frame so engines that can't interpolate path() still animate it
-  if(SQ){const cp=r=>({clipPath:`path('${squircle(351,m.bh,r,.6)}')`}),K=[mk(0,cp(0))];
-    for(let k=0;k<=RS;k++)K.push(mk(t1+D*k/RS,cp(16*ez(k/RS))));
-    for(let k=0;k<=RS;k++)K.push(mk(t4+D*k/RS,cp(16*(1-ez(k/RS)))));
-    K.push(mk(T,cp(0)));anims.push(q('.mv').animate(K,{...o,composite:'replace'}))}
-  else q('.mv').style.borderRadius='16px';
+  A('.a',p=>({opacity:p.a<1?1:0}));
+  // B top (backdrop, nav bar) dissolves in over A (hs: mbg/mnav opacity = m); the B sheet rises from the bottom edge
+  A('.bt',p=>({opacity:p.a}));A('.bo',p=>({opacity:p.a}));
+  // shared element: the same playing video travels feed rect [0,216,375,ah] -> split-screen rect [12,by,351,bh]: x, y, width, height and
+  // corner radius 0 -> 16 (60% smoothing) on one value, sized not scaled (hs cards); pre-sampled per frame so path() animates everywhere
+  A('.mv',p=>{const e=p.a,x=lerp(0,12,e),y=lerp(216,m.by,e),w=lerp(375,351,e),h=lerp(m.ah,m.bh,e),r=16*e;
+    const k={left:x.toFixed(2)+'px',top:y.toFixed(2)+'px',width:w.toFixed(2)+'px',height:h.toFixed(2)+'px'};
+    if(SQ)k.clipPath=`path('${squircle(+w.toFixed(2),+h.toFixed(2),r,.6)}')`;else k.borderRadius=r.toFixed(2)+'px';
+    return k});
   // player controls ride up with the media (Figma: 185px) while they fade in
-  anims.push(q('.bc').animate([mk(0,{transform:'translateY(185px)',opacity:0}),mk(t1,{transform:'translateY(185px)',opacity:0},1),mk(t1+D,{transform:'translateY(0px)',opacity:1}),mk(t4,{transform:'translateY(0px)',opacity:1},1),mk(t4+D,{transform:'translateY(185px)',opacity:0}),mk(T,{transform:'translateY(185px)',opacity:0})],o));
-  anims.push(q('.bs').animate(kf('transform',[[0,dn],[t1,dn],[t1+D,0],[t2,0],[t2+D,-up],[t3,-up],[t3+D,0],[t4,0],[t4+D,dn],[T,dn]],ty),o));
+  A('.bc',p=>({transform:`translateY(${(185*(1-p.a)).toFixed(2)}px)`,opacity:p.a}));
+  // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
+  A('.bs',p=>({transform:`translateY(${(dn*(1-p.a)-up*p.c).toFixed(2)}px)`}));
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
-  anims.push(q('.cb').animate(kf('transform',[[0,up],[t2,up],[t2+D,0],[t3,0],[t3+D,up],[T,up]],ty),o));
-  anims.push(q('.cb').animate(kf('opacity',[[0,0],[t2,0],[t2+D*.6,1],[t3+D*.4,1],[t3+D,0],[T,0]],op),{...o,composite:'replace'}));
-  anims.push(q('.ct').animate(kf('opacity',[[0,0],[t2,0],[t2+D,1],[t3,1],[t3+D,0],[T,0]],op),o));
+  A('.cb',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:clamp(p.c/.6)}));
+  A('.ct',p=>({opacity:p.c}));
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
 function fit(){const r=frame.getBoundingClientRect();stage.style.setProperty('--s',Math.min(r.width/1920,r.height/1026).toFixed(4))}
