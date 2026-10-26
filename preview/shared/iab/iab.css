@@ -25,6 +25,7 @@
 .iab-webv>*{position:absolute;left:0;top:0;width:375px;will-change:translate}
 .iab-webv img{-webkit-user-drag:none;user-select:none;pointer-events:none}
 .iab-tb{position:absolute;left:0;top:717px;width:375px;height:103px;z-index:25;pointer-events:none;will-change:transform;transform:translate3d(0,110px,0);visibility:hidden;-webkit-user-drag:none;user-select:none}
+.iab-cc{left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none;opacity:0;display:none}   /* collapse (opt-in): the host CTA's content during the sheet → CTA morph */
 .iab-x{position:absolute;left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none;appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:auto}
 .iab-x.on{display:block}
 

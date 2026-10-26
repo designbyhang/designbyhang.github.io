@@ -242,7 +242,7 @@ html.hosted .phone{background:transparent;border-radius:0}
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × (or Escape, or a pull down at the page top) closes it back to the card. On the reel, Learn more opens the same IAB as Caption &amp; Browse: drag it down to a half sheet or away. The card’s × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
+  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the card, and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB as Caption &amp; Browse: drag it down to a half sheet or away. The card’s × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -367,7 +367,17 @@ const iab=FMSSIAB.create({
   onOpen:()=>homeTell(false),onSettled:s=>{if(s===1&&screen===1)homeTell(true)},
   onLoad(){loads++;bnT0=performance.now();setBanner()},
   onX:()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})},
-  wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
+  wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e),
+  /* P&B only (opened from the profile's peek / card): a swipe down on the full screen IAB morphs it into the floating card, the same
+     morph and spring as the peek → card on the first scroll (renderCta, toCard: ω20); from the reel the sheet still drops to half */
+  collapse:{
+    when:()=>iabFrom==='profile'&&screen===2,w:20,min:120,flick:500,
+    to:()=>({x:CARD.x*PT,y:CARD.y*PT,w:CARD.w*PT,h:CARD.h*PT,r:CARD.r*PT}),
+    content(){const n=$('cd').cloneNode(true);n.removeAttribute('id');n.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+      n.querySelectorAll('button').forEach(b=>b.tabIndex=-1);n.style.cssText=`opacity:1;transform:scale(${PT});transform-origin:0 0`;return n},
+    onStart(){setLive('nike.com card')},
+    onDone(){if(screen===2&&ctaState==='full'){setCta('card');setLive('Nike profile, nike.com card');if(kbd)cta.focus({preventScroll:true})}iabFrom='reel'}
+  }
 });
 const sheet=iab.sheet,go=iab.go,render=iab.render,setState=iab.setState,setScroll=iab.setScroll,stopScroll=iab.stopScroll;
 /* home indicator colour: black once the IAB covers the bottom (fmss-cb: t > .5) and over the white profile; white over the reel */

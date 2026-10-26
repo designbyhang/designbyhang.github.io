@@ -20,7 +20,13 @@
    Hooks: onRender(c) c = {y, t (closed→half), p (fullness), hk (header), sd (status), state} · onState(s) · onOpen(s, opts)
      before a fresh open · onClose() a close starts · onClosed() a close lands (spring at rest, back home) · onOpened(s) an open
      or half↔full move lands · onSettled(s) any move lands at rest in state s (1 = home) · onLoad(why) · onPress(e) a real press on the sheet
-     · onX() × tapped · wheelTo(e, d, apply) / wd(e) the page's wheel routing (wheel scrolls the page in full only via these). */
+     · onX() × tapped · wheelTo(e, d, apply) / wd(e) the page's wheel routing (wheel scrolls the page in full only via these).
+   collapse     opt-in: a swipe down on the full screen sheet morphs it into the host's floating CTA instead of dropping to half.
+                {to() target rect {x,y,w,h,r} in host px · content() the CTA's markup (node) cross-faded in · when() active now (true)
+                 · min 120 · flick 500 (px, px/s down: less snaps back to full) · w 20 (the host's peek → CTA spring, critically damped)
+                 · onStart() · onDone() the morph lands: the host shows its real CTA in place, the sheet is already closed}
+                Same gesture as any sheet drag (header / handle, or a pull past the page top); the morph mirrors peek → CTA: geometry on
+                one spring, the page fades out over m 0–.45, the CTA's content in over .35–.85, shadow grows; overlay + toolbar leave. */
 (function(){
 'use strict';
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
@@ -83,11 +89,13 @@ function create(cfg){
   sheet.append(cap,panel);
   const tb=el('img','iab-tb',{id:'footer',src:BASE+'toolbar.svg'+VER,alt:'','aria-hidden':'true'});
   const x=el('button','iab-x',{id:'x',type:'button','aria-label':cfg.xLabel||'Close in-app browser (IAB)'});
+  const cc=el('div','iab-cc',{'aria-hidden':'true'});panel.append(cc);   // collapse: the CTA's content, cross-faded in during the morph
   host.append(sheet,tb,x);
 
   /* ---------- render everything from y ---------- */
-  let y=Y1,state=1,hLock=false;
+  let y=Y1,state=1,hLock=false,col=null;
   function render(){
+    if(col)return renderCol();
     const t=clamp((Y1-y)/(Y1-Y2)),p=fullness(y);
     const hk=hLock?1:clamp((p-.45)/.2);           // half → full header over p .45–.65: fade out, then in (never both texts at once)
     const sd=clamp((84-y)/40);                     // docking at the top: the status area turns white
@@ -104,6 +112,38 @@ function create(cfg){
     tb.style.visibility=y<Y1-.5?'visible':'hidden';
     cfg.onRender&&cfg.onRender({y,t,p,hk,sd,state});
   }
+  /* collapse morph: m 0 (the sheet where it was let go) → 1 (the CTA's rect); the rest (overlay, toolbar, status) rides an effective y
+     that runs from the release point to closed */
+  function renderCol(){
+    const c=col,m=c.m,e=clamp(m,0,1.08),q=clamp(m),to=c.to,fade=1-clamp(m/.45);
+    const yE=lerp(c.y0,Y1,q),t=clamp((Y1-yE)/(Y1-Y2)),p=fullness(yE),sd=clamp((84-yE)/40);
+    const top=lerp(c.y0,to.y,e),h=lerp(Y1+48-c.y0,to.h,e),rt=lerp(c.r0,to.r,q),rb=lerp(0,to.r,q);
+    sheet.style.transform=`translate3d(0,${(top-Y1).toFixed(2)}px,0)`;
+    panel.style.left=lerp(0,to.x,e).toFixed(2)+'px';panel.style.width=lerp(375,to.w,e).toFixed(2)+'px';panel.style.height=Math.max(1,h).toFixed(2)+'px';
+    panel.style.borderRadius=`${rt.toFixed(2)}px ${rt.toFixed(2)}px ${rb.toFixed(2)}px ${rb.toFixed(2)}px`;
+    panel.style.boxShadow=`0 ${lerp(-1,4,q).toFixed(2)}px ${lerp(10,18,q).toFixed(2)}px rgba(0,0,0,${lerp(0,.13,q).toFixed(3)})`;
+    hHalf.style.opacity=(c.oh*fade).toFixed(3);hFull.style.opacity=(c.of*fade).toFixed(3);webv.style.opacity=loadEl.style.opacity=fade.toFixed(3);
+    if(handle)handle.style.opacity=(c.oa*fade).toFixed(3);
+    cap.style.opacity=(c.co*fade).toFixed(3);cap.style.display=c.co*fade>.001?'block':'none';
+    cc.style.opacity=clamp((m-.35)/.5).toFixed(3);
+    tb.style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*110).toFixed(2)}px,0)`;
+    tb.style.visibility=yE<Y1-.5?'visible':'hidden';
+    cfg.onRender&&cfg.onRender({y:yE,t,p,hk:0,sd,state});
+  }
+  const mSpring=makeSpring(()=>col?col.m:1,v=>{if(col){col.m=v;render()}});
+  function clearCol(){col=null;mSpring.stop();cc.style.display='none';cc.style.opacity='0';cc.textContent='';
+    ['left','width','height','boxShadow'].forEach(k=>panel.style[k]='');webv.style.opacity=loadEl.style.opacity=''}
+  function collapse(){
+    const C=cfg.collapse,to=C.to();ySpring.stop();
+    const n=C.content&&C.content();cc.textContent='';if(n)cc.append(n);cc.style.display='block';
+    col={m:0,y0:y,to,r0:16*(1-fullness(y)),oh:+hHalf.style.opacity||0,of:+hFull.style.opacity||0,oa:handle?+handle.style.opacity||0:0,co:+cap.style.opacity||0};
+    hLock=false;setState(1);C.onStart&&C.onStart();render();
+    mSpring.to(1,{w:C.w||20,z:1,onDone:()=>{
+      clearCol();resetLoad();stopScroll();setScroll(0);y=Y1;render();
+      cfg.onSettled&&cfg.onSettled(1);C.onDone&&C.onDone();
+    }});
+  }
+  const collapseOn=()=>!!(cfg.collapse&&(!cfg.collapse.when||cfg.collapse.when()));
   function setState(s){
     state=s;
     x.classList.toggle('on',!!xOn(s));
@@ -179,6 +219,7 @@ function create(cfg){
     if(!d.moved){if(d.from===2)return go(3);return ySpring.to(d.from===3?Y3:Y2,{w:SP.w,z:SP.z})}
     const s=d.samples,a=s[0],b=s[s.length-1];
     const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;   // px/s (+ = down)
+    if(d.from===3&&collapseOn())return (y-Y3>(cfg.collapse.min||120)||v>(cfg.collapse.flick||500))?collapse():go(3,{v});   // full ⇄ CTA only: a small drag snaps back
     const proj=y+v*.18,half=halfOK();
     const cands=!half?[[3,Y3],[1,Y1]]:d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
     let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
@@ -224,14 +265,14 @@ function create(cfg){
   x.addEventListener('click',()=>{if(cfg.onX)cfg.onX();else go(1)});
 
   /* the clean start, instantly */
-  function reset(){ySpring.stop();drag=null;sc=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
+  function reset(){if(col)clearCol();ySpring.stop();drag=null;sc=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
   function setY(v){ySpring.stop();y=v;render()}
 
   const api={Y1,Y2,Y3,sheet,panel,cap,toolbar:tb,x,web,webv,
     get y(){return y},get state(){return state},get busy(){return ySpring.busy},get target(){return ySpring.target},
-    get drag(){return drag},get sc(){return sc},get scroll(){return sy},get loads(){return loads},
+    get drag(){return drag},get collapsing(){return !!col},get sc(){return sc},get scroll(){return sy},get loads(){return loads},
     get loading(){return loadAnims.some(a=>a.playState==='running')},
-    render,setState,go,close:()=>go(1),stop:()=>ySpring.stop(),setY,reset,atFull,smax,
+    render,setState,go,collapse,close:()=>go(1),stop:()=>ySpring.stop(),setY,reset,atFull,smax,
     dragStart,dragMove,dragEnd,cancelFake,setScroll,stopScroll,scrollTo,load,resetLoad,
     holdHeader(v){hLock=!!v}};
   return api;
