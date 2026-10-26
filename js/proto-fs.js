@@ -1,17 +1,18 @@
-/* TEST (projects/fmss-fs-test.html only): click/tap an Evolution prototype frame and it expands into a full-screen view the way the
-   Studio presentation does (projects/studio-present.js): the frame grows from its inline spot to the viewport over DUR 650ms on the
-   deck's ease (cubic-bezier(.8,0,.2,1), projects/studio-deck.js easeStep); the header's logo/label slide out left and BACK (and the
-   section menu) slide out right on the same progress; "× CLOSE" (BACK's markup) and the theme toggle join a top layer, CLOSE slides
-   16px in while fading over 450ms, cubic-bezier(.2,.8,.2,1), 40ms stagger, once BACK has passed it; Escape / CLOSE collapse it back
-   into place in reverse. Page scroll is locked (html.deck-lock, theme.js paints the stage colour), solid .deck-edge strips once open.
+/* Case-page prototypes (projects/fmss.html, iframe[data-src] in .media.proto, css/proto-fs.css): inline they only autoplay (?inline=1;
+   the frame takes no input, a click target covers it); a click/tap opens a full-screen view the way the Studio presentation does
+   (projects/studio-present.js): the frame grows from its inline spot to the viewport over DUR 650ms on the deck's ease
+   (cubic-bezier(.8,0,.2,1), projects/studio-deck.js easeStep); the header's logo/label slide out left and BACK (and the section menu)
+   slide out right on the same progress; "× CLOSE" (BACK's markup) and the theme toggle join a top layer, CLOSE slides 16px in while
+   fading over 450ms, cubic-bezier(.2,.8,.2,1), 40ms stagger, once BACK has passed it; Escape / CLOSE collapse it back into place in
+   reverse. Page scroll is locked (html.deck-lock, theme.js paints the stage colour), solid .deck-edge strips once open.
    Differences from the deck, both forced by the iframe: the SAME iframe is lifted (position:fixed, no DOM move = no reload) and
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
-   (Studio's html.deck-flow), since that would hide the lifted iframe.
-   On entry the prototype's idle demo restarts from its beginning (embed:hold + embed:release + embed:full, as js/case.js uses them).
-   js/case.js's phone full screen (.proto-open + window.dbhLayer) is switched off on this page only: its buttons are removed. */
+   (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
+   interactive; on entry its demo restarts from its beginning (embed:hold + embed:release + embed:full).
+   Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
 (()=>{const ms=[...document.querySelectorAll('.media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
-document.querySelectorAll('.media.proto .proto-open').forEach(b=>b.remove());
+const phoneMq=matchMedia('(max-width:640px)');
 /* motion: Studio's exactly */
 const ease=(function bez(p1x,p1y,p2x,p2y){const cx=3*p1x,bx=3*(p2x-p1x)-cx,ax=1-cx-bx,cy=3*p1y,by=3*(p2y-p1y)-cy,ay=1-cy-by;
  const X=t=>((ax*t+bx)*t+cx)*t,Y=t=>((ay*t+by)*t+cy)*t,dX=t=>(3*ax*t+2*bx)*t+cx;
@@ -59,7 +60,7 @@ function asideReset(){for(const el of lefts){el.style.translate=el.style.filter=
 const doc=f=>{try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
 const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
 /* full screen pads the prototype's own frame inside a full-viewport iframe (style injected into the same-origin prototype
-   document while lifted, test page only): the device box gets the 64px margins and the 375x812 cap, and the transparent
+   document while lifted): the device box gets the 64px margins and the 375x812 cap, and the transparent
    iframe around it leaves room for the device's drop-shadow, so it never ends on the iframe edge */
 const PAD_CSS='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}';
 const pad=(f,on,t,h)=>{const d=doc(f);if(!d)return;const D=d.ownerDocument;
@@ -98,24 +99,17 @@ function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.no
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u);P=lerp(p0,p1,e);side(P);render(P);
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
-function open(m){if(state!=='closed')return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
+function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
  cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);restart(f);
  asideMeasure();aside(0);
- anim(0,1,()=>{state='open';if(lastPtr.type!=='touch'&&lastPtr.type!=='pen')restStart(f,lastPtr.x,lastPtr.y);f.classList.remove('fsx-anim');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
-/* desktop mouse: the phone grows under a resting cursor, and the prototypes treat a fine pointer entering the phone as the visitor
-   taking over (demo stops, cursor circle). So after a mouse/keyboard open the prototype takes no pointer input until the pointer
-   really moves (3px) or presses; then it is fully interactive. Touch opens are interactive as soon as the expand lands. */
-let rest=null;const restEnd=()=>{if(!rest)return;removeEventListener('pointermove',rest.mv,true);removeEventListener('pointerdown',rest.dn,true);if(cur)cur.f.classList.remove('fsx-rest');rest=null;};
-function restStart(f,x,y){restEnd();f.classList.add('fsx-rest');const mv=e=>{if(Math.abs(e.clientX-x)+Math.abs(e.clientY-y)>=3)restEnd();},dn=()=>restEnd();rest={mv,dn};
- addEventListener('pointermove',mv,true);addEventListener('pointerdown',dn,true);}
-let lastPtr={type:'',x:-1e4,y:-1e4};
+ anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
 function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);restart(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
- restEnd();state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
+ state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
   f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
@@ -125,8 +119,7 @@ addEventListener('resize',()=>{if(!cur||state==='closed')return;measure();render
 /* inline click/tap targets */
 for(const m of ms){const f=m.querySelector('iframe'),b=document.createElement('button');b.type='button';b.className='fsx-open';
  b.setAttribute('aria-label','Open '+(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+' full screen');b.setAttribute('aria-haspopup','dialog');
- b.addEventListener('pointerdown',e=>{lastPtr={type:e.pointerType,x:e.clientX,y:e.clientY};});
- b.addEventListener('click',e=>{e.preventDefault();if(!e.detail)lastPtr={type:'',x:-1e4,y:-1e4};open(m);});m.appendChild(b);}
+ b.addEventListener('click',e=>{e.preventDefault();open(m);});m.appendChild(b);}
 btn.addEventListener('click',e=>{e.preventDefault();close();});
 /* keys (Studio): Esc closes; Tab cycles CLOSE, the toggle and the prototype */
 addEventListener('keydown',e=>{if(state==='closed')return;
@@ -135,4 +128,4 @@ addEventListener('keydown',e=>{if(state==='closed')return;
 /* no page scrolling under the layer (gestures inside the prototype go to its own document) */
 addEventListener('wheel',e=>{if(state!=='closed')e.preventDefault();},{passive:false});
 addEventListener('touchmove',e=>{if(state==='closed')return;if(e.target.closest&&e.target.closest('.deck-x,.theme-btn'))return;e.preventDefault();},{passive:false});
-window.__fsx={get state(){return state;},get geo(){return G;},get p(){return P;},open:i=>open(ms[i]),close};})();
+})();

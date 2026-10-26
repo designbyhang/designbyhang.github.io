@@ -1,11 +1,13 @@
-/* TEST (projects/fmss-fs-test.html only): an Evolution prototype frame expands to a Studio-presentation-style full screen
-   (js/fmss-fs-test.js). Values copied from projects/studio.html's deck CSS (.deck-fs / .deck-bar / .deck-edge / deck-lock).
-   Three fixed layers, bottom to top: .fsx-bg (the expanding --frame panel + edge strips), the lifted iframe (the same element,
-   never moved in the DOM so it never reloads), .fsx (CLOSE + the theme toggle; takes no clicks except on its controls). */
+/* Case-page prototypes: the full-screen view (js/proto-fs.js), values copied from projects/studio.html's deck CSS (.deck-fs / .deck-bar /
+   .deck-edge / deck-lock). Three fixed layers, bottom to top: .fsx-bg (the expanding --frame panel + edge strips), the lifted iframe
+   (the same element, never moved in the DOM so it never reloads), .fsx (CLOSE + the theme toggle; takes no clicks except on its controls). */
 
-/* inline: the whole frame is one click/tap target that opens full screen (the first click never reaches the prototype) */
-.fsx-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.fsx-open:focus{outline:none}.fsx-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+/* inline: the prototype only autoplays and takes no input (the page scrolls over it); the whole frame is one click target that opens
+   full screen. Phones: js/case.js's .proto-open (css/case.css) instead */
+body.cs .media.proto iframe:not(.fsx-lift):not(.proto-lift){pointer-events:none}
+.fsx-open{display:none}
+@media (min-width:641px){.fsx-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fsx-open:focus{outline:none}.fsx-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}}
 
 /* expanding panel: a solid --frame box (the frame's own colour) moved with transform only (no layout per frame) */
 .fsx-bg{position:fixed;inset:0;z-index:2147482998;pointer-events:none;overflow:hidden}
@@ -24,7 +26,6 @@
 body.cs .media.proto iframe.fsx-lift{position:fixed;z-index:2147482999;left:0;top:0;width:100%;height:100%;transform-origin:50% 50%;background:none;touch-action:none;pointer-events:auto}
 .fsx-bg .fsx-probe{position:fixed;left:0;width:0;top:calc(64px + env(safe-area-inset-top,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));visibility:hidden;pointer-events:none}
 @media (max-width:640px){.fsx-bg .fsx-probe{top:calc(56px + env(safe-area-inset-top,0px));bottom:calc(56px + env(safe-area-inset-bottom,0px))}}
-body.cs .media.proto iframe.fsx-rest{pointer-events:none}
 body.cs .media.proto iframe.fsx-anim{will-change:transform;pointer-events:none} /* no input while it moves (the deck stage takes none either): the prototype's hover-takes-over (pointerenter) can't fire just because the phone grew under a resting cursor */
 
 /* controls layer = Studio .deck-fs (theme.js leaves the toggle in it while open) */
