@@ -1,4 +1,4 @@
-/* Case-page prototypes (projects/fmss.html, iframe[data-src] in .media.proto, css/proto-fs.css): inline they only autoplay (?inline=1;
+/* Case-page prototypes (projects/fmss.html 08 Evolution: .proto-fig .media.proto iframe[data-src], css/proto-fs.css; other embeds are untouched): inline they only autoplay (?inline=1;
    the frame takes no input, a click target covers it); a click/tap opens a full-screen view the way the Studio presentation does
    (projects/studio-present.js): the frame grows from its inline spot to the viewport over DUR 650ms on the deck's ease
    (cubic-bezier(.8,0,.2,1), projects/studio-deck.js easeStep); the header's logo/label slide out left and BACK (and the section menu)
@@ -10,7 +10,7 @@
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
    interactive; on entry its demo restarts from its beginning (embed:hold + embed:release + embed:full).
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
-(()=>{const ms=[...document.querySelectorAll('.media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
+(()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
 const phoneMq=matchMedia('(max-width:640px)');
 /* motion: Studio's exactly */

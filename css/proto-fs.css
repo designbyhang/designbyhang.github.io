@@ -4,7 +4,7 @@
 
 /* inline: the prototype only autoplays and takes no input (the page scrolls over it); the whole frame is one click target that opens
    full screen. Phones: js/case.js's .proto-open (css/case.css) instead */
-body.cs .media.proto iframe:not(.fsx-lift):not(.proto-lift){pointer-events:none}
+body.cs .proto-fig .media.proto iframe:not(.fsx-lift):not(.proto-lift){pointer-events:none}
 .fsx-open{display:none}
 @media (min-width:641px){.fsx-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .fsx-open:focus{outline:none}.fsx-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}}

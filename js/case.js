@@ -92,7 +92,8 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device and
    the normal entry (embed:full) return. */
-(function(){var ms=document.querySelectorAll('.media.proto');if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
+(function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
+if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.';   // two lines, broken after the first sentence
 ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=document.createElement('button');b.type='button';b.className='proto-open';
  var name=(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'');b.setAttribute('aria-label','Open '+name+' full screen');b.setAttribute('aria-haspopup','dialog');m.appendChild(b);
