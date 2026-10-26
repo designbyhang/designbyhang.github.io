@@ -29,6 +29,8 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2))}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
+/* rim: the bezel's inner edge drawn on top of the screen, 1.5px over it, so the screen's own clip edge (antialiased per layer) is never what you see */
+.rim{position:absolute;inset:-8px;border:9.5px solid var(--bezel);border-radius:48px;transition:border-color .4s var(--ease),background-color .4s var(--ease)}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
 /* ad media: one playing <video> per phone, sized to its split-screen rect (Figma: 351 wide, 16px radius, 60% smoothing) and scaled/moved onto the full-bleed feed rect */
@@ -48,7 +50,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
 /* media rects from the Figma frames: feed (A) full bleed x0 y216 375 wide; split screen (B) x12, 351 wide, radius 16 */
 const MED=[{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:240,by:107,bh:225}];
-const V='?v=2';
+const V='?v=3';
 const T=15600,D=500,t1=3800,t2=7500,t3=11400,t4=14600;   // loop measured from the original Solution video: A 3.8s, B 3.2s, C 3.4s, B 2.7s, back to A; 0.5s transitions
 const EASE='cubic-bezier(.2,.7,.2,1)',X=[t1,t1+D,t2,t2+D,t3,t3+D,t4,t4+D];
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
@@ -64,7 +66,9 @@ function squircle(w,h,R,sm){
     `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-Dd}a${r} ${r} 0 0 1 ${-S} ${-S}c${-Dd} ${-C} ${-Dd} ${-BC} ${-Dd} ${-ABC}`+
     `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${Dd} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-Dd} ${BC} ${-Dd} ${ABC} ${-Dd}Z`;
 }
-const SQ=CSS.supports('clip-path','path("M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
+const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
+const mv=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
+const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   // outer bezel minus the screen shape inset 1.5px
 /* keyframes from [time, value] stops; eased between stops that differ, held otherwise */
 function kf(prop,stops,fmt){const out=[];stops.forEach(([t,v],i)=>{const k={offset:t/T};k[prop]=fmt(v);const n=stops[i+1];k.easing=n&&n[1]!==v?EASE:'linear';out.push(k)});return out}
 const ty=v=>`translateY(${v}px)`,op=v=>String(v);
@@ -81,11 +85,11 @@ PH.forEach((p,i)=>{
     `<img class="L bc" alt="" src="assets/bc${i+1}.webp${V}" style="height:${top}px">`+
     `<img class="L bo" alt="" src="assets/bo${i+1}.webp${V}" style="height:${top}px">`+
     `<img class="L bs" alt="" src="assets/b${i+1}.webp${V}" style="clip-path:inset(${top}px 0 0 0)">`+
-    `<img class="L cb" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(44px 0 0 0)">`+
+    `<img class="L cb" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(43px 0 0 0)">`+
     `<img class="L ct" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(0 0 768px 0)">`+
-    `</div><div class="lab">${p.label}</div>`;
+    `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
-  if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
+  if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
   const o={duration:T,iterations:Infinity,fill:'both'};
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
