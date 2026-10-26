@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Caption &amp; Browse — interactive IAB prototype (mock)</title>
-<script src="../shared/demo/demo-clock.js?v=125"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=126"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -17,12 +17,13 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=125"><link rel="stylesheet" href="../../css/gate.css?v=125"><link rel="stylesheet" href="../../css/theme.css?v=125">
-<script src="../../js/gate.js?v=125"></script>
-<link rel="stylesheet" href="../shared/iab/iab.css?v=125"><script src="../shared/iab/iab.js?v=125"></script>
+<link rel="stylesheet" href="../../css/type.css?v=126"><link rel="stylesheet" href="../../css/gate.css?v=126"><link rel="stylesheet" href="../../css/theme.css?v=126">
+<script src="../../js/gate.js?v=126"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=126"><script src="../shared/iab/iab.js?v=126"></script>
+<link rel="stylesheet" href="../shared/device/device.css?v=126">
 <style>
-:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
-html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--bezel:#e0e0e0}
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
 .wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
@@ -40,11 +41,11 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 
 /* ---------- phone (Figma "Screen / Caption & Browse" 375×812; px = Figma px) ---------- */
 .phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#e0e0e0;isolation:isolate;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
-/* bezel: 8px #E0E0E0 OUTSIDE the 375×812 screen. Figma corner smoothing 60% (iOS squircle): JS (squircle()) clips the bezel to a 391×828 r48 squircle
+/* bezel: 8px OUTSIDE the 375×812 screen. Figma corner smoothing 60% (iOS squircle): JS (squircle()) clips the bezel to a 391×828 r48 squircle
    and the screen to a 375×812 r40 squircle (the two are offset 8px within 0.1px, so the bezel stays an even 8px). border-radius is the no-JS fallback
    (the squircle lies entirely inside it). Drop shadow = Figma 40px 0 blur 40 rgba(0,0,0,.2) via filter on the static .bezel wrapper so it follows the shape. */
 .bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
-/* device frame colour follows the site theme: near-black (--c-strong #111) in light, #E0E0E0 grey in dark */
+/* device frame colour follows the site theme: near-black (--c-strong #111) in light, #868686 grey in dark: the shared --bezel token (preview/shared/device/device.css) */
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .abs{position:absolute;display:block}
 img.abs{pointer-events:none;-webkit-user-drag:none}
