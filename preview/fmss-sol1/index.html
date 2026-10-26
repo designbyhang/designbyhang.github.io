@@ -33,6 +33,8 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .rim{position:absolute;inset:-8px;border:9.5px solid var(--bezel);border-radius:48px;transition:border-color .4s var(--ease),background-color .4s var(--ease)}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
+/* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge under the rim, so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
+.cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
 /* ad media: one playing <video> per phone, sized to its split-screen rect (Figma: 351 wide, 16px radius, 60% smoothing) and scaled/moved onto the full-bleed feed rect */
 .mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
 .mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -89,6 +91,7 @@ function squircle(w,h,R,sm){
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
 const mv=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   // outer bezel minus the screen shape inset 1.5px
+const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (c1-c4 last row)
 const anims=[],imgs=[],vids=[];
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i];
@@ -100,6 +103,7 @@ PH.forEach((p,i)=>{
     `<img class="L bc" alt="" src="assets/bc${i+1}.webp${V}" style="height:${top}px">`+
     `<img class="L bo" alt="" src="assets/bo${i+1}.webp${V}" style="height:${top}px">`+
     `<img class="L bs" alt="" src="assets/b${i+1}.webp${V}" style="clip-path:inset(${top}px 0 0 0)">`+
+    `<i class="L cu" style="background:${CU[i]}"></i>`+
     `<img class="L cb" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(43px 0 0 0)">`+
     `<img class="L ct" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(0 0 768px 0)">`+
     `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
@@ -122,6 +126,7 @@ PH.forEach((p,i)=>{
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
   A('.bs',p=>({transform:`translateY(${(dn*(1-p.a)-up*p.c).toFixed(2)}px)`}));
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
+  A('.cu',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
   A('.cb',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:clamp(p.c/.6)}));
   A('.ct',p=>({opacity:p.c}));
 });
