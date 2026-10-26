@@ -16,7 +16,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=90"><link rel="stylesheet" href="../../css/theme.css?v=90">
+<link rel="stylesheet" href="../../css/type.css?v=91"><link rel="stylesheet" href="../../css/theme.css?v=91">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56);--bezel:#111;
@@ -75,6 +75,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .tabpill{left:17.33px;top:804.33px;width:377.33px;height:47.67px;z-index:7;filter:drop-shadow(0 4px 12px rgba(0,0,0,.12));opacity:0;transform:translate3d(0,0,0)}
 .tabpill.on{opacity:1}
 .tabpill.off{opacity:0;transform:translate3d(0,24px,0);transition:opacity .12s ease-out,transform .16s ease-in}
+.tabpill.back{opacity:1;transform:translate3d(0,0,0);transition:opacity .2s ease-out,transform .32s cubic-bezier(.22,1,.36,1)}
 
 /* peek ⇄ floating card: one surface, geometry driven by a spring (m: 0 peek → 1 card) */
 .cta{z-index:8;background:#fff;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;will-change:left,top,width,height}
@@ -103,7 +104,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* full-screen in-app browser */
 .full{left:0;top:0;width:402px;height:874px;background:#fff;z-index:20;display:none;touch-action:none;will-change:transform,opacity,clip-path}
 .full.on{display:block}
-.stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.png) 0 0/402px 54px no-repeat;mask:url(assets/status.png) 0 0/402px 54px no-repeat;pointer-events:none;z-index:4}
+.stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.png) 0 0/402px 54px no-repeat;mask:url(assets/status.png) 0 0/402px 54px no-repeat;pointer-events:none;z-index:21;opacity:0}
 .fh{left:0;top:54px;width:375px;height:46px;background:#fff;z-index:3;transform:scale(1.072);transform-origin:0 0}  /* fmss-cb IAB header at its 375pt size: 402/375 = 1.072 here, ×.932836 on screen = 1:1 with fmss-cb */
 .iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
 .iab-hf{height:46px}
@@ -190,7 +191,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 
         <!-- ===== screen 3: full-screen in-app browser ===== -->
         <div class="abs full" id="full" role="dialog" aria-modal="true" aria-label="In-app browser: nike.com" aria-hidden="true">
-          <i class="abs stk"></i>
           <div class="abs fh">
             <img class="abs iab-h iab-hf" src="assets/iab-header-full.svg" alt="nike.com, Facebook">
             <button class="abs btn x" id="fx" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
@@ -205,6 +205,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           </div>
         </div>
 
+        <i class="abs stk" id="stk" aria-hidden="true"></i>
         <i class="abs island" aria-hidden="true"></i>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
@@ -336,8 +337,9 @@ function toPeek(){
   if(mSpring)mSpring.cancel();
   mSpring=spring(()=>m,v=>{m=v;renderCta()},0,{w:18,onDone:()=>{mSpring=null}});
 }
+function tabsBack(){later(()=>{if(screen===2&&ctaState==='none')tabpill.className='abs tabpill back'},RM.matches?0:150)}   // FB tab bar rises back in once the CTA is gone
 function dismissCard(){
-  if(ctaState!=='card')return;ctaState='none';setTabs();
+  if(ctaState!=='card')return;ctaState='none';setTabs();tabsBack();
   spring(()=>cardIn,v=>{cardIn=v;renderCta()},0,{w:22,eps:.004,onDone:()=>{cta.hidden=true;cardIn=1}});
   setLive('Card dismissed');
 }
@@ -349,6 +351,11 @@ function cardEnter(){                                  // after closing the IAB:
 /* ---------- profile scroll: rubber band + fling + bounce (max scroll 829pt, measured from the recording) ---------- */
 const PMAX=1703-H;
 let py=0,prevPy=0,praf=0;
+function dismissPeek(v0=0){                            // drag the peek down: it springs away the way it came in
+  if(ctaState!=='peek')return;ctaState='none';setTabs();tabsBack();
+  spring(()=>peekDy,v=>{peekDy=v;renderCta()},H-PEEK.y,{v:v0,w:20,eps:.3,veps:4,onDone:()=>{cta.hidden=true;peekDy=0}});
+  setLive('nike.com peek dismissed');
+}
 function updPeekDy(){if(ctaState==='peek'&&!mSpring)peekDy=Math.max(0,py)*.6}
 function setPScroll(v){
   prevPy=py;py=v;pcont.style.transform=`translate3d(0,${(-v).toFixed(2)}px,0)`;pst.classList.toggle("dk",v>110);
@@ -376,13 +383,14 @@ let pg=null,suppressClick=false;
 profile.addEventListener('pointerdown',e=>{
   if(e.button!==0||screen!==2)return;
   const [x,y]=ptOf(e);stopP();
-  pg={id:e.pointerId,x0:e.clientX,y0:e.clientY,s:S(),py0:py,edge:x<24,mode:null,samples:[[performance.now(),py]]};
+  pg={id:e.pointerId,x0:e.clientX,y0:e.clientY,s:S(),py0:py,edge:x<24,peek:ctaState==='peek'&&!mSpring&&py<=.5&&!!e.target.closest('#cta'),mode:null,samples:[[performance.now(),py]]};
 });
 profile.addEventListener('pointermove',e=>{
   if(!pg||e.pointerId!==pg.id)return;
   const dx=(e.clientX-pg.x0)/pg.s,dy=(e.clientY-pg.y0)/pg.s;
   if(!pg.mode){
     if(pg.edge&&dx>8&&Math.abs(dx)>Math.abs(dy))pg.mode='edge';
+    else if(pg.peek&&dy>6&&dy>Math.abs(dx))pg.mode='peek';
     else if(Math.abs(dy)>6)pg.mode='scroll';
     else return;
     try{profile.setPointerCapture(e.pointerId)}catch(_){}
@@ -392,7 +400,10 @@ profile.addEventListener('pointermove',e=>{
   const now=performance.now();
   if(pg.mode==='scroll'){
     setPScroll(pRubber(pg.py0-dy));pg.samples.push([now,py]);
-  }else{
+  }else if(pg.mode==='peek'){
+    if(ctaState!=='peek'){pg.mode='done';return}
+    peekDy=Math.max(0,dy);renderCta();pg.samples.push([now,peekDy]);
+  }else if(pg.mode==='edge'){
     const p=clamp(dx/W);edgeRender(p);pg.samples.push([now,dx]);
   }
   while(pg.samples.length>2&&now-pg.samples[0][0]>100)pg.samples.shift();
@@ -404,6 +415,10 @@ function pUp(e){
   if(!d.mode)return;
   const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000,fresh=performance.now()-b[0]<80,v=dt>0&&fresh?(b[1]-a[1])/dt:0;
   if(d.mode==='scroll'){if(py<0||py>PMAX)return pSettle();pFling(v);return}
+  if(d.mode==='peek'){if(ctaState!=='peek')return;
+    if(peekDy>90||v>500)return dismissPeek(Math.max(0,v));
+    spring(()=>peekDy,q=>{peekDy=q;renderCta()},0,{v,w:20,eps:.3,veps:4});return}
+  if(d.mode!=='edge')return;
   // edge pop: finish if past a third of the width or flicked right
   const p0=clamp(((e.clientX-d.x0)/d.s)/W);let p=p0;
   const done=p0>.33||v>500;
@@ -442,13 +457,15 @@ setInterval(setBanner,250);setBanner();
 
 /* ---------- full-screen IAB: from the peek it rises + fades in (as recorded); from the card it springs out of the card's rect ---------- */
 let k=0,kSpring=null,fsrc=null,pull=0;
+const stk=$('stk');
+function setStk(top,op=1){stk.style.opacity=(clamp((84-top)/40)*op).toFixed(3)}   // one fixed device status bar: dark glyphs once the IAB covers the top (as fmss-cb)
 function renderFull(){
-  if(fsrc==='peek'){
+  if(fsrc==='peek'){setStk((1-k)*48+pull,clamp(k/.55));
     full.style.clipPath='';full.style.opacity=clamp(k/.55).toFixed(3);
     full.style.transform=`translate3d(0,${((1-k)*48+pull).toFixed(2)}px,0)`;
   }else{
     const r=CARD,e=k;
-    const t=lerp(r.y,0,e),l=lerp(r.x,0,e),b=lerp(H-r.y-r.h,0,e),rr=lerp(W-r.x-r.w,0,e),rad=lerp(r.r,0,clamp(e*1.2));
+    const t=lerp(r.y,0,e),l=lerp(r.x,0,e),b=lerp(H-r.y-r.h,0,e),rr=lerp(W-r.x-r.w,0,e),rad=lerp(r.r,0,clamp(e*1.2));setStk(t+pull);
     full.style.clipPath=e>=1&&!pull?'none':`inset(${t.toFixed(2)}px ${rr.toFixed(2)}px ${b.toFixed(2)}px ${l.toFixed(2)}px round ${rad.toFixed(2)}px)`;
     full.style.opacity='';full.style.transform=pull?`translate3d(0,${pull.toFixed(2)}px,0)`:'';
   }
@@ -474,9 +491,9 @@ function closeFull(){
   const f=now=>{const q=DUR?clamp((now-t0)/DUR):1;
     $('webv').style.opacity=(1-clamp(q/.35)).toFixed(3);
     const qq=clamp((q-.3)/.7),ez=qq*qq*(3-2*qq);
-    full.style.clipPath='none';full.style.opacity=(1-ez).toFixed(3);full.style.transform=`translate3d(0,${(p0+ez*40).toFixed(2)}px,0)`;
+    full.style.clipPath='none';full.style.opacity=(1-ez).toFixed(3);full.style.transform=`translate3d(0,${(p0+ez*40).toFixed(2)}px,0)`;setStk(p0+ez*40,1-ez);
     if(q<1)return requestAnimationFrame(f);
-    full.classList.remove('on');full.style.opacity='';full.style.transform='';$('webv').style.opacity='';pull=0;resetLoad();setScroll(0);
+    full.classList.remove('on');full.style.opacity='';full.style.transform='';stk.style.opacity='';$('webv').style.opacity='';pull=0;resetLoad();setScroll(0);
     closing=false;screen=2;cardEnter();setTabs();setLive('Nike profile, nike.com card');
     if(kbd)cta.focus({preventScroll:true});
   };
