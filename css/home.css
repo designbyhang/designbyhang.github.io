@@ -5,7 +5,6 @@
 html,body{height:100%}
 body.home{background:var(--page);color:var(--ink);font:var(--t-body-home);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px var(--side)}
@@ -16,6 +15,7 @@ a{color:inherit}
 /* rail — virtual horizontal scroll; JS drives one transform on .strip */
 main{flex:1;display:flex;min-height:0;position:relative}
 .rail{flex:1;width:100%;position:relative;overflow:hidden;outline-offset:-4px;touch-action:pan-y;user-select:none}
+.rail:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:6px} /* kept: the carousel's keyboard ring (the only focus ring left site-wide; css/theme.css) */
 .strip{list-style:none;display:flex;align-items:flex-start;gap:var(--gap);position:absolute;left:0;top:50%;
   --cw:clamp(300px,44vw,820px);--ch:calc(var(--cw)*.569444);margin-top:calc(var(--ch)/-2 + var(--oy,0px));margin-left:var(--ox,0px); /* --ox/--oy (js/home.js measure): put the strip's layout box on whole px, so every engine paints its scaled content exactly where getBoundingClientRect says (Chrome rounds a transformed box's offset to css px, WebKit to device px) */
   transform-origin:0 50%}
@@ -38,7 +38,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.card:not(.intro) .media-wrap{transform:translateZ(0)}}
 .media-wrap.surface{background:var(--c-paper)}
 .media-wrap img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
-.live .hit:hover .media-wrap,.live .hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
+.live .hit:hover .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
 .intro-in{display:flex;flex-direction:column;justify-content:flex-end;height:100%;padding:6% 6.5%}
 .line{font:400 calc(var(--cw)*.042)/1.18 var(--sans);letter-spacing:-.02em;max-width:18ch}
 .hint{margin-top:7%;font:400 11px/1 var(--mono);color:var(--faint);text-transform:none;letter-spacing:.06em}
@@ -102,7 +102,6 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .dots button:hover i{background:#a8a8a8}
 .dots[data-settled] button[aria-current="true"] i{background:var(--ring-c);width:7px;height:7px;transform:scale(var(--ring-dot-k))}
 .dots[data-settled] .dots-cur{border-color:var(--ring-c)}
-.dots button:focus-visible{outline:1px solid #a8a8a8;outline-offset:1px;border-radius:50%}
 @media (prefers-reduced-motion:reduce){.dots button i,.dots-cur{transition:none}}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.dots{display:none}}
 /* About card: never scrolls; text sized to the card (card width derives from viewport w/h) */
@@ -181,7 +180,6 @@ html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!i
 /* Hang, Oct 23 22:03: phone landscape (CTA text ~10-17px): 1.5px read too heavy next to the text, so 1px there */
 @media (orientation:landscape) and (max-height:500px){.poster-title .arr path{stroke-width:1px}}
 button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;font-family:var(--sans);font-weight:400;color:var(--c-strong);text-align:left;cursor:pointer;line-height:1}
-button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset:4px}
 /* gauge: 40px below the (scaled) cards, centred on the page; JS sets --gy */
 .top nav{grid-column:3}
 /* gauge in the header: centred on the page, vertically centred on the logo/ABOUT row, fixed while swiping */

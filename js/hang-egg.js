@@ -7,7 +7,11 @@
    mount(o) -> {destroy} or a promise of one, show(o) when the layer turns on, frame(a) each exit frame with the layer opacity, done() at the end,
    tabs() extra Tab stops, enter() when CLOSE starts its entrance (also at once with reduced motion, and once an instant open has
    painted), exit(k) each exit frame with CLOSE's own exit progress k (1 -> 0), so a cfg can move its own controls on CLOSE's timing;
-   view (URL state, below), instant (open without the entrance: a refresh restoring the layer).
+   view (URL state, below), instant (open without the entrance: a refresh restoring the layer),
+   grow ({begin(opening), frame(p), end(opening)}: the view grows from a page element on the open timeline instead of fading in, and
+   shrinks back on close: the layer paints nothing itself while it moves (the cfg draws its own expanding panel and moves its content on
+   p, 0 inline .. 1 full, from js/fs-motion.js tween); begin(true) as the layer turns on, begin(false) when closing starts (sync, after
+   the page is back in flow), end(true) once full (before the flow), end(false) before done()). Motion values: js/fs-motion.js.
    Refresh persistence (window.dbhView, shared with js/proto-fs.js and projects/studio-present.js): an open full-screen view writes
    ?fs=<view> with history.replaceState (no new history entry) and clears it on close; on load a page whose URL carries it reopens
    that view without animation once the gate is passed (the gate stays first), the page scrolled under it to the view's section. */
@@ -37,43 +41,49 @@ function open(c){if(ov)return;cfg=c;ret=document.activeElement;
   o.innerHTML='<i class="hegg-edge hegg-edge-t" aria-hidden="true"></i><i class="hegg-edge hegg-edge-b" aria-hidden="true"></i>'+(c.stage||'')+'<div class="bar hegg-bar"><nav class="bar-right" aria-label="'+c.label+'"><a class="ax hegg-x" href="#" role="button" aria-label="Close"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
   o.querySelector('.hegg-x').addEventListener('click',e=>{e.preventDefault();close();});
   o.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+  if(c.grow)o.classList.add('hegg-grow');
   document.body.appendChild(o);lock();adoptToggle(o);
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
   if(c.view)window.dbhView.set(c.view);
   const on=()=>{o.classList.add('on');if(c.show)c.show(o);};
-  if(c.instant){o.style.transition='none';on();flow(true);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(ov!==o)return;o.style.transition='';if(c.enter)c.enter();}));}
+  /* grow: the cfg's panel and content expand from the page on the shared timeline (the layer itself is transparent while it moves);
+     CLOSE enters as in the fade (enter); instant / reduced motion: at full size on the first frame, CLOSE straight in */
+  if(c.grow){const gw=c.grow,still=!!c.instant||reduce.matches;P=0;o.style.transition='none';on();gw.begin(true);if(!still)uis(o).forEach(m=>m.style.opacity='0');
+   grow=FS.tween(0,1,p=>{if(ov!==o)return;P=p;gw.frame(p);},()=>{grow=null;if(ov!==o)return;gw.end(true);o.classList.remove('hegg-grow');flow(true);
+    if(still)requestAnimationFrame(()=>requestAnimationFrame(()=>{if(ov===o&&c.enter)c.enter();}));},still);
+   if(!still)enter(o);}
+  else if(c.instant){o.style.transition='none';on();flow(true);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(ov!==o)return;o.style.transition='';if(c.enter)c.enter();}));}
   else if(reduce.matches){on();flow(true);if(c.enter)c.enter();}else{uis(o).forEach(m=>m.style.opacity='0');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(ov!==o)return;on();enter(o);setTimeout(()=>{if(ov===o)flow(true);},320);}));}
   if(c.mount)Promise.resolve(c.mount(o)).then(m=>{if(ov===o&&!inst)inst=m||null;else if(m&&m.destroy)m.destroy();},()=>{if(ov===o)close();});}
-/* exit = the Studio presentation's close (projects/studio-present.js close/aside/asideMeasure, studio-deck.js easeStep): one 650ms
-   timeline on the steep ease, p = 1 -> 0; CLOSE fades out while sliding 16px left, finished when the header BACK it shares the corner
+/* exit = the Studio presentation's close (projects/studio-present.js close/aside/asideMeasure, studio-deck.js easeStep): one DUR (648ms,
+   js/fs-motion.js) timeline on the steep ease, p = 1 -> 0; CLOSE fades out while sliding 16px left, finished when the header BACK it shares the corner
    with would have passed it (clr = BACK width / (BACK width + its right inset), smoothstep, from wherever it is); the layer fades
-   on the rest of the same progress. BACK is the case pages' header link (measured with the same markup inside the CLOSE row). The
+   on the rest of the same progress (grow: the cfg shrinks its view back into the page on the whole progress, from wherever the
+   expansion had got to, the layer itself stays transparent). BACK is the case pages' header link (measured with the same markup inside the CLOSE row). The
    loop stops, the layer goes and focus returns to the copyright line when it ends. Reduced motion: straight out, as Studio. */
-const DUR=650,UI_DX=16,ease=(function bez(p1x,p1y,p2x,p2y){const cx=3*p1x,bx=3*(p2x-p1x)-cx,ax=1-cx-bx,cy=3*p1y,by=3*(p2y-p1y)-cy,ay=1-cy-by;
- const X=t=>((ax*t+bx)*t+cx)*t,Y=t=>((ay*t+by)*t+cy)*t,dX=t=>(3*ax*t+2*bx)*t+cx;
- return x=>{if(x<=0)return 0;if(x>=1)return 1;let t=x;for(let n=0;n<8;n++){const e=X(t)-x,d=dX(t);if(Math.abs(e)<1e-6)break;if(Math.abs(d)<1e-6)break;t-=e/d;}
-  let lo=0,hi=1;if(Math.abs(X(t)-x)>1e-5){t=x;for(let n=0;n<30;n++){const v=X(t);if(Math.abs(v-x)<1e-6)break;if(v<x)lo=t;else hi=t;t=(lo+hi)/2;}}return Y(t);};})(.8,0,.2,1);
+const FS=window.dbhFS,DUR=FS.DUR,UI_DX=FS.UI.DX,ease=FS.ease;let P=0,grow=null;
 const clrOf=x=>{const nav=x.parentNode,k=document.createElement('a');k.className='ax hegg-x';k.setAttribute('aria-hidden','true');k.style.cssText='position:absolute;visibility:hidden';
  k.innerHTML='<span class="arr arr-back"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="t">BACK</span>';nav.appendChild(k);
  const w=k.getBoundingClientRect().width;k.remove();const off=w+innerWidth-x.getBoundingClientRect().right;return off>0?Math.min(1,Math.max(0,w/off)):1;};
-/* entrance = the Studio presentation's (studio-present.js aside/uiEnter): on the same 650ms open timeline and steep ease, CLOSE stays
+/* entrance = the Studio presentation's (studio-present.js aside/uiEnter, js/fs-motion.js): on the same DUR open timeline and steep ease, CLOSE stays
    hidden until the header BACK it shares the corner with would have passed it (p >= clr), then slides 16px left to right into place
-   while fading 0 to 1 over 450ms on cubic-bezier(.2,.8,.2,1). Closing during the entrance exits from wherever it is. A cfg's other
+   while fading 0 to 1 over 448ms on cubic-bezier(.2,.8,.2,1). Closing during the entrance exits from wherever it is. A cfg's other
    controls (.hegg-ui, e.g. the FMSS prototype caption = the Studio counter .deck-n) enter with CLOSE, 40ms apart as Studio's UI_STAG, and exit with it. */
-const UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
-const uiStop=m=>{if(m._ui){m._ui.cancel();m._ui=null;}};
+const uiStop=FS.uiStop;
 const uis=o=>[o.querySelector('.hegg-x'),...o.querySelectorAll('.hegg-ui')];
 function enter(o){const x=o.querySelector('.hegg-x'),clr=clrOf(x),t0=performance.now();
-  const go=()=>{uis(o).forEach((m,i)=>{m.style.opacity=m.style.translate='';if(!m.animate)return;m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};});if(cfg&&cfg.enter)cfg.enter();};
+  const go=()=>{FS.uiEnter(uis(o));if(cfg&&cfg.enter)cfg.enter();};
   const tick=now=>{if(ov!==o)return;const p=ease(Math.min(1,(now-t0)/DUR));if(p>=clr||p>=1)go();else requestAnimationFrame(tick);};
   requestAnimationFrame(tick);}
-function close(){if(!ov)return;const o=ov,c=inst,cf=cfg,r=ret;ov=inst=null;if(cf.view)window.dbhView.set(null);document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
-  const fin=()=>{if(c)c.destroy();if(cf.done)cf.done();o.remove();if(!ov){unlock();resample();if(r&&r.focus&&document.contains(r))r.focus({preventScroll:true});else if(cf.trg)cf.trg.focus({preventScroll:true});}};
-  if(reduce.matches){fin();return;}
+function close(){if(!ov)return;const o=ov,c=inst,cf=cfg,r=ret,gw=cf.grow,p0=gw?P:1;ov=inst=null;if(grow){grow.cancel();grow=null;}if(cf.view)window.dbhView.set(null);document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
+  if(gw){o.classList.add('hegg-grow');gw.begin(false);}
+  const fin=()=>{if(c)c.destroy();if(gw)gw.end(false);if(cf.done)cf.done();o.remove();if(!ov){unlock();resample();if(r&&r.focus&&document.contains(r))r.focus({preventScroll:true});else if(cf.trg)cf.trg.focus({preventScroll:true});}};
+  if(reduce.matches){if(gw)gw.frame(0);fin();return;}
   const x=o.querySelector('.hegg-x'),ms=uis(o),st=ms.map(m=>{const cs=getComputedStyle(m),r={o:+cs.opacity,x:parseFloat(cs.translate)||0};uiStop(m);return r;}),a0=+getComputedStyle(o).opacity,clr=clrOf(x),t0=performance.now();
   o.style.transition='none';o.style.opacity=String(a0);
   const tick=now=>{const u=Math.min(1,(now-t0)/DUR),p=1-ease(u),q=clr<1?Math.max(0,(p-clr)/(1-clr)):+(p>=1),k=q*q*(3-2*q);
-   ms.forEach((m,i)=>{const s0=st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});if(cf.exit)cf.exit(k);const a=a0*(clr>0?Math.min(1,p/clr):p);o.style.opacity=a.toFixed(4);if(cf.frame)cf.frame(a);
+   ms.forEach((m,i)=>{const s0=st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});if(cf.exit)cf.exit(k);
+   if(gw)gw.frame(p0*p);else{const a=a0*(clr>0?Math.min(1,p/clr):p);o.style.opacity=a.toFixed(4);if(cf.frame)cf.frame(a);}
    if(u<1)requestAnimationFrame(tick);else fin();};
   requestAnimationFrame(tick);}
 window.dbhLayer={open,close,get el(){return ov;}};

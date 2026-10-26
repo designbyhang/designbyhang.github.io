@@ -4,3 +4,21 @@
 .media-wrap.usps-card{position:relative}
 .usps-card .usps-anim{position:absolute;top:0;bottom:0;left:44.4444%;right:0;background:#1A237E;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
 .media-wrap .usps-anim img{width:96.959%;height:auto;aspect-ratio:600/480;object-fit:contain}
+/* FMSS cover animation (js/fmss-split.js [data-fmss-anim]): hero, homepage card and NEXT CASE STUDY card. The layer paints the FMSS art
+   itself (light-mode file in both themes: black phone on the orange gradient, identical in light and dark) and plays the Solution 1 loop
+   on the phone screen baked into it. Static (reduced motion, before the screens decode): just the art = the current cover. */
+.fmss-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#f9552a url(../assets/cover-fmss-hero.webp?v=127) 50% 50%/cover no-repeat;contain:layout paint}
+.fmss-anim.fmss-card{left:44.4444%;background-image:url(../assets/cover-fmss-home.webp?v=127);background-position:100% 50%} /* the art panel, x 1280–2880 of the 2880x1640 home cover */
+.media-wrap.fmss-wrap,.hero-slot.fmss-wrap{position:relative}
+.fsp-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
+.fmss-anim.on .fsp-ph{opacity:1}
+.fsp-scr{position:absolute;inset:8px;overflow:hidden;background:#000;isolation:isolate;border-radius:48px} /* the cover art's screen radius (clip-path path() refines it where supported) */
+.fsp-rim{position:absolute;inset:0;background:#000}
+@supports not (clip-path:path('M0 0H1V1Z')){.fsp-rim{display:none}}
+html body .fmss-anim .fsp-scr img{position:absolute;left:0;top:0;width:375px;height:812px;max-width:none;display:block;border-radius:0;object-fit:fill;-webkit-user-drag:none}
+.fsp-scr .L{will-change:transform,opacity}
+.fsp-scr .mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
+html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;margin:0;border-radius:0;background:none}
+.fsp-scr .cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
+.fsp-scr .cs{position:absolute;left:-4px;right:-4px;top:24px;height:28px}
+@media (prefers-reduced-motion:reduce){.fsp-ph{display:none}}

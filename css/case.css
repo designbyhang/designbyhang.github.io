@@ -7,7 +7,6 @@ html{scroll-behavior:smooth;scroll-padding-top:88px}
 body.cs{background:var(--page);color:var(--body);font:var(--t-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:inherit}
 img{display:block;max-width:100%;height:auto}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 /* top bar */
 .bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background:var(--page)} /* solid page colour (= html/body bg = theme-color): iOS Safari tints the status bar from this sticky edge element; translucent/blurred gave a black bar */
@@ -87,7 +86,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .next-card{display:block;container-type:inline-size}
 .next .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:round(calc(100cqi / 30), 2px);overflow:hidden;isolation:isolate;transform:translateZ(0);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
 .next .media-wrap img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
-.next-hit:hover .media-wrap,.next-hit:focus-visible .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
+.next-hit:hover .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
 .next .k{margin:0;justify-self:start;line-height:1;display:flex;align-items:center}.next .k .t{position:relative;display:inline-block}
 .next .k .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease} /* same underline as BACK / nav links, driven by hovering anywhere on the card */
 .next-hit:hover .k .t::after,.next-hit:focus-visible .k .t::after{transform:scaleX(1)}
@@ -181,7 +180,7 @@ body.cs .media.draw:hover img{transform:none}
 @media (max-width:640px){.bar{height:50px}}
 .bar-right a .t,.foot a .t{position:relative;display:inline-block}
 .bar-right a .t::after,.foot a .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.bar-right a:hover .t::after,.bar-right a:focus-visible .t::after,.foot a:hover .t::after,.foot a:focus-visible .t::after{transform:scaleX(1)}
+.bar-right a:hover .t::after,.bar-right a:not(.deck-x,.hegg-x):focus-visible .t::after,.foot a:hover .t::after,.foot a:focus-visible .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.bar-right a .t::after,.foot a .t::after{transition:none}}
 .toc a:not([aria-current="true"]):not(:hover){color:#666!important}
 
@@ -255,8 +254,6 @@ body.cs .media.mframe .car-track img.is-active{opacity:1;z-index:2;transition:op
 .car-bar{position:relative;display:block;flex:none;width:5px;height:5px;border-radius:2.5px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
 .car-dot:not([aria-current=true]):hover .car-bar{background:var(--c-strong)} /* hovered inactive dot = full ink, both themes */
 html[data-theme=dark] .car-bar{background:color-mix(in srgb,var(--c-strong) 40%,transparent)} /* dark glass over a light image reads mid-grey, where #555 dots vanish; 40% ink stays visible over dark and light media */
-.car-dot:focus-visible{outline:none}
-.car-dot:focus-visible .car-bar{overflow:visible;outline:1px solid #a8a8a8;outline-offset:4px}
 .car-fill{display:none;position:absolute;top:0;bottom:0;left:0;width:calc(5px + (100% - 5px) * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
 .car-dot[aria-current=true] .car-fill{display:block} /* fill starts as a full 5px head dot at the left end, then grows to the bar width */
 .car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -313,9 +310,16 @@ body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
    The same iframe is lifted over the layer, centred between the CLOSE row and an equal bottom margin (48px + safe area each), and fades with it. */
 .proto-open{display:none}
 @media (max-width:640px){.proto-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
- .proto-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}}
-.media.proto iframe.proto-lift{position:fixed;z-index:51;left:0;right:0;top:calc(48px + env(safe-area-inset-top,0px));width:100%;height:calc(100% - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));visibility:visible;pointer-events:auto;touch-action:none;background:none;opacity:0;transition:opacity .3s var(--ease)}
-.media.proto iframe.proto-lift.proto-on{opacity:1}
+}
+.media.proto iframe.proto-lift{position:fixed;z-index:51;left:0;right:0;top:calc(48px + env(safe-area-inset-top,0px));width:100%;height:calc(100% - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));visibility:visible;pointer-events:auto;touch-action:none;background:none}
+/* entry/exit = the Studio presentation's (js/case.js grow on js/fs-motion.js): the stage colour panel (--frame, the inline frame's own) grows
+   from the inline frame to the screen while the lifted iframe moves/scales with it (transform only, no input while it moves); full
+   screen is the stage colour, as Studio and the desktop view (css/proto-fs.css) */
+.hegg.proto-full,.hegg.proto-full:focus,.hegg.proto-full:focus-visible{background:var(--frame);box-shadow:0 0 0 100vmax var(--frame)}
+.hegg.proto-full .hegg-edge{background:var(--frame)}
+.hegg.proto-full .proto-panel{display:none;position:fixed;left:0;top:0;z-index:0;transform-origin:0 0;background:var(--frame);will-change:transform;pointer-events:none}
+.hegg.proto-full.hegg-grow .proto-panel{display:block}
+.media.proto iframe.proto-lift.proto-anim{will-change:transform;pointer-events:none}
 /* phone full screen, portrait: the instruction under the device (js/case.js INS sets its top, 40px below the device frame, and width,
    at most 375px): the figcaption style; landscape keeps only the rotate message */
 .hegg.proto-full .proto-ins{--mono-color:#333;position:absolute;z-index:2;left:0;right:0;top:0;margin:0 auto;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none;overflow:clip;padding-bottom:16px} /* type = CLOSE (.hegg-x), casing as written; under the lifted iframe (.hegg z 50 < .proto-lift); the box starts at the device bottom edge and clips; the 16px bottom padding is the room for the entrance's rise (js/case.js INS_UP) */
@@ -324,7 +328,6 @@ html[data-theme=dark] .hegg.proto-full .proto-ins{--mono-color:#cfcfcf}
 .hegg.proto-full.proto-land .proto-ins{display:none}
 html.proto-nosel,html.proto-nosel body{-webkit-user-select:none;user-select:none}   /* phone full screen open (js/case.js): no selection on the page */
 .media.proto iframe.proto-lift.proto-hide{visibility:hidden;pointer-events:none}
-@media (prefers-reduced-motion:reduce){.media.proto iframe.proto-lift{transition:none}}
 /* Evolution prototypes: the expand button (.proto-x, js/case.js) is only a signifier for the frame's own open target (.proto-open phones /
    .fsx-open desktop): a .mbtn circle at the .vid-btn spot (32px from right and bottom, 16px on phones), above the full-frame target.
    Icon = two outward arrows in the site's arrow stroke (css/arrows.css: 1px non-scaling, miter joins, butt caps). Hidden in full screen */

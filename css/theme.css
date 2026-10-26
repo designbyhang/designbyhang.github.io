@@ -36,12 +36,16 @@ html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8
 /* one position for the light/dark toggle everywhere (pages, gate, Studio presentation layer): fixed offsets + safe-area insets.
    html keeps a stable scrollbar gutter so locking scroll (presentation) never changes the viewport width, 3vw or the toggle's x */
 html{scrollbar-gutter:stable}
+/* embedded prototypes / demos (html.embed, ?embed=1): the document never scrolls, so no gutter (it narrowed the document by the scrollbar
+   width on classic-scrollbar browsers, off-centring the device and clipping its drop shadow in a hard vertical edge) */
+html.embed{scrollbar-gutter:auto}
+/* site-wide, every page and embed (Hang: the audience never uses a keyboard): no focus outline, focus ring or tap highlight on anything,
+   pointer or keyboard. The one exception is the homepage carousel's keyboard ring (.rail:focus-visible, css/home.css) */
+*,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
 .theme-btn{--tb-x:clamp(16px,3vw,32px);position:fixed;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px));z-index:60}
-/* one hover ring for every round control: the 1px border at 40% of its ink (currentColor), both themes. Keyboard focus keeps the full-strength
-   ring (40% #111 on white is ~2.6:1, under the 3:1 a focus indicator needs). Dots pill takes the ring while a dot has keyboard focus */
+/* one hover ring for every round control: the 1px border at 40% of its ink (currentColor), both themes. Hover only: no focus ring */
 :root{--ring-hover:color-mix(in srgb,currentColor 40%,transparent)}
 .theme-btn:hover,.mbtn:hover,.car-dots:hover{border-color:var(--ring-hover)}
-.theme-btn:focus-visible,.mbtn:focus-visible,.car-dots:has(:focus-visible){border-color:currentColor;outline:none}
 /* buttons on media (videos, carousels, the Studio deck): frosted glass = theme surface at 44% + 24px blur, saturate 1.6; resting edge
    --ring-media (black 8% light / white 12% dark: a soft edge a touch off the fill, not an outline). The theme toggle stays opaque on --line */
 .mbtn,.car-dots{border-color:var(--ring-media);background:color-mix(in srgb,var(--c-paper) 44%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 1px 4px rgba(0,0,0,.06)}

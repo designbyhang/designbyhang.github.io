@@ -30,7 +30,7 @@ const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if
  /* any step (gesture or AUTO SCROLL) restarts the AUTO SCROLL wait, which then waits for the landing */
  onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}}});
 const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(CN);
-const ease=deck.ease,DUR=650;
+const FS=window.dbhFS,ease=FS.ease,DUR=FS.DUR; /* the shared full-screen motion (js/fs-motion.js): 648ms on the deck's steep ease (= deck.ease) */
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
 function fitBox(x,y,w,h,k){stage.style.left=x+'px';stage.style.top=y+'px';stage.style.width=w+'px';stage.style.height=h+'px';deck.layout(w,h,null,k);}
 const kCover=(w,h)=>Math.max(w/W,h/H),kContain=(w,h)=>Math.min(w/W,h/H);
@@ -97,36 +97,25 @@ function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.par
    Uses the independent CSS translate property (the menu's own translateY(-50%) is untouched; BACK moves inside its static
    nav, so case.js's header measurements are unchanged). The fixed menu adds no scroll overflow; the sticky header clips
    horizontally while BACK is out (else it widened the page, and on phones the layout viewport with it, CLOSE included). Anything not shown (the menu on narrow screens) is left alone. */
-const asides=[[document.querySelector('.toc'),cnt],[document.querySelector('body>.bar .bar-right a'),btn]].filter(p=>p[0]);let tg=[];const hdr=document.querySelector('body>.bar');
+const hdr=document.querySelector('body>.bar');
 /* the header's top-left label (the logo, or the 'Studio Model · Presentation' label that replaces it; whichever shows) does the
    same to the LEFT: moved by its text's right edge, so it just clears the left screen edge, on the same progress. It fades with
    filter:opacity (case.js owns their opacity and its .22s transition) and is inert while out (not clickable or focusable) */
-const lefts=[hdr&&hdr.querySelector('.brand'),document.getElementById('bar-mid')].filter(Boolean);let lt=[];
-const inkRight=el=>{const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return b.width?b.right:el.getBoundingClientRect().right;};
 /* the theme toggle sits closer to the screen edge while presenting on phones in landscape: it moves between its page spot
    (measured with .tb-home, which drops the fullscreen position) and that spot on the expand's progress */
 let tbOff=null;function tbMeasure(){tbOff=null;const t=fs.querySelector('.theme-btn');if(!t)return;t.style.translate='';const a=t.getBoundingClientRect();
  t.classList.add('tb-home');const b=t.getBoundingClientRect();t.classList.remove('tb-home');const dx=b.left-a.left,dy=b.top-a.top;if(dx||dy)tbOff={t,dx,dy};}
-function asideMeasure(){tbMeasure();lt=[];for(const el of lefts){el.style.translate='';el.inert=true;const r=inkRight(el);if(r>0)lt.push({el,off:-r});}
- tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
- const off=innerWidth-t.left;tg.push({el,mate,off,clr:Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off)});}
- /* the presentation's controls enter with CLOSE once BACK has passed: the counter too when the menu is not shown (phones, most
-    desktop widths), and AUTO SCROLL / the Play/Pause button; top to bottom (the stagger order) */
- for(const g of tg)g.ui=[g.mate];const g=tg.find(g=>g.mate===btn);if(g){if(!tg.some(g=>g.mate===cnt))g.ui.push(cnt);g.ui.push(apBtn,apRnd);}
- /* closing: each exits from wherever it is (it may still be entering) */
- for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}
-/* control entrance (Hang: slide in from the left, fading in): once its trigger is reached on the expand's progress, each control
-   moves 16px left to right into place while fading 0 to 1 over 450ms, ease-out, 40ms apart. Closing reverses it on the collapse's
-   progress (fade out while sliding back left), done before BACK comes back past it. Reduced motion: no move, straight in. */
-const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
-function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
-function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||snap||!m.animate||!m.getClientRects().length)continue;
- m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i++,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};}}
-function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
- if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
- const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);
- g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
-function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];if(tbOff){tbOff.t.style.translate='';tbOff=null;}for(const [el] of asides)el.style.translate=el.style.opacity='';for(const m of [btn,cnt,apBtn,apRnd]){uiStop(m);m.style.opacity=m.style.translate='';}tg=[];if(hdr)hdr.style.overflowX='';}
+/* the page chrome / CLOSE choreography: the shared one (js/fs-motion.js chrome; control entrance, Hang: slide in from the left, fading
+   in, 16px / 448ms / 40ms apart on cubic-bezier(.2,.8,.2,1), reversed on close; reduced motion: straight in), with the
+   deck's own pieces: the presentation's controls enter with CLOSE once BACK has passed (the counter too when the menu is not shown:
+   phones, most desktop widths; AUTO SCROLL / the Play/Pause button), top to bottom (the stagger order), and the landscape toggle offset */
+const uiStop=FS.uiStop;
+const ch=FS.chrome({hdr,asides:[[document.querySelector('.toc'),cnt],[document.querySelector('body>.bar .bar-right a'),btn]],lefts:[hdr&&hdr.querySelector('.brand'),document.getElementById('bar-mid')],
+ opening:()=>state==='opening',instant:()=>snap,
+ ui:(tg,g)=>{if(g.mate===btn){if(!tg.some(x=>x.mate===cnt))g.ui.push(cnt);g.ui.push(apBtn,apRnd);}},
+ extra:{measure:tbMeasure,set:p=>{if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';},
+  reset:()=>{if(tbOff){tbOff.t.style.translate='';tbOff=null;}for(const m of [btn,cnt,apBtn,apRnd]){uiStop(m);m.style.opacity=m.style.translate='';}}}});
+const asideMeasure=()=>ch.measure(),aside=p=>ch.set(p),asideReset=()=>ch.reset();
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches||snap?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));

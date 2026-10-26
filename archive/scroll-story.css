@@ -10,7 +10,7 @@ body.story{background:#000;margin:0}
 .ss-bar{position:fixed;left:0;right:0;bottom:0;height:3px;z-index:20;background:rgba(127,127,127,.2)}
 .ss-bar i{display:block;height:100%;background:#ff6848;transform-origin:0 0;transform:scaleX(0)}
 .ss-back{position:fixed;right:20px;top:16px;z-index:21;font:500 12px/1 "DM Sans",system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;mix-blend-mode:difference;text-decoration:none;padding:8px}
-.ss-back:focus-visible{outline:2px solid #ff6848}
+.ss-back:focus-visible{outline:none}
 .ss-panel{display:none}
 .ss-mobile .ss-panel{display:block;position:fixed;left:0;right:0;bottom:0;overflow:auto;padding:0 22px 28px;color:#eee;font:400 15px/1.5 "Instrument Sans",system-ui,sans-serif;z-index:5;background:var(--pbg,#000);transition:background .4s}
 .ss-panel.light{color:#222}.ss-panel.light p.h{color:#000}

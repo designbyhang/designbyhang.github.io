@@ -15,6 +15,9 @@ footer.bot>span.hegg-trg{cursor:pointer}
    hang-egg.js adds viewport-fit=cover while open, so the layer and the strips run under the status bar and toolbar. */
 .hegg,.hegg:focus,.hegg:focus-visible{border-radius:0;outline:none;box-shadow:0 0 0 100vmax var(--page)}
 .hegg.on{opacity:1}
+/* grow (js/hang-egg.js cfg.grow): while the view expands from / collapses into the page the layer paints nothing (the cfg draws its own
+   expanding panel, js/fs-motion.js timeline), no fade */
+.hegg.hegg-grow,.hegg.hegg-grow:focus,.hegg.hegg-grow:focus-visible{background:none;box-shadow:none;opacity:1;transition:none}
 .hegg-stage{position:relative;z-index:1;width:min(480px,calc(100% - 32px),calc(100vh - 32px));aspect-ratio:1;background:var(--page)}
 @media (max-width:640px){.hegg-stage{width:calc(min(100% - 32px,100vh - 32px) * .8)}} /* phones: 80% of (viewport - 16px each side): 274px at 375, 286px at 390 */
 html.hegg-open.theme-anim,html.hegg-open.theme-anim body,html.theme-anim .hegg,html.theme-anim .hegg *{transition:none!important}
@@ -50,7 +53,7 @@ html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
 .hegg .bar-right a.hegg-x:hover{color:var(--ink)}
 .hegg .bar-right a.hegg-x .t{position:relative;display:inline-block}
 .hegg .bar-right a.hegg-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.hegg .bar-right a.hegg-x:hover .t::after,.hegg .bar-right a.hegg-x:focus-visible .t::after{transform:scaleX(1)}
+.hegg .bar-right a.hegg-x:hover .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.hegg{transition:none}.hegg .bar-right a.hegg-x .t::after{transition:none}}
 /* Studio presentation counter ("004/40"): the base rule moved here from projects/studio.html so the FMSS phone full-screen landscape
    message (js/case.js, .hegg.proto-full) uses it as is; studio.html keeps its breakpoint and layout rules after it */

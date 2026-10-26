@@ -124,8 +124,12 @@ addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='demo-hello'
 /* phones (<=640px, the breakpoint where these frames go 4:5): each live prototype frame is a tap target (.proto-open) that opens it full
    screen. The full-screen view is the shared © Easter egg / Studio presentation layer (js/hang-egg.js window.dbhLayer: page-colour layer,
    top-right "× CLOSE", its entrance/exit timeline, Esc, iOS scroll lock + flow, theme toggle). The same iframe (no second copy, no reload,
-   state kept) is lifted to position:fixed over the layer (.proto-lift, css/case.css) and fades with it; inside it html.embed-full fits the
-   device centred with even margins. Desktop is unchanged: the shield is display:none above 640px.
+   state kept) is lifted to position:fixed over the layer (.proto-lift, css/case.css); inside it html.embed-full fits the device centred
+   with even margins. Entry and exit are the Studio presentation's (the dbhLayer grow cfg on js/fs-motion.js, as js/proto-fs.js on desktop):
+   a --frame panel (.proto-panel) grows from the inline frame to the screen while the lifted iframe is moved and scaled with transform only
+   (FLIP, the device centre travels from its inline spot to its full-screen one), and the header's logo/label and BACK slide out on the
+   same progress (dbhFS.chrome); close shrinks it all back into the frame from wherever it is. The full-screen colour is the stage colour
+   (--frame, html.fs-stage: js/theme.js paints the bars in it), as the Studio presentation and the desktop view. Desktop is unchanged: the shield is display:none above 640px.
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
    returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the CLOSE button's type) 40px below the device frame, at most
@@ -152,7 +156,8 @@ if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,INS_EASE='cubic-bezier(.2,.8,.2,1)',OUT_MS=400,OUT_EASE='cubic-bezier(.25,.1,.25,1)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE); every exit: a soft opacity-only fade */
  INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
-var PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
+var FS=window.dbhFS,
+ PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
  ROOM=32; /* drop-shadow(40px 0 20px) = 10px std dev: fully faded by ~30 device px; this much margin is kept above and below the device */
 ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=document.createElement('button');b.type='button';b.className='proto-open';
  var name=(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'');b.setAttribute('aria-label','Open '+name+' full screen');b.setAttribute('aria-haspopup','dialog');m.appendChild(b);
@@ -188,16 +193,18 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px')}
   if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h')}d.classList.toggle('fsx-pad',on)};
  var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
-  if(held){pad(false);return}var r=f.getBoundingClientRect(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
+  if(held){pad(false);geo=null;return}var r=fbox(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
   var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tb.getBoundingClientRect():null;
   var lb=el.getBoundingClientRect(),vv=window.visualViewport,yb=Math.max(innerHeight,lb.bottom,vv?vv.offsetTop+vv.height:0);if(tr&&(!tr.width||tr.top<0||tr.bottom>yb+1))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
-  var T=p.firstChild?p.firstChild.offsetHeight:0,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
-  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*(W-32)/391)));t=ct-g-r.top-h}}
-  pad(true,t,h);p.style.top=(r.top-lb.top+t+h)+'px';p.style.paddingTop=g+'px'};
+  var T=p.firstChild?p.firstChild.offsetHeight:0,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*W/531))),t=Math.round((r.height-h-g-T)/2);
+  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*W/531)));t=ct-g-r.top-h}}
+  pad(true,t,h);geo={t:t,h:h};p.style.top=(r.top-lb.top+t+h)+'px';p.style.paddingTop=g+'px'};
+ /* the lifted iframe's layout box (position:fixed, so offsets are viewport px), not its rect: it is transformed while it grows */
+ var fbox=function(){return {left:f.offsetLeft,top:f.offsetTop,width:f.offsetWidth,height:f.offsetHeight}},geo=null;
  /* re-pin: Safari's toolbar and the layer's own settle move the toggle after open, so the layout is measured again on window and
     visualViewport resize/scroll, on each frame for the first 1.2s (only when the toggle's centre or the frame's box moved), and
     when the instruction starts and ends its entrance */
- var pinK='',pinR=0,pinKey=function(){var tb=document.querySelector('.theme-btn'),a=tb?tb.getBoundingClientRect():null,r=f.getBoundingClientRect();return (a?Math.round(a.top+a.height/2):'-')+','+Math.round(r.top)+','+Math.round(r.height)+','+Math.round(r.width)},
+ var pinK='',pinR=0,pinKey=function(){var tb=document.querySelector('.theme-btn'),a=tb?tb.getBoundingClientRect():null,r=fbox();return (a?Math.round(a.top+a.height/2):'-')+','+Math.round(r.top)+','+Math.round(r.height)+','+Math.round(r.width)},
   repin=function(){var k=pinKey();if(k!==pinK){pinK=k;lay()}},
   pinOn=function(on){var vv=window.visualViewport;['resize','scroll'].forEach(function(n){if(vv)vv[on?'addEventListener':'removeEventListener'](n,repin)});
    (on?addEventListener:removeEventListener)('resize',repin);cancelAnimationFrame(pinR);pinR=0;pinK='';if(!on)return;
@@ -212,18 +219,31 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
     it comes back with its entrance, INS_WAIT after the settle (a WAAPI delay: leaving again inside it cancels it) */
  addEventListener('message',function(e){var d=e.data,L=window.dbhLayer;if(!d||d.type!=='proto-state'||e.source!==f.contentWindow||!L||!L.el||!f.classList.contains('proto-lift'))return;
   if(!d.home){if(insHome)insOut()}else{insHome=true;if(tapped){tapped=false;insIn(INS_WAIT)}}}); /* a home:false before the clean start is the inline demo's */
+ /* grow (dbhLayer cfg.grow, js/fs-motion.js): p 0 = the inline frame, 1 = full screen. A = the frame's inner box (live on close: the page is
+    back at its scroll), sA = the device scale inline (its own --s), the full-screen device from lay()'s padded box */
+ var gut=function(){var e=doc(),bd=e&&e.ownerDocument.body;return bd&&e?{x:(bd.clientWidth-e.clientWidth)/2,y:(bd.clientHeight-e.clientHeight)/2}:{x:0,y:0}},
+  sNow=function(){var d=doc(),st=d&&d.querySelector('.stage'),v=st&&parseFloat(st.style.getPropertyValue('--s'));return v>0?v:0},
+  inner=function(){var r=m.getBoundingClientRect(),b=m.clientLeft||0;return {x:r.left+b,y:r.top+b,w:m.clientWidth,h:m.clientHeight}},
+  gs=null,opening=false,panel=null,hdr=document.querySelector('body>.bar'),
+  ch=FS.chrome({hdr:hdr,asides:[[document.querySelector('.toc'),null],[document.querySelector('body>.bar .bar-right a'),null]],lefts:[hdr&&hdr.querySelector('.brand'),document.getElementById('bar-mid')],opening:function(){return opening}}),
+  gframe=function(p){if(!gs)return;if(!opening)gs.A=inner();var W=innerWidth,H=innerHeight;if(panel)panel.style.transform=FS.rectXf(gs.A,W,H,p);ch.set(p);
+   if(!geo||held){f.style.transform='';return}var F=fbox(),sF=Math.min(geo.h/828,(F.width-2*Math.abs(gs.g.x))/531);if(!(sF>0)){f.style.transform='';return}
+   f.style.transform=FS.devXf(F,{x:gs.A.x+gs.A.w/2+gs.g.x,y:gs.A.y+gs.A.h/2+gs.g.y},{x:F.left+F.width/2+gs.g.x,y:F.top+geo.t+geo.h/2+gs.g.y},(gs.s0||sF)/sF,p)},
+  grow={begin:function(o){opening=o;var el=window.dbhLayer.el||(panel&&panel.closest('.hegg'));if(o){panel=el&&el.querySelector('.proto-panel');}
+    if(panel){panel.style.width=innerWidth+'px';panel.style.height=innerHeight+'px'}f.classList.add('proto-anim');if(!o)de.classList.remove('fs-stage');ch.measure();gframe(o?0:1)},
+   frame:gframe,
+   end:function(o){f.classList.remove('proto-anim');f.style.transform='';if(o){opening=false;if(panel)panel.style.transform='';de.classList.add('fs-stage');}else{ch.reset();gs=null;panel=null}}}; /* stage colour bars once full (the page beside the growing panel keeps its own colour) */
  var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;tapped=false;insHome=false;insStop();insSt=null;
   f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   fxIn(m); /* a figure not yet revealed (.fx: opacity 0 + transform, as after a refresh restore) would hide the lifted iframe and pin it to the page, not the screen */
   f.addEventListener('load',load);
-  L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:insIn,exit:insExit,stage:'<p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);pinOn(true);lqOn(true);land();void f.offsetWidth;
-    if(now){f.classList.add('proto-on');void f.offsetWidth;f.style.transition='';return} /* restored: on at once (the instruction's entrance follows via enter) */
-    f.style.transition='';f.classList.add('proto-on')},
+  var A0=inner(),g0=gut(),pd=A0.w<=640?24:40;gs={A:A0,g:g0,s0:sNow()||Math.min((A0.h-2*Math.abs(g0.y)-pd*2)/828,(A0.w-2*Math.abs(g0.x)-pd*2)/431)};
+  L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:insIn,exit:insExit,grow:grow,stage:'<i class="proto-panel" aria-hidden="true"></i><p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift','proto-on');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);pinOn(true);lqOn(true);land();void f.offsetWidth;
+    f.style.transition=''}, /* opaque at once: it grows from the frame (grow), restored or not (the instruction's entrance follows via enter) */
    tabs:function(){return held?[]:[f]},
-   frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
    done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);pinOn(false);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
-    f.classList.remove('proto-lift','proto-on');f.removeAttribute('data-keep');f.style.transition=f.style.opacity='';full(false)}})};
+    f.classList.remove('proto-lift','proto-on','proto-anim');f.removeAttribute('data-keep');f.style.transition=f.style.opacity=f.style.transform='';full(false);de.classList.remove('fs-stage')}})};
  b.addEventListener('click',function(){go(false)});
  /* refresh restore (phones): this prototype's ?fs= key; the page goes to the prototype first, then the layer is on at once */
  var restore=function(){var V=window.dbhView;if(!V||!ik||V.get()!==ik||!mq.matches)return;m.scrollIntoView({block:'center',behavior:'instant'});go(true)};

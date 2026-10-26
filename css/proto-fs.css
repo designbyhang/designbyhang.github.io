@@ -7,7 +7,7 @@
 body.cs .proto-fig .media.proto iframe:not(.fsx-lift):not(.proto-lift){pointer-events:none}
 .fsx-open{display:none}
 @media (min-width:641px){.fsx-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.fsx-open:focus{outline:none}.fsx-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}}
+.fsx-open:focus{outline:none}}
 
 /* expanding panel: a solid --frame box (the frame's own colour) moved with transform only (no layout per frame) */
 .fsx-bg{position:fixed;inset:0;z-index:2147482998;pointer-events:none;overflow:hidden}
