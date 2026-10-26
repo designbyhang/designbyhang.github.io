@@ -31,6 +31,9 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
+/* ad media: one playing <video> per phone, sized to its split-screen rect (Figma: 351 wide, 16px radius, 60% smoothing) and scaled/moved onto the full-bleed feed rect */
+.mv{position:absolute;left:12px;width:351px;overflow:hidden;transform-origin:0 0;will-change:transform}
+.mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 /* label: Figma "Notes", Bitcount Grid Single 16/32, 40px under the screen */
 .lab{position:absolute;left:0;width:375px;top:852px;text-align:center;font:400 16px/32px "Bitcount Grid Single",ui-monospace,Menlo,monospace;letter-spacing:.32px;white-space:nowrap;color:var(--ink);transition:color .4s var(--ease)}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
@@ -43,6 +46,9 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
+/* media rects from the Figma frames: feed (A) full bleed x0 y216 375 wide; split screen (B) x12, 351 wide, radius 16 */
+const MED=[{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:240,by:107,bh:225}];
+const V='?v=2';
 const T=15600,D=500,t1=3800,t2=7500,t3=11400,t4=14600;   // loop measured from the original Solution video: A 3.8s, B 3.2s, C 3.4s, B 2.7s, back to A; 0.5s transitions
 const EASE='cubic-bezier(.2,.7,.2,1)',X=[t1,t1+D,t2,t2+D,t3,t3+D,t4,t4+D];
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
@@ -62,25 +68,44 @@ const SQ=CSS.supports('clip-path','path("M0 0H1V1Z")'),scrP=squircle(375,812,40,
 /* keyframes from [time, value] stops; eased between stops that differ, held otherwise */
 function kf(prop,stops,fmt){const out=[];stops.forEach(([t,v],i)=>{const k={offset:t/T};k[prop]=fmt(v);const n=stops[i+1];k.easing=n&&n[1]!==v?EASE:'linear';out.push(k)});return out}
 const ty=v=>`translateY(${v}px)`,op=v=>String(v);
-const anims=[],imgs=[];
+/* JS twin of EASE (cubic-bezier .2,.7,.2,1) for the pre-sampled corner radius; RS samples per 0.5s transition */
+const RS=30,ez=x=>{let lo=0,hi=1,t=x;for(let i=0;i<40;i++){t=(lo+hi)/2;const bx=3*(1-t)*(1-t)*t*.2+3*(1-t)*t*t*.2+t*t*t;if(bx<x)lo=t;else hi=t}return 3*(1-t)*(1-t)*t*.7+3*(1-t)*t*t+t*t*t};
+const anims=[],imgs=[],vids=[];
 PH.forEach((p,i)=>{
-  const top=p.top,up=top-44,dn=812-top;
+  const top=p.top,up=top-44,dn=812-top,m=MED[i];
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
   dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+
-    `<img class="L a" alt="" src="assets/a${i+1}.webp">`+
-    `<img class="L bt" alt="" src="assets/b${i+1}.webp" style="clip-path:inset(0 0 ${dn}px 0)">`+
-    `<img class="L bs" alt="" src="assets/b${i+1}.webp" style="clip-path:inset(${top}px 0 0 0)">`+
-    `<img class="L cb" alt="" src="assets/c${i+1}.webp" style="clip-path:inset(44px 0 0 0)">`+
-    `<img class="L ct" alt="" src="assets/c${i+1}.webp" style="clip-path:inset(0 0 768px 0)">`+
+    `<img class="L a" alt="" src="assets/a${i+1}.webp${V}">`+
+    `<img class="L bt" alt="" src="assets/bu${i+1}.webp${V}" style="height:${top}px">`+
+    `<div class="mv" style="top:${m.by}px;height:${m.bh}px"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/p${i+1}.webp${V}" src="assets/v${i+1}.mp4${V}"></video></div>`+
+    `<img class="L bc" alt="" src="assets/bc${i+1}.webp${V}" style="height:${top}px">`+
+    `<img class="L bo" alt="" src="assets/bo${i+1}.webp${V}" style="height:${top}px">`+
+    `<img class="L bs" alt="" src="assets/b${i+1}.webp${V}" style="clip-path:inset(${top}px 0 0 0)">`+
+    `<img class="L cb" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(44px 0 0 0)">`+
+    `<img class="L ct" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(0 0 768px 0)">`+
     `</div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
-  const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));
+  const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
   const o={duration:T,iterations:Infinity,fill:'both'};
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   anims.push(q('.a').animate([{offset:0,opacity:1},{offset:(t1+D)/T,opacity:1},{offset:(t1+D+1)/T,opacity:0},{offset:(t4-1)/T,opacity:0},{offset:t4/T,opacity:1},{offset:1,opacity:1}],o));
-  // B top (media) dissolves in over A; the B sheet rises from the bottom edge
-  anims.push(q('.bt').animate(kf('opacity',[[0,0],[t1,0],[t1+D,1],[t4,1],[t4+D,0],[T,0]],op),o));
+  // B top (backdrop, nav bar) dissolves in over A; the B sheet rises from the bottom edge
+  const fadeB=kf('opacity',[[0,0],[t1,0],[t1+D,1],[t4,1],[t4+D,0],[T,0]],op);
+  anims.push(q('.bt').animate(fadeB,o),q('.bo').animate(fadeB,o));
+  // shared element: the same playing video travels feed rect -> split-screen rect (position, size, corner radius) and back
+  const sx=375/351,sy=m.ah/m.bh,dy=216-m.by;
+  const mvA={transform:`translate(-12px,${dy}px) scale(${sx},${sy})`},mvB={transform:'translate(0px,0px) scale(1,1)'};
+  const mk=(t,v,e)=>Object.assign({offset:t/T,easing:e?EASE:'linear'},v);
+  anims.push(q('.mv').animate([mk(0,mvA),mk(t1,mvA,1),mk(t1+D,mvB),mk(t4,mvB,1),mk(t4+D,mvA),mk(T,mvA)],o));
+  // corner radius 0 -> 16 (60% smoothing) on the same eased curve; pre-sampled per frame so engines that can't interpolate path() still animate it
+  if(SQ){const cp=r=>({clipPath:`path('${squircle(351,m.bh,r,.6)}')`}),K=[mk(0,cp(0))];
+    for(let k=0;k<=RS;k++)K.push(mk(t1+D*k/RS,cp(16*ez(k/RS))));
+    for(let k=0;k<=RS;k++)K.push(mk(t4+D*k/RS,cp(16*(1-ez(k/RS)))));
+    K.push(mk(T,cp(0)));anims.push(q('.mv').animate(K,{...o,composite:'replace'}))}
+  else q('.mv').style.borderRadius='16px';
+  // player controls ride up with the media (Figma: 185px) while they fade in
+  anims.push(q('.bc').animate([mk(0,{transform:'translateY(185px)',opacity:0}),mk(t1,{transform:'translateY(185px)',opacity:0},1),mk(t1+D,{transform:'translateY(0px)',opacity:1}),mk(t4,{transform:'translateY(0px)',opacity:1},1),mk(t4+D,{transform:'translateY(185px)',opacity:0}),mk(T,{transform:'translateY(185px)',opacity:0})],o));
   anims.push(q('.bs').animate(kf('transform',[[0,dn],[t1,dn],[t1+D,0],[t2,0],[t2+D,-up],[t3,-up],[t3+D,0],[t4,0],[t4+D,dn],[T,dn]],ty),o));
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   anims.push(q('.cb').animate(kf('transform',[[0,up],[t2,up],[t2+D,0],[t3,0],[t3+D,up],[T,up]],ty),o));
@@ -91,12 +116,13 @@ anims.forEach(a=>{a.pause();a.currentTime=0});
 function fit(){const r=frame.getBoundingClientRect();stage.style.setProperty('--s',Math.min(r.width/1920,r.height/1026).toFixed(4))}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;
-function still(){anims.forEach(a=>{a.pause();a.currentTime=6000})}   // reduced motion: hold the split screen (B)
+function still(){anims.forEach(a=>{a.pause();a.currentTime=6000});vids.forEach(v=>{v.pause()})}   // reduced motion: hold the split screen (B) with the poster frame
 function upd(){
   if(!ready)return;
   if(RM.matches){still();return}
   const go=seen&&!document.hidden;
   anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
+  vids.forEach(v=>{if(go){if(v.paused){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
 }
 Promise.all(imgs.map(im=>im.decode?im.decode().catch(()=>{}):Promise.resolve())).then(()=>{ready=true;if(RM.matches)still();upd()});
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.35}).observe(frame);
