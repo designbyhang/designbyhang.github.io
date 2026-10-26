@@ -11,10 +11,12 @@
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=88"><link rel="stylesheet" href="../../css/theme.css?v=88">
+<link rel="stylesheet" href="../../css/type.css?v=89"><link rel="stylesheet" href="../../css/theme.css?v=89">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56);--bezel:#111;
@@ -121,6 +123,10 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 @media (hover:hover) and (pointer:fine){.phone,.phone *{cursor:none!important}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </style>
 </head>
 <body>

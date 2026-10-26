@@ -78,3 +78,9 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  });})();
 /* Back to top: always to scrollY 0 (#top is the hero, below the bar); smooth unless reduced motion */
 document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
+/* live prototype iframes (iframe[data-src]): attach src only once the site is unlocked (the same-origin frame then reads the shared
+   sessionStorage flag and shows no second gate) and only as the frame nears the viewport; each prototype pauses its own idle demo offscreen */
+(function(){var fs=document.querySelectorAll('iframe[data-src]');if(!fs.length)return;var go=function(f){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')};
+var arm=function(){if(!('IntersectionObserver' in window)){fs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'400px 0px'});fs.forEach(function(f){io.observe(f)})};
+var open=false;try{open=sessionStorage.getItem('dbh-unlocked')==='1'}catch(_){}
+if(open||!document.documentElement.classList.contains('gated'))arm();else addEventListener('gate:unlocked',arm,{once:true})})();
