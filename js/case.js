@@ -98,7 +98,7 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    device centred with even margins. Desktop is unchanged: the shield is display:none above 640px.
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
-   returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the CLOSE button's type) 16px below the device frame, at most
+   returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the CLOSE button's type) 40px below the device frame, at most
    375px wide; device + gap + text fit between the bars, centred together (375x812 cap). The lifted iframe keeps the whole box between
    the bars and the device is padded into it (PAD, the same injected style as js/proto-fs.js on desktop: the prototype's frame gets the
    device's top and height, overflow visible), with at least ROOM (device units) above it, so the device's drop-shadow has room inside
@@ -142,7 +142,7 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   insExit=function(k){var s=insEl();if(!s)return;if(!insSt){var cs=getComputedStyle(s);insSt={o:+cs.opacity,y:insY(cs)};insStop()}
    s.style.opacity=(insSt.o*k).toFixed(4);s.style.translate='0 '+(insSt.y+(-insD(s)-insSt.y)*(1-k)).toFixed(2)+'px'},
   onTap=function(e){var t=e.target;if(ik&&e.isTrusted&&t&&t.closest&&t.closest(TAP[ik]))insOut()};
- /* portrait layout: the bars' box (css top/height) minus 16px + the instruction's height, the device's width limit and the 812 cap give
+ /* portrait layout: the bars' box (css top/height) minus 40px + the instruction's height, the device's width limit and the 812 cap give
     the device height (less ROOM above and below); the device is padded to that spot inside the iframe, device + gap + text centred in the box */
  var pad=function(on,t,h){var d=doc();if(!d||!d.classList.contains('embed'))return;var D=d.ownerDocument;
   if(on&&!D.getElementById('fsx-pad-css')){var st=D.createElement('style');st.id='fsx-pad-css';st.textContent=PAD;(D.head||d).appendChild(st)}
@@ -150,7 +150,7 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h')}d.classList.toggle('fsx-pad',on)};
  var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
   if(held){pad(false);return}var r=f.getBoundingClientRect(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
-  var T=p.offsetHeight,g=T?16:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
+  var T=p.offsetHeight,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
   pad(true,t,h);p.style.top=(r.top+t+h)+'px';p.style.paddingTop=g+'px'}; /* the box starts at the device's bottom edge */
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
   el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';lay();

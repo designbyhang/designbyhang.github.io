@@ -316,7 +316,7 @@ body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
  .proto-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}}
 .media.proto iframe.proto-lift{position:fixed;z-index:51;left:0;right:0;top:calc(48px + env(safe-area-inset-top,0px));width:100%;height:calc(100% - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));visibility:visible;pointer-events:auto;touch-action:none;background:none;opacity:0;transition:opacity .3s var(--ease)}
 .media.proto iframe.proto-lift.proto-on{opacity:1}
-/* phone full screen, portrait: the instruction under the device (js/case.js INS sets its top, 16px below the device frame, and width,
+/* phone full screen, portrait: the instruction under the device (js/case.js INS sets its top, 40px below the device frame, and width,
    at most 375px): the figcaption style; landscape keeps only the rotate message */
 .hegg.proto-full .proto-ins{--mono-color:#333;position:absolute;z-index:2;left:0;right:0;top:0;margin:0 auto;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none;overflow:clip} /* type = CLOSE (.hegg-x), casing as written; under the lifted iframe (.hegg z 50 < .proto-lift); the box starts at the device bottom edge and clips, so the raised span is hidden behind the device (js/case.js) */
 .hegg.proto-full .proto-ins span{display:block}

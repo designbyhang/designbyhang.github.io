@@ -9,7 +9,7 @@
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
-   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), 24px
+   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), 40px
    below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
    group centred in it. It moves as CLOSE does (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, 448ms on
    CLOSE's curve, opacity 0 -> 1 on the same curve) but vertically: it slides DOWN out from behind the device. It lives in the
@@ -120,9 +120,9 @@ function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';
  /* device box: the probe's 64px (56 on phones) + safe-area margins; capped at the native 828 (375x812 screen + 8px bezel), so
     --s never exceeds 1 (no upscaled raster); whole px so the 1:1 screen lands on the pixel grid */
  const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top);
- /* the instruction below it: 24px gap + its wrapped height come off the box; the device box is then exactly the device (its width
+ /* the instruction below it: 40px gap + its wrapped height come off the box; the device box is then exactly the device (its width
     limit included) and device + gap + text are centred together */
- const iw=Math.max(0,Math.min(375,G.W-32));ins.style.width=iw+'px';const T=insS.textContent?insS.offsetHeight:0,gap=T?24:0;
+ const iw=Math.max(0,Math.min(375,G.W-32));ins.style.width=iw+'px';const T=insS.textContent?insS.offsetHeight:0,gap=T?40:0;
  const sw=Math.min(1,(G.F.width-2*Math.abs(G.g.x)-32)/391),bh=Math.max(0,Math.floor(Math.min(av-gap-T,MAXH,828*sw))),bt=Math.round(q.top+(av-bh-gap-T)/2);
  ins.style.top=(bt+bh)+'px';ins.style.paddingTop=gap+'px'; /* the box starts at the device's bottom edge */
  pad(f,true,bt,bh);G.s1=Math.min(1,sFull(G.F.width-2*Math.abs(G.g.x),bh));
