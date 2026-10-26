@@ -454,7 +454,7 @@ function cardEnter(){                                  // after closing the IAB:
 const PMAX=1703-H;
 /* profile header: the shared FMSS app bar. It fills white (icons + status black, 'Nike' ✓ centred, 1px divider) once the cover's
    bottom edge (139) passes up behind the bar's bottom (112), i.e. at 27px of scroll; back below that it clears again. */
-const appbar=FMSSAppBar.create({host:profile,before:$('back'),onChange:()=>setSurface(),height:112,scrim:128,titleY:88,title:'Nike',verified:true,threshold:27,z:5});
+const appbar=FMSSAppBar.create({host:profile,before:$('back'),onChange:()=>setSurface(),height:112,scrim:128,titleY:88,title:'Nike',verified:false,threshold:27,z:5});
 let py=0,prevPy=0,praf=0;
 function dismissPeek(v0=0){                            // drag the peek down: it springs away the way it came in
   if(ctaState!=='peek')return;ctaState='none';setTabs();
