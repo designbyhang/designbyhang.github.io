@@ -325,6 +325,13 @@ html[data-theme=dark] .hegg.proto-full .proto-ins{--mono-color:#cfcfcf}
 html.proto-nosel,html.proto-nosel body{-webkit-user-select:none;user-select:none}   /* phone full screen open (js/case.js): no selection on the page */
 .media.proto iframe.proto-lift.proto-hide{visibility:hidden;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.media.proto iframe.proto-lift{transition:none}}
+/* Evolution prototypes: the expand button (.proto-x, js/case.js) is only a signifier for the frame's own open target (.proto-open phones /
+   .fsx-open desktop): a .mbtn circle at the .vid-btn spot (32px from right and bottom, 16px on phones), above the full-frame target.
+   Icon = two outward arrows in the site's arrow stroke (css/arrows.css: 1px non-scaling, miter joins, butt caps). Hidden in full screen */
+.proto-x{position:absolute;right:32px;bottom:32px;z-index:3}
+@media (max-width:640px){.proto-x{right:16px;bottom:16px}}
+.mbtn.proto-x svg path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linecap:butt;stroke-linejoin:miter}
+.media.proto:has(iframe.fsx-lift,iframe.proto-lift) .proto-x,.media.proto .proto-x.is-hidden{visibility:hidden;pointer-events:none}
 /* 02 Problem, exit affordances: red rings (Figma fmss_04 "Marker" ellipses, 48px + 2px outside stroke #FF5151, 8% fill) are an SVG over the
    ring-free base; the 1920x1080 viewBox + xMidYMid slice tracks the img's object-fit:cover crop at every width. js/case.js runs the
    4800ms loop only while the frame is on screen: 1200 fade in, 1600 hold, 1200 fade out, 800 hold (ease-in-out). No JS / reduced motion: rings static */

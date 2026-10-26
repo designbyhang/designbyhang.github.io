@@ -183,6 +183,18 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
     f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
 });})();
 
+/* Evolution prototypes: expand button (.proto-x, css/case.css) bottom-right in each frame. Only a signifier: the frame is already one open
+   target (.proto-open on phones, above; .fsx-open from js/proto-fs.js on desktop), so a click/Enter/Space on the button clicks whichever of
+   those is showing, once (they are siblings, not ancestors, so nothing bubbles into a second open). Hidden while its iframe is lifted full screen */
+(function(){document.querySelectorAll('.proto-fig .media.proto').forEach(function(m){var f=m.querySelector('iframe');if(!f)return;
+ var x=document.createElement('button');x.type='button';x.className='mbtn proto-x';x.setAttribute('aria-label','Expand prototype');x.setAttribute('aria-haspopup','dialog');
+ x.innerHTML='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9 7L13 3M8.5 3H13V7.5M7 9L3 13M7.5 13H3V8.5"/></svg>';
+ x.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();
+  var t=[].filter.call(m.querySelectorAll('.fsx-open,.proto-open'),function(b){return getComputedStyle(b).display!=='none'})[0];if(t)t.click()});
+ var sync=function(){x.classList.toggle('is-hidden',f.classList.contains('fsx-lift')||f.classList.contains('proto-lift'))};   // :has() fallback
+ if('MutationObserver' in window)new MutationObserver(sync).observe(f,{attributes:true,attributeFilter:['class']});
+ m.appendChild(x)})})();
+
 /* 02 Problem exit-affordance rings (css/case.css .exit-rings): loop runs only while the frame is in view, paused offscreen; reduced motion keeps them static */
 (function(){var m=document.querySelectorAll('.media.exit-rings');if(!m.length||!('IntersectionObserver'in window))return;
  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
