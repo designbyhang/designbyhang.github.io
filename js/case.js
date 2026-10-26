@@ -133,9 +133,9 @@ addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='demo-hello'
    more (WAAPI delay, no timer; a tap or close inside it and it never shows), 448ms on CLOSE's curve)
    but vertically: it rises INS_UP (16px) into place while fading in (the same entrance on its return to the first screen and after
    a refresh; the layer is under the lifted iframe; its box starts at the device's bottom edge and clips, 16px bottom padding for the
-   rise). The first tap of the element it describes (TAP, in the prototype's own document) takes it up behind the device, fading
-   (gone until the prototype is back on its first screen); on close it exits on
-   CLOSE's exit progress. Hidden in landscape.
+   rise). Every exit is a soft opacity-only fade (OUT_MS 400ms, ease-out, from its current opacity and position, mid-entrance too):
+   the first tap of the element it describes (TAP, in the prototype's own document; gone until the prototype is back on its first
+   screen), leaving the first screen, and close. Hidden in landscape.
    Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js); a load carrying it reopens that prototype at once (no
    fade; the device on its clean start, no autoplay) with the page under it at the prototype, and the instruction then plays its
    entrance (dbhLayer calls enter once the instant open has painted). Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
@@ -145,7 +145,7 @@ function fxIn(m){var g=m.closest('.fx');if(!g||g.classList.contains('in'))return
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
- rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,INS_EASE='cubic-bezier(.2,.8,.2,1)',INS_REV='cubic-bezier(.8,0,.8,.2)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE) and its time reverse */
+ rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,INS_EASE='cubic-bezier(.2,.8,.2,1)',OUT_MS=400,OUT_EASE='cubic-bezier(.25,.1,.25,1)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE); every exit: a soft opacity-only fade */
  INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 var PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
@@ -162,20 +162,18 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var u=f.getAttribute('data-src')||f.getAttribute('src')||'',ik=Object.keys(INS).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0],ins=ik?INS[ik]:'';
  var insA=null,tapped=false,insSt=null,insHome=false, /* insHome: the prototype has reported its clean start this session */
   insC=null,insEl=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(p)insC=p.firstChild;return insC}, /* kept: dbhLayer.el is null while the layer closes */
-  insD=function(s){return s.parentNode.clientHeight-INS_UP}, /* gap + text: the box's INS_UP bottom padding is the entrance's room */
-  insHide=function(s){s.style.opacity='0';s.style.translate='0 '+(-insD(s))+'px'},
+  insHide=function(s){s.style.opacity='0';s.style.translate=''},
   insStop=function(){if(insA){insA.cancel();insA=null}},
-  insY=function(cs){return parseFloat((cs.translate||'0 0').split(' ')[1])||0},
   insIn=function(d){var s=insEl();if(tapped||!s)return;pinK='';repin();if(typeof d!=='number')d=INS_STAG+INS_WAIT;insStop();s.style.opacity=s.style.translate='';if(rmq.matches||!s.animate)return;
    insA=s.animate([{opacity:0,translate:'0 '+INS_UP+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:INS_EASE,fill:'backwards'});insA.onfinish=function(){insA=null;pinK='';repin()}},
   insOut=function(){var s=insEl();if(tapped||!s)return;tapped=true; /* gone for the rest of this full-screen session */
    if(rmq.matches||!s.animate){insStop();insHide(s);return}
    if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide(s);return} /* still waiting: it never appears */
-   if(insA&&insA.playState!=='finished'){var a=insA;a.reverse();a.onfinish=function(){if(insA===a){insA=null;insHide(s);a.cancel()}}; /* cancel: its backwards fill would otherwise outlive it */return}
-   var cs=getComputedStyle(s),o=+cs.opacity,y=insY(cs);insStop();insHide(s);
-   insA=s.animate([{opacity:o,translate:'0 '+y+'px'},{opacity:0,translate:'0 '+(-insD(s))+'px'}],{duration:INS_MS,easing:INS_REV});insA.onfinish=function(){insA=null}},
-  insExit=function(k){var s=insEl();if(!s)return;if(!insSt){var cs=getComputedStyle(s);insSt={o:+cs.opacity,y:insY(cs)};insStop()}
-   s.style.opacity=(insSt.o*k).toFixed(4);s.style.translate='0 '+(insSt.y+(-insD(s)-insSt.y)*(1-k)).toFixed(2)+'px'},
+   insFade(s)},
+  /* the soft exit (tap, leaving the first screen, close): from its current opacity and position (mid-entrance too), opacity only */
+  insFade=function(s){if(rmq.matches||!s.animate){insStop();insHide(s);return}var cs=getComputedStyle(s),o=+cs.opacity,y=cs.translate;insStop();
+   s.style.translate=y==='none'?'':y;s.style.opacity='0';if(o>0){insA=s.animate([{opacity:o},{opacity:0}],{duration:OUT_MS,easing:OUT_EASE});insA.onfinish=function(){insA=null}}},
+  insExit=function(){var s=insEl();if(!s||insSt)return;insSt=1;insFade(s)}, /* close (dbhLayer's exit, per frame): the fade starts once, on its own clock */
   onTap=function(e){var t=e.target;if(ik&&e.isTrusted&&t&&t.closest&&t.closest(TAP[ik]))insOut()};
  /* portrait layout: the instruction's line centred on the theme toggle's (its real rect; at most 375px wide, clear of the toggle); the
     device takes the bars' box from its top down to 40px above the instruction (less ROOM above; the device's width limit and the 812
