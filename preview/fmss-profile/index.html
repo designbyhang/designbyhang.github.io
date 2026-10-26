@@ -14,7 +14,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=87"><link rel="stylesheet" href="../../css/theme.css?v=87">
+<link rel="stylesheet" href="../../css/type.css?v=88"><link rel="stylesheet" href="../../css/theme.css?v=88">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56);--bezel:#111;
@@ -102,14 +102,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .full{left:0;top:0;width:402px;height:874px;background:#fff;z-index:20;display:none;touch-action:none;will-change:transform,opacity,clip-path}
 .full.on{display:block}
 .stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.png) 0 0/402px 54px no-repeat;mask:url(assets/status.png) 0 0/402px 54px no-repeat;pointer-events:none;z-index:4}
-.fh{left:0;top:54px;width:402px;height:50.33px;background:#fff;z-index:3}
-.fx{left:6px;top:61.33px;width:44px;height:44px;display:grid;place-items:center;z-index:5;color:#000;border-radius:22px}
-.fx:focus-visible{outline-offset:-4px}
-.fh .url{left:164px;top:14.33px;width:74.67px;height:15px}
-.fh .src{left:173px;top:32px;width:56.33px;height:11.67px}
-.fh .dots{left:365px;top:27.33px;width:18px;height:4px}
-.fdiv{left:0;top:104.33px;width:402px;height:1px;background:#ececec;z-index:3}
-.full .load{top:104.33px;z-index:4}
+.fh{left:0;top:54px;width:375px;height:46px;background:#fff;z-index:3;transform:scale(1.072);transform-origin:0 0}  /* fmss-cb IAB header at its 375pt size: 402/375 = 1.072 here, ×.932836 on screen = 1:1 with fmss-cb */
+.iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
+.iab-hf{height:46px}
+.x{left:325px;top:0;width:44px;height:44px;z-index:40;border-radius:22px}
+.x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
+.full .load{top:103.31px;z-index:4}
 .webv{left:0;top:105.33px;width:402px;height:692.67px;overflow:hidden;z-index:1}
 .webv .pg{will-change:transform}
 .bbar{left:0;top:798px;width:402px;height:76px;background:#fff;z-index:3;pointer-events:none}
@@ -186,14 +184,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
         <div class="abs full" id="full" role="dialog" aria-modal="true" aria-label="In-app browser: nike.com" aria-hidden="true">
           <i class="abs stk"></i>
           <div class="abs fh">
-            <img class="abs url" src="assets/t-iab-url.png" alt="nike.com">
-            <img class="abs src" src="assets/t-iab-src.png" alt="Facebook">
-            <svg class="abs dots" viewBox="0 0 18 4" aria-hidden="true"><g fill="#000"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></g></svg>
+            <img class="abs iab-h iab-hf" src="assets/iab-header-full.svg" alt="nike.com, Facebook">
+            <button class="abs btn x" id="fx" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
           </div>
-          <button class="abs btn fx" id="fx" type="button" aria-label="Close in-app browser" tabindex="-1">
-            <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden="true"><path d="M1.6 1.6l13.8 13.8M15.4 1.6L1.6 15.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
-          </button>
-          <i class="abs fdiv"></i>
           <div class="abs load" id="fLoad" aria-hidden="true"><i></i></div>
           <div class="abs webv" id="webv"><div class="pg" id="fPg"><img src="assets/page.webp" alt="nike.com product page: Nike Pegasus Premium, Women's Road Running Shoes, $220" decoding="async"><img class="bn bn-shop on" src="assets/banner-shop.png" alt=""><img class="bn bn-gift" src="assets/banner-gift.png" alt=""></div></div>
           <div class="abs bbar" aria-hidden="true">
@@ -582,7 +575,7 @@ async function loop(tk){
     await sleep(2200,tk);
     await tap('peek',201,770,tk,openFull);
     await sleep(1500,tk);
-    await tap('x',28,83,tk,closeFull);
+    await tap('x',372,78,tk,closeFull);
     await sleep(1700,tk);
     await tap('back',24,88,tk,backToReel);
     await sleep(600,tk);
