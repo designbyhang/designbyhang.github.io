@@ -33,6 +33,20 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .rim{position:absolute;inset:-8px;border:9.5px solid var(--bezel);border-radius:48px;transition:border-color .4s var(--ease),background-color .4s var(--ease)}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
+/* ad media: one playing <video> per phone; its box travels from the surface rect to the split-screen rect (position, size, corner radius) and back */
+.mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
+.mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* Stories header (Figma .Header: Stepper + Meta + Icon Button Group), live so it can move inward with the media */
+.hd{position:absolute;left:0;top:0;width:375px;height:120px;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif;font-weight:590}
+.hd>*{position:absolute;will-change:transform}
+.hd .pb{left:12px;top:52px;width:351px;height:2px;border-radius:2px;background:rgba(255,255,255,.2);transform-origin:0 0}
+.hd .meta{left:12px;top:66px;height:36px;display:flex;align-items:center;white-space:nowrap}
+.scr .hd .meta img{position:static;width:36px;height:36px;border-radius:50%;display:block;margin-right:8px;-webkit-user-drag:none}
+.hd .nm{display:flex;align-items:center;font-size:15px;line-height:20px;letter-spacing:-.24px;text-shadow:0 0 1px rgba(0,0,0,.62)}
+.hd .nm svg{width:12px;height:12px;margin-left:4px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
+.hd .sp{font-size:13px;line-height:16px;letter-spacing:-.08px;opacity:.8;text-shadow:0 0 1px rgba(0,0,0,.62)}
+.hd .ic{left:295px;top:72px;width:68px;height:24px}
+.hd .ic svg{position:absolute;top:0;width:24px;height:24px}
 /* label: Figma "Notes", Bitcount Grid Single 16/32, 40px under the screen */
 .lab{position:absolute;left:0;width:375px;top:852px;text-align:center;font:400 16px/32px "Bitcount Grid Single",ui-monospace,Menlo,monospace;letter-spacing:.32px;white-space:nowrap;color:var(--ink);transition:color .4s var(--ease)}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
@@ -45,21 +59,31 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
-const V='?v=3';
+/* media rects from the Figma frames (surface A -> split screen B): [x,y,w,h], corner radii [tl,tr,br,bl], corner smoothing; cs = player-controls travel */
+const MED=[
+  {a:[0,216,375,375],ar:[0,0,0,0],asm:0,  b:[12,44,351,350],cs:185},   // Feed: full-bleed square post media -> inset
+  {a:[0,0,375,734],  ar:[0,0,0,0],asm:0,  b:[12,44,351,492],cs:264},   // Reels: full-bleed vertical video -> inset
+  {a:[0,44,375,667], ar:[16,16,16,16],asm:.6,b:[12,44,351,624],cs:0},  // Stories: canvas -> inset canvas
+  {a:[12,644,74,74], ar:[8,0,0,8],asm:0,  b:[12,44,351,350],cs:406}];  // In-Content: banner thumbnail -> inset
+const BR=16,BSM=.6;
+const V='?v=4';
 const T=15600,D=500,t1=3800,t2=7500,t3=11400,t4=14600;   // loop measured from the original Solution video: A 3.8s, B 3.2s, C 3.4s, B 2.7s, back to A; 0.5s transitions
 const EASE='cubic-bezier(.2,.7,.2,1)',X=[t1,t1+D,t2,t2+D,t3,t3+D,t4,t4+D];
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const frame=document.getElementById('frame'),stage=document.getElementById('stage');
+/* Figma-style smoothed rounded rect; per-corner radii [tl,tr,br,bl] */
 function squircle(w,h,R,sm){
-  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
-  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
-  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
-  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
-  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),Dd=f(d),S=f(arc),r=f(R);
-  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${Dd}a${r} ${r} 0 0 1 ${S} ${S}c${Dd} ${C} ${Dd} ${BC} ${Dd} ${ABC}`+
-    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-Dd} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${Dd} ${-BC} ${Dd} ${-ABC} ${Dd}`+
-    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-Dd}a${r} ${r} 0 0 1 ${-S} ${-S}c${-Dd} ${-C} ${-Dd} ${-BC} ${-Dd} ${-ABC}`+
-    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${Dd} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-Dd} ${BC} ${-Dd} ${ABC} ${-Dd}Z`;
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2,f=n=>+n.toFixed(3);
+  const Rs=Array.isArray(R)?R:[R,R,R,R];
+  const k=R=>{R=Math.min(R,budget);let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+    const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+    if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+    return {p:f(p),A:f(a),AB:f(a+b),ABC:f(a+b+c),BC:f(b+c),C:f(c),D:f(d),S:f(arc),r:f(R)}};
+  const [q0,q1,q2,q3]=Rs.map(k);
+  return `M${f(w-q1.p)} 0c${q1.A} 0 ${q1.AB} 0 ${q1.ABC} ${q1.D}a${q1.r} ${q1.r} 0 0 1 ${q1.S} ${q1.S}c${q1.D} ${q1.C} ${q1.D} ${q1.BC} ${q1.D} ${q1.ABC}`+
+    `L${w} ${f(h-q2.p)}c0 ${q2.A} 0 ${q2.AB} ${-q2.D} ${q2.ABC}a${q2.r} ${q2.r} 0 0 1 ${-q2.S} ${q2.S}c${-q2.C} ${q2.D} ${-q2.BC} ${q2.D} ${-q2.ABC} ${q2.D}`+
+    `L${q3.p} ${h}c${-q3.A} 0 ${-q3.AB} 0 ${-q3.ABC} ${-q3.D}a${q3.r} ${q3.r} 0 0 1 ${-q3.S} ${-q3.S}c${-q3.D} ${-q3.C} ${-q3.D} ${-q3.BC} ${-q3.D} ${-q3.ABC}`+
+    `L0 ${q0.p}c0 ${-q0.A} 0 ${-q0.AB} ${q0.D} ${-q0.ABC}a${q0.r} ${q0.r} 0 0 1 ${q0.S} ${-q0.S}c${q0.C} ${-q0.D} ${q0.BC} ${-q0.D} ${q0.ABC} ${-q0.D}Z`;
 }
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
 const mv=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
@@ -67,25 +91,52 @@ const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   /
 /* keyframes from [time, value] stops; eased between stops that differ, held otherwise */
 function kf(prop,stops,fmt){const out=[];stops.forEach(([t,v],i)=>{const k={offset:t/T};k[prop]=fmt(v);const n=stops[i+1];k.easing=n&&n[1]!==v?EASE:'linear';out.push(k)});return out}
 const ty=v=>`translateY(${v}px)`,op=v=>String(v);
-const anims=[],imgs=[];
+/* JS twin of EASE (cubic-bezier .2,.7,.2,1) for the pre-sampled media box; RS samples per 0.5s transition */
+const RS=30,ez=x=>{let lo=0,hi=1,t=x;for(let i=0;i<40;i++){t=(lo+hi)/2;const bx=3*(1-t)*(1-t)*t*.2+3*(1-t)*t*t*.2+t*t*t;if(bx<x)lo=t;else hi=t}return 3*(1-t)*(1-t)*t*.7+3*(1-t)*t*t+t*t*t};
+const lerp=(a,b,e)=>a+(b-a)*e;
+const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))"><g fill="#fff"><circle cx="4" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="20" cy="12" r="2.5"/></g></svg>';
+const CROSS='<svg viewBox="0 0 24 24" style="left:44px"><path d="M6 6L18 18M18 6L6 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>';
+const CHECK='<svg viewBox="0 0 12 12"><mask id="ck"><rect width="12" height="12" fill="#fff"/><path d="M3.4 6.1L5.1 7.8L8.6 4.2" stroke="#000" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></mask><circle cx="6" cy="6" r="6" fill="#fff" mask="url(#ck)"/></svg>';
+const anims=[],imgs=[],vids=[];
 PH.forEach((p,i)=>{
-  const top=p.top,up=top-44,dn=812-top;
+  const top=p.top,up=top-44,dn=812-top,m=MED[i],n=i+1;
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
+  const im=(c,f,st)=>`<img class="L ${c}" alt="" src="assets/${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${top}px`;
   dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+
-    `<img class="L a" alt="" src="assets/a${i+1}.webp${V}">`+
-    `<img class="L bt" alt="" src="assets/b${i+1}.webp${V}" style="clip-path:inset(0 0 ${dn}px 0)">`+
-    `<img class="L bs" alt="" src="assets/b${i+1}.webp${V}" style="clip-path:inset(${top}px 0 0 0)">`+
-    `<img class="L cb" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(43px 0 0 0)">`+
-    `<img class="L ct" alt="" src="assets/c${i+1}.webp${V}" style="clip-path:inset(0 0 768px 0)">`+
+    im('au',`au${n}`)+im('bu',`bu${n}`,cut)+
+    `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/p${n}.webp${V}" src="assets/v${n}.mp4${V}"></video></div>`+
+    (n===3?im('sg','sg3'):'')+(n!==1?im('ao',`ao${n}`):'')+(m.cs?im('bc',`bc${n}`,cut):'')+im('bo',`bo${n}`,cut)+
+    (n===3?`<div class="hd"><i class="pb"></i><div class="meta"><img alt="" src="assets/av3.webp${V}"><div><div class="nm">Away${CHECK}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`:'')+
+    im('bs',`b${n}`,`clip-path:inset(${top}px 0 0 0)`)+
+    im('cb',`c${n}`,'clip-path:inset(43px 0 0 0)')+
+    im('ct',`c${n}`,'clip-path:inset(0 0 768px 0)')+
     `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
-  const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));
+  const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
   const o={duration:T,iterations:Infinity,fill:'both'};
+  const mk=(t,v,e)=>Object.assign({offset:t/T,easing:e?EASE:'linear'},v);
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
-  anims.push(q('.a').animate([{offset:0,opacity:1},{offset:(t1+D)/T,opacity:1},{offset:(t1+D+1)/T,opacity:0},{offset:(t4-1)/T,opacity:0},{offset:t4/T,opacity:1},{offset:1,opacity:1}],o));
-  // B top (media) dissolves in over A; the B sheet rises from the bottom edge
-  anims.push(q('.bt').animate(kf('opacity',[[0,0],[t1,0],[t1+D,1],[t4,1],[t4+D,0],[T,0]],op),o));
+  anims.push(q('.au').animate([{offset:0,opacity:1},{offset:(t1+D)/T,opacity:1},{offset:(t1+D+1)/T,opacity:0},{offset:(t4-1)/T,opacity:0},{offset:t4/T,opacity:1},{offset:1,opacity:1}],o));
+  // A's overlays on the media (Reels UI, nav, sticker, play button) fade out; B's backdrop and overlays (nav, status) fade in
+  const fadeB=kf('opacity',[[0,0],[t1,0],[t1+D,1],[t4,1],[t4+D,0],[T,0]],op),fadeA=kf('opacity',[[0,1],[t1,1],[t1+D,0],[t4,0],[t4+D,1],[T,1]],op);
+  anims.push(q('.bu').animate(fadeB,o),q('.bo').animate(fadeB,o));
+  if(q('.ao'))anims.push(q('.ao').animate(fadeA,o));
+  // shared element: the same playing video's box travels surface rect -> split-screen rect (position, size, per-corner radius) and back, one eased curve
+  const box=e=>{const x=lerp(m.a[0],m.b[0],e),y=lerp(m.a[1],m.b[1],e),w=lerp(m.a[2],m.b[2],e),h=lerp(m.a[3],m.b[3],e),r=m.ar.map(v=>lerp(v,BR,e)),sm=lerp(m.asm,BSM,e);
+    const k={left:x+'px',top:y+'px',width:w+'px',height:h+'px'};
+    if(SQ)k.clipPath=`path('${squircle(+w.toFixed(3),+h.toFixed(3),r,sm)}')`;else k.borderRadius=r.map(v=>v.toFixed(2)+'px').join(' ');
+    return k};
+  const K=[mk(0,box(0))];
+  for(let k=0;k<=RS;k++)K.push(mk(t1+D*k/RS,box(ez(k/RS))));
+  for(let k=0;k<=RS;k++)K.push(mk(t4+D*k/RS,box(1-ez(k/RS))));
+  K.push(mk(T,box(0)));anims.push(q('.mv').animate(K,o));
+  // player controls ride up with the media (Figma: controls frame travel) while they fade in
+  if(m.cs){const c0={transform:`translateY(${m.cs}px)`,opacity:0},c1={transform:'translateY(0px)',opacity:1};
+    anims.push(q('.bc').animate([mk(0,c0),mk(t1,c0,1),mk(t1+D,c1),mk(t4,c1,1),mk(t4+D,c0),mk(T,c0)],o))}
+  // Stories header moves inward with the canvas (Figma: Meta/progress 12 -> 24, icons 291 -> 279, progress 351 -> 327 wide)
+  if(n===3){const tr=(el,a,b)=>anims.push(q(el).animate([mk(0,{transform:a}),mk(t1,{transform:a},1),mk(t1+D,{transform:b}),mk(t4,{transform:b},1),mk(t4+D,{transform:a}),mk(T,{transform:a})],o));
+    tr('.pb','translateX(0px) scaleX(1)',`translateX(12px) scaleX(${327/351})`);tr('.meta','translateX(0px)','translateX(12px)');tr('.ic','translateX(0px)','translateX(-12px)')}
   anims.push(q('.bs').animate(kf('transform',[[0,dn],[t1,dn],[t1+D,0],[t2,0],[t2+D,-up],[t3,-up],[t3+D,0],[t4,0],[t4+D,dn],[T,dn]],ty),o));
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   anims.push(q('.cb').animate(kf('transform',[[0,up],[t2,up],[t2+D,0],[t3,0],[t3+D,up],[T,up]],ty),o));
@@ -96,12 +147,13 @@ anims.forEach(a=>{a.pause();a.currentTime=0});
 function fit(){const r=frame.getBoundingClientRect();stage.style.setProperty('--s',Math.min(r.width/1920,r.height/1026).toFixed(4))}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;
-function still(){anims.forEach(a=>{a.pause();a.currentTime=6000})}   // reduced motion: hold the split screen (B)
+function still(){anims.forEach(a=>{a.pause();a.currentTime=6000});vids.forEach(v=>{v.pause()})}   // reduced motion: hold the split screen (B) with the poster frame
 function upd(){
   if(!ready)return;
   if(RM.matches){still();return}
   const go=seen&&!document.hidden;
   anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
+  vids.forEach(v=>{if(go){if(v.paused){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
 }
 Promise.all(imgs.map(im=>im.decode?im.decode().catch(()=>{}):Promise.resolve())).then(()=>{ready=true;if(RM.matches)still();upd()});
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.35}).observe(frame);
