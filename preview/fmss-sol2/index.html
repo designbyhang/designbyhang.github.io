@@ -24,10 +24,6 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease)}
 /* stage = the Figma slide minus its title row: 1920×1026 design px, scaled to the frame */
 .stage{position:absolute;left:50%;top:50%;width:1920px;height:1026px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.5))}
-/* zoom, not scale(), wherever supported: the stage is laid out at its drawn size, so every composited layer inside (each animated screen
-   image, the media, the header) gets a backing store of its drawn size. Under scale() WebKit backs each layer at its unscaled 375×812
-   design size × the screen's pixel ratio (about 11MB each, some 40 per animation), which pushed iOS Safari past its memory limit */
-@supports (zoom:2){.stage{zoom:var(--s,.5);transform:translate(-50%,-50%)}}
 /* phone: Figma 375×812 screen at x 90/545/1000/1455 (80px apart); 8px code-drawn bezel outside it */
 .dev{position:absolute;top:96px;width:375px;height:812px}
 .bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2))}
@@ -37,6 +33,22 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .rim{position:absolute;inset:-8px;border:9.5px solid var(--bezel);border-radius:48px;transition:border-color .4s var(--ease),background-color .4s var(--ease)}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
+/* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
+   375×812 design size × the pixel ratio, ~11MB, some 40 per animation, which pushed iOS Safari past its memory limit), so every animated
+   layer is laid out at its drawn size (design px × s) and scaled back up by its own `scale` (1/s): it draws exactly where and how big it
+   did, with a backing store of its drawn size. Moves use `translate`, which applies before `scale`, so they stay in design px */
+@supports (scale:2){.scr .L,.scr .rl{transform-origin:0 0;scale:calc(1 / var(--s,.5))}
+ /* the bezel too: its drop-shadow filter would otherwise be backed at design size (shadow and squircle clip at drawn size, set in fit()) */
+ .bezel{transform-origin:0 0;scale:calc(1 / var(--s,.5));right:auto;bottom:auto;width:calc(391px * var(--s,.5));height:calc(828px * var(--s,.5));filter:drop-shadow(calc(40px * var(--s,.5)) 0 calc(20px * var(--s,.5)) rgba(0,0,0,.2))}
+ .bezel-fill{border-radius:calc(48px * var(--s,.5))}
+ /* and the rim (over the screen) and the label: each its own small layer, so the stage itself paints nothing and needs no design-size backing store */
+ .rim{transform-origin:0 0;scale:calc(1 / var(--s,.5));right:auto;bottom:auto;width:calc(391px * var(--s,.5));height:calc(828px * var(--s,.5));border-width:calc(9.5px * var(--s,.5));border-radius:calc(48px * var(--s,.5))}
+ .bezel,.rim,.lab{will-change:transform}
+ .scr{background:none}.scr>.bg{position:absolute;left:0;top:0;background:#fff;width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
+ .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}
+ .scr .rl{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}}
 /* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge under the rim, so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
 .cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
 /* status bar / IAB header seam: a strip in the C header colour, under the C status bar and header, riding with the header for the last 1% of split -> full
@@ -99,6 +111,8 @@ const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
 const track=fn=>POSE.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
+/* drawn-size layers (see .L in the style): lengths inside a layer are design px × s, its moves go on `translate` (design px) */
+const IT=CSS.supports('scale','2'),dp=v=>IT?`calc(${v}px * var(--s,.5))`:v+'px',ty=v=>IT?{translate:`0 ${v}px`}:{transform:`translateY(${v}px)`};
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const frame=document.getElementById('frame'),stage=document.getElementById('stage');
 /* asset set: every image and video is drawn at its design size × the stage scale × the screen's pixel ratio. At or under 1:1 the
@@ -136,17 +150,17 @@ const anims=[],imgs=[],vids=[];let reel=null,thumb=null,clock=null;
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i],n=i+1;
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
-  const im=(c,f,st)=>`<img class="L ${c}" alt="" src="${AS}${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${top}px`;
-  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+
+  const im=(c,f,st)=>`<img class="L ${c}" alt="" src="${AS}${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${dp(top)}`;
+  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+
     im('au',`au${n}`)+(n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}r4.webp${V}" src="${AS}r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+im('bu',`bu${n}`,cut)+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${n}.webp${V}" src="${AS}v${n}.mp4${V}"></video></div>`+
     (n===3?im('sg','sg3'):'')+(n!==1?im('ao',`ao${n}`):'')+(m.cs?im('bc',`bc${n}`,cut):'')+im('bo',`bo${n}`,cut)+
     (n===3?`<div class="hd"><i class="pb"></i><div class="meta"><img alt="" src="assets/av3.webp${V}"><div><div class="nm">Away${CHECK}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`:'')+
-    im('bs',`b${n}`,`clip-path:inset(${top}px 0 0 0)`)+
+    im('bs',`b${n}`,`clip-path:inset(${dp(top)} 0 0 0)`)+
     `<i class="L cu" style="background:${CU[i]}"></i>`+
     `<i class="L cs" style="background:${CS[i]}"></i>`+
-    im('cb',`c${n}`,'clip-path:inset(43px 0 0 0)')+
-    im('ct',`c${n}`,'clip-path:inset(0 0 768px 0)')+
+    im('cb',`c${n}`,`clip-path:inset(${dp(43)} 0 0 0)`)+
+    im('ct',`c${n}`,`clip-path:inset(0 0 ${dp(768)} 0)`)+
     `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
@@ -166,27 +180,36 @@ PH.forEach((p,i)=>{
     if(SQ)k.clipPath=`path('${squircle(+w.toFixed(2),+h.toFixed(2),r,sm)}')`;else k.borderRadius=r.map(v=>v.toFixed(2)+'px').join(' ');
     return k});
   // player controls ride up with the media (Figma: controls frame travel) while they fade in
-  if(m.cs)A('.bc',p=>({transform:`translateY(${(m.cs*(1-p.a)).toFixed(2)}px)`,opacity:p.a}));
+  if(m.cs)A('.bc',p=>({...ty((m.cs*(1-p.a)).toFixed(2)),opacity:p.a}));
   // Stories header moves inward with the canvas (Figma: Meta/progress 12 -> 24, icons 291 -> 279, progress 351 -> 327 wide)
   if(n===3){A('.pb',p=>({transform:`translateX(${(12*p.a).toFixed(2)}px) scaleX(${lerp(1,327/351,p.a).toFixed(4)})`}));
     A('.meta',p=>({transform:`translateX(${(12*p.a).toFixed(2)}px)`}));A('.ic',p=>({transform:`translateX(${(-12*p.a).toFixed(2)}px)`}))}
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
-  A('.bs',p=>({transform:`translateY(${(dn*(1-p.a)-up*p.c).toFixed(2)}px)`}));
+  A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
-  A('.cs',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.99?1:0}));
-  A('.cu',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
-  A('.cb',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:clamp(p.c/.6)}));
+  A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
+  A('.cu',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
+  A('.cb',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:clamp(p.c/.6)}));
   A('.ct',p=>({opacity:p.c}));
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
-function fit(){const s=scl();stage.style.setProperty('--s',s.toFixed(4));if(half&&s*(devicePixelRatio||1)>1)upgrade()}
+function fit(){const s=scl(),k=+s.toFixed(4);stage.style.setProperty('--s',k);
+  if(IT&&SQ){const p=`path('${squircle(391*k,828*k,48*k,.6)}')`,r=`path(evenodd,'${squircle(391*k,828*k,48*k,.6)}${mv(squircle(372*k,809*k,38.5*k,.6),9.5*k,9.5*k)}')`;
+    stage.querySelectorAll('.bezel-fill').forEach(e=>{e.style.clipPath=p});stage.querySelectorAll('.rim').forEach(e=>{e.style.clipPath=r})}
+  if(half&&s*(devicePixelRatio||1)>1)upgrade()}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;
+/* host control (js/case.js, iframe[data-autoplay]): framed, it plays only on the host's word ({type:'demo-play'} / {type:'demo-pause'}, sent
+   so that one demo on the page runs at a time); a pause freezes the clock, the videos and the sync loop where they are, and play resumes
+   from there. Standalone, or with no answer to its hello within 600ms (no controller on the page), it runs on its own visibility as before */
+let host=parent===window,heard=false;
+if(!host){addEventListener('message',e=>{const d=e.data;if(e.source!==parent||!d||(d.type!=='demo-play'&&d.type!=='demo-pause'))return;heard=true;host=d.type==='demo-play';upd()});
+  try{parent.postMessage({type:'demo-hello'},location.origin)}catch(_){}setTimeout(()=>{if(!heard){host=true;upd()}},600)}
 function still(){anims.forEach(a=>{a.pause();a.currentTime=6000});vids.forEach(v=>{v.pause()});reel&&reel.pause()}   // reduced motion: hold the split screen (B) with the poster frame
 function upd(){
   if(!ready)return;
   if(RM.matches){still();return}
-  const go=seen&&!document.hidden;
+  const go=seen&&host&&!document.hidden;
   anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
   vids.forEach(v=>{if(v===thumb)return;if(go){if(v.paused){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
   if(go){if(!raf)raf=requestAnimationFrame(sync)}else{if(raf)cancelAnimationFrame(raf);raf=0;reel&&reel.pause();thumb&&thumb.pause()}
