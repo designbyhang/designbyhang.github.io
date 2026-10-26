@@ -1,0 +1,12 @@
+/* FMSS shared bottom tab bar (Facebook iOS: Home active, Video, Groups, Marketplace, Notifications, More; home affordance included).
+   375×79 in the host's 375×812 px, docked to the bottom (top 733). Source of truth: the Figma fmss_26 bar that H-Scroll shipped with
+   (tabbar-light.svg, unchanged). tabbar-dark.svg is the same file with colours only changed: bar #242526, icons #B0B3B8, top
+   divider white 10%, home affordance white; the active Home and its bar stay #0866FF.
+   The host positions .tb (class abs + its own left/top, or the defaults below). Both variants are stacked and decoded up front, so
+   a theme switch is a single attribute flip (data-tb) with no image load. Exit/enter (exit 0 shown → 1 gone) slides it down by
+   80px while it fades; the page drives it from its own spring, there is no timed transition here. */
+.tb{position:absolute;left:0;top:733px;width:375px;height:79px}
+.tb>img{position:absolute;left:0;top:0;width:375px;height:79px;display:block}
+.tb>.tb-dark{visibility:hidden}
+.tb[data-tb=dark]>.tb-dark{visibility:visible}
+.tb[data-tb=dark]>.tb-light{visibility:hidden}

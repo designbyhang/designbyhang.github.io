@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Split Screen H-scroll — interactive IAB prototype (mock)</title>
-<script src="../shared/demo/demo-clock.js?v=124"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=125"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -17,8 +17,9 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=124"><link rel="stylesheet" href="../../css/theme.css?v=124">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=124"><script src="../shared/iab/iab.js?v=124"></script>
+<link rel="stylesheet" href="../../css/type.css?v=125"><link rel="stylesheet" href="../../css/theme.css?v=125">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=125"><script src="../shared/iab/iab.js?v=125"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=125"><script src="../shared/tabbar/tabbar.js?v=125"></script>
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
@@ -118,7 +119,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="abs feedbg"></div>
         <img class="abs post" src="assets/ad-post.svg?v=2" alt="Artifox, Sponsored: A solid hardwood Bench designed to work as a coffee table, media console, or entryway. artifox.com, 5 Ways to Refresh Your Home Office, Learn more">
         <img class="abs navbar" src="assets/navbar-feed.svg" alt="">
-        <img class="abs tabbar" src="assets/tabbar.svg" alt="">
+        <div class="abs tabbar" id="tabbar"></div><script>FMSSTabBar.mount(document.getElementById('tabbar'))</script>   <!-- the shared FMSS tab bar (../shared/tabbar), light -->
         <!-- split screen media -->
         <img class="abs mbg" id="mbg" src="assets/media-bg.jpg" alt="">
         <div class="abs card" data-i="0"><img src="assets/p-desk.webp" alt="Artifox Desk, walnut"><i></i></div>
