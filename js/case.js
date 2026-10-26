@@ -169,3 +169,10 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
    done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
 });})();
+
+/* 02 Problem exit-affordance rings (css/case.css .exit-rings): loop runs only while the frame is in view, paused offscreen; reduced motion keeps them static */
+(function(){var m=document.querySelectorAll('.media.exit-rings');if(!m.length||!('IntersectionObserver'in window))return;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ document.documentElement.classList.add('rings-js');
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle('rings-on',e.isIntersecting)})},{threshold:0.15});
+ m.forEach(function(e){io.observe(e)});})();
