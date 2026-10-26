@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=127">
+<link rel="stylesheet" href="../shared/device/device.css?v=128">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
@@ -79,7 +79,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/video-scrubber.js?v=1"></script>
+<script src="../../js/video-scrubber.js?v=2"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -107,7 +107,7 @@ const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++)
 const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640);
 const dur=S=>(S.length-1)*STEP;
 /* holds as measured from the original Solution video (A 3.8s, C 3.4s, A 0.5s before the loop), on the 8ms grid (504); both split-screen (B) holds
-   4504ms (were 3.2s and 2.7s), long enough for the player controls to fade out (gone 4000ms after split screen is reached, ../../js/video-scrubber.js)
+   4504ms (were 3.2s and 2.7s), long enough for the player controls to fade out (gone 2400ms after split screen is reached, ../../js/video-scrubber.js)
    and a 504ms beat without them; loop 19112ms */
 const HOLD=4504,t1=3800,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3400,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+504;
 /* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition */
@@ -171,7 +171,7 @@ PH.forEach((p,i)=>{
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('.mv video'));if(n===4){reel=q('.rl video');thumb=q('.mv video');clock=null}
   // live player controls (../../js/video-scrubber.js): timestamp + seekable track where bc's were, icons as a crop (ci); they fade out
-  // 3680–4000ms after split screen is reached (t1e, t3e)
+  // 2080–2400ms after split screen is reached (t1e, t3e)
   if(m.cs&&VS){const c=VS.create({video:q('.mv video'),icons:`assets/ci${n}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split});q('.vs-at').replaceWith(c.el);if(n===4)scrub4=c}
   const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn,x)=>{const an=q(el).animate(track(fn),o);anims.push(an);return an};
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet

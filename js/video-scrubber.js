@@ -1,13 +1,13 @@
 /* Video scrubber + timestamp: the live player controls of the FMSS ad demos (the split-screen B state: hero cover, preview/fmss-sol1,
    preview/fmss-sol2). One instance per playing <video>; it draws, in the host's design px (375-wide phone screen), the timestamp
-   "m:ss / m:ss" (floor of the real position / real duration from the metadata) and the 4px track with its fill and 10px thumb, laid
+   "m:ss / m:ss" (floor of the real position / real duration from the metadata) and the 4px pill track (16px radius) with its pill fill and 10px thumb, laid
    out exactly where the old decorative controls image had them; the icons (fullscreen / pause / volume) stay as an image crop.
    - sync: one shared requestAnimationFrame ticker reads video.currentTime every display frame, so the fill, thumb and time track
      the playing video and wrap to 0 when it loops
    - seek: pointer events (mouse, pen, touch) on the track's hit strip, pointer capture, live time while dragging, the video resumes
      on release if it was playing. Every event of the strip stops propagating (and its click does nothing), so it never reaches a
      card link, the home strip's drag or a full-screen opener; nothing outside the strip is touched
-   - fade: after split screen is reached the controls hold at full opacity until 3680ms, then a 320ms ease-out to 0 (gone at 4000ms),
+   - fade: after split screen is reached the controls hold at full opacity until 2080ms, then a 320ms ease-out to 0 (gone at 2400ms),
      then visibility hidden + no pointer events: only the close button is left. Each re-entry to split screen shows them again.
      The clock is the host's: sinceSplit() → ms since split screen was reached (negative while it is being entered, null when not in
      it), so a paused demo freezes the fade with it. VideoScrubber.loop() builds that from a looping WAAPI animation and its marks;
@@ -22,7 +22,7 @@
 (function(){
 'use strict';
 if(window.VideoScrubber)return;
-var HOLD=3680,FADE=320,GONE=HOLD+FADE;
+var HOLD=2080,FADE=320,GONE=HOLD+FADE;   // controls gone 2400ms after split screen is reached (the 320ms ease-out fade itself unchanged)
 // CSS ease-out = cubic-bezier(0,0,.58,1), solved for x
 function easeOut(x){if(x<=0)return 0;if(x>=1)return 1;var t=x;for(var i=0;i<8;i++){var cx=3*.58*t*t*(1-t)+t*t*t-x,d=6*.58*t*(1-t)-3*.58*t*t+3*t*t;if(Math.abs(cx)<1e-6||!d)break;t-=cx/d;t=Math.min(1,Math.max(0,t))}return 3*t*t*(1-t)+t*t*t}
 function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
@@ -32,9 +32,11 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-t{position:absolute;margin:0;white-space:nowrap;color:#fff;font:400 16px/16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;'+
    'letter-spacing:0;text-shadow:0 0 1px rgba(0,0,0,.16);-webkit-font-smoothing:antialiased}'+
  '.vs-h{position:absolute;height:24px;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}'+
- '.vs-r,.vs-l{position:absolute;left:0;top:10px;width:100%;height:4px;border-radius:2px}'+
+ '.vs-r,.vs-l{position:absolute;left:0;top:10px;width:100%;height:4px;border-radius:16px}'+
  '.vs-r{background:rgba(255,255,255,.2);box-shadow:0 0 1px rgba(0,0,0,.12)}'+
- '.vs-l{background:#fff;transform-origin:0 0;transform:scaleX(0)}'+
+ // fill: a track-sized pill that clips a full-width white pill slid in from the left (translateX only), so both of its ends stay true
+ // semicircles at any position (a scaleX fill squashes its rounded ends into square, uneven ones)
+ '.vs-l{overflow:hidden;isolation:isolate}.vs-l>i{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:16px;background:#fff;transform:translateX(-100%)}'+
  '.vs-b{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.16)}'+
  '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h{pointer-events:none}'+
  '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s svg{display:none;position:absolute;left:50%;top:0;margin-left:-12px;width:24px;height:24px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.24))}'+
@@ -61,8 +63,8 @@ function create(o){
   root.innerHTML='<div class="vs-f">'+(o.icons?(tap?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+x+'px;top:'+(tb-13.75)+'px"></p>'+
-    '<div class="vs-h" role="slider" aria-label="Seek" aria-valuemin="0" style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"></i><i class="vs-b"></i></div></div>';
-  var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l'),knob=f.querySelector('.vs-b');
+    '<div class="vs-h" role="slider" aria-label="Seek" aria-valuemin="0" style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>';
+  var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
   var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=null,pend=null,up=false,base=0,prev=null,area=null;
   var api={el:root,video:v,dragging:function(){return !!drag},
     since:o.sinceSplit||function(){return t0==null?null:performance.now()-t0},
@@ -72,7 +74,7 @@ function create(o){
     destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);root.remove()}};
   function D(){var d=v.duration;return isFinite(d)&&d>0?d:0}
   function paint(t){var d=D(),fr=d?Math.min(1,Math.max(0,t/d)):0;
-    if(fr!==last.fr){last.fr=fr;fill.style.transform='scaleX('+fr+')';knob.style.transform='translateX('+(fr*w)+'px)'}
+    if(fr!==last.fr){last.fr=fr;fill.style.transform='translateX('+((fr-1)*w).toFixed(2)+'px)';knob.style.transform='translateX('+(fr*w)+'px)'}
     var s=d?fmt(Math.min(t,d))+' / '+fmt(d):'';if(s!==last.txt){last.txt=s;tx.textContent=s;hit.setAttribute('aria-valuemax',Math.floor(d));hit.setAttribute('aria-valuenow',Math.floor(t))}}
   function fade(){var ms=api.since();if(tap)ms=tapClock(ms);if(drag||up)ms=null;var op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE),off=op===0;
     if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4))}

@@ -21,7 +21,7 @@ const S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(407,812,16);
 const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++){const u=k/n*L,i=Math.min(L-1,Math.floor(u)),f=u-i;o.push(k===n?1:S[i]+(S[i+1]-S[i])*f)}return o};
 const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640),dur=S=>(S.length-1)*STEP;
 /* holds from the original Solution video (A 3800, C 3400, A 504 before the loop); both split-screen (B) holds 4504ms, long enough for the
-   player controls to fade out (gone 4000ms after split screen is reached, js/video-scrubber.js) and a 504ms beat without them; loop 19112ms */
+   player controls to fade out (gone 2400ms after split screen is reached, js/video-scrubber.js) and a 504ms beat without them; loop 19112ms */
 const HOLD=4504,t1=3800,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3400,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+504;
 /* the loop as poses: a = surface -> split progress, c = split -> full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
@@ -54,7 +54,7 @@ PATH.coverRim=`path(evenodd,'${mvP(squircle(383,820,52,0),4,4)}${mvP(squircle(37
    leave the <video> without src (caller attaches it lazily via the returned video's data-src). Layer CSS: see .fsp-* in css/card.css
    (sol1 keeps the same rules inline under its own class names). */
 function screen(el,i,opt){
-  const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=3',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
+  const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=4',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
   // bw: a white strip under everything at the split line (shows only while A is hidden, through the anti-aliased bottom row of the B
   // backdrop, whose edge meets the sheet's in the same device row; over the screen's black that row read as a dark hairline)
   el.innerHTML=`<i class="bw" style="position:absolute;left:0;width:375px;top:${top-2}px;height:${sd+4}px;background:#fff"></i>`+
@@ -71,7 +71,7 @@ function screen(el,i,opt){
   if(SQ)el.style.clipPath=`path('${PATH.scr}')`;
   const q=s=>el.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},A=(s,fn)=>anims.push(q(s).animate(track(fn),o));
   // live player controls (js/video-scrubber.js): timestamp + seekable track drawn where bc's were, its icons as a crop (ci); split screen
-  // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 3680–4000ms after it is reached
+  // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 2080–2400ms after it is reached
   if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`${B}ci${n}.webp${V}`,trackY:top-14,className:'L bc',
     sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]])}).el);
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
