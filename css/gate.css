@@ -27,7 +27,7 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 @media (max-width:640px){.gate-stage{width:min(240px,calc(100vw - 48px))}}
 /* Oct 26 (Hang): desktop (>640px) lockup 16vh above centre. The 320px stage is centred, so its top sits at 50vh - 160px; the lift is
    clamped so the stage top keeps >= 32px under DESIGN BY HANG (header bottom 22px + 14px = 36px) on short windows: 50vh - 160px - 68px */
-@media (min-width:641px){.gate-in{transform:translateY(calc(-1 * max(0px, min(16vh, 50vh - 228px - env(safe-area-inset-top,0px)))))}}
+@media (min-width:641px){.gate-in{transform:translateY(calc(-1 * max(0px, min(8vh, 50vh - 228px - env(safe-area-inset-top,0px)))))}}
 @media (max-width:640px) and (orientation:portrait){.gate-below{margin-top:60px}} /* phone portrait: lockup 12px lower (Hang, 2026-10-24) */
 /* DESIGN BY HANG (absolute in the gate, not a fixed layer, so iOS Safari never samples it for the bars), top left (Hang, Oct 23 21:44), at the homepage header's inset and type (.top: 22px var(--side); 18px var(--m-in) on phones); plain text, not a link */
 .gate-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-start;padding:22px var(--side,32px);padding-top:calc(22px + env(safe-area-inset-top,0px));pointer-events:none}
