@@ -3,7 +3,9 @@
    presentation; while open, every wheel gesture / swipe / key press = one transition (one more is queued if a transition is
    running). Stepping past the last slide (or back before the first) collapses it into the container and the page scrolls on.
    Esc or CLOSE collapses at any time and the container keeps showing that slide; clicking it, or scrolling down into it again,
-   resumes there (in memory, for this page view). Scrolling up into it never expands it. */
+   resumes there (in memory, for this page view). Scrolling up into it never expands it.
+   Refresh: while open the URL carries ?fs=deck-<slide> (window.dbhView, js/hang-egg.js; replaceState, kept current on every slide,
+   cleared on close); a load carrying it reopens the presentation on that slide with no expansion (snap), the page under it at the deck. */
 (()=>{const host=document.getElementById('deck');if(!host||!window.StudioDeck)return;
 const stage=host.querySelector('.deck-stage'),inner=host.querySelector('.deck-inner');
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -18,12 +20,13 @@ const AP_PLAY='<svg viewBox="0 0 20 16" fill="none"><path d="M4.827 1.536L4.827 
 fs.innerHTML='<i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><div class="bar deck-bar"><nav class="bar-right" aria-label="Presentation"><a class="ax deck-x" href="#presentation" role="button" aria-label="Close presentation"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div><div class="bar deck-bar deck-auto-bar"><nav class="bar-right" aria-label="Auto scroll"><a class="ax deck-auto" href="#autoplay" role="button" aria-pressed="false" aria-label="Auto scroll"><span class="arr arr-back" aria-hidden="true">'+AP_PLAY+'</span><span class="t">AUTO SCROLL</span></a></nav></div><button type="button" class="deck-apb mbtn" aria-pressed="false" aria-label="Play">'+window.dbhPP+'</button><p class="deck-n" aria-hidden="true"><span class="arr arr-up"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="n"><span class="a">01</span><span class="s">/</span><span class="b">01</span></span><span class="arr arr-up arr-dn"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p>';
 body.appendChild(fs);
 const edges=fs.querySelectorAll('.deck-edge'),btn=fs.querySelector('.deck-x'),cnt=fs.querySelector('.deck-n'),apBtn=fs.querySelector('.deck-auto'),apIco=apBtn.querySelector('.arr'),apRnd=fs.querySelector('.deck-apb'),cntA=cnt.querySelector('.a'),cntB=cnt.querySelector('.b');
-let state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
+let snap=false,state='closed',armed=true,prevC=null,suppress=0,raf=0,resume=null,openQ=0;
 /* counter starts at the first filled logomark square (studio_04, slide index 2: the grid slides studio_02/03 before it read 00)
    and counts up to the swag slide (studio_43, the one before the last), 40/40; the closing logo slide (studio_44) is not counted
    and keeps showing 40/40 */
 const C0=2,CN=window.__STUDIO__.slides.length-2-C0+1,pad=n=>String(n).padStart(2,'0'),num=n=>pad(Math.min(CN,Math.max(0,n-C0+1)));
-const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if(state!=='closed')chrome();},onTheme:()=>{if(state!=='closed')chrome();},
+const view=n=>{if(window.dbhView)dbhView.set(n==null?null:'deck-'+(n+1));};
+const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if(state!=='closed'){chrome();view(n);}},onTheme:()=>{if(state!=='closed')chrome();},
  /* any step (gesture or AUTO SCROLL) restarts the AUTO SCROLL wait, which then waits for the landing */
  onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}}});
 const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(CN);
@@ -117,7 +120,7 @@ function asideMeasure(){tbMeasure();lt=[];for(const el of lefts){el.style.transl
    progress (fade out while sliding back left), done before BACK comes back past it. Reduced motion: no move, straight in. */
 const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
 function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
-function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||!m.animate||!m.getClientRects().length)continue;
+function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||snap||!m.animate||!m.getClientRects().length)continue;
  m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i++,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};}}
 function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}if(tbOff)tbOff.t.style.translate=((1-p)*tbOff.dx).toFixed(2)+'px '+((1-p)*tbOff.dy).toFixed(2)+'px';for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
  if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
@@ -125,16 +128,16 @@ function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'
  g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
 function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];if(tbOff){tbOff.t.style.translate='';tbOff=null;}for(const [el] of asides)el.style.translate=el.style.opacity='';for(const m of [btn,cnt,apBtn,apRnd]){uiStop(m);m.style.opacity=m.style.translate='';}tg=[];if(hdr)hdr.style.overflowX='';}
 function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.now();
- const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
+ const tick=now=>{const u=rm.matches||snap?1:Math.min(1,(now-t0)/DUR),e=ease(u),T=to();side(e);
   const w=lerp(from.w,T.w,e),h=lerp(from.h,T.h,e);fitBox(lerp(from.x,T.x,e),lerp(from.y,T.y,e),w,h,lerp(from.k,T.k,e));
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=host.clientWidth,h=host.clientHeight;return{x:r.left+b,y:r.top+b,w,h,k:kCover(w,h)};};
 const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
-function open(n){if(state!=='closed')return;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
- if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}
+function open(n,now){if(state!=='closed')return;snap=!!now;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
+ if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}view(n);
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
- anim(from,fullBox,()=>{state='open';flow(true);fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
+ anim(from,fullBox,()=>{state='open';snap=false;flow(true);fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
 /* entering on studio_02: after 2s the deck plays the step to studio_03 on its own (text out, grid draws in). A gesture in
    those 2s steps right away instead (once: the timer is cancelled); a forward gesture landing within 300ms after the timer
    fired counts as that same step. Any exit cancels it. Reduced motion: same 2s, instant change. */
@@ -154,7 +157,7 @@ function apWait(){if(!apOn)return;clearTimeout(apT);apT=0;if(state!=='open')retu
 function apFire(){apT=0;if(!apOn||state!=='open')return;if(deck.animating){apWait();return;}if(!deck.canStep(1)){apSet(false);return;}deck.request(1,()=>apSet(false));}
 function autoStart(){autoStop();autoT=setTimeout(()=>{autoT=0;if(state==='open'&&deck.cur===0&&!deck.animating){autoAt=performance.now();deck.request(1,()=>close('end'));}},AUTO_MS);}
 /* how: 'esc' (Esc / CLOSE: remember the slide), 'end' (past the last / before the first slide: forget it) */
-function close(how){if(state!=='open'&&state!=='opening')return;autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;flow(false);
+function close(how){if(state!=='open'&&state!=='opening')return;snap=false;view(null);autoStop();apSet(false);autoAt=0;const n=deck.settle();resume=how==='esc'?n:null;openQ=0;flow(false);
  const from={...fullBox()};state='closing';chrome();fs.classList.add('is-closing');asideMeasure();aside(1);
  unlock();
  anim(from,hostBox,()=>{host.appendChild(stage);stage.classList.remove('is-fs');stage.style.left=stage.style.top=stage.style.width=stage.style.height='';
@@ -205,4 +208,7 @@ for(const b of [apBtn,apRnd])b.addEventListener('click',e=>{e.preventDefault();e
 host.addEventListener('click',()=>{if(state==='closed')open(deck.cur);});
 host.addEventListener('keydown',e=>{if(state==='closed'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(deck.cur);}});
 fitClosed();deck.show(0);
+/* refresh restore: ?fs=deck-<slide> = that slide, the page at the deck, the presentation already open */
+if(window.dbhView)dbhView.when(()=>{const v=/^deck-(\d+)$/.exec(dbhView.get()||'');if(!v||state!=='closed')return;const n=Math.min(N-1,Math.max(0,+v[1]-1));
+ host.scrollIntoView({block:'center',behavior:'instant'});prevC=null;open(n,true);});
 window.__present={get auto(){return!!autoT;},get autoplay(){return apOn;},get apPending(){return!!apT;},get state(){return state;},deck,open,close,get armed(){return armed;},get resume(){return resume;}};})();

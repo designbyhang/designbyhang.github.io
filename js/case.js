@@ -116,7 +116,10 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    but vertically: it slides DOWN out from behind the device (the layer is under the lifted iframe; its box starts at the device's
    bottom edge and clips, so the raised span starts hidden under the device). The first tap of the element it describes (TAP, in the
    prototype's own document) plays that in reverse (back up behind the device, fading; gone for this session); on close it exits on
-   CLOSE's exit progress. Hidden in landscape. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
+   CLOSE's exit progress. Hidden in landscape.
+   Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js); a load carrying it reopens that prototype at once (no
+   fade; the device on its clean start, no autoplay) with the page under it at the prototype, and the instruction then plays its
+   entrance (dbhLayer calls enter once the instant open has painted). Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
@@ -177,16 +180,21 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
     it comes back with its entrance, INS_WAIT after the settle (a WAAPI delay: leaving again inside it cancels it) */
  addEventListener('message',function(e){var d=e.data,L=window.dbhLayer;if(!d||d.type!=='proto-state'||e.source!==f.contentWindow||!L||!L.el||!f.classList.contains('proto-lift'))return;
   if(!d.home){if(insHome)insOut()}else{insHome=true;if(tapped){tapped=false;insIn(INS_WAIT)}}}); /* a home:false before the clean start is the inline demo's */
- b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;tapped=false;insHome=false;insStop();insSt=null;
+ var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;tapped=false;insHome=false;insStop();insSt=null;
   if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   f.addEventListener('load',load);
-  L.open({label:name,cls:'proto-full',trg:b,enter:insIn,exit:insExit,stage:'<p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on');
-},
+  L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:insIn,exit:insExit,stage:'<p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;
+    if(now){f.classList.add('proto-on');void f.offsetWidth;f.style.transition='';return} /* restored: on at once (the instruction's entrance follows via enter) */
+    f.style.transition='';f.classList.add('proto-on')},
    tabs:function(){return held?[]:[f]},
    frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
    done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
-    f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
+    f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}})};
+ b.addEventListener('click',function(){go(false)});
+ /* refresh restore (phones): this prototype's ?fs= key; the page goes to the prototype first, then the layer is on at once */
+ var restore=function(){var V=window.dbhView;if(!V||!ik||V.get()!==ik||!mq.matches)return;m.scrollIntoView({block:'center',behavior:'instant'});go(true)};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){window.dbhView&&dbhView.when(restore)},{once:true});else setTimeout(function(){window.dbhView&&dbhView.when(restore)},0);
 });})();
 
 /* Evolution prototypes: expand button (.proto-x, css/case.css) bottom-right in each frame. Only a signifier: the frame is already one open

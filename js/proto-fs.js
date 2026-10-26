@@ -19,6 +19,9 @@
    (span raised by gap + its height) it is entirely under the device. On the first tap of the element it describes (TAP, in the
    prototype's own document) it plays that slide in reverse (back up behind the device while fading, the time-reversed curve) and
    stays hidden for this session; on close it exits on CLOSE's own exit progress. Not shown inline.
+   Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js), close clears it; a load carrying it reopens that prototype
+   with no expansion (snap: CLOSE and the page chrome at their end state), the page under it at the prototype, the device on its clean
+   start (no autoplay in full screen); the instruction then plays its entrance (above) once restored.
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
 (()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -59,7 +62,7 @@ addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='proto-state'||!cu
  if(!d.home){if(insHome)insOut();}else{insHome=true;if(tapped){tapped=false;insEnter(INS_WAIT);}}}); /* a home:false before the clean start is the inline demo's */
 body.append(bg,fs);
 const btn=fs.querySelector('.deck-x');
-let state='closed',cur=null,raf=0,P=0,G=null;
+let state='closed',cur=null,raf=0,P=0,G=null,snap=false;
 const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
 /* scroll lock + iOS viewport-fit, as Studio lock()/unlock() */
 const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;
@@ -90,7 +93,7 @@ function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
 /* close: the instruction leaves on CLOSE's exit progress k (from wherever it is), towards behind the device */
 function insFrom(){const cs=getComputedStyle(insS);insSt={o:+cs.opacity,y:parseFloat((cs.translate||'0 0').split(' ')[1])||0};insStop();}
 function insExit(k){if(!insSt)return;insS.style.opacity=(insSt.o*k).toFixed(4);insS.style.translate='0 '+(insSt.y+(-insD()-insSt.y)*(1-k)).toFixed(2)+'px';}
-function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||!m.animate||!m.getClientRects().length)continue;
+function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||snap||!m.animate||!m.getClientRects().length)continue;
  m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i++,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};}}
 function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
  if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);if(g.mate===btn)insEnter();}else for(const m of g.ui)m.style.opacity='0';continue;}
@@ -144,19 +147,19 @@ function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';
  if(G.s1>=1){const sx=G.F.left+(G.F.width-2*Math.abs(G.g.x))/2-187.5;if(Math.abs(sx-Math.round(sx))>.25){f.style.width=(G.F.width-1)+'px';G.F=f.getBoundingClientRect();}}G.o={x:G.g.x,y:bt+bh/2-(G.F.top+G.F.height/2)+G.g.y};
  ins.style.left=(G.F.left+G.F.width/2+G.g.x-iw/2).toFixed(2)+'px';} /* centred on the device (the prototype's own gutter offset included) */
 function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.now();
- const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u);P=lerp(p0,p1,e);side(P);render(P);
+ const tick=now=>{const u=rm.matches||snap?1:Math.min(1,(now-t0)/DUR),e=ease(u);P=lerp(p0,p1,e);side(P);render(P);
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
-function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
+function open(m,now){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');snap=!!now;
  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
- const k=keyOf(f);insStop();insSt=null;tapped=false;insHome=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ const k=keyOf(f);if(k&&window.dbhView)dbhView.set(k);insStop();insSt=null;tapped=false;insHome=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
  insHide();asideMeasure();aside(0);
- anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');if(!insA&&insS.style.opacity==='0')insEnter(); /* no header BACK to trigger it: at the end */bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
+ anim(0,1,()=>{state='open';snap=false;f.classList.remove('fsx-anim');if(!insA&&insS.style.opacity==='0')insEnter(); /* no header BACK to trigger it: at the end */bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
 function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);}
-function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
+function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;snap=false;if(window.dbhView)dbhView.set(null);
  state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
   f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
@@ -169,6 +172,9 @@ for(const m of ms){const f=m.querySelector('iframe'),b=document.createElement('b
  b.setAttribute('aria-label','Open '+(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+' full screen');b.setAttribute('aria-haspopup','dialog');
  b.addEventListener('click',e=>{e.preventDefault();open(m);});m.appendChild(b);}
 btn.addEventListener('click',e=>{e.preventDefault();close();});
+/* refresh restore (wider than phones): the prototype named by ?fs=, the page scrolled to it, then open at its end state */
+if(window.dbhView)dbhView.when(()=>{const v=dbhView.get(),m=v&&ms.find(m=>keyOf(m.querySelector('iframe'))===v);if(!m||phoneMq.matches||state!=='closed')return;
+ m.scrollIntoView({block:'center',behavior:'instant'});open(m,true);});
 /* keys (Studio): Esc closes; Tab cycles CLOSE, the toggle and the prototype */
 addEventListener('keydown',e=>{if(state==='closed')return;
  if(e.key==='Escape'){e.preventDefault();close();return;}
