@@ -9,6 +9,9 @@
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
+   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the site's figcaption style), 24px
+   below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
+   group centred in it. It enters with CLOSE (40ms after it) and fades out with it on close. Not shown inline.
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
 (()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -25,6 +28,9 @@ bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge de
 const panel=bg.firstChild;const probe=bg.querySelector('.fsx-probe'),MAXH=828;
 const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
+const ins=document.createElement('p');ins.className='fsx-ins';fs.appendChild(ins);
+const INS={'fmss-cb':'Tap the video’s caption to preview the ad’s destination without leaving Reels.','fmss-hs':'Tap a product image to browse product details side by side in a split screen.','fmss-profile':'Tap the brand’s profile picture to visit their Profile, with their website a tap away.'};
+const insOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'',k=Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0);return k?INS[k]:'';};
 body.append(bg,fs);
 const btn=fs.querySelector('.deck-x');
 let state='closed',cur=null,raf=0,P=0,G=null;
@@ -48,7 +54,7 @@ const inkRight=el=>{const r=document.createRange();r.selectNodeContents(el);cons
 function asideMeasure(){lt=[];for(const el of lefts){el.style.translate='';el.inert=true;const r=inkRight(el);if(r>0)lt.push({el,off:-r});}
  tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:mate?Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off):1});}
- for(const g of tg)g.ui=g.mate?[g.mate]:[];
+ for(const g of tg)g.ui=g.mate?[g.mate,ins]:[];
  for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}
 const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
 function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
@@ -58,7 +64,7 @@ function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'
  if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
  const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);
  g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
-function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];for(const [el] of asides)el.style.translate=el.style.opacity='';uiStop(btn);btn.style.opacity=btn.style.translate='';tg=[];if(hdr)hdr.style.overflowX='';}
+function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];for(const [el] of asides)el.style.translate=el.style.opacity='';for(const m of [btn,ins]){uiStop(m);m.style.opacity=m.style.translate='';}tg=[];if(hdr)hdr.style.overflowX='';}
 /* prototype plumbing, as js/case.js */
 const doc=f=>{try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
 const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
@@ -90,18 +96,24 @@ function render(p,fresh){const {m,f}=cur;if(fresh||state==='closing')G.A=hostBox
 function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';panel.style.height=G.H+'px';f.style.width='';G.F=f.getBoundingClientRect();if(!G.g)G.g=gut(f);
  /* device box: the probe's 64px (56 on phones) + safe-area margins; capped at the native 828 (375x812 screen + 8px bezel), so
     --s never exceeds 1 (no upscaled raster); whole px so the 1:1 screen lands on the pixel grid */
- const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top),bh=Math.min(av,MAXH),bt=Math.round(q.top+(av-bh)/2);
+ const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top);
+ /* the instruction below it: 24px gap + its wrapped height come off the box; the device box is then exactly the device (its width
+    limit included) and device + gap + text are centred together */
+ const iw=Math.max(0,Math.min(375,G.W-32));ins.style.width=iw+'px';const T=ins.textContent?ins.offsetHeight:0,gap=T?24:0;
+ const sw=Math.min(1,(G.F.width-2*Math.abs(G.g.x)-32)/391),bh=Math.max(0,Math.floor(Math.min(av-gap-T,MAXH,828*sw))),bt=Math.round(q.top+(av-bh-gap-T)/2);
+ ins.style.top=(bt+bh+gap)+'px';
  pad(f,true,bt,bh);G.s1=Math.min(1,sFull(G.F.width-2*Math.abs(G.g.x),bh));
  /* at 1:1 the 375px screen sits at (frame width)/2 - 187.5: when that lands on a half px, narrow the iframe by 1px so the
     screen is pixel-aligned (crisp, not resampled) */
- if(G.s1>=1){const sx=G.F.left+(G.F.width-2*Math.abs(G.g.x))/2-187.5;if(Math.abs(sx-Math.round(sx))>.25){f.style.width=(G.F.width-1)+'px';G.F=f.getBoundingClientRect();}}G.o={x:G.g.x,y:bt+bh/2-(G.F.top+G.F.height/2)+G.g.y};}
+ if(G.s1>=1){const sx=G.F.left+(G.F.width-2*Math.abs(G.g.x))/2-187.5;if(Math.abs(sx-Math.round(sx))>.25){f.style.width=(G.F.width-1)+'px';G.F=f.getBoundingClientRect();}}G.o={x:G.g.x,y:bt+bh/2-(G.F.top+G.F.height/2)+G.g.y};
+ ins.style.left=(G.F.left+G.F.width/2+G.g.x-iw/2).toFixed(2)+'px';} /* centred on the device (the prototype's own gutter offset included) */
 function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u);P=lerp(p0,p1,e);side(P);render(P);
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
- cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ ins.textContent=insOf(f);cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);

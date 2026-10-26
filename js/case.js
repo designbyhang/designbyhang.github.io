@@ -91,10 +91,13 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    device centred with even margins. Desktop is unchanged: the shield is display:none above 640px.
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
-   returns. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
+   returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the figcaption style) 16px below the device frame, at most
+   375px wide; the lifted iframe is sized to the device (375x812 cap) so device + gap + text fit between the bars, centred together;
+   it enters with CLOSE (.hegg-ui) and is hidden in landscape. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
- lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.';   // two lines, broken after the first sentence
+ lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
+ INS={'fmss-cb':'Tap the video’s caption to preview the ad’s destination without leaving Reels.','fmss-hs':'Tap a product image to browse product details side by side in a split screen.','fmss-profile':'Tap the brand’s profile picture to visit their Profile, with their website a tap away.'};
 ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=document.createElement('button');b.type='button';b.className='proto-open';
  var name=(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'');b.setAttribute('aria-label','Open '+name+' full screen');b.setAttribute('aria-haspopup','dialog');m.appendChild(b);
  var doc=function(){try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
@@ -104,8 +107,15 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var de=document.documentElement,clearSel=function(){try{getSelection().removeAllRanges()}catch(_){}},noSel=function(e){e.preventDefault()},
   nosel=function(on){de.classList.toggle('proto-nosel',on);clearSel();['selectstart','dragstart'].forEach(function(t){document[on?'addEventListener':'removeEventListener'](t,noSel,true)})}; /* while open: no selection on the page */
  var land=function(){if(held)send('embed:hold')}; /* opened in landscape: the device is held */
+ var u=f.getAttribute('data-src')||f.getAttribute('src')||'',ik=Object.keys(INS).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0],ins=ik?INS[ik]:'';
+ /* portrait layout: the bars' box (css top/height) minus 16px + the instruction's height, the device's width limit and the 812 cap give
+    the device height; the iframe takes exactly that, device + gap + text centred in the box */
+ var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
+  f.style.top=f.style.height='';if(held)return;var r=f.getBoundingClientRect(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
+  var T=p.offsetHeight,g=T?16:0,h=Math.max(0,Math.floor(Math.min(r.height-g-T,828,828*(W-32)/391))),t=Math.round(r.top+(r.height-h-g-T)/2);
+  f.style.top=t+'px';f.style.height=h+'px';p.style.top=(t+h+g)+'px'};
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
-  el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';
+  el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';lay();
   send(on?'embed:hold':'embed:release')};
  var lqOn=function(on){if(lq.addEventListener)lq[on?'addEventListener':'removeEventListener']('change',orient);else lq[on?'addListener':'removeListener'](orient)};
  var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on)land()},
@@ -113,10 +123,10 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;
   if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   f.addEventListener('load',load);
-  L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on')},
+  L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="proto-ins hegg-ui">'+ins+'</p><p class="deck-n hegg-ui"></p>',
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on')},
    tabs:function(){return held?[]:[f]},
    frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
-   done:function(){nosel(false);f.removeEventListener('load',load);lqOn(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=null;
+   done:function(){nosel(false);f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);f.style.top=f.style.height='';if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
 });})();
