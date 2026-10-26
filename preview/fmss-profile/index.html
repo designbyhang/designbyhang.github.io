@@ -91,7 +91,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .iab .web>img{position:absolute;left:0;top:0;width:375px;height:5125.47px}
 .iab .web .bn{position:absolute;left:0;top:57.37px;width:375px;height:54.57px;opacity:0;transition:opacity .352s ease}
 .iab .web .bn.on{opacity:1}
-.iab .footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform}
+.iab .footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform;transform:translate3d(0,122px,0);visibility:hidden}
 /* status area once the IAB covers the top: an opaque white band (P&B's own dark glyphs, .stk, ride above it). It runs 4px under the
    sheet's top edge (height set in render) so the status bar and the IAB header read as one white surface: no seam where the two
    anti-aliased edges meet. */
@@ -99,7 +99,6 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .iab .x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
 .iab .x.on{display:block}
 .iab .x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
-.iab .home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:45;pointer-events:none;opacity:0}
 
 /* profile (stitched from the recording's scroll) */
 .profile{background:#000;transform:translate3d(100%,0,0);transition:transform .34s var(--pushv);z-index:10;touch-action:none}
@@ -144,6 +143,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .cx{z-index:9;width:44px;height:44px;display:grid;place-items:center;color:#000;border-radius:22px}
 
 .stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat;pointer-events:none;z-index:21;opacity:0}
+.home{left:129.18px;top:856.53px;width:143.65px;height:5.36px;border-radius:3.22px;background:#fff;z-index:55;pointer-events:none;transition:background-color .24s}   /* iOS home indicator (fmss-cb's 134×5 at 120.5,799 px), always on, above the IAB: white over the reel, black over the profile and the IAB */
+/* the profile panel's top-right corner, drawn as a vector over the bitmap's (its baked corner has compression specks): r 20pt at y 140 */
+.pc-corner{left:382px;top:139px;width:20px;height:22px;pointer-events:none;background:radial-gradient(circle 20px at 0 21px,#fff 19.5px,#000 20.5px)}   /* one layer (no clip seam) */
 .island{left:138.33px;top:14px;width:125.33px;height:36.67px;border-radius:18.33px;background:#000;z-index:50;pointer-events:none}
 .finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
@@ -165,7 +167,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 /* hosted (?host=cb): the iframe is exactly the 375×812 screen inside fmss-cb's device; transparent so the host's reel shows during the push */
 html.hosted,html.hosted body{background:transparent;color-scheme:normal;overflow:hidden!important;scrollbar-width:none;height:100%;touch-action:none;overscroll-behavior:none}
 html.hosted .wrap{max-width:none;padding:0}
-html.hosted header.top,html.hosted .below,html.hosted .below~div,html.hosted .bezel,html.hosted #reel,html.hosted .island{display:none}
+html.hosted header.top,html.hosted .below,html.hosted .below~div,html.hosted .bezel,html.hosted #reel,html.hosted .island,html.hosted .home{display:none}
 html.hosted .mframe{position:fixed;inset:0;width:auto;aspect-ratio:auto;background:transparent;border:0}
 html.hosted .stage{left:0;top:0;transform:none}
 html.hosted .phone{background:transparent;border-radius:0}
@@ -201,7 +203,7 @@ html.hosted .phone{background:transparent;border-radius:0}
 
         <!-- ===== screen 2: Nike profile (pushed in from the right) ===== -->
         <div class="abs scr profile" id="profile" role="region" aria-label="Nike profile" aria-hidden="true">
-          <div class="abs pcont" id="pcont"><img src="assets/profile.webp" alt="Nike Facebook profile: JUST DO IT. cover, 39M followers · 24 following · 357 posts, Sportswear Store, Follow and Message, tabs All, Photos, Reels, Links nike.com, Contact info Nike, All posts" width="402" height="1703" decoding="async"></div>
+          <div class="abs pcont" id="pcont"><i class="abs pc-corner" aria-hidden="true"></i><img src="assets/profile.webp" alt="Nike Facebook profile: JUST DO IT. cover, 39M followers · 24 following · 357 posts, Sportswear Store, Follow and Message, tabs All, Photos, Reels, Links nike.com, Contact info Nike, All posts" width="402" height="1703" decoding="async"></div>
           <div class="abs st" id="pst" aria-hidden="true"></div>
           <button class="abs btn ico pback" id="back" type="button" aria-label="Back to reel" tabindex="-1">
             <svg width="12" height="20" viewBox="0 0 12 20" fill="none" aria-hidden="true"><path d="M10.5 1.4L2 10l8.5 8.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -246,8 +248,8 @@ html.hosted .phone{background:transparent;border-radius:0}
           <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
           <i class="abs status-w" id="statusW" aria-hidden="true"></i>
           <button class="abs btn x" id="x" type="button" aria-label="Close in-app browser (IAB)"></button>
-          <div class="abs home" id="home"></div>
         </div>
+        <div class="abs home" id="home" aria-hidden="true"></div>
 
         <i class="abs stk" id="stk" aria-hidden="true"></i>
         <i class="abs island" aria-hidden="true"></i>
@@ -333,14 +335,14 @@ function openProfile(){
   if(screen!==1||state!==1)return;screen=2;clearLater();
   setPScroll(0);setCta('hidden');
   tabpill.className='abs tabpill on';
-  phone.classList.add('pushed');setTabs();setLive('Nike profile');host()?.push(true);
+  phone.classList.add('pushed');setTabs();setHome();setLive('Nike profile');host()?.push(true);
   later(()=>{tabpill.className='abs tabpill off'},RM.matches?0:330);
   later(()=>{if(screen===2)peekIn()},RM.matches?0:480);
 }
 function backToReel(){
   if(screen!==2)return;screen=1;clearLater();stopP();
   phone.classList.remove('pushed');profile.style.transform='';reel.style.transform='';$('reelDim').style.opacity='';
-  setTabs();setLive('Reel');resumeReel();                // back on the reel: playback resumes even if it was paused
+  setTabs();setHome();setLive('Reel');resumeReel();                // back on the reel: playback resumes even if it was paused
   host()?.push(false,instantBack);instantBack=false;
   later(()=>{if(screen===1){setCta('hidden');setPScroll(0)}},360);
 }
@@ -367,12 +369,15 @@ function render(){
   $('webv').style.top=lerp(52,48,p).toFixed(2)+'px';
   $('load').style.top=lerp(52,48,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 48
   $('footer').style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*122).toFixed(2)}px,0)`;
+  $('footer').style.visibility=y<Y1-.5?'visible':'hidden';   // dismissed: no toolbar at all (it is also parked 122px below the screen, as fmss-cb)
   const sd=clamp((84-y)/40).toFixed(3);stk.style.opacity=sd;
   /* one white surface from the status bar into the full header: a white band under the sheet's top edge, so the two anti-aliased edges
      (status bar bottom, sheet top) never let the dim show through as a hairline; it shrinks back to the status bar once the sheet leaves the top */
   const sw=$('statusW');sw.style.opacity=sd;sw.style.height=(44+clamp(52-y,0,4)).toFixed(2)+'px';
-  $('home').style.background=t>.5?'#000':'#fff';$('home').style.opacity=y<Y1-.5?'1':'0';   // the footage has its own home bar
+  setHome(t);
 }
+/* home indicator colour: black once the IAB covers the bottom (fmss-cb: t > .5) and over the white profile; white over the reel */
+function setHome(t=clamp((Y1-y)/(Y1-Y2))){$('home').style.background=t>.5||screen===2?'#000':'#fff'}
 function setState(s){
   state=s;
   $('x').classList.toggle('on',s===3);
@@ -967,6 +972,7 @@ setTabs();renderCta();
 window.__pf={get screen(){return screen},get cta(){return ctaState},get m(){return m},get busy(){return !!(anim||mSpring||peekUpS)},get pscroll(){return py},get scroll(){return sy},get loads(){return loads},get vidMode(){return vidMode},get gestures(){return glog.slice()},get loading(){return loadAnims.some(a=>a.playState==='running')},get banner(){return root.dataset.bn},get state(){return state},get y(){return y},get iabFrom(){return iabFrom},get rbusy(){return !!(anim||drag)},get paused(){return userPaused},get vidPaused(){return vid.paused},get uShow(){return uShow},get dragging(){return !!(sc||pg||drag)},get hov(){return hov},get auto(){return autoOn},get lastInput(){return lastInput},get stepI(){return stepI},uOff,resetNow:reset,
   go,openIabFull,close,openFromProfile,mediaTap,
   openProfile,backToReel,dismissCard,setPScroll,pFling,setScroll,toCard,toPeek};
+setState(1);render();                                // the IAB's start state (as fmss-cb): sheet, toolbar and status band parked off screen
 })();
 </script>
 </body>
