@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMSS · Solution: across ad objectives (animation)</title>
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside projects/fmss.html; the parent page supplies the container and the theme */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--bezel:#e0e0e0}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);transition:background-color .4s var(--ease),color .4s var(--ease)}
+body{pointer-events:none;user-select:none;-webkit-user-select:none}
+.wrap{max-width:1440px;margin:0 auto;padding:48px}
+/* container: same proportions as the case-study .media.mframe (3840/2052) */
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease)}
+/* stage = the Figma slide minus its title row: 1920×1026 design px, scaled to the frame */
+.stage{position:absolute;left:50%;top:50%;width:1920px;height:1026px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.5))}
+/* phone: Figma 375×812 screen at x 90/545/1000/1455 (80px apart); 8px code-drawn bezel outside it */
+.dev{position:absolute;top:96px;width:375px;height:812px}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2))}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
+.scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
+.L{will-change:transform,opacity}
+/* label: Figma "Notes", Bitcount Grid Single 16/32, 40px under the screen */
+.lab{position:absolute;left:0;width:375px;top:852px;text-align:center;font:400 16px/32px "Bitcount Grid Single",ui-monospace,Menlo,monospace;letter-spacing:.32px;white-space:nowrap;color:var(--ink);transition:color .4s var(--ease)}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed .wrap{max-width:none;padding:0}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
+<script>
+(function(){
+const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
+const T=15600,D=500,t1=3800,t2=7500,t3=11400,t4=14600;   // loop measured from the original Solution video: A 3.8s, B 3.2s, C 3.4s, B 2.7s, back to A; 0.5s transitions
+const EASE='cubic-bezier(.2,.7,.2,1)',X=[t1,t1+D,t2,t2+D,t3,t3+D,t4,t4+D];
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const frame=document.getElementById('frame'),stage=document.getElementById('stage');
+function squircle(w,h,R,sm){
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
+  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),Dd=f(d),S=f(arc),r=f(R);
+  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${Dd}a${r} ${r} 0 0 1 ${S} ${S}c${Dd} ${C} ${Dd} ${BC} ${Dd} ${ABC}`+
+    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-Dd} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${Dd} ${-BC} ${Dd} ${-ABC} ${Dd}`+
+    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-Dd}a${r} ${r} 0 0 1 ${-S} ${-S}c${-Dd} ${-C} ${-Dd} ${-BC} ${-Dd} ${-ABC}`+
+    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${Dd} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-Dd} ${BC} ${-Dd} ${ABC} ${-Dd}Z`;
+}
+const SQ=CSS.supports('clip-path','path("M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
+/* keyframes from [time, value] stops; eased between stops that differ, held otherwise */
+function kf(prop,stops,fmt){const out=[];stops.forEach(([t,v],i)=>{const k={offset:t/T};k[prop]=fmt(v);const n=stops[i+1];k.easing=n&&n[1]!==v?EASE:'linear';out.push(k)});return out}
+const ty=v=>`translateY(${v}px)`,op=v=>String(v);
+const anims=[],imgs=[];
+PH.forEach((p,i)=>{
+  const top=p.top,up=top-44,dn=812-top;
+  const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
+  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+
+    `<img class="L a" alt="" src="assets/a${i+1}.webp">`+
+    `<img class="L bt" alt="" src="assets/b${i+1}.webp" style="clip-path:inset(0 0 ${dn}px 0)">`+
+    `<img class="L bs" alt="" src="assets/b${i+1}.webp" style="clip-path:inset(${top}px 0 0 0)">`+
+    `<img class="L cb" alt="" src="assets/c${i+1}.webp" style="clip-path:inset(44px 0 0 0)">`+
+    `<img class="L ct" alt="" src="assets/c${i+1}.webp" style="clip-path:inset(0 0 768px 0)">`+
+    `</div><div class="lab">${p.label}</div>`;
+  stage.appendChild(dev);
+  if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
+  const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));
+  const o={duration:T,iterations:Infinity,fill:'both'};
+  // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
+  anims.push(q('.a').animate([{offset:0,opacity:1},{offset:(t1+D)/T,opacity:1},{offset:(t1+D+1)/T,opacity:0},{offset:(t4-1)/T,opacity:0},{offset:t4/T,opacity:1},{offset:1,opacity:1}],o));
+  // B top (media) dissolves in over A; the B sheet rises from the bottom edge
+  anims.push(q('.bt').animate(kf('opacity',[[0,0],[t1,0],[t1+D,1],[t4,1],[t4+D,0],[T,0]],op),o));
+  anims.push(q('.bs').animate(kf('transform',[[0,dn],[t1,dn],[t1+D,0],[t2,0],[t2+D,-up],[t3,-up],[t3+D,0],[t4,0],[t4+D,dn],[T,dn]],ty),o));
+  // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
+  anims.push(q('.cb').animate(kf('transform',[[0,up],[t2,up],[t2+D,0],[t3,0],[t3+D,up],[T,up]],ty),o));
+  anims.push(q('.cb').animate(kf('opacity',[[0,0],[t2,0],[t2+D*.6,1],[t3+D*.4,1],[t3+D,0],[T,0]],op),{...o,composite:'replace'}));
+  anims.push(q('.ct').animate(kf('opacity',[[0,0],[t2,0],[t2+D,1],[t3,1],[t3+D,0],[T,0]],op),o));
+});
+anims.forEach(a=>{a.pause();a.currentTime=0});
+function fit(){const r=frame.getBoundingClientRect();stage.style.setProperty('--s',Math.min(r.width/1920,r.height/1026).toFixed(4))}
+new ResizeObserver(fit).observe(frame);fit();
+let seen=false,ready=false;
+function still(){anims.forEach(a=>{a.pause();a.currentTime=6000})}   // reduced motion: hold the split screen (B)
+function upd(){
+  if(!ready)return;
+  if(RM.matches){still();return}
+  const go=seen&&!document.hidden;
+  anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
+}
+Promise.all(imgs.map(im=>im.decode?im.decode().catch(()=>{}):Promise.resolve())).then(()=>{ready=true;if(RM.matches)still();upd()});
+new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.35}).observe(frame);
+document.addEventListener('visibilitychange',upd);
+RM.addEventListener&&RM.addEventListener('change',()=>{if(!RM.matches)anims.forEach(a=>a.currentTime=0);upd()});
+})();
+/* theme follows the site live: storage (other tabs), system setting, and the parent page's data-theme when embedded */
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',e=>{if(e.key===null||e.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+</script>
+</body>
+</html>
