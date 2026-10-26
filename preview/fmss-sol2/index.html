@@ -35,6 +35,9 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .L{will-change:transform,opacity}
 /* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge under the rim, so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
 .cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
+/* status bar / IAB header seam: a strip in the C header colour, under the C status bar and header, riding with the header for the last 1% of split -> full
+   (and while full), so the spring's sub-pixel tail never opens a hairline of the B media between the fixed status bar and the rising header */
+.cs{position:absolute;left:-4px;right:-4px;top:24px;height:28px}
 /* ad media: one playing <video> per phone; its box travels from the surface rect to the split-screen rect (position, size, corner radius) and back */
 .mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
 .rl{position:absolute;left:0;top:0;width:375px;height:734px;overflow:hidden}   /* In-Content: Figma 'Media / Organic' (the Reels player) [0,0,375,734] */
@@ -114,6 +117,7 @@ const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   /
 const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))"><g fill="#fff"><circle cx="4" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="20" cy="12" r="2.5"/></g></svg>';
 const CROSS='<svg viewBox="0 0 24 24" style="left:44px"><path d="M6 6L18 18M18 6L6 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>';
 const CHECK='<svg viewBox="0 0 12 12"><mask id="ck"><rect width="12" height="12" fill="#fff"/><path d="M3.4 6.1L5.1 7.8L8.6 4.2" stroke="#000" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></mask><circle cx="6" cy="6" r="6" fill="#fff" mask="url(#ck)"/></svg>';
+const CS=['#f1f2f6','#f1f2f6','#fff','#fff'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#f7f7f7','#f7f7f7','#fff','#fff'];   // bottom colour of each C screen (c1-c4 last row)
 const anims=[],imgs=[],vids=[];let reel=null,thumb=null,clock=null;
 PH.forEach((p,i)=>{
@@ -127,6 +131,7 @@ PH.forEach((p,i)=>{
     (n===3?`<div class="hd"><i class="pb"></i><div class="meta"><img alt="" src="assets/av3.webp${V}"><div><div class="nm">Away${CHECK}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`:'')+
     im('bs',`b${n}`,`clip-path:inset(${top}px 0 0 0)`)+
     `<i class="L cu" style="background:${CU[i]}"></i>`+
+    `<i class="L cs" style="background:${CS[i]}"></i>`+
     im('cb',`c${n}`,'clip-path:inset(43px 0 0 0)')+
     im('ct',`c${n}`,'clip-path:inset(0 0 768px 0)')+
     `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
@@ -155,6 +160,7 @@ PH.forEach((p,i)=>{
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
   A('.bs',p=>({transform:`translateY(${(dn*(1-p.a)-up*p.c).toFixed(2)}px)`}));
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
+  A('.cs',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.99?1:0}));
   A('.cu',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
   A('.cb',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:clamp(p.c/.6)}));
   A('.ct',p=>({opacity:p.c}));
