@@ -142,15 +142,20 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   insExit=function(k){var s=insEl();if(!s)return;if(!insSt){var cs=getComputedStyle(s);insSt={o:+cs.opacity,y:insY(cs)};insStop()}
    s.style.opacity=(insSt.o*k).toFixed(4);s.style.translate='0 '+(insSt.y+(-insD(s)-insSt.y)*(1-k)).toFixed(2)+'px'},
   onTap=function(e){var t=e.target;if(ik&&e.isTrusted&&t&&t.closest&&t.closest(TAP[ik]))insOut()};
- /* portrait layout: the bars' box (css top/height) minus 40px + the instruction's height, the device's width limit and the 812 cap give
-    the device height (less ROOM above and below); the device is padded to that spot inside the iframe, device + gap + text centred in the box */
+ /* portrait layout: the instruction's line centred on the theme toggle's (its real rect; at most 375px wide, clear of the toggle); the
+    device takes the bars' box from its top down to 40px above the instruction (less ROOM above; the device's width limit and the 812
+    cap), padded to that spot inside the iframe. No toggle on screen (or no gain): the bars' box minus 40px + the instruction's height
+    gives the device height (less ROOM above and below), device + gap + text centred in the box */
  var pad=function(on,t,h){var d=doc();if(!d||!d.classList.contains('embed'))return;var D=d.ownerDocument;
   if(on&&!D.getElementById('fsx-pad-css')){var st=D.createElement('style');st.id='fsx-pad-css';st.textContent=PAD;(D.head||d).appendChild(st)}
   if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px')}
   if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h')}d.classList.toggle('fsx-pad',on)};
  var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
   if(held){pad(false);return}var r=f.getBoundingClientRect(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
+  var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tb.getBoundingClientRect():null;
+  if(tr&&(!tr.width||tr.top<0||tr.bottom>innerHeight))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
   var T=p.offsetHeight,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
+  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*(W-32)/391)));t=ct-g-r.top-h}}
   pad(true,t,h);p.style.top=(r.top+t+h)+'px';p.style.paddingTop=g+'px'}; /* the box starts at the device's bottom edge */
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
   el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';lay();
