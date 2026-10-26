@@ -36,7 +36,8 @@ figure{margin:0}
 .media.dark{background:#0b0b0b;border-color:#1c1c1c}
 .media.pad{padding:clamp(16px,4vw,48px)}
 .media.pad img{border-radius:12px}
-figcaption{font-size:var(--t-s13);line-height:1.5;color:var(--faint);text-align:center;max-width:60ch}
+/* media captions (images, videos, carousels, prototypes), every case page: the prototypes' former hint style, ink at 56% (--cap, css/theme.css) */
+figcaption{font-family:var(--sans);font-weight:400;font-style:normal;font-size:12px;line-height:16px;letter-spacing:normal;color:var(--cap);text-align:center;max-width:60ch}
 .hero-media{margin-top:8px}
 .bleed{margin-left:clamp(12px,2vw,24px);margin-right:clamp(12px,2vw,24px)}
 /* stats */
@@ -196,9 +197,8 @@ body.cs .media.draw:hover img{transform:none}
 @media (max-width:900px){.prose p.t-body{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 .sub p{line-height:1.7} /* these only inherited body line-height; keep their previous 1.7 ratio now that --t-body uses a fixed 28px/26px */
 
-/* 02 Problem: three image frames share one height (exit-affordances ratio 3840/2052); captions Small 16 black */
+/* 02 Problem: three image frames share one height (exit-affordances ratio 3840/2052) */
 body.cs .media.draw{aspect-ratio:3840/2052}
-figcaption.cap16{font-size:var(--t-s16);line-height:1.5;color:var(--c-cap);text-align:center;max-width:60ch}
 body.cs .wrap .fig .media.draw{box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
 @media (max-width:900px){.sec-label:empty{display:none}}
 
@@ -261,9 +261,6 @@ html[data-theme=dark] .car-bar{background:color-mix(in srgb,var(--c-strong) 40%,
 .car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.car-bar,.mbtn,.car-dots{transition:none}}
 
-/* captions: #000 light; dark = body copy token (--body, #dcdcdc). Legend swatches keep their own colours */
-body.cs figcaption,body.cs figcaption.cap16{color:var(--body)}
-html[data-theme=dark] body.cs figcaption,html[data-theme=dark] body.cs figcaption.cap16{color:var(--body)}
 
 /* FMSS images fill their frames */
 body.cs .media img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
