@@ -52,12 +52,10 @@ html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
 .hegg .bar-right a.hegg-x .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
 .hegg .bar-right a.hegg-x:hover .t::after,.hegg .bar-right a.hegg-x:focus-visible .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.hegg{transition:none}.hegg .bar-right a.hegg-x .t::after{transition:none}}
-/* Studio presentation counter ("004/40"): the base rule moved here from projects/studio.html so the FMSS phone full-screen prototype
-   caption (js/case.js, .hegg.proto-full) uses it as is; studio.html keeps its breakpoint and layout rules after it */
+/* Studio presentation counter ("004/40"): the base rule moved here from projects/studio.html so the FMSS phone full-screen landscape
+   message (js/case.js, .hegg.proto-full) uses it as is; studio.html keeps its breakpoint and layout rules after it */
 .deck-n{position:absolute;z-index:2;right:calc(clamp(16px,3vw,32px) + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
-/* FMSS phone full screen: the Studio phone-portrait counter placement (studio.html: centred, 24px under the slide), here 24px under the
-   device. The device = the lifted iframe's fit (css/case.css .proto-lift: 48px + safe area above and below; 16px each side; 391x828 incl. bezel) */
-.hegg.proto-full .deck-n{right:auto;left:50%;transform:translateX(-50%);white-space:nowrap;
- top:calc((100% + env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) / 2 + min(100% - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px), (100vw - 32px) * 828 / 391) / 2 + 24px)}
+/* FMSS phone full screen, turned to landscape (js/case.js): the device is hidden and the message sits mid-screen */
+.hegg.proto-full .deck-n{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
 .hegg.proto-full .deck-n{--mono-color:#333;--ink:#171717}
 html[data-theme=dark] .hegg.proto-full .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}

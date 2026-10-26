@@ -16,7 +16,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=91"><link rel="stylesheet" href="../../css/theme.css?v=91">
+<link rel="stylesheet" href="../../css/type.css?v=92"><link rel="stylesheet" href="../../css/theme.css?v=92">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56);--bezel:#111;
@@ -84,7 +84,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .pk{left:0;top:0;width:402px;height:219px}
 .grab{left:181px;top:8px;width:40px;height:4px;border-radius:2px;background:#878787}
 .pk .fb{left:16.33px;top:27.67px;width:15px;height:15px}
-.pk .url{left:172px;top:27.67px;width:74.67px;height:15px}
+.pk .url{left:calc(50% - 74.67px / 2);top:27.67px;width:74.67px;height:15px}   /* lock + URL centred on the device (the grabber), whatever the side icons are */
 .pk .dots{left:369px;top:33.4px;width:17.67px;height:3.6px}
 .pk .div{left:0;top:58.4px;width:402px;height:1px;background:#eee}
 .load{left:0;height:2px;width:402px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
@@ -645,11 +645,14 @@ vid.addEventListener('playing',vidDisarm);
 vid.addEventListener('canplay',playVid);
 vid.addEventListener('pause',()=>{if(vidMode==='video'&&vidShould())setTimeout(playVid,250)});
 addEventListener('pageshow',playVid);
-new IntersectionObserver(es=>{
-  visible=es[0].isIntersecting;
+let seen=false,held=false;   // held: phone full screen turned to landscape (js/case.js embed:hold / embed:release), the device is hidden
+addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){
+  visible=seen&&!held;
   if(visible){playVid();if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
   else{if(vidMode==='video')vid.pause();stopAuto()}
-},{threshold:.35}).observe(frame);
+}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(vidMode==='video')vid.pause();stopAuto()}else playVid()});
 RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
 

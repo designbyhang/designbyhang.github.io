@@ -16,8 +16,8 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=91"><link rel="stylesheet" href="../../css/gate.css?v=91"><link rel="stylesheet" href="../../css/theme.css?v=91">
-<script src="../../js/gate.js?v=91"></script>
+<link rel="stylesheet" href="../../css/type.css?v=92"><link rel="stylesheet" href="../../css/gate.css?v=92"><link rel="stylesheet" href="../../css/theme.css?v=92">
+<script src="../../js/gate.js?v=92"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--hint:rgba(23,23,23,.56);--bezel:#111}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--hint:rgba(242,242,242,.56);--bezel:#e0e0e0}
@@ -520,11 +520,14 @@ vid.addEventListener('canplay',playVid);
 vid.addEventListener('pause',()=>{if(vidMode==='video'&&vidShould())setTimeout(playVid,250)});
 addEventListener('gate:unlocked',()=>{if(vidMode!=='video')return;vid.muted=true;const p=vid.play();p&&p.then&&p.then(()=>setTimeout(()=>{if(!vidShould())vid.pause()},400),e=>{vidArm();if(vidRefused(e))setTimeout(()=>{if(vid.paused&&vidShould())vidFallback('refused')},600)})});   // sync, inside the unlock gesture
 addEventListener('pageshow',playVid);
-new IntersectionObserver(es=>{
-  visible=es[0].isIntersecting;
+let seen=false,held=false;   // held: phone full screen turned to landscape (js/case.js embed:hold / embed:release), the device is hidden
+addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){
+  visible=seen&&!held;
   if(visible){playVid();if(!interacted||!idleT)startAuto();else{clearTimeout(idleT);idleT=setTimeout(startAuto,6000)}}
   else{if(vidMode==='video')vid.pause();stopAuto()}
-},{threshold:.35}).observe(frame);
+}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(vidMode==='video')vid.pause();stopAuto()}else playVid()});
 RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
 
