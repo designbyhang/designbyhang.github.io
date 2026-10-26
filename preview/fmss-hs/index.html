@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Split Screen H-scroll — interactive IAB prototype (mock)</title>
+<script src="../shared/demo/demo-clock.js?v=123"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -456,10 +457,10 @@ function wheelTo(e,d,apply){
 const wd=e=>e.deltaMode===1?e.deltaY*16:e.deltaY;
 window.__v95=()=>({inStep,stepI,isWait:typeof STEPS[stepI]==='number',hov,broken,userDirty,lastInput,wMode,auto:autoOn});   // test hook
 let seen=false,held=false;   // held: phone full screen turned to landscape (js/case.js embed:hold / embed:release), the device is hidden
-addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+addEventListener('demo:host',()=>setVis());addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
 new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
 function setVis(){
-  visible=seen&&!held;
+  visible=(seen||demoClock.hosted)&&!held;   // hosted: the page picks which demo plays and pauses (freezes) the rest, see shared/demo/demo-clock.js
   if(visible){sched()}
   else{stopAuto()}
 }

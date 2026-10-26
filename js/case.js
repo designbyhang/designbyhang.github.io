@@ -103,18 +103,22 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    nearest the window's vertical centre; every other is told to pause (its clock, videos and loops stop where they are and resume from
    there). The embed posts {type:'demo-hello'} once it runs (again after each reload by the loader above) and is answered with its
    state; after that {type:'demo-play'|'demo-pause'} goes out on every change. The embed keeps its own rules on top (reduced motion,
-   its own in-view threshold, a hidden tab), so the host only ever narrows what plays */
+   its own in-view threshold, a hidden tab), so the host only ever narrows what plays. The Evolution prototypes join the same pool
+   (preview/shared/demo/demo-clock.js freezes the whole prototype). While any frame is lifted full screen (.proto-lift / .fsx-lift)
+   none plays inline (full screen itself is never paused: the embed ignores a pause there) and the pick runs again on close */
 (function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-autoplay]'));if(!fs.length)return;
 var cur=null,vis=[],q=0,O=location.origin;
 var send=function(f,on){try{if(f.contentWindow&&f.getAttribute('src'))f.contentWindow.postMessage({type:on?'demo-play':'demo-pause'},O)}catch(_){}};
+var lifted=function(f){return f.classList.contains('proto-lift')||f.classList.contains('fsx-lift')};
 var pick=function(){q=0;var mid=innerHeight/2,best=null,bd=Infinity;
- vis.forEach(function(f){if(!f.getAttribute('src'))return;var r=f.getBoundingClientRect();if(!r.height||r.bottom<=0||r.top>=innerHeight)return;
+ if(!fs.some(lifted))vis.forEach(function(f){if(!f.getAttribute('src'))return;var r=f.getBoundingClientRect();if(!r.height||r.bottom<=0||r.top>=innerHeight)return;
   var d=Math.abs(r.top+r.height/2-mid);if(d<bd){bd=d;best=f}});
  if(best===cur)return;var was=cur;cur=best;if(was)send(was,false);if(cur)send(cur,true)};
 var ask=function(){if(!q)q=requestAnimationFrame(pick)};
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var i=vis.indexOf(e.target);
   if(e.isIntersecting){if(i<0)vis.push(e.target)}else if(i>=0)vis.splice(i,1)});ask()});fs.forEach(function(f){io.observe(f)})}else vis=fs.slice();
 addEventListener('scroll',function(){if(vis.length)ask()},{passive:true});addEventListener('resize',ask);
+if('MutationObserver' in window){var mo=new MutationObserver(ask);fs.forEach(function(f){mo.observe(f,{attributes:true,attributeFilter:['class']})})}
 addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='demo-hello'||e.origin!==O)return;
  for(var i=0;i<fs.length;i++)if(fs[i].contentWindow===e.source){var f=fs[i];pick();send(f,f===cur);return}});})();
 /* phones (<=640px, the breakpoint where these frames go 4:5): each live prototype frame is a tap target (.proto-open) that opens it full
