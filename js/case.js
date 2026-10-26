@@ -84,3 +84,27 @@ document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEvent
 var arm=function(){if(!('IntersectionObserver' in window)){fs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'400px 0px'});fs.forEach(function(f){io.observe(f)})};
 var open=false;try{open=sessionStorage.getItem('dbh-unlocked')==='1'}catch(_){}
 if(open||!document.documentElement.classList.contains('gated'))arm();else addEventListener('gate:unlocked',arm,{once:true})})();
+/* phones (<=640px, the breakpoint where these frames go 4:5): each live prototype frame is a tap target (.proto-open) that opens it full
+   screen. The full-screen view is the shared © Easter egg / Studio presentation layer (js/hang-egg.js window.dbhLayer: page-colour layer,
+   top-right "× CLOSE", its entrance/exit timeline, Esc, iOS scroll lock + flow, theme toggle). The same iframe (no second copy, no reload,
+   state kept) is lifted to position:fixed over the layer (.proto-lift, css/case.css) and fades with it; inside it html.embed-full fits the
+   device centred with even margins. Desktop is unchanged: the shield is display:none above 640px. */
+(function(){var ms=document.querySelectorAll('.media.proto');if(!ms.length)return;var mq=matchMedia('(max-width:640px)');
+ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=document.createElement('button');b.type='button';b.className='proto-open';
+ var name=(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'');b.setAttribute('aria-label','Open '+name+' full screen');b.setAttribute('aria-haspopup','dialog');m.appendChild(b);
+ var doc=function(){try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
+ var full=function(on){var d=doc();if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
+ var esc=function(e){if(e.key==='Escape'&&window.dbhLayer){e.preventDefault();e.stopPropagation();window.dbhLayer.close()}};
+ var demo=function(){try{f.contentWindow.dispatchEvent(new Event('embed:full'))}catch(_){}}; /* the prototype's idle demo runs on entry */
+ var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on)demo()},
+  hook=function(){var w=null;try{w=f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',esc,true)}catch(_){}};
+ b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;
+  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
+  f.addEventListener('load',load);
+  L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="deck-n hegg-ui">'+(m.getAttribute('data-cap')||'')+'</p>',
+   show:function(){f.style.transition='none';f.classList.add('proto-lift');full(true);hook();demo();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on')},
+   tabs:function(){return[f]},
+   frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
+   done:function(){f.removeEventListener('load',load);if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=null;
+    f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
+});})();
