@@ -18,8 +18,14 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<<<<<<< HEAD
 <link rel="stylesheet" href="../../css/type.css?v=113"><link rel="stylesheet" href="../../css/theme.css?v=113">
 <link rel="stylesheet" href="../shared/iab/iab.css?v=113"><script src="../shared/iab/iab.js?v=113"></script>
+=======
+<link rel="stylesheet" href="../../css/type.css?v=112"><link rel="stylesheet" href="../../css/theme.css?v=112">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=112"><script src="../shared/iab/iab.js?v=112"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=112"><script src="../shared/appbar/appbar.js?v=112"></script>
+>>>>>>> 75a6c53 (P&B profile header: shared FMSS app bar (preview/shared/appbar) — scrim + white icons over the cover; at 27px scroll (cover bottom behind the bar) 240ms crossfade to white fill, black icons + status, 'Nike' ✓ title, 1px divider; reverses at the same point)
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111;
@@ -88,8 +94,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .profile.drag,.profile.drag~*,.drag-reel .reel,.drag-reel .reel-dim{transition:none!important}
 .pcont{left:0;top:0;width:402px;height:1703px;will-change:transform;background:#fff}
 .pcont img{display:block;width:402px;height:1703px}
-.st{left:0;top:0;width:402px;height:54px;z-index:6;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat;transition:background-color .15s linear}.st.dk{background:#000}
-.ico{z-index:6;color:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.32))}
+.st{left:0;top:0;width:402px;height:54px;z-index:6;pointer-events:none;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat}   /* colour: the shared app bar (ab-st) */
+.ico{z-index:6;color:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.32))}   /* filled colour: the shared app bar (ab-ico) */
 .pback{left:0;top:64px;width:48px;height:48px;display:grid;place-items:center}
 .pdots{left:318px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
 .psearch{left:362px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
@@ -186,12 +192,12 @@ html.hosted .phone{background:transparent;border-radius:0}
         <!-- ===== screen 2: Nike profile (pushed in from the right) ===== -->
         <div class="abs scr profile" id="profile" role="region" aria-label="Nike profile" aria-hidden="true">
           <div class="abs pcont" id="pcont"><i class="abs pc-corner" aria-hidden="true"></i><img src="assets/profile.webp" alt="Nike Facebook profile: JUST DO IT. cover, 39M followers · 24 following · 357 posts, Sportswear Store, Follow and Message, tabs All, Photos, Reels, Links nike.com, Contact info Nike, All posts" width="402" height="1703" decoding="async"></div>
-          <div class="abs st" id="pst" aria-hidden="true"></div>
-          <button class="abs btn ico pback" id="back" type="button" aria-label="Back to reel" tabindex="-1">
+          <div class="abs st ab-st" id="pst" aria-hidden="true"></div>
+          <button class="abs btn ico ab-ico pback" id="back" type="button" aria-label="Back to reel" tabindex="-1">
             <svg width="12" height="20" viewBox="0 0 12 20" fill="none" aria-hidden="true"><path d="M10.5 1.4L2 10l8.5 8.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <span class="abs ico pdots" aria-hidden="true"><svg width="18" height="4" viewBox="0 0 18 4" fill="currentColor"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></span>
-          <span class="abs ico psearch" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="9.6" cy="9.6" r="8.2" stroke="currentColor" stroke-width="2.3"/><path d="M15.6 15.6L21 21" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></span>
+          <span class="abs ico ab-ico pdots" aria-hidden="true"><svg width="18" height="4" viewBox="0 0 18 4" fill="currentColor"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></span>
+          <span class="abs ico ab-ico psearch" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="9.6" cy="9.6" r="8.2" stroke="currentColor" stroke-width="2.3"/><path d="M15.6 15.6L21 21" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></span>
           <img class="abs tabpill" id="tabpill" src="assets/tabbar.png" alt="">
 
           <!-- peek sheet ⇄ floating card (same surface) -->
@@ -414,6 +420,9 @@ function cardEnter(){                                  // after closing the IAB:
 
 /* ---------- profile scroll: rubber band + fling + bounce (max scroll 829pt, measured from the recording) ---------- */
 const PMAX=1703-H;
+/* profile header: the shared FMSS app bar. It fills white (icons + status black, 'Nike' ✓ centred, 1px divider) once the cover's
+   bottom edge (139) passes up behind the bar's bottom (112), i.e. at 27px of scroll; back below that it clears again. */
+const appbar=FMSSAppBar.create({host:profile,before:pst,height:112,scrim:128,titleY:88,title:'Nike',verified:true,threshold:27,z:5});
 let py=0,prevPy=0,praf=0;
 function dismissPeek(v0=0){                            // drag the peek down: it springs away the way it came in
   if(ctaState!=='peek')return;ctaState='none';setTabs();tabsBack();
@@ -422,7 +431,7 @@ function dismissPeek(v0=0){                            // drag the peek down: it
 }
 function updPeekDy(){if(ctaState==='peek'&&!mSpring)peekDy=Math.max(0,py)*.6}
 function setPScroll(v){
-  prevPy=py;py=v;pcont.style.transform=`translate3d(0,${(-v).toFixed(2)}px,0)`;pst.classList.toggle("dk",v>110);
+  prevPy=py;py=v;pcont.style.transform=`translate3d(0,${(-v).toFixed(2)}px,0)`;appbar.set(v);
   if(ctaState==='peek'){peekDy=Math.max(0,v)*.6;renderCta();if(v>110)toCard()}
   else if(ctaState==='card'&&v<=.5&&prevPy>.5)toPeek();    // only reaching the very top brings the peek back
 }
