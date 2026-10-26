@@ -18,7 +18,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=98"><link rel="stylesheet" href="../../css/theme.css?v=98">
+<link rel="stylesheet" href="../../css/type.css?v=99"><link rel="stylesheet" href="../../css/theme.css?v=99">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111;
@@ -90,7 +90,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .pback{left:0;top:64px;width:48px;height:48px;display:grid;place-items:center}
 .pdots{left:318px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
 .psearch{left:362px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
-.tabpill{left:17.33px;top:804.33px;width:377.33px;height:47.67px;z-index:7;filter:drop-shadow(0 4px 12px rgba(0,0,0,.12));opacity:0;transform:translate3d(0,0,0)}
+.tabpill{left:12.33px;top:804.33px;width:377.33px;height:47.67px;z-index:7;filter:drop-shadow(0 4px 12px rgba(0,0,0,.12));opacity:0;transform:translate3d(0,0,0)}
 .tabpill.on{opacity:1}
 .tabpill.off{opacity:0;transform:translate3d(0,24px,0);transition:opacity .12s ease-out,transform .16s ease-in}
 .tabpill.back{opacity:1;transform:translate3d(0,0,0);transition:opacity .2s ease-out,transform .32s cubic-bezier(.22,1,.36,1)}
@@ -175,9 +175,8 @@ html.hosted .phone{background:transparent;border-radius:0}
 
         <!-- ===== screen 1: the recorded reel (status bar, captions, Learn more and rail are baked into the footage) ===== -->
         <div class="abs scr reel" id="reel">
-          <video class="abs video" id="vid" src="assets/reel.mp4" poster="assets/reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <video class="abs video" id="vid" src="assets/reel.mp4?v=2" poster="assets/reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
           <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
-          <canvas class="abs video vid-alt" id="vidFrz" aria-hidden="true"></canvas>
           <div class="abs pz" id="pz" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg></div>
           <i class="abs rs-patch" id="rsPatch" aria-hidden="true"></i>
           <div class="abs rs-ov" id="rsOv"></div>
@@ -928,9 +927,9 @@ function vidGesture(){if(vidMode!=='video'||!vidShould()||!vid.paused)return;vid
 function vidArm(){if(vidArmed)return;vidArmed=true;['touchend','click','keydown','pointerup'].forEach(ev=>document.addEventListener(ev,vidGesture,{capture:true,passive:true}))}
 function vidDisarm(){if(!vidArmed)return;vidArmed=false;['touchend','click','keydown','pointerup'].forEach(ev=>document.removeEventListener(ev,vidGesture,{capture:true}))}
 const vidAlt=$('vidAlt');
-let vidMode='video',vidSince=0,vidT0=-1;
-function altShow(){vidAlt.classList.add('on');vidDisarm();if(userPaused)altFreeze(true);try{vid.pause()}catch(e){}vid.style.visibility='hidden'}
-function altUse(mode){vidMode=mode;vidAlt.onload=altShow;vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};vidAlt.src=mode==='img-mp4'?'assets/reel.mp4':'assets/reel.webp?v=1'}
+let vidMode='video',vidSince=0,vidT0=-1,altT0=0;   // altT0: when the fallback image started animating
+function altShow(){if(userPaused){vidMode='video';return}vidAlt.classList.add('on');altT0=performance.now();vidDisarm();try{vid.pause()}catch(e){}vid.style.visibility='hidden'}   // paused meanwhile: the <video> keeps its paused frame
+function altUse(mode){vidMode=mode;vidAlt.onload=altShow;vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};vidAlt.src=mode==='img-mp4'?'assets/reel.mp4?v=2':'assets/reel.webp?v=2'}
 function vidFallback(why){if(vidMode!=='video')return;vidAlt.dataset.why=why;altUse(/[?&]alt=mp4\b/.test(location.search)?'img-mp4':'img-webp')}
 setInterval(()=>{
   if(vidMode!=='video')return;
@@ -939,17 +938,22 @@ setInterval(()=>{
   if(!vidSince||t!==vidT0){vidSince=now;vidT0=t;return}
   if(now-vidSince>(vid.paused?1500:6000))vidFallback(vid.paused?'paused':'stalled');
 },250);
-/* tap to pause. When autoplay was refused (iOS) the reel sits paused without the user asking: that first tap starts it and is not a pause.
-   The animated-image fallback cannot pause, so a paused frame is held on a canvas over it instead. */
-function altFreeze(on){
-  const c=$('vidFrz');
-  if(on){const iw=vidAlt.naturalWidth,ih=vidAlt.naturalHeight;if(!iw)return;c.width=W*2;c.height=H*2;const k=Math.max(c.width/iw,c.height/ih);
-    try{c.getContext('2d').drawImage(vidAlt,(c.width-iw*k)/2,(c.height-ih*k)/2,iw*k,ih*k)}catch(_){return}}
-  c.classList.toggle('on',on);
+/* tap to pause: video.pause() holds the current frame, and play() resumes from it. When autoplay was refused (iOS) the reel sits paused
+   without the user asking: that first tap starts it and is not a pause.
+   The animated-image fallback cannot pause (and a canvas copy of it is its FIRST frame in Safari), so pausing it hands the reel back to
+   the <video>, paused at the image's current position: played and paused inside this tap (a user gesture, so iOS loads it even in Low
+   Power Mode), seeked there, and shown over the image once that frame is ready; resuming then plays the <video> on from that frame. */
+function altPause(){
+  const el=(performance.now()-altT0)/1000;vidMode='video';
+  const show=()=>{if(vidMode==='video'&&userPaused){vid.style.visibility='';vidAlt.classList.remove('on')}};
+  const seek=()=>{if(!userPaused)return;vid.pause();const d=vid.duration,t=d>0?el%d:0;
+    if(vid.readyState>=2&&Math.abs(vid.currentTime-t)<.02)show();else{vid.addEventListener('seeked',show,{once:true});vid.currentTime=t}};
+  const ready=()=>{if(vid.readyState>=1)seek();else vid.addEventListener('loadedmetadata',seek,{once:true})};
+  vid.muted=true;const p=vid.play();if(p&&p.then)p.then(ready,ready);else ready();
 }
 function setPaused(on){
   if(userPaused===on)return;userPaused=on;$('pz').classList.toggle('on',on);
-  if(vidMode==='video'){if(on)vid.pause();else playVid()}else altFreeze(on);
+  if(vidMode==='video'){if(on)vid.pause();else playVid()}else if(on)altPause();
   setLive(on?'Reel paused':'Reel playing');
 }
 function resumeReel(){setPaused(false)}

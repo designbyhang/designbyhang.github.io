@@ -16,8 +16,8 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=98"><link rel="stylesheet" href="../../css/gate.css?v=98"><link rel="stylesheet" href="../../css/theme.css?v=98">
-<script src="../../js/gate.js?v=98"></script>
+<link rel="stylesheet" href="../../css/type.css?v=99"><link rel="stylesheet" href="../../css/gate.css?v=99"><link rel="stylesheet" href="../../css/theme.css?v=99">
+<script src="../../js/gate.js?v=99"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--bezel:#e0e0e0}
@@ -135,7 +135,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="abs cbr" id="cbr">
         <video class="abs video" id="vid" src="assets/ad-reel.mp4" poster="assets/ad-reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
         <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
-        <canvas class="abs video vid-alt" id="vidFrz" aria-hidden="true"></canvas>
         <div class="abs grad-top"></div>
         <div class="abs grad-bot"></div>
         <img class="abs" src="assets/ufi-rail.svg" alt="" style="left:326px;top:486px;width:50px;height:237px">
@@ -620,9 +619,10 @@ function vidDisarm(){if(!vidArmed)return;vidArmed=false;['touchend','click','key
    <video> is then paused and hidden for good. ?alt=mp4 tries Safari's MP4-in-<img> instead (full quality; falls back to the WebP on
    error); not the default because, unlike the WebP, a static result there cannot be detected (canvas reads give the first frame). */
 const vidAlt=$('vidAlt');
-let vidMode='video',vidSince=0,vidT0=-1;
+let vidMode='video',vidSince=0,vidT0=-1,altT0=0;   // altT0: when the fallback image started animating
 function altShow(){
-  vidAlt.classList.add('on');vidDisarm();if(userPaused)altFreeze(true);
+  if(userPaused){vidMode='video';return}   // paused meanwhile: the <video> keeps its paused frame; resuming plays it (or falls back again)
+  vidAlt.classList.add('on');altT0=performance.now();vidDisarm();
   try{vid.pause()}catch(e){}
   vid.style.visibility='hidden';
 }
@@ -645,17 +645,22 @@ setInterval(()=>{
   if(!vidSince||t!==vidT0){vidSince=now;vidT0=t;return}
   if(now-vidSince>(vid.paused?1500:6000))vidFallback(vid.paused?'paused':'stalled');
 },250);
-/* tap to pause. When autoplay was refused (iOS) the reel sits paused without the user asking: that first tap starts it and is not a pause.
-   The animated-image fallback cannot pause, so a paused frame is held on a canvas over it instead. */
-function altFreeze(on){
-  const c=$('vidFrz');
-  if(on){const iw=vidAlt.naturalWidth,ih=vidAlt.naturalHeight;if(!iw)return;c.width=750;c.height=1468;const k=Math.max(c.width/iw,c.height/ih);
-    try{c.getContext('2d').drawImage(vidAlt,(c.width-iw*k)/2,(c.height-ih*k)/2,iw*k,ih*k)}catch(_){return}}
-  c.classList.toggle('on',on);
+/* tap to pause: video.pause() holds the current frame, and play() resumes from it. When autoplay was refused (iOS) the reel sits paused
+   without the user asking: that first tap starts it and is not a pause.
+   The animated-image fallback cannot pause (and a canvas copy of it is its FIRST frame in Safari), so pausing it hands the reel back to
+   the <video>, paused at the image's current position: played and paused inside this tap (a user gesture, so iOS loads it even in Low
+   Power Mode), seeked there, and shown over the image once that frame is ready; resuming then plays the <video> on from that frame. */
+function altPause(){
+  const el=(performance.now()-altT0)/1000;vidMode='video';
+  const show=()=>{if(vidMode==='video'&&userPaused){vid.style.visibility='';vidAlt.classList.remove('on')}};
+  const seek=()=>{if(!userPaused)return;vid.pause();const d=vid.duration,t=d>0?el%d:0;
+    if(vid.readyState>=2&&Math.abs(vid.currentTime-t)<.02)show();else{vid.addEventListener('seeked',show,{once:true});vid.currentTime=t}};
+  const ready=()=>{if(vid.readyState>=1)seek();else vid.addEventListener('loadedmetadata',seek,{once:true})};
+  vid.muted=true;const p=vid.play();if(p&&p.then)p.then(ready,ready);else ready();
 }
 function setPaused(on){
   if(userPaused===on)return;userPaused=on;$('pz').classList.toggle('on',on);
-  if(vidMode==='video'){if(on)vid.pause();else playVid()}else altFreeze(on);
+  if(vidMode==='video'){if(on)vid.pause();else playVid()}else if(on)altPause();
   $('live').textContent=on?'Reel paused':'Reel playing';
 }
 function resumeReel(){setPaused(false)}

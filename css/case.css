@@ -37,7 +37,7 @@ figure{margin:0}
 .media.pad{padding:clamp(16px,4vw,48px)}
 .media.pad img{border-radius:12px}
 /* media captions (images, videos, carousels, prototypes), every case page: the prototypes' former hint style, ink at 56% (--cap, css/theme.css) */
-figcaption{font-family:var(--sans);font-weight:400;font-style:normal;font-size:12px;line-height:16px;letter-spacing:normal;color:var(--cap);text-align:center;max-width:60ch}
+figcaption{font-family:var(--sans);font-weight:400;font-style:normal;font-size:14px;line-height:18px;letter-spacing:normal;color:var(--cap);text-align:center;max-width:60ch}
 .hero-media{margin-top:8px}
 .bleed{margin-left:clamp(12px,2vw,24px);margin-right:clamp(12px,2vw,24px)}
 /* stats */
