@@ -29,12 +29,7 @@
 <g id="Right Actions">
 <g id="Action 1_2">
 <g id="dots-3-horizontal">
-<mask id="mask1_4983_154659" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="335" y="20" width="24" height="24">
-<rect id="icon-mask_2" x="335" y="20" width="24" height="24" fill="url(#pattern1_4983_154659)" />
-</mask>
-<g mask="url(#mask1_4983_154659)">
-<rect id="icon-fill_2" x="335" y="20" width="24" height="24" fill="#050505" />
-</g>
+<g transform="translate(335 20) scale(1.200000)"><path transform="translate(8.3333 8.3333)" d="M3.33333 1.66667C3.33333 2.58667 2.58667 3.33333 1.66667 3.33333C0.746667 3.33333 0 2.58667 0 1.66667C0 0.746667 0.746667 0 1.66667 0C2.58667 0 3.33333 0.746667 3.33333 1.66667" fill-rule="evenodd" fill="#050505"/><path transform="translate(13.3333 8.3333)" d="M3.33333 1.66667C3.33333 2.58667 2.58667 3.33333 1.66667 3.33333C0.746667 3.33333 0 2.58667 0 1.66667C0 0.746667 0.746667 0 1.66667 0C2.58667 0 3.33333 0.746667 3.33333 1.66667" fill-rule="evenodd" fill="#050505"/><path transform="translate(3.3333 8.3333)" d="M3.33333 1.66667C3.33333 2.58667 2.58667 3.33333 1.66667 3.33333C0.746667 3.33333 0 2.58667 0 1.66667C0 0.746667 0.746667 0 1.66667 0C2.58667 0 3.33333 0.746667 3.33333 1.66667" fill-rule="evenodd" fill="#050505"/></g>
 </g>
 </g>
 </g>
@@ -63,10 +58,6 @@
 <pattern id="pattern0_4983_154659" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image0_4983_154659" transform="scale(0.03125)" />
 </pattern>
-<pattern id="pattern1_4983_154659" patternContentUnits="objectBoundingBox" width="1" height="1">
-<use xlink:href="#image1_4983_154659" transform="scale(0.0208333)" />
-</pattern>
 <image id="image0_4983_154659" width="32" height="32" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGgSURBVHgBxZaxecIwEIVfSAagTHkbhA3wCGyAy3SwAWQCnAkgG6RNZdOlC3TpYIO4TJecsE2ELdknWw7/970CcZJOx9Mh4MrcOMQOWSPWhDVmUT6mSFk71p6VsF7hEbXJgvXF+hHqkM8hdGTmuLEpkSlasuqwcVkrOLL2uHmhtWmjW5hP/gg5yoDvyMy3ZX2yjqxv1r0Wpwys/PRWt1gI+YmUN5b4uwkmTPPmtmBCZhqpuQjN2BI3Jr2A/PRTyLDNX5qCXU4vpe7nO1VhkAeq7kaQkVjGiRXjsm/YKLrqOYEAcvaW8Thfp86UOhM9gQfISQ1jBPe2O9YTGKEbBHdIT0BaNp9c7Nnk/ADuTATrniuQwj9Bw/epnsAR/mky9k5PYAv/NBn7dJ3v8g/qCTWrCdYbVYJqxYZ5THmsjrgcLH35hIbFSDi30s51Ez7j/3gxDUqrEBrmEtxOT8XEgbaIqsIT+meJhlsXob8KRBCy6SGBDRyJPCYgPnmZENWXUuiQgDL1HB0hZMY5OCQgeTG3QnW7kSWBD2SlDnCdv/d2/AJQ6i/VqAUgcQAAAABJRU5ErkJggg==" />
-<image id="image1_4983_154659" width="48" height="48" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAALpJREFUaAXtk8EJgDAMRcU5nN85nMabM2g+WNCQ1nrIQXyB0Cb5NOmjHQYMAhCAAAQgAAEIQAACEIAABCAAgRaByYqz+Xq69srVLFtf6xvmNcxmvjtXLrpEtt7avjPR9sOXWDVv2Xrf7zFeTVEG9qtq3rL1t37jLfpg0HOBpXGvqBblyhFRLcq19KXWvWZ/yrfndw9+FaqJPqfet1x75WqWra/1JQ8BCEAAAhCAAAQgAAEIQAACEPgNgQO7B2ndAAV2ZAAAAABJRU5ErkJggg==" />
 </defs>
 </svg>

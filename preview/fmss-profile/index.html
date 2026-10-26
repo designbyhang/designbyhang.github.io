@@ -18,7 +18,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=99"><link rel="stylesheet" href="../../css/theme.css?v=99">
+<link rel="stylesheet" href="../../css/type.css?v=100"><link rel="stylesheet" href="../../css/theme.css?v=100">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111;
@@ -85,7 +85,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .profile.drag,.profile.drag~*,.drag-reel .reel,.drag-reel .reel-dim{transition:none!important}
 .pcont{left:0;top:0;width:402px;height:1703px;will-change:transform;background:#fff}
 .pcont img{display:block;width:402px;height:1703px}
-.st{left:0;top:0;width:402px;height:54px;z-index:6;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.png) 0 0/402px 54px no-repeat;mask:url(assets/status.png) 0 0/402px 54px no-repeat;transition:background-color .15s linear}.st.dk{background:#000}
+.st{left:0;top:0;width:402px;height:54px;z-index:6;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat;transition:background-color .15s linear}.st.dk{background:#000}
 .ico{z-index:6;color:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.32))}
 .pback{left:0;top:64px;width:48px;height:48px;display:grid;place-items:center}
 .pdots{left:318px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
@@ -103,6 +103,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .grab{left:181px;top:8px;width:40px;height:4px;border-radius:2px;background:#878787}
 .pk .fb{left:16.33px;top:27.67px;width:15px;height:15px}
 .pk .url{left:calc(50% - 74.67px / 2);top:27.67px;width:74.67px;height:15px}   /* lock + URL centred on the device (the grabber), whatever the side icons are */
+.pk .url svg{position:absolute;left:.44px;top:1.74px;width:12.44px;height:12.44px}
+.pk .url b{position:absolute;left:16.67px;top:-.62px;font-size:13px;line-height:16px;font-weight:600;color:#000;white-space:nowrap}
 .pk .dots{left:369px;top:33.4px;width:17.67px;height:3.6px}
 .pk .div{left:0;top:58.4px;width:402px;height:1px;background:#eee}
 .load{left:0;height:2px;width:402px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
@@ -115,14 +117,15 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .pg .bn.on{opacity:1}
 .cd{left:0;top:0;width:378px;height:63px;opacity:0}
 .cd .th{left:9.33px;top:7px;width:48px;height:48px;border-radius:8px}
-.cd .t1{left:69px;top:14px;width:208px;height:17.67px}
-.cd .t2{left:69px;top:33.33px;width:54px;height:12.67px}
+.cd .t1{left:69px;top:13px;font-size:15px;line-height:18px;font-weight:600;color:#000;white-space:nowrap}
+.cd .t2{left:69px;top:32.05px;font-size:13px;line-height:16px;font-weight:400;color:#5d5c5f;white-space:nowrap}
+.rs-det .lt{font-size:15px;line-height:18px;color:#fff;white-space:nowrap}
 .cx{z-index:9;width:44px;height:44px;display:grid;place-items:center;color:#000;border-radius:22px}
 
 /* full-screen in-app browser */
 .full{left:0;top:0;width:402px;height:874px;background:#fff;z-index:20;display:none;touch-action:none;will-change:transform,opacity,clip-path}
 .full.on{display:block}
-.stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.png) 0 0/402px 54px no-repeat;mask:url(assets/status.png) 0 0/402px 54px no-repeat;pointer-events:none;z-index:21;opacity:0}
+.stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat;pointer-events:none;z-index:21;opacity:0}
 .fh{left:0;top:54px;width:375px;height:46px;background:#fff;z-index:3;transform:scale(1.072);transform-origin:0 0}  /* fmss-cb IAB header at its 375pt size: 402/375 = 1.072 here, ×.932836 on screen = 1:1 with fmss-cb */
 .iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
 .iab-hf{height:46px}
@@ -181,9 +184,10 @@ html.hosted .phone{background:transparent;border-radius:0}
           <i class="abs rs-patch" id="rsPatch" aria-hidden="true"></i>
           <div class="abs rs-ov" id="rsOv"></div>
           <div class="abs rs-det" id="rsDet" aria-hidden="true">
-            <img class="abs" src="assets/rs-author.png" alt="" style="left:0;top:600px;width:110px;height:42px">
-            <img class="abs" src="assets/rs-cap.png" alt="" style="left:0;top:647px;width:280px;height:21px">
-            <img class="abs" id="rsMoreI" src="assets/rs-more.png" alt="" style="left:280px;top:647px;width:57px;height:21px">
+            <img class="abs" src="assets/rs-author.png?v=2" alt="" style="left:0;top:600px;width:110px;height:42px">
+            <span class="abs lt" style="left:52.33px;top:613px;font-weight:600">Nike</span>
+            <span class="abs lt" style="left:12.33px;top:647px">Engineered for greatness. Designed f…</span>
+            <span class="abs" id="rsMoreI" style="left:280px;top:647px;width:57px;height:21px"><span class="abs lt" style="left:2.1px;top:0;font-weight:600;color:rgba(255,255,255,.9)">more</span><svg class="abs" style="left:0;top:0;overflow:visible" width="57" height="21" viewBox="0 0 57 21" fill="none"><path d="M44.17 8.27L48.5 12L52.83 8.27" stroke="#fff" stroke-opacity=".9" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </div>
           <p class="sr" id="rsCapT">Nike. Engineered for greatness. Designed f…</p>
           <button class="abs btn hot" id="author" type="button" aria-label="Nike: open profile"></button>
@@ -192,7 +196,7 @@ html.hosted .phone{background:transparent;border-radius:0}
           <div class="abs rs" id="rs" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): nike.com" aria-hidden="true">
             <div class="abs pk" id="rsHH"></div>
             <div class="abs fh" id="rsHF">
-              <img class="abs iab-h iab-hf" src="assets/iab-header-full.svg" alt="nike.com, Facebook">
+              <img class="abs iab-h iab-hf" src="assets/iab-header-full.svg?v=2" alt="nike.com, Facebook">
               <button class="abs btn x" id="rsX" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
             </div>
             <div class="abs load" id="rsLoad" aria-hidden="true"><i></i></div>
@@ -219,7 +223,7 @@ html.hosted .phone{background:transparent;border-radius:0}
             <div class="abs pk" id="pk">
               <i class="abs grab"></i>
               <svg class="abs fb" viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z"/></svg>
-              <img class="abs url" src="assets/t-peek-url.png" alt="">
+              <span class="abs url"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.25C4.61929 0.25 3.5 1.36929 3.5 2.75V4.53593C3.42639 4.54248 3.35555 4.55022 3.28747 4.55938C2.82356 4.62175 2.41384 4.75773 2.08579 5.08579C1.75773 5.41384 1.62175 5.82355 1.55938 6.28747C1.49997 6.72934 1.49998 7.28765 1.5 7.9647V8.03529C1.49998 8.71234 1.49997 9.27066 1.55938 9.71253C1.62175 10.1764 1.75773 10.5862 2.08579 10.9142C2.41384 11.2423 2.82356 11.3783 3.28747 11.4406C3.72935 11.5 4.28765 11.5 4.96471 11.5H7.03529C7.71235 11.5 8.27066 11.5 8.71253 11.4406C9.17645 11.3783 9.58616 11.2423 9.91422 10.9142C10.2423 10.5862 10.3783 10.1764 10.4406 9.71253C10.5 9.27066 10.5 8.71235 10.5 8.0353V7.96473C10.5 7.28767 10.5 6.72935 10.4406 6.28747C10.3783 5.82355 10.2423 5.41384 9.91422 5.08579C9.58616 4.75773 9.17645 4.62175 8.71253 4.55938C8.64446 4.55022 8.57361 4.54248 8.5 4.53593V2.75C8.5 1.36929 7.38071 0.25 6 0.25ZM7.08244 4.5H7.5V2.75C7.5 1.92157 6.82843 1.25 6 1.25C5.17157 1.25 4.5 1.92157 4.5 2.75V4.5H4.91756C4.93321 4.5 4.94892 4.5 4.9647 4.5H7.03529C7.05106 4.5 7.06679 4.5 7.08244 4.5Z" fill-rule="evenodd" clip-rule="evenodd" fill="#080809"/></svg><b>nike.com</b></span>
               <svg class="abs dots" viewBox="0 0 17.67 3.6" aria-hidden="true"><g fill="#000"><circle cx="1.8" cy="1.8" r="1.8"/><circle cx="8.83" cy="1.8" r="1.8"/><circle cx="15.87" cy="1.8" r="1.8"/></g></svg>
               <i class="abs div"></i>
               <div class="abs load" id="pkLoad" aria-hidden="true"><i></i></div>
@@ -227,8 +231,8 @@ html.hosted .phone{background:transparent;border-radius:0}
             </div>
             <div class="abs cd" id="cd">
               <img class="abs th" src="assets/card-thumb.png" alt="">
-              <img class="abs t1" src="assets/t-card-title.png" alt="Pegasus Premium for women">
-              <img class="abs t2" src="assets/t-card-sub.png" alt="nike.com">
+              <span class="abs t1">Pegasus Premium for women</span>
+              <span class="abs t2">nike.com</span>
               <button class="abs btn cx" id="cardX" type="button" aria-label="Dismiss the nike.com card" tabindex="-1" style="left:330px;top:9.33px">
                 <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 1.5l13 13M14.5 1.5l-13 13" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
               </button>
@@ -239,7 +243,7 @@ html.hosted .phone{background:transparent;border-radius:0}
         <!-- ===== screen 3: full-screen in-app browser ===== -->
         <div class="abs full" id="full" role="dialog" aria-modal="true" aria-label="In-app browser: nike.com" aria-hidden="true">
           <div class="abs fh">
-            <img class="abs iab-h iab-hf" src="assets/iab-header-full.svg" alt="nike.com, Facebook">
+            <img class="abs iab-h iab-hf" src="assets/iab-header-full.svg?v=2" alt="nike.com, Facebook">
             <button class="abs btn x" id="fx" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
           </div>
           <div class="abs load" id="fLoad" aria-hidden="true"><i></i></div>
