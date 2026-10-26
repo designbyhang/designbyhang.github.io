@@ -18,9 +18,9 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=118"><link rel="stylesheet" href="../../css/theme.css?v=118">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=118"><script src="../shared/iab/iab.js?v=118"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=118"><script src="../shared/appbar/appbar.js?v=118"></script>
+<link rel="stylesheet" href="../../css/type.css?v=119"><link rel="stylesheet" href="../../css/theme.css?v=119">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=119"><script src="../shared/iab/iab.js?v=119"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=119"><script src="../shared/appbar/appbar.js?v=119"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111;
@@ -307,7 +307,7 @@ function setTabs(){
 
 /* ---------- push (reel → profile): .34s, reel parallax −30% + dim; FB tab bar shows, drops away, then the peek slides up and loads ---------- */
 function openProfile(){
-  if(screen!==1||iab.state!==1)return;screen=2;clearLater();
+  if(screen!==1||iab.state!==1)return;screen=2;clearLater();homeTell(false);
   setPScroll(0);setCta('hidden');
   tabpill.className='abs tabpill on';
   phone.classList.add('pushed');setTabs();setHome();setLive('Nike profile');host()?.push(true);
@@ -319,7 +319,7 @@ function backToReel(){
   phone.classList.remove('pushed');profile.style.transform='';reel.style.transform='';$('reelDim').style.opacity='';
   setTabs();setHome();setLive('Reel');resumeReel();                // back on the reel: playback resumes even if it was paused
   host()?.push(false,instantBack);instantBack=false;
-  later(()=>{if(screen===1){setCta('hidden');setPScroll(0)}},360);
+  later(()=>{if(screen===1){setCta('hidden');setPScroll(0);if(iab.state===1)homeTell(true)}},360);   // the push back has settled
 }
 
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
@@ -330,6 +330,9 @@ function backToReel(){
    closing it there brings the card back. */
 const Y1=812,Y2=406,Y3=44,stk=$('stk');
 let iabFrom='reel';
+/* proto-state, to the host page (js/proto-fs.js desktop, js/case.js phone): postMessage {type:'proto-state',home} on each change;
+   home = the first screen at rest (false as a move off it starts, true once the IAB's close spring is at rest: onSettled(1), and the reel back from the profile push) */
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
 const iab=FMSSIAB.create({
   host:$('iab'),y2:Y2,label:'In-app browser (IAB): nike.com',
   headers:{half:'assets/iab-header-half.svg?v=2',full:'assets/iab-header-full.svg?v=2'},
@@ -343,6 +346,7 @@ const iab=FMSSIAB.create({
   },
   onClose(){if(iabFrom==='reel')resumeReel()},     // back on the reel from the browser: playback resumes even if it was paused
   onClosed:()=>iabClosed(),
+  onOpen:()=>homeTell(false),onSettled:s=>{if(s===1&&screen===1)homeTell(true)},
   onLoad(){loads++;bnT0=performance.now();setBanner()},
   onX:()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})},
   wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
@@ -635,7 +639,7 @@ function reset(){                                   // the clean start, instantl
   tabpill.className='abs tabpill';screen=1;setCta('hidden');peekDy=0;setPScroll(0);
   resetLoad();iabFrom='reel';iab.reset();         // the IAB's clean start
   requestAnimationFrame(()=>requestAnimationFrame(()=>{[profile,reel,$('reelDim')].forEach(el=>el.style.transition='')}));
-  setTabs();resumeReel();fingerOff();if(was!==1)host()?.push(false,true);
+  setTabs();resumeReel();fingerOff();if(was!==1)host()?.push(false,true);homeS=null;homeTell(true);   // always told: the host's cue that this is the clean start
 }
 /* ---------- when the demo runs (v101) ----------
    The demo autoplays ONLY inline on the case page (?inline=1, not lifted full screen), while visible. Full screen (html.embed-full,

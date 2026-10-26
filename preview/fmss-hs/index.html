@@ -16,8 +16,8 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=118"><link rel="stylesheet" href="../../css/theme.css?v=118">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=118"><script src="../shared/iab/iab.js?v=118"></script>
+<link rel="stylesheet" href="../../css/type.css?v=119"><link rel="stylesheet" href="../../css/theme.css?v=119">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=119"><script src="../shared/iab/iab.js?v=119"></script>
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
@@ -215,6 +215,9 @@ function setPage(key){
    takes the half sheet; Learn more ('cta') goes closed ↔ full only, with the full header held and the feed dimmed. ---------- */
 const morph=y=>mode==='hs'?clamp((Y1-y)/(Y1-Y2)):0;   // feed → split morph, tied to the sheet
 const loadLog=[];                                  // load starts, read by the tests
+/* proto-state, to the host page (js/proto-fs.js desktop, js/case.js phone): postMessage {type:'proto-state',home} on each change;
+   home = the first screen at rest (false as a move off it starts, true once the IAB's close spring is at rest: onSettled(1)) */
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
 const iab=FMSSIAB.create({
   host:phone,y2:Y2,label:'In-app browser (IAB): artifox.com',xLabel:'Close',
   headers:{half:'assets/iab-header-half.svg?v=2',full:'assets/iab-header-full.svg?v=2'},
@@ -247,9 +250,10 @@ const iab=FMSSIAB.create({
     $('cta').classList.toggle('on',s===1);
     $('live').textContent=s===1?'Back to feed':mode==='cta'?'artifox.com open full screen':s===2?`Split screen: ${NAMES[clamp(Math.round(p),0,N-1)]}, ${clamp(Math.round(p),0,N-1)+1} of ${N}`:'In-app browser full screen';
   },
-  onOpen(){pageIdx=-1;pageKey='';setPage(mode==='cta'?'bestsellers':PAGES[clamp(Math.round(p),0,N-1)])},   // fresh open: that product's page (or Best Sellers)
+  onOpen(){homeTell(false);pageIdx=-1;pageKey='';setPage(mode==='cta'?'bestsellers':PAGES[clamp(Math.round(p),0,N-1)])},   // fresh open: that product's page (or Best Sellers)
   onLoad:why=>loadLog.push({why,page:pageKey,t:performance.now()}),
   onClosed(){mode='hs';render()},
+  onSettled:s=>{if(s===1)homeTell(true)},
   onPress:()=>userActed(),
   onX:()=>{close();document.querySelector('.tile').focus({preventScroll:true})},
   wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
@@ -373,7 +377,7 @@ function fingerOff(){finger.classList.remove('on','down');delete finger.dataset.
 const realBusy=()=>!!(iab.drag&&iab.drag.id!=='fake')||!!(hd&&hd.id!=='fake')||!!iab.sc||wOn;
 function reset(){                                   // the clean start, instantly (under the crossfade cover)
   pSpring.stop();hd=null;hs.classList.remove('drag');clearTimeout(wT);wOn=false;
-  mode='hs';p=0;pageIdx=-1;iab.reset();fingerOff();
+  mode='hs';p=0;pageIdx=-1;iab.reset();fingerOff();homeS=null;homeTell(true);   // always told: the host's cue that this is the clean start
 }
 /* ---------- when the demo runs (v101) ----------
    The demo autoplays ONLY inline on the case page (?inline=1, not lifted full screen), while visible. Full screen (html.embed-full,

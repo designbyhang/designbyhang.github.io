@@ -11,7 +11,9 @@
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
    Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), its line
    centred on the theme toggle's (bottom-left), at most 375px wide; the device takes the probe box down to 40px above it (375x812 cap
-   kept). Without the toggle on screen: 40px below the device, device + gap + text centred in the probe box. It moves as CLOSE does (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, 448ms on
+   kept). Without the toggle on screen: 40px below the device, device + gap + text centred in the probe box. It moves as CLOSE does
+   (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, then INS_WAIT 800ms more (WAAPI delay, no timer; a tap or
+   close inside it and it never shows), 448ms on
    CLOSE's curve, opacity 0 -> 1 on the same curve) but vertically: it slides DOWN out from behind the device. It lives in the
    .fsx-bg layer, under the lifted iframe, and its box (.fsx-ins, overflow clip) starts at the device's bottom edge, so at the start
    (span raised by gap + its height) it is entirely under the device. On the first tap of the element it describes (TAP, in the
@@ -38,18 +40,23 @@ const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image',
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
 /* instruction motion: CLOSE's entrance (uiEnter) on the y axis, from behind the device; D = its box (gap + text) */
-const INS_MS=448,INS_STAG=40,INS_REV='cubic-bezier(.8,0,.8,.2)'; /* INS_REV = CLOSE's curve (.2,.8,.2,1) run backwards in time */
-let insA=null,tapped=false,insSt=null;
+const INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_REV='cubic-bezier(.8,0,.8,.2)'; /* INS_REV = CLOSE's curve (.2,.8,.2,1) run backwards in time */
+let insA=null,tapped=false,insSt=null,insHome=false; /* insHome: the prototype has reported its clean start this session */
 const insD=()=>ins.clientHeight,insHide=()=>{insS.style.opacity='0';insS.style.translate='0 '+(-insD())+'px';};
 const insStop=()=>{if(insA){insA.cancel();insA=null;}};
-function insEnter(){if(tapped||!insS.textContent)return;insStop();insS.style.opacity=insS.style.translate='';if(rm.matches||!insS.animate)return;
- insA=insS.animate([{opacity:0,translate:'0 '+(-insD())+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:INS_STAG,easing:UI_EASE,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
+function insEnter(d=INS_STAG+INS_WAIT){if(tapped||!insS.textContent)return;insStop();insS.style.opacity=insS.style.translate='';if(rm.matches||!insS.animate)return;
+ insA=insS.animate([{opacity:0,translate:'0 '+(-insD())+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:UI_EASE,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
 const insOut=()=>{if(tapped)return;tapped=true; /* gone for the rest of this full-screen session */
  if(rm.matches||!insS.animate){insStop();insHide();return;}
+ if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide();return;} /* still waiting: it never appears */
  if(insA&&insA.playState!=='finished'){const a=insA;a.reverse();a.onfinish=()=>{if(insA===a){insA=null;insHide();a.cancel();}}; /* cancel: its backwards fill would otherwise outlive it */return;}
  const cs=getComputedStyle(insS),o=+cs.opacity,y=parseFloat((cs.translate||'0 0').split(' ')[1])||0;insStop();insHide();
  insA=insS.animate([{opacity:o,translate:'0 '+y+'px'},{opacity:0,translate:'0 '+(-insD())+'px'}],{duration:INS_MS,easing:INS_REV});insA.onfinish=()=>{insA=null;};};
 const onTap=e=>{const k=cur&&keyOf(cur.f),t=e.target;if(k&&e.isTrusted&&t&&t.closest&&t.closest(TAP[k]))insOut();};
+/* the prototype's {type:'proto-state',home}: leaving its first screen takes the instruction out (as the tap); back on it and at rest,
+   the instruction comes back with its entrance, INS_WAIT after the settle (a WAAPI delay: leaving again inside it cancels it) */
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='proto-state'||!cur||e.source!==cur.f.contentWindow||(state!=='open'&&state!=='opening'))return;
+ if(!d.home){if(insHome)insOut();}else{insHome=true;if(tapped){tapped=false;insEnter(INS_WAIT);}}}); /* a home:false before the clean start is the inline demo's */
 body.append(bg,fs);
 const btn=fs.querySelector('.deck-x');
 let state='closed',cur=null,raf=0,P=0,G=null;
@@ -142,7 +149,7 @@ function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.no
  raf=requestAnimationFrame(tick);}
 function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
- const k=keyOf(f);insStop();insSt=null;tapped=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ const k=keyOf(f);insStop();insSt=null;tapped=false;insHome=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
