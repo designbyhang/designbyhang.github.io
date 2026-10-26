@@ -17,6 +17,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=111"><link rel="stylesheet" href="../../css/theme.css?v=111">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=111"><script src="../shared/iab/iab.js?v=111"></script>
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
@@ -72,26 +73,12 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .hs.drag{cursor:grabbing}
 .overlay{left:0;top:0;width:375px;height:812px;background:rgba(0,0,0,.4);opacity:0;z-index:15;pointer-events:none}
 
-/* sheet = Figma "Bottom Container" (IAB): half top 407 (h 405, r16), full top 44 (h 768, r0) */
-.sheet{left:0;top:812px;width:375px;height:768px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;transform:translateZ(0)}
-.sheet.drag{cursor:grabbing}
-.iab-h{left:0;top:0;width:375px;z-index:2}
-.iab-hh{height:52px}
-.iab-hf{height:46px;opacity:0}
-.webv{left:0;top:52px;width:375px;height:768px;overflow:hidden;z-index:1}
 /* captured artifox.com page (Figma fmss_31–35 "Webpage" layer at full height, 375 css px wide @3x; product pages = Figma top + the real theartifox.com page continued below it, ~3 visible heights (max scroll ~2x the 627px full-screen view): Desk 1950, Side 1815, Lighting 1881, Seating 1980; Best Sellers 2032);
-   scrolls inside .webv via the `translate` property (opacity is animated by the page load) */
-.web{left:0;top:0;width:375px;height:1950px;will-change:translate}
-/* page-load bar (same as Caption & Browse): 2px hairline right under the visible header's bottom edge (half 52px, full 46px); blue #2F4EBE on #E5E5EA */
-.load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
-.load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
-.footer{left:0;top:717px;width:375px;height:95px;z-index:25;pointer-events:none;will-change:transform;transform:translate3d(0,110px,0)}
+   scrolls inside the IAB page viewport via the `translate` property (opacity is animated by the page load) */
+.web{height:1950px}
 .status{left:0;top:0;width:375px;height:44px;z-index:30}
 .status-l{z-index:11}
 .status-d{opacity:0}
-.status-w{left:0;top:0;width:375px;height:44px;background:#fff;opacity:0;z-index:19;pointer-events:none}   /* white under the status bar ↔ IAB header seam (see render) */
-.x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
-.x.on{display:block}
 .home{left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;z-index:45;pointer-events:none}
 .finger,.ufinger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
@@ -147,17 +134,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="abs btn tile" data-i="3" type="button" style="left:261px;top:470px;width:114px;height:122px" aria-label="Chair: open the split screen"></button>
         <button class="abs btn cta" id="cta" type="button" aria-label="Learn more: open artifox.com in the in-app browser (IAB) full screen"></button>
         <div class="abs overlay" id="overlay"></div>
-        <i class="abs status-w" id="statusW" aria-hidden="true"></i>
 
-        <div class="abs sheet" id="sheet" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): artifox.com" aria-hidden="true">
-          <img class="abs iab-h iab-hh" id="hHalf" src="assets/iab-header-half.svg?v=2" alt="">
-          <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg?v=2" alt="">
-          <div class="abs load" id="load" aria-hidden="true"><i id="loadFill"></i></div>
-          <div class="abs webv" id="webv"><img class="abs web" id="web" src="assets/page-desk.webp?v=3" alt="artifox.com product page"></div>
-        </div>
-        <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
         <img class="abs status status-d" id="statusD" src="assets/statusbar-dark.svg" alt="">
-        <button class="abs btn x" id="x" type="button" aria-label="Close"></button>
         <div class="abs home"></div>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
@@ -173,7 +151,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),sheet=$('sheet'),hs=$('hs');
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),hs=$('hs');
 const Y1=812,Y2=407,Y3=44;                       // sheet top: closed / split / full (Figma px)
 const N=4,PITCH=363;                             // products; px of finger travel per card (351 + 12 gap)
 const PAGES=['desk','side','lighting','seating'];
@@ -222,8 +200,8 @@ function slots(p){
   return w.map((wj,j)=>[L[j],44+(351-wj)/2,wj,wj,o[j]]);
 }
 
-/* ---------- state: sheet top y, carousel index p, mode ('hs' collection → split, 'cta' Learn more → full) ---------- */
-let y=Y1,p=0,state=1,mode='hs',hLock=0,pageIdx=-1,pageKey='';
+/* ---------- state: carousel index p, mode ('hs' collection → split, 'cta' Learn more → full); the sheet top y lives in the shared IAB ---------- */
+let p=0,mode='hs',pageIdx=-1,pageKey='';
 const WEB_H={desk:1950,side:1815,lighting:1881,seating:1980,bestsellers:2032};   // css px height of each captured page
 function setPage(key){
   if(key===pageKey)return false;pageKey=key;
@@ -231,131 +209,63 @@ function setPage(key){
   $('web').alt=key==='bestsellers'?'artifox.com Best Sellers: Desk, Side, Table and Bench in walnut with prices':`artifox.com ${key} page`;
   return true;
 }
-function render(){
-  const m=mode==='hs'?clamp((Y1-y)/(Y1-Y2)):0;     // feed → split morph, tied to the sheet
-  const pf=mode==='hs'?clamp((Y2-y)/(Y2-Y3)):clamp((Y1-y)/(Y1-Y3));   // fullness
-  sheet.style.transform=`translate3d(0,${(y-Y1).toFixed(2)}px,0)`;
-  const r=(16*(1-pf)).toFixed(2);sheet.style.borderRadius=`${r}px ${r}px 0 0`;
-  $('mbg').style.opacity=m.toFixed(3);$('mnav').style.opacity=m.toFixed(3);$('dots').style.opacity=m.toFixed(3);
-  $('overlay').style.opacity=(mode==='cta'?pf:0).toFixed(3);
-  const S=slots(p);
-  cards.forEach((c,j)=>{
-    const F=FEED[j],s=S[j],k=m;
-    const x=lerp(F[0],s[0],k),yy=lerp(F[1],s[1],k),w=lerp(F[2],s[2],k),h=lerp(F[3],s[3],k);
-    c.style.left=x.toFixed(2)+'px';c.style.top=yy.toFixed(2)+'px';c.style.width=w.toFixed(2)+'px';c.style.height=h.toFixed(2)+'px';
-    c.style.borderRadius=(16*k).toFixed(2)+'px';c.style.opacity=lerp(1,s[4],k).toFixed(3);
-    c.style.zIndex=k>0?String(8-Math.min(3,Math.round(Math.abs(j-p)))):'5';
-    c.lastChild.style.opacity=(1-k).toFixed(3);
-  });
-  const hk=hLock?1:clamp((pf-.45)/.2);             // half → full header: fade out, then in
-  $('hHalf').style.opacity=(1-clamp(hk*2)).toFixed(3);
-  $('hFull').style.opacity=clamp(hk*2-1).toFixed(3);
-  $('webv').style.top=lerp(52,46,hk).toFixed(2)+'px';
-  $('load').style.top=lerp(52,46,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 46
-  $('footer').style.transform=`translate3d(0,${((1-clamp((pf-.2)/.8))*110).toFixed(2)}px,0)`;
-  $('statusD').style.opacity=(mode==='cta'?1:Math.max(1-m,clamp((84-y)/40))).toFixed(3);
-  /* one white surface from the status bar into the full header: a white band under the sheet's top edge, so the two anti-aliased edges
-     (status bar bottom, sheet top) never let the dim show through as a hairline; it shrinks back to the status bar once the sheet leaves the top */
-  const sw=$('statusW');sw.style.opacity=$('statusD').style.opacity;sw.style.height=(44+clamp(52-y,0,4)).toFixed(2)+'px';
-  const idx=clamp(Math.round(p),0,N-1);
-  if(idx!==pageIdx){pageIdx=idx;[...$('dots').children].forEach((d,j)=>d.classList.toggle('on',j===idx))}
-}
-function setState(s){
-  state=s;
-  $('x').classList.toggle('on',s!==1);
-  hs.classList.toggle('on',s===2&&mode==='hs');
-  document.querySelectorAll('.tile').forEach(t=>{t.classList.toggle('on',s===1)});
-  $('cta').classList.toggle('on',s===1);
-  sheet.setAttribute('aria-hidden',s===1?'true':'false');
-  $('live').textContent=s===1?'Back to feed':mode==='cta'?'artifox.com open full screen':s===2?`Split screen: ${NAMES[clamp(Math.round(p),0,N-1)]}, ${clamp(Math.round(p),0,N-1)+1} of ${N}`:'In-app browser full screen';
-}
-
-/* ---------- springs (critically damped) ---------- */
-function makeSpring(get,set){
-  let raf=0,busy=false,tgt=null;
-  return {get busy(){return busy},get target(){return tgt},stop(){cancelAnimationFrame(raf);busy=false},
-    to(target,{v=0,w=18,z=1,onDone}={}){
-      cancelAnimationFrame(raf);tgt=target;
-      if(RM.matches){set(target);busy=false;onDone&&onDone();return}
-      let last=performance.now(),vel=v,x=get();busy=true;
-      const step=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;
-        for(let i=0;i<4;i++){const h=dt/4;vel+=(-w*w*(x-target)-2*z*w*vel)*h;x+=vel*h}
-        const eps=Math.abs(target)>20?.3:.002;
-        if(Math.abs(x-target)<eps&&Math.abs(vel)<(eps*25)){set(target);busy=false;onDone&&onDone();return}
-        set(x);raf=requestAnimationFrame(step)};
-      raf=requestAnimationFrame(step);
-    }};
-}
-const ySpring=makeSpring(()=>y,v=>{y=v;render()});
-const pSpring=makeSpring(()=>p,v=>{p=v;render()});
-
-/* ---------- web content scroll (full screen only, same as Caption & Browse): swipe up on the page scrolls it, rubber-band past
-   the top and bottom springs back; at the top a downward swipe hands off to the sheet drag. Split screen never scrolls the page.
-   Visible page height in full = 812 - (44 sheet + 46 header) minus the footer overlap (≈95) → max scroll = page height - 627. */
-const smax=()=>Math.max(0,(WEB_H[pageKey]||768)-627);
-let sy=0,sraf=0;
-function setScroll(v){sy=v;$('web').style.translate=`0 ${(-v).toFixed(2)}px`}
-function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
-function scrollBack(){                             // rubber-band overshoot springs back to the nearest edge
-  const target=clamp(sy,0,smax());if(Math.abs(sy-target)<.5){setScroll(target);return}
-  let last=performance.now(),v=0;const w=16;
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(sy-target)-2*w*v)*h;sy+=v*h}
-    if(Math.abs(sy-target)<.3&&Math.abs(v)<8){setScroll(target);sraf=0;return}setScroll(sy);sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
-function fling(v){                                 // iOS-like momentum: exponential decay (τ≈325ms), stops at the edges
-  stopScroll();if(RM.matches||Math.abs(v)<60)return scrollBack();
-  let last=performance.now();const M=smax();
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;v*=Math.exp(-dt/.325);let n=sy+v*dt;
-    if(n<=0||n>=M){setScroll(clamp(n,0,M));sraf=0;return}
-    setScroll(n);if(Math.abs(v)<12){sraf=0;return}sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
-const rubber=v=>{const M=smax();return v<0?v*.35:v>M?M+(v-M)*.35:v};
-
-/* ---------- page load (ported from Caption & Browse): plays on every open from the feed (product tap → split, Learn more → full)
-   and on every carousel snap to a different product (that product's page loads again); never on split↔full; reset once dismissed.
-   Deterministic browser-style progress: quick jump, stall near 40%, surge, stall near 75%, rush to 100%, then the whole bar
-   fades out over 130ms the instant it completes (no hold). The page is blank until the fill crosses 1/3 (290ms), then fades in over 200ms.
-   A new load mid-load cancels the running one and restarts from 0. */
-const LOAD_MS=1140,LOAD_THIRD=290,LOAD_OUT=130;
-const LOAD_KF=[[0,0,'cubic-bezier(.2,.8,.3,1)'],[120,.26,'cubic-bezier(.3,.5,.5,1)'],[290,.334,'cubic-bezier(.3,.6,.4,1)'],[430,.41,'cubic-bezier(.2,.4,.4,1)'],
-  [620,.45,'cubic-bezier(.45,0,.3,1)'],[780,.71,'cubic-bezier(.2,.6,.4,1)'],[1000,.78,'cubic-bezier(.5,0,.9,.6)'],[LOAD_MS,1]];
-let loadAnims=[],loads=0;
+/* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab), configured for H-Scroll. The product carousel (split)
+   takes the half sheet; Learn more ('cta') goes closed ↔ full only, with the full header held and the feed dimmed. ---------- */
+const morph=y=>mode==='hs'?clamp((Y1-y)/(Y1-Y2)):0;   // feed → split morph, tied to the sheet
 const loadLog=[];                                  // load starts, read by the tests
-function resetLoad(){loadAnims.forEach(a=>a.cancel());loadAnims=[]}   // back to the CSS base: page shown, bar hidden
-function load(why){
-  resetLoad();loads++;stopScroll();setScroll(0);loadLog.push({why,page:pageKey,t:performance.now()});   // a new page starts at its top
-  if(RM.matches||!Element.prototype.animate)return;
-  const T=LOAD_MS+LOAD_OUT;
-  loadAnims=[
-    $('loadFill').animate(LOAD_KF.map(([t,v,e])=>Object.assign({transform:`scaleX(${v})`,offset:t/LOAD_MS},e?{easing:e}:{})),{duration:LOAD_MS,fill:'forwards'}),
-    $('load').animate([{opacity:1},{opacity:1,offset:LOAD_MS/T,easing:'ease-out'},{opacity:0}],{duration:T}),   // no hold at 100%
-    $('web').animate([{opacity:0},{opacity:0,offset:LOAD_THIRD/(LOAD_THIRD+200),easing:'cubic-bezier(.2,.7,.2,1)'},{opacity:1}],{duration:LOAD_THIRD+200})
-  ];
-}
-function go(s,opts={}){
-  const target=s===1?Y1:s===2?Y2:Y3;
-  if(state===1&&s>1){pageIdx=-1;pageKey='';setPage(mode==='cta'?'bestsellers':PAGES[clamp(Math.round(p),0,N-1)]);load(mode==='cta'?'learn-more':'product')}   // fresh open
-  hLock=mode==='cta'?1:0;
-  setState(s);render();
-  const o=Object.assign({},opts);
-  if(s===1){if(o.w==null)o.w=16;const d=o.onDone;o.onDone=()=>{mode='hs';resetLoad();stopScroll();setScroll(0);render();d&&d()}}   // reset once dismissed
-  ySpring.to(target,o);
-}
-function openAt(i){if(state!==1)return;pSpring.stop();mode='hs';p=i;pageIdx=-1;render();go(2,{w:16})}
-function openCta(){if(state!==1)return;mode='cta';go(3,{w:16})}
+const iab=FMSSIAB.create({
+  host:phone,y2:Y2,label:'In-app browser (IAB): artifox.com',xLabel:'Close',
+  headers:{half:'assets/iab-header-half.svg?v=2',full:'assets/iab-header-full.svg?v=2'},
+  fullTop:0,shift:'hk',halfZ:.9,
+  web:'<img class="web" id="web" src="assets/page-desk.webp?v=3" alt="artifox.com product page">',webH:()=>WEB_H[pageKey]||768,visH:627,
+  fullness:y=>mode==='hs'?clamp((Y2-y)/(Y2-Y3)):clamp((Y1-y)/(Y1-Y3)),
+  halfOK:()=>mode!=='cta',hold:()=>mode==='cta',holdOnDrag:()=>mode==='cta',
+  xOn:s=>s!==1,
+  capOpacity:(sd,y)=>mode==='cta'?1:Math.max(1-morph(y),sd),   // the white feed's status area stays white until the split morph darkens it
+  onRender({y,p:pf,sd}){
+    const m=morph(y);
+    $('mbg').style.opacity=m.toFixed(3);$('mnav').style.opacity=m.toFixed(3);$('dots').style.opacity=m.toFixed(3);
+    $('overlay').style.opacity=(mode==='cta'?pf:0).toFixed(3);
+    const S=slots(p);
+    cards.forEach((c,j)=>{
+      const F=FEED[j],s=S[j],k=m;
+      const x=lerp(F[0],s[0],k),yy=lerp(F[1],s[1],k),w=lerp(F[2],s[2],k),h=lerp(F[3],s[3],k);
+      c.style.left=x.toFixed(2)+'px';c.style.top=yy.toFixed(2)+'px';c.style.width=w.toFixed(2)+'px';c.style.height=h.toFixed(2)+'px';
+      c.style.borderRadius=(16*k).toFixed(2)+'px';c.style.opacity=lerp(1,s[4],k).toFixed(3);
+      c.style.zIndex=k>0?String(8-Math.min(3,Math.round(Math.abs(j-p)))):'5';
+      c.lastChild.style.opacity=(1-k).toFixed(3);
+    });
+    $('statusD').style.opacity=(mode==='cta'?1:Math.max(1-m,sd)).toFixed(3);
+    const idx=clamp(Math.round(p),0,N-1);
+    if(idx!==pageIdx){pageIdx=idx;[...$('dots').children].forEach((d,j)=>d.classList.toggle('on',j===idx))}
+  },
+  onState(s){
+    hs.classList.toggle('on',s===2&&mode==='hs');
+    document.querySelectorAll('.tile').forEach(t=>{t.classList.toggle('on',s===1)});
+    $('cta').classList.toggle('on',s===1);
+    $('live').textContent=s===1?'Back to feed':mode==='cta'?'artifox.com open full screen':s===2?`Split screen: ${NAMES[clamp(Math.round(p),0,N-1)]}, ${clamp(Math.round(p),0,N-1)+1} of ${N}`:'In-app browser full screen';
+  },
+  onOpen(){pageIdx=-1;pageKey='';setPage(mode==='cta'?'bestsellers':PAGES[clamp(Math.round(p),0,N-1)])},   // fresh open: that product's page (or Best Sellers)
+  onLoad:why=>loadLog.push({why,page:pageKey,t:performance.now()}),
+  onClosed(){mode='hs';render()},
+  onPress:()=>userActed(),
+  onX:()=>{close();document.querySelector('.tile').focus({preventScroll:true})},
+  wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
+});
+const sheet=iab.sheet,go=iab.go,render=iab.render,setState=iab.setState;
+const pSpring=FMSSIAB.makeSpring(()=>p,v=>{p=v;render()});
+function openAt(i){if(iab.state!==1)return;pSpring.stop();mode='hs';p=i;pageIdx=-1;render();go(2,{w:16,why:'product'})}
+function openCta(){if(iab.state!==1)return;mode='cta';go(3,{w:16,why:'learn-more'})}
 const close=()=>go(1);
 /* every carousel settle (swipe, drag, trackpad, arrow keys, autoplay) lands here: a different product loads its page; snapping back to the same one does not */
-function snapTo(i,v=0){i=clamp(Math.round(i),0,N-1);if(state===2&&mode==='hs'&&setPage(PAGES[i]))load('swipe');pSpring.to(i,{v,w:16,onDone:()=>{if(state===2)setState(2)}})}
+function snapTo(i,v=0){i=clamp(Math.round(i),0,N-1);if(iab.state===2&&mode==='hs'&&setPage(PAGES[i]))iab.load('swipe');pSpring.to(i,{v,w:16,onDone:()=>{if(iab.state===2)setState(2)}})}
 
 /* ---------- controls ---------- */
 document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>openAt(+t.dataset.i)));
 $('cta').addEventListener('click',openCta);
-$('x').addEventListener('click',()=>{close();document.querySelector('.tile').focus({preventScroll:true})});
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&state!==1){userActed();close()}
-  if(state===2&&mode==='hs'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')&&frame.contains(document.activeElement)){userActed();snapTo(Math.round(p)+(e.key==='ArrowRight'?1:-1))}
+  if(e.key==='Escape'&&iab.state!==1){userActed();close()}
+  if(iab.state===2&&mode==='hs'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')&&frame.contains(document.activeElement)){userActed();snapTo(Math.round(p)+(e.key==='ArrowRight'?1:-1))}
 });
 
 /* ---------- carousel h-scroll: pointer (touch / mouse drag) 1:1 + velocity snap; trackpad deltaX + idle snap ---------- */
@@ -383,13 +293,13 @@ function hsEnd(){
   target=clamp(target,d.from-1,d.from+1);
   snapTo(target,-vpx/PITCH);
 }
-hs.addEventListener('pointerdown',e=>{if(e.button!==0||state!==2)return;if(isFine(e))userActed();try{hs.setPointerCapture(e.pointerId)}catch(_){}hsStart(e.clientX,e.clientY,e.pointerId,scaleNow())});
+hs.addEventListener('pointerdown',e=>{if(e.button!==0||iab.state!==2)return;if(isFine(e))userActed();try{hs.setPointerCapture(e.pointerId)}catch(_){}hsStart(e.clientX,e.clientY,e.pointerId,scaleNow())});
 hs.addEventListener('pointermove',e=>{if(hd&&e.pointerId===hd.id)hsMove(e.clientX,e.clientY)});
 hs.addEventListener('pointerup',e=>{if(hd&&e.pointerId===hd.id)hsEnd()});
 hs.addEventListener('pointercancel',e=>{if(hd&&e.pointerId===hd.id)hsEnd()});
 let wT=0,wFrom=0,wOn=false;
 hs.addEventListener('wheel',e=>{
-  if(state!==2)return;
+  if(iab.state!==2)return;
   const dx=e.deltaMode===1?e.deltaX*16:e.deltaX,dy=e.deltaMode===1?e.deltaY*16:e.deltaY;
   if(Math.abs(dx)<=Math.abs(dy))return;            // vertical wheel scrolls the page as usual
   wheelTo(e,dx,d=>{
@@ -398,67 +308,6 @@ hs.addEventListener('wheel',e=>{
     p=n;render();
     clearTimeout(wT);wT=setTimeout(()=>{wOn=false;let t=Math.round(p);if(Math.abs(p-wFrom)>.12)t=wFrom+(p>wFrom?1:-1);snapTo(clamp(t,wFrom-1,wFrom+1))},120);
     return true});
-},{passive:false});
-
-/* ---------- sheet drag (pointer events, 1:1, velocity + position snap) ---------- */
-let drag=null;
-function dragStart(clientY,id){ySpring.stop();hLock=mode==='cta'?1:0;drag={id,startY:clientY,y0:y,from:state,moved:false,samples:[[performance.now(),y]]};sheet.classList.add('drag')}
-function dragMove(clientY){
-  if(!drag)return;
-  let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
-  if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
-  if(ny<Y3)ny=Y3-(Y3-ny)*.25;
-  y=Math.min(Y1,ny);render();
-  const now=performance.now();drag.samples.push([now,y]);
-  while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
-}
-function dragEnd(){
-  if(!drag)return;
-  const d=drag;drag=null;sheet.classList.remove('drag');
-  if(!d.moved){if(d.from===2)return go(3);return ySpring.to(d.from===3?Y3:Y2)}   // tap on the split-screen sheet → full
-  const s=d.samples,a=s[0],b=s[s.length-1];
-  const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;
-  const proj=y+v*.18;
-  const cands=mode==='cta'?[[3,Y3],[1,Y1]]:d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
-  let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
-  if(Math.abs(v)>600&&mode==='hs'){
-    const want=clamp(d.from+(v>0?-1:1),1,3);
-    if(d.from===3&&want<2){}else if((v>0&&best[0]>want)||(v<0&&best[0]<want))best=cands.find(c=>c[0]===want)||best;
-  }
-  go(best[0],{v,z:best[0]===2?.9:1});
-}
-/* full screen: a press below the header scrolls the page instead (sc); pulling down past the page top hands off to the sheet drag */
-let sc=null;
-const atFull=()=>!ySpring.busy||(ySpring.target===Y3&&Math.abs(y-Y3)<24);   // settling into full still scrolls; a travelling sheet is caught
-function scStart(clientY,id,scale){stopScroll();sc={id,startY:clientY,s0:sy,scale,moved:false,samples:[[performance.now(),sy]]}}
-function scMove(clientY){
-  const want=sc.s0-(clientY-sc.startY)/sc.scale;
-  if(Math.abs(clientY-sc.startY)>4)sc.moved=true;
-  if(want<0&&sc.s0<=0){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id);drag.scale=scale;drag.moved=true;return}   // at the top: the sheet takes over
-  setScroll(rubber(want));
-  const now=performance.now();sc.samples.push([now,sy]);
-  while(sc.samples.length>2&&now-sc.samples[0][0]>100)sc.samples.shift();
-}
-function scEnd(){
-  const d=sc;sc=null;if(!d)return;
-  if(!d.moved)return scrollBack();
-  const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;
-  if(sy<0||sy>smax())return scrollBack();
-  fling(dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/dt:0);
-}
-sheet.addEventListener('pointerdown',e=>{
-  if(e.button!==0||state===1)return;
-  userActed();try{sheet.setPointerCapture(e.pointerId)}catch(_){}
-  const sc0=scaleNow();
-  if(state===3&&atFull()&&(e.clientY-sheet.getBoundingClientRect().top)/sc0>=46){scStart(e.clientY,e.pointerId,sc0);return}
-  dragStart(e.clientY,e.pointerId);drag.scale=sc0;
-});
-sheet.addEventListener('pointermove',e=>{if(sc&&e.pointerId===sc.id)scMove(e.clientY);else if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
-sheet.addEventListener('pointerup',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('pointercancel',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('wheel',e=>{            // trackpad / mouse wheel scrolls the page in full screen
-  if(state!==3||!atFull()||drag||sc)return;
-  wheelTo(e,wd(e),d=>{const n=clamp(sy+d,0,smax());if(Math.abs(n-sy)<.5)return false;stopScroll();setScroll(n);return true});
 },{passive:false});
 
 /* ---------- theme toggle ---------- */
@@ -497,15 +346,15 @@ async function swipe(dir,tk){                       // dir +1 = next card (finge
   finger.classList.remove('on');await sleep(280,tk);delete finger.dataset.g;
 }
 async function handleDrag(target,toTop,ms,tk){
-  const from=y,fy0=y+HO;glog.push({kind:'drag',target,from,to:toTop});
+  const from=iab.y,fy0=from+HO;glog.push({kind:'drag',target,from,to:toTop});
   fingerAt(HX,fy0);finger.dataset.g='drag';finger.classList.add('on');await sleep(320,tk);
   finger.classList.add('down');await sleep(140,tk);
-  dragStart(fy0,'fake');drag.scale=1;
-  gUndo=()=>{const d=drag;if(!d||d.id!=='fake')return;drag=null;sheet.classList.remove('drag');ySpring.to(d.y0)};
-  await frames(ms,tk,k=>{dragMove(lerp(fy0,toTop+HO,easeIO(k)));fingerAt(HX,y+HO)});
-  gUndo=null;dragEnd();finger.classList.remove('down');
-  await frames(140,tk,()=>fingerAt(HX,y+HO));finger.classList.remove('on');
-  await frames(300,tk,()=>fingerAt(HX,y+HO));delete finger.dataset.g;
+  iab.dragStart(fy0,'fake',1);
+  gUndo=()=>iab.cancelFake();
+  await frames(ms,tk,k=>{iab.dragMove(lerp(fy0,toTop+HO,easeIO(k)));fingerAt(HX,iab.y+HO)});
+  gUndo=null;iab.dragEnd();finger.classList.remove('down');
+  await frames(140,tk,()=>fingerAt(HX,iab.y+HO));finger.classList.remove('on');
+  await frames(300,tk,()=>fingerAt(HX,iab.y+HO));delete finger.dataset.g;
 }
 /* the demo as steps: a number is a wait (a hover may hold during it), a function is one gesture (always finishes under a hover) */
 const STEPS=[
@@ -519,10 +368,10 @@ const STEPS=[
   2000,tk=>tap('x',347,68,tk,()=>close()),
   800,()=>{loops++}];
 function fingerOff(){finger.classList.remove('on','down');delete finger.dataset.g}
-const realBusy=()=>!!(drag&&drag.id!=='fake')||!!(hd&&hd.id!=='fake')||!!sc||wOn;
+const realBusy=()=>!!(iab.drag&&iab.drag.id!=='fake')||!!(hd&&hd.id!=='fake')||!!iab.sc||wOn;
 function reset(){                                   // the clean start, instantly (under the crossfade cover)
-  ySpring.stop();pSpring.stop();drag=null;hd=null;sc=null;sheet.classList.remove('drag');hs.classList.remove('drag');clearTimeout(wT);wOn=false;
-  stopScroll();setScroll(0);resetLoad();mode='hs';p=0;y=Y1;hLock=0;pageIdx=-1;setState(1);render();fingerOff();
+  pSpring.stop();hd=null;hs.classList.remove('drag');clearTimeout(wT);wOn=false;
+  mode='hs';p=0;pageIdx=-1;iab.reset();fingerOff();
 }
 /* ---------- when the demo runs (v101) ----------
    The demo autoplays ONLY inline on the case page (?inline=1, not lifted full screen), while visible. Full screen (html.embed-full,
@@ -633,7 +482,7 @@ window.addEventListener('pointerup',uUp,true);window.addEventListener('pointerca
 ['side','lighting','seating','bestsellers'].forEach(k=>{const i=new Image();i.src=`assets/page-${k}.webp?v=3`});
 
 setState(1);render();
-window.__hs={get lastInput(){return lastInput},get hov(){return hov},get stepI(){return stepI},get busy(){return ySpring.busy||pSpring.busy||!!drag||!!hd},get y(){return y},get p(){return p},get state(){return state},get mode(){return mode},get page(){return pageKey},get auto(){return autoOn},get loops(){return loops},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get loadLog(){return loadLog.slice()},get loading(){return loadAnims.some(a=>a.playState==='running')},get scroll(){return sy},get smax(){return smax()},openAt,openCta,close,go,snapTo};
+window.__hs={get lastInput(){return lastInput},get hov(){return hov},get stepI(){return stepI},get iab(){return iab},get busy(){return iab.busy||pSpring.busy||!!iab.drag||!!hd},get y(){return iab.y},get p(){return p},get state(){return iab.state},get mode(){return mode},get page(){return pageKey},get auto(){return autoOn},get loops(){return loops},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return iab.loads},get loadLog(){return loadLog.slice()},get loading(){return iab.loading},get scroll(){return iab.scroll},get smax(){return iab.smax()},openAt,openCta,close,go,snapTo};
 })();
 </script>
 </body>

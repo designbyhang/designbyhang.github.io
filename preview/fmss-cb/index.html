@@ -18,6 +18,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=111"><link rel="stylesheet" href="../../css/gate.css?v=111"><link rel="stylesheet" href="../../css/theme.css?v=111">
 <script src="../../js/gate.js?v=111"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=111"><script src="../shared/iab/iab.js?v=111"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--bezel:#e0e0e0}
@@ -70,28 +71,12 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .tabbar{left:0;top:734px;width:375px;height:78px}
 .navbar{left:0;top:44px;width:375px;height:52px}
 .status{left:0;top:0;width:375px;height:44px;z-index:30}
-.status-d{opacity:0;background:#fff}
-.status-w{left:0;top:0;width:375px;height:44px;background:#fff;opacity:0;z-index:19;pointer-events:none}   /* white under the status bar ↔ IAB header seam (see render) */
+.status-d{opacity:0}
+#statusL{z-index:19}   /* under the IAB sheet, whose own status backing covers it once docked (as fmss-hs) */
 .exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px}
 .exit-area.on{display:block}
-/* sheet = Figma "Bottom Container" (IAB) */
-.sheet{left:0;top:812px;width:375px;height:860px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;transform:translateZ(0)}
-.sheet.drag{cursor:grabbing}
-.sheet:focus-visible{outline:none}
-.iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
-.iab-hh{height:52px}
-.iab-hf{height:46px;top:2px;opacity:0}
-.handle{left:0;top:0;width:375px;height:20px;z-index:3;touch-action:none}
-/* page-load bar: 2px hairline right under the visible header's bottom edge (half 52px, full 2+46=48px); blue = Shop now #2F4EBE on #E5E5EA */
-.load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
-.load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
-.webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;z-index:1}
-/* captured page (nike.com/w/nike-247-3wdkx "Nike 24.7", all genders, 375 css px wide @2x); scrolls inside .webv via the `translate` property (opacity is animated by the page load) */
-.web{left:0;top:0;width:375px;height:3052px;will-change:translate}
-.footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform}
-.x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
-.x.on{display:block}
-.x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
+/* captured page (nike.com/w/nike-247-3wdkx "Nike 24.7", all genders, 375 css px wide @2x); scrolls inside the IAB page viewport via the `translate` property (opacity is animated by the page load) */
+.web{height:3052px}
 .home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:45;pointer-events:none}
 .finger,.ufinger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
@@ -134,7 +119,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <img class="abs" src="assets/ufi-rail.svg?v=2" alt="" style="left:326px;top:486px;width:50px;height:237px">
         <div class="abs pz" id="pz" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg></div>
         <div class="abs overlay" id="overlay"></div>
-        <i class="abs status-w" id="statusW" aria-hidden="true"></i>
         <div class="abs details" id="details" aria-hidden="true">
           <img class="abs" src="assets/author.svg" alt="" style="left:0;top:0;width:303px;height:36px">
           <img class="abs cap-c" id="capC" src="assets/caption-collapsed.svg" alt="" style="width:303px;height:20px">
@@ -148,17 +132,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <img class="abs navbar" src="assets/navbar-video.svg" alt="">
         <button class="abs btn exit-area" id="exitArea" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
 
-        <div class="abs sheet" id="sheet" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): nike.com" aria-hidden="true">
-          <img class="abs iab-h iab-hh" id="hHalf" src="assets/iab-header-half.svg?v=2" alt="">
-          <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg?v=2" alt="">
-          <div class="abs handle" id="handle" aria-hidden="true"></div>
-          <div class="abs load" id="load" aria-hidden="true"><i id="loadFill"></i></div>
-          <div class="abs webv" id="webv"><img class="abs web" id="web" src="assets/nike-247.webp?v=2" width="375" height="3052" alt="nike.com, Nike 24.7 (251): Members free shipping banner, Shoes, Tops and T-Shirts and Hoodies category pills, Pick Up Today toggle, filters, and a product grid of Nike 24.7 men's and women's shoes, ImpossiblySoft and PerfectStretch tops, pants, shorts, jackets and a skirt"></div>
-        </div>
-        <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
         <img class="abs status" id="statusL" src="assets/statusbar-light.svg" alt="">
         <img class="abs status status-d" id="statusD" src="assets/statusbar-dark.svg" alt="">
-        <button class="abs btn x" id="x" type="button" aria-label="Close in-app browser (IAB)"></button>
         <div class="abs home" id="home"></div>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
@@ -174,8 +149,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),sheet=$('sheet'),vid=$('vid');
-const Y1=812,Y2=406,Y3=44;                       // sheet top: closed / half / full (Figma px)
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid');
+const Y2=406;                                     // half-sheet top (Figma px; closed 812 / full 44 live in the shared IAB)
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -207,197 +182,50 @@ if(CSS.supports('clip-path','path("M0 0H1V1Z")')){
   $('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`;
 }
 
-/* ---------- render everything from one value: sheet top y ---------- */
-let y=Y1,state=1,hLock=0;                         // hLock=3: hold the full header (Shop now rise from dismissed, close from full)
-function render(){
-  const t=clamp((Y1-y)/(Y1-Y2));                 // 1→2 progress
-  const p=clamp((Y2-y)/(Y2-Y3));                 // 2→3 progress
-  sheet.style.transform=`translate3d(0,${(y-Y1).toFixed(2)}px,0)`;
-  sheet.style.borderRadius=`${(16*(1-p)).toFixed(2)}px ${(16*(1-p)).toFixed(2)}px 0 0`;
-  $('overlay').style.opacity=t.toFixed(3);
-  $('details').style.transform=`translate3d(0,${(lerp(570,266,t)-570).toFixed(2)}px,0)`;
-  const e=clamp((t-.15)/.6);
-  $('capC').style.opacity=(1-e).toFixed(3);$('capX').style.opacity=e.toFixed(3);
-  /* header state hk (0 half → 1 full) changes over p .45–.65 as fade-out-then-in, so the two headers' text never shows at once */
-  const hk=hLock===3?1:clamp((p-.45)/.2);
-  $('hHalf').style.opacity=(1-clamp(hk*2)).toFixed(3);
-  $('hFull').style.opacity=clamp(hk*2-1).toFixed(3);
-  $('handle').style.opacity=(1-p).toFixed(3);
-  $('webv').style.top=lerp(52,48,p).toFixed(2)+'px';
-  $('load').style.top=lerp(52,48,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 48
-  $('footer').style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*122).toFixed(2)}px,0)`;
-  $('statusD').style.opacity=clamp((84-y)/40).toFixed(3);
-  /* one white surface from the status bar into the full header: a white band under the sheet's top edge, so the two anti-aliased edges
-     (status bar bottom, sheet top) never let the dim show through as a hairline; it shrinks back to the status bar once the sheet leaves the top */
-  const sw=$('statusW');sw.style.opacity=$('statusD').style.opacity;sw.style.height=(44+clamp(52-y,0,4)).toFixed(2)+'px';
-  $('home').style.background=t>.5?'#000':'#fff';
-}
-function setState(s){
-  state=s;
-  $('x').classList.toggle('on',s===3);
-  $('exitArea').classList.toggle('on',s===2);
-  $('exitArea').tabIndex=s===2?0:-1;
-  sheet.setAttribute('aria-hidden',s===1?'true':'false');
-  $('more').tabIndex=s===1?0:-1;$('shop').tabIndex=s===1?0:-1;
-  $('more').setAttribute('aria-expanded',s>1?'true':'false');
-  $('live').textContent=s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen';
-}
-
-/* ---------- spring animator (critically damped; ω≈18 matches the recording: 54% @0.1s, 86% @0.2s) ---------- */
-let raf=0,anim=null;
-function springTo(target,{v=0,w=18,z=1,onDone}={}){
-  cancelAnimationFrame(raf);
-  if(RM.matches){y=target;render();onDone&&onDone();return}
-  let last=performance.now(),vel=v;                // vel in px/s
-  anim={target};
-  const step=now=>{
-    let dt=Math.min(.032,(now-last)/1000);last=now;
-    for(let i=0;i<4;i++){const h=dt/4;const a=-w*w*(y-target)-2*z*w*vel;vel+=a*h;y+=vel*h}
-    if(Math.abs(y-target)<.3&&Math.abs(vel)<8){y=target;render();anim=null;onDone&&onDone();return}
-    render();raf=requestAnimationFrame(step);
-  };
-  raf=requestAnimationFrame(step);
-}
-/* ---------- web content scroll (full screen only): swipe up on the page scrolls it; at the top a downward swipe hands off to the sheet ----------
-   Visible page height in full = 812 - (44 sheet + 48 header) minus the footer overlap (≈98) → max scroll = page height - 622. */
-const WEB_H=3052,SMAX=WEB_H-622;
-let sy=0,sraf=0;
-function setScroll(v){sy=v;$('web').style.translate=`0 ${(-v).toFixed(2)}px`}
-function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
-function scrollBack(){                             // rubber-band overshoot springs back to the nearest edge
-  const target=clamp(sy,0,SMAX);if(Math.abs(sy-target)<.5){setScroll(target);return}
-  let last=performance.now(),v=0;const w=16;
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(sy-target)-2*w*v)*h;sy+=v*h}
-    if(Math.abs(sy-target)<.3&&Math.abs(v)<8){setScroll(target);sraf=0;return}setScroll(sy);sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
-function fling(v){                                 // iOS-like momentum: exponential decay (τ≈325ms), stops at the edges
-  stopScroll();if(RM.matches||Math.abs(v)<60)return scrollBack();
-  let last=performance.now();
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;v*=Math.exp(-dt/.325);let n=sy+v*dt;
-    if(n<=0||n>=SMAX){setScroll(clamp(n,0,SMAX));sraf=0;return}
-    setScroll(n);if(Math.abs(v)<12){sraf=0;return}sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
-const rubber=v=>v<0?v*.35:v>SMAX?SMAX+(v-SMAX)*.35:v;
-
-/* ---------- page load: plays on every open from dismissed (never on half↔full), reset once dismissed ----------
-   Deterministic browser-style progress: quick jump, stall near 40%, surge, stall near 75%, rush to 100%, then the whole bar
-   fades out over 130ms the instant it completes (no hold). The page is blank until the fill crosses 1/3 (290ms), then fades in over 200ms. */
-const LOAD_MS=1140,LOAD_THIRD=290,LOAD_OUT=130;
-const LOAD_KF=[[0,0,'cubic-bezier(.2,.8,.3,1)'],[120,.26,'cubic-bezier(.3,.5,.5,1)'],[290,.334,'cubic-bezier(.3,.6,.4,1)'],[430,.41,'cubic-bezier(.2,.4,.4,1)'],
-  [620,.45,'cubic-bezier(.45,0,.3,1)'],[780,.71,'cubic-bezier(.2,.6,.4,1)'],[1000,.78,'cubic-bezier(.5,0,.9,.6)'],[LOAD_MS,1]];
-let loadAnims=[],loads=0;
-function resetLoad(){loadAnims.forEach(a=>a.cancel());loadAnims=[]}   // back to the CSS base: page shown, bar hidden
-function load(){
-  resetLoad();loads++;stopScroll();setScroll(0);
-  if(RM.matches||!Element.prototype.animate)return;
-  const T=LOAD_MS+LOAD_OUT;
-  loadAnims=[
-    $('loadFill').animate(LOAD_KF.map(([t,v,e])=>Object.assign({transform:`scaleX(${v})`,offset:t/LOAD_MS},e?{easing:e}:{})),{duration:LOAD_MS,fill:'forwards'}),
-    $('load').animate([{opacity:1},{opacity:1,offset:LOAD_MS/T,easing:'ease-out'},{opacity:0}],{duration:T}),   // no hold at 100%
-    $('web').animate([{opacity:0},{opacity:0,offset:LOAD_THIRD/(LOAD_THIRD+200),easing:'cubic-bezier(.2,.7,.2,1)'},{opacity:1}],{duration:LOAD_THIRD+200})
-  ];
-}
-function go(s,opts={}){
-  const target=s===1?Y1:s===2?Y2:Y3;
-  if(state===1&&s>1)load();                       // fresh open (caption, Shop now, autoplay)
-  if(state>1&&s===1)resumeReel();                 // back on the reel from the browser: playback resumes even if it was paused
-  hLock=(state===1&&s===3)||(state===3&&s===1)?3:0; // Shop now rises already full; X / Escape from full falls still full
-  setState(s);
-  render();
-  const o=Object.assign({},opts);
-  if(s===1){if(o.w==null)o.w=16;const d=o.onDone;o.onDone=()=>{resetLoad();stopScroll();setScroll(0);d&&d()}}   // close ≈0.4s; reset once dismissed
-  springTo(target,o);
-}
+/* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab: sheet, header, page scroll + load, toolbar, ×, spring,
+   drag/snap), configured for Caption & Browse. One value, y (the sheet top), drives everything; this page adds what moves on the reel:
+   the dim, the caption block (rises with the half sheet, collapsed → expanded), the dark status glyphs and the home indicator. ---------- */
+const iab=FMSSIAB.create({
+  host:phone,y2:Y2,label:'In-app browser (IAB): nike.com',
+  headers:{half:'assets/iab-header-half.svg?v=2',full:'assets/iab-header-full.svg?v=2'},
+  fullTop:2,handle:true,shift:'p',halfZ:.82,                 // full header 2px under the sheet top (content from 48); page top follows p
+  web:'<img class="web" id="web" src="assets/nike-247.webp?v=2" width="375" height="3052" alt="nike.com, Nike 24.7 (251): Members free shipping banner, Shoes, Tops and T-Shirts and Hoodies category pills, Pick Up Today toggle, filters, and a product grid of Nike 24.7 men\'s and women\'s shoes, ImpossiblySoft and PerfectStretch tops, pants, shorts, jackets and a skirt">',webH:3052,visH:622,
+  onRender({t,sd}){
+    $('overlay').style.opacity=t.toFixed(3);
+    $('details').style.transform=`translate3d(0,${(lerp(570,266,t)-570).toFixed(2)}px,0)`;
+    const e=clamp((t-.15)/.6);
+    $('capC').style.opacity=(1-e).toFixed(3);$('capX').style.opacity=e.toFixed(3);
+    $('statusD').style.opacity=sd.toFixed(3);
+    $('home').style.background=t>.5?'#000':'#fff';
+  },
+  onState(s){
+    $('exitArea').classList.toggle('on',s===2);
+    $('exitArea').tabIndex=s===2?0:-1;
+    $('more').tabIndex=s===1?0:-1;$('shop').tabIndex=s===1?0:-1;
+    $('more').setAttribute('aria-expanded',s>1?'true':'false');
+    $('live').textContent=s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen';
+  },
+  onClose:()=>resumeReel(),                        // back on the reel from the browser: playback resumes even if it was paused
+  onPress:()=>userActed(),
+  onX:()=>{close();$('shop').focus({preventScroll:true})},
+  wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
+});
+const sheet=iab.sheet,go=iab.go,render=iab.render,setScroll=iab.setScroll,stopScroll=iab.stopScroll;
 const openHalf=()=>go(2), openFull=()=>go(3), close=()=>go(1);
 
 /* ---------- controls ---------- */
-$('more').addEventListener('click',()=>{if(state===1)openHalf()});
-$('shop').addEventListener('click',()=>{if(state===1)openFull()});
-$('x').addEventListener('click',()=>{close();$('shop').focus({preventScroll:true})});
+$('more').addEventListener('click',()=>{if(iab.state===1)openHalf()});
+$('shop').addEventListener('click',()=>{if(iab.state===1)openFull()});
 $('exitArea').addEventListener('click',()=>{close();$('more').focus({preventScroll:true})});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
-  if(state!==1){userActed();close();$('more').focus({preventScroll:true})}});
+  if(iab.state!==1){userActed();close();$('more').focus({preventScroll:true})}});
 
 /* tap the media to pause / play: anywhere on the video that is not the nav bar, the caption block, Shop now or the action rail */
 phone.addEventListener('click',e=>{
-  if(state!==1||anim||e.target.closest('button,.sheet'))return;
+  if(iab.state!==1||iab.busy||e.target.closest('button,.iab-sheet'))return;
   const r=phone.getBoundingClientRect(),s=r.height/812,x=(e.clientX-r.left)/s,y=(e.clientY-r.top)/s;
   if(y>=96&&y<570&&(x<326||y<486))mediaTap();
 });
-
-/* ---------- sheet drag (pointer events, 1:1, velocity + position snap) ---------- */
-let drag=null;
-function scaleNow(){return phone.getBoundingClientRect().height/812}
-function dragStart(clientY,id){
-  cancelAnimationFrame(raf);
-  anim=null;hLock=0;
-  drag={id,startY:clientY,y0:y,from:state,moved:false,samples:[[performance.now(),y]]};
-  sheet.classList.add('drag');
-}
-function dragMove(clientY){
-  if(!drag)return;
-  let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
-  if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
-  if(ny<Y3)ny=Y3-(Y3-ny)*.25;                     // rubber-band above full
-  y=Math.min(Y1,ny);render();
-  const now=performance.now();drag.samples.push([now,y]);
-  while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
-}
-function dragEnd(){
-  if(!drag)return;
-  const d=drag;drag=null;sheet.classList.remove('drag');
-  if(!d.moved){ if(d.from===2)return openFull(); return springTo(d.from===3?Y3:Y2) }   // Figma: tap on half sheet → full
-  const s=d.samples,a=s[0],b=s[s.length-1];
-  const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;    // px/s (+ = down)
-  const proj=y+v*.18;
-  const cands=d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
-  let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
-  // velocity flick always moves at least one step in its direction
-  if(Math.abs(v)>600){
-    const dir=v>0?1:-1, cur=d.from;
-    const want=clamp(cur+(dir>0?-1:1),1,3);
-    if(d.from===3&&want<2){}else if((dir>0&&best[0]>want)||(dir<0&&best[0]<want))best=cands.find(c=>c[0]===want)||best;
-  }
-  go(best[0],{v,z:best[0]===2?.82:1});
-}
-/* full screen: a press below the header scrolls the page instead (sc); pulling down past the page top hands off to the sheet drag */
-let sc=null;
-const atFull=()=>!anim||(anim.target===Y3&&Math.abs(y-Y3)<24);
-function scStart(clientY,id,scale){stopScroll();sc={id,startY:clientY,s0:sy,scale,moved:false,samples:[[performance.now(),sy]]}}
-function scMove(clientY){
-  const want=sc.s0-(clientY-sc.startY)/sc.scale;
-  if(Math.abs(clientY-sc.startY)>4)sc.moved=true;
-  if(want<0&&sc.s0<=0){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id);drag.scale=scale;drag.moved=true;return}   // at the top: the sheet takes over
-  setScroll(rubber(want));
-  const now=performance.now();sc.samples.push([now,sy]);
-  while(sc.samples.length>2&&now-sc.samples[0][0]>100)sc.samples.shift();
-}
-function scEnd(){
-  const d=sc;sc=null;if(!d)return;
-  if(!d.moved)return scrollBack();
-  const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;
-  if(sy<0||sy>SMAX)return scrollBack();
-  fling(dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/dt:0);
-}
-sheet.addEventListener('pointerdown',e=>{
-  if(e.button!==0||state===1)return;
-  userActed();
-  try{sheet.setPointerCapture(e.pointerId)}catch(_){}
-  const sc0=scaleNow();
-  /* full screen: a press on the page scrolls it, also while the sheet is still settling into full (that spring keeps running on its own);
-     a press on a sheet still travelling (farther than 24px from full) catches the sheet instead */
-  if(state===3&&atFull()&&(e.clientY-sheet.getBoundingClientRect().top)/sc0>=48){scStart(e.clientY,e.pointerId,sc0);return}
-  dragStart(e.clientY,e.pointerId);drag.scale=sc0;
-});
-sheet.addEventListener('pointermove',e=>{if(sc&&e.pointerId===sc.id)scMove(e.clientY);else if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
-sheet.addEventListener('pointerup',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('pointercancel',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('wheel',e=>{            // trackpad / mouse wheel scrolls the page in full screen (once engaged; the ends chain to the site page)
-  if(state!==3||!atFull()||drag||sc)return;
-  wheelTo(e,wd(e),d=>{const n=clamp(sy+d,0,SMAX);if(Math.abs(n-sy)<.5)return false;stopScroll();setScroll(n);return true});
-},{passive:false});
 
 /* ---------- theme toggle ---------- */
 $('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}} );
@@ -427,21 +255,21 @@ async function tap(target,x,fy,tk,fn){
   finger.classList.remove('on');await sleep(280,tk);delete finger.dataset.g;               // fade where it was
 }
 async function handleDrag(target,toTop,ms,tk){
-  const from=y,fy0=y+HO;glog.push({kind:'drag',target,from,to:toTop});
+  const from=iab.y,fy0=from+HO;glog.push({kind:'drag',target,from,to:toTop});
   fingerAt(HX,fy0);finger.dataset.g='drag';finger.classList.add('on');await sleep(320,tk); // land on the handle
   finger.classList.add('down');await sleep(140,tk);                                         // grab
-  dragStart(fy0,'fake');drag.scale=1;
-  gUndo=()=>{const d=drag;if(!d||d.id!=='fake')return;drag=null;sheet.classList.remove('drag');springTo(d.y0)};   // a real press: back to the step start
-  await frames(ms,tk,k=>{dragMove(lerp(fy0,toTop+HO,easeIO(k)));fingerAt(HX,y+HO)});      // sheet edge follows 1:1, indicator rides it
-  gUndo=null;dragEnd();finger.classList.remove('down');                                                // release: sheet snaps
-  await frames(140,tk,()=>fingerAt(HX,y+HO));finger.classList.remove('on');
-  await frames(300,tk,()=>fingerAt(HX,y+HO));delete finger.dataset.g;                       // fade while still on the sheet edge
+  iab.dragStart(fy0,'fake',1);
+  gUndo=()=>iab.cancelFake();   // a real press: back to the step start
+  await frames(ms,tk,k=>{iab.dragMove(lerp(fy0,toTop+HO,easeIO(k)));fingerAt(HX,iab.y+HO)});      // sheet edge follows 1:1, indicator rides it
+  gUndo=null;iab.dragEnd();finger.classList.remove('down');                                                // release: sheet snaps
+  await frames(140,tk,()=>fingerAt(HX,iab.y+HO));finger.classList.remove('on');
+  await frames(300,tk,()=>fingerAt(HX,iab.y+HO));delete finger.dataset.g;                       // fade while still on the sheet edge
 }
 async function pageScroll(dist,ms,tk){
-  const x=250,fy0=560,s0=sy;glog.push({kind:'scroll',target:'page',from:s0,to:s0+dist});
+  const x=250,fy0=560,s0=iab.scroll;glog.push({kind:'scroll',target:'page',from:s0,to:s0+dist});
   fingerAt(x,fy0);finger.dataset.g='scroll';finger.classList.add('on');await sleep(320,tk);
   finger.classList.add('down');await sleep(140,tk);
-  gUndo=()=>{stopScroll();const a=sy,t0=performance.now();const f=now=>{const q=clamp((now-t0)/260),e=1-Math.pow(1-q,3);setScroll(a+(s0-a)*e);sraf=q<1?requestAnimationFrame(f):0};sraf=requestAnimationFrame(f)};
+  gUndo=()=>iab.scrollTo(s0,260);
   await frames(ms,tk,k=>{const e=easeIO(k);setScroll(s0+dist*e);fingerAt(x,fy0-dist*e)});
   gUndo=null;finger.classList.remove('down');await sleep(120,tk);finger.classList.remove('on');await sleep(280,tk);delete finger.dataset.g;
 }
@@ -456,10 +284,9 @@ const STEPS=[
   1100,tk=>tap('x',347,68,tk,()=>close()),                      // tap X → close
   1400];
 function fingerOff(){finger.classList.remove('on','down');delete finger.dataset.g}
-const realBusy=()=>!!(drag&&drag.id!=='fake')||!!sc;
+const realBusy=()=>!!(iab.drag&&iab.drag.id!=='fake')||!!iab.sc;
 function reset(){                                   // the clean start, instantly (under the crossfade cover)
-  cancelAnimationFrame(raf);anim=null;drag=null;sc=null;sheet.classList.remove('drag');
-  stopScroll();setScroll(0);resetLoad();hLock=0;y=Y1;setState(1);render();resumeReel();fingerOff();
+  iab.reset();resumeReel();fingerOff();
 }
 /* ---------- when the demo runs (v101) ----------
    The demo autoplays ONLY inline on the case page (?inline=1, not lifted full screen), while visible. Full screen (html.embed-full,
@@ -656,8 +483,8 @@ function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');
   else if(isFine(e)){uOff();if(!inPhone(e))hovOff()}}
 window.addEventListener('pointerup',uUp,true);window.addEventListener('pointercancel',uUp,true);
 
-setState(1);render();
-window.__cb={get lastInput(){return lastInput},get hov(){return hov},get stepI(){return stepI},get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get scroll(){return sy},get vidMode(){return vidMode},get loading(){return loadAnims.some(a=>a.playState==='running')},get paused(){return userPaused},get vidPaused(){return vid.paused},go,mediaTap};
+iab.setState(1);render();
+window.__cb={get lastInput(){return lastInput},get hov(){return hov},get stepI(){return stepI},get iab(){return iab},get busy(){return iab.busy||!!iab.drag},get y(){return iab.y},get state(){return iab.state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return iab.loads},get scroll(){return iab.scroll},get vidMode(){return vidMode},get loading(){return iab.loading},get paused(){return userPaused},get vidPaused(){return vid.paused},go,mediaTap};
 })();
 </script>
 </body>

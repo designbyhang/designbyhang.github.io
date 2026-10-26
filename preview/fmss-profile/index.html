@@ -19,6 +19,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=111"><link rel="stylesheet" href="../../css/theme.css?v=111">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=111"><script src="../shared/iab/iab.js?v=111"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111;
@@ -69,36 +70,17 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .promo{left:12.6px;top:732.4px;height:23.4px;border-radius:11.73px;background:#0e0f10;display:flex;align-items:center;padding:0 8.5px 0 24.1px;box-sizing:border-box;color:#fff;font-size:12px;line-height:16px;font-weight:400;white-space:nowrap;pointer-events:none;z-index:1}
 .promo svg{position:absolute;left:7.9px;top:5.6px;width:12.3px;height:11.2px}
 .pz svg{width:30px;height:30px;margin-left:4px;opacity:.9}
-/* ---------- in-app browser (IAB): the fmss-cb build, unchanged (CTA → full, half sheet, drag/snap, page scroll, header, toolbar) ----------
-   .iab is a 375×812 layer in fmss-cb's own phone px: scale(402/375) undoes .root's 375/402, so every number below is fmss-cb's. */
+/* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
+   .iab is a 375×812 layer in fmss-cb's own phone px: scale(402/375) undoes .root's 375/402, so the shared component's numbers hold. */
 .iab{left:0;top:0;width:375px;height:812px;transform-origin:0 0;transform:scale(1.072);z-index:20;pointer-events:none}
-.iab .sheet,.iab .btn{pointer-events:auto}
 .iab .overlay{left:0;top:0;width:375px;height:812px;background:rgba(0,0,0,.64);opacity:0;pointer-events:none}
-.iab .exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px}
+.iab .exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px;pointer-events:auto}
 .iab .exit-area.on{display:block}
-.iab .sheet{left:0;top:812px;width:375px;height:860px;background:#fff;border-radius:16px 16px 0 0;z-index:20;touch-action:none;cursor:grab;will-change:transform;overflow:hidden;transform:translateZ(0)}
-.iab .sheet.drag{cursor:grabbing}
-.iab .sheet:focus-visible{outline:none}
-.iab .iab-h{left:0;top:0;width:375px;background:#fff;z-index:2}
-.iab .iab-hh{height:52px}
-.iab .iab-hf{height:46px;top:2px;opacity:0}
-.iab .handle{left:0;top:0;width:375px;height:20px;z-index:3;touch-action:none}
-.iab .load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
-.iab .load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
-.iab .webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;z-index:1}
 /* P&B's own website: nike.com Pegasus Premium (recorded at 402pt, drawn at 375 here) with its rotating promo banner */
-.iab .web{left:0;top:0;width:375px;height:5125.47px;will-change:translate;background:#fff}
+.iab .web{height:5125.47px;background:#fff}
 .iab .web>img{position:absolute;left:0;top:0;width:375px;height:5125.47px}
 .iab .web .bn{position:absolute;left:0;top:57.37px;width:375px;height:54.57px;opacity:0;transition:opacity .352s ease}
 .iab .web .bn.on{opacity:1}
-.iab .footer{left:-16px;top:714px;width:407px;height:114px;z-index:25;pointer-events:none;will-change:transform;transform:translate3d(0,122px,0);visibility:hidden}
-/* status area once the IAB covers the top: an opaque white band (P&B's own dark glyphs, .stk, ride above it). It runs 4px under the
-   sheet's top edge (height set in render) so the status bar and the IAB header read as one white surface: no seam where the two
-   anti-aliased edges meet. */
-.iab .status-w{left:0;top:0;width:375px;height:44px;background:#fff;opacity:0;z-index:19;pointer-events:none}
-.iab .x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
-.iab .x.on{display:block}
-.iab .x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
 
 /* profile (stitched from the recording's scroll) */
 .profile{background:#000;transform:translate3d(100%,0,0);transition:transform .34s var(--pushv);z-index:10;touch-action:none}
@@ -234,20 +216,10 @@ html.hosted .phone{background:transparent;border-radius:0}
           </div>
         </div>
 
-        <!-- ===== in-app browser (IAB): fmss-cb's build in fmss-cb's 375×812 px; opened by Learn more (reel) and by the peek / card (profile) ===== -->
+        <!-- ===== in-app browser (IAB): the shared component (built into #iab by FMSSIAB.create) in fmss-cb's 375×812 px; opened by Learn more (reel) and by the peek / card (profile) ===== -->
         <div class="abs iab" id="iab">
           <div class="abs overlay" id="overlay"></div>
           <button class="abs btn exit-area" id="exitArea" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
-          <div class="abs sheet" id="sheet" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): nike.com" aria-hidden="true">
-            <img class="abs iab-h iab-hh" id="hHalf" src="assets/iab-header-half.svg?v=2" alt="">
-            <img class="abs iab-h iab-hf" id="hFull" src="assets/iab-header-full.svg?v=2" alt="">
-            <div class="abs handle" id="handle" aria-hidden="true"></div>
-            <div class="abs load" id="load" aria-hidden="true"><i id="loadFill"></i></div>
-            <div class="abs webv" id="webv"><div class="abs web" id="web"><img src="assets/page.webp" alt="nike.com product page: Nike Pegasus Premium, Women's Road Running Shoes, $220" decoding="async"><img class="bn bn-shop on" src="assets/banner-shop.png" alt=""><img class="bn bn-gift" src="assets/banner-gift.png" alt=""></div></div>
-          </div>
-          <img class="abs footer" id="footer" src="assets/iab-footer.svg" alt="">
-          <i class="abs status-w" id="statusW" aria-hidden="true"></i>
-          <button class="abs btn x" id="x" type="button" aria-label="Close in-app browser (IAB)"></button>
         </div>
         <div class="abs home" id="home" aria-hidden="true"></div>
 
@@ -325,14 +297,14 @@ function clearLater(){timers.forEach(clearTimeout);timers=[]}
 function setLive(t){$('live').textContent=t}
 function setTabs(){
   const s=screen,c=ctaState;
-  const o=state===1,r1=s===1&&o;$('author').tabIndex=r1?0:-1;$('shop').tabIndex=r1?0:-1;$('back').tabIndex=s===2&&o?0:-1;
+  const o=iab.state===1,r1=s===1&&o;$('author').tabIndex=r1?0:-1;$('shop').tabIndex=r1?0:-1;$('back').tabIndex=s===2&&o?0:-1;
   cta.tabIndex=s===2&&o&&(c==='peek'||c==='card')?0:-1;$('cardX').tabIndex=s===2&&o&&c==='card'?0:-1;
   profile.setAttribute('aria-hidden',s===2&&o?'false':'true');
 }
 
 /* ---------- push (reel → profile): .34s, reel parallax −30% + dim; FB tab bar shows, drops away, then the peek slides up and loads ---------- */
 function openProfile(){
-  if(screen!==1||state!==1)return;screen=2;clearLater();
+  if(screen!==1||iab.state!==1)return;screen=2;clearLater();
   setPScroll(0);setCta('hidden');
   tabpill.className='abs tabpill on';
   phone.classList.add('pushed');setTabs();setHome();setLive('Nike profile');host()?.push(true);
@@ -347,176 +319,42 @@ function backToReel(){
   later(()=>{if(screen===1){setCta('hidden');setPScroll(0)}},360);
 }
 
-/* ---------- in-app browser (IAB): fmss-cb's build, ported as is (render, spring, drag/snap, page scroll, load, autoplay gestures) ----------
-   One value, y (the sheet top in fmss-cb's 375×812 px), drives everything. Learn more on the reel rises straight to full (full header
-   held); drag down → half, down again → dismissed; a tap on the half sheet → full; in full a press on the page scrolls it, and a pull
-   past the page top hands over to the sheet; ×, the area above the half sheet, or Escape close. Unlike fmss-cb the reel's overlay
-   (Nike, caption, Learn more, Promoted) is baked into the footage, so nothing on the reel moves: only the dim and the sheet do.
-   The profile's peek / floating card opens this same sheet (iabFrom 'profile'); closing it there brings the card back. */
-const Y1=812,Y2=406,Y3=44,sheet=$('sheet'),stk=$('stk');
-let y=Y1,state=1,hLock=0,iabFrom='reel';                // hLock=3: hold the full header (Learn more rise from dismissed, close from full)
-function render(){
-  const t=clamp((Y1-y)/(Y1-Y2));                 // 1→2 progress
-  const p=clamp((Y2-y)/(Y2-Y3));                 // 2→3 progress
-  sheet.style.transform=`translate3d(0,${(y-Y1).toFixed(2)}px,0)`;
-  sheet.style.borderRadius=`${(16*(1-p)).toFixed(2)}px ${(16*(1-p)).toFixed(2)}px 0 0`;
-  $('overlay').style.opacity=t.toFixed(3);
-  /* header state hk (0 half → 1 full) changes over p .45–.65 as fade-out-then-in, so the two headers' text never shows at once */
-  const hk=hLock===3?1:clamp((p-.45)/.2);
-  $('hHalf').style.opacity=(1-clamp(hk*2)).toFixed(3);
-  $('hFull').style.opacity=clamp(hk*2-1).toFixed(3);
-  $('handle').style.opacity=(1-p).toFixed(3);
-  $('webv').style.top=lerp(52,48,p).toFixed(2)+'px';
-  $('load').style.top=lerp(52,48,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 48
-  $('footer').style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*122).toFixed(2)}px,0)`;
-  $('footer').style.visibility=y<Y1-.5?'visible':'hidden';   // dismissed: no toolbar at all (it is also parked 122px below the screen, as fmss-cb)
-  const sd=clamp((84-y)/40).toFixed(3);stk.style.opacity=sd;
-  /* one white surface from the status bar into the full header: a white band under the sheet's top edge, so the two anti-aliased edges
-     (status bar bottom, sheet top) never let the dim show through as a hairline; it shrinks back to the status bar once the sheet leaves the top */
-  const sw=$('statusW');sw.style.opacity=sd;sw.style.height=(44+clamp(52-y,0,4)).toFixed(2)+'px';
-  setHome(t);
-}
+/* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
+   Learn more on the reel rises straight to full (full header held); drag down → half, down again → dismissed; a tap on the half sheet
+   → full; in full a press on the page scrolls it, and a pull past the page top hands over to the sheet; ×, the area above the half
+   sheet, or Escape close. Unlike fmss-cb the reel's overlay (Nike, caption, Learn more, Promoted) is baked into the footage, so nothing
+   on the reel moves: only the dim and the sheet do. The profile's peek / floating card opens this same sheet (iabFrom 'profile');
+   closing it there brings the card back. */
+const Y1=812,Y2=406,Y3=44,stk=$('stk');
+let iabFrom='reel';
+const iab=FMSSIAB.create({
+  host:$('iab'),y2:Y2,label:'In-app browser (IAB): nike.com',
+  headers:{half:'assets/iab-header-half.svg?v=2',full:'assets/iab-header-full.svg?v=2'},
+  fullTop:2,handle:true,shift:'p',halfZ:.82,
+  web:'<div class="web" id="web"><img src="assets/page.webp" alt="nike.com product page: Nike Pegasus Premium, Women\'s Road Running Shoes, $220" decoding="async"><img class="bn bn-shop on" src="assets/banner-shop.png" alt=""><img class="bn bn-gift" src="assets/banner-gift.png" alt=""></div>',webH:5125.47,visH:622,
+  onRender({t,sd}){$('overlay').style.opacity=t.toFixed(3);stk.style.opacity=sd.toFixed(3);setHome(t)},
+  onState(s){
+    $('exitArea').classList.toggle('on',s===2);$('exitArea').tabIndex=s===2?0:-1;
+    setTabs();
+    setLive(s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen');
+  },
+  onClose(){if(iabFrom==='reel')resumeReel()},     // back on the reel from the browser: playback resumes even if it was paused
+  onClosed:()=>iabClosed(),
+  onLoad(){loads++;bnT0=performance.now();setBanner()},
+  onX:()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})},
+  wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
+});
+const sheet=iab.sheet,go=iab.go,render=iab.render,setState=iab.setState,setScroll=iab.setScroll,stopScroll=iab.stopScroll;
 /* home indicator colour: black once the IAB covers the bottom (fmss-cb: t > .5) and over the white profile; white over the reel */
-function setHome(t=clamp((Y1-y)/(Y1-Y2))){$('home').style.background=t>.5||screen===2?'#000':'#fff'}
-function setState(s){
-  state=s;
-  $('x').classList.toggle('on',s===3);
-  $('exitArea').classList.toggle('on',s===2);
-  $('exitArea').tabIndex=s===2?0:-1;
-  sheet.setAttribute('aria-hidden',s===1?'true':'false');
-  setTabs();
-  setLive(s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen');
-}
-
-/* ---------- spring animator (critically damped; ω≈18 matches the recording: 54% @0.1s, 86% @0.2s) ---------- */
-let raf=0,anim=null;
-function springTo(target,{v=0,w=18,z=1,onDone}={}){
-  cancelAnimationFrame(raf);
-  if(RM.matches){y=target;render();onDone&&onDone();return}
-  let last=performance.now(),vel=v;                // vel in px/s
-  anim={target};
-  const step=now=>{
-    let dt=Math.min(.032,(now-last)/1000);last=now;
-    for(let i=0;i<4;i++){const h=dt/4;const a=-w*w*(y-target)-2*z*w*vel;vel+=a*h;y+=vel*h}
-    if(Math.abs(y-target)<.3&&Math.abs(vel)<8){y=target;render();anim=null;onDone&&onDone();return}
-    render();raf=requestAnimationFrame(step);
-  };
-  raf=requestAnimationFrame(step);
-}
-/* ---------- web content scroll (full screen only): swipe up on the page scrolls it; at the top a downward swipe hands off to the sheet ----------
-   Visible page height in full = 812 - (44 sheet + 48 header) minus the footer overlap (≈98) → max scroll = page height - 622. */
-const WEB_H=5125.47,SMAX=WEB_H-622;
-let sy=0,sraf=0;
-function setScroll(v){sy=v;$('web').style.translate=`0 ${(-v).toFixed(2)}px`}
-function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
-function scrollBack(){                             // rubber-band overshoot springs back to the nearest edge
-  const target=clamp(sy,0,SMAX);if(Math.abs(sy-target)<.5){setScroll(target);return}
-  let last=performance.now(),v=0;const w=16;
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(sy-target)-2*w*v)*h;sy+=v*h}
-    if(Math.abs(sy-target)<.3&&Math.abs(v)<8){setScroll(target);sraf=0;return}setScroll(sy);sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
-function fling(v){                                 // iOS-like momentum: exponential decay (τ≈325ms), stops at the edges
-  stopScroll();if(RM.matches||Math.abs(v)<60)return scrollBack();
-  let last=performance.now();
-  const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;v*=Math.exp(-dt/.325);let n=sy+v*dt;
-    if(n<=0||n>=SMAX){setScroll(clamp(n,0,SMAX));sraf=0;return}
-    setScroll(n);if(Math.abs(v)<12){sraf=0;return}sraf=requestAnimationFrame(f)};
-  sraf=requestAnimationFrame(f);
-}
-const rubber=v=>v<0?v*.35:v>SMAX?SMAX+(v-SMAX)*.35:v;
-
-function go(s,opts={}){
-  const target=s===1?Y1:s===2?Y2:Y3;
-  if(state===1&&s>1)load();                       // fresh open (Learn more, peek, card, autoplay)
-  if(state>1&&s===1&&iabFrom==='reel')resumeReel(); // back on the reel from the browser: playback resumes even if it was paused
-  hLock=opts.hold!=null?opts.hold:(state===1&&s===3)||(state===3&&s===1)?3:0; // Learn more rises already full; X / Escape from full falls still full
-  setState(s);
-  render();
-  const o=Object.assign({},opts);
-  if(s===1){if(o.w==null)o.w=16;const d=o.onDone;o.onDone=()=>{resetLoad();stopScroll();setScroll(0);iabClosed();d&&d()}}   // close ≈0.4s; reset once dismissed
-  springTo(target,o);
-}
+function setHome(t=clamp((Y1-iab.y)/(Y1-Y2))){$('home').style.background=t>.5||screen===2?'#000':'#fff'}
 const openIabFull=()=>go(3), close=()=>go(1);
 /* closed from the profile: the card rises back in (the IAB came from the peek or the card) */
 function iabClosed(){if(iabFrom==='profile'&&screen===2&&ctaState==='full'){cardEnter();setLive('Nike profile, nike.com card');if(kbd)cta.focus({preventScroll:true})}iabFrom='reel'}
-
-/* ---------- sheet drag (pointer events, 1:1, velocity + position snap) ---------- */
-let drag=null;
-function scaleNow(){return phone.getBoundingClientRect().height/812}
-function dragStart(clientY,id){
-  cancelAnimationFrame(raf);
-  anim=null;hLock=0;
-  drag={id,startY:clientY,y0:y,from:state,moved:false,samples:[[performance.now(),y]]};
-  sheet.classList.add('drag');
-}
-function dragMove(clientY){
-  if(!drag)return;
-  let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
-  if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
-  if(ny<Y3)ny=Y3-(Y3-ny)*.25;                     // rubber-band above full
-  y=Math.min(Y1,ny);render();
-  const now=performance.now();drag.samples.push([now,y]);
-  while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
-}
-function dragEnd(){
-  if(!drag)return;
-  const d=drag;drag=null;sheet.classList.remove('drag');
-  if(!d.moved){ if(d.from===2)return openIabFull(); return springTo(d.from===3?Y3:Y2) }   // Figma: tap on half sheet → full
-  const s=d.samples,a=s[0],b=s[s.length-1];
-  const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;    // px/s (+ = down)
-  const proj=y+v*.18;
-  const cands=d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
-  let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
-  // velocity flick always moves at least one step in its direction
-  if(Math.abs(v)>600){
-    const dir=v>0?1:-1, cur=d.from;
-    const want=clamp(cur+(dir>0?-1:1),1,3);
-    if(d.from===3&&want<2){}else if((dir>0&&best[0]>want)||(dir<0&&best[0]<want))best=cands.find(c=>c[0]===want)||best;
-  }
-  go(best[0],{v,z:best[0]===2?.82:1});
-}
-/* full screen: a press below the header scrolls the page instead (sc); pulling down past the page top hands off to the sheet drag */
-let sc=null;
-const atFull=()=>!anim||(anim.target===Y3&&Math.abs(y-Y3)<24);
-function scStart(clientY,id,scale){stopScroll();sc={id,startY:clientY,s0:sy,scale,moved:false,samples:[[performance.now(),sy]]}}
-function scMove(clientY){
-  const want=sc.s0-(clientY-sc.startY)/sc.scale;
-  if(Math.abs(clientY-sc.startY)>4)sc.moved=true;
-  if(want<0&&sc.s0<=0){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id);drag.scale=scale;drag.moved=true;return}   // at the top: the sheet takes over
-  setScroll(rubber(want));
-  const now=performance.now();sc.samples.push([now,sy]);
-  while(sc.samples.length>2&&now-sc.samples[0][0]>100)sc.samples.shift();
-}
-function scEnd(){
-  const d=sc;sc=null;if(!d)return;
-  if(!d.moved)return scrollBack();
-  const s=d.samples,a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;
-  if(sy<0||sy>SMAX)return scrollBack();
-  fling(dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/dt:0);
-}
-sheet.addEventListener('pointerdown',e=>{
-  if(e.button!==0||state===1)return;
-  try{sheet.setPointerCapture(e.pointerId)}catch(_){}
-  const sc0=scaleNow();
-  /* full screen: a press on the page scrolls it, also while the sheet is still settling into full (that spring keeps running on its own);
-     a press on a sheet still travelling (farther than 24px from full) catches the sheet instead */
-  if(state===3&&atFull()&&(e.clientY-sheet.getBoundingClientRect().top)/sc0>=48){scStart(e.clientY,e.pointerId,sc0);return}
-  dragStart(e.clientY,e.pointerId);drag.scale=sc0;
-});
-sheet.addEventListener('pointermove',e=>{if(sc&&e.pointerId===sc.id)scMove(e.clientY);else if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
-sheet.addEventListener('pointerup',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('pointercancel',e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()});
-sheet.addEventListener('wheel',e=>{            // trackpad / mouse wheel scrolls the page in full screen (once engaged; the ends chain to the site page)
-  if(state!==3||!atFull()||drag||sc)return;
-  wheelTo(e,wd(e),d=>{const n=clamp(sy+d,0,SMAX);if(Math.abs(n-sy)<.5)return false;stopScroll();setScroll(n);return true});
-},{passive:false});
 /* reel: Learn more → full; anywhere else on the media toggles pause */
-$('shop').addEventListener('click',()=>{if(state===1&&screen===1){iabFrom='reel';openIabFull()}});
-$('x').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})});
+$('shop').addEventListener('click',()=>{if(iab.state===1&&screen===1){iabFrom='reel';openIabFull()}});
 $('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})});
 reel.addEventListener('click',e=>{
-  if(screen!==1||state!==1||anim||e.target.closest('button'))return;
+  if(screen!==1||iab.state!==1||iab.busy||e.target.closest('button'))return;
   const [x,y]=ptOf(e);
   if(y>=112&&y<600&&(x<350||y<480))mediaTap();                 // the footage, not its baked status/back row, author/caption/CTA/Promoted/comment rows or the action rail
 });
@@ -698,22 +536,12 @@ profile.addEventListener('pointerup',pUp);profile.addEventListener('pointercance
 profile.addEventListener('click',e=>{if(suppressClick){e.stopPropagation();e.preventDefault()}},true);
 profile.addEventListener('wheel',e=>{if(screen!==2)return;if(ctaState==='card'&&e.target.closest('#cta'))return wheelTo(e,wd(e),()=>true);if(ctaState==='lifting'||(ctaState==='peek'&&py<=.5&&e.target.closest('#cta')))return peekWheel(e);wheelTo(e,wd(e),d=>{const n=clamp(py+d,0,PMAX);if(Math.abs(n-py)<.5)return false;stopP();setPScroll(n);return true})},{passive:false});
 
-/* ---------- page load (identical timing to fmss-cb: 1140ms bar, page fades in after 1/3) ---------- */
-const LOAD_MS=1140,LOAD_THIRD=290,LOAD_OUT=130;
-const LOAD_KF=[[0,0,'cubic-bezier(.2,.8,.3,1)'],[120,.26,'cubic-bezier(.3,.5,.5,1)'],[290,.334,'cubic-bezier(.3,.6,.4,1)'],[430,.41,'cubic-bezier(.2,.4,.4,1)'],
-  [620,.45,'cubic-bezier(.45,0,.3,1)'],[780,.71,'cubic-bezier(.2,.6,.4,1)'],[1000,.78,'cubic-bezier(.5,0,.9,.6)'],[LOAD_MS,1]];
+/* ---------- page load: the shared IAB timing (1140ms bar, page fades in after 1/3) ---------- */
 let loadAnims=[],loads=0,bnT0=0;
 function resetLoad(){loadAnims.forEach(a=>a.cancel());loadAnims=[]}
-const load=()=>loadInto('iab');                       // the IAB sheet's page (fmss-cb's load(): same bar + fade)
-function loadInto(which){
+function loadInto(which){                              // the peek's page: the IAB's own bar + fade (FMSSIAB.playLoad); the IAB sheet loads itself (onLoad)
   resetLoad();loads++;bnT0=performance.now();setBanner();
-  if(RM.matches||!Element.prototype.animate)return;
-  const bar=which==='iab'?$('load'):$(which+'Load'),pg=which==='iab'?$('web'):$(which+'Pg'),T=LOAD_MS+LOAD_OUT;
-  loadAnims=[
-    bar.firstElementChild.animate(LOAD_KF.map(([t,v,e])=>Object.assign({transform:`scaleX(${v})`,offset:t/LOAD_MS},e?{easing:e}:{})),{duration:LOAD_MS,fill:'forwards'}),
-    bar.animate([{opacity:1},{opacity:1,offset:LOAD_MS/T,easing:'ease-out'},{opacity:0}],{duration:T}),
-    pg.animate([{opacity:0},{opacity:0,offset:LOAD_THIRD/(LOAD_THIRD+200),easing:'cubic-bezier(.2,.7,.2,1)'},{opacity:1}],{duration:LOAD_THIRD+200})
-  ];
+  const bar=$(which+'Load');loadAnims=FMSSIAB.playLoad(bar,bar.firstElementChild,$(which+'Pg'))||[];
 }
 /* nike.com's rotating promo banner, the three messages seen in the recording, 6s each from page load */
 const BN=['shop','gift','memb'];
@@ -726,18 +554,18 @@ setInterval(setBanner,250);setBanner();
    half → full on the way; from the floating card it rises from the bottom with the full header held and the page loading. */
 const PT=375/W;                                        // recording pt → fmss-cb px
 function openFromProfile(){
-  if(screen!==2||state!==1||(ctaState!=='peek'&&ctaState!=='card'))return;
+  if(screen!==2||iab.state!==1||(ctaState!=='peek'&&ctaState!=='card'))return;
   const src=ctaState;stopP();iabFrom='profile';
-  cancelAnimationFrame(raf);anim=null;stopScroll();setScroll(0);
+  stopScroll();setScroll(0);
   if(src==='peek'){
-    y=Math.max(Y3,(PEEK.y+peekDy*(1-clamp(m)))*PT);peekDy=0;cta.hidden=true;   // the peek hands over instantly (recording 22.83s)
-    ctaState='full';state=2;go(3,{hold:0});           // state 2: no fresh load, the peek's page carries over
+    iab.setY(Math.max(Y3,(PEEK.y+peekDy*(1-clamp(m)))*PT));peekDy=0;cta.hidden=true;   // the peek hands over instantly (recording 22.83s)
+    ctaState='full';go(3,{hold:0,load:false});        // no fresh load: the peek's page carries over
     setLive('In-app browser open: nike.com');
   }else{
-    y=Y1;ctaState='full';go(3);later(()=>{if(state>1)cta.hidden=true},64);
+    iab.setY(Y1);ctaState='full';go(3);later(()=>{if(iab.state>1)cta.hidden=true},64);
   }
   setTabs();
-  if(kbd)setTimeout(()=>$('x').focus({preventScroll:true}),0);
+  if(kbd)setTimeout(()=>iab.x.focus({preventScroll:true}),0);
 }
 
 /* ---------- controls ---------- */
@@ -747,7 +575,7 @@ cta.addEventListener('click',e=>{if(e.target.closest('#cardX'))return;openFromPr
 cta.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
 cta.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===cta){e.preventDefault();openFromProfile()}});
 $('cardX').addEventListener('click',e=>{e.stopPropagation();dismissCard()});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;userActed();if(state!==1){close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})}else if(screen===2)backToReel()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;userActed();if(iab.state!==1){close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})}else if(screen===2)backToReel()});
 
 /* ---------- theme toggle + follow site theme (same as fmss-cb) ---------- */
 $('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}} );
@@ -791,7 +619,7 @@ const STEPS=[
   1700,tk=>tap('back',24,88,tk,backToReel),
   600];
 function fingerOff(){finger.classList.remove('on','down')}
-const realBusy=()=>!!(sc||pg||drag);
+const realBusy=()=>!!(iab.sc||pg||iab.drag);
 function reset(){                                   // the clean start, instantly (under the crossfade cover; hosted: the host's reset)
   const was=screen;clearLater();stopP();stopScroll();
   if(peekUpS){peekUpS.cancel();peekUpS=null}clearTimeout(wT);wLift=0;if(cardS){cardS.cancel();cardS=null}cardDy=0;
@@ -799,7 +627,7 @@ function reset(){                                   // the clean start, instantl
   [profile,reel,$('reelDim')].forEach(el=>el.style.transition='none');
   phone.classList.remove('pushed','drag-reel');profile.classList.remove('drag');profile.style.transform=reel.style.transform='';$('reelDim').style.opacity='';
   tabpill.className='abs tabpill';screen=1;setCta('hidden');peekDy=0;setPScroll(0);
-  cancelAnimationFrame(raf);anim=null;drag=sc=null;sheet.classList.remove('drag');resetLoad();setScroll(0);y=Y1;hLock=0;iabFrom='reel';setState(1);render();   // the IAB as fmss-cb's reset
+  resetLoad();iabFrom='reel';iab.reset();         // the IAB's clean start
   requestAnimationFrame(()=>requestAnimationFrame(()=>{[profile,reel,$('reelDim')].forEach(el=>el.style.transition='')}));
   setTabs();resumeReel();fingerOff();if(was!==1)host()?.push(false,true);
 }
@@ -969,7 +797,7 @@ function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');
 window.addEventListener('pointerup',uUp,true);window.addEventListener('pointercancel',uUp,true);
 
 setTabs();renderCta();
-window.__pf={get screen(){return screen},get cta(){return ctaState},get m(){return m},get busy(){return !!(anim||mSpring||peekUpS)},get pscroll(){return py},get scroll(){return sy},get loads(){return loads},get vidMode(){return vidMode},get gestures(){return glog.slice()},get loading(){return loadAnims.some(a=>a.playState==='running')},get banner(){return root.dataset.bn},get state(){return state},get y(){return y},get iabFrom(){return iabFrom},get rbusy(){return !!(anim||drag)},get paused(){return userPaused},get vidPaused(){return vid.paused},get uShow(){return uShow},get dragging(){return !!(sc||pg||drag)},get hov(){return hov},get auto(){return autoOn},get lastInput(){return lastInput},get stepI(){return stepI},uOff,resetNow:reset,
+window.__pf={get screen(){return screen},get cta(){return ctaState},get m(){return m},get iab(){return iab},get busy(){return !!(iab.busy||mSpring||peekUpS)},get pscroll(){return py},get scroll(){return iab.scroll},get loads(){return loads},get vidMode(){return vidMode},get gestures(){return glog.slice()},get loading(){return iab.loading||loadAnims.some(a=>a.playState==='running')},get banner(){return root.dataset.bn},get state(){return iab.state},get y(){return iab.y},get iabFrom(){return iabFrom},get rbusy(){return !!(iab.busy||iab.drag)},get paused(){return userPaused},get vidPaused(){return vid.paused},get uShow(){return uShow},get dragging(){return !!(iab.sc||pg||iab.drag)},get hov(){return hov},get auto(){return autoOn},get lastInput(){return lastInput},get stepI(){return stepI},uOff,resetNow:reset,
   go,openIabFull,close,openFromProfile,mediaTap,
   openProfile,backToReel,dismissCard,setPScroll,pFling,setScroll,toCard,toPeek};
 setState(1);render();                                // the IAB's start state (as fmss-cb): sheet, toolbar and status band parked off screen

@@ -1,0 +1,30 @@
+/* FMSS shared in-app browser (IAB) foundation: one sheet + header + page + toolbar + close, used by every FMSS prototype.
+   All numbers are the 375×812 Figma screen px of the host layer (the phone screen, or a 375×812 layer scaled onto it).
+   Structure (built from H-Scroll's leak-free IAB):
+   .iab-sheet   the moving layer (one transform). It holds
+     .iab-cap   the status-bar backing: part of the sheet itself, pinned to the screen top and running 4px under the sheet's
+                top edge once docked, so status bar and header are one white surface (no seam, no separate strip)
+     .iab-panel the white sheet: header (half / full), handle, load bar, the page viewport
+   .iab-tb      the toolbar, anchored to the true screen bottom: its white runs 8px past the screen edge, so the phone's own
+                rounded clip is the only bottom edge (nothing shows under it at any scale)
+   .iab-x       close */
+.iab-sheet{position:absolute;left:0;top:812px;width:375px;height:860px;z-index:20;touch-action:none;cursor:grab;will-change:transform;transform:translateZ(0);pointer-events:auto}
+.iab-sheet.drag{cursor:grabbing}
+.iab-sheet:focus-visible{outline:none}
+.iab-cap{position:absolute;left:0;top:-820px;width:375px;height:52px;background:#fff;opacity:0;pointer-events:none;display:none}
+.iab-panel{position:absolute;left:0;top:0;width:375px;height:860px;background:#fff;border-radius:16px 16px 0 0;overflow:hidden}
+.iab-panel>*{position:absolute}
+.iab-h{left:0;top:0;width:375px;background:#fff;z-index:2;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.iab-hh{height:52px}
+.iab-hf{height:46px;opacity:0}
+.iab-handle{left:0;top:0;width:375px;height:20px;z-index:3;touch-action:none}
+/* page-load bar: 2px hairline right under the visible header's bottom edge; blue #2F4EBE on #E5E5EA */
+.iab-load{left:0;top:52px;width:375px;height:2px;background:#E5E5EA;z-index:3;opacity:0;pointer-events:none;overflow:hidden}
+.iab-load i{position:absolute;inset:0;background:#2F4EBE;transform-origin:0 50%;transform:scaleX(0)}
+.iab-webv{left:0;top:52px;width:375px;height:808px;overflow:hidden;z-index:1}
+.iab-webv>*{position:absolute;left:0;top:0;width:375px;will-change:translate}
+.iab-webv img{-webkit-user-drag:none;user-select:none;pointer-events:none}
+.iab-tb{position:absolute;left:0;top:717px;width:375px;height:103px;z-index:25;pointer-events:none;will-change:transform;transform:translate3d(0,110px,0);visibility:hidden;-webkit-user-drag:none;user-select:none}
+.iab-x{position:absolute;left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none;appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+.iab-x.on{display:block}
+.iab-x:focus-visible{outline:2px solid #0866ff;outline-offset:-4px}
