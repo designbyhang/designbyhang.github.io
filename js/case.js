@@ -98,16 +98,18 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    device centred with even margins. Desktop is unchanged: the shield is display:none above 640px.
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
-   returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the figcaption style) 16px below the device frame, at most
+   returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the CLOSE button's type) 16px below the device frame, at most
    375px wide; device + gap + text fit between the bars, centred together (375x812 cap). The lifted iframe keeps the whole box between
    the bars and the device is padded into it (PAD, the same injected style as js/proto-fs.js on desktop: the prototype's frame gets the
    device's top and height, overflow visible), with at least ROOM (device units) above it, so the device's drop-shadow has room inside
    the transparent iframe and never ends on its edge (it was cut to a hard band at the device's top and bottom);
-   it enters with CLOSE (.hegg-ui) and is hidden in landscape. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
+   the instruction fades in once the open expansion (the iframe's opacity transition) has finished, fades out for good (this session) on the first
+   tap of the element it describes (TAP, in the prototype's own document), and is hidden in landscape. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
- INS={'fmss-cb':'Tap the video’s caption to preview the ad’s destination without leaving Reels.','fmss-hs':'Tap a product image to browse product details side by side in a split screen.','fmss-profile':'Tap the brand’s profile picture to visit their Profile, with their website a tap away.'};
+ INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
+ TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 var PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
  ROOM=32; /* drop-shadow(40px 0 20px) = 10px std dev: fully faded by ~30 device px; this much margin is kept above and below the device */
 ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=document.createElement('button');b.type='button';b.className='proto-open';
@@ -120,6 +122,10 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   nosel=function(on){de.classList.toggle('proto-nosel',on);clearSel();['selectstart','dragstart'].forEach(function(t){document[on?'addEventListener':'removeEventListener'](t,noSel,true)})}; /* while open: no selection on the page */
  var land=function(){if(held)send('embed:hold')}; /* opened in landscape: the device is held */
  var u=f.getAttribute('data-src')||f.getAttribute('src')||'',ik=Object.keys(INS).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0],ins=ik?INS[ik]:'';
+ var insEl=function(){var L=window.dbhLayer,el=L&&L.el;return el&&el.querySelector('.proto-ins')},
+  insOut=function(){var p=insEl();if(p){p.classList.remove('in');p.classList.add('out')}}, /* gone for the rest of this full-screen session */
+  insIn=function(e){if(e&&(e.target!==f||e.propertyName!=='opacity'))return;f.removeEventListener('transitionend',insIn);var p=insEl();if(p&&!p.classList.contains('out')&&f.classList.contains('proto-on'))p.classList.add('in')},
+  onTap=function(e){var t=e.target;if(ik&&e.isTrusted&&t&&t.closest&&t.closest(TAP[ik]))insOut()};
  /* portrait layout: the bars' box (css top/height) minus 16px + the instruction's height, the device's width limit and the 812 cap give
     the device height (less ROOM above and below); the device is padded to that spot inside the iframe, device + gap + text centred in the box */
  var pad=function(on,t,h){var d=doc();if(!d||!d.classList.contains('embed'))return;var D=d.ownerDocument;
@@ -135,14 +141,15 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   send(on?'embed:hold':'embed:release')};
  var lqOn=function(on){if(lq.addEventListener)lq[on?'addEventListener':'removeEventListener']('change',orient);else lq[on?'addListener':'removeListener'](orient)};
  var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on){lay();land()}},
-  hook=function(){var w=null;try{w=f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',esc,true)}catch(_){}};
+  hook=function(){var w=null;try{w=f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',esc,true);w.addEventListener('click',onTap,true)}catch(_){}};
  b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;
   if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   f.addEventListener('load',load);
-  L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="proto-ins hegg-ui">'+ins+'</p><p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on')},
+  L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="proto-ins">'+ins+'</p><p class="deck-n hegg-ui"></p>',
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on');
+    if(parseFloat(getComputedStyle(f).transitionDuration)>0)f.addEventListener('transitionend',insIn);else insIn()},
    tabs:function(){return held?[]:[f]},
    frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
-   done:function(){nosel(false);f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=null;
+   done:function(){nosel(false);f.removeEventListener('transitionend',insIn);f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
 });})();

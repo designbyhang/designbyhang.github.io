@@ -318,7 +318,10 @@ body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
 .media.proto iframe.proto-lift.proto-on{opacity:1}
 /* phone full screen, portrait: the instruction under the device (js/case.js INS sets its top, 16px below the device frame, and width,
    at most 375px): the figcaption style; landscape keeps only the rotate message */
-.hegg.proto-full .proto-ins{position:absolute;z-index:2;left:0;right:0;top:0;margin:0 auto;font-family:var(--sans);font-weight:400;font-style:normal;font-size:14px;line-height:18px;letter-spacing:normal;color:var(--cap);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none}
+.hegg.proto-full .proto-ins{--mono-color:#333;position:absolute;z-index:2;left:0;right:0;top:0;margin:0 auto;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none;opacity:0;transition:opacity 240ms var(--ease)} /* type = CLOSE (.hegg-x), casing as written */
+html[data-theme=dark] .hegg.proto-full .proto-ins{--mono-color:#cfcfcf}
+.hegg.proto-full .proto-ins.in{opacity:1}.hegg.proto-full .proto-ins.out{opacity:0;transition-duration:160ms} /* in once the open expansion ends, out on the described tap (js/case.js) */
+@media (prefers-reduced-motion:reduce){.hegg.proto-full .proto-ins{transition:none}}
 .hegg.proto-full.proto-land .proto-ins{display:none}
 html.proto-nosel,html.proto-nosel body{-webkit-user-select:none;user-select:none}   /* phone full screen open (js/case.js): no selection on the page */
 .media.proto iframe.proto-lift.proto-hide{visibility:hidden;pointer-events:none}

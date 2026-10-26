@@ -9,9 +9,10 @@
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
-   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the site's figcaption style), 24px
+   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), 24px
    below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
-   group centred in it. It enters with CLOSE (40ms after it) and fades out with it on close. Not shown inline.
+   group centred in it. It fades in once the open expansion has finished, fades out for good (this session) on the first tap of the
+   element it describes (TAP, in the prototype's own document), and on close. Not shown inline.
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
 (()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -29,8 +30,11 @@ const panel=bg.firstChild;const probe=bg.querySelector('.fsx-probe'),MAXH=828;
 const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
 const ins=document.createElement('p');ins.className='fsx-ins';fs.appendChild(ins);
-const INS={'fmss-cb':'Tap the video’s caption to preview the ad’s destination without leaving Reels.','fmss-hs':'Tap a product image to browse product details side by side in a split screen.','fmss-profile':'Tap the brand’s profile picture to visit their Profile, with their website a tap away.'};
-const insOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'',k=Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0);return k?INS[k]:'';};
+const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
+ TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
+const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
+const insOut=()=>{ins.classList.remove('in');ins.classList.add('out');}; /* gone for the rest of this full-screen session */
+const onTap=e=>{const k=cur&&keyOf(cur.f),t=e.target;if(k&&e.isTrusted&&t&&t.closest&&t.closest(TAP[k]))insOut();};
 body.append(bg,fs);
 const btn=fs.querySelector('.deck-x');
 let state='closed',cur=null,raf=0,P=0,G=null;
@@ -54,7 +58,7 @@ const inkRight=el=>{const r=document.createRange();r.selectNodeContents(el);cons
 function asideMeasure(){lt=[];for(const el of lefts){el.style.translate='';el.inert=true;const r=inkRight(el);if(r>0)lt.push({el,off:-r});}
  tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:mate?Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off):1});}
- for(const g of tg)g.ui=g.mate?[g.mate,ins]:[];
+ for(const g of tg)g.ui=g.mate?[g.mate]:[];
  for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}
 const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
 function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
@@ -64,7 +68,7 @@ function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'
  if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
  const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);
  g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
-function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];for(const [el] of asides)el.style.translate=el.style.opacity='';for(const m of [btn,ins]){uiStop(m);m.style.opacity=m.style.translate='';}tg=[];if(hdr)hdr.style.overflowX='';}
+function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];for(const [el] of asides)el.style.translate=el.style.opacity='';uiStop(btn);btn.style.opacity=btn.style.translate='';tg=[];if(hdr)hdr.style.overflowX='';}
 /* prototype plumbing, as js/case.js */
 const doc=f=>{try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
 const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
@@ -77,7 +81,7 @@ const pad=(f,on,t,h)=>{const d=doc(f);if(!d)return;const D=d.ownerDocument;
  if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px');}
  if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h');}d.classList.toggle('fsx-pad',on);};
 const escKey=e=>{if(e.key==='Escape'&&state!=='closed'){e.preventDefault();e.stopPropagation();close();}};
-let win=null;function hook(f){let w=null;try{w=f&&f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',escKey,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',escKey,true)}catch(_){}}
+let win=null;function hook(f){let w=null;try{w=f&&f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',escKey,true);win.removeEventListener('click',onTap,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',escKey,true);w.addEventListener('click',onTap,true)}catch(_){}}
 /* geometry. Device scale inside the prototype (its fit(): screen 375x812 + 8px bezel): inline vs full screen; the device is centred in
    its frame both ways, so mapping the device = mapping the frame centres plus a uniform scale */
 const sInline=(w,h)=>{const pad=w<=640?24:40;return Math.min((h-pad*2)/828,(w-pad*2)/431);},sFull=(w,h)=>Math.min(h/828,(w-32)/391);
@@ -113,15 +117,15 @@ function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.no
  raf=requestAnimationFrame(tick);}
 function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
- ins.textContent=insOf(f);cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ const k=keyOf(f);ins.textContent=k?INS[k]:'';ins.className='fsx-ins';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
  asideMeasure();aside(0);
- anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
+ anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');if(!ins.classList.contains('out'))ins.classList.add('in');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
 function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
- state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
+ state='closing';insOut();fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
   f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
