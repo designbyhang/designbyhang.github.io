@@ -20,8 +20,8 @@ const ease=(function bez(p1x,p1y,p2x,p2y){const cx=3*p1x,bx=3*(p2x-p1x)-cx,ax=1-
 const DUR=650,lerp=(a,b,t)=>a+(b-a)*t;
 /* layers */
 const bg=document.createElement('div');bg.className='fsx-bg';bg.hidden=true;
-bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i>';
-const panel=bg.firstChild;
+bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><i class="fsx-probe" aria-hidden="true"></i>';
+const panel=bg.firstChild;const probe=bg.querySelector('.fsx-probe'),MAXH=828;
 const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
 body.append(bg,fs);
@@ -58,6 +58,14 @@ function asideReset(){for(const el of lefts){el.style.translate=el.style.filter=
 /* prototype plumbing, as js/case.js */
 const doc=f=>{try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
 const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
+/* full screen pads the prototype's own frame inside a full-viewport iframe (style injected into the same-origin prototype
+   document while lifted, test page only): the device box gets the 64px margins and the 375x812 cap, and the transparent
+   iframe around it leaves room for the device's drop-shadow, so it never ends on the iframe edge */
+const PAD_CSS='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}';
+const pad=(f,on,t,h)=>{const d=doc(f);if(!d)return;const D=d.ownerDocument;
+ if(on&&!D.getElementById('fsx-pad-css')){const st=D.createElement('style');st.id='fsx-pad-css';st.textContent=PAD_CSS;(D.head||d).appendChild(st);}
+ if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px');}
+ if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h');}d.classList.toggle('fsx-pad',on);};
 const send=(f,t)=>{try{f.contentWindow.dispatchEvent(new Event(t))}catch(_){}};
 /* restart the idle demo from its first step: stop it (hold), let it run again (release), start now (full: skips the idle wait) */
 const restart=f=>{send(f,'embed:hold');send(f,'embed:release');send(f,'embed:full');};
@@ -75,9 +83,17 @@ const gut=f=>{const e=doc(f),b=e&&e.ownerDocument.body;return b&&e?{x:(b.clientW
 function render(p,fresh){const {m,f}=cur;if(fresh||state==='closing')G.A=hostBox(m);const A=G.A,F=G.F,W=G.W,H=G.H;
  const x=lerp(A.x,0,p),y=lerp(A.y,0,p),w=lerp(A.w,W,p),h=lerp(A.h,H,p);
  panel.style.transform='translate('+x.toFixed(2)+'px,'+y.toFixed(2)+'px) scale('+(w/W).toFixed(5)+','+(h/H).toFixed(5)+')';
- const k=lerp(G.s0/G.s1,1,p),g=G.g,dx=(1-p)*((A.x+A.w/2)-(F.left+F.width/2))+g.x*(1-k),dy=(1-p)*((A.y+A.h/2)-(F.top+F.height/2))+g.y*(1-k);
+ const k=lerp(G.s0/G.s1,1,p),g=G.g,o=G.o,fx=F.left+F.width/2,fy=F.top+F.height/2,
+  dx=lerp(A.x+A.w/2+g.x,fx+o.x,p)-fx-k*o.x,dy=lerp(A.y+A.h/2+g.y,fy+o.y,p)-fy-k*o.y;
  f.style.transform=p>=1?'':'translate('+dx.toFixed(2)+'px,'+dy.toFixed(2)+'px) scale('+k.toFixed(5)+')';}
-function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';panel.style.height=G.H+'px';G.F=f.getBoundingClientRect();if(!G.g)G.g=gut(f);G.s1=sFull(G.F.width-2*Math.abs(G.g.x),G.F.height-2*Math.abs(G.g.y));}
+function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';panel.style.height=G.H+'px';f.style.width='';G.F=f.getBoundingClientRect();if(!G.g)G.g=gut(f);
+ /* device box: the probe's 64px (56 on phones) + safe-area margins; capped at the native 828 (375x812 screen + 8px bezel), so
+    --s never exceeds 1 (no upscaled raster); whole px so the 1:1 screen lands on the pixel grid */
+ const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top),bh=Math.min(av,MAXH),bt=Math.round(q.top+(av-bh)/2);
+ pad(f,true,bt,bh);G.s1=Math.min(1,sFull(G.F.width-2*Math.abs(G.g.x),bh));
+ /* at 1:1 the 375px screen sits at (frame width)/2 - 187.5: when that lands on a half px, narrow the iframe by 1px so the
+    screen is pixel-aligned (crisp, not resampled) */
+ if(G.s1>=1){const sx=G.F.left+(G.F.width-2*Math.abs(G.g.x))/2-187.5;if(Math.abs(sx-Math.round(sx))>.25){f.style.width=(G.F.width-1)+'px';G.F=f.getBoundingClientRect();}}G.o={x:G.g.x,y:bt+bh/2-(G.F.top+G.F.height/2)+G.g.y};}
 function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.now();
  const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u);P=lerp(p0,p1,e);side(P);render(P);
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
@@ -87,7 +103,7 @@ function open(m){if(state!=='closed')return;const f=m.querySelector('iframe'),b=
  cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
- f.classList.add('fsx-lift','fsx-anim');full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);restart(f);
+ f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);restart(f);
  asideMeasure();aside(0);
  anim(0,1,()=>{state='open';if(lastPtr.type!=='touch'&&lastPtr.type!=='pen')restStart(f,lastPtr.x,lastPtr.y);f.classList.remove('fsx-anim');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
 /* desktop mouse: the phone grows under a resting cursor, and the prototypes treat a fine pointer entering the phone as the visitor
@@ -97,11 +113,11 @@ let rest=null;const restEnd=()=>{if(!rest)return;removeEventListener('pointermov
 function restStart(f,x,y){restEnd();f.classList.add('fsx-rest');const mv=e=>{if(Math.abs(e.clientX-x)+Math.abs(e.clientY-y)>=3)restEnd();},dn=()=>restEnd();rest={mv,dn};
  addEventListener('pointermove',mv,true);addEventListener('pointerdown',dn,true);}
 let lastPtr={type:'',x:-1e4,y:-1e4};
-function onLoad(){if(!cur)return;const f=cur.f;if(G)G.g=gut(f);full(f,true);hook(f);restart(f);}
+function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);restart(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
  restEnd();state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
-  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';full(f,false);
+  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
   state='closed';de.classList.remove('deck-open');cur=null;G=null;P=0;if(window.__dbhResample)__dbhResample();
   if(hadFocus&&b)b.focus({preventScroll:true,focusVisible:false});},aside);}
