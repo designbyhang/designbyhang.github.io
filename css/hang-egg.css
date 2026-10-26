@@ -56,6 +56,6 @@ html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
    message (js/case.js, .hegg.proto-full) uses it as is; studio.html keeps its breakpoint and layout rules after it */
 .deck-n{position:absolute;z-index:2;right:calc(clamp(16px,3vw,32px) + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
 /* FMSS phone full screen, turned to landscape (js/case.js): the device is hidden and the message sits mid-screen */
-.hegg.proto-full .deck-n{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
+.hegg.proto-full .deck-n{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;line-height:1.6}
 .hegg.proto-full .deck-n{--mono-color:#333;--ink:#171717}
 html[data-theme=dark] .hegg.proto-full .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}

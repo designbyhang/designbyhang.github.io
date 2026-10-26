@@ -93,7 +93,7 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device and
    the normal entry (embed:full) return. */
 (function(){var ms=document.querySelectorAll('.media.proto');if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
- lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait. Rotate your phone to continue.';
+ lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.';   // two lines, broken after the first sentence
 ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=document.createElement('button');b.type='button';b.className='proto-open';
  var name=(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'');b.setAttribute('aria-label','Open '+name+' full screen');b.setAttribute('aria-haspopup','dialog');m.appendChild(b);
  var doc=function(){try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
@@ -102,7 +102,7 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var send=function(t){try{f.contentWindow.dispatchEvent(new Event(t))}catch(_){}},held=false;
  var demo=function(){if(held)send('embed:hold');else send('embed:full')}; /* the prototype's idle demo runs on entry (held in landscape) */
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
-  el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.textContent=on?LAND:'';
+  el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';
   if(on)send('embed:hold');else{send('embed:release');send('embed:full')}};
  var lqOn=function(on){if(lq.addEventListener)lq[on?'addEventListener':'removeEventListener']('change',orient);else lq[on?'addListener':'removeListener'](orient)};
  var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on)demo()},
