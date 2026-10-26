@@ -24,6 +24,10 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease)}
 /* stage = the Figma slide minus its title row: 1920×1026 design px, scaled to the frame */
 .stage{position:absolute;left:50%;top:50%;width:1920px;height:1026px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.5))}
+/* zoom, not scale(), wherever supported: the stage is laid out at its drawn size, so every composited layer inside (each animated screen
+   image, the media, the header) gets a backing store of its drawn size. Under scale() WebKit backs each layer at its unscaled 375×812
+   design size × the screen's pixel ratio (about 11MB each, some 40 per animation), which pushed iOS Safari past its memory limit */
+@supports (zoom:2){.stage{zoom:var(--s,.5);transform:translate(-50%,-50%)}}
 /* phone: Figma 375×812 screen at x 90/545/1000/1455 (80px apart); 8px code-drawn bezel outside it */
 .dev{position:absolute;top:96px;width:375px;height:812px}
 .bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2))}
@@ -97,6 +101,15 @@ const track=fn=>POSE.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'line
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const frame=document.getElementById('frame'),stage=document.getElementById('stage');
+/* asset set: every image and video is drawn at its design size × the stage scale × the screen's pixel ratio. At or under 1:1 the
+   half-size set (assets/h/: the same files at 375 design px wide) is used, a quarter of the decoded pixels and video decode surface;
+   above it the full 750px set. Chosen before the first request; if the frame later grows past 1:1 it is upgraded once (never back down) */
+const scl=()=>{const r=frame.getBoundingClientRect();return Math.min(r.width/1920,r.height/1026)};
+let half=scl()*(devicePixelRatio||1)<=1;const AS=half?'assets/h/':'assets/';
+function upgrade(){if(!half)return;half=false;const up=u=>u.replace('assets/h/','assets/');
+  stage.querySelectorAll('img').forEach(im=>{const u=im.getAttribute('src');if(u&&u.indexOf('assets/h/')===0)im.src=up(u)});
+  stage.querySelectorAll('video').forEach(v=>{const p=v.getAttribute('poster'),u=v.getAttribute('src');if(p)v.poster=up(p);if(!u||u.indexOf('assets/h/')!==0)return;
+    const t=v.currentTime,on=!v.paused;v.src=up(u);v.addEventListener('loadedmetadata',()=>{try{v.currentTime=t}catch(_){}},{once:true});if(on){const q=v.play();q&&q.catch(()=>{})}})}
 /* Figma-style smoothed rounded rect; per-corner radii [tl,tr,br,bl] */
 function squircle(w,h,R,sm){
   const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2,f=n=>+n.toFixed(3);
@@ -123,10 +136,10 @@ const anims=[],imgs=[],vids=[];let reel=null,thumb=null,clock=null;
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i],n=i+1;
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
-  const im=(c,f,st)=>`<img class="L ${c}" alt="" src="assets/${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${top}px`;
+  const im=(c,f,st)=>`<img class="L ${c}" alt="" src="${AS}${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${top}px`;
   dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+
-    im('au',`au${n}`)+(n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/r4.webp${V}" src="assets/r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+im('bu',`bu${n}`,cut)+
-    `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/p${n}.webp${V}" src="assets/v${n}.mp4${V}"></video></div>`+
+    im('au',`au${n}`)+(n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}r4.webp${V}" src="${AS}r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+im('bu',`bu${n}`,cut)+
+    `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${n}.webp${V}" src="${AS}v${n}.mp4${V}"></video></div>`+
     (n===3?im('sg','sg3'):'')+(n!==1?im('ao',`ao${n}`):'')+(m.cs?im('bc',`bc${n}`,cut):'')+im('bo',`bo${n}`,cut)+
     (n===3?`<div class="hd"><i class="pb"></i><div class="meta"><img alt="" src="assets/av3.webp${V}"><div><div class="nm">Away${CHECK}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`:'')+
     im('bs',`b${n}`,`clip-path:inset(${top}px 0 0 0)`)+
@@ -166,7 +179,7 @@ PH.forEach((p,i)=>{
   A('.ct',p=>({opacity:p.c}));
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
-function fit(){const r=frame.getBoundingClientRect();stage.style.setProperty('--s',Math.min(r.width/1920,r.height/1026).toFixed(4))}
+function fit(){const s=scl();stage.style.setProperty('--s',s.toFixed(4));if(half&&s*(devicePixelRatio||1)>1)upgrade()}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;
 function still(){anims.forEach(a=>{a.pause();a.currentTime=6000});vids.forEach(v=>{v.pause()});reel&&reel.pause()}   // reduced motion: hold the split screen (B) with the poster frame
