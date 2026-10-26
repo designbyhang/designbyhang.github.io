@@ -91,7 +91,7 @@ document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEvent
    swapped for about:blank) so its decoded images, videos and layers are freed: iOS Safari kills a tab that keeps every demo on the page
    alive at once. It reloads, from its own start, when it nears again. Never while lifted into full screen (.proto-lift / .fsx-lift) */
 (function(){var fs=document.querySelectorAll('iframe[data-src]');if(!fs.length)return;var go=function(f){if(!f.hasAttribute('data-src'))return;f.src=f.getAttribute('data-src');f.removeAttribute('data-src')};
-var drop=function(f){var u=f.getAttribute('src');if(!u||f.classList.contains('proto-lift')||f.classList.contains('fsx-lift'))return;
+var drop=function(f){var u=f.getAttribute('src');if(!u||f.hasAttribute('data-keep')||f.classList.contains('proto-lift')||f.classList.contains('fsx-lift'))return;
  try{f.contentWindow.location.replace('about:blank')}catch(_){}f.setAttribute('data-src',u);f.removeAttribute('src')};
 var arm=function(){if(!('IntersectionObserver' in window)){fs.forEach(go);return}
  var near=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)go(e.target)})},{rootMargin:'400px 0px'});
@@ -125,23 +125,27 @@ addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='demo-hello'
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
    returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the CLOSE button's type) 40px below the device frame, at most
-   375px wide; device + gap + text fit between the bars, centred together (375x812 cap). The lifted iframe keeps the whole box between
+   375px wide, its line centred on the theme toggle's (below); device + gap + text fit between the bars (375x812 cap). The lifted iframe keeps the whole box between
    the bars and the device is padded into it (PAD, the same injected style as js/proto-fs.js on desktop: the prototype's frame gets the
    device's top and height, overflow visible), with at least ROOM (device units) above it, so the device's drop-shadow has room inside
    the transparent iframe and never ends on its edge (it was cut to a hard band at the device's top and bottom);
    the instruction moves as CLOSE does (dbhLayer enter/exit hooks: same trigger, 40ms after CLOSE as UI_STAG, then INS_WAIT 800ms
    more (WAAPI delay, no timer; a tap or close inside it and it never shows), 448ms on CLOSE's curve)
-   but vertically: it slides DOWN out from behind the device (the layer is under the lifted iframe; its box starts at the device's
-   bottom edge and clips, so the raised span starts hidden under the device). The first tap of the element it describes (TAP, in the
-   prototype's own document) plays that in reverse (back up behind the device, fading; gone for this session); on close it exits on
+   but vertically: it rises INS_UP (16px) into place while fading in (the same entrance on its return to the first screen and after
+   a refresh; the layer is under the lifted iframe; its box starts at the device's bottom edge and clips, 16px bottom padding for the
+   rise). The first tap of the element it describes (TAP, in the prototype's own document) takes it up behind the device, fading
+   (gone until the prototype is back on its first screen); on close it exits on
    CLOSE's exit progress. Hidden in landscape.
    Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js); a load carrying it reopens that prototype at once (no
    fade; the device on its clean start, no autoplay) with the page under it at the prototype, and the instruction then plays its
    entrance (dbhLayer calls enter once the instant open has painted). Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
+/* reveal a scroll-in figure (.fx, above) at once: its opacity and transform would hide a lifted (position:fixed) iframe inside it and
+   make the figure its containing block (a refresh restore opens before the figure has been scrolled into view) */
+function fxIn(m){var g=m.closest('.fx');if(!g||g.classList.contains('in'))return;g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition=''}
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
- rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_EASE='cubic-bezier(.2,.8,.2,1)',INS_REV='cubic-bezier(.8,0,.8,.2)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE) and its time reverse */
+ rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,INS_EASE='cubic-bezier(.2,.8,.2,1)',INS_REV='cubic-bezier(.8,0,.8,.2)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE) and its time reverse */
  INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 var PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
@@ -158,12 +162,12 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var u=f.getAttribute('data-src')||f.getAttribute('src')||'',ik=Object.keys(INS).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0],ins=ik?INS[ik]:'';
  var insA=null,tapped=false,insSt=null,insHome=false, /* insHome: the prototype has reported its clean start this session */
   insC=null,insEl=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(p)insC=p.firstChild;return insC}, /* kept: dbhLayer.el is null while the layer closes */
-  insD=function(s){return s.parentNode.clientHeight},
+  insD=function(s){return s.parentNode.clientHeight-INS_UP}, /* gap + text: the box's INS_UP bottom padding is the entrance's room */
   insHide=function(s){s.style.opacity='0';s.style.translate='0 '+(-insD(s))+'px'},
   insStop=function(){if(insA){insA.cancel();insA=null}},
   insY=function(cs){return parseFloat((cs.translate||'0 0').split(' ')[1])||0},
-  insIn=function(d){var s=insEl();if(tapped||!s)return;if(typeof d!=='number')d=INS_STAG+INS_WAIT;insStop();s.style.opacity=s.style.translate='';if(rmq.matches||!s.animate)return;
-   insA=s.animate([{opacity:0,translate:'0 '+(-insD(s))+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:INS_EASE,fill:'backwards'});insA.onfinish=function(){insA=null}},
+  insIn=function(d){var s=insEl();if(tapped||!s)return;pinK='';repin();if(typeof d!=='number')d=INS_STAG+INS_WAIT;insStop();s.style.opacity=s.style.translate='';if(rmq.matches||!s.animate)return;
+   insA=s.animate([{opacity:0,translate:'0 '+INS_UP+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:INS_EASE,fill:'backwards'});insA.onfinish=function(){insA=null;pinK='';repin()}},
   insOut=function(){var s=insEl();if(tapped||!s)return;tapped=true; /* gone for the rest of this full-screen session */
    if(rmq.matches||!s.animate){insStop();insHide(s);return}
    if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide(s);return} /* still waiting: it never appears */
@@ -184,10 +188,18 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
   if(held){pad(false);return}var r=f.getBoundingClientRect(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
   var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tb.getBoundingClientRect():null;
-  if(tr&&(!tr.width||tr.top<0||tr.bottom>innerHeight))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
-  var T=p.offsetHeight,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
+  var lb=el.getBoundingClientRect(),vv=window.visualViewport,yb=Math.max(innerHeight,lb.bottom,vv?vv.offsetTop+vv.height:0);if(tr&&(!tr.width||tr.top<0||tr.bottom>yb+1))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
+  var T=p.firstChild?p.firstChild.offsetHeight:0,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
   if(tr){var ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*(W-32)/391)));t=ct-g-r.top-h}}
-  pad(true,t,h);p.style.top=(r.top+t+h)+'px';p.style.paddingTop=g+'px'}; /* the box starts at the device's bottom edge */
+  pad(true,t,h);p.style.top=(r.top-lb.top+t+h)+'px';p.style.paddingTop=g+'px'};
+ /* re-pin: Safari's toolbar and the layer's own settle move the toggle after open, so the layout is measured again on window and
+    visualViewport resize/scroll, on each frame for the first 1.2s (only when the toggle's centre or the frame's box moved), and
+    when the instruction starts and ends its entrance */
+ var pinK='',pinR=0,pinKey=function(){var tb=document.querySelector('.theme-btn'),a=tb?tb.getBoundingClientRect():null,r=f.getBoundingClientRect();return (a?Math.round(a.top+a.height/2):'-')+','+Math.round(r.top)+','+Math.round(r.height)+','+Math.round(r.width)},
+  repin=function(){var k=pinKey();if(k!==pinK){pinK=k;lay()}},
+  pinOn=function(on){var vv=window.visualViewport;['resize','scroll'].forEach(function(n){if(vv)vv[on?'addEventListener':'removeEventListener'](n,repin)});
+   (on?addEventListener:removeEventListener)('resize',repin);cancelAnimationFrame(pinR);pinR=0;pinK='';if(!on)return;
+   var t0=performance.now(),tick=function(){repin();pinR=performance.now()-t0<1200?requestAnimationFrame(tick):0};pinR=requestAnimationFrame(tick)}; /* the box starts at the device's bottom edge */
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
   el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';lay();
   send(on?'embed:hold':'embed:release')};
@@ -199,16 +211,17 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  addEventListener('message',function(e){var d=e.data,L=window.dbhLayer;if(!d||d.type!=='proto-state'||e.source!==f.contentWindow||!L||!L.el||!f.classList.contains('proto-lift'))return;
   if(!d.home){if(insHome)insOut()}else{insHome=true;if(tapped){tapped=false;insIn(INS_WAIT)}}}); /* a home:false before the clean start is the inline demo's */
  var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;tapped=false;insHome=false;insStop();insSt=null;
-  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
+  f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
+  fxIn(m); /* a figure not yet revealed (.fx: opacity 0 + transform, as after a refresh restore) would hide the lifted iframe and pin it to the page, not the screen */
   f.addEventListener('load',load);
   L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:insIn,exit:insExit,stage:'<p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);pinOn(true);lqOn(true);land();void f.offsetWidth;
     if(now){f.classList.add('proto-on');void f.offsetWidth;f.style.transition='';return} /* restored: on at once (the instruction's entrance follows via enter) */
     f.style.transition='';f.classList.add('proto-on')},
    tabs:function(){return held?[]:[f]},
    frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
-   done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
-    f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}})};
+   done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);pinOn(false);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
+    f.classList.remove('proto-lift','proto-on');f.removeAttribute('data-keep');f.style.transition=f.style.opacity='';full(false)}})};
  b.addEventListener('click',function(){go(false)});
  /* refresh restore (phones): this prototype's ?fs= key; the page goes to the prototype first, then the layer is on at once */
  var restore=function(){var V=window.dbhView;if(!V||!ik||V.get()!==ik||!mq.matches)return;m.scrollIntoView({block:'center',behavior:'instant'});go(true)};

@@ -9,15 +9,15 @@
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
-   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), its line
-   centred on the theme toggle's (bottom-left), at most 375px wide; the device takes the probe box down to 40px above it (375x812 cap
-   kept). Without the toggle on screen: 40px below the device, device + gap + text centred in the probe box. It moves as CLOSE does
+   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), 40px
+   below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
+   group centred in it. It moves as CLOSE does
    (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, then INS_WAIT 800ms more (WAAPI delay, no timer; a tap or
    close inside it and it never shows), 448ms on
-   CLOSE's curve, opacity 0 -> 1 on the same curve) but vertically: it slides DOWN out from behind the device. It lives in the
-   .fsx-bg layer, under the lifted iframe, and its box (.fsx-ins, overflow clip) starts at the device's bottom edge, so at the start
-   (span raised by gap + its height) it is entirely under the device. On the first tap of the element it describes (TAP, in the
-   prototype's own document) it plays that slide in reverse (back up behind the device while fading, the time-reversed curve) and
+   CLOSE's curve, opacity 0 -> 1 on the same curve) but vertically: it rises INS_UP (16px) into place while fading in (the same
+   entrance on its return to the first screen and after a refresh). It lives in the .fsx-bg layer, under the lifted iframe, and its
+   box (.fsx-ins, overflow clip, 16px bottom padding for the rise) starts at the device's bottom edge. On the first tap of the
+   element it describes (TAP, in the prototype's own document) it leaves up behind the device while fading (the time-reversed curve) and
    stays hidden for this session; on close it exits on CLOSE's own exit progress. Not shown inline.
    Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js), close clears it; a load carrying it reopens that prototype
    with no expansion (snap: CLOSE and the page chrome at their end state), the page under it at the prototype, the device on its clean
@@ -43,12 +43,13 @@ const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image',
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
 /* instruction motion: CLOSE's entrance (uiEnter) on the y axis, from behind the device; D = its box (gap + text) */
-const INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_REV='cubic-bezier(.8,0,.8,.2)'; /* INS_REV = CLOSE's curve (.2,.8,.2,1) run backwards in time */
+const INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,INS_REV='cubic-bezier(.8,0,.8,.2)'; /* INS_REV = CLOSE's curve (.2,.8,.2,1) run backwards in time */
 let insA=null,tapped=false,insSt=null,insHome=false; /* insHome: the prototype has reported its clean start this session */
-const insD=()=>ins.clientHeight,insHide=()=>{insS.style.opacity='0';insS.style.translate='0 '+(-insD())+'px';};
+const insD=()=>ins.clientHeight-INS_UP, /* gap + text: the box's INS_UP bottom padding is the entrance's room */
+ insHide=()=>{insS.style.opacity='0';insS.style.translate='0 '+(-insD())+'px';};
 const insStop=()=>{if(insA){insA.cancel();insA=null;}};
 function insEnter(d=INS_STAG+INS_WAIT){if(tapped||!insS.textContent)return;insStop();insS.style.opacity=insS.style.translate='';if(rm.matches||!insS.animate)return;
- insA=insS.animate([{opacity:0,translate:'0 '+(-insD())+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:UI_EASE,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
+ insA=insS.animate([{opacity:0,translate:'0 '+INS_UP+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:UI_EASE,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
 const insOut=()=>{if(tapped)return;tapped=true; /* gone for the rest of this full-screen session */
  if(rm.matches||!insS.animate){insStop();insHide();return;}
  if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide();return;} /* still waiting: it never appears */
@@ -73,8 +74,6 @@ function lock(){if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fi
 function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;clearSel();}
 /* theme toggle joins the top layer while open (Studio adoptToggle/releaseToggle) */
 let tb=null,tbHome=null,tbNext=null;
-function tbRect(){const t=document.querySelector('.theme-btn');if(!t||!t.getClientRects().length||getComputedStyle(t).visibility==='hidden')return null;
- const r=t.getBoundingClientRect();return r.width&&r.top>=0&&r.bottom<=vh()?r:null;} /* the toggle on screen: the instruction's line */
 function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
 function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(tb,tbNext);else tbHome.appendChild(tb);}
 /* page chrome slides out on the expand's progress; CLOSE enters once BACK has passed it (Studio asideMeasure/aside/uiEnter, verbatim
@@ -132,14 +131,10 @@ function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';
  /* device box: the probe's 64px (56 on phones) + safe-area margins; capped at the native 828 (375x812 screen + 8px bezel), so
     --s never exceeds 1 (no upscaled raster); whole px so the 1:1 screen lands on the pixel grid */
  const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top);
- /* the instruction: its line's centre on the theme toggle's centre (its real rect), at most 375px wide and clear of the toggle; the
-    device box then takes the probe's top down to 40px above it (capped, device box = the device, its width limit included) and sits
-    on that line. No toggle on screen (or no gain): the instruction 40px under the device, device + gap + text centred in the box */
- const sw=Math.min(1,(G.F.width-2*Math.abs(G.g.x)-32)/391),cx=G.F.left+G.F.width/2+G.g.x,tr=tbRect();
- let iw=Math.max(0,Math.min(375,G.W-32)),pin=!!(tr&&insS.textContent);if(pin){const w=Math.floor(2*(cx-tr.right-16));if(w<160)pin=false;else iw=Math.min(iw,w);}
- ins.style.width=iw+'px';const T=insS.textContent?insS.offsetHeight:0,gap=T?40:0;
- let bh=Math.max(0,Math.floor(Math.min(av-gap-T,MAXH,828*sw))),bt=Math.round(q.top+(av-bh-gap-T)/2);
- if(pin){const ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-gap-q.top;if(sp>av-gap-T){bh=Math.max(0,Math.floor(Math.min(sp,MAXH,828*sw)));bt=ct-gap-bh;}}
+ /* the instruction below it: 40px gap + its wrapped height come off the box; the device box is then exactly the device (its width
+    limit included) and device + gap + text are centred together (not tied to the theme toggle on desktop) */
+ const iw=Math.max(0,Math.min(375,G.W-32));ins.style.width=iw+'px';const T=insS.textContent?insS.offsetHeight:0,gap=T?40:0;
+ const sw=Math.min(1,(G.F.width-2*Math.abs(G.g.x)-32)/391),bh=Math.max(0,Math.floor(Math.min(av-gap-T,MAXH,828*sw))),bt=Math.round(q.top+(av-bh-gap-T)/2);
  ins.style.top=(bt+bh)+'px';ins.style.paddingTop=gap+'px'; /* the box starts at the device's bottom edge */
  pad(f,true,bt,bh);G.s1=Math.min(1,sFull(G.F.width-2*Math.abs(G.g.x),bh));
  /* at 1:1 the 375px screen sits at (frame width)/2 - 187.5: when that lands on a half px, narrow the iframe by 1px so the
@@ -151,7 +146,8 @@ function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.no
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 function open(m,now){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');snap=!!now;
- if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
+ f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
+ {const g=m.closest('.fx');if(g&&!g.classList.contains('in')){g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition='';}} /* unrevealed .fx (opacity 0 + transform) would hide the lifted iframe and pin it to the page */
  const k=keyOf(f);if(k&&window.dbhView)dbhView.set(k);insStop();insSt=null;tapped=false;insHome=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
@@ -162,7 +158,7 @@ function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;snap=false;if(window.dbhView)dbhView.set(null);
  state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
-  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
+  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.removeAttribute('data-keep');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
   state='closed';de.classList.remove('deck-open');cur=null;G=null;P=0;if(window.__dbhResample)__dbhResample();
   if(hadFocus&&b)b.focus({preventScroll:true,focusVisible:false});},aside);}
