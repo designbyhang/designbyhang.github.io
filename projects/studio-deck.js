@@ -185,7 +185,12 @@ const FIG={LINEAR:()=>u=>u,EASE_IN:()=>bezF(.42,0,1,1),EASE_OUT:()=>bezF(0,0,.58
    cubic-bezier(.65,0,.35,1); stepping back plays the same curve in reverse */
 const inOut=bezF(.65,0,.35,1),END=N-2,END_MS=1400,END_Z=1.1;
 const easeFor=i=>i===END?inOut:FADE.has(i)&&D.ease&&FIG[D.ease[i]]?FIG[D.ease[i]](DUR[i]):easeStep;
-const durOf=i=>i===END?END_MS:DUR[i]*1000;
+/* Logomark build pace (studio_03 -> studio_12, transitions 1 and 3-9): faster than the Figma prototype, same curves. Each
+   Figma 0.833s step plays in 0.5s and the 1.667s grid fade-out step (9) in 1.0s; the curve is still built from the Figma
+   duration, so only the clock changes (the box fade inside 9 keeps its share). Transition 0 (grid line draw), 2 (already
+   0.4s) and everything from 'Square' (10) on keep their Figma timing. The same in both directions and for keys, swipes, auto. */
+const FAST={1:500,3:500,4:500,5:500,6:500,7:500,8:500,9:1000};
+const durOf=i=>i===END?END_MS:(FAST[i]??DUR[i]*1000);
 let lastDraw=[0,0],shownN=-1,rawU=null,rawDir=1;
 /* the 9 intro boxes all fade in with the same animation: Figma's SLOW spring over 0.833s. studio_11->12 (transition 9) is
    1.667s in Figma because the grid fades out with it; its box keeps the 0.833s fade inside that transition. */
