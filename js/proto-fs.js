@@ -8,7 +8,7 @@
    Differences from the deck, both forced by the iframe: the SAME iframe is lifted (position:fixed, no DOM move = no reload) and
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
-   interactive; on entry its demo restarts from its beginning (embed:hold + embed:release + embed:full).
+   interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
 (()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -31,8 +31,11 @@ let state='closed',cur=null,raf=0,P=0,G=null;
 const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
 /* scroll lock + iOS viewport-fit, as Studio lock()/unlock() */
 const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;
-function lock(){if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fit=cover';de.classList.add('deck-lock');}
-function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;}
+/* while open: no selection or drag on the page (CSS html.deck-lock + these), and any selection cleared on open and close */
+const noSel=e=>{if(state!=='closed')e.preventDefault();},clearSel=()=>{try{getSelection().removeAllRanges();}catch(_){}};
+addEventListener('selectstart',noSel,true);addEventListener('dragstart',noSel,true);
+function lock(){if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fit=cover';de.classList.add('deck-lock');clearSel();}
+function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;clearSel();}
 /* theme toggle joins the top layer while open (Studio adoptToggle/releaseToggle) */
 let tb=null,tbHome=null,tbNext=null;
 function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
@@ -67,9 +70,6 @@ const pad=(f,on,t,h)=>{const d=doc(f);if(!d)return;const D=d.ownerDocument;
  if(on&&!D.getElementById('fsx-pad-css')){const st=D.createElement('style');st.id='fsx-pad-css';st.textContent=PAD_CSS;(D.head||d).appendChild(st);}
  if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px');}
  if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h');}d.classList.toggle('fsx-pad',on);};
-const send=(f,t)=>{try{f.contentWindow.dispatchEvent(new Event(t))}catch(_){}};
-/* restart the idle demo from its first step: stop it (hold), let it run again (release), start now (full: skips the idle wait) */
-const restart=f=>{send(f,'embed:hold');send(f,'embed:release');send(f,'embed:full');};
 const escKey=e=>{if(e.key==='Escape'&&state!=='closed'){e.preventDefault();e.stopPropagation();close();}};
 let win=null;function hook(f){let w=null;try{w=f&&f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',escKey,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',escKey,true)}catch(_){}}
 /* geometry. Device scale inside the prototype (its fit(): screen 375x812 + 8px bezel): inline vs full screen; the device is centred in
@@ -104,10 +104,10 @@ function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySele
  cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
- f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);restart(f);
+ f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
  asideMeasure();aside(0);
  anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
-function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);restart(f);}
+function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
  state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;

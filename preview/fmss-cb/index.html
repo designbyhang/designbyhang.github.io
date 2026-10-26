@@ -12,12 +12,12 @@
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
 /* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
-if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=100"><link rel="stylesheet" href="../../css/gate.css?v=100"><link rel="stylesheet" href="../../css/theme.css?v=100">
-<script src="../../js/gate.js?v=100"></script>
+<link rel="stylesheet" href="../../css/type.css?v=101"><link rel="stylesheet" href="../../css/gate.css?v=101"><link rel="stylesheet" href="../../css/theme.css?v=101">
+<script src="../../js/gate.js?v=101"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6;--bezel:#e0e0e0}
@@ -95,15 +95,6 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .finger,.ufinger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
 .finger.down,.ufinger.down{scale:.85}
-/* Nike (avatar + name) → the Nike profile: fmss-profile itself, framed over the reel (?host=cb), with its push: the reel slides −30% and dims .2 */
-.cbr{left:0;top:0;width:375px;height:812px;transition:transform .34s cubic-bezier(.22,.9,.24,1)}
-.cbr-dim{left:0;top:0;width:375px;height:812px;background:#000;opacity:0;pointer-events:none;z-index:55;transition:opacity .34s cubic-bezier(.22,.9,.24,1)}
-.pushed .cbr{transform:translate3d(-30%,0,0)}
-.pushed .cbr-dim{opacity:.2}
-.author-hit{left:6px;top:566px;width:96px;height:44px;border-radius:22px;z-index:6}
-.prof{left:0;top:0;width:375px;height:812px;border:0;z-index:58;background:transparent;color-scheme:normal;visibility:hidden;pointer-events:none}
-.prof.on{visibility:visible;pointer-events:auto}
-.phone.prof-on .ufinger{opacity:0!important}
 /* real pointer circle: no lag (no transform transition), quicker fade; autoplay circle is forced hidden while it shows */
 .ufinger{z-index:61;transition:opacity .15s var(--ease),scale .12s var(--ease)}
 .phone.u-on .finger{opacity:0!important}
@@ -111,6 +102,9 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+/* embedded it is an app mock, never a document: no text/element selection anywhere in it (a drag that runs off the device would
+   otherwise select the transparent area below it, which Safari paints as a full-width highlight band over the full-screen backdrop) */
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html.embed .wrap{max-width:none;padding:0}
 html.embed header.top,html.embed .below{display:none}
 html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
@@ -132,7 +126,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
-        <div class="abs cbr" id="cbr">
         <video class="abs video" id="vid" src="assets/ad-reel.mp4" poster="assets/ad-reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
         <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
         <div class="abs grad-top"></div>
@@ -147,7 +140,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         </div>
         <p class="sr" id="captext">Nike, Sponsored. Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it’s perfect for all your activities.</p>
         <button class="abs btn tap-cap" id="more" type="button" aria-describedby="captext" aria-label="More: expand caption and open the in-app browser (IAB) as a half sheet"></button>
-        <button class="abs btn author-hit" id="author" type="button" aria-label="Nike: open profile"></button>
         <button class="abs btn shop" id="shop" type="button" aria-label="Shop now: open the in-app browser (IAB) full screen"><img src="assets/cta-shop-now.svg" alt=""></button>
         <img class="abs chip" src="assets/sponsored-chip.svg" alt="">
         <img class="abs tabbar" src="assets/tabbar.svg" alt="">
@@ -166,9 +158,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <img class="abs status status-d" id="statusD" src="assets/statusbar-dark.svg" alt="">
         <button class="abs btn x" id="x" type="button" aria-label="Close in-app browser (IAB)"></button>
         <div class="abs home" id="home"></div>
-        <div class="abs cbr-dim" id="cbrDim"></div>
-        </div>
-        <iframe class="abs prof" id="prof" title="Nike profile" aria-hidden="true" tabindex="-1"></iframe>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
@@ -244,7 +233,7 @@ function setState(s){
   $('exitArea').classList.toggle('on',s===2);
   $('exitArea').tabIndex=s===2?0:-1;
   sheet.setAttribute('aria-hidden',s===1?'true':'false');
-  $('more').tabIndex=s===1?0:-1;$('shop').tabIndex=s===1?0:-1;$('author').tabIndex=s===1?0:-1;
+  $('more').tabIndex=s===1?0:-1;$('shop').tabIndex=s===1?0:-1;
   $('more').setAttribute('aria-expanded',s>1?'true':'false');
   $('live').textContent=s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen';
 }
@@ -324,51 +313,11 @@ $('shop').addEventListener('click',()=>{if(state===1)openFull()});
 $('x').addEventListener('click',()=>{close();$('shop').focus({preventScroll:true})});
 $('exitArea').addEventListener('click',()=>{close();$('more').focus({preventScroll:true})});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
-  if(profOn){userActed();const p=pf();if(p&&p.screen===3)p.closeFull();else if(p)p.backToReel();return}
   if(state!==1){userActed();close();$('more').focus({preventScroll:true})}});
 
-/* ---------- Nike → profile: fmss-profile's own page, peek / floating card / IAB and back, framed over the reel (?host=cb).
-   The framed page calls window.__cbHost: push / edge drive this reel's parallax, back resumes the reel, its input counts for the idle demo. */
-const prof=$('prof'),cbr=$('cbr'),cbrDim=$('cbrDim');
-let profOn=false,profWant=false,profT=0,kbd=false;
-addEventListener('keydown',()=>{kbd=true},true);addEventListener('pointerdown',()=>{kbd=false},true);
-const pf=()=>{try{return prof.contentWindow&&prof.contentWindow.__pf||null}catch(_){return null}};
-const pfBusy=()=>{const p=profOn&&pf();return !!(p&&(p.uShow||p.dragging))};
-function profLoad(){if(!prof.getAttribute('src'))prof.src='../fmss-profile/index.html?host=cb'}
-prof.addEventListener('load',()=>{if(profWant){profWant=false;openProf()}});
-function openProf(){
-  if(state!==1||anim||profOn)return;
-  const p=pf();if(!p||p.screen!==1){profWant=true;profLoad();return}
-  profOn=true;clearTimeout(profT);prof.style.pointerEvents='';prof.classList.add('on');prof.setAttribute('aria-hidden','false');
-  cbr.inert=true;phone.classList.add('prof-on');
-  p.openProfile();
-  if(kbd)setTimeout(()=>{try{prof.focus();prof.contentDocument.getElementById('back').focus({preventScroll:true})}catch(_){}},0);
-}
-window.__cbHost={
-  push(on,instant){
-    if(on){phone.classList.add('pushed');return}
-    if(instant)cbr.style.transition=cbrDim.style.transition='none';
-    phone.classList.remove('pushed');cbr.style.transform='';cbrDim.style.opacity='';
-    if(instant)requestAnimationFrame(()=>requestAnimationFrame(()=>{cbr.style.transition=cbrDim.style.transition=''}));
-    profOn=false;prof.style.pointerEvents='none';prof.setAttribute('aria-hidden','true');cbr.inert=false;phone.classList.remove('prof-on');
-    clearTimeout(profT);profT=setTimeout(()=>{if(!profOn)prof.classList.remove('on')},instant?0:360);
-    const p=pf();if(p)p.uOff();
-    resumeReel();                                                // back on the reel: playback resumes even if it was paused
-    if(kbd)$('author').focus({preventScroll:true});
-  },
-  edge(p){
-    if(p===null){cbr.style.transition=cbrDim.style.transition=cbr.style.transform=cbrDim.style.opacity='';return}
-    cbr.style.transition=cbrDim.style.transition='none';
-    cbr.style.transform=`translate3d(${((1-p)*-30).toFixed(2)}%,0,0)`;cbrDim.style.opacity=((1-p)*.2).toFixed(3);
-  },
-  acted(){userActed()},
-  hover(on){on?hovOn():hovOff()},
-  uIn(){uOff()}
-};
-$('author').addEventListener('click',openProf);
 /* tap the media to pause / play: anywhere on the video that is not the nav bar, the caption block, Shop now or the action rail */
 phone.addEventListener('click',e=>{
-  if(state!==1||anim||profOn||e.target.closest('button,.sheet'))return;
+  if(state!==1||anim||e.target.closest('button,.sheet'))return;
   const r=phone.getBoundingClientRect(),s=r.height/812,x=(e.clientX-r.left)/s,y=(e.clientY-r.top)/s;
   if(y>=96&&y<570&&(x<326||y<486))mediaTap();
 });
@@ -502,27 +451,24 @@ const STEPS=[
   1100,tk=>tap('x',347,68,tk,()=>close()),                      // tap X → close
   1400];
 function fingerOff(){finger.classList.remove('on','down');delete finger.dataset.g}
-const realBusy=()=>!!(drag&&drag.id!=='fake')||!!sc||pfBusy();
+const realBusy=()=>!!(drag&&drag.id!=='fake')||!!sc;
 function reset(){                                   // the clean start, instantly (under the crossfade cover)
-  const p=pf();if(profOn||prof.classList.contains('on')){if(p&&p.resetNow)p.resetNow();window.__cbHost.push(false,true)}
   cancelAnimationFrame(raf);anim=null;drag=null;sc=null;sheet.classList.remove('drag');
   stopScroll();setScroll(0);resetLoad();hLock=0;y=Y1;setState(1);render();resumeReel();fingerOff();
 }
-/* ---------- when the demo runs (v95) ----------
-   Only real input counts: a press or key on the phone itself, or a wheel the mock actually consumes; never a page scroll passing
-   over the frame, a pointerenter, or a touch that turns into a page scroll. A fine cursor resting on the phone lets the current
-   step finish, then holds; a real press stops at once and a demo gesture in flight springs back to where its step started.
-   Resume: cursor off the phone, 8s since the last real input, visible, and on desktop only after the prototype has left the
-   viewport and come back. A resume after real input (or a cut step) crossfades to a clean start instead of animating closes. */
-const IDLE_MS=8000,FINE=matchMedia('(hover:hover) and (pointer:fine)');
+/* ---------- when the demo runs (v101) ----------
+   The demo autoplays ONLY inline on the case page (?inline=1, not lifted full screen), while visible. Full screen (html.embed-full,
+   desktop js/proto-fs.js or phone js/case.js) never autoplays: entering it stops the demo and lands on the clean start, and the
+   prototype then moves only on real input, however long it sits idle. Back inline, the demo runs again from a clean start. */
+const FINE=matchMedia('(hover:hover) and (pointer:fine)');
 const isFine=e=>e.pointerType!=='touch'&&FINE.matches;
-let lastInput=0,hov=false,hovT=0,holdReq=false,needOut=false,resT=0,stepI=0,inStep=false,broken=false,userDirty=false,tHold=null,gUndo=null,pageScrollT=0,fwdT=0;
-const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');if(holdReq)return rej('hold');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(50,left))};f()});
+let lastInput=0,hov=false,hovT=0,stepI=0,inStep=false,broken=false,userDirty=false,gUndo=null,pageScrollT=0,fwdT=0;
+const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(50,left))};f()});
 async function loop(tk){
   while(tk===token){
     const s=STEPS[stepI];
     if(typeof s==='number')await wait(s,tk);
-    else{if(holdReq)throw 'hold';inStep=true;await s(tk);inStep=false}
+    else{inStep=true;await s(tk);inStep=false}
     stepI=(stepI+1)%STEPS.length;
   }
 }
@@ -533,46 +479,37 @@ function xfade(tk){                                 // ≈250ms: fade to the scr
     a.onfinish=()=>{reset();xf.animate([{opacity:1},{opacity:0}],{duration:130,easing:'ease-out'}).onfinish=()=>{tk===token?res():rej('x')};a.cancel()}})
 }
 /* inline on a case page (?inline=1, the page puts a click target over the frame that opens it full screen): autoplay only, no input
-   model at all; once the page lifts it full screen (html.embed-full) everything below applies */
+   model at all; once the page lifts it full screen (html.embed-full) the input model below applies and the demo never runs */
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-if(INLP)new MutationObserver(()=>{if(!INL()||autoOn)return;clearTimeout(resT);hov=false;holdReq=false;needOut=false;tHold=null;lastInput=0;if(stepI||userDirty)broken=true;sched()})
-  .observe(document.documentElement,{attributes:true,attributeFilter:['class']});   // back inline from full screen: the demo runs again from a clean start
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
+  if(!i){stopAuto();reset();stepI=0;broken=userDirty=false;lastInput=0;hov=false;return}   // into full screen: the clean start, no demo
+  if(stepI||userDirty)broken=true;sched()})
+  .observe(document.documentElement,{attributes:true,attributeFilter:['class']});   // back inline: the demo runs again from a clean start
 const HOSTED_=false;
-function canRun(){return !HOSTED_&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&(INL()||(!hov&&!uShow&&tHold===null&&!needOut&&!realBusy()))}
+function canRun(){return !HOSTED_&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
 function startAuto(){
   if(autoOn||!canRun())return;
   autoOn=true;const tk=++token;frame.dataset.autoplay='on';
-  const run=()=>loop(tk).catch(e=>{if(e==='hold'&&tk===token)hold()});
+  const run=()=>loop(tk).catch(()=>{});
   if(broken||userDirty){broken=userDirty=false;stepI=0;xfade(tk).then(run,()=>{})}else run();
 }
-function hold(){autoOn=false;token++;frame.dataset.autoplay='hold';fingerOff()}
 function stopAuto(){
   if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();
   if(inStep){inStep=false;broken=true}
   if(gUndo){const u=gUndo;gUndo=null;u()}
 }
-function sched(){
-  clearTimeout(resT);resT=0;
-  if(!autoOn&&visible&&!INL()&&realBusy()){resT=setTimeout(sched,250);return}   // a real gesture still finishing: look again shortly
-  if(autoOn||!canRun())return;
-  const w=lastInput&&!INL()?lastInput+IDLE_MS-performance.now():0;
-  if(w>0){resT=setTimeout(sched,w+30);return}
-  startAuto();
-}
+function sched(){if(!autoOn&&canRun())startAuto()}
 function userActed(){
   if(INL())return;
-  lastInput=performance.now();interacted=true;userDirty=true;holdReq=hov||tHold!==null;
-  if(FINE.matches)needOut=true;
-  stopAuto();if(frame.dataset.autoplay==='hold')frame.dataset.autoplay='off';sched();
+  lastInput=performance.now();interacted=true;userDirty=true;
 }
-function hovOn(){if(hov||INL())return;hov=true;hovT=performance.now();holdReq=true;clearTimeout(resT);}
-function hovOff(){if(!hov)return;hov=false;if(tHold===null)holdReq=false;clearTimeout(resT);resT=setTimeout(sched,400);}
+function hovOn(){if(hov||INL())return;hov=true;hovT=performance.now();}
+function hovOff(){if(!hov)return;hov=false;}
 const inPhone=e=>{const r=phone.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
 /* phone-only input: a fine press acts at once; a touch only once it ends as a tap or a drag inside the mock (a touch the browser
    turns into a page scroll is cancelled and never counts) */
-frame.addEventListener('pointerdown',e=>{if(!e.isTrusted||!inPhone(e))return;if(isFine(e)){hovOn();userActed()}else{tHold=e.pointerId;holdReq=true}},{capture:true,passive:true});
-addEventListener('pointerup',e=>{if(e.isTrusted&&tHold===e.pointerId){tHold=null;userActed()}},true);
-addEventListener('pointercancel',e=>{if(tHold===e.pointerId){tHold=null;if(!hov)holdReq=false;sched()}},true);
+frame.addEventListener('pointerdown',e=>{if(!e.isTrusted||!inPhone(e))return;if(isFine(e))hovOn();userActed()},{capture:true,passive:true});
 frame.addEventListener('keydown',e=>{if(e.isTrusted)userActed()},{capture:true,passive:true});
 frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visible, :focus-within'))userActed()});
 /* fine cursor on the phone: hover starts with real movement (not the synthetic enter/move of the page scrolling under a still cursor) */
@@ -596,9 +533,7 @@ function wheelTo(e,d,apply){
   wMode='fwd';if(e.cancelable){e.preventDefault();fwdWheel(e)}
 }
 const wd=e=>e.deltaMode===1?e.deltaY*16:e.deltaY;
-window.__v95=()=>({inStep,stepI,isWait:typeof STEPS[stepI]==='number',hov,broken,userDirty,needOut,lastInput,holdReq,tHold,wMode,auto:autoOn});   // test hook
-/* phone full screen entry (projects/fmss.html, js/case.js dispatches embed:full): the demo runs from its start now (or keeps running) */
-addEventListener('embed:full',()=>{needOut=false;lastInput=0;holdReq=false;hov=false;if(autoOn)return;if(stepI||userDirty)broken=true;sched()});
+window.__v95=()=>({inStep,stepI,isWait:typeof STEPS[stepI]==='number',hov,broken,userDirty,lastInput,wMode,auto:autoOn});   // test hook
 /* ---------- reel video: keep it playing (muted, inline, looped) while the prototype is on screen ----------
    iOS Safari refuses play() (NotAllowedError) in Low Power Mode, and may refuse it while the page is still behind the passcode gate
    or the video is not rendered; a refused play() leaves only the poster frame. So every refusal arms a one-shot retry on the next
@@ -689,9 +624,8 @@ addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:
 new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
 function setVis(){
   visible=seen&&!held;
-  if(!seen)needOut=false;                            // left the viewport: the next entry may resume
-  if(visible){playVid();setTimeout(profLoad,1500);sched()}
-  else{if(vidMode==='video')vid.pause();clearTimeout(resT);stopAuto()}
+  if(visible){playVid();sched()}
+  else{if(vidMode==='video')vid.pause();stopAuto()}
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(vidMode==='video')vid.pause();stopAuto()}else{playVid();sched()}});
 RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
@@ -708,7 +642,7 @@ function uWrite(){uf.style.translate=`${ux.toFixed(2)}px ${uy.toFixed(2)}px`;uf.
 function uPos(e,sync){const r=phone.getBoundingClientRect(),s=r.height/812;ux=(e.clientX-r.left)/s;uy=(e.clientY-r.top)/s;
   if(sync){cancelAnimationFrame(uraf);uraf=0;uWrite()}else if(!uraf)uraf=requestAnimationFrame(()=>{uraf=0;uWrite()})}
 function uOn(e){uPos(e,true);if(!uShow){uShow=true;uf.classList.add('on');phone.classList.add('u-on')}}
-function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on');sched()}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
 /* fine pointer: the normal cursor stays (hand on tappables, grab on handles); the circle shows only while pressing. Touch: same as before. */
 phone.addEventListener('pointermove',e=>{if(!e.isTrusted)return;if(uShow&&(e.pointerId===uTouch||isFine(e)))uPos(e)});
 phone.addEventListener('pointerdown',e=>{if(!e.isTrusted)return;if(!isFine(e))uTouch=e.pointerId;uOn(e);uf.classList.add('down')});
@@ -718,7 +652,7 @@ function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');
 window.addEventListener('pointerup',uUp,true);window.addEventListener('pointercancel',uUp,true);
 
 setState(1);render();
-window.__cb={get prof(){return profOn},get lastInput(){return lastInput},get hov(){return hov},get stepI(){return stepI},get pf(){return pf()},openProf,get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get scroll(){return sy},get vidMode(){return vidMode},get loading(){return loadAnims.some(a=>a.playState==='running')},get paused(){return userPaused},get vidPaused(){return vid.paused},go,mediaTap};
+window.__cb={get lastInput(){return lastInput},get hov(){return hov},get stepI(){return stepI},get busy(){return !!anim||!!drag},get y(){return y},get state(){return state},get auto(){return autoOn},get gestures(){return glog.slice()},get uShow(){return uShow},get loads(){return loads},get scroll(){return sy},get vidMode(){return vidMode},get loading(){return loadAnims.some(a=>a.playState==='running')},get paused(){return userPaused},get vidPaused(){return vid.paused},go,mediaTap};
 })();
 </script>
 </body>

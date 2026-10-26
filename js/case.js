@@ -90,8 +90,8 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    state kept) is lifted to position:fixed over the layer (.proto-lift, css/case.css) and fades with it; inside it html.embed-full fits the
    device centred with even margins. Desktop is unchanged: the shield is display:none above 640px.
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
-   (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device and
-   the normal entry (embed:full) return. */
+   (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
+   returns. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.';   // two lines, broken after the first sentence
@@ -101,20 +101,22 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var full=function(on){var d=doc();if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
  var esc=function(e){if(e.key==='Escape'&&window.dbhLayer){e.preventDefault();e.stopPropagation();window.dbhLayer.close()}};
  var send=function(t){try{f.contentWindow.dispatchEvent(new Event(t))}catch(_){}},held=false;
- var demo=function(){if(held)send('embed:hold');else send('embed:full')}; /* the prototype's idle demo runs on entry (held in landscape) */
+ var de=document.documentElement,clearSel=function(){try{getSelection().removeAllRanges()}catch(_){}},noSel=function(e){e.preventDefault()},
+  nosel=function(on){de.classList.toggle('proto-nosel',on);clearSel();['selectstart','dragstart'].forEach(function(t){document[on?'addEventListener':'removeEventListener'](t,noSel,true)})}; /* while open: no selection on the page */
+ var land=function(){if(held)send('embed:hold')}; /* opened in landscape: the device is held */
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
   el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';
-  if(on)send('embed:hold');else{send('embed:release');send('embed:full')}};
+  send(on?'embed:hold':'embed:release')};
  var lqOn=function(on){if(lq.addEventListener)lq[on?'addEventListener':'removeEventListener']('change',orient);else lq[on?'addListener':'removeListener'](orient)};
- var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on)demo()},
+ var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on)land()},
   hook=function(){var w=null;try{w=f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',esc,true)}catch(_){}};
  b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;
   if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   f.addEventListener('load',load);
   L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="deck-n hegg-ui"></p>',
-   show:function(){f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lqOn(true);demo();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on')},
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on')},
    tabs:function(){return held?[]:[f]},
    frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
-   done:function(){f.removeEventListener('load',load);lqOn(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=null;
+   done:function(){nosel(false);f.removeEventListener('load',load);lqOn(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
 });})();

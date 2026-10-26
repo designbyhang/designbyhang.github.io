@@ -12,11 +12,11 @@
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
 /* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
-if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=100"><link rel="stylesheet" href="../../css/theme.css?v=100">
+<link rel="stylesheet" href="../../css/type.css?v=101"><link rel="stylesheet" href="../../css/theme.css?v=101">
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);--bezel:#111}
@@ -101,6 +101,9 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+/* embedded it is an app mock, never a document: no text/element selection anywhere in it (a drag that runs off the device would
+   otherwise select the transparent area below it, which Safari paints as a full-width highlight band over the full-screen backdrop) */
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html.embed .wrap{max-width:none;padding:0}
 html.embed header.top,html.embed .below{display:none}
 html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
@@ -134,7 +137,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="abs card" data-i="2"><img src="assets/p-lamp.webp" alt="Artifox table lamp"><i></i></div>
         <div class="abs card" data-i="3"><img src="assets/p-chair.webp" alt="Form armchair, green"><i></i></div>
         <div class="abs dots" id="dots" aria-hidden="true"><img class="on" src="assets/dots-1.svg" alt=""><img src="assets/dots-2.svg" alt=""><img src="assets/dots-3.svg" alt=""><img src="assets/dots-4.svg" alt=""></div>
-        <img class="abs mnav" id="mnav" src="assets/media-navbar.svg?v=2" alt="">
+        <img class="abs mnav" id="mnav" src="assets/media-navbar.svg?v=3" alt="">
         <img class="abs status status-l" src="assets/statusbar-light.svg" alt="">
         <div class="abs hs" id="hs" aria-hidden="true"></div>
         <button class="abs btn tile" data-i="0" type="button" style="left:0;top:217px;width:256px;height:375px" aria-label="Desk: open the split screen"></button>
@@ -388,7 +391,7 @@ hs.addEventListener('wheel',e=>{
     const n=rubberP(clamp(p+d/PITCH,-.4,N-.6));if(Math.abs(n-p)<1e-4)return false;
     if(!wOn){wOn=true;wFrom=Math.round(p);pSpring.stop()}
     p=n;render();
-    clearTimeout(wT);wT=setTimeout(()=>{wOn=false;let t=Math.round(p);if(Math.abs(p-wFrom)>.12)t=wFrom+(p>wFrom?1:-1);snapTo(clamp(t,wFrom-1,wFrom+1));sched()},120);
+    clearTimeout(wT);wT=setTimeout(()=>{wOn=false;let t=Math.round(p);if(Math.abs(p-wFrom)>.12)t=wFrom+(p>wFrom?1:-1);snapTo(clamp(t,wFrom-1,wFrom+1))},120);
     return true});
 },{passive:false});
 
@@ -516,21 +519,19 @@ function reset(){                                   // the clean start, instantl
   ySpring.stop();pSpring.stop();drag=null;hd=null;sc=null;sheet.classList.remove('drag');hs.classList.remove('drag');clearTimeout(wT);wOn=false;
   stopScroll();setScroll(0);resetLoad();mode='hs';p=0;y=Y1;hLock=0;pageIdx=-1;setState(1);render();fingerOff();
 }
-/* ---------- when the demo runs (v95) ----------
-   Only real input counts: a press or key on the phone itself, or a wheel the mock actually consumes; never a page scroll passing
-   over the frame, a pointerenter, or a touch that turns into a page scroll. A fine cursor resting on the phone lets the current
-   step finish, then holds; a real press stops at once and a demo gesture in flight springs back to where its step started.
-   Resume: cursor off the phone, 8s since the last real input, visible, and on desktop only after the prototype has left the
-   viewport and come back. A resume after real input (or a cut step) crossfades to a clean start instead of animating closes. */
-const IDLE_MS=8000,FINE=matchMedia('(hover:hover) and (pointer:fine)');
+/* ---------- when the demo runs (v101) ----------
+   The demo autoplays ONLY inline on the case page (?inline=1, not lifted full screen), while visible. Full screen (html.embed-full,
+   desktop js/proto-fs.js or phone js/case.js) never autoplays: entering it stops the demo and lands on the clean start, and the
+   prototype then moves only on real input, however long it sits idle. Back inline, the demo runs again from a clean start. */
+const FINE=matchMedia('(hover:hover) and (pointer:fine)');
 const isFine=e=>e.pointerType!=='touch'&&FINE.matches;
-let lastInput=0,hov=false,hovT=0,holdReq=false,needOut=false,resT=0,stepI=0,inStep=false,broken=false,userDirty=false,tHold=null,gUndo=null,pageScrollT=0,fwdT=0;
-const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');if(holdReq)return rej('hold');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(50,left))};f()});
+let lastInput=0,hov=false,hovT=0,stepI=0,inStep=false,broken=false,userDirty=false,gUndo=null,pageScrollT=0,fwdT=0;
+const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(50,left))};f()});
 async function loop(tk){
   while(tk===token){
     const s=STEPS[stepI];
     if(typeof s==='number')await wait(s,tk);
-    else{if(holdReq)throw 'hold';inStep=true;await s(tk);inStep=false}
+    else{inStep=true;await s(tk);inStep=false}
     stepI=(stepI+1)%STEPS.length;
   }
 }
@@ -541,46 +542,37 @@ function xfade(tk){                                 // ≈250ms: fade to the scr
     a.onfinish=()=>{reset();xf.animate([{opacity:1},{opacity:0}],{duration:130,easing:'ease-out'}).onfinish=()=>{tk===token?res():rej('x')};a.cancel()}})
 }
 /* inline on a case page (?inline=1, the page puts a click target over the frame that opens it full screen): autoplay only, no input
-   model at all; once the page lifts it full screen (html.embed-full) everything below applies */
+   model at all; once the page lifts it full screen (html.embed-full) the input model below applies and the demo never runs */
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-if(INLP)new MutationObserver(()=>{if(!INL()||autoOn)return;clearTimeout(resT);hov=false;holdReq=false;needOut=false;tHold=null;lastInput=0;if(stepI||userDirty)broken=true;sched()})
-  .observe(document.documentElement,{attributes:true,attributeFilter:['class']});   // back inline from full screen: the demo runs again from a clean start
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
+  if(!i){stopAuto();reset();stepI=0;broken=userDirty=false;lastInput=0;hov=false;return}   // into full screen: the clean start, no demo
+  if(stepI||userDirty)broken=true;sched()})
+  .observe(document.documentElement,{attributes:true,attributeFilter:['class']});   // back inline: the demo runs again from a clean start
 const HOSTED_=false;
-function canRun(){return !HOSTED_&&!(NOAUTO)&&!RM.matches&&visible&&!document.hidden&&(INL()||(!hov&&!uShow&&tHold===null&&!needOut&&!realBusy()))}
+function canRun(){return !HOSTED_&&!(NOAUTO)&&!RM.matches&&visible&&!document.hidden&&INL()}
 function startAuto(){
   if(autoOn||!canRun())return;
   autoOn=true;const tk=++token;frame.dataset.autoplay='on';
-  const run=()=>loop(tk).catch(e=>{if(e==='hold'&&tk===token)hold()});
+  const run=()=>loop(tk).catch(()=>{});
   if(broken||userDirty){broken=userDirty=false;stepI=0;xfade(tk).then(run,()=>{})}else run();
 }
-function hold(){autoOn=false;token++;frame.dataset.autoplay='hold';fingerOff()}
 function stopAuto(){
   if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();
   if(inStep){inStep=false;broken=true}
   if(gUndo){const u=gUndo;gUndo=null;u()}
 }
-function sched(){
-  clearTimeout(resT);resT=0;
-  if(!autoOn&&visible&&!INL()&&realBusy()){resT=setTimeout(sched,250);return}   // a real gesture still finishing: look again shortly
-  if(autoOn||!canRun())return;
-  const w=lastInput&&!INL()?lastInput+IDLE_MS-performance.now():0;
-  if(w>0){resT=setTimeout(sched,w+30);return}
-  startAuto();
-}
+function sched(){if(!autoOn&&canRun())startAuto()}
 function userActed(){
   if(INL())return;
-  lastInput=performance.now();interacted=true;userDirty=true;holdReq=hov||tHold!==null;
-  if(FINE.matches)needOut=true;
-  stopAuto();if(frame.dataset.autoplay==='hold')frame.dataset.autoplay='off';sched();
+  lastInput=performance.now();interacted=true;userDirty=true;
 }
-function hovOn(){if(hov||INL())return;hov=true;hovT=performance.now();holdReq=true;clearTimeout(resT);}
-function hovOff(){if(!hov)return;hov=false;if(tHold===null)holdReq=false;clearTimeout(resT);resT=setTimeout(sched,400);}
+function hovOn(){if(hov||INL())return;hov=true;hovT=performance.now();}
+function hovOff(){if(!hov)return;hov=false;}
 const inPhone=e=>{const r=phone.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
 /* phone-only input: a fine press acts at once; a touch only once it ends as a tap or a drag inside the mock (a touch the browser
    turns into a page scroll is cancelled and never counts) */
-frame.addEventListener('pointerdown',e=>{if(!e.isTrusted||!inPhone(e))return;if(isFine(e)){hovOn();userActed()}else{tHold=e.pointerId;holdReq=true}},{capture:true,passive:true});
-addEventListener('pointerup',e=>{if(e.isTrusted&&tHold===e.pointerId){tHold=null;userActed()}},true);
-addEventListener('pointercancel',e=>{if(tHold===e.pointerId){tHold=null;if(!hov)holdReq=false;sched()}},true);
+frame.addEventListener('pointerdown',e=>{if(!e.isTrusted||!inPhone(e))return;if(isFine(e))hovOn();userActed()},{capture:true,passive:true});
 frame.addEventListener('keydown',e=>{if(e.isTrusted)userActed()},{capture:true,passive:true});
 frame.addEventListener('focusin',e=>{if(e.isTrusted&&frame.matches(':focus-visible, :focus-within'))userActed()});
 /* fine cursor on the phone: hover starts with real movement (not the synthetic enter/move of the page scrolling under a still cursor) */
@@ -604,17 +596,14 @@ function wheelTo(e,d,apply){
   wMode='fwd';if(e.cancelable){e.preventDefault();fwdWheel(e)}
 }
 const wd=e=>e.deltaMode===1?e.deltaY*16:e.deltaY;
-window.__v95=()=>({inStep,stepI,isWait:typeof STEPS[stepI]==='number',hov,broken,userDirty,needOut,lastInput,holdReq,tHold,wMode,auto:autoOn});   // test hook
-/* phone full screen entry (projects/fmss.html, js/case.js dispatches embed:full): the demo runs from its start now (or keeps running) */
-addEventListener('embed:full',()=>{needOut=false;lastInput=0;holdReq=false;hov=false;if(autoOn)return;if(stepI||userDirty)broken=true;sched()});
+window.__v95=()=>({inStep,stepI,isWait:typeof STEPS[stepI]==='number',hov,broken,userDirty,lastInput,wMode,auto:autoOn});   // test hook
 let seen=false,held=false;   // held: phone full screen turned to landscape (js/case.js embed:hold / embed:release), the device is hidden
 addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
 new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
 function setVis(){
   visible=seen&&!held;
-  if(!seen)needOut=false;                            // left the viewport: the next entry may resume
   if(visible){sched()}
-  else{clearTimeout(resT);stopAuto()}
+  else{stopAuto()}
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto();else sched()});
 RM.addEventListener&&RM.addEventListener('change',()=>{if(RM.matches)stopAuto()});
@@ -626,7 +615,7 @@ function uWrite(){uf.style.translate=`${ux.toFixed(2)}px ${uy.toFixed(2)}px`;uf.
 function uPos(e,sync){const r=phone.getBoundingClientRect(),s=r.height/812;ux=(e.clientX-r.left)/s;uy=(e.clientY-r.top)/s;
   if(sync){cancelAnimationFrame(uraf);uraf=0;uWrite()}else if(!uraf)uraf=requestAnimationFrame(()=>{uraf=0;uWrite()})}
 function uOn(e){uPos(e,true);if(!uShow){uShow=true;uf.classList.add('on');phone.classList.add('u-on')}}
-function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on');sched()}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
 /* fine pointer: the normal cursor stays (hand on tappables, grab on handles); the circle shows only while pressing. Touch: same as before. */
 phone.addEventListener('pointermove',e=>{if(!e.isTrusted)return;if(uShow&&(e.pointerId===uTouch||isFine(e)))uPos(e)});
 phone.addEventListener('pointerdown',e=>{if(!e.isTrusted)return;if(!isFine(e))uTouch=e.pointerId;uOn(e);uf.classList.add('down')});

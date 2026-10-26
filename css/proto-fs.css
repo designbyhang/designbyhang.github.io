@@ -41,6 +41,8 @@ html[data-theme=dark] .deck-fs.fsx .deck-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
 
 /* page scroll lock while open (Studio html.deck-lock): the document keeps its scroll position and geometry */
 html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
+/* and no selection on the page or the layers while open (a drag must never paint a selection band over the backdrop) */
+html.deck-lock,html.deck-lock body,.fsx-bg,.deck-fs.fsx{-webkit-user-select:none;user-select:none}
 html.deck-lock.theme-anim,html.deck-lock.theme-anim body{transition:none!important}
 html.theme-anim .fsx-bg,html.theme-anim .fsx-bg *,html.theme-anim .deck-fs.fsx,html.theme-anim .deck-fs.fsx *{transition:none!important}
 .fsx-bg.is-closing .fsx-panel{pointer-events:none}
