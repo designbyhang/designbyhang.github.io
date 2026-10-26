@@ -1,0 +1,6 @@
+/* Project card media shared by the homepage strip (index.html, css/home.css) and the case pages' NEXT CASE STUDY card (css/case.css .next):
+   one component, one set of rules. */
+/* USPS card: the cover keeps the project name on the left; the hero GIF plays over the cover's right panel (x 1280–2880 of 2880, full height, #1A237E) (at 1440 the GIF is 560x448) */
+.media-wrap.usps-card{position:relative}
+.usps-card .usps-anim{position:absolute;top:0;bottom:0;left:44.4444%;right:0;background:#1A237E;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+.media-wrap .usps-anim img{width:96.959%;height:auto;aspect-ratio:600/480;object-fit:contain}

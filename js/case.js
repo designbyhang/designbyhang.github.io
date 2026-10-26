@@ -76,6 +76,13 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){playing=false;h=1;sync();draw()}});
  go(0,true);sync();
  });})();
+/* NEXT CASE STUDY card = the homepage project card (css/card.css): a card whose homepage cover loops (USPS: the hero GIF) loops here too,
+   only while on screen; off screen it shows the first-frame still (src swap, so the GIF is not decoded), and always with reduced motion */
+(function(){var ims=document.querySelectorAll('.next img[data-loop]');if(!ims.length)return;var RM=matchMedia('(prefers-reduced-motion: reduce)');
+ ims.forEach(function(im){var still=im.getAttribute('src'),loop=im.getAttribute('data-loop'),vis=false,
+  set=function(){var u=vis&&!RM.matches?loop:still;if(im.getAttribute('src')!==u)im.setAttribute('src',u)};
+  if(RM.addEventListener)RM.addEventListener('change',set);
+  if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){vis=e.isIntersecting;set()})}).observe(im.closest('.media-wrap'));});})();
 /* Back to top: always to scrollY 0 (#top is the hero, below the bar); smooth unless reduced motion */
 document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
 /* live prototype iframes (iframe[data-src]): attach src only once the site is unlocked (the same-origin frame then reads the shared

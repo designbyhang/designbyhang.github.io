@@ -55,6 +55,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .bot{display:flex;justify-content:space-between;gap:16px;padding:0 var(--side) var(--side);font:400 12px/1 var(--mono);color:var(--faint)}
 /* load-in: fade only (transform belongs to the scale effect) */
 .strip{opacity:0;animation:fade .8s var(--ease) .05s forwards}
+.strip.in{opacity:1;animation:none} /* once faded in, drop the filled animation (js/home.js): Chrome keeps a finished-but-filling opacity animation on its own GPU layer at a sub-pixel offset, which blurred the poster grid lines */
 @keyframes fade{to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.strip{opacity:1;animation:none}.hint .arr{animation:none}}
 @media (max-height:560px) and (min-width:641px){.strip{--cw:clamp(260px,38vw,700px)}}
@@ -111,7 +112,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.hit{display:flex;flex-direction:column}.card .lbl{position:static;order:2;margin-top:40px;height:auto}}
 
 /* ── Intro card v3: Swiss construction poster (SVG built in js/home.js; revert = this block + intro markup + poster JS) ── */
-.intro .media-wrap{container-type:inline-size}
+.intro .media-wrap{container-type:inline-size;transform:none} /* no translateZ(0) layer here (it is for the photo covers' corner fringe): composited, the scaled poster is resampled and its 1px grid lines blur unevenly */
 .intro-in.poster{position:relative;display:block;height:100%;padding:0}
 .poster-svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:hidden}
 .poster-svg .g{stroke:#000;stroke-opacity:.22;stroke-width:1;stroke-dasharray:1 4;vector-effect:non-scaling-stroke;fill:none}
@@ -139,17 +140,14 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
 .poster-svg .a{opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
-.poster-svg .ln{transform-box:fill-box;transform-origin:0 0;animation-name:pDraw}
-.poster-svg .lv{transform-box:fill-box;transform-origin:0 0;animation-name:pDrawV}
 .poster-svg .g.a{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1)} /* alternating grid draw, odd lines reversed (.rv); delays in js/home.js */
 .poster-svg .g{vector-effect:none;stroke-width:var(--gw,1);shape-rendering:crispEdges} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
-.poster-svg .g.a.ln{animation-name:pDraw}.poster-svg .g.a.lv{animation-name:pDrawV}
-.poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:forwards}
+.poster-svg .g.a.ln,.poster-svg .g.a.lv{opacity:1;stroke-dasharray:var(--l) calc(var(--l)*2);animation-name:pDraw} /* the draw-in reveals the dash (--l = line length, --l0 = start offset, negative for .rv; hidden before its delay by fill-mode both) instead of scaling and fading the line in: a transform or opacity animation, even once finished, gives every line its own layer and its own sub-pixel offset, so lines smeared over 2-3 device px, each differently */
+.poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:both}
 .poster-svg .pd{animation-name:pIn;animation-duration:.9s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:forwards}
 /* grid lines and dots stay solid ink, no fade to grey (Hang, 2026-10-24) */
 .poster-svg .g{stroke:var(--c-strong)}.poster-svg .pd{fill:var(--c-strong)}
 @media (prefers-reduced-motion:reduce){.poster-svg .g.a.ln,.poster-svg .g.a.lv,.poster-svg .pd{animation:none;opacity:1}}
-.poster-svg .ln.rv{transform-origin:100% 0}.poster-svg .lv.rv{transform-origin:0 100%}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
 .poster-svg .lt{animation-name:pSlide;animation-duration:1.1s}
 .poster-svg .wf{animation-duration:.7s;animation-timing-function:cubic-bezier(.4,0,.2,1)} /* keywords (+ knockouts): one soft fade together, after the letters (js/home.js) */
@@ -158,8 +156,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
 @keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
 @keyframes pIn{to{opacity:1}}
-@keyframes pDraw{from{opacity:1;transform:scaleX(0)}to{opacity:1;transform:none}}
-@keyframes pDrawV{from{opacity:1;transform:scaleY(0)}to{opacity:1;transform:none}}
+@keyframes pDraw{from{stroke-dashoffset:var(--l0)}to{stroke-dashoffset:0}}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap::before,.poster-cap .poster-title{animation:none;opacity:1}}
 html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!important;opacity:1!important}
@@ -220,7 +217,4 @@ button.poster-cta:focus-visible{outline:1px solid var(--c-strong);outline-offset
 html{background:var(--page)}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.top .brand{display:none}.top nav{grid-column:1/-1;justify-self:stretch;justify-content:space-between}} /* mobile portrait: no logo, nav takes its spot */
 @media (max-width:900px){.home .bot{padding-right:var(--m-in)}} /* copyright right inset = project pages */
-/* USPS card: the cover keeps the project name on the left; the hero GIF plays over the cover's right panel (x 1280–2880 of 2880, full height, #1A237E) (at 1440 the GIF is 560x448) */
-.media-wrap.usps-card{position:relative}
-.usps-card .usps-anim{position:absolute;top:0;bottom:0;left:44.4444%;right:0;background:#1A237E;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
-.media-wrap .usps-anim img{width:96.959%;height:auto;aspect-ratio:600/480;object-fit:contain}
+/* USPS card's hero GIF: css/card.css (shared with the case pages' NEXT CASE STUDY card) */

@@ -78,7 +78,7 @@ let navA=null,navT=0;function navAct(ab){if(ab===navA)return;navA=ab;document.qu
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}const ab=cards[cards.length-1].getBoundingClientRect(),vis=Math.max(0,Math.min(ab.bottom,innerHeight)-Math.max(ab.top,0))/Math.min(ab.height,innerHeight);navAct(vis>.5);};
 addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrack);setTimeout(mTrack,300);
-addEventListener('gate:unlocked',measure); /* the strip was measured at height 0 under the gate (s0 = 1): re-measure on unlock so the first card lands enlarged */addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
+strip.addEventListener('animationend',e=>{if(e.target===strip)strip.classList.add('in');}); /* css/home.css .strip.in */addEventListener('gate:unlocked',measure); /* the strip was measured at height 0 under the gate (s0 = 1): re-measure on unlock so the first card lands enlarged */addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
 // return from a case study: put the card where it was (same layout) or centred (other layout / next-project), no intro replay
 const R=window.__dbhRet,ri=R?cards.findIndex(k=>{const a=k.querySelector('a.hit');return a&&a.getAttribute('href')==='projects/'+R.slug+'.html';}):-1;
 function restore(){if(ri<0)return;if(on){t=x=clamp(R.m==='h'&&typeof R.t==='number'?R.t:centers[ri]-c0,0,max);tw=null;render();return;}
@@ -129,7 +129,10 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
   /* crisp, even hairlines: each grid line renders exactly 1 screen px wide (the strip may be scaled, e.g. ~1.16x) and sits on the device pixel grid,
      so no line smears across two pixels and looks thicker than its neighbours (Hang, 2026-10-24) */
-  const R0=svg.getBoundingClientRect(),kx=R0.width>0?R0.width/VW:1/px,ky=R0.height>0?R0.height/VH:1/px,dpr=window.devicePixelRatio||1,odd=Math.round(dpr)%2===1 /* line = 1 css px = dpr device px: odd widths centre on a half device pixel */,snapOK=Math.abs(dpr-Math.round(dpr))<.01,
+  /* Chrome places a scaled (non-translation) transform at its layout position rounded to whole css px, so the strip's content lands up to .5 css px
+     away from getBoundingClientRect (Hang, 2026-10-26: lines 2-3 device px, each different): snap against where it is actually painted */
+  const R0=(()=>{const r=svg.getBoundingClientRect();let e=svg.parentElement;while(e&&e!==document.body){const c=getComputedStyle(e);if(c.transform!=='none'){const m=new DOMMatrix(c.transform);if(!m.is2D||m.b||m.c||m.a<=0||m.d<=0)break;if(m.a!==1||m.d!==1){const B=e.getBoundingClientRect(),o=c.transformOrigin.split(' ').map(parseFloat),tx=B.left-m.e-o[0]*(1-m.a)+scrollX,ty=B.top-m.f-o[1]*(1-m.d)+scrollY;
+      return {left:r.left+Math.round(tx)-tx,top:r.top+Math.round(ty)-ty,width:r.width,height:r.height};}}e=e.parentElement;}return r;})(),kx=R0.width>0?R0.width/VW:1/px,ky=R0.height>0?R0.height/VH:1/px,dpr=window.devicePixelRatio||1,odd=Math.round(dpr)%2===1 /* line = 1 css px = dpr device px: odd widths centre on a half device pixel */,snapOK=Math.abs(dpr-Math.round(dpr))<.01,
     snp=(v,o,k)=>{if(!snapOK)return v;const d=(o+v*k)*dpr,t=odd?Math.floor(d)+.5:Math.round(d);return(t/dpr-o)/k;},SX=x=>snp(X(x),R0.left,kx),SY=y=>snp(Y(y),R0.top,ky);
   const G={xs:G0.xs.map(SX),ys:G0.ys.map(SY),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
@@ -138,7 +141,7 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
     G.words.forEach(p=>{const t=inkC.measureText(p[0].toUpperCase()),iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft,bw=p.length>4?p[3]-p[1]:G.xs.find(v=>v>p[1]+.01)-p[1],nY=G.ys.find(v=>v>p[2]+.01),bh=p.length>4?p[4]-p[2]:nY-p[2];k=Math.min(k,(bw-2*PADX)/iw,(bh-2*PADY)/(.73*m0));});
     inkC.letterSpacing='0px';return m0*Math.max(.5,k);})();/* mono text 12px, scaled down (all keywords together) only when the narrowest keyword box can't fit it with 10px/6px padding, e.g. mobile landscape */let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
-  const ln=(x1,y1,x2,y2,c,d)=>{body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
+  const ln=(x1,y1,x2,y2,c,d)=>{const l=Math.abs(x2-x1)+Math.abs(y2-y1);body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d};--l:${l};--l0:${/\brv\b/.test(c)?-l:l}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
   const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
   /* grid draw-in (as in the Studio Model deck): one element per line, verticals alternate top->bottom / bottom->top at i*150ms,
      horizontals alternate left->right / right->left from 800ms, 1.7s each, cubic-bezier(.65,0,.35,1) (css .g.a / .rv).
