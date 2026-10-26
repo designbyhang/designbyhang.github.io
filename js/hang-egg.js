@@ -5,7 +5,8 @@
    The layer itself (lock, flow, toggle, keys, CLOSE entrance/exit) is shared as window.dbhLayer.open(cfg)/close(): the egg is one cfg;
    the FMSS case page's phone full-screen prototypes (js/case.js) are another. cfg: label, stage (inner HTML), cls, trg (focus fallback),
    mount(o) -> {destroy} or a promise of one, show(o) when the layer turns on, frame(a) each exit frame with the layer opacity, done() at the end,
-   tabs() extra Tab stops. */
+   tabs() extra Tab stops, enter() when CLOSE starts its entrance (also at once with reduced motion), exit(k) each exit frame with
+   CLOSE's own exit progress k (1 -> 0), so a cfg can move its own controls on CLOSE's timing. */
 (()=>{const trg=document.querySelector('footer.bot>span');
 const me=document.currentScript,q=me&&me.src.indexOf('?')>0?me.src.slice(me.src.indexOf('?')):'',src=new URL('hang-cube.js'+q,me?me.src:location.href).href;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
@@ -35,7 +36,7 @@ function open(c){if(ov)return;cfg=c;ret=document.activeElement;
   document.body.appendChild(o);lock();adoptToggle(o);
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
   const on=()=>{o.classList.add('on');if(c.show)c.show(o);};
-  if(reduce.matches){on();flow(true);}else{uis(o).forEach(m=>m.style.opacity='0');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(ov!==o)return;on();enter(o);setTimeout(()=>{if(ov===o)flow(true);},320);}));}
+  if(reduce.matches){on();flow(true);if(c.enter)c.enter();}else{uis(o).forEach(m=>m.style.opacity='0');requestAnimationFrame(()=>requestAnimationFrame(()=>{if(ov!==o)return;on();enter(o);setTimeout(()=>{if(ov===o)flow(true);},320);}));}
   if(c.mount)Promise.resolve(c.mount(o)).then(m=>{if(ov===o&&!inst)inst=m||null;else if(m&&m.destroy)m.destroy();},()=>{if(ov===o)close();});}
 /* exit = the Studio presentation's close (projects/studio-present.js close/aside/asideMeasure, studio-deck.js easeStep): one 650ms
    timeline on the steep ease, p = 1 -> 0; CLOSE fades out while sliding 16px left, finished when the header BACK it shares the corner
@@ -57,7 +58,7 @@ const UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
 const uiStop=m=>{if(m._ui){m._ui.cancel();m._ui=null;}};
 const uis=o=>[o.querySelector('.hegg-x'),...o.querySelectorAll('.hegg-ui')];
 function enter(o){const x=o.querySelector('.hegg-x'),clr=clrOf(x),t0=performance.now();
-  const go=()=>uis(o).forEach((m,i)=>{m.style.opacity=m.style.translate='';if(!m.animate)return;m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};});
+  const go=()=>{uis(o).forEach((m,i)=>{m.style.opacity=m.style.translate='';if(!m.animate)return;m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};});if(cfg&&cfg.enter)cfg.enter();};
   const tick=now=>{if(ov!==o)return;const p=ease(Math.min(1,(now-t0)/DUR));if(p>=clr||p>=1)go();else requestAnimationFrame(tick);};
   requestAnimationFrame(tick);}
 function close(){if(!ov)return;const o=ov,c=inst,cf=cfg,r=ret;ov=inst=null;document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
@@ -66,7 +67,7 @@ function close(){if(!ov)return;const o=ov,c=inst,cf=cfg,r=ret;ov=inst=null;docum
   const x=o.querySelector('.hegg-x'),ms=uis(o),st=ms.map(m=>{const cs=getComputedStyle(m),r={o:+cs.opacity,x:parseFloat(cs.translate)||0};uiStop(m);return r;}),a0=+getComputedStyle(o).opacity,clr=clrOf(x),t0=performance.now();
   o.style.transition='none';o.style.opacity=String(a0);
   const tick=now=>{const u=Math.min(1,(now-t0)/DUR),p=1-ease(u),q=clr<1?Math.max(0,(p-clr)/(1-clr)):+(p>=1),k=q*q*(3-2*q);
-   ms.forEach((m,i)=>{const s0=st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});const a=a0*(clr>0?Math.min(1,p/clr):p);o.style.opacity=a.toFixed(4);if(cf.frame)cf.frame(a);
+   ms.forEach((m,i)=>{const s0=st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});if(cf.exit)cf.exit(k);const a=a0*(clr>0?Math.min(1,p/clr):p);o.style.opacity=a.toFixed(4);if(cf.frame)cf.frame(a);
    if(u<1)requestAnimationFrame(tick);else fin();};
   requestAnimationFrame(tick);}
 window.dbhLayer={open,close,get el(){return ov;}};

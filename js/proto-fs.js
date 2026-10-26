@@ -11,8 +11,12 @@
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
    Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), 24px
    below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
-   group centred in it. It fades in once the open expansion has finished, fades out for good (this session) on the first tap of the
-   element it describes (TAP, in the prototype's own document), and on close. Not shown inline.
+   group centred in it. It moves as CLOSE does (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, 448ms on
+   CLOSE's curve, opacity 0 -> 1 on the same curve) but vertically: it slides DOWN out from behind the device. It lives in the
+   .fsx-bg layer, under the lifted iframe, and its box (.fsx-ins, overflow clip) starts at the device's bottom edge, so at the start
+   (span raised by gap + its height) it is entirely under the device. On the first tap of the element it describes (TAP, in the
+   prototype's own document) it plays that slide in reverse (back up behind the device while fading, the time-reversed curve) and
+   stays hidden for this session; on close it exits on CLOSE's own exit progress. Not shown inline.
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet. */
 (()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
 const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -29,11 +33,22 @@ bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge de
 const panel=bg.firstChild;const probe=bg.querySelector('.fsx-probe'),MAXH=828;
 const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
-const ins=document.createElement('p');ins.className='fsx-ins';fs.appendChild(ins);
+const ins=document.createElement('p');ins.className='fsx-ins';ins.innerHTML='<span></span>';const insS=ins.firstChild;bg.appendChild(ins); /* under the iframe */
 const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
-const insOut=()=>{ins.classList.remove('in');ins.classList.add('out');}; /* gone for the rest of this full-screen session */
+/* instruction motion: CLOSE's entrance (uiEnter) on the y axis, from behind the device; D = its box (gap + text) */
+const INS_MS=448,INS_STAG=40,INS_REV='cubic-bezier(.8,0,.8,.2)'; /* INS_REV = CLOSE's curve (.2,.8,.2,1) run backwards in time */
+let insA=null,tapped=false,insSt=null;
+const insD=()=>ins.clientHeight,insHide=()=>{insS.style.opacity='0';insS.style.translate='0 '+(-insD())+'px';};
+const insStop=()=>{if(insA){insA.cancel();insA=null;}};
+function insEnter(){if(tapped||!insS.textContent)return;insStop();insS.style.opacity=insS.style.translate='';if(rm.matches||!insS.animate)return;
+ insA=insS.animate([{opacity:0,translate:'0 '+(-insD())+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:INS_STAG,easing:UI_EASE,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
+const insOut=()=>{if(tapped)return;tapped=true; /* gone for the rest of this full-screen session */
+ if(rm.matches||!insS.animate){insStop();insHide();return;}
+ if(insA&&insA.playState!=='finished'){const a=insA;a.reverse();a.onfinish=()=>{if(insA===a){insA=null;insHide();a.cancel();}}; /* cancel: its backwards fill would otherwise outlive it */return;}
+ const cs=getComputedStyle(insS),o=+cs.opacity,y=parseFloat((cs.translate||'0 0').split(' ')[1])||0;insStop();insHide();
+ insA=insS.animate([{opacity:o,translate:'0 '+y+'px'},{opacity:0,translate:'0 '+(-insD())+'px'}],{duration:INS_MS,easing:INS_REV});insA.onfinish=()=>{insA=null;};};
 const onTap=e=>{const k=cur&&keyOf(cur.f),t=e.target;if(k&&e.isTrusted&&t&&t.closest&&t.closest(TAP[k]))insOut();};
 body.append(bg,fs);
 const btn=fs.querySelector('.deck-x');
@@ -59,14 +74,18 @@ function asideMeasure(){lt=[];for(const el of lefts){el.style.translate='';el.in
  tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
  const off=innerWidth-t.left;tg.push({el,mate,off,clr:mate?Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off):1});}
  for(const g of tg)g.ui=g.mate?[g.mate]:[];
+ if(state==='closing')insFrom();
  for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}
 const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
 function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
+/* close: the instruction leaves on CLOSE's exit progress k (from wherever it is), towards behind the device */
+function insFrom(){const cs=getComputedStyle(insS);insSt={o:+cs.opacity,y:parseFloat((cs.translate||'0 0').split(' ')[1])||0};insStop();}
+function insExit(k){if(!insSt)return;insS.style.opacity=(insSt.o*k).toFixed(4);insS.style.translate='0 '+(insSt.y+(-insD()-insSt.y)*(1-k)).toFixed(2)+'px';}
 function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||!m.animate||!m.getClientRects().length)continue;
  m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i++,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};}}
 function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
- if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
- const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);
+ if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);if(g.mate===btn)insEnter();}else for(const m of g.ui)m.style.opacity='0';continue;}
+ const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);if(g.mate===btn)insExit(k);
  g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
 function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];for(const [el] of asides)el.style.translate=el.style.opacity='';uiStop(btn);btn.style.opacity=btn.style.translate='';tg=[];if(hdr)hdr.style.overflowX='';}
 /* prototype plumbing, as js/case.js */
@@ -103,9 +122,9 @@ function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';
  const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top);
  /* the instruction below it: 24px gap + its wrapped height come off the box; the device box is then exactly the device (its width
     limit included) and device + gap + text are centred together */
- const iw=Math.max(0,Math.min(375,G.W-32));ins.style.width=iw+'px';const T=ins.textContent?ins.offsetHeight:0,gap=T?24:0;
+ const iw=Math.max(0,Math.min(375,G.W-32));ins.style.width=iw+'px';const T=insS.textContent?insS.offsetHeight:0,gap=T?24:0;
  const sw=Math.min(1,(G.F.width-2*Math.abs(G.g.x)-32)/391),bh=Math.max(0,Math.floor(Math.min(av-gap-T,MAXH,828*sw))),bt=Math.round(q.top+(av-bh-gap-T)/2);
- ins.style.top=(bt+bh+gap)+'px';
+ ins.style.top=(bt+bh)+'px';ins.style.paddingTop=gap+'px'; /* the box starts at the device's bottom edge */
  pad(f,true,bt,bh);G.s1=Math.min(1,sFull(G.F.width-2*Math.abs(G.g.x),bh));
  /* at 1:1 the 375px screen sits at (frame width)/2 - 187.5: when that lands on a half px, narrow the iframe by 1px so the
     screen is pixel-aligned (crisp, not resampled) */
@@ -117,15 +136,15 @@ function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.no
  raf=requestAnimationFrame(tick);}
 function open(m){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
  if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
- const k=keyOf(f);ins.textContent=k?INS[k]:'';ins.className='fsx-ins';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ const k=keyOf(f);insStop();insSt=null;tapped=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
- asideMeasure();aside(0);
- anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');if(!ins.classList.contains('out'))ins.classList.add('in');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
+ insHide();asideMeasure();aside(0);
+ anim(0,1,()=>{state='open';f.classList.remove('fsx-anim');if(!insA&&insS.style.opacity==='0')insEnter(); /* no header BACK to trigger it: at the end */bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
 function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
- state='closing';insOut();fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
+ state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
   f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');

@@ -35,13 +35,12 @@ body.cs .media.proto iframe.fsx-anim{will-change:transform;pointer-events:none} 
 .deck-fs.fsx .deck-bar a,.deck-fs.fsx .theme-btn{pointer-events:auto}
 .deck-fs.fsx.is-closing .deck-bar a{pointer-events:none}
 .deck-fs.fsx .theme-btn{z-index:3}
-.deck-fs.fsx .deck-bar,.deck-fs.fsx .fsx-ins{--mono-color:#333;--ink:#171717}
-html[data-theme=dark] .deck-fs.fsx .deck-bar,html[data-theme=dark] .deck-fs.fsx .fsx-ins{--mono-color:#cfcfcf;--ink:#f2f2f2}
+.deck-fs.fsx .deck-bar,.fsx-bg .fsx-ins{--mono-color:#333;--ink:#171717}
+html[data-theme=dark] .deck-fs.fsx .deck-bar,html[data-theme=dark] .fsx-bg .fsx-ins{--mono-color:#cfcfcf;--ink:#f2f2f2}
 /* the instruction under the device (js INS): the site's figcaption style (css/case.css), --cap follows the theme; js sets its top
    (24px below the device frame), width (at most 375px) and left (centred on the device); enters/exits with CLOSE */
-.deck-fs.fsx .fsx-ins{position:absolute;left:0;margin:0;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;opacity:0;transition:opacity 240ms var(--ease)} /* type = CLOSE (.bar-right a, case.css), casing as written */
-.deck-fs.fsx .fsx-ins.in{opacity:1}.deck-fs.fsx .fsx-ins.out{opacity:0;transition-duration:160ms} /* in once the open expansion ends, out on the described tap or close (js/proto-fs.js) */
-@media (prefers-reduced-motion:reduce){.deck-fs.fsx .fsx-ins{transition:none}}
+.fsx-bg .fsx-ins{position:absolute;z-index:2;left:0;margin:0;box-sizing:content-box;overflow:clip;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;} /* type = CLOSE (.bar-right a, case.css), casing as written; in .fsx-bg = under the lifted iframe; the box starts at the device bottom edge and clips, so the raised span is hidden behind the device */
+.fsx-bg .fsx-ins span{display:block}
 /* the × is drawn in the BACK arrow's box (arrows.css flips .arr-back with scaleX(-1): symmetric, so unchanged) */
 
 /* page scroll lock while open (Studio html.deck-lock): the document keeps its scroll position and geometry */

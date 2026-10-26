@@ -103,11 +103,15 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    the bars and the device is padded into it (PAD, the same injected style as js/proto-fs.js on desktop: the prototype's frame gets the
    device's top and height, overflow visible), with at least ROOM (device units) above it, so the device's drop-shadow has room inside
    the transparent iframe and never ends on its edge (it was cut to a hard band at the device's top and bottom);
-   the instruction fades in once the open expansion (the iframe's opacity transition) has finished, fades out for good (this session) on the first
-   tap of the element it describes (TAP, in the prototype's own document), and is hidden in landscape. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
+   the instruction moves as CLOSE does (dbhLayer enter/exit hooks: same trigger, 40ms after CLOSE as UI_STAG, 448ms on CLOSE's curve)
+   but vertically: it slides DOWN out from behind the device (the layer is under the lifted iframe; its box starts at the device's
+   bottom edge and clips, so the raised span starts hidden under the device). The first tap of the element it describes (TAP, in the
+   prototype's own document) plays that in reverse (back up behind the device, fading; gone for this session); on close it exits on
+   CLOSE's exit progress. Hidden in landscape. Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
+ rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_EASE='cubic-bezier(.2,.8,.2,1)',INS_REV='cubic-bezier(.8,0,.8,.2)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE) and its time reverse */
  INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
 var PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
@@ -122,9 +126,21 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   nosel=function(on){de.classList.toggle('proto-nosel',on);clearSel();['selectstart','dragstart'].forEach(function(t){document[on?'addEventListener':'removeEventListener'](t,noSel,true)})}; /* while open: no selection on the page */
  var land=function(){if(held)send('embed:hold')}; /* opened in landscape: the device is held */
  var u=f.getAttribute('data-src')||f.getAttribute('src')||'',ik=Object.keys(INS).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0],ins=ik?INS[ik]:'';
- var insEl=function(){var L=window.dbhLayer,el=L&&L.el;return el&&el.querySelector('.proto-ins')},
-  insOut=function(){var p=insEl();if(p){p.classList.remove('in');p.classList.add('out')}}, /* gone for the rest of this full-screen session */
-  insIn=function(e){if(e&&(e.target!==f||e.propertyName!=='opacity'))return;f.removeEventListener('transitionend',insIn);var p=insEl();if(p&&!p.classList.contains('out')&&f.classList.contains('proto-on'))p.classList.add('in')},
+ var insA=null,tapped=false,insSt=null,
+  insC=null,insEl=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(p)insC=p.firstChild;return insC}, /* kept: dbhLayer.el is null while the layer closes */
+  insD=function(s){return s.parentNode.clientHeight},
+  insHide=function(s){s.style.opacity='0';s.style.translate='0 '+(-insD(s))+'px'},
+  insStop=function(){if(insA){insA.cancel();insA=null}},
+  insY=function(cs){return parseFloat((cs.translate||'0 0').split(' ')[1])||0},
+  insIn=function(){var s=insEl();if(tapped||!s)return;insStop();s.style.opacity=s.style.translate='';if(rmq.matches||!s.animate)return;
+   insA=s.animate([{opacity:0,translate:'0 '+(-insD(s))+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:INS_STAG,easing:INS_EASE,fill:'backwards'});insA.onfinish=function(){insA=null}},
+  insOut=function(){var s=insEl();if(tapped||!s)return;tapped=true; /* gone for the rest of this full-screen session */
+   if(rmq.matches||!s.animate){insStop();insHide(s);return}
+   if(insA&&insA.playState!=='finished'){var a=insA;a.reverse();a.onfinish=function(){if(insA===a){insA=null;insHide(s);a.cancel()}}; /* cancel: its backwards fill would otherwise outlive it */return}
+   var cs=getComputedStyle(s),o=+cs.opacity,y=insY(cs);insStop();insHide(s);
+   insA=s.animate([{opacity:o,translate:'0 '+y+'px'},{opacity:0,translate:'0 '+(-insD(s))+'px'}],{duration:INS_MS,easing:INS_REV});insA.onfinish=function(){insA=null}},
+  insExit=function(k){var s=insEl();if(!s)return;if(!insSt){var cs=getComputedStyle(s);insSt={o:+cs.opacity,y:insY(cs)};insStop()}
+   s.style.opacity=(insSt.o*k).toFixed(4);s.style.translate='0 '+(insSt.y+(-insD(s)-insSt.y)*(1-k)).toFixed(2)+'px'},
   onTap=function(e){var t=e.target;if(ik&&e.isTrusted&&t&&t.closest&&t.closest(TAP[ik]))insOut()};
  /* portrait layout: the bars' box (css top/height) minus 16px + the instruction's height, the device's width limit and the 812 cap give
     the device height (less ROOM above and below); the device is padded to that spot inside the iframe, device + gap + text centred in the box */
@@ -135,21 +151,21 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
   if(held){pad(false);return}var r=f.getBoundingClientRect(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
   var T=p.offsetHeight,g=T?16:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*(W-32)/391))),t=Math.round((r.height-h-g-T)/2);
-  pad(true,t,h);p.style.top=(r.top+t+h+g)+'px'};
+  pad(true,t,h);p.style.top=(r.top+t+h)+'px';p.style.paddingTop=g+'px'}; /* the box starts at the device's bottom edge */
  var orient=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.deck-n'),on=lq.matches;if(!el||on===held)return;held=on;
   el.classList.toggle('proto-land',on);f.classList.toggle('proto-hide',on);if(p)p.innerHTML=on?LAND:'';lay();
   send(on?'embed:hold':'embed:release')};
  var lqOn=function(on){if(lq.addEventListener)lq[on?'addEventListener':'removeEventListener']('change',orient);else lq[on?'addListener':'removeListener'](orient)};
  var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on){lay();land()}},
   hook=function(){var w=null;try{w=f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',esc,true);w.addEventListener('click',onTap,true)}catch(_){}};
- b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;
+ b.addEventListener('click',function(){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;tapped=false;insStop();insSt=null;
   if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   f.addEventListener('load',load);
-  L.open({label:name,cls:'proto-full',trg:b,stage:'<p class="proto-ins">'+ins+'</p><p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on');
-    if(parseFloat(getComputedStyle(f).transitionDuration)>0)f.addEventListener('transitionend',insIn);else insIn()},
+  L.open({label:name,cls:'proto-full',trg:b,enter:insIn,exit:insExit,stage:'<p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);addEventListener('resize',lay);lqOn(true);land();void f.offsetWidth;f.style.transition='';f.classList.add('proto-on');
+},
    tabs:function(){return held?[]:[f]},
    frame:function(a){f.style.transition='none';f.style.opacity=a.toFixed(4)},
-   done:function(){nosel(false);f.removeEventListener('transitionend',insIn);f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
+   done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);removeEventListener('resize',lay);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on');f.style.transition=f.style.opacity='';full(false)}});});
 });})();
