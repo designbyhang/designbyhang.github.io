@@ -89,6 +89,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .status{left:0;top:0;width:375px;height:44px;z-index:30}
 .status-l{z-index:11}
 .status-d{opacity:0}
+.status-w{left:0;top:0;width:375px;height:44px;background:#fff;opacity:0;z-index:19;pointer-events:none}   /* white under the status bar ↔ IAB header seam (see render) */
 .x{left:325px;top:46px;width:44px;height:44px;z-index:40;border-radius:22px;display:none}
 .x.on{display:block}
 .home{left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;z-index:45;pointer-events:none}
@@ -146,6 +147,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="abs btn tile" data-i="3" type="button" style="left:261px;top:470px;width:114px;height:122px" aria-label="Chair: open the split screen"></button>
         <button class="abs btn cta" id="cta" type="button" aria-label="Learn more: open artifox.com in the in-app browser (IAB) full screen"></button>
         <div class="abs overlay" id="overlay"></div>
+        <i class="abs status-w" id="statusW" aria-hidden="true"></i>
 
         <div class="abs sheet" id="sheet" role="dialog" aria-modal="false" aria-label="In-app browser (IAB): artifox.com" aria-hidden="true">
           <img class="abs iab-h iab-hh" id="hHalf" src="assets/iab-header-half.svg?v=2" alt="">
@@ -252,6 +254,9 @@ function render(){
   $('load').style.top=lerp(52,46,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 46
   $('footer').style.transform=`translate3d(0,${((1-clamp((pf-.2)/.8))*110).toFixed(2)}px,0)`;
   $('statusD').style.opacity=(mode==='cta'?1:Math.max(1-m,clamp((84-y)/40))).toFixed(3);
+  /* one white surface from the status bar into the full header: a white band under the sheet's top edge, so the two anti-aliased edges
+     (status bar bottom, sheet top) never let the dim show through as a hairline; it shrinks back to the status bar once the sheet leaves the top */
+  const sw=$('statusW');sw.style.opacity=$('statusD').style.opacity;sw.style.height=(44+clamp(52-y,0,4)).toFixed(2)+'px';
   const idx=clamp(Math.round(p),0,N-1);
   if(idx!==pageIdx){pageIdx=idx;[...$('dots').children].forEach((d,j)=>d.classList.toggle('on',j===idx))}
 }

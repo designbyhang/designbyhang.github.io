@@ -71,6 +71,7 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .navbar{left:0;top:44px;width:375px;height:52px}
 .status{left:0;top:0;width:375px;height:44px;z-index:30}
 .status-d{opacity:0;background:#fff}
+.status-w{left:0;top:0;width:375px;height:44px;background:#fff;opacity:0;z-index:19;pointer-events:none}   /* white under the status bar ↔ IAB header seam (see render) */
 .exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px}
 .exit-area.on{display:block}
 /* sheet = Figma "Bottom Container" (IAB) */
@@ -133,6 +134,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <img class="abs" src="assets/ufi-rail.svg?v=2" alt="" style="left:326px;top:486px;width:50px;height:237px">
         <div class="abs pz" id="pz" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg></div>
         <div class="abs overlay" id="overlay"></div>
+        <i class="abs status-w" id="statusW" aria-hidden="true"></i>
         <div class="abs details" id="details" aria-hidden="true">
           <img class="abs" src="assets/author.svg" alt="" style="left:0;top:0;width:303px;height:36px">
           <img class="abs cap-c" id="capC" src="assets/caption-collapsed.svg" alt="" style="width:303px;height:20px">
@@ -225,6 +227,9 @@ function render(){
   $('load').style.top=lerp(52,48,hk).toFixed(2)+'px';   // under the visible header: half bottom 52 → full bottom 48
   $('footer').style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*122).toFixed(2)}px,0)`;
   $('statusD').style.opacity=clamp((84-y)/40).toFixed(3);
+  /* one white surface from the status bar into the full header: a white band under the sheet's top edge, so the two anti-aliased edges
+     (status bar bottom, sheet top) never let the dim show through as a hairline; it shrinks back to the status bar once the sheet leaves the top */
+  const sw=$('statusW');sw.style.opacity=$('statusD').style.opacity;sw.style.height=(44+clamp(52-y,0,4)).toFixed(2)+'px';
   $('home').style.background=t>.5?'#000':'#fff';
 }
 function setState(s){
