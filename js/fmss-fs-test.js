@@ -1,0 +1,122 @@
+/* TEST (projects/fmss-fs-test.html only): click/tap an Evolution prototype frame and it expands into a full-screen view the way the
+   Studio presentation does (projects/studio-present.js): the frame grows from its inline spot to the viewport over DUR 650ms on the
+   deck's ease (cubic-bezier(.8,0,.2,1), projects/studio-deck.js easeStep); the header's logo/label slide out left and BACK (and the
+   section menu) slide out right on the same progress; "× CLOSE" (BACK's markup) and the theme toggle join a top layer, CLOSE slides
+   16px in while fading over 450ms, cubic-bezier(.2,.8,.2,1), 40ms stagger, once BACK has passed it; Escape / CLOSE collapse it back
+   into place in reverse. Page scroll is locked (html.deck-lock, theme.js paints the stage colour), solid .deck-edge strips once open.
+   Differences from the deck, both forced by the iframe: the SAME iframe is lifted (position:fixed, no DOM move = no reload) and
+   grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
+   (Studio's html.deck-flow), since that would hide the lifted iframe.
+   On entry the prototype's idle demo restarts from its beginning (embed:hold + embed:release + embed:full, as js/case.js uses them).
+   js/case.js's phone full screen (.proto-open + window.dbhLayer) is switched off on this page only: its buttons are removed. */
+(()=>{const ms=[...document.querySelectorAll('.media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
+const de=document.documentElement,body=document.body,rm=matchMedia('(prefers-reduced-motion: reduce)');
+document.querySelectorAll('.media.proto .proto-open').forEach(b=>b.remove());
+/* motion: Studio's exactly */
+const ease=(function bez(p1x,p1y,p2x,p2y){const cx=3*p1x,bx=3*(p2x-p1x)-cx,ax=1-cx-bx,cy=3*p1y,by=3*(p2y-p1y)-cy,ay=1-cy-by;
+ const X=t=>((ax*t+bx)*t+cx)*t,Y=t=>((ay*t+by)*t+cy)*t,dX=t=>(3*ax*t+2*bx)*t+cx;
+ return x=>{if(x<=0)return 0;if(x>=1)return 1;let t=x;for(let n=0;n<8;n++){const e=X(t)-x,d=dX(t);if(Math.abs(e)<1e-6)break;if(Math.abs(d)<1e-6)break;t-=e/d;}
+  let lo=0,hi=1;if(Math.abs(X(t)-x)>1e-5){t=x;for(let n=0;n<30;n++){const v=X(t);if(Math.abs(v-x)<1e-6)break;if(v<x)lo=t;else hi=t;t=(lo+hi)/2;}}return Y(t);};})(.8,0,.2,1);
+const DUR=650,lerp=(a,b,t)=>a+(b-a)*t;
+/* layers */
+const bg=document.createElement('div');bg.className='fsx-bg';bg.hidden=true;
+bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i>';
+const panel=bg.firstChild;
+const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
+fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
+body.append(bg,fs);
+const btn=fs.querySelector('.deck-x');
+let state='closed',cur=null,raf=0,P=0,G=null;
+const vw=()=>fs.clientWidth||innerWidth,vh=()=>fs.clientHeight||innerHeight;
+/* scroll lock + iOS viewport-fit, as Studio lock()/unlock() */
+const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;
+function lock(){if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fit=cover';de.classList.add('deck-lock');}
+function unlock(){de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;}
+/* theme toggle joins the top layer while open (Studio adoptToggle/releaseToggle) */
+let tb=null,tbHome=null,tbNext=null;
+function adoptToggle(){const b=document.querySelector('.theme-btn');if(!b||b.parentNode===fs)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;fs.appendChild(b);}
+function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(tb,tbNext);else tbHome.appendChild(tb);}
+/* page chrome slides out on the expand's progress; CLOSE enters once BACK has passed it (Studio asideMeasure/aside/uiEnter, verbatim
+   apart from the deck's counter / AUTO SCROLL / landscape toggle offset, which this view does not have) */
+const asides=[[document.querySelector('.toc'),null],[document.querySelector('body>.bar .bar-right a'),btn]].filter(p=>p[0]);let tg=[];const hdr=document.querySelector('body>.bar');
+const lefts=[hdr&&hdr.querySelector('.brand'),document.getElementById('bar-mid')].filter(Boolean);let lt=[];
+const inkRight=el=>{const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return b.width?b.right:el.getBoundingClientRect().right;};
+function asideMeasure(){lt=[];for(const el of lefts){el.style.translate='';el.inert=true;const r=inkRight(el);if(r>0)lt.push({el,off:-r});}
+ tg=[];if(hdr)hdr.style.overflowX='clip';for(const [el,mate] of asides){el.style.translate='';const t=el.getBoundingClientRect();if(!t.width)continue;
+ const off=innerWidth-t.left;tg.push({el,mate,off,clr:mate?Math.min(1,Math.max(0,mate.getBoundingClientRect().right-t.left)/off):1});}
+ for(const g of tg)g.ui=g.mate?[g.mate]:[];
+ for(const g of tg)g.st=g.ui.map(m=>{const cs=getComputedStyle(m),o=+cs.opacity,x=parseFloat(cs.translate)||0;uiStop(m);return{o,x};});}
+const UI_DX=16,UI_MS=450,UI_STAG=40,UI_EASE='cubic-bezier(.2,.8,.2,1)';
+function uiStop(m){if(m._ui){m._ui.cancel();m._ui=null;}}
+function uiEnter(list){let i=0;for(const m of list){uiStop(m);m.style.opacity=m.style.translate='';if(rm.matches||!m.animate||!m.getClientRects().length)continue;
+ m._ui=m.animate([{opacity:0,translate:-UI_DX+'px 0'},{opacity:1,translate:'0px 0'}],{duration:UI_MS,delay:UI_STAG*i++,easing:UI_EASE,fill:'backwards'});m._ui.onfinish=()=>{m._ui=null;};}}
+function aside(p){for(const g of lt){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.filter=p>0?'opacity('+(1-p).toFixed(4)+')':'';}for(const g of tg){g.el.style.translate=(p*g.off).toFixed(2)+'px 0';g.el.style.opacity=String(1-p);
+ if(state==='opening'){if(g.in)continue;if(p>=g.clr||p>=1){g.in=true;uiEnter(g.ui);}else for(const m of g.ui)m.style.opacity='0';continue;}
+ const c=g.clr<1?Math.max(0,(p-g.clr)/(1-g.clr)):+(p>=1),k=c*c*(3-2*c);
+ g.ui.forEach((m,i)=>{const s0=g.st[i];m.style.opacity=(s0.o*k).toFixed(4);m.style.translate=(s0.x+(-UI_DX-s0.x)*(1-k)).toFixed(2)+'px 0';});}}
+function asideReset(){for(const el of lefts){el.style.translate=el.style.filter='';el.inert=false;}lt=[];for(const [el] of asides)el.style.translate=el.style.opacity='';uiStop(btn);btn.style.opacity=btn.style.translate='';tg=[];if(hdr)hdr.style.overflowX='';}
+/* prototype plumbing, as js/case.js */
+const doc=f=>{try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
+const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
+const send=(f,t)=>{try{f.contentWindow.dispatchEvent(new Event(t))}catch(_){}};
+/* restart the idle demo from its first step: stop it (hold), let it run again (release), start now (full: skips the idle wait) */
+const restart=f=>{send(f,'embed:hold');send(f,'embed:release');send(f,'embed:full');};
+const escKey=e=>{if(e.key==='Escape'&&state!=='closed'){e.preventDefault();e.stopPropagation();close();}};
+let win=null;function hook(f){let w=null;try{w=f&&f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',escKey,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',escKey,true)}catch(_){}}
+/* geometry. Device scale inside the prototype (its fit(): screen 375x812 + 8px bezel): inline vs full screen; the device is centred in
+   its frame both ways, so mapping the device = mapping the frame centres plus a uniform scale */
+const sInline=(w,h)=>{const pad=w<=640?24:40;return Math.min((h-pad*2)/828,(w-pad*2)/431);},sFull=(w,h)=>Math.min(h/828,(w-32)/391);
+const sNow=f=>{const d=doc(f),st=d&&d.querySelector('.stage'),v=st&&parseFloat(st.style.getPropertyValue('--s'));return v>0?v:0;};
+const hostBox=m=>{const r=m.getBoundingClientRect(),b=m.clientLeft||0;return{x:r.left+b,y:r.top+b,w:m.clientWidth,h:m.clientHeight};};
+/* the prototype document keeps a scrollbar gutter (html scrollbar-gutter:stable), so its device centre sits gx/gy px off the
+   iframe centre, the same px inline and full screen: read once, inline, before lifting (mid-resize it reads 0) */
+const gut=f=>{const e=doc(f),b=e&&e.ownerDocument.body;return b&&e?{x:(b.clientWidth-e.clientWidth)/2,y:(b.clientHeight-e.clientHeight)/2}:{x:0,y:0};};
+/* one frame at progress p (0 inline .. 1 full): reads first, then transform-only writes */
+function render(p,fresh){const {m,f}=cur;if(fresh||state==='closing')G.A=hostBox(m);const A=G.A,F=G.F,W=G.W,H=G.H;
+ const x=lerp(A.x,0,p),y=lerp(A.y,0,p),w=lerp(A.w,W,p),h=lerp(A.h,H,p);
+ panel.style.transform='translate('+x.toFixed(2)+'px,'+y.toFixed(2)+'px) scale('+(w/W).toFixed(5)+','+(h/H).toFixed(5)+')';
+ const k=lerp(G.s0/G.s1,1,p),g=G.g,dx=(1-p)*((A.x+A.w/2)-(F.left+F.width/2))+g.x*(1-k),dy=(1-p)*((A.y+A.h/2)-(F.top+F.height/2))+g.y*(1-k);
+ f.style.transform=p>=1?'':'translate('+dx.toFixed(2)+'px,'+dy.toFixed(2)+'px) scale('+k.toFixed(5)+')';}
+function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';panel.style.height=G.H+'px';G.F=f.getBoundingClientRect();if(!G.g)G.g=gut(f);G.s1=sFull(G.F.width-2*Math.abs(G.g.x),G.F.height-2*Math.abs(G.g.y));}
+function anim(p0,p1,done,side){cancelAnimationFrame(raf);const t0=performance.now();
+ const tick=now=>{const u=rm.matches?1:Math.min(1,(now-t0)/DUR),e=ease(u);P=lerp(p0,p1,e);side(P);render(P);
+  if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
+ raf=requestAnimationFrame(tick);}
+function open(m){if(state!=='closed')return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');
+ if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
+ cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
+ bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
+ f.classList.add('fsx-lift','fsx-anim');full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);restart(f);
+ asideMeasure();aside(0);
+ anim(0,1,()=>{state='open';if(lastPtr.type!=='touch'&&lastPtr.type!=='pen')restStart(f,lastPtr.x,lastPtr.y);f.classList.remove('fsx-anim');bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
+/* desktop mouse: the phone grows under a resting cursor, and the prototypes treat a fine pointer entering the phone as the visitor
+   taking over (demo stops, cursor circle). So after a mouse/keyboard open the prototype takes no pointer input until the pointer
+   really moves (3px) or presses; then it is fully interactive. Touch opens are interactive as soon as the expand lands. */
+let rest=null;const restEnd=()=>{if(!rest)return;removeEventListener('pointermove',rest.mv,true);removeEventListener('pointerdown',rest.dn,true);if(cur)cur.f.classList.remove('fsx-rest');rest=null;};
+function restStart(f,x,y){restEnd();f.classList.add('fsx-rest');const mv=e=>{if(Math.abs(e.clientX-x)+Math.abs(e.clientY-y)>=3)restEnd();},dn=()=>restEnd();rest={mv,dn};
+ addEventListener('pointermove',mv,true);addEventListener('pointerdown',dn,true);}
+let lastPtr={type:'',x:-1e4,y:-1e4};
+function onLoad(){if(!cur)return;const f=cur.f;if(G)G.g=gut(f);full(f,true);hook(f);restart(f);}
+function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;
+ restEnd();state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
+ anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
+  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.style.transform='';full(f,false);
+  panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
+  state='closed';de.classList.remove('deck-open');cur=null;G=null;P=0;if(window.__dbhResample)__dbhResample();
+  if(hadFocus&&b)b.focus({preventScroll:true,focusVisible:false});},aside);}
+addEventListener('resize',()=>{if(!cur||state==='closed')return;measure();render(P,true);});
+/* inline click/tap targets */
+for(const m of ms){const f=m.querySelector('iframe'),b=document.createElement('button');b.type='button';b.className='fsx-open';
+ b.setAttribute('aria-label','Open '+(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+' full screen');b.setAttribute('aria-haspopup','dialog');
+ b.addEventListener('pointerdown',e=>{lastPtr={type:e.pointerType,x:e.clientX,y:e.clientY};});
+ b.addEventListener('click',e=>{e.preventDefault();if(!e.detail)lastPtr={type:'',x:-1e4,y:-1e4};open(m);});m.appendChild(b);}
+btn.addEventListener('click',e=>{e.preventDefault();close();});
+/* keys (Studio): Esc closes; Tab cycles CLOSE, the toggle and the prototype */
+addEventListener('keydown',e=>{if(state==='closed')return;
+ if(e.key==='Escape'){e.preventDefault();close();return;}
+ if(e.key==='Tab'&&cur){e.preventDefault();const t=document.querySelector('.theme-btn'),l=[btn,t,cur.f].filter(x=>x&&x.getClientRects().length),i=l.indexOf(document.activeElement);l[(i+(e.shiftKey?l.length-1:1))%l.length].focus();}});
+/* no page scrolling under the layer (gestures inside the prototype go to its own document) */
+addEventListener('wheel',e=>{if(state!=='closed')e.preventDefault();},{passive:false});
+addEventListener('touchmove',e=>{if(state==='closed')return;if(e.target.closest&&e.target.closest('.deck-x,.theme-btn'))return;e.preventDefault();},{passive:false});
+window.__fsx={get state(){return state;},get geo(){return G;},get p(){return P;},open:i=>open(ms[i]),close};})();

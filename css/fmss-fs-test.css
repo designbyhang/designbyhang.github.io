@@ -1,0 +1,43 @@
+/* TEST (projects/fmss-fs-test.html only): an Evolution prototype frame expands to a Studio-presentation-style full screen
+   (js/fmss-fs-test.js). Values copied from projects/studio.html's deck CSS (.deck-fs / .deck-bar / .deck-edge / deck-lock).
+   Three fixed layers, bottom to top: .fsx-bg (the expanding --frame panel + edge strips), the lifted iframe (the same element,
+   never moved in the DOM so it never reloads), .fsx (CLOSE + the theme toggle; takes no clicks except on its controls). */
+
+/* inline: the whole frame is one click/tap target that opens full screen (the first click never reaches the prototype) */
+.fsx-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fsx-open:focus{outline:none}.fsx-open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+
+/* expanding panel: a solid --frame box (the frame's own colour) moved with transform only (no layout per frame) */
+.fsx-bg{position:fixed;inset:0;z-index:2147482998;pointer-events:none;overflow:hidden}
+.fsx-bg[hidden],.fsx[hidden]{display:none}
+.fsx-panel{position:absolute;left:0;top:0;transform-origin:0 0;background:var(--frame);will-change:transform;pointer-events:auto;touch-action:none}
+/* Studio .deck-edge: solid full-width strips at the top (header row) and bottom edges, shown once open */
+.fsx-bg .deck-edge{display:none;position:fixed;left:0;right:0;z-index:1;background:var(--frame);pointer-events:auto;touch-action:none}
+.fsx-bg.is-open .deck-edge{display:block}
+.fsx-bg .deck-edge-t{top:0;height:calc(58px + env(safe-area-inset-top,0px))}
+@media (max-width:640px){.fsx-bg .deck-edge-t{height:calc(50px + env(safe-area-inset-top,0px))}}
+.fsx-bg .deck-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
+
+/* the lifted prototype: centred, full width, 64px (8x8) clear above and below (56px on phones, under the 50px header row);
+   inside, html.embed-full fits the device to this height. Grows from its inline spot via transform (js) */
+body.cs .media.proto iframe.fsx-lift{position:fixed;z-index:2147482999;left:0;top:calc(64px + env(safe-area-inset-top,0px));width:100%;height:calc(100% - 128px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));transform-origin:50% 50%;background:none;touch-action:none;pointer-events:auto}
+@media (max-width:640px){body.cs .media.proto iframe.fsx-lift{top:calc(56px + env(safe-area-inset-top,0px));height:calc(100% - 112px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}}
+body.cs .media.proto iframe.fsx-rest{pointer-events:none}
+body.cs .media.proto iframe.fsx-anim{will-change:transform;pointer-events:none} /* no input while it moves (the deck stage takes none either): the prototype's hover-takes-over (pointerenter) can't fire just because the phone grew under a resting cursor */
+
+/* controls layer = Studio .deck-fs (theme.js leaves the toggle in it while open) */
+.deck-fs.fsx{position:fixed;inset:0;z-index:2147483000;overflow:hidden;pointer-events:none;outline:none;border-radius:0}
+.deck-fs.fsx:focus,.deck-fs.fsx:focus-visible{outline:none}
+.deck-fs.fsx .bar.deck-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;justify-content:flex-end;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none}
+.deck-fs.fsx .deck-bar a,.deck-fs.fsx .theme-btn{pointer-events:auto}
+.deck-fs.fsx.is-closing .deck-bar a{pointer-events:none}
+.deck-fs.fsx .theme-btn{z-index:3}
+.deck-fs.fsx .deck-bar{--mono-color:#333;--ink:#171717}
+html[data-theme=dark] .deck-fs.fsx .deck-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
+/* the × is drawn in the BACK arrow's box (arrows.css flips .arr-back with scaleX(-1): symmetric, so unchanged) */
+
+/* page scroll lock while open (Studio html.deck-lock): the document keeps its scroll position and geometry */
+html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
+html.deck-lock.theme-anim,html.deck-lock.theme-anim body{transition:none!important}
+html.theme-anim .fsx-bg,html.theme-anim .fsx-bg *,html.theme-anim .deck-fs.fsx,html.theme-anim .deck-fs.fsx *{transition:none!important}
+.fsx-bg.is-closing .fsx-panel{pointer-events:none}
