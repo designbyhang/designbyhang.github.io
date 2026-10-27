@@ -46,7 +46,9 @@ const TAPS=[[t1e+3200,t1e+3200+TAP_P]];   // phone 1's demo tap: pause at TAP1, 
 /* the loop as poses: a = surface -> split progress, c = split -> full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
-const track=fn=>POSE.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
+/* WAAPI keyframes from POSE: the shared track (js/device-cover.js, loaded before this file), one keyframe per sample, dropping a sample equal to
+   both neighbours (WebKit re-processes every keyframe of accelerated animations on every scrolled frame) */
+const track=fn=>window.DeviceCover.track(POSE,T,fn);
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
 /* Figma corner smoothing (60%) as an SVG path: the site-wide one (js/squircle.js) */
 const squircle=window.Squircle.path;

@@ -7,8 +7,9 @@
 /* FMSS cover animation (js/fmss-split.js [data-fmss-anim]): the case-page hero only (homepage and NEXT CASE STUDY cards show the still
    cover art, no demo). The layer paints the FMSS art
    itself (light-mode file in both themes: black phone on the orange gradient, identical in light and dark) and plays the Solution 1 loop
-   on the phone screen baked into it. Static (reduced motion, before the screens decode): just the art = the current cover. */
-.fmss-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#f9552a url(../assets/cover-fmss-hero.webp?v=127) 50% 50%/cover no-repeat;contain:layout paint}
+   on the phone screen baked into it. Static (reduced motion, before the screens decode): just the art = the current cover.
+   content-visibility:auto, as .cover-anim: off screen the phone's layers and their animations leave the rendering. */
+.fmss-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#f9552a url(../assets/cover-fmss-hero.webp?v=127) 50% 50%/cover no-repeat;content-visibility:auto}
 .hero-slot.fmss-wrap{position:relative}
 .fsp-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .fmss-anim.on .fsp-ph{opacity:1}
