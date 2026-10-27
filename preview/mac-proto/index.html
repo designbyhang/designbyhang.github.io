@@ -121,18 +121,18 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
         <div class="L grid" id="grid">
-          <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=209);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
-          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=209);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=209" src="../../assets/vac/vac-mac-starbucks.mp4?v=209"></video></div>
+          <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=210);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=210);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=210" src="../../assets/vac/vac-mac-samsung.mp4?v=210"></video></div>
           <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=209);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=209" src="../../assets/vac/vac-mac-lululemon.mp4?v=209"></video></div>
-          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=209);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=209" src="../../assets/vac/vac-mac-samsung.mp4?v=209"></video></div>
+          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=209);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=209" src="../../assets/vac/vac-mac-starbucks.mp4?v=209"></video></div>
         </div>
         <i class="L rbg" id="rbg" aria-hidden="true"></i>
-        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=209)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=209" src="../../assets/vac/vac-mac-oakley.mp4?v=209"></video></div>
+        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=210)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=210" src="../../assets/vac/vac-mac-oakley.mp4?v=210"></video></div>
         <div class="L gtop" id="gtop" aria-hidden="true">
           <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=209" style="left:12px;top:170px">
-          <img class="L th" id="h2" alt="" src="assets/tile-h2-starbucks.webp?v=209" style="left:191.5px;top:170px">
+          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=209" style="left:191.5px;top:170px;width:171px">
           <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=209" style="left:12px;top:450px">
-          <img class="L th" id="h4" alt="" src="assets/tile-h4-samsung.webp?v=209" style="left:192px;top:450px;width:171px">
+          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=209" style="left:192px;top:450px">
           <img class="L" alt="" src="assets/grid-title.webp?v=209" style="left:116px;top:116px;width:144px;height:39.5px">
           <img class="L" alt="" src="assets/grid-nav.webp?v=209" style="left:0;top:44px;width:375px;height:52px">
         </div>
@@ -305,7 +305,7 @@ $('cta').addEventListener('click',()=>openCta());   // keyboard; a pointer tap c
 /* ---------- grid → the seed reel: the Oakley tile grows into Reels (Figma: smart animate, Slow) ---------- */
 function openSeed(){
   if(mode!=='grid'||bA.busy||g<1)return;
-  mode='open';homeTell(false);k=0;hx=0;
+  rotate(-1,true);mode='open';homeTell(false);k=0;hx=0;
   eA.to(1,{onDone:()=>{if(mode!=='open')return;mode='reels';setReels(true);render();say('Oakley reel')}});
 }
 let mp=null;
@@ -352,7 +352,9 @@ pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev
    tile 1 while it pops (the video rides away with Reels) ---------- */
 function snapTile(){const c=els.snap,x=c.getContext('2d');
   try{if(vid.readyState>=2){const vw=vid.videoWidth,vh=vid.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(vid,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
-function startPop(){kA.stop();k=Math.round(k);snapTile();mode='pop';setReels(false);b=0;render()}
+function startPop(){kA.stop();k=Math.round(k);
+  if(k>=1){const c=els.snap;c.getContext('2d').clearRect(0,0,c.width,c.height);try{vid.currentTime=0}catch(_){}}else snapTile();
+  mode='pop';setReels(false);b=0;render()}
 function back(){if(mode!=='reels'||cta!==null)return;startPop();bA.to(1,{onDone:()=>{toGrid();homeTell(true);say('Grid')}})}
 $('back').addEventListener('click',back);
 /* the edge swipe back: the shared FMSS gesture (../shared/edge-back), the finger drives the pop (b); read in the capture phase so it
@@ -375,7 +377,7 @@ phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
   ev.stopPropagation();EB.move(dx)},true);
 function edgeUp(ev){if(!eg||ev.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;ev.stopPropagation();EB.end((ev.clientX-d.x0)/d.s)}
 phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
-function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;render()}
+function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;render();freeRot()}
 document.addEventListener('keydown',ev=>{if(INL())return;
   if(ev.key==='Escape'){userActed();if(cta!==null){if(act.state!==1)act.go(1)}else if(mode==='reels')back()}
   else if(mode==='reels'&&cta===null&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')){ev.preventDefault();step(clamp(Math.round(k)+(ev.key==='ArrowDown'?1:-1),0,N))}});
@@ -384,11 +386,20 @@ document.addEventListener('keydown',ev=>{if(INL())return;
 const lcv=$('lcv'),rbv=$('rbv'),tv=els.t.map(t=>t.querySelector('video'));
 let seen=false,visible=false,held=false;
 const gridOn=()=>mode!=='reels'||e<1;
+/* the grid's turns: one tile plays at a time, in reading order (Oakley, Galaxy Z Flip7, lululemon, Starbucks), each for one equal
+   slice (SLICE); the others hold their poster, the frame each clip starts on. A tile that hands over seeks back to that frame */
+const TV=[vid,...tv],SLICE=1600;
+let gAct=-1,rotT=0;
+function setActive(i,keep){if(i===gAct)return;const o=gAct;gAct=i;
+  if(o>=0&&!(keep&&o===0)){const v=TV[o];v.pause();try{v.currentTime=0}catch(_){}}vidSync()}
+function rotate(i,keep){clearTimeout(rotT);rotT=0;setActive(i,keep);if(i>=0&&!autoOn)rotT=setTimeout(()=>rotate((i+1)%4),SLICE)}
+/* full screen (and inline without autoplay): the turns run on their own while the grid is up; the inline loop drives them itself */
+function freeRot(){if(autoOn)return;if(ready&&mode==='grid'&&visible&&!document.hidden){if(!rotT)rotate(gAct>=0?gAct:0)}else if(rotT){clearTimeout(rotT);rotT=0}}
 VIDS=[
-  [vid,()=>mode!=='pop'&&!(mode==='reels'&&k>=.999)],
+  [vid,()=>mode==='grid'?gAct===0:mode!=='pop'&&!(mode==='reels'&&k>=.999)],
   [lcv,()=>(mode==='reels'||mode==='pop')&&Math.abs(k-1)<1],
   [rbv,()=>(mode==='reels'||mode==='pop')&&Math.abs(k-2)<1],
-  ...tv.map(v=>[v,()=>gridOn()&&g>0])];
+  ...tv.map((v,n)=>[v,()=>gridOn()&&g>0&&gAct===n+1])];
 const pend=new WeakSet();
 function vidSync(){const on=visible&&!document.hidden;
   for(const [v,f] of VIDS){const sh=on&&f();
@@ -398,18 +409,18 @@ function armGesture(){const f=()=>{removeEventListener('pointerdown',f,true);vid
 VIDS.forEach(([v])=>v.addEventListener('canplay',vidSync));addEventListener('pageshow',vidSync);
 addEventListener('demo:host',()=>setVis());addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
 new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
-function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{VIDS.forEach(([v])=>v.pause());stopAuto()}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden){VIDS.forEach(([v])=>v.pause());stopAuto()}else{vidSync();sched()}});
+function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{VIDS.forEach(([v])=>v.pause());stopAuto()}freeRot()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){VIDS.forEach(([v])=>v.pause());stopAuto()}else{vidSync();sched()}freeRot()});
 
 /* ---------- first load: hold until the grid can paint whole (posters + nav decoded, each grid video's first frame), max 3.2s ---------- */
 let ready=false;
-(function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley','vac-mac-starbucks','vac-mac-lululemon','vac-mac-samsung'].map(n=>'../../assets/vac/'+n+'.webp?v=209'));
+(function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley.webp?v=210','vac-mac-samsung.webp?v=210','vac-mac-lululemon.webp?v=209','vac-mac-starbucks.webp?v=209'].map(n=>'../../assets/vac/'+n));
   const dec=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
   const vf=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true})});
   const all=Promise.all(imgs.map(dec).concat([vid,...tv].map(vf)));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;const c=$('ldc');
     if(RM.matches||!c.animate)c.remove();else c.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out',fill:'forwards'}).onfinish=()=>c.remove();
-    sched()};
+    sched();freeRot()};
   all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
 
 /* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
@@ -421,8 +432,10 @@ $('theme').addEventListener('click',()=>{const h=document.documentElement;const 
 (function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
 
 /* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only, no input; full screen moves only on real input.
-   One loop, 21.368s (every time a multiple of 8ms; the app's own moves on the Slow spring, 664): grid 2496 · tap Oakley (1032; the
-   grow starts at 632) · seed 3600 · swipe up (1080; the push starts at 632) · LensCrafters 2800 · swipe up · Ray-Ban 1600 · tap
+   One loop, 25.536s (every time a multiple of 8ms; the app's own moves on the Slow spring, 664): the grid 6664 (264 for the pop to
+   settle, then the four turns, 1600 each: Oakley, Galaxy Z Flip7, lululemon, Starbucks; one tile plays at a time, the rest hold their
+   posters) · tap Oakley (1032; the grow starts at 632 and the Oakley video plays from it) · seed 3600 · swipe up (1080; the push
+   starts at 632) · LensCrafters 2800 · swipe up · Ray-Ban 1600 · tap
    Learn more (1032; press feedback, the ray-ban.com IAB opens at 632 on the shared sheet's own spring and plays its page load) ·
    the page 1440 · scroll the page 240 (1544; a press, then the page rides the finger on the Slow spring) · 640 · tap × (1032; the
    sheet closes at 632 back onto the Ray-Ban reel) · the reel 960 · tap Back (1032; the pop to the grid starts at 632) · round again
@@ -450,16 +463,20 @@ async function pageScroll(dist,tk){   // 1544: the open page scrolls a little, t
   try{await frames(DUR,tk,q=>{const d=dist*SLOW(q);I.setScroll(s0+d);fingerAt(x,y0-d)})}catch(err){I.setScroll(s0);throw err}
   finger.classList.remove('down');await wait(HOLD,tk);finger.classList.remove('on');await wait(FADE,tk)}
 const STEPS=[
-  2496,tk=>tap(98,306,tk,openSeed),                  // the grid; tap the Oakley ad → it grows into the seed reel (664, from 632)
+  gridTurns,tk=>tap(98,306,tk,openSeed),             // the grid's four turns; tap the Oakley ad → it grows into the seed reel (664, from 632)
   3600,tk=>swipeUp(tk),                               // Oakley → LensCrafters (664 push, from 632)
   2800,tk=>swipeUp(tk),                               // LensCrafters → Ray-Ban
   1600,tk=>tap(163.5,668,tk,openCta,true),            // Learn more (pressed) → ray-ban.com opens full screen on the IAB
   1440,tk=>pageScroll(240,tk),                        // read, then scroll the page a little
   640,tk=>tap(347,68,tk,()=>act.go(1)),               // × → the sheet closes back onto the Ray-Ban reel
   960,tk=>tap(24,70,tk,back)];                        // Back → the pop to the grid (664, from 632), and round again
-async function loop(tk){while(tk===token){const s=STEPS[stepI];if(typeof s==='number')await wait(s,tk);else{inStep=true;await s(tk);inStep=false}stepI=(stepI+1)%STEPS.length}}
+const SETTLE=264;
+async function gridTurns(tk){   // 6664: the pop settles (264), then each tile's turn (4 × 1600); stopped mid-way, it restarts clean
+  rotate(-1);await wait(SETTLE,tk);for(let i=0;i<4;i++){rotate(i);await wait(SLICE,tk)}rotate(-1)}
+gridTurns.soft=true;
+async function loop(tk){while(tk===token){const s=STEPS[stepI];if(typeof s==='number')await wait(s,tk);else if(s.soft)await s(tk);else{inStep=true;await s(tk);inStep=false}stepI=(stepI+1)%STEPS.length}}
 const xf=document.createElement('div');xf.className='L xf';xf.setAttribute('aria-hidden','true');phone.appendChild(xf);
-function reset(gv=1){gA.stop();toGrid();g=gv;render();fingerOff();homeS=null;homeTell(true)}
+function reset(gv=1){gA.stop();rotate(-1);TV.forEach(v=>{try{if(v.currentTime)v.currentTime=0}catch(_){}});toGrid();g=gv;render();fingerOff();homeS=null;homeTell(true)}
 function xfade(tk,gv=1){if(RM.matches||!xf.animate){reset(gv);return Promise.resolve()}
   return new Promise((res,rej)=>{const an=xf.animate([{opacity:0},{opacity:1}],{duration:120,easing:'ease-in',fill:'forwards'});
     an.onfinish=()=>{reset(gv);try{vid.currentTime=0}catch(_){}xf.animate([{opacity:1},{opacity:0}],{duration:128,easing:'ease-out'}).onfinish=()=>{tk===token?res():rej('x')};an.cancel()}})}
@@ -469,10 +486,10 @@ if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
   if(!i){stopAuto();reset();stepI=0;broken=userDirty=false;return}   // into full screen: the clean start (the grid), no demo
   if(stepI||userDirty)broken=true;sched()}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 function canRun(){return ready&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
-function startAuto(){if(autoOn||!canRun())return;autoOn=true;const tk=++token;frame.dataset.autoplay='on';
+function startAuto(){if(autoOn||!canRun())return;autoOn=true;clearTimeout(rotT);rotT=0;const tk=++token;frame.dataset.autoplay='on';
   const run=()=>loop(tk).catch(()=>{});
   if(broken||userDirty||mode!=='grid'){broken=userDirty=false;stepI=0;xfade(tk).then(run,()=>{})}else run()}
-function stopAuto(){if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();if(inStep){inStep=false;broken=true}}
+function stopAuto(){if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();if(inStep){inStep=false;broken=true}freeRot()}
 function sched(){if(!autoOn&&canRun())startAuto()}
 function userActed(){if(INL())return;userDirty=true}
 frame.addEventListener('pointerdown',ev=>{if(ev.isTrusted)userActed()},{capture:true,passive:true});
@@ -491,7 +508,7 @@ phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{p
 
 window.__mac={get mode(){return mode},get e(){return e},get k(){return k},get b(){return b},get g(){return g},iab,vid,
   get cta(){return cta===null?null:cta===0?'reels':'rb'},iabRB,get act(){return act===iabRB?'rb':'oakley'},openCta,openSeed,back,step,reset,get auto(){return autoOn},get stepI(){return stepI},
-  get playing(){return VIDS.filter(([v])=>!v.paused).map(([v])=>v.id||v.src.split('/').pop().split('?')[0])}};
+  get gAct(){return gAct},get playing(){return VIDS.filter(([v])=>!v.paused).map(([v])=>v.id||v.src.split('/').pop().split('?')[0])}};
 render();homeTell(true);
 })();
 </script>
