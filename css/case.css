@@ -361,14 +361,15 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:r
 /* VAC 02 Problem + 05 Current State: rows of text cell + phone module (02: module | text; 05 row 1 text | module, row 2 module | text),
    05 stacked with no gap so the modules meet corner to corner. Layout = the FMSS Inconsistencies pair (.inc2 .inc-row / .inc-col: two
    equal columns, 24px gap, 1920/2052 frames; 3840/2052 portrait tablets; 4:5 phones), so each module is exactly the FMSS column width.
-   Module (.media.dark.mframe.phone-demo): #1d1d1d ground in both themes, one 375x812 phone recording (48px squircle corners, 8px
+   Module (.media.mframe.phone-demo): follows the theme, #f1f1f1 ground + 12% black bezel in light, #1d1d1d + 20% white in dark, one 375x812 phone recording (48px squircle corners, 8px
    rgba(255,255,255,.2) outside stroke) laid out like the art (1624x1824): phone 75.4% of the height from 9.9% down, centred across.
-   Sizes run on the frame's height (cqh) so the phone scales with the frame. Controls use the dark-theme glass in both themes.
+   Sizes run on the frame's height (cqh) so the phone scales with the frame. Controls use the current theme's glass.
    Text cell (.pd-txt) = the module's size, no box; text uses the 04 Opportunity type (.prose h2 + p.t-body), inset by the site content
    margin (--wrap-pad, the .wrap padding) and centred vertically.
    Stacked (phones, portrait tablets): text above its module, flush to the content column; 64px above each text, 32px text -> module */
-body.cs .media.mframe.phone-demo{container-type:size;--c-paper:#1a1a1a;--c-strong:#f2f2f2;--ring-media:rgba(255,255,255,.12);background:#1d1d1d;align-items:flex-start}
-.phone-demo .pd-phone{position:relative;flex:none;height:75.4386cqh;margin-top:9.8684cqh;aspect-ratio:375/812;border-radius:4.4444cqh;overflow:hidden;background:#000;box-shadow:0 0 0 .7407cqh rgba(255,255,255,.2);transform:translateZ(0)}
+body.cs .media.mframe.phone-demo{container-type:size;--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start}
+html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
+.phone-demo .pd-phone{position:relative;flex:none;height:75.4386cqh;margin-top:9.8684cqh;aspect-ratio:375/812;border-radius:4.4444cqh;overflow:hidden;background:#000;box-shadow:0 0 0 .7407cqh var(--pd-bezel);transform:translateZ(0)}
 body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;object-position:50% 0;background:#000;border-radius:0;transform:none;transition:none}
 .pd-rows{margin-top:64px}
 /* standalone phone-demo module (VAC 09 MAC/SAP/CC), FMSS prototype frame ratio */
