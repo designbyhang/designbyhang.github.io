@@ -21,6 +21,7 @@
      states: [{name, caption, hold, set: {key: {...}}}],
      layouts: [{mq, w, h, oy, base, states: [{set}]}]   media-query layout overrides (e.g. a phone frame) merged over the default
      w: 1920, h: 1080, oy: 0         stage size in design px; oy shifts the stage vertically inside the box (design px)
+     fh: true                        stage height = the box height in design px (box aspect, no letterbox); with layer hm (h = stage h - hm)
    }
    Timing: every value is ms on an 8ms grid. Runs only while >= 35% in view (IntersectionObserver) and the tab is visible;
    the play/pause (loop mode) or any touch (step mode) sticks. Controls: the site's carousel pill (.car-dots, one dot per state, the
@@ -49,13 +50,15 @@ function mount(box){var pins=[];
  if(cfg.bind)[].forEach.call(document.querySelectorAll(cfg.bind+' [data-l]'),function(e){els[e.getAttribute('data-l')]=e});
  var sc=1,ins=32,ease=springEase(cfg.spring||[80,20,1]),L=null,i=0,cur={},from={},to={},tr=null,hold=0,clock=0,last=0,raf=0,vis=false,started=false;
  var playing=step?(cfg.autoplay!==false):true,touched=false,entering=false;
- var FL=/"sf"/.test(box.querySelector('script.ss-cfg').textContent);
+ var FL=/"(sf|hm)"/.test(box.querySelector('script.ss-cfg').textContent),SH=cfg.h||1080,FH=false;
  function layout(){var l=null;(cfg.layouts||[]).forEach(function(x){if(!l&&matchMedia(x.mq).matches)l=x});return l||{}}
  function vals(k,extra){var L2=layout(),v=merge(merge({},cfg.base),cfg.states[k].set);merge(v,L2.base);if(L2.states&&L2.states[k])merge(v,L2.states[k].set);if(extra)merge(v,extra);
   /* sf:[avail,cssReserve,natural,max] = fluid scale: the largest s that fits natural*s into avail design px minus cssReserve CSS px (e.g. a pinned button + gap) */
   for(var q in v)if(v[q].sf){var f=v[q].sf;v[q].s=Math.max(0,Math.min(f[3],(f[0]-f[1]/sc)/f[2]));delete v[q].sf}
   /* yc:[boxH,naturalH] = centre a (fluid-scaled) layer vertically in a box of boxH design px */
-  for(q in v)if(v[q].yc){v[q].y=(v[q].yc[0]-v[q].yc[1]*(v[q].s!=null?v[q].s:1))/2;delete v[q].yc}return v}
+  for(q in v)if(v[q].yc){v[q].y=(v[q].yc[0]-v[q].yc[1]*(v[q].s!=null?v[q].s:1))/2;delete v[q].yc}
+  /* hm = height minus: in a fh layout the layer is the stage height less hm design px (equal margins whatever the box aspect) */
+  for(q in v)if('hm' in v[q]){if(FH)v[q].h=SH-v[q].hm;delete v[q].hm}return v}
  function holdOf(k){return cfg.states[k].hold||cfg.hold||2400}
  function durOf(a,b){return RM.matches?0:((cfg.tr||{})[a+'>'+b]||cfg.dur||1664)}
  function put(){for(var key in cur){var e=els[key],v=cur[key];if(!e)continue;var t='';
@@ -66,7 +69,8 @@ function mount(box){var pins=[];
   pins.forEach(function(p){var v=cur[p.k];if(!v)return;var W=(L&&L.w)||cfg.w||1920,m=(ins+48)/sc,over=Math.max(0,Math.min((+v.x||0)+(+v.w||0)-W,(+v.w||0)-m));p.e.style.setProperty('--pin',over.toFixed(2)+'px');
    /* pc 0..1 on the layer: lift its pinned button from the bottom inset to the layer's vertical centre (tabs) */
    if('pc' in v)p.e.style.setProperty('--pinb',(v.pc*(((+v.h||0)-32/sc)/2-ins/sc)).toFixed(2)+'px')})}
- function fit(){L=layout();var W=L.w||cfg.w||1920,H=L.h||cfg.h||1080,s=box.clientWidth/W,oy=(box.clientHeight-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
+ /* fh (cfg or layout): the stage takes the box's own aspect: W design px wide, as tall as the box (no letterbox), so stage edges = box edges */
+ function fit(){L=layout();var W=L.w||cfg.w||1920,s=box.clientWidth/W;FH=L.fh!=null?!!L.fh:!!cfg.fh;var H=FH?box.clientHeight/s:(L.h||cfg.h||1080);SH=H;var oy=(box.clientHeight-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
   stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put()}
  /* controls */
  var tog=!step&&cfg.toggle,tg=null,resumeT=0,userPaused=false,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
@@ -122,7 +126,7 @@ function mount(box){var pins=[];
   box.addEventListener('pointercancel',function(){tdn=false})}
  box.addEventListener('keydown',function(ev){if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){ev.preventDefault();if(tog){userTap();return}touch();go(i+(ev.key==='ArrowRight'?1:-1))}});
  /* start */
- var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
+ fit();var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
  fit();put();e[i]=1;drawDots(1);setCap();sync();
  if('ResizeObserver' in window)new ResizeObserver(fit).observe(box);else addEventListener('resize',fit);
  (cfg.layouts||[]).forEach(function(x){var q=matchMedia(x.mq);if(q.addEventListener)q.addEventListener('change',function(){fit();if(!tr){cur=vals(i);put()}})});
