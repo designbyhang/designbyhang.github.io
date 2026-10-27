@@ -79,6 +79,17 @@ rail.addEventListener('touchmove',e=>{if(!on||sx==null)return;const q=e.touches[
   if(lock==null&&Math.hypot(dx,dy)>6)lock=Math.abs(dx)>Math.abs(dy)?'x':'y';
   if(lock){e.preventDefault();to(st-(lock==='x'?dx:dy)*1.4);}},{passive:false});
 rail.addEventListener('touchend',()=>{sx=null;},{passive:true});
+// mouse drag (touch/pen: the handlers above): follows at the touch drag's 1.4x once it moves 8px and is horizontal, grabbing cursor only
+// while dragging; on release it carries on by the release velocity (240ms of it) and eases to rest like a trackpad swipe's inertia.
+// Under 8px it stays a click; after a real drag the card link's click is swallowed (once). No ghost drag of card images/links.
+let md=null,mEat=false;
+rail.addEventListener('pointerdown',e=>{mEat=false;md=null;if(!on||e.pointerType!=='mouse'||e.button>0)return;md={x:e.clientX,y:e.clientY,s:t,on:false,lx:e.clientX,lt:performance.now(),v:0};});
+addEventListener('pointermove',e=>{if(!md)return;const dx=e.clientX-md.x,dy=e.clientY-md.y;
+  if(!md.on){if(Math.hypot(dx,dy)<8)return;if(Math.abs(dx)<=Math.abs(dy)){md=null;return;}md.on=true;tw=null;rail.style.cursor='grabbing';}
+  const n=performance.now(),dt=n-md.lt;if(dt>0){md.v=md.v*.5+.5*(e.clientX-md.lx)/dt;md.lx=e.clientX;md.lt=n;}to(md.s-dx*1.4);});
+addEventListener('pointerup',()=>{if(md&&md.on){mEat=true;rail.style.cursor='';if(performance.now()-md.lt<64)to(t-md.v*1.4*240);}md=null;});
+rail.addEventListener('click',e=>{if(!mEat)return;mEat=false;e.preventDefault();e.stopPropagation();},true);
+rail.addEventListener('dragstart',e=>{if(on)e.preventDefault();});
 // keys: card to card
 function idx(){let i=0,b=1e9;centers.forEach((c,j)=>{const d=Math.abs(c-c0-t);if(d<b){b=d;i=j;}});return i;}
 addEventListener('keydown',e=>{if(!on||e.target.closest('input,textarea'))return;

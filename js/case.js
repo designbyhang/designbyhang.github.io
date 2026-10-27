@@ -34,6 +34,23 @@ window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('but
   document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});return sync;}
  if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){seen=e.intersectionRatio>=.35;if(seen){if(on&&!held&&p.paused())p.play()}else if(!p.paused())p.pause();sync()})},{threshold:[0,.35]}).observe(watch);
  return sync;};
+/* window.dbhSwipe(el, step[, opt]): the one horizontal-swipe gesture for every carousel-like media box (the .media.carousel slideshows
+   below, every js/state-seq.js player). step(d): d = +1 next (swipe / drag LEFT, trackpad fingers left), -1 previous. Touch, pen,
+   mouse drag and two-finger trackpad (wheel deltaX). A press is claimed only once it is horizontal (8px moved, |dx| > 1.2|dy|); a
+   vertical one is left to the page (touch-action: pan-y, css/case.css .dbh-swipe). On release it steps at 48px, or at 16px flicked at
+   >= .4px/ms; a claimed drag swallows its click, so taps on slides, dots and play/pause still work. Wheel: one gesture = one step
+   (40px of deltaX, then held until the events pause for 200ms, its inertia tail included). opt.skip: presses never taken as a swipe */
+window.dbhSwipe=function(el,step,opt){var skip=(opt&&opt.skip)||'.car-ctrl,.ss-ctrl,button,a',p=null,eat=false,acc=0,held=false,wt=0;
+ el.classList.add('dbh-swipe');el.addEventListener('dragstart',function(e){e.preventDefault()});
+ el.addEventListener('pointerdown',function(e){eat=false;p=null;if(e.button>0||!e.isPrimary||(e.target.closest&&e.target.closest(skip)))return;p={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),on:false}});
+ el.addEventListener('pointermove',function(e){if(!p||e.pointerId!==p.id||p.on)return;var ax=Math.abs(e.clientX-p.x),ay=Math.abs(e.clientY-p.y);if(ax<8&&ay<8)return;
+  if(ax>1.2*ay){p.on=true;try{el.setPointerCapture(e.pointerId)}catch(_){}var s=getSelection&&getSelection();if(s&&s.removeAllRanges)s.removeAllRanges()}else p=null});
+ el.addEventListener('pointerup',function(e){if(!p||e.pointerId!==p.id)return;var q=p,dx=e.clientX-q.x,ax=Math.abs(dx);p=null;if(!q.on)return;eat=true;
+  if(ax>=48||(ax>=16&&ax/Math.max(1,performance.now()-q.t)>=.4))step(dx<0?1:-1)});
+ el.addEventListener('pointercancel',function(){p=null});
+ el.addEventListener('click',function(e){if(!eat)return;eat=false;e.preventDefault();e.stopPropagation()},true);
+ el.addEventListener('wheel',function(e){if(e.ctrlKey||Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;e.preventDefault();var now=performance.now();
+  if(now-wt>200){held=false;acc=0}wt=now;if(held)return;acc+=e.deltaX*(e.deltaMode?16:1);if(Math.abs(acc)>=40){held=true;step(acc>0?1:-1);acc=0}},{passive:false});};
 /* video[data-lazy]: heavy demos get their source only when they near the view (600px ahead), then the play helper starts them */
 (function(){var vs=document.querySelectorAll('video[data-lazy]');if(!vs.length)return;var go=function(v){v.removeAttribute('data-lazy');v.querySelectorAll('source[data-src]').forEach(function(s){s.src=s.getAttribute('data-src');s.removeAttribute('data-src')});v.load()};if(!('IntersectionObserver' in window)){vs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'600px 0px'});vs.forEach(function(v){io.observe(v)})})();
 document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
@@ -43,7 +60,8 @@ document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v
 /* solution carousel: a pill of dots (one per slide) + play/pause. Each slide fills over 5s (linear), then a 1s handoff
    (easeInOutQuad = cubic-bezier(.455,.03,.515,.955)): the active bar drops its fill and shrinks to a dot while the next dot grows
    into an empty track, on one shared progress, so the pill keeps its width. The fill starts once the handoff lands. Loops forever.
-   Runs while >= 35% in view; pause freezes the fill; a dot click runs the handoff and restarts the fill; arrow keys when focused.
+   Runs while >= 35% in view; pause freezes the fill; a dot click or a swipe (window.dbhSwipe) runs the handoff and restarts the fill;
+   arrow keys when focused.
    Reduced motion: no autoplay, no animation */
 (function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
 document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr)return;var imgs=[].slice.call(tr.children),n=imgs.length;if(n<2)return;
@@ -57,6 +75,8 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  row.addEventListener('keydown',function(e){var k=dots.indexOf(document.activeElement),t=null;if(k<0)return;
   if(e.key==='ArrowRight')t=k+1;else if(e.key==='ArrowLeft')t=k-1;else if(e.key==='Home')t=0;else if(e.key==='End')t=n-1;
   if(t===null)return;e.preventDefault();e.stopPropagation();go(t);dots[i].focus()});
+ dbhSwipe(c,function(d){go(i+d);if(ask)ask()}); /* = a dot tap: the handoff runs and the 5s fill restarts (only while it holds the
+    demo turn, js/demos.js, which re-picks); wraps like autoplay */
  c.addEventListener('keydown',function(e){if(e.target!==c)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();go(i+(e.key==='ArrowRight'?1:-1))}});
  function sync(){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' slideshow');sr.setAttribute('aria-live',playing?'off':'polite')}
  /* e[k]: how open slot k is (0 dot, 1 track); a handoff eases every slot from where it is to its target, so sum(e) stays 1 */

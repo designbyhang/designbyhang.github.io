@@ -124,11 +124,11 @@ function mount(box){var pins=[];
  function resume(){clearTimeout(resumeT);if(!userPaused)return;userPaused=false;playing=true;hold=holdOf(i);kick()}
  function userTap(k){userPaused=true;playing=false;clearTimeout(resumeT);resumeT=setTimeout(resume,tog.resume||6400);go(k==null?i+1:k,{manual:true})}
  function touch(){if(step&&!touched){touched=true;playing=false;if(demoAsk)demoAsk()}}
- /* step mode: tap/click the media to advance, horizontal swipe to step, arrow keys when focused */
+ /* step mode: tap/click the media to advance, arrow keys when focused (swipes: the shared dbhSwipe below) */
  if(step){var sx=0,sy=0,down=false;
   box.addEventListener('pointerdown',function(ev){if(ev.target.closest('.ss-ctrl'))return;down=true;sx=ev.clientX;sy=ev.clientY});
   box.addEventListener('pointerup',function(ev){if(!down)return;down=false;var dx=ev.clientX-sx,dy=ev.clientY-sy;touch();
-   if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy))go(i+(dx<0?1:-1));else if(Math.abs(dx)<10&&Math.abs(dy)<10){
+   if(Math.abs(dx)<10&&Math.abs(dy)<10){
     var t=ev.target.closest&&ev.target.closest('[data-go]');
     if(t&&box.contains(t)){var k=+t.getAttribute('data-go');go(i===k&&t.hasAttribute('data-back')?+t.getAttribute('data-back'):k)}
     else if(cfg.tapAdvance!==false)go(i+1)}});
@@ -138,6 +138,9 @@ function mount(box){var pins=[];
   box.addEventListener('pointerdown',function(ev){if(ev.target.closest('.ss-ctrl'))return;tdn=true;tx=ev.clientX;ty=ev.clientY});
   box.addEventListener('pointerup',function(ev){if(!tdn)return;tdn=false;if(Math.abs(ev.clientX-tx)<10&&Math.abs(ev.clientY-ty)<10)userTap()});
   box.addEventListener('pointercancel',function(){tdn=false})}
+ /* swipe / drag / trackpad, every mode: the shared gesture (js/case.js window.dbhSwipe); a step = a dot tap (toggle: a pill tap),
+    then the demo pool (js/demos.js) re-picks */
+ if(n>1&&window.dbhSwipe)dbhSwipe(box,function(d){if(tog)userTap(i+d);else{touch();go(i+d,{manual:true})}if(demoAsk)demoAsk()},{skip:'.ss-ctrl'});
  box.addEventListener('keydown',function(ev){if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){ev.preventDefault();if(tog){userTap();return}touch();go(i+(ev.key==='ArrowRight'?1:-1))}});
  /* start */
  fit();var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
