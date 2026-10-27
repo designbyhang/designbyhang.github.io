@@ -1,7 +1,7 @@
 /* HANG easter egg: click (or Enter/Space on) the homepage copyright line to open a full-viewport layer in the page colour with the
    HANG letter animation (js/hang-cube.js, loaded on the first open only, same ?v= as this file). Closes only on CLOSE (the Studio presentation's
-   top-right "× CLOSE", same markup/classes; click/tap, Enter or Space) or Esc; clicks elsewhere on the layer do nothing; the animation loop and its observers are destroyed on close. Colours come from the site tokens
-   (--page/--ink) and follow the light/dark toggle live. prefers-reduced-motion: no fades and a static, fully formed H.
+   top-right "× CLOSE", same markup/classes; click/tap, Enter or Space) or Esc; clicks elsewhere on the layer do nothing; the animation loop and its observers are destroyed on close. Background --page; each letter takes a fresh
+   random vivid colour every beat (HangCube colors:'random', contrast-checked against --page) and follows the light/dark toggle live. prefers-reduced-motion: no fades and a static, fully formed H in one random colour per open.
    The layer itself (lock, flow, toggle, keys, CLOSE entrance/exit) is shared as window.dbhLayer.open(cfg)/close(): the egg is one cfg;
    the FMSS case page's phone full-screen prototypes (js/case.js) are another. cfg: label, stage (inner HTML), cls, trg (focus fallback),
    mount(o) -> {destroy} or a promise of one, show(o) when the layer turns on, frame(a) each exit frame with the layer opacity, done() at the end,
@@ -97,7 +97,7 @@ if(window.dbhView.get()&&'scrollRestoration' in history)history.scrollRestoratio
 if(!trg)return;
 trg.classList.add('hegg-trg');trg.tabIndex=0;trg.setAttribute('role','button');trg.setAttribute('aria-haspopup','dialog');trg.setAttribute('aria-label',trg.textContent.trim()+': play the HANG animation');
 const EGG={label:'HANG',trg,view:'egg',stage:'<div class="hegg-stage" role="img" aria-label="The letters H, A, N, G drawn and turning in a loop"></div>',
- mount:o=>lib().then(()=>ov===o?window.HangCube.mount(o.querySelector('.hegg-stage')):null)};
+ mount:o=>lib().then(()=>ov===o?window.HangCube.mount(o.querySelector('.hegg-stage'),{colors:'random'}):null)};
 const openEgg=()=>open(EGG);
 trg.addEventListener('click',openEgg);
 trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEgg();}});

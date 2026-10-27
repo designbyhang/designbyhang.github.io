@@ -1,6 +1,6 @@
-/* HANG easter egg: opens from the homepage copyright line (js/hang-egg.js). Black & white only: --page background, ink lines, no glow.
+/* HANG easter egg: opens from the homepage copyright line (js/hang-egg.js). --page background; the letters take a random vivid colour each beat (js/hang-cube.js colors:'random'), no glow.
    Full-viewport layer in the page colour, z 50, so the light/dark toggle (z 60) stays on top and switches the egg live.
-   Media container 576x576 (height term 100vh - 2x58px so the centred stage clears the 58px top bar); phones (<=640px): 96% of (viewport width - 16px each side), square, centred.
+   Media container 576x576 on desktop (capped by the viewport, clear of the 58px top bar above and below); phones (<=640px): 80% of (viewport width - 16px each side), square, centred.
    Close = the Studio presentation's "× CLOSE" (projects/studio-present.js: .bar.deck-bar > nav.bar-right > a.ax with .arr.arr-back + .t),
    same markup and classes, top right of the viewport inside the safe area. Its icon comes from css/arrows.css (shared with the homepage);
    the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
@@ -19,7 +19,7 @@ footer.bot>span.hegg-trg{cursor:pointer}
    expanding panel, js/fs-motion.js timeline), no fade */
 .hegg.hegg-grow,.hegg.hegg-grow:focus,.hegg.hegg-grow:focus-visible{background:none;box-shadow:none;opacity:1;transition:none}
 .hegg-stage{position:relative;z-index:1;width:min(576px,calc(100% - 32px),calc(100vh - 116px));aspect-ratio:1;background:var(--page)}
-@media (max-width:640px){.hegg-stage{width:calc(min(100% - 32px,100vh - 32px) * .96)}} /* phones: 96% of (viewport - 16px each side): about 329px at 375, 343px at 390 */
+@media (max-width:640px){.hegg-stage{width:calc(min(100% - 32px,100vh - 32px) * .8)}} /* phones: 80% of (viewport - 16px each side): 274px at 375, 286px at 390 */
 html.hegg-open.theme-anim,html.hegg-open.theme-anim body,html.theme-anim .hegg,html.theme-anim .hegg *{transition:none!important}
 html.hegg-flow{overflow:hidden}
 @media (hover:none) and (pointer:coarse){html.hegg-flow{overflow:auto}}

@@ -59,6 +59,14 @@ function themeColours(){
 /* palette rule (same in both themes): the cube is the ink, letters are cut in the page colour; faces fade toward the page as they turn away */
 function palette(T){ const {page,ink}=T; return {page,ink,face:ink,away:mix(ink,page,.42),cap:mix(ink,page,.26),letter:page,
   guide:mix(ink,page,.62),edge:mix(ink,page,.5),dot:ink,seed:page}; }
+/* opts.colors:'random' (the homepage easter egg only): the letter's ink is the most saturated in-gamut OKLCH colour of hue h, as light
+   as it can be on a light page (>=3:1 contrast); on a dark page a bright L .72 (>=4.5:1) */
+function vivid(h,bg){ const lin=v=>(v/=255)<=.04045?v/12.92:((v+.055)/1.055)**2.4, Y=c=>.2126*c[0]+.7152*c[1]+.0722*c[2], yb=Y(bg.map(lin)), dk=yb<.18;
+  const ok=(L,C)=>{const a=C*Math.cos(h*Math.PI/180),b=C*Math.sin(h*Math.PI/180),l=(L+.3963377774*a+.2158037573*b)**3,m=(L-.1055613458*a-.0638541728*b)**3,s=(L-.0894841775*a-1.291485548*b)**3;
+    return [4.0767416621*l-3.3077115913*m+.2309699292*s,-1.2684380046*l+2.6097574011*m-.3413193965*s,-.0041960863*l-.7034186147*m+1.707614701*s];};
+  let c; for(let i=0;i<=40;i++){ const L=dk?.72+i*.005:.78-i*.01; for(let C=.32;C>0;C-=.01){c=ok(L,C);if(c.every(v=>v>=-1e-4&&v<=1+1e-4))break;}
+    const y=Y(c); if(dk?(y+.05)/(yb+.05)>=4.5:(yb+.05)/(y+.05)>=3)break; }
+  return c.map(v=>255*(v<=.0031308?12.92*v:1.055*Math.max(0,v)**(1/2.4)-.055)); }
 
 /* ---------- maths ---------- */
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), ss=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
@@ -160,6 +168,7 @@ function mount(el,opts){
   const ctx=cv.getContext('2d'); let Wc=0,Hc=0,dpr=1,raf=0,t0=performance.now(),tNow=0,fixed=null,dead=false;
   let pal=palette(themeColours()), palFrom=null, palAt=0;
   const seq=()=>['H','A','N',GL[o.g]?o.g:'G'];
+  const hues=new Map(), hue=n=>{ if(!hues.has(n)){const p=hues.get(n-1); hues.set(n,p==null?Math.random()*360:(p+60+Math.random()*240)%360); hues.delete(n-3);} return hues.get(n); }; // colors:'random': a fresh hue per beat, >=60deg from the last
   function size(){const r=el.getBoundingClientRect();dpr=Math.min(3,window.devicePixelRatio||1);Wc=Math.max(1,r.width);Hc=Math.max(1,r.height);
     cv.width=Math.round(Wc*dpr);cv.height=Math.round(Hc*dpr);draw();}
   function curPal(){ if(!palFrom)return pal; const k=clamp((performance.now()-palAt)/300); if(k>=1){palFrom=null;return pal;}
@@ -177,7 +186,7 @@ function mount(el,opts){
     // strokes + dots scale with the box: 480 box → 1px lines, 4px dots; 1080 → ~1.75px lines, 8px dots (8pt grid halves)
     const lw=o.lw||1, dotS=o.dot||Math.max(4,Math.round(S/1080*4)*2); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,Wc,Hc);
     const fs=o.timeScale/(V1T.fps*(o.speed||SPEED)), beat=V1T.beat*fs, loop=4*beat; let t=fixed!==null?fixed:(running()?tNow:V1T.beat*fs-.001); // reduced motion: end of the H hold (H solid)
-    const first=t<beat; t=((t%loop)+loop)%loop; const k=Math.min(3,Math.floor(t/beat)), tb=t-k*beat;
+    const first=t<beat, nb=Math.floor(t/beat); t=((t%loop)+loop)%loop; const k=Math.min(3,Math.floor(t/beat)), tb=t-k*beat;
     const rot=-90*(k-1)-90*eTurn(clamp(tb/((o.turn||V1T.turn)*fs))); // turn at the START of the beat (original): face k-1 turns away, face k turns in
     const h=1, rad=Math.PI/180, cp=Math.cos(o.pitch*rad), sp=Math.sin(o.pitch*rad), cy=Math.cos(o.yaw*rad), sy=Math.sin(o.yaw*rad);
     const view=([x,y,z])=>{const x1=x*cy+z*sy,z1=-x*sy+z*cy;return [x1,y*cp-z1*sp,y*sp+z1*cp];};
@@ -200,7 +209,7 @@ function mount(el,opts){
       const tau = j===k ? tb-V1T.start*fs : j===(k+3)%4&&!first ? tb+beat-V1T.start*fs : null; if(tau===null||tau<0)continue;
       const g=GL[L[j]], pr=prep(g,L[j]), gx=g.W/2;
       const T=p=>proj(f.pt((p[0]-gx)*kf,(p[1]-CAP/2)*kf));
-      const ink=o.flat?P.ink:P.letter, lc=mix(f.tone,ink,f.lit), gc=mix(f.tone,ink,(o.flat?.68:.85)*f.lit), TL=o.tl; // flat: --ink on --page, shading toward the page as it turns away (v1)
+      const ink=o.colors==='random'?vivid(hue(j===k?nb:nb-1),P.page):o.flat?P.ink:P.letter, lc=mix(f.tone,ink,f.lit), gc=mix(f.tone,ink,(o.flat?.68:.85)*f.lit), TL=o.tl; // flat: --ink on --page, shading toward the page as it turns away (v1)
       ctx.save(); poly(f.cs); ctx.clip(); ctx.lineWidth=lw; ctx.lineJoin='miter';
       const F=tau/fs, pg=(a,b2)=>clamp((F-a)/(b2-a)), V=V1T, XL=o.exitLag||0; // F = seconds since the blueprint started (÷timeScale)
       const n=pr.G.length, sg=V.gStag; // partners share a slot
