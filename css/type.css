@@ -24,7 +24,7 @@
 .t-h2{font:var(--t-h2);letter-spacing:var(--t-h2-ls)}
 .t-h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls)}
 .t-lead{font-size:var(--t-lead-size);line-height:var(--t-lead-lh);letter-spacing:var(--t-lead-ls)}
-.t-body{font:var(--t-body)}
+.t-body{font:var(--t-body);text-wrap:pretty} /* no one-word last lines (widows) in body copy, site-wide */
 .t-label{font:var(--t-label);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws)}
 .t-mono{font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em}
 .t-caption{font-size:var(--t-s13);line-height:1.5}
