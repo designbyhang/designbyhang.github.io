@@ -81,6 +81,10 @@ video{display:block;object-fit:cover}
 .iab{width:375px;height:812px;z-index:20;pointer-events:none}
 .iab .web{height:1252px;background:#fff}
 .iab .web>img{position:absolute;left:0;top:0;width:375px;height:1252px}
+#iabRB .web{height:1678px}
+#iabRB .web>img{height:1678.5px}
+.ctap{left:12px;top:650px;width:303px;height:36px;border-radius:6px;background:#000;z-index:9;opacity:0;pointer-events:none;transition:opacity .12s var(--ease)}
+.ctap.down{opacity:.18}
 /* the device status bar: one, above every surface (the IAB included); only its colour follows the surface (render(): sd) */
 .sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat}
 .home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:40;pointer-events:none}
@@ -118,17 +122,17 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="phone" id="phone">
         <div class="L grid" id="grid">
           <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=209);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
-          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-zenni.webp?v=209);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-zenni.webp?v=209" src="../../assets/vac/vac-mac-zenni.mp4?v=209"></video></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=209);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=209" src="../../assets/vac/vac-mac-starbucks.mp4?v=209"></video></div>
           <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=209);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=209" src="../../assets/vac/vac-mac-lululemon.mp4?v=209"></video></div>
-          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-chickfila.webp?v=209);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-chickfila.webp?v=209" src="../../assets/vac/vac-mac-chickfila.mp4?v=209"></video></div>
+          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=209);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=209" src="../../assets/vac/vac-mac-samsung.mp4?v=209"></video></div>
         </div>
         <i class="L rbg" id="rbg" aria-hidden="true"></i>
         <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=209)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=209" src="../../assets/vac/vac-mac-oakley.mp4?v=209"></video></div>
         <div class="L gtop" id="gtop" aria-hidden="true">
           <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=209" style="left:12px;top:170px">
-          <img class="L th" id="h2" alt="" src="assets/tile-h2.webp?v=209" style="left:191.5px;top:170px">
+          <img class="L th" id="h2" alt="" src="assets/tile-h2-starbucks.webp?v=209" style="left:191.5px;top:170px">
           <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=209" style="left:12px;top:450px">
-          <img class="L th" id="h4" alt="" src="assets/tile-h4.webp?v=209" style="left:192px;top:450px;width:171px">
+          <img class="L th" id="h4" alt="" src="assets/tile-h4-samsung.webp?v=209" style="left:192px;top:450px;width:171px">
           <img class="L" alt="" src="assets/grid-title.webp?v=209" style="left:116px;top:116px;width:144px;height:39.5px">
           <img class="L" alt="" src="assets/grid-nav.webp?v=209" style="left:0;top:44px;width:375px;height:52px">
         </div>
@@ -143,10 +147,12 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <img class="L bar" alt="" src="assets/reels-bar.webp?v=209">
         </div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
+        <i class="L ctap" id="ctap" aria-hidden="true"></i>
         <button class="L btn cta" id="cta" type="button" style="left:12px;top:650px;width:303px;height:36px" aria-label="Learn more: open oakley.com in the in-app browser (IAB) full screen"></button>
         <button class="L btn back" id="back" type="button" aria-label="Back to the grid"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
+        <div class="L iab" id="iabRB"></div>
         <i class="L ldc" id="ldc" aria-hidden="true"></i>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
@@ -156,7 +162,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">A Suggested for you grid of ads. Tap the Oakley ad: it grows into Reels and seeds a chain of related ads; swipe up through it (Oakley → LensCrafters → Ray-Ban). Learn more on the Oakley ad opens oakley.com in the in-app browser full screen; ×, Escape or a swipe down returns to the reel. Back (or an edge swipe from the left) returns to the grid.</p>
+  <p class="below">A Suggested for you grid of ads. Tap the Oakley ad: it grows into Reels and seeds a chain of related ads; swipe up through it (Oakley → LensCrafters → Ray-Ban). Learn more on the Oakley ad opens oakley.com, and on the Ray-Ban ad ray-ban.com, in the in-app browser full screen; ×, Escape or a swipe down returns to the reel. Back (or an edge swipe from the left) returns to the grid.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -222,7 +228,7 @@ const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
 const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
 const els={t1:$('t1'),grid:$('grid'),rbg:$('rbg'),gtop:$('gtop'),reels:$('reels'),sb:$('sb'),home:$('home'),dim:$('dim'),snap:$('snap'),hsr:$('hsr'),
   t:[$('t2'),$('t3'),$('t4')],h:[$('h1'),$('h2'),$('h3'),$('h4')],p:[$('p0'),$('p1'),$('p2')]};
-let VIDS=[],sheetP=0,sd=0,lastR='',lastSb='',lastHome='',hx=0;
+let VIDS=[],sheetP=0,sd=0,lastR='',lastSb='',lastHome='',hx=0,lastCj=-1;
 const pageY=j=>PG*clamp(j-k,-1,1);
 function render(){
   const pop=mode==='pop',rx=pop?375*b:0,gx=pop?-120*(1-b):0,full=pop||e>=1;
@@ -254,32 +260,45 @@ function render(){
   op(els.reels,pop?1:clamp((e-.5)/.5));els.reels.style.transform=tr(rx,0);
   for(let j=0;j<=N;j++){const p=els.p[j],vis=Math.abs(j-k)<1;p.style.visibility=vis?'visible':'hidden';p.style.transform=tr(0,pageY(j))}
   els.hsr.style.transform=tr(hx,0);
-  $('cta').classList.toggle('on',mode==='reels'&&!cta&&Math.abs(k)<.01);
-  op(els.dim,cta?sheetP:0);
+  const cj=ctaPage();$('cta').classList.toggle('on',mode==='reels'&&cta===null&&cj>=0);
+  if(cj>=0&&cj!==lastCj){lastCj=cj;$('cta').setAttribute('aria-label',`Learn more: open ${SITE[cj].url} in the in-app browser (IAB) full screen`)}
+  op(els.dim,cta!==null?sheetP:0);
   /* status bar and home indicator: light on the dark app, dark on the IAB's white page, on the sheet's own spring */
   const gl=Math.round(255*clamp(1-sd)),sbc=`rgb(${gl},${gl},${gl})`;if(sbc!==lastSb){lastSb=sbc;els.sb.style.backgroundColor=sbc}
-  const hl=Math.round(255*clamp(1-(cta?sheetP:0))),hc=`rgb(${hl},${hl},${hl})`;if(hc!==lastHome){lastHome=hc;els.home.style.backgroundColor=hc}
+  const hl=Math.round(255*clamp(1-(cta!==null?sheetP:0))),hc=`rgb(${hl},${hl},${hl})`;if(hc!==lastHome){lastHome=hc;els.home.style.backgroundColor=hc}
   vidSync();
 }
 
 /* ---------- the IAB: the shared FMSS sheet, closed ↔ full only (Learn more, as vac-proto's CTA path); ×, Escape or a swipe down
-   closes it back onto the reel, untouched ---------- */
-let cta=null;
-const iab=FMSSIAB.create({host:$('iab'),label:'In-app browser (IAB): oakley.com',url:'oakley.com',
-  headers:{full:'assets/iab-header-full.svg?v=209'},fullTop:2,handle:true,shift:'p',
-  web:'<div class="web"><img alt="oakley.com: Oakley Meta HSTN" src="assets/page.webp?v=209"></div>',webH:1252,
-  fullness:y=>clamp((iab.Y1-y)/(iab.Y1-iab.Y3)),halfOK:()=>false,hold:()=>true,holdOnDrag:()=>true,
-  onRender:o=>{sheetP=o.p;sd=o.sd;render()},
-  onState:s=>{if(cta)say(s===1?'Oakley reel':'oakley.com open full screen')},
-  onClosed:()=>{if(cta){cta=null;phone.classList.remove('cta-open');render()}},
-  onX:()=>iab.go(1),
-  wheelTo:(ev,d,apply)=>{if(apply(d)&&ev.cancelable)ev.preventDefault()}});
+   closes it back onto the reel, untouched. One sheet per site (Oakley on the seed, Ray-Ban on the last ad of the chain), each in its
+   own host; the module is shared and unchanged ---------- */
+let cta=null,act=null;   // cta: the page whose IAB is open (0 Oakley · 2 Ray-Ban) · act: the sheet that drives the dim and the bars
+const SITE={0:{url:'oakley.com',name:'Oakley',host:'iab',hdr:'assets/iab-header-full.svg?v=209',page:'assets/page.webp?v=209',alt:'oakley.com: Oakley Meta HSTN',webH:1252},
+  2:{url:'ray-ban.com',name:'Ray-Ban',host:'iabRB',hdr:'assets/iab-header-full-rayban.svg?v=209',page:'assets/page-rayban.webp?v=209',alt:'ray-ban.com: Ray-Ban Meta glasses',webH:1678}};
+function mkIAB(j){const S=SITE[j];
+  const I=FMSSIAB.create({host:$(S.host),label:'In-app browser (IAB): '+S.url,url:S.url,
+    headers:{full:S.hdr},fullTop:2,handle:true,shift:'p',
+    web:`<div class="web"><img alt="${S.alt}" src="${S.page}"></div>`,webH:S.webH,
+    fullness:y=>clamp((I.Y1-y)/(I.Y1-I.Y3)),halfOK:()=>false,hold:()=>true,holdOnDrag:()=>true,
+    onRender:o=>{if(I!==act)return;sheetP=o.p;sd=o.sd;render()},
+    onState:s=>{if(cta===j)say(s===1?S.name+' reel':S.url+' open full screen')},
+    onClosed:()=>{if(cta===j){cta=null;phone.classList.remove('cta-open');render()}},
+    onX:()=>I.go(1),
+    wheelTo:(ev,d,apply)=>{if(apply(d)&&ev.cancelable)ev.preventDefault()}});
+  $(S.host).querySelectorAll('[id]').forEach(n=>{n.id=S.host+'-'+n.id});   // the module names its parts by id; keep the two sheets' ids unique
+  return I}
+SITE[0].iab=mkIAB(0);SITE[2].iab=mkIAB(2);
+const iab=SITE[0].iab,iabRB=SITE[2].iab;act=iab;
 const CTA_R=[12,650,303,36];
 const ctaAt=(x,y)=>x>=CTA_R[0]&&x<=CTA_R[0]+CTA_R[2]&&y>=CTA_R[1]&&y<=CTA_R[1]+CTA_R[3];
+function ctaPage(){const j=Math.round(k);return SITE[j]&&Math.abs(k-j)<.01?j:-1}   // the reel at rest has a Learn more that opens a site
+function ctaDown(on){$('ctap').classList.toggle('down',!!on)}   // press feedback on the Learn more button
 function openCta(){
-  if(cta||mode!=='reels'||kA.busy||Math.abs(k)>.01||iab.state!==1||iab.busy)return false;
-  cta='reels';phone.classList.add('cta-open');
-  iab.go(3,{w:16,why:'learn-more'});return true;
+  const j=ctaPage();
+  if(cta!==null||mode!=='reels'||kA.busy||j<0)return false;
+  const I=SITE[j].iab;if(I.state!==1||I.busy||(act&&act!==I&&act.state!==1))return false;
+  cta=j;act=I;phone.classList.add('cta-open');
+  I.go(3,{w:16,why:'learn-more'});return true;
 }
 $('cta').addEventListener('click',()=>openCta());   // keyboard; a pointer tap comes through the pager (pagerUp)
 
@@ -304,17 +323,18 @@ let pd=null;
 const HS=[12,614,303,72],HMIN=-(5*80+72-303);
 pager.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='reels')return;kA.stop();
   const [px,py]=ptOf(ev),onHs=Math.abs(k-1)<.01&&px>=HS[0]&&px<=HS[0]+HS[2]&&py>=HS[1]&&py<=HS[1]+HS[3];
+  if(ctaPage()>=0&&ctaAt(px,py))ctaDown(true);
   pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,onHs,hx0:hx,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
   try{pager.setPointerCapture(ev.pointerId)}catch(_){}pager.classList.add('drag')});
 pager.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
-  const dx=ev.clientX-pd.x,dy=ev.clientY-pd.y;if(Math.hypot(dx,dy)>10)pd.moved=true;
+  const dx=ev.clientX-pd.x,dy=ev.clientY-pd.y;if(Math.hypot(dx,dy)>10){pd.moved=true;ctaDown(false)}
   if(!pd.axis&&pd.moved)pd.axis=pd.onHs&&Math.abs(dx)>Math.abs(dy)?'h':'v';
   if(pd.axis==='h'){let n=pd.hx0+dx/pd.sc;if(n>0)n*=.35;else if(n<HMIN)n=HMIN+(n-HMIN)*.35;hx=n;render();return}
   let n=pd.k0-dy/pd.sc/PG;if(n<0)n*=.35;else if(n>N)n=N+(n-N)*.35;k=n;render();
   const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
-function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');
+function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');ctaDown(false);
   if(d.axis==='h'){const t=clamp(hx,HMIN,0);if(t!==hx){const hA=anim(()=>hx,v=>{hx=v;render()});hA.to(t,{ms:400})}return}
-  if(ev.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(ev);if(ctaAt(px,py-pageY(0))&&openCta())return}   // a tap on Learn more
+  if(ev.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(ev);if(ctaAt(px,py-pageY(Math.round(k)))&&openCta())return}   // a tap on Learn more
   const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, the next ad)
   let t=Math.round(k+v*.18);const from=Math.round(d.k0);
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);
@@ -333,7 +353,7 @@ pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev
 function snapTile(){const c=els.snap,x=c.getContext('2d');
   try{if(vid.readyState>=2){const vw=vid.videoWidth,vh=vid.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(vid,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
 function startPop(){kA.stop();k=Math.round(k);snapTile();mode='pop';setReels(false);b=0;render()}
-function back(){if(mode!=='reels'||cta)return;startPop();bA.to(1,{onDone:()=>{toGrid();homeTell(true);say('Grid')}})}
+function back(){if(mode!=='reels'||cta!==null)return;startPop();bA.to(1,{onDone:()=>{toGrid();homeTell(true);say('Grid')}})}
 $('back').addEventListener('click',back);
 /* the edge swipe back: the shared FMSS gesture (../shared/edge-back), the finger drives the pop (b); read in the capture phase so it
    can take the press from the pager once it is a horizontal drag off the left edge */
@@ -341,7 +361,7 @@ let eg=null,edging=false;
 const EB=FMSSEdgeBack.create({width:375,
   onMove:p=>{bA.stop();b=p;render()},
   onEnd:done=>{edging=false;if(done){toGrid();homeTell(true);say('Grid')}else{b=0;mode='reels';setReels(true);render()}}});
-phone.addEventListener('pointerdown',ev=>{eg=null;if(ev.button>0||cta||edging||EB.settling||mode!=='reels')return;
+phone.addEventListener('pointerdown',ev=>{eg=null;if(ev.button>0||cta!==null||edging||EB.settling||mode!=='reels')return;
   const [x]=ptOf(ev);if(!EB.zone(x))return;
   eg={id:ev.pointerId,x0:ev.clientX,y0:ev.clientY,s:phone.getBoundingClientRect().width/375,t0:performance.now(),on:false}},true);
 phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
@@ -355,10 +375,10 @@ phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
   ev.stopPropagation();EB.move(dx)},true);
 function edgeUp(ev){if(!eg||ev.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;ev.stopPropagation();EB.end((ev.clientX-d.x0)/d.s)}
 phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
-function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');iab.reset();setReels(false);sheetP=0;sd=0;render()}
+function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;render()}
 document.addEventListener('keydown',ev=>{if(INL())return;
-  if(ev.key==='Escape'){userActed();if(cta){if(iab.state!==1)iab.go(1)}else if(mode==='reels')back()}
-  else if(mode==='reels'&&!cta&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')){ev.preventDefault();step(clamp(Math.round(k)+(ev.key==='ArrowDown'?1:-1),0,N))}});
+  if(ev.key==='Escape'){userActed();if(cta!==null){if(act.state!==1)act.go(1)}else if(mode==='reels')back()}
+  else if(mode==='reels'&&cta===null&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')){ev.preventDefault();step(clamp(Math.round(k)+(ev.key==='ArrowDown'?1:-1),0,N))}});
 
 /* ---------- the videos: each plays only while it is on screen (and the demo is: in view, the one playing, js/case.js) ---------- */
 const lcv=$('lcv'),rbv=$('rbv'),tv=els.t.map(t=>t.querySelector('video'));
@@ -383,7 +403,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){VIDS.forEa
 
 /* ---------- first load: hold until the grid can paint whole (posters + nav decoded, each grid video's first frame), max 3.2s ---------- */
 let ready=false;
-(function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley','vac-mac-zenni','vac-mac-lululemon','vac-mac-chickfila'].map(n=>'../../assets/vac/'+n+'.webp?v=209'));
+(function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley','vac-mac-starbucks','vac-mac-lululemon','vac-mac-samsung'].map(n=>'../../assets/vac/'+n+'.webp?v=209'));
   const dec=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
   const vf=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true})});
   const all=Promise.all(imgs.map(dec).concat([vid,...tv].map(vf)));
@@ -401,26 +421,42 @@ $('theme').addEventListener('click',()=>{const h=document.documentElement;const 
 (function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
 
 /* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only, no input; full screen moves only on real input.
-   One loop, 16.48s (every time a multiple of 8ms): grid 2496 · tap Oakley (912; the 664 grow starts at 552) · seed 4000 · swipe up
-   (880; the 664 push starts at 520) · LensCrafters 3200 · swipe up · Ray-Ban 3200 · tap Back (912; the 664 pop to the grid starts at
-   552) · round again from the grid: no cut anywhere in the loop ---------- */
+   One loop, 21.368s (every time a multiple of 8ms; the app's own moves on the Slow spring, 664): grid 2496 · tap Oakley (1032; the
+   grow starts at 632) · seed 3600 · swipe up (1080; the push starts at 632) · LensCrafters 2800 · swipe up · Ray-Ban 1600 · tap
+   Learn more (1032; press feedback, the ray-ban.com IAB opens at 632 on the shared sheet's own spring and plays its page load) ·
+   the page 1440 · scroll the page 240 (1544; a press, then the page rides the finger on the Slow spring) · 640 · tap × (1032; the
+   sheet closes at 632 back onto the Ray-Ban reel) · the reel 960 · tap Back (1032; the pop to the grid starts at 632) · round again
+   from the grid: no cut anywhere in the loop. The touch shows 480 before every press and stays 160 after the release, then fades
+   (248), so it is on screen ~880 around each press ---------- */
 const finger=$('finger');
 let autoOn=false,token=0,stepI=0,inStep=false,broken=false,userDirty=false;
 const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(48,left))};f()});
 const easeIn=q=>q*q;
 const frames=(ms,tk,fn)=>new Promise((res,rej)=>{const t0=performance.now();const f=now=>{if(tk!==token)return rej('x');const q=clamp((now-t0)/ms);fn(q);q<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
 function fingerAt(x,y){finger.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
-function fingerOff(){finger.classList.remove('on','down')}
-async function tap(x,y,tk,fn){fingerAt(x,y);finger.classList.add('on');await wait(400,tk);finger.classList.add('down');await wait(152,tk);fn();finger.classList.remove('down');await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}   // 912: the touch shows 400 before the press
-async function swipeUp(tk){   // one ad up the chain
-  const k0=Math.round(k),y0=560;fingerAt(187.5,y0);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');kA.stop();
+function fingerOff(){finger.classList.remove('on','down');ctaDown(false)}
+const LEAD=480,PRESS=152,HOLD=160,FADE=240;
+async function tap(x,y,tk,fn,btn){   // 1032: appear 480 before the press, press 152, release = the action, hold 160, fade
+  fingerAt(x,y);finger.classList.add('on');await wait(LEAD,tk);
+  finger.classList.add('down');if(btn)ctaDown(true);await wait(PRESS,tk);
+  finger.classList.remove('down');if(btn)ctaDown(false);fn();await wait(HOLD,tk);
+  finger.classList.remove('on');await wait(FADE,tk)}
+async function swipeUp(tk){   // 1080: one ad up the chain
+  const k0=Math.round(k),y0=560;fingerAt(187.5,y0);finger.classList.add('on');await wait(LEAD,tk);finger.classList.add('down');kA.stop();
   try{await frames(200,tk,q=>{const d=96*easeIn(q);fingerAt(187.5,y0-d);k=k0+d/PG;render()})}catch(err){k=k0;render();throw err}
-  finger.classList.remove('down');step(Math.min(N,k0+1));await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
+  finger.classList.remove('down');step(Math.min(N,k0+1));await wait(HOLD,tk);finger.classList.remove('on');await wait(FADE,tk)}
+async function pageScroll(dist,tk){   // 1544: the open page scrolls a little, the finger pressed on it and riding it (Slow, 664)
+  const I=act,x=250,y0=600,s0=I.scroll;fingerAt(x,y0);finger.classList.add('on');await wait(LEAD,tk);finger.classList.add('down');
+  try{await frames(DUR,tk,q=>{const d=dist*SLOW(q);I.setScroll(s0+d);fingerAt(x,y0-d)})}catch(err){I.setScroll(s0);throw err}
+  finger.classList.remove('down');await wait(HOLD,tk);finger.classList.remove('on');await wait(FADE,tk)}
 const STEPS=[
-  2496,tk=>tap(98,306,tk,openSeed),                 // the grid; tap the Oakley ad → it grows into the seed reel (664, from 552)
-  4000,tk=>swipeUp(tk),                              // Oakley → LensCrafters (664 push, from 520)
-  3200,tk=>swipeUp(tk),                              // LensCrafters → Ray-Ban
-  3200,tk=>tap(24,70,tk,back)];                      // Back → the pop to the grid (664, from 552), and round again
+  2496,tk=>tap(98,306,tk,openSeed),                  // the grid; tap the Oakley ad → it grows into the seed reel (664, from 632)
+  3600,tk=>swipeUp(tk),                               // Oakley → LensCrafters (664 push, from 632)
+  2800,tk=>swipeUp(tk),                               // LensCrafters → Ray-Ban
+  1600,tk=>tap(163.5,668,tk,openCta,true),            // Learn more (pressed) → ray-ban.com opens full screen on the IAB
+  1440,tk=>pageScroll(240,tk),                        // read, then scroll the page a little
+  640,tk=>tap(347,68,tk,()=>act.go(1)),               // × → the sheet closes back onto the Ray-Ban reel
+  960,tk=>tap(24,70,tk,back)];                        // Back → the pop to the grid (664, from 632), and round again
 async function loop(tk){while(tk===token){const s=STEPS[stepI];if(typeof s==='number')await wait(s,tk);else{inStep=true;await s(tk);inStep=false}stepI=(stepI+1)%STEPS.length}}
 const xf=document.createElement('div');xf.className='L xf';xf.setAttribute('aria-hidden','true');phone.appendChild(xf);
 function reset(gv=1){gA.stop();toGrid();g=gv;render();fingerOff();homeS=null;homeTell(true)}
@@ -454,7 +490,7 @@ addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true
 phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
 
 window.__mac={get mode(){return mode},get e(){return e},get k(){return k},get b(){return b},get g(){return g},iab,vid,
-  get cta(){return cta},openCta,openSeed,back,step,reset,get auto(){return autoOn},get stepI(){return stepI},
+  get cta(){return cta===null?null:cta===0?'reels':'rb'},iabRB,get act(){return act===iabRB?'rb':'oakley'},openCta,openSeed,back,step,reset,get auto(){return autoOn},get stepI(){return stepI},
   get playing(){return VIDS.filter(([v])=>!v.paused).map(([v])=>v.id||v.src.split('/').pop().split('?')[0])}};
 render();homeTell(true);
 })();
