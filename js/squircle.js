@@ -173,18 +173,24 @@ const mo=new MutationObserver(ms=>{const rs=new Set(),cl=[];
   ms.forEach(m=>{const t=m.target;if(m.attributeName==='class'){cl.push(t);return}
     const r=T.get(t),s=t.style;
     if(!r){if(t.nodeType===1&&!(t instanceof SVGElement)&&LONG.some(k=>!zero(s[k]))&&!t.closest('[data-sq-off]')){const p=t.parentElement;track(t,p&&T.has(p)?p:null)}return}
-    if(MODE==='shape'){if(r.mine&&LONG.some((k,i)=>s[k]!==r.mine[i]))rs.add(r)}   // a script wrote its own radius
+    if(MODE==='shape'){if(r.mine?LONG.some((k,i)=>s[k]!==r.mine[i]):LONG.map(k=>s[k]).join()!==r.lastInline)rs.add(r)}   // a script wrote its own radius (also while not drawn: hidden, pill, inherit)
     else if(s.clipPath&&s.clipPath!==r.myClip||LONG.map(k=>s[k]).join()!==r.lastInline)rs.add(r)});   // a script's radius or clip
   update([...rs]);
   if(cl.length){const d=[];live.forEach(r=>{if(r.el.isConnected&&cl.some(t=>t===r.el||t.contains(r.el)))d.push(r)});
     cl.forEach(t=>{if(!T.has(t)&&t.nodeType===1&&!(t instanceof SVGElement))scanLater.push(t)});if(scanLater.length&&!raf)raf=requestAnimationFrame(flush);if(d.length)later(d)}});
-/* re-derive: author radius back in place (shape), read all, then write all */
+/* re-derive: author radius back in place (shape), read all, then write all.
+   shape: while the radius isn't ours (r.mine null: never drawn, hidden or a pill and cleared, or inherit) the inline radius IS the
+   author's, so it is taken as r.ai every time. (Before, r.ai was only refreshed while drawn, so a radius a script wrote while the element
+   was hidden survived only until the next update: the P&B floating card, shown again after the IAB collapse with 16px, was put back to
+   the peek's 20px 20px 0 0 from before it hid on the next class change or resize: square, uncut-looking bottom corners and big top ones.) */
 function update(rs){if(!rs.length)return;
-  if(MODE==='shape')rs.forEach(r=>{if(!r.mine)return;const s=r.el.style;
-    const now=LONG.map(k=>s[k]);if(now.some((v,i)=>v!==r.mine[i]))r.ai=now;   // the author's own inline radius (a script's write), else theirs from before
+  if(MODE==='shape')rs.forEach(r=>{const s=r.el.style,now=LONG.map(k=>s[k]);
+    if(!r.mine){r.ai=now;return}
+    if(now.some((v,i)=>v!==r.mine[i]))r.ai=now;   // the author's own inline radius (a script's write), else theirs from before
     LONG.forEach((k,i)=>s[k]=r.ai[i])});
   rs.forEach(r=>{read(r);if(MODE==='clip')r.lastInline=LONG.map(k=>r.el.style[k]).join()});
-  rs.forEach(write)}
+  rs.forEach(write);
+  if(MODE==='shape')rs.forEach(r=>r.lastInline=LONG.map(k=>r.el.style[k]).join())}
 function track(e,par){
   if(T.has(e))return;
   const r={el:e,par,w:0,h:0,on:null,ai:LONG.map(k=>e.style[k]),mine:null,myClip:null,lastInline:LONG.map(k=>e.style[k]).join()};
