@@ -40,8 +40,12 @@ const mvP=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x
    4px inside the baked outer edge, r 52), so the screen's anti-aliased edge meets black and nothing is drawn over the screen */
 const PATH={coverScr:`path('${squircle(375,812,48,0)}')`,
   coverBezel:`path('${mvP(squircle(383,820,52,0),4,4)}')`};
-/* WAAPI keyframes from timed samples [{t, ...props}] over a loop of T ms (linear between 8ms samples) */
-const track=(P,T,fn)=>P.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
+/* WAAPI keyframes from timed samples [{t, ...props}] over a loop of T ms (linear between 8ms samples). A sample whose values equal both
+   neighbours' is dropped (linear between equal values = the same frames): a layer keeps keyframes only where it moves. WebKit re-processes
+   every keyframe of its accelerated (transform/opacity) animations, paused or not, on every scrolled frame */
+const track=(P,T,fn)=>{const K=P.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p))),
+  S=k=>JSON.stringify(k,(n,v)=>n==='offset'?void 0:v),V=K.map(S);
+  return K.filter((k,i)=>i===0||i===K.length-1||V[i]!==V[i-1]||V[i]!==V[i+1])};
 /* touch marker keyframes over a loop of T ms. gestures: [{t, x, y, dx?, dy?, move?, ease?}]: the finger lands at x,y (design px) at t, moves
    dx,dy over `move` ms (0 = a tap; ease(u) shapes it, default ease-in u², a drag gathering speed before its release) and lifts at t+move.
    Envelope (VideoScrubber's demo tap): fades in over 240ms to t-160, presses (scale .85) over 160ms to t, releases over 120ms after the

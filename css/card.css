@@ -24,8 +24,10 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
 /* Device cover (js/device-cover.js [data-cover-anim]): the animated case-study cover on the case-page hero only (homepage and NEXT CASE
    STUDY cards show the still cover art, no demo). The layer paints the project's cover art itself (the light-mode file in both themes: black phone on the project gradient, identical
    in light and dark) and plays the project's loop on the phone screen baked into it (players: js/vac-chain.js; FMSS keeps its own .fmss-anim/.fsp-* above until it moves onto js/device-cover.js).
-   Static (reduced motion, before the screens decode): just the art = the current cover. */
-.cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;contain:layout paint}
+   Static (reduced motion, before the screens decode): just the art = the current cover. content-visibility:auto (= contain layout paint style,
+   plus skipped while far off screen): off screen the phone's layers and their animations leave the rendering, so WebKit stops re-processing
+   the paused loop's keyframes on every scrolled frame. */
+.cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;content-visibility:auto}
 .cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=216)}
 .hero-slot.cover-wrap{position:relative}
 .cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
