@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=220">
+<link rel="stylesheet" href="../shared/device/device.css?v=221">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -86,7 +86,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=220"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=220"></script>
+<script src="../../js/squircle.js?v=221"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=221"></script><script src="../../js/device-cover.js?v=221"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -126,7 +126,9 @@ const HOLD=4744,t1=4000,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3584,t3
 /* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
-const track=fn=>POSE.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
+/* WAAPI keyframes from POSE: the shared track (../../js/device-cover.js), linear between the 8ms samples, dropping a sample equal to both
+   neighbours (WebKit re-processes every keyframe of accelerated animations on every scrolled frame) */
+const track=fn=>DeviceCover.track(POSE,T,fn);
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
 /* drawn-size layers (see .L in the style): lengths inside a layer are design px × s, its moves go on `translate` (design px) */
 const IT=CSS.supports('scale','2'),dp=v=>IT?`calc(${v}px * var(--s,.5))`:v+'px',ty=v=>IT?{translate:`0 ${v}px`}:{transform:`translateY(${v}px)`};
