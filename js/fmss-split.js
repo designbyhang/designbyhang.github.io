@@ -20,9 +20,10 @@ const S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(407,812,16);
 /* 8ms grid: each curve time-scaled to an exact length (feed <-> split 640ms, split <-> full 560ms), sampled every 8ms */
 const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++){const u=k/n*L,i=Math.min(L-1,Math.floor(u)),f=u-i;o.push(k===n?1:S[i]+(S[i+1]-S[i])*f)}return o};
 const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640),dur=S=>(S.length-1)*STEP;
-/* holds from the original Solution video (A 3800, C 3400, A 504 before the loop); both split-screen (B) holds 4504ms, long enough for the
-   player controls to fade out (gone 2400ms after split screen is reached, js/video-scrubber.js) and a 504ms beat without them; loop 19112ms */
-const HOLD=4504,t1=3800,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3400,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+504;
+/* holds: the original Solution video's (A 3800, C 3400, A 504 before the loop; B 4504) scaled ~0.81x so the loop is exactly 16000ms (transitions
+   unchanged, 2400ms): A 3096, B 3664, C 2768, A 408. Both split-screen (B) holds 3664ms, long enough for the player controls to fade out
+   (gone 2400ms after split screen is reached, js/video-scrubber.js) and a 1264ms beat without them; loop 16000ms */
+const HOLD=3664,t1=3096,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+2768,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+408;
 /* the loop as poses: a = surface -> split progress, c = split -> full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
