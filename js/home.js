@@ -10,7 +10,7 @@ const pRoot=document.getElementById('poster'),ov=pRoot?rail.appendChild(Object.a
 if(ov){ov.setAttribute('aria-hidden','true');ov.addEventListener('animationend',e=>{if(e.target===ov)ov.classList.add('in');});}
 function ovSet(tx,s,rest){if(!ov)return;if(!on||!og){ov.style.display='none';return;}ov.style.display='';
   const x=og.SL+tx+s*og.RX,y=og.ST+og.SH/2+s*(og.RY-og.SH/2);
-  if(!rest){ov.classList.add('mv');ov.style.width=og.RW+'px';ov.style.height=og.RH+'px';ov.style.transform=`translate(${x.toFixed(3)}px,${y.toFixed(3)}px) scale(${s})`;return;}
+  if(!rest){ov.classList.add('mv');ov.style.width=og.RW+'px';ov.style.height=og.RH+'px';ov.style.transform=`translate(${x.toFixed(3)}px,${y.toFixed(3)}px) scale(${s})`;dispatchEvent(new Event('strip:move'));return;} /* strip:move: the poster re-fits its grid to this frame's on-screen scale and position (as at rest), so lines and dots keep their at-rest width while it moves */
   const d=devicePixelRatio||1,rr=rail.getBoundingClientRect(),sn=(v,o)=>Math.round((o+v)*d)/d-o; /* whole device px on the page */
   ov.classList.remove('mv');ov.style.width=(og.RW*s)+'px';ov.style.height=(og.RH*s)+'px';ov.style.transform=`translate(${sn(x,rr.left)}px,${sn(y,rr.top)}px)`;}
 let ovS={tx:0,s:1};
@@ -268,7 +268,7 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
        const b=e.tagName==='circle'?[g('cx')-g('r'),g('cx')+g('r'),g('cy')-g('r'),g('cy')+g('r')]:[Math.min(g('x1'),g('x2')),Math.max(g('x1'),g('x2')),Math.min(g('y1'),g('y2')),Math.max(g('y1'),g('y2'))];
        if(hit(...b))e.setAttribute('mask','url(#pcm)');});}}
   }
-let lp=null,rt=0,bw=0,bh=0;addEventListener('strip:rest',()=>resnap());const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
+let lp=null,rt=0,bw=0,bh=0;addEventListener('strip:rest',()=>resnap());addEventListener('strip:move',()=>resnap()); /* moving too: the overlay carries the strip's scale, so a width/positions fitted to the last rest scale drew the lines s/s_rest as thick (up to 1.66x, soft) until the rest timer re-fitted them */const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
 const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:svg.getAnimations({subtree:true}))].forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
 addEventListener('resize',()=>rbs());addEventListener('gate:unlocked',()=>{lp=null;rb();}); /* rebuild the poster at its real size (it was built hidden under the gate) */
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
