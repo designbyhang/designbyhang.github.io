@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=207">
+<link rel="stylesheet" href="../shared/device/device.css?v=208">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -86,7 +86,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=207"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=207"></script>
+<script src="../../js/squircle.js?v=208"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=208"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -121,7 +121,7 @@ const dur=S=>(S.length-1)*STEP;
    Videos on the 20000ms loop: Feed, Reels and Stories (v1-v3: 15.133, 14.567, 17.300s) keep running free on their own native loop as
    before (no close-up to hide; locking them to the clock made WebKit stall on the seeks and the shared wrap). In-Content keeps its own
    sync (below): the thumbnail v4 (22.033s) plays t1-t4 (14.83s) from 0:00; the reel r4 (6.9s) plays t4 -> t1e (5.81s) and is
-   rewound to 0:00 while hidden, so it never wraps on screen */
+   rewound to 0:00 while hidden, so it never wraps on screen. Feed and Reels are locked to each other (follow(), below) */
 const HOLD=4744,t1=4000,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3584,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+528;
 /* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
@@ -236,16 +236,46 @@ function upd(){
   if(RM.matches){still();return}
   const go=seen&&host&&!document.hidden;
   anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
-  vids.forEach(v=>{if(v===thumb)return;if(go){if(v.paused){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
-  if(go){if(!raf)raf=requestAnimationFrame(sync)}else{if(raf)cancelAnimationFrame(raf);raf=0;reel&&reel.pause();thumb&&thumb.pause()}
+  vids.forEach(v=>{if(v===thumb||v===rv)return;if(go){if(v.paused){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
+  if(go){follow();if(!raf)raf=requestAnimationFrame(sync)}else{if(raf)cancelAnimationFrame(raf);raf=0;reel&&reel.pause();thumb&&thumb.pause();rv&&rv.pause()}
 }
 /* In-Content phone, driven by the loop clock: the reel plays only while the surface is on screen; the banner thumbnail sits paused on its
    first frame, starts playing as it begins to grow into the split screen, pauses (holding its frame) as it shrinks back, and returns to frame 0 once it has landed;
    the reel is rewound to 0:00 while hidden (t1e-t4), so each surface stretch (t4 -> t1e, 5.81s) shows its first 5.81s and it never wraps on screen */
 let raf=0,was=-1;
 const play=v=>{if(v.paused){const p=v.play();p&&p.catch(()=>{})}};
+/* Feed + Reels in sync: v1 (Feed, 700²) and v2 (Reels, 748×1464) are two renders of the same Outdoor Voices edit, v2 starting 12.5
+   frames (OFF, its cuts land 12-13 frames before v1's) into it and ending 0.15s before it (14.567 vs 15.133s). Feed keeps running free on
+   its own loop; Reels follows its media time, v2 = v1 - OFF, checked every display frame. Over v1's first OFF (its title shot) v2 holds
+   its frame 0, over v1's last 0.15s its last frame (it does not loop on its own), and is back on frame 0 for v1's wrap; host play/pause
+   starts and stops both in the same task. Both then run at rate 1 on the same clock and stay aligned; what is left is v2's start
+   latency, led by its measured value (lead), and drift that persists over ~1 frame (20ms), eased out with one playback-rate step
+   (±10%, ±25% over 80ms) and back to rate 1 near 0, no seeks (WebKit stalled on repeated seeks). Where a rate change itself stalls the
+   clip (WebKit/GStreamer: each one is a pipeline seek, ~30-100ms frozen) that is seen once (rst) and corrections get rarer (over 34ms,
+   at most every 2s) and aim past 0 by the stall. Over 250ms off (a stall) seeks */
+const OFF=12.5/30,fv=vids[0],rv=vids[1];rv.loop=false;let ls=-1e9,bad=0,lc=-1e9,rst=false,chg=null,ps=0,lead=0,sk=0,sl=.05;const LL=[];
+// the seek back to frame 0 is started ahead of v1's wrap by its own measured duration (sl), up to the 0.15s v2 holds its last frame
+rv.addEventListener('seeked',()=>{if(sk){sl=Math.min(.15,Math.max(.05,(performance.now()-sk)/1000));sk=0}});
+function rate(r,f){rv.playbackRate=r;chg={b:rv.currentTime,f};lc=performance.now()}
+function follow(){
+  const d=rv.duration,D=fv.duration;if(!(d>0)||!(D>0)||fv.readyState<2||rv.readyState<1)return;
+  if(fv.paused||fv.seeking){if(!rv.paused)rv.pause();ps=0;return}
+  const f=fv.currentTime,w=f-OFF,now=performance.now();
+  if(w<-lead||f>D-sl){if(!rv.paused)rv.pause();if(rv.playbackRate!==1)rv.playbackRate=1;if(rv.currentTime>0&&!rv.seeking){sk=now;rv.currentTime=0}return}   // head (and v1's last frames: pre-seek to 0)
+  if(w>=d){if(!rv.paused)rv.pause();return}   // tail: v2's last frame
+  if(rv.seeking)return;
+  if(w<0){if(rv.paused){play(rv);ps=1}return}   // started ahead of the mark by lead
+  const df=rv.currentTime-w;
+  if(Math.abs(df)>.25&&now-ls>500){ls=now;rv.currentTime=Math.min(d,w+.05);return}
+  if(rv.paused){play(rv);if(rv.currentTime<.001)ps=1;return}
+  // start latency: v2's lag once it is moving after a start from frame 0; the next start leads by the least of the last 3 (never overshoots by more than their spread)
+  if(ps&&rv.currentTime>.04){ps=0;if(rv.playbackRate===1){LL.push(Math.min(.15,Math.max(0,lead-df)));if(LL.length>3)LL.shift();lead=Math.min(...LL)}}
+  if(chg){if(rv.currentTime!==chg.b)chg=null;else if(f-chg.f>.03){rst=true;chg=null}}
+  const r=rv.playbackRate;
+  if(r!==1){if(r>1?df>(rst?.02:-.006):df<(rst?.03:.006))rate(1,f)}
+  else{bad=Math.abs(df)>(rst?.034:.02)?bad+1:0;if(bad>2&&now-lc>(rst?2000:300)){const g=Math.abs(df)>.08?.25:.1;rate(df<0?1+g:1-g,f);bad=0}}}
 function sync(){
-  raf=requestAnimationFrame(sync);if(!clock||!reel)return;
+  raf=requestAnimationFrame(sync);follow();if(!clock||!reel)return;
   const t=(clock.currentTime||0)%T,surf=t<t1e||t>=t4;
   if(surf)play(reel);else{if(!reel.paused)reel.pause();if(reel.currentTime>0&&!reel.seeking)reel.currentTime=0}
   const big=t>=t1&&t<t4;
