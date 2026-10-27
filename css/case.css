@@ -369,8 +369,8 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:r
    Stacked (phones, portrait tablets): text above its module, flush to the content column; 64px above each text, 32px text -> module */
 body.cs .media.mframe.phone-demo{container-type:size;--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start}
 html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
-.phone-demo .pd-phone{position:relative;flex:none;height:75.4386cqh;margin-top:9.8684cqh;aspect-ratio:375/812;border-radius:4.4444cqh;overflow:hidden;background:#000;box-shadow:0 0 0 .7407cqh var(--pd-bezel);transform:translateZ(0)}
-body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;object-position:50% 0;background:#000;border-radius:0;transform:none;transition:none}
+.phone-demo .pd-phone{position:relative;flex:none;height:75.4386cqh;margin-top:9.8684cqh;aspect-ratio:375/812;border-radius:4.4444cqh;overflow:hidden;box-shadow:0 0 0 .7407cqh var(--pd-bezel);transform:translateZ(0)}
+body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;object-position:50% 0;border-radius:0;transform:none;transition:none}
 .pd-rows{margin-top:64px}
 /* standalone phone-demo module (VAC 09 MAC/SAP/CC), FMSS prototype frame ratio */
 body.cs .media.mframe.phone-demo.pd-solo{aspect-ratio:3840/2052;width:100%;height:auto;max-width:none}
