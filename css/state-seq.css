@@ -2,8 +2,8 @@
    #000 ground in both themes); the stage is a fixed design-px frame scaled to the box width (js sets size + transform), so every layer
    keeps Figma's px geometry. Controls on the black ground use the dark-theme glass in both themes (as .phone-demo). No hover zoom, no
    inner scroll, no focus ring (css/theme.css removes rings site-wide) */
-body.cs .media.mframe.sseq{display:block;background:#000;--c-paper:#1a1a1a;--c-strong:#f2f2f2;--ring-media:rgba(255,255,255,.12);user-select:none;-webkit-user-select:none}
-.sseq .ss-stage{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;color:#fff;contain:layout style}
+body.cs .media.mframe.sseq{display:block;background:var(--frame);user-select:none;-webkit-user-select:none} /* theme ground = the live prototypes' (.media.proto): --frame + 1px --line; controls = the theme glass */
+.sseq .ss-stage{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;color:var(--ink);contain:layout style}
 .sseq .ss-stage [data-l]:not(span):not(svg),.sseq .ss-stage .ss-abs{position:absolute;left:0;top:0;transform-origin:0 0}
 body.cs .media.mframe.sseq img{transition:none;transform:none;border-radius:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
 body.cs .media.sseq:hover img{transform:none}
@@ -17,26 +17,28 @@ body.cs .media.sseq:hover img{transform:none}
 .sseq .r30{border-radius:30px}.sseq .r28{border-radius:28px}.sseq .r26{border-radius:26px}
 /* annotation type: Bitcount Grid Single 16/24, +.32 tracking, centred, white; keywords yellow (old flow) / green (VAC) */
 .sseq .ss-note,.sseq .ss-mk,.sseq .ss-lab{font:400 16px/24px "Bitcount Grid Single",var(--mono,monospace);letter-spacing:.32px;font-variation-settings:"CRSV" 0,"ELSH" 0,"ELXP" 0;text-align:center;white-space:nowrap}
-body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-7.36px;height:15px;width:auto;max-width:none;object-fit:fill}
+body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-7.36px;height:15px;width:auto;max-width:none;object-fit:fill;object-position:-9999px 0;background:currentColor;-webkit-mask:var(--arr) 0 0/100% 100% no-repeat;mask:var(--arr) 0 0/100% 100% no-repeat}
+/* arrows: the svg is the mask, the note ink (currentColor = --ink) the fill; the img keeps its intrinsic size, its own pixels shifted out */
+.sseq img.ss-arr[src*="arrow-left-200"]{--arr:url(../assets/vac/vac-sol-arrow-left-200.svg)}.sseq img.ss-arr[src*="arrow-right-200"]{--arr:url(../assets/vac/vac-sol-arrow-right-200.svg)}
+.sseq img.ss-arr[src*="arrow-left-400"]{--arr:url(../assets/vac/vac-sol-arrow-left-400.svg)}.sseq img.ss-arr[src*="arrow-right-400"]{--arr:url(../assets/vac/vac-sol-arrow-right-400.svg)}
 .sseq .ss-stage .ss-note .ss-t{position:absolute;left:0;top:20px;width:100%}
-.sseq .y{color:#ffcd2a}.sseq .g{color:#34c759}
+.sseq .y{color:#a87b00}.sseq .g{color:#1f8a3d}html[data-theme=dark] .sseq .y{color:#ffcd2a}html[data-theme=dark] .sseq .g{color:#34c759} /* keywords: Figma hues in dark, deepened on the light ground for contrast */
 .sseq .ss-mk{height:32px;border-radius:6px;color:#000;overflow:hidden}
 .sseq .ss-mk>span{position:absolute;left:0;right:0;top:4px}
 /* 07 conviction cards (vac_24..27): #1d1d1f cards, radius 48, clipped; titles Instrument Sans 64/64 -.04em, body 24/32 two columns */
-.sseq .cv-hd{font:400 56px/56px var(--sans);letter-spacing:-2.24px;white-space:nowrap}
-.sseq .cv-box{background:#1d1d1f;border-radius:48px;overflow:hidden}
-.sseq .cv-h{font:400 64px/64px var(--sans);letter-spacing:-2.56px;white-space:nowrap}
-.sseq .ss-stage .cv-box .cv-b{position:absolute;left:0;top:240px;display:flex;gap:120px;width:1280px;font:400 24px/32px var(--sans);white-space:normal}
-.sseq .cv-b>div{flex:none;width:580px}
+.sseq .cv-box{background:var(--sheet);border-radius:48px;overflow:hidden}html[data-theme=dark] .sseq .cv-box{background:#1d1d1f} /* light: the sheet tone, ink text */
+.sseq .cv-h{font:400 72px/72px var(--sans);letter-spacing:-2.88px;white-space:nowrap}
+.sseq .ss-stage .cv-box .cv-b{position:absolute;left:0;top:264px;display:flex;gap:120px;width:1480px;font:400 30px/40px var(--sans);white-space:normal} /* 80px-margin cards: body 24/32 -> 30/40 */
+.sseq .cv-b>div{flex:none;width:680px}
 .sseq .cv-b br.fl{display:none} /* Figma's hard breaks were set for 640px columns; the open card is 1520 wide here so both neighbours peek */
-.sseq .cv-b p+p{margin-top:36px}  /* blank line (32) + Figma paragraph spacing (4) */
+.sseq .cv-b p+p{margin-top:40px}  /* one blank line */
 .sseq .cv-b em{font-style:italic}
 @media (max-width:640px){
  body.cs .media.mframe.sseq.ss-tall{aspect-ratio:9/16}
  body.cs .media.mframe.sseq.ss-sol{aspect-ratio:3/2} /* phones: a taller frame + the stage nudged up (layouts oy) so the marker pills clear the controls */
- .sseq.ss-tall .ss-stage .cv-box .cv-b{top:216px;display:block;width:708px;font-size:30px;line-height:40px}
- .sseq.ss-tall .cv-b>div{width:auto}.sseq.ss-tall .cv-b>div+div{margin-top:40px}
- .sseq.ss-tall .cv-b p+p{margin-top:40px}
+ .sseq.ss-tall .ss-stage .cv-box .cv-b{top:200px;display:block;width:708px;font-size:31px;line-height:41.33px}
+ .sseq.ss-tall .cv-b>div{width:auto}.sseq.ss-tall .cv-b>div+div{margin-top:41.33px}
+ .sseq.ss-tall .cv-b p+p{margin-top:41.33px}
  .sseq.ss-tall .cv-b br.fl{display:none}
  .sseq.ss-tall .cv-h{font-size:56px;line-height:var(--lh,56px);letter-spacing:-2.24px} /* --lh: tabs open up to 72 (1.29) */
 }
@@ -51,7 +53,8 @@ body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-
    (8px gap, 32px inset, 16px on phones). Text = the caption type (Instrument Sans 14/18 400). Active: --c-strong; inactive: 40% ink
    (the .car-bar dot tone) on a slightly darker fill. No focus ring, hover zoom or glow */
 body.cs .media.mframe.sseq .mbtn.ss-pill{width:auto;padding:0 16px;border-radius:16px;font:400 14px/18px "Instrument Sans",system-ui,sans-serif;letter-spacing:0;white-space:nowrap;transition:border-color .2s ease,color .2s ease,background-color .2s ease}
-body.cs .media.mframe.sseq .mbtn.ss-pill[aria-pressed=false]{color:color-mix(in srgb,var(--c-strong) 40%,transparent);background:color-mix(in srgb,color-mix(in srgb,var(--c-paper) 56%,#000) 44%,transparent)}
+body.cs .media.mframe.sseq .mbtn.ss-pill[aria-pressed=false]{color:color-mix(in srgb,var(--c-strong) 40%,transparent)}
+html[data-theme=dark] body.cs .media.mframe.sseq .mbtn.ss-pill[aria-pressed=false]{background:color-mix(in srgb,color-mix(in srgb,var(--c-paper) 56%,#000) 44%,transparent)} /* dark: the slightly darker fill; light: the plain theme glass */
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .mbtn.ss-pill{transition:none}}
 body.cs .media.mframe.sseq.ss-tapf{cursor:pointer}
 /* card pieces (conviction): each card holds a + = the media play/pause button itself (.mbtn: 32px, 1px ring, glass, .2s ring), kept 32px
@@ -64,5 +67,7 @@ body.cs .media.mframe.sseq .ss-stage .mbtn.cv-plus{position:absolute;left:auto;t
 body.cs .media.mframe.sseq .ss-stage .cv-plus svg{transform-origin:50% 50%}
 @media (max-width:640px){body.cs .media.mframe.sseq{--ins:16px}}
 /* resting-card teaser (layer bNs): the opening sentence of the card's copy under its title, body type; fades out as the card opens */
-body.cs .media.mframe.sseq .ss-stage .cv-s{margin:0;font:400 24px/32px var(--sans);white-space:normal}
+body.cs .media.mframe.sseq .ss-stage .cv-s{margin:0;font:400 30px/40px var(--sans);white-space:normal}
 @media (max-width:640px){body.cs .media.mframe.sseq.ss-tall .ss-stage .cv-s{font-size:30px;line-height:40px}}
+/* a live prototype right under a container (no intro text between): the containers' own 48px figure rhythm (.fig), not .proto-fig's 24 */
+figure:has(>.media.sseq)+.wrap>.proto-fig:first-child{margin-top:48px}
