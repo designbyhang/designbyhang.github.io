@@ -3,7 +3,9 @@
    "m:ss / m:ss" (floor of the real position / real duration from the metadata) and the 4px pill track (16px radius) with its pill fill and 10px thumb, laid
    out exactly where the old decorative controls image had them; the icons (fullscreen / pause / volume) stay as an image crop.
    - sync: one shared requestAnimationFrame ticker reads video.currentTime every display frame, so the fill, thumb and time track
-     the playing video and wrap to 0 when it loops
+     the playing video and wrap to 0 when it loops. It only ticks players whose screen (the element the player is placed in) is in
+     the window (IntersectionObserver) or that are being dragged, read only ones included, and stops while none is: nothing runs off
+     screen. The screen, not the video: a host may move the video out of its screen or cover it while its lock still has to run
    - seek: pointer events (mouse, pen, touch) on the track's hit strip, pointer capture, live time while dragging, the video resumes
      on release if it was playing. Every event of the strip stops propagating (and its click does nothing), so it never reaches a
      card link, the home strip's drag or a full-screen opener; nothing outside the strip is touched
@@ -79,7 +81,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
 var PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4.6c0-1 1.1-1.6 1.9-1.1l10.4 7.4c.7.5.7 1.6 0 2.1L9.4 20.4c-.8.6-1.9 0-1.9-1z" fill="#fff"/></svg>';
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
-function tick(){raf=0;for(var i=0;i<list.length;i++)list[i]._tick();if(list.length)raf=requestAnimationFrame(tick)}
+function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
 function run(){if(!raf&&list.length)raf=requestAnimationFrame(tick)}
 var STOP=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
 /* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
@@ -102,7 +104,7 @@ function create(o){
     enterSplit:function(){t0=performance.now()},leaveSplit:function(){t0=null},
     fraction:function(){return last.fr},opacity:function(){return last.op},
     paused:function(){return up},togglePause:function(){toggle()},
-    destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);root.remove()}};
+    destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);if(io)io.disconnect();root.remove()}};
   function D(){var d=v.duration;return isFinite(d)&&d>0?d:0}
   function paint(t){var d=D(),fr=d?Math.min(1,Math.max(0,t/d)):0;
     if(fr!==last.fr){last.fr=fr;fill.style.transform='translateX('+((fr-1)*w).toFixed(2)+'px)';knob.style.transform='translateX('+(fr*w)+'px)'}
@@ -194,6 +196,9 @@ function create(o){
     eb.addEventListener('pointercancel',function(){ep=null});
     eb.addEventListener('pointerup',function(e){var p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!eOn())return;o.onExpand()});
     eb.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&eOn()){e.preventDefault();e.stopPropagation();o.onExpand()}})}
+  // in view: ticked only while its screen intersects the window (no observer: always); observed once the host has placed it
+  var W=v.ownerDocument.defaultView||window,io=W.IntersectionObserver?new W.IntersectionObserver(function(es){api._in=es[es.length-1].isIntersecting;run()}):null;
+  api._in=!io;if(io)Promise.resolve().then(function(){io.observe(root.parentNode||v)});
   paint(v.currentTime);list.push(api);run();
   return api;
 }
