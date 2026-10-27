@@ -49,18 +49,25 @@ function mount(box){var pins=[];
  if(cfg.bind)[].forEach.call(document.querySelectorAll(cfg.bind+' [data-l]'),function(e){els[e.getAttribute('data-l')]=e});
  var sc=1,ins=32,ease=springEase(cfg.spring||[80,20,1]),L=null,i=0,cur={},from={},to={},tr=null,hold=0,clock=0,last=0,raf=0,vis=false,started=false;
  var playing=step?(cfg.autoplay!==false):true,touched=false,entering=false;
+ var FL=/"sf"/.test(box.querySelector('script.ss-cfg').textContent);
  function layout(){var l=null;(cfg.layouts||[]).forEach(function(x){if(!l&&matchMedia(x.mq).matches)l=x});return l||{}}
- function vals(k,extra){var L2=layout(),v=merge(merge({},cfg.base),cfg.states[k].set);merge(v,L2.base);if(L2.states&&L2.states[k])merge(v,L2.states[k].set);if(extra)merge(v,extra);return v}
+ function vals(k,extra){var L2=layout(),v=merge(merge({},cfg.base),cfg.states[k].set);merge(v,L2.base);if(L2.states&&L2.states[k])merge(v,L2.states[k].set);if(extra)merge(v,extra);
+  /* sf:[avail,cssReserve,natural,max] = fluid scale: the largest s that fits natural*s into avail design px minus cssReserve CSS px (e.g. a pinned button + gap) */
+  for(var q in v)if(v[q].sf){var f=v[q].sf;v[q].s=Math.max(0,Math.min(f[3],(f[0]-f[1]/sc)/f[2]));delete v[q].sf}
+  /* yc:[boxH,naturalH] = centre a (fluid-scaled) layer vertically in a box of boxH design px */
+  for(q in v)if(v[q].yc){v[q].y=(v[q].yc[0]-v[q].yc[1]*(v[q].s!=null?v[q].s:1))/2;delete v[q].yc}return v}
  function holdOf(k){return cfg.states[k].hold||cfg.hold||2400}
  function durOf(a,b){return RM.matches?0:((cfg.tr||{})[a+'>'+b]||cfg.dur||1664)}
  function put(){for(var key in cur){var e=els[key],v=cur[key];if(!e)continue;var t='';
   if('x' in v||'y' in v)t='translate('+(+(v.x||0)).toFixed(2)+'px,'+(+(v.y||0)).toFixed(2)+'px)';if('s' in v)t+=' scale('+(+v.s).toFixed(4)+')';if('a' in v)t+=' rotate('+(+v.a).toFixed(3)+'deg)';if(t)e.style.transform=t;
-  if('w' in v)e.style.width=(+v.w).toFixed(2)+'px';if('h' in v)e.style.height=(+v.h).toFixed(2)+'px';if('r' in v)e.style.borderRadius=(+v.r).toFixed(2)+'px';
+  if('w' in v)e.style.width=(+v.w).toFixed(2)+'px';if('h' in v)e.style.height=(+v.h).toFixed(2)+'px';if('r' in v)e.style.borderRadius=(+v.r).toFixed(2)+'px';if('lh' in v)e.style.setProperty('--lh',(+v.lh).toFixed(2)+'px');
   if('o' in v){e.style.opacity=(+v.o).toFixed(4);e.style.visibility=v.o<.001?'hidden':''}
   if(v.c)e.style.backgroundColor='rgb('+v.c.map(Math.round)+')';if(v.k)e.style.color='rgb('+v.k.map(Math.round)+')'}
-  pins.forEach(function(p){var v=cur[p.k];if(!v)return;var W=(L&&L.w)||cfg.w||1920,m=(ins+48)/sc,over=Math.max(0,Math.min((+v.x||0)+(+v.w||0)-W,(+v.w||0)-m));p.e.style.setProperty('--pin',over.toFixed(2)+'px')})}
+  pins.forEach(function(p){var v=cur[p.k];if(!v)return;var W=(L&&L.w)||cfg.w||1920,m=(ins+48)/sc,over=Math.max(0,Math.min((+v.x||0)+(+v.w||0)-W,(+v.w||0)-m));p.e.style.setProperty('--pin',over.toFixed(2)+'px');
+   /* pc 0..1 on the layer: lift its pinned button from the bottom inset to the layer's vertical centre (tabs) */
+   if('pc' in v)p.e.style.setProperty('--pinb',(v.pc*(((+v.h||0)-32/sc)/2-ins/sc)).toFixed(2)+'px')})}
  function fit(){L=layout();var W=L.w||cfg.w||1920,H=L.h||cfg.h||1080,s=box.clientWidth/W,oy=(box.clientHeight-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
-  stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(cur)put()}
+  stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put()}
  /* controls */
  var tog=!step&&cfg.toggle,tg=null,resumeT=0,userPaused=false,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
  ctrl.className='car-ctrl ss-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose state');

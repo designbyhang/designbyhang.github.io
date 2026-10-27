@@ -32,13 +32,13 @@ body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-
 .sseq .cv-b p+p{margin-top:36px}  /* blank line (32) + Figma paragraph spacing (4) */
 .sseq .cv-b em{font-style:italic}
 @media (max-width:640px){
- body.cs .media.mframe.sseq.ss-tall{aspect-ratio:900/1744}
+ body.cs .media.mframe.sseq.ss-tall{aspect-ratio:9/16}
  body.cs .media.mframe.sseq.ss-sol{aspect-ratio:3/2} /* phones: a taller frame + the stage nudged up (layouts oy) so the marker pills clear the controls */
  .sseq.ss-tall .ss-stage .cv-box .cv-b{top:216px;display:block;width:708px;font-size:30px;line-height:40px}
  .sseq.ss-tall .cv-b>div{width:auto}.sseq.ss-tall .cv-b>div+div{margin-top:40px}
  .sseq.ss-tall .cv-b p+p{margin-top:40px}
  .sseq.ss-tall .cv-b br.fl{display:none}
- .sseq.ss-tall .cv-h{font-size:56px;line-height:56px;letter-spacing:-2.24px}
+ .sseq.ss-tall .cv-h{font-size:56px;line-height:var(--lh,56px);letter-spacing:-2.24px} /* --lh: tabs open up to 72 (1.29) */
 }
 /* page headline above a Solution container: the case-page h3 (.sub h3 type) whose last words roll with the state (js binds them) */
 .ss-hd{margin-top:clamp(48px,6vw,72px);margin-bottom:24px}
@@ -62,7 +62,7 @@ body.cs .media.mframe.sseq.ss-tapf{cursor:pointer}
 body.cs .media.mframe.sseq{--ins:32px}
 body.cs .media.mframe.sseq.ss-cards{cursor:default}
 body.cs .media.mframe.sseq .ss-stage [data-go]{pointer-events:auto;cursor:pointer}
-body.cs .media.mframe.sseq .ss-stage .mbtn.cv-plus{position:absolute;left:auto;top:auto;right:calc(var(--ins)*var(--inv,1) + var(--pin,0px));bottom:calc(var(--ins)*var(--inv,1));transform:scale(var(--inv,1));transform-origin:100% 100%;z-index:2}
+body.cs .media.mframe.sseq .ss-stage .mbtn.cv-plus{position:absolute;left:auto;top:auto;right:calc(var(--ins)*var(--inv,1) + var(--pin,0px));bottom:calc(var(--ins)*var(--inv,1) + var(--pinb,0px));transform:scale(var(--inv,1));transform-origin:100% 100%;z-index:2}
 body.cs .media.mframe.sseq .ss-stage .cv-plus svg{transform-origin:50% 50%}
 @media (max-width:640px){body.cs .media.mframe.sseq{--ins:16px}}
 /* resting-card teaser (layer bNs): the opening sentence of the card's copy under its title, body type; fades out as the card opens */
