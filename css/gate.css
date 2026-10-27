@@ -54,11 +54,10 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-aw:14px;--g-gap:8px}}
 .gate-err{position:absolute;top:100%;left:0;right:0;margin:8px 0 0;min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
 .gate-help{margin:16px 0 0;font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{position:relative;color:inherit;text-decoration:none} /* Hang, Oct 23: link grey, as "Don't have one?" */
-/* hover underline = site nav (.home .top nav a::after / .bar-right a .t::after) */
-.gate-help a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.gate-help a{transition:color .24s ease}.gate-help a:hover{color:var(--c-strong)} /* Hang, Oct 26: link goes to the strong text colour (black in light) on hover */
-.gate-help a:hover::after,.gate-help a:focus-visible::after{transform:scaleX(1)}
-@media (prefers-reduced-motion:reduce){.gate-help a::after{transition:none}}
+/* hover = About card contact links (.contact a in home.css): colour to --ink, underline grows left to right (Hang, Oct 26) */
+.gate-help a{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:color .2s,background-size .3s var(--ease)}
+.gate-help a:hover,.gate-help a:focus-visible{color:var(--ink);background-size:100% 1px}
+@media (prefers-reduced-motion:reduce){.gate-help a{transition:none}}
 /* the site's own theme toggle (js/theme.js) stays visible and above the gate, in its normal position */
 html.gated body .theme-btn,html.gated .home .bot .theme-btn{visibility:visible;position:fixed;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px));z-index:1001;pointer-events:auto} /* the footer it moves into in landscape is collapsed with pointer-events:none while gated; without this the button went dead after rotating (Hang, 2026-10-24) */
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
