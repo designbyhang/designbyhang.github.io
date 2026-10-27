@@ -1,6 +1,19 @@
 (()=>{const rail=document.getElementById('work'),strip=document.getElementById('strip'),dotsEl=document.getElementById('dots');
 const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)');
 const cards=[...strip.children];let act=-1;
+/* poster overlay (css/home.css .poster-ov): on desktop the intro poster's SVG (grid, dots, letters, keywords) is painted here, in the rail above the strip,
+   not inside the scaled strip. While the strip moves the overlay copies its translate+scale; at rest it carries no scale at all, only a whole-device-pixel
+   translate, and the SVG is sized to the card's on-screen size. So the grid is rasterised once, at the screen's own resolution, whatever the browser
+   composites (Safari on macOS rasterises a composited scaled strip at 1x and GPU-magnifies it ~1.6x, which turned every snapped 1px line into 1.6 or 3.3
+   device px; a <video>, GIF or running animation anywhere in the strip triggers that) */
+const pRoot=document.getElementById('poster'),ov=pRoot?rail.appendChild(Object.assign(document.createElement('div'),{className:'poster-ov'})):null;let og=null;
+if(ov){ov.setAttribute('aria-hidden','true');ov.addEventListener('animationend',e=>{if(e.target===ov)ov.classList.add('in');});}
+function ovSet(tx,s,rest){if(!ov)return;if(!on||!og){ov.style.display='none';return;}ov.style.display='';
+  const x=og.SL+tx+s*og.RX,y=og.ST+og.SH/2+s*(og.RY-og.SH/2);
+  if(!rest){ov.classList.add('mv');ov.style.width=og.RW+'px';ov.style.height=og.RH+'px';ov.style.transform=`translate(${x.toFixed(3)}px,${y.toFixed(3)}px) scale(${s})`;return;}
+  const d=devicePixelRatio||1,rr=rail.getBoundingClientRect(),sn=(v,o)=>Math.round((o+v)*d)/d-o; /* whole device px on the page */
+  ov.classList.remove('mv');ov.style.width=(og.RW*s)+'px';ov.style.height=(og.RH*s)+'px';ov.style.transform=`translate(${sn(x,rr.left)}px,${sn(y,rr.top)}px)`;}
+let ovS={tx:0,s:1};
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>{if(on)to(centers[i]-c0);else k.scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'center'});});dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 // liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
@@ -17,13 +30,14 @@ const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
     if(busy)this.raf=requestAnimationFrame(t=>this.step(t));else{this.raf=0;this.v=0;this.w=BASE;thumb.style.width=BASE+'px';thumb.style.transform=`translate3d(${(this.c-BASE/2).toFixed(2)}px,0,0)`;}}};
 let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false,mvT=0;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
-function measure(){on=!mqM.matches;if(!on){strip.style.transform='';strip.style.removeProperty('--ox');strip.style.removeProperty('--oy');return;}
+function measure(){on=!mqM.matches;if(!on){strip.style.transform='';strip.style.removeProperty('--ox');strip.style.removeProperty('--oy');ovSet(0,1,true);return;}
   W=rail.clientWidth;H=rail.clientHeight;strip.style.transform='none';
   /* whole-pixel layout origin (css/home.css --ox/--oy): engines snap a transformed box's offset before applying the transform (Chrome to css px, WebKit to
      device px), so a fractional origin (top:50% - ch/2) moved the painted card off getBoundingClientRect by up to .5px x scale. A step of n css px that is
      whole device px too (n = 1 at dpr 1/2/3, 2 at 1.5, 4 at 1.25) makes painted = measured everywhere, so the poster's pixel-snapped lines land as computed. */
   {strip.style.setProperty('--ox','0px');strip.style.setProperty('--oy','0px');const d=devicePixelRatio||1;let n=1;while(n<4&&Math.abs(n*d-Math.round(n*d))>.01)n++;
    const r=strip.getBoundingClientRect(),q=v=>Math.round(v/n)*n-v;strip.style.setProperty('--ox',q(r.left+scrollX).toFixed(4)+'px');strip.style.setProperty('--oy',q(r.top+scrollY).toFixed(4)+'px');}
+  if(pRoot){const rr=rail.getBoundingClientRect(),sr=strip.getBoundingClientRect(),pr=pRoot.getBoundingClientRect();og={SL:sr.left-rr.left,ST:sr.top-rr.top,SH:sr.height,RX:pr.left-sr.left,RY:pr.top-sr.top,RW:pr.width,RH:pr.height};} /* overlay geometry, strip untransformed */
   centers=cards.map(k=>k.offsetLeft+k.offsetWidth/2);cw=cards[0].offsetWidth;ch=cw*.569444;c0=centers[0];
   max=centers[centers.length-1]-c0;
   // landing: intro ≈73% of viewport width, capped so it fits ~62% of the rail height
@@ -34,8 +48,8 @@ const sfx=window.dbhSfx; // shared dial sound (js/sfx.js)
 // screenX(p) = W/2 + (p - c0 - x)·s ; scale eases s0→1 over the first card's width, and back 1→s0 over the last (About)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
-  strip.style.transform=`translate(${(W/2-(c0+x)*s).toFixed(2)}px,0) scale(${s.toFixed(4)})`;
-  strip.classList.add('mv');clearTimeout(mvT);mvT=setTimeout(()=>{strip.classList.remove('mv');dispatchEvent(new Event('strip:rest'));},200); /* strip:rest: the poster re-snaps its grid to the new scale */
+  const tx=+(W/2-(c0+x)*s).toFixed(2),sc=+s.toFixed(4);strip.style.transform=`translate(${tx}px,0) scale(${sc})`;ovS={tx,s:sc};ovSet(tx,sc,false);
+  strip.classList.add('mv');clearTimeout(mvT);mvT=setTimeout(()=>{strip.classList.remove('mv');ovSet(ovS.tx,ovS.s,true);dispatchEvent(new Event('strip:rest'));},200); /* strip:rest: the poster re-snaps its grid to the new scale */
   strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);if(on)navAct(x>max-span/2);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
@@ -125,7 +139,9 @@ function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base
   const d=inkC.getImageData(0,0,cv.width,cv.height).data;for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127)return(y-base)*k;return 0;}
 const THIN_D=.7882 /* 16px at the 1440 design size */,THIN_P=1; /* thin-row height factors (desktop rows are empty; mobile keeps 22px for VISION/STRATEGY) */
 let resnap=()=>{};
-function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
+const ovEl=document.querySelector('.poster-ov'),capEl=root.querySelector('.poster-cap');
+function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==host)host.insertBefore(svg,host===root?capEl:null);} /* desktop: the unscaled overlay (js above, css .poster-ov); mobile: in the card (the strip is not scaled there) */
+  const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
   const YS=G0.ys,Bw0=YS[2]-YS[1],Bw=port?Bw0*THIN_P:Bw0*THIN_D /* v19: thinner keyword rows, height given to the big rows */,nR=Math.ceil((YS.length-1)/2),Rh=(YS[YS.length-1]-YS[0]-Math.floor((YS.length-1)/2)*Bw)/nR /* big rows + thin rows (mobile ends on a thin row) */,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
   const yq=y=>{for(let i=1;i<YS.length;i++)if(y<=YS[i]||i===YS.length-1)return YN[i-1]+(y-YS[i-1])*(YN[i]-YN[i-1])/(YS[i]-YS[i-1]);};
@@ -215,13 +231,20 @@ function build(){const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,
     cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate='-.58px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */
     /* CTA rises from the bottom of its row: the cap (static) clips to the row band, the button slides (css/home.css) */
     const cT=ch-parseFloat(cap.style.bottom)-cap.offsetHeight,yT=rT/px-cT,yB=rB/px-cT;cap.style.clipPath=`polygon(-50% ${yT.toFixed(2)}px,150% ${yT.toFixed(2)}px,150% ${yB.toFixed(2)}px,-50% ${yB.toFixed(2)}px)`;
-    cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');}
+    cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');
+    /* the grid is drawn above the card now (overlay), so the CTA's knockout (.poster-cap::before: cap box +6px above/below, -2px/+7px sides, clipped to the
+       row band, fading in at --cd) becomes a hole in a mask on the lines and dots: same box, same fade (.a, pIn .9s at TC) */
+    {const NS='http://www.w3.org/2000/svg',mk=document.createElementNS(NS,'mask'),r=(a)=>{const e=document.createElementNS(NS,'rect');for(const k in a)e.setAttribute(k,a[k]);return mk.appendChild(e);},
+      tr=(cap.style.translate||'0 0').split(' ').map(parseFloat),cl=cap.offsetLeft+(tr[0]||0),ct=cap.offsetTop+(tr[1]||0),hx0=(cl-2)*px,hx1=(cl+cap.offsetWidth+7)*px,hy0=Math.max((ct-6)*px,rT+2*px),hy1=Math.min((ct+cap.offsetHeight+6)*px,rB-2*px);
+     mk.id='pcm';mk.setAttribute('maskUnits','userSpaceOnUse');mk.setAttribute('x',-VW);mk.setAttribute('y',-VH);mk.setAttribute('width',3*VW);mk.setAttribute('height',3*VH);
+     r({x:-VW,y:-VH,width:3*VW,height:3*VH,fill:'#fff'});if(hy1>hy0)r({class:'a',style:`--d:${TC}`,x:hx0,y:hy0,width:hx1-hx0,height:hy1-hy0,fill:'#000'});
+     svg.querySelector('defs').appendChild(mk);svg.querySelectorAll('line.g,circle.pd').forEach(e=>e.setAttribute('mask','url(#pcm)'));}}
   }
 let lp=null,rt=0,bw=0,bh=0;addEventListener('strip:rest',()=>resnap());const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
-const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;root.getAnimations({subtree:true}).forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
+const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:svg.getAnimations({subtree:true}))].forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
 addEventListener('resize',()=>rbs());addEventListener('gate:unlocked',()=>{lp=null;rb();}); /* rebuild the poster at its real size (it was built hidden under the gate) */
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
-const rbs=()=>{clearTimeout(rt);const w=root.offsetWidth,h=root.offsetHeight;if(Math.abs(w-bw)<=1&&Math.abs(h-bh)<=1&&root.style.visibility!=='hidden')return;root.style.visibility='hidden';rt=setTimeout(()=>{const w2=root.offsetWidth,h2=root.offsetHeight;if(Math.abs(w2-bw)>1||Math.abs(h2-bh)>1||MP.matches!==lp){lp=null;rb();}requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility='';}));},500);}; /* rotation/resize: hide, wait until the size stops changing, rebuild once, show (one draw-in) */if(window.ResizeObserver)new ResizeObserver(rbs).observe(root);addEventListener('orientationchange',rbs);
+const rbs=()=>{clearTimeout(rt);const w=root.offsetWidth,h=root.offsetHeight;if(Math.abs(w-bw)<=1&&Math.abs(h-bh)<=1&&root.style.visibility!=='hidden')return;root.style.visibility=svg.style.visibility='hidden';rt=setTimeout(()=>{const w2=root.offsetWidth,h2=root.offsetHeight;if(Math.abs(w2-bw)>1||Math.abs(h2-bh)>1||MP.matches!==lp){lp=null;rb();}requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility=svg.style.visibility='';}));},500);}; /* rotation/resize: hide, wait until the size stops changing, rebuild once, show (one draw-in) */if(window.ResizeObserver)new ResizeObserver(rbs).observe(root);addEventListener('orientationchange',rbs);
 // mobile portrait: once the draw-in finishes, glide the first project card into view (once; cancelled by any user input; never with reduced motion)
 let done=false,raf=0;
 const stop=e=>{if(e&&e.type==='scroll'&&performance.now()-(window.__dbhNudge||-1e9)<400)return; /* theme.js's 1px bar re-sample nudge is not user input */done=true;cancelAnimationFrame(raf);ev.forEach(e=>removeEventListener(e,stop,true));},ev=['wheel','touchstart','pointerdown','keydown','scroll'];

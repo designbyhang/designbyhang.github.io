@@ -116,6 +116,14 @@ main{flex:1;display:flex;min-height:0;position:relative}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.hit{display:flex;flex-direction:column}.card .lbl{position:static;order:2;margin-top:40px;height:auto}}
 
 /* ── Intro card v3: Swiss construction poster (SVG built in js/home.js; revert = this block + intro markup + poster JS) ── */
+/* desktop: the poster SVG is drawn in .poster-ov (js/home.js), a sibling of the strip inside the rail, so it is never inside the strip's scale().
+   Moving: it copies the strip's translate+scale (GPU layer like .strip.mv). At rest: no scale, a whole-device-px translate, the SVG at on-screen size, so
+   every grid line is rasterised at the screen's resolution exactly where it was snapped, in every engine and whatever the strip's compositing. */
+.poster-ov{position:absolute;left:0;top:0;z-index:1;pointer-events:none;transform-origin:0 0;contain:strict;opacity:0;animation:fade .8s var(--ease) .05s forwards}
+.poster-ov.in{opacity:1;animation:none}.poster-ov.mv{will-change:transform}
+html.ret .poster-ov{animation:none!important;opacity:1!important}
+@media (prefers-reduced-motion:reduce){.poster-ov{opacity:1;animation:none}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.poster-ov{display:none!important}}
 .intro .media-wrap{container-type:inline-size;transform:none} /* never a GPU layer: composited, the scaled poster is resampled and its 1px grid lines blur unevenly */
 .intro-in.poster{position:relative;display:block;height:100%;padding:0}
 .poster-svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:hidden}
@@ -167,7 +175,7 @@ html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!i
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.intro .media-wrap{aspect-ratio:1;height:auto}.poster-cap{display:none}.intro-in.poster{height:100%}}
 
 /* intro card only: mono in all caps */
-.intro .poster-svg .m,.intro .poster-svg .mk{text-transform:uppercase}
+.poster-svg .m,.poster-svg .mk{text-transform:uppercase} /* not .intro-scoped: on desktop the svg lives in .poster-ov */
 .intro .hint,.intro .hint *{text-transform:uppercase!important}
 .intro .hint.poster-hint{display:block}
 
