@@ -26,7 +26,8 @@
      its decoder lagged (the loop's slack over the clip, T - duration, is absorbed there). Elsewhere drift is eased with the playback
      rate (±15%) and a start or stall more than 1s off seeks (at most every 1.5s). Render guard: while the frame on screen is inside
      `avoid` (s) the <video> is visibility:hidden and is seeked out of it. A scrub or tap pause frees it until the next park; it still
-     skips avoid. Off under reduced motion (the hosts' stills keep their own frame) */
+     skips avoid. Off under reduced motion (the hosts' stills keep their own frame). The clip has to cover both stretches it is shown
+     for (zero -> park start, park end -> zero; a console warning names a clip that does not, it would wrap mid-loop there) */
 (function(){
 'use strict';
 if(window.VideoScrubber)return;
@@ -91,7 +92,7 @@ function create(o){
   // hit strip: 24 design px round the track, taller where the phone is drawn small (at least 12 CSS px, at most 48 design px)
   var n=0,hh=24;function hitSize(){var r=hit.getBoundingClientRect(),k=r.width/w;if(!k)return;var h=Math.round(Math.min(48,Math.max(24,12/k)));
     if(h!==hh){hh=h;hit.style.top=(ty-h/2)+'px';hit.style.height=h+'px';f.querySelector('.vs-r').style.top=f.querySelector('.vs-l').style.top=(h/2-2)+'px';knob.style.top=(h/2-5)+'px'}}
-  var lk=o.lock,ss=o.sinceSplit,clk=lk&&(lk.clock||(ss&&ss.time)),LT=lk&&(lk.T||(ss&&ss.T)),free=false,pL=null,ls=-1e9,parked=false,inP=false,shown=0,hid=false;
+  var lk=o.lock,ss=o.sinceSplit,clk=lk&&(lk.clock||(ss&&ss.time)),LT=lk&&(lk.T||(ss&&ss.T)),free=false,pL=null,ls=-1e9,parked=false,inP=false,shown=0,hid=false,chk=0;
   function md(x,m){return ((x%m)+m)%m}
   function parkAt(L){var p=lk.park;return !!p&&md(L-p[0],LT)<md(p[1]-p[0],LT)}
   // the host (or demo clock) may call play() while parked: the video stays parked until the park ends
@@ -100,6 +101,8 @@ function create(o){
     // render guard: a frame inside avoid is never drawn, whatever put it there (the frame on screen during a seek is the old one)
     if(!v.seeking)shown=v.currentTime;var bad=!!av&&shown>=av[0]&&shown<av[1];if(bad!==hid){hid=bad;v.style.visibility=bad?'hidden':''}
     if(!d||v.readyState<1||L==null||!isFinite(L))return;
+    if(chk!==d&&lk.park){chk=d;var sp=Math.max(md(lk.park[0]-lk.zero,LT),LT-md(lk.park[1]-lk.zero,LT));
+      if(d*1000+1<sp&&window.console)console.warn('VideoScrubber lock: '+(v.currentSrc||v.src)+' ('+d+'s) is shorter than the '+sp+'ms it is shown for')}
     var u=md(L-lk.zero,LT),moving=pL!=null&&L!==pL,P=parkAt(L),enter=P&&!inP;inP=P;pL=L;
     if(drag||up)free=true;else if(free&&enter)free=false;
     if(free){if(parked){parked=false}if(v.playbackRate!==1)v.playbackRate=1;if(av&&!drag&&!v.seeking&&bad)seek(av[1]);return}

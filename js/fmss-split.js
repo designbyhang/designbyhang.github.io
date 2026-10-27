@@ -22,17 +22,18 @@ const S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(407,812,16);
 /* 8ms grid: each curve time-scaled to an exact length (feed <-> split 640ms, split <-> full 560ms), sampled every 8ms */
 const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++){const u=k/n*L,i=Math.min(L-1,Math.floor(u)),f=u-i;o.push(k===n?1:S[i]+(S[i+1]-S[i])*f)}return o};
 const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640),dur=S=>(S.length-1)*STEP;
-/* v132 holds (moved for phone 1 in v135, below): the original Solution video's (A 3800, C 3400, A 504 before the loop; B 4504) scaled ~0.81x so the loop is exactly 16000ms (transitions
-   unchanged, 2400ms): A 3096, B 3664, C 2768, A 408. Both split-screen (B) holds 3664ms, long enough for the player controls to fade out
-   (gone 2400ms after split screen is reached, js/video-scrubber.js) and a 1264ms beat without them; loop 16000ms */
-/* v135 holds moved for phone 1's clip (v1.mp4, 15.733s, Nike 24.7): its red two-person close-up (video 7.467-8.333s, frames 224-249) must
-   only ever play while full screen (C) covers the video. The clip is locked to the loop (VideoScrubber lock: 0:00 at t1e, where the cover
-   enters on its still, the frame-0 poster; v138: parked, paused, through the whole C hold t2e-t3 on the frame due at t3, so it always
-   leaves C on 8.49s however far its decoder lagged; a render guard hides any frame inside 7.40-8.37s), so the close-up needs t3 - t1e >= 8.6s: the feed
-   gives 1000ms (3096 -> 2096) and the second split hold 760ms (3664 -> 2904) to the first split hold (+880, 4544) and full screen (+880,
-   3648). Shown video: 0:00-5.0 from t1e until C covers it, 8.49 (C reveals it at t3) to the clip's own wrap back to 0:00 at the next t1e.
-   Loop still exactly 16000ms, transitions unchanged; all four phones share the clock */
-const B1=4544,B2=2904,t1=2096,t1e=t1+dur(R1),t2=t1e+B1,t2e=t2+dur(R2),t3=t2e+3648,t3e=t3+dur(R3),t4=t3e+B2,t4e=t4+dur(R4),T=t4e+408;
+/* v140: 20000ms loop, holds re-derived for phone 1's clip (v1.mp4, 15.733s, Nike 24.7): its red two-person close-up (video
+   7.467-8.333s, frames 224-249) must only ever play while full screen (C) covers the video. The clip is locked to the loop clock
+   (VideoScrubber lock, LOCK below: 0:00 at t1e, where the cover enters on its still, the frame-0 poster, running 1:1 with the loop; parked,
+   paused, through the whole C hold t2e-t3 on the frame due at t3, so it always leaves C on that frame however far its decoder lagged; the
+   clip's slack over the loop, T - duration, is taken up there, behind C; a render guard hides any frame inside 7.40-8.37s). So it shows
+   0:00 -> 7.12 (t1e -> t2e) before C, and 8.485 -> its end after it, wrapping to 0:00 only at the next t1e. The frame at t3
+   is (t3 - t1e - (T - 15733))/1000 = 8.485s, just past the close-up, which makes the stretch from t3 round to the next t1e 15733 - 8485 = 7248ms however long the loop is: the feed, the second split and the tail cannot grow without the clip ending early,
+   freezing, wrapping or slowing, so they keep their v135 lengths (2096, 2904, 408) and the 4000ms goes to the first split hold
+   (+2016, 6560: video 7.12s at t2e, 280ms before the guard) and full screen (+1984, 5632). Transitions unchanged (640/560).
+   Marks: t1 2096, t1e 2736, t2 9296, t2e 9856, t3 15488, t3e 16048, t4 18952, t4e 19592, T 20000. sol1's other clips (v2-v4: 8.433, 15.233,
+   14.400s) keep running free on their own native loop as before (locking them too made WebKit stall on the seeks and the shared wrap) */
+const B1=6560,B2=2904,t1=2096,t1e=t1+dur(R1),t2=t1e+B1,t2e=t2+dur(R2),t3=t2e+5632,t3e=t3+dur(R3),t4=t3e+B2,t4e=t4+dur(R4),T=t4e+408;
 const LOCK={zero:t1e,park:[t2e,t3],avoid:[7.4,8.37]};   // phone 1's video lock (see above), the same in js/fmss-split.js and preview/fmss-sol1
 /* the loop as poses: a = surface -> split progress, c = split -> full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));

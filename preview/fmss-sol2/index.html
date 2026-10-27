@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=155">
+<link rel="stylesheet" href="../shared/device/device.css?v=156">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
@@ -79,7 +79,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=2"></script>
+<script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=3"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -106,10 +106,16 @@ const FR=1000/60,S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(4
 const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++){const u=k/n*L,i=Math.min(L-1,Math.floor(u)),f=u-i;o.push(k===n?1:S[i]+(S[i+1]-S[i])*f)}return o};
 const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640);
 const dur=S=>(S.length-1)*STEP;
-/* holds: the original Solution video's (A 3.8s, C 3.4s, A 0.5s before the loop; B 4504ms) scaled ~0.81x so the loop is exactly 16000ms
-   (transitions unchanged, 2400ms), on the 8ms grid: A 3096, B 3664, C 2768, A 408. Both split-screen (B) holds 3664ms, long enough for the
-   player controls to fade out (gone 2400ms after split screen is reached, ../../js/video-scrubber.js) and a 1264ms beat without them; loop 16000ms */
-const HOLD=3664,t1=3096,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+2768,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+408;
+/* holds: the original Solution video's (A 3.8s, C 3.4s, A 0.5s before the loop; B 4504ms) scaled ~0.81x to a 16000ms loop in v132
+   (A 3096, B 3664, C 2768, A 408), then (v140) to a 20000ms loop: the extra 4000ms shared by the holds in proportion (x1.294) on the 8ms
+   grid, transitions unchanged (2400ms): A 4000, B 4744, C 3584, A 528. Both split-screen (B) holds 4744ms: the player controls fade out
+   (gone 2400ms after split screen is reached, ../../js/video-scrubber.js) and a 2344ms beat without them; loop 20000ms.
+   Marks: t1 4000, t1e 4640, t2 9384, t2e 9944, t3 13528, t3e 14088, t4 18832, t4e 19472.
+   Videos on the 20000ms loop: Feed, Reels and Stories (v1-v3: 15.133, 14.567, 17.300s) keep running free on their own native loop as
+   before (no close-up to hide; locking them to the clock made WebKit stall on the seeks and the shared wrap). In-Content keeps its own
+   sync (below): the thumbnail v4 (22.033s) plays t1-t4 (14.83s) from 0:00; the reel r4 (6.9s) plays t4 -> t1e (5.81s) and is
+   rewound to 0:00 while hidden, so it never wraps on screen */
+const HOLD=4744,t1=4000,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3584,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+528;
 /* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
@@ -229,13 +235,14 @@ function upd(){
   if(go){if(!raf)raf=requestAnimationFrame(sync)}else{if(raf)cancelAnimationFrame(raf);raf=0;reel&&reel.pause();thumb&&thumb.pause()}
 }
 /* In-Content phone, driven by the loop clock: the reel plays only while the surface is on screen; the banner thumbnail sits paused on its
-   first frame, starts playing as it begins to grow into the split screen, pauses (holding its frame) as it shrinks back, and returns to frame 0 once it has landed */
+   first frame, starts playing as it begins to grow into the split screen, pauses (holding its frame) as it shrinks back, and returns to frame 0 once it has landed;
+   the reel is rewound to 0:00 while hidden (t1e-t4), so each surface stretch (t4 -> t1e, 5.81s) shows its first 5.81s and it never wraps on screen */
 let raf=0,was=-1;
 const play=v=>{if(v.paused){const p=v.play();p&&p.catch(()=>{})}};
 function sync(){
   raf=requestAnimationFrame(sync);if(!clock||!reel)return;
   const t=(clock.currentTime||0)%T,surf=t<t1e||t>=t4;
-  if(surf)play(reel);else if(!reel.paused)reel.pause();
+  if(surf)play(reel);else{if(!reel.paused)reel.pause();if(reel.currentTime>0&&!reel.seeking)reel.currentTime=0}
   const big=t>=t1&&t<t4;
   if(big){if(!(scrub4&&scrub4.dragging()))play(thumb)}else{if(!thumb.paused)thumb.pause();if(t>=t4e||t<t1){if(was!==0&&thumb.currentTime>0)thumb.currentTime=0;was=0}}
   if(big)was=1;
