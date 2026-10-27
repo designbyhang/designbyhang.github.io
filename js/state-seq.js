@@ -114,7 +114,7 @@ function mount(box){var pins=[];
   for(var key in to){var f=from[key]||to[key],t=to[key],ed=(cfg.edur||{})[key]||tr.d,u=ease(Math.min(1,el/Math.min(ed,tr.d)));cur[key]=cur[key]||{};
    for(var p in t){var fv=f[p]!=null?f[p]:t[p],tv=t[p];cur[key][p]=tv&&tv.map?tv.map(function(c,j){return lerp(fv[j],c,u)}):lerp(fv,tv,u)}}
   drawDots(ease(Math.min(1,el/tr.d)));put();if(done){tr=null;entering=false;drawDots(1)}}
- function running(){return vis&&!document.hidden&&(tr?(tr.manual||playing&&on):(playing&&on&&!RM.matches))}
+ function running(){return vis&&!document.hidden&&(tr?(tr.manual||playing&&on&&!hov):(playing&&on&&!hov&&!RM.matches))}
  function kick(){if(!raf&&running()){last=0;raf=requestAnimationFrame(frame)}}
  function frame(now){raf=0;var dt=last?Math.min(128,now-last):16;last=now;clock+=dt;
   if(tr)frameTr();else if(playing&&!RM.matches){hold+=dt;if(hold>=holdOf(i)){go(i+1,{quiet:true});return}drawDots(1)}
@@ -153,7 +153,10 @@ function mount(box){var pins=[];
  addEventListener('gate:unlocked',function(){show(ratio>=.35)});
  document.addEventListener('visibilitychange',kick);
  if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){tr=null;if(cfg.rm!=null)i=cfg.rm;cur=vals(i);put();e=e.map(function(_,k){return k===i?1:0});drawDots(1);setCap()}kick()});
- box.__ss={go:go,state:function(){return{i:i,playing:playing,vis:vis,tr:!!tr,clock:clock,hold:hold,userPaused:userPaused}},tap:function(){userTap()}};
+ /* hover pause (per Hang), before/after toggles only: on hover-capable pointers, autoplay (and any autoplay transition) freezes while the pointer is over the box and
+    resumes from the same frame on leave; taps and the demo host's play/pause are untouched (on/playing still gate it). Touch: unchanged */
+ var hov=false;if(tog&&matchMedia('(hover: hover)').matches){box.addEventListener('pointerenter',function(e){if(e.pointerType!=='touch')hov=true});box.addEventListener('pointerleave',function(){if(hov){hov=false;kick()}})}
+ box.__ss={go:go,state:function(){return{hov:hov,i:i,playing:playing,vis:vis,tr:!!tr,clock:clock,hold:hold,userPaused:userPaused}},tap:function(){userTap()}};
 }
 function init(){[].forEach.call(document.querySelectorAll('.media.sseq'),function(b){try{mount(b)}catch(err){if(window.console)console.error('state-seq',err)}})}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
