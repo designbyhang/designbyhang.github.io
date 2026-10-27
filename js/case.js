@@ -65,7 +65,7 @@ document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v
    Reduced motion: no autoplay, no animation */
 (function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
 document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr)return;var imgs=[].slice.call(tr.children),n=imgs.length;if(n<2)return;
- var i=0,playing=!RM.matches,vis=false,on=!window.dbhDemos,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=imgs.map(function(img){return img.getAttribute('alt')||''});
+ var i=0,playing=!RM.matches,vis=false,on=!window.dbhDemos,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=imgs.map(function(img){return img.getAttribute('alt')||((img.querySelector('img[alt]')||{}).alt)||''});
  var ctrl=document.createElement('div'),row=document.createElement('div'),pp=document.createElement('button'),sr=document.createElement('span'),bars=[],fills=[];
  ctrl.className='car-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose slide');
  var dots=imgs.map(function(img,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
