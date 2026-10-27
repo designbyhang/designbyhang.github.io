@@ -18,10 +18,18 @@
      back, they stay up while paused, and the fade restarts from the tap that resumes. The tap's events stop at the tap area (no card
      link, full-screen opener or prototype gesture sees them); a press that moves (a drag) or is held is not a tap, and the track's
      own drags never reach it. Outside split screen the area is left alone. The host's loop keeps running: if split screen ends while
-     paused, the next entry resumes the video with the controls reset */
+     paused, the next entry resumes the video with the controls reset
+   - lock (opt-in, o.lock = {zero, drop, avoid}): the video's playhead is a function of the host's loop clock (sinceSplit from
+     VideoScrubber.loop(), or o.lock.clock / o.lock.T), so the same video moment always shows at the same loop moment: loop time `zero`
+     (ms) shows video 0:00, the video then runs 1:1 with the loop, and the loop's slack over the clip (T - duration) is dropped in one
+     seek at loop time `drop` (put it where the video is covered). Checked every frame: it seeks at the drop and when off by more than 1s (a
+     start, a stall; at most every 1.5s), eases smaller drift out with the playback rate (±15%), and is never left inside
+     avoid = [from, to] (s) where the loop has it outside. A scrub or a tap pause frees the video until the loop next passes `drop`; while free it skips avoid.
+     Off under reduced motion (the hosts' stills keep their own frame) */
 (function(){
 'use strict';
 if(window.VideoScrubber)return;
+var RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 var HOLD=2080,FADE=320,GONE=HOLD+FADE;   // controls gone 2400ms after split screen is reached (the 320ms ease-out fade itself unchanged)
 // CSS ease-out = cubic-bezier(0,0,.58,1), solved for x
 function easeOut(x){if(x<=0)return 0;if(x>=1)return 1;var t=x;for(var i=0;i<8;i++){var cx=3*.58*t*t*(1-t)+t*t*t-x,d=6*.58*t*(1-t)-3*.58*t*t+3*t*t;if(Math.abs(cx)<1e-6||!d)break;t-=cx/d;t=Math.min(1,Math.max(0,t))}return 3*t*t*(1-t)+t*t*t}
@@ -82,12 +90,27 @@ function create(o){
   // hit strip: 24 design px round the track, taller where the phone is drawn small (at least 12 CSS px, at most 48 design px)
   var n=0,hh=24;function hitSize(){var r=hit.getBoundingClientRect(),k=r.width/w;if(!k)return;var h=Math.round(Math.min(48,Math.max(24,12/k)));
     if(h!==hh){hh=h;hit.style.top=(ty-h/2)+'px';hit.style.height=h+'px';f.querySelector('.vs-r').style.top=f.querySelector('.vs-l').style.top=(h/2-2)+'px';knob.style.top=(h/2-5)+'px'}}
-  api._tick=function(){fade();if(!drag){if(!(n++%32)&&!last.off)hitSize();paint(v.currentTime)}};
+  var lk=o.lock,ss=o.sinceSplit,clk=lk&&(lk.clock||(ss&&ss.time)),LT=lk&&(lk.T||(ss&&ss.T)),free=false,pL=null,ls=-1e9;
+  function md(x,m){return ((x%m)+m)%m}
+  function lock(){if(!clk||!LT||RM.matches)return;var d=D(),L=clk();if(!d||v.readyState<1||L==null||!isFinite(L))return;
+    var uS=md(lk.drop-lk.zero,LT),u=md(L-lk.zero,LT);
+    var a=pL==null?u:md(pL-lk.zero,LT),crossed=pL!=null&&(a<=u?(a<uS&&u>=uS):(a<uS||u>=uS));
+    if(drag||up)free=true;else if(free&&crossed)free=false;
+    pL=L;if(v.seeking)return;var t=v.currentTime;
+    if(free){if(v.playbackRate!==1)v.playbackRate=1;if(lk.avoid&&!drag&&t>=lk.avoid[0]&&t<lk.avoid[1])seek(lk.avoid[1]);return}
+    var want=md((u-(u>=uS?LT-d*1000:0))/1000,d),df=md(t-want+d/2,d)-d/2,av=lk.avoid,now=performance.now(),
+      gap=av&&t>=av[0]&&t<av[1]&&!(want>=av[0]&&want<av[1]);   // inside avoid where the loop says it should not be: always
+    // the drop and the avoid guard always seek; a start or a stall (>1s) seeks at most every 1.5s; smaller drift is eased out with
+    // the playback rate (±15%), never a seek, so a slow decoder is not caught in seek stalls
+    var ad=Math.abs(df),r=1;
+    if((gap&&ad>.05)||(crossed&&ad>.04)||(ad>1&&now-ls>1500)){ls=now;seek(want)}else if(ad>.03&&!v.paused)r=Math.min(1.15,Math.max(.85,1-df));
+    if(Math.abs(v.playbackRate-r)>.01)try{v.playbackRate=r}catch(_){}}
+  api._tick=function(){fade();if(lk)lock();if(!drag){if(!(n++%32)&&!last.off)hitSize();paint(v.currentTime)}};
   v.addEventListener('seeked',function(){if(pend!=null){var p=pend;pend=null;seek(p)}});
   ['loadedmetadata','durationchange','emptied'].forEach(function(e){v.addEventListener(e,function(){last.fr=-1;if(!drag)paint(v.currentTime)})});
   function seek(t){if(v.seeking){pend=t;return}try{v.currentTime=t}catch(_){}}
   function frAt(e){var r=hit.getBoundingClientRect();return r.width?Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)):0}
-  function move(e){var d=D();if(!d)return;var t=frAt(e)*d;drag.t=t;paint(t);seek(t)}
+  function move(e){var d=D();if(!d)return;var t=frAt(e)*d,av=lk&&lk.avoid;drag.t=t;paint(t);seek(av&&t>=av[0]&&t<av[1]?av[1]:t)}
   STOP.forEach(function(n){hit.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
   hit.addEventListener('pointerdown',function(e){if(e.button>0||!D())return;e.preventDefault();drag={id:e.pointerId,play:!v.paused,t:0};
     try{hit.setPointerCapture(e.pointerId)}catch(_){}if(!v.paused)v.pause();move(e)});
@@ -117,7 +140,8 @@ function create(o){
 }
 /* sinceSplit for a looping WAAPI timeline: anim (any Animation on the loop), T its duration, splits = [[start, reached, end], …] in ms:
    from `start` (the transition into split screen begins) to `end` the controls are in split screen, counted from `reached` */
-function loop(anim,T,splits){return function(){var a=typeof anim==='function'?anim():anim;if(!a)return null;var t=+a.currentTime;if(!isFinite(t))return null;t=((t%T)+T)%T;
-  for(var i=0;i<splits.length;i++){var s=splits[i];if(t>=s[0]&&t<s[2])return t-s[1]}return null}}
+function loop(anim,T,splits){function time(){var a=typeof anim==='function'?anim():anim;if(!a)return null;var t=+a.currentTime;return isFinite(t)?((t%T)+T)%T:null}
+  var f=function(){var t=time();if(t==null)return null;
+  for(var i=0;i<splits.length;i++){var s=splits[i];if(t>=s[0]&&t<s[2])return t-s[1]}return null};f.time=time;f.T=T;return f}   // f.time(): loop ms (for lock)
 window.VideoScrubber={create:create,loop:loop,format:fmt,HOLD:HOLD,GONE:GONE,all:list};
 })();

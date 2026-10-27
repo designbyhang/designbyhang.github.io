@@ -20,10 +20,17 @@ const S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(407,812,16);
 /* 8ms grid: each curve time-scaled to an exact length (feed <-> split 640ms, split <-> full 560ms), sampled every 8ms */
 const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++){const u=k/n*L,i=Math.min(L-1,Math.floor(u)),f=u-i;o.push(k===n?1:S[i]+(S[i+1]-S[i])*f)}return o};
 const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640),dur=S=>(S.length-1)*STEP;
-/* holds: the original Solution video's (A 3800, C 3400, A 504 before the loop; B 4504) scaled ~0.81x so the loop is exactly 16000ms (transitions
+/* v132 holds (moved for phone 1 in v135, below): the original Solution video's (A 3800, C 3400, A 504 before the loop; B 4504) scaled ~0.81x so the loop is exactly 16000ms (transitions
    unchanged, 2400ms): A 3096, B 3664, C 2768, A 408. Both split-screen (B) holds 3664ms, long enough for the player controls to fade out
    (gone 2400ms after split screen is reached, js/video-scrubber.js) and a 1264ms beat without them; loop 16000ms */
-const HOLD=3664,t1=3096,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+2768,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+408;
+/* v135 holds moved for phone 1's clip (v1.mp4, 15.733s, Nike 24.7): its red two-person close-up (video 7.467-8.333s, frames 224-249) must
+   only ever play while full screen (C) covers the video. The clip is locked to the loop (VideoScrubber lock: 0:00 at t1e, where the cover
+   enters on its still, the frame-0 poster; the loop's 267ms slack dropped mid C hold), so the close-up needs t3 - t1e >= 8.6s: the feed
+   gives 1000ms (3096 -> 2096) and the second split hold 760ms (3664 -> 2904) to the first split hold (+880, 4544) and full screen (+880,
+   3648). Shown video: 0:00-5.0 from t1e until C covers it, 8.49 (C reveals it at t3) to the clip's own wrap back to 0:00 at the next t1e.
+   Loop still exactly 16000ms, transitions unchanged; all four phones share the clock */
+const B1=4544,B2=2904,t1=2096,t1e=t1+dur(R1),t2=t1e+B1,t2e=t2+dur(R2),t3=t2e+3648,t3e=t3+dur(R3),t4=t3e+B2,t4e=t4+dur(R4),T=t4e+408;
+const LOCK={zero:t1e,drop:(t2e+t3)/2,avoid:[7.45,8.34]};   // phone 1's video lock (see above), the same in js/fmss-split.js and preview/fmss-sol1
 /* the loop as poses: a = surface -> split progress, c = split -> full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
@@ -74,7 +81,7 @@ function screen(el,i,opt){
   // live player controls (js/video-scrubber.js): timestamp + seekable track drawn where bc's were, its icons as a crop (ci); split screen
   // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 2080–2400ms after it is reached
   if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`${B}ci${n}.webp${V}`,trackY:top-14,className:'L bc',
-    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]])}).el);
+    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null}).el);
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
   // B top (backdrop, nav bar) dissolves in over A; the B sheet rises from the bottom edge
