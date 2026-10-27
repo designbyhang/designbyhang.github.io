@@ -41,10 +41,8 @@ body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-
  .sseq.ss-tall .cv-h{font-size:56px;line-height:var(--lh,56px);letter-spacing:-2.24px} /* --lh: tabs open up to 72 (1.29) */
 }
 /* page headline above a Solution container: the case-page h3 (.sub h3 type) whose last words roll with the state (js binds them) */
-.ss-hd{margin-top:clamp(48px,6vw,72px);margin-bottom:24px}
-.ss-hd h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin:0}
 .ss-roll{display:inline-grid;vertical-align:top}
-.ss-roll>span{grid-area:1/1;white-space:nowrap}
+.ss-roll>span{grid-area:1/1;white-space:nowrap;justify-self:start;text-align:left}
 .ss-roll>span+span{opacity:0}
 @media (prefers-reduced-motion:reduce){.sseq .ss-stage *{transition:none}}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .car-pp{display:none}} /* nothing to pause: the key frame is static */
