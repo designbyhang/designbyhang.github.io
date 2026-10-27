@@ -1,0 +1,67 @@
+/* Citi intro (js/citi-intro.js on js/state-seq.js): the Citigold splash -> home, Figma citi_11 -> citi_12. The container is the site's
+   state-seq frame (theme ground --frame + 1px --line, follows light/dark); the phone is the app itself, so its colours are the tier's
+   tokens (--ci-*, set per theme by citi-intro.js) and do not follow the site theme. Design px (Figma 375x812 phone on a 1920x1080 slide).
+   Corners: 60%-smoothed squircle clip-paths (js). No hover zoom, no glow, no focus ring. */
+body.cs .media.mframe.sseq.ci-intro{cursor:default}
+@media (max-width:640px){body.cs .media.mframe.sseq.ci-intro{aspect-ratio:4/5}}
+.ci-intro .ss-stage .ci-sh{width:375px;height:812px;filter:drop-shadow(40px 48px 20px rgba(0,0,0,.16))}
+.ci-intro .ci-ph{position:absolute;inset:0;overflow:hidden;background:linear-gradient(180deg,var(--ci-g0) var(--ci-g0s),var(--ci-g1) var(--ci-g1s));
+ font-family:Inter,system-ui,sans-serif;font-weight:400;color:#fff;-webkit-font-smoothing:antialiased;font-feature-settings:normal}
+.ci-intro .ci-ph small,.ci-intro .ci-ph b{display:block;font-weight:400}
+.ci-intro .ss-stage img.ci-logo{width:114.8px;height:74px}
+body.cs .media.mframe.sseq.ci-intro .ss-stage img{width:auto;height:auto;object-fit:fill;border-radius:0}
+body.cs .media.mframe.sseq.ci-intro .ss-stage img.ci-logo{width:114.8px;height:74px}
+/* greeting: white copy + the splash tint copy on top (layer gt, fades out = Figma's #ffc37c -> white colour tween, theme-free motion) */
+.ci-intro .ci-gr{width:106px;height:62px;text-align:center}
+.ci-intro .ci-gw,.ci-intro .ss-stage .ci-gt{position:absolute;left:0;top:0;width:106px;height:62px}
+.ci-intro .ci-gt{color:var(--ci-tint)}
+.ci-intro .ci-gr small{position:absolute;left:50%;top:0;transform:translateX(-50%);font-size:14px;line-height:18px;white-space:nowrap}
+.ci-intro .ci-gr b{position:absolute;left:50%;top:22px;transform:translateX(-50%);font-size:40px;line-height:40px;font-weight:200;white-space:nowrap}
+.ci-intro .ci-bg{width:375px;background:#efefef}
+.ci-intro .ci-accs{width:375px;height:310px}
+.ci-intro .ci-dv{position:relative}
+.ci-intro .ci-dv::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:1px;background:rgba(238,238,238,.4)}
+.ci-intro .ci-acc-h{height:56px;box-sizing:border-box;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-size:16px;line-height:20px}
+.ci-intro .ci-acc-h small,.ci-intro .ci-row small{font-size:12px;line-height:16px;color:#999}
+.ci-intro .ci-row{height:70px;box-sizing:border-box;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;white-space:nowrap}
+.ci-intro .ci-row b{font-size:14px;line-height:18px}
+.ci-intro .ci-l,.ci-intro .ci-r{display:flex;flex-direction:column;gap:4px}
+.ci-intro .ci-r{align-items:flex-end}
+/* tiles: white, R16 squircle (js), Figma's 0 0 20 black 5% shadow is inside the clip and reads as nothing on #efefef, so it is left out */
+.ci-intro .ci-tile{width:351px;background:#fff;color:#333}
+.ci-intro .ci-pft{height:238px}.ci-intro .ci-txt{height:380px}
+.ci-intro .ci-tile .ci-dv::after{left:16px;right:16px;background:#eee}
+.ci-intro .ci-th{height:60px;box-sizing:border-box;padding:0 12px 0 16px;display:flex;align-items:center;justify-content:space-between;font-size:18px;line-height:20px}
+.ci-intro .ci-th i{display:block;width:20px;height:20px}.ci-intro .ci-chev{display:block;width:20px;height:20px}
+.ci-intro .ci-a1{color:var(--ci-acc)}.ci-intro .ci-a2{color:var(--ci-acc2)}
+.ci-intro .ci-pf{padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.ci-intro .ci-tot{display:flex;align-items:flex-end;gap:4px;white-space:nowrap}
+.ci-intro .ci-tot b{font-size:14px;line-height:18px;color:#333}.ci-intro .ci-tot small{font-size:10px;line-height:16px;color:#999}
+.ci-intro .ci-chart{display:flex;align-items:center;justify-content:space-between}
+.ci-intro .ci-chart ul{margin:0;padding:0;list-style:none;height:120px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.ci-intro .ci-chart li{display:flex;align-items:center;gap:12px;font-size:10px;line-height:16px;color:#333;white-space:nowrap}
+.ci-intro .ci-chart li i{width:6px;height:6px;border-radius:50%}
+.ci-intro .ci-chart li span+span{margin-left:-8px}
+body.cs .media.mframe.sseq.ci-intro .ci-chart img{width:120px;height:120px}
+.ci-intro .ci-txt .ci-row{height:80px}
+.ci-intro .ci-txt .ci-row b{color:#333}.ci-intro .ci-txt .ci-row small{color:#666}
+/* tab bar: 94/94/94/93, labels 10/12 at 35px, the selected icon's disc in the tier accent */
+.ci-intro .ci-tabs{width:375px;height:85px;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.25)}
+.ci-intro .ss-stage .ci-tabr{display:flex;width:375px}
+.ci-intro .ss-stage [data-l=acc],.ci-intro .ss-stage [data-l=pfc],.ci-intro .ss-stage [data-l=txc]{width:100%}
+.ci-intro .ci-tab{position:relative;width:94px;height:51px;flex:none}.ci-intro .ci-tab:last-child{width:93px}
+.ci-intro .ci-tab span{position:absolute;left:50%;top:35px;transform:translateX(calc(-50% - .5px));font-size:10px;line-height:12px;color:#929292;white-space:nowrap}
+.ci-intro .ci-on span{color:var(--ci-acc)}
+.ci-intro .ci-ico{position:absolute;left:35px;top:7px;width:23px;height:23px;color:var(--ci-acc)}
+body.cs .media.mframe.sseq.ci-intro .ci-tab img{position:absolute;top:6px}
+body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-pay{left:34px;width:33px;height:25px}
+body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-svc{left:34.05px;top:5.55px;width:25.9px;height:25.9px}
+body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-pro{left:33.5px;top:5.5px;width:26px;height:26px}
+.ci-intro .ci-so{font-size:12px;line-height:16px;color:#999;white-space:nowrap}
+.ci-intro .ci-home{width:375px;height:34px}
+.ci-intro .ci-home i{width:134px;height:5px;border-radius:3px}
+.ci-intro .ci-sb{position:absolute;left:29px;top:13px;height:20px;display:flex;align-items:center;gap:200px}
+.ci-intro .ci-sb span{width:54px;font:590 15px/20px "SF Pro Text",-apple-system,system-ui,Inter,sans-serif;letter-spacing:-.24px;color:#fff;text-align:center}
+body.cs .media.mframe.sseq.ci-intro .ci-sb img{width:66.662px;height:11.335px}
+/* the phone's 8px black OUTSIDE stroke (Figma strokeAlign OUTSIDE): a 391x828 R56 squircle behind the 375x812 R48 screen */
+.ci-intro .ci-bz{position:absolute;left:-8px;top:-8px;width:391px;height:828px;background:#000}

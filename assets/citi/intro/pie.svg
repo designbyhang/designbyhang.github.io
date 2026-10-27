@@ -1,0 +1,9 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Graph">
+<path id="Path" d="M0 59.9999C0 68.7839 1.88759 77.127 5.27926 84.6458L57.0906 59.3757L3.46469 39.8574C1.22144 46.1532 0 52.9339 0 59.9999Z" fill-rule="evenodd" clip-rule="evenodd" fill="#CF9C48"/>
+<path id="Path_2" d="M3.91602 38.6341L58.116 58.3613L37.4027 4.40137C22.0321 10.6548 9.83862 23.097 3.91602 38.6341Z" fill-rule="evenodd" clip-rule="evenodd" fill="#5F6465"/>
+<path id="Path_3" d="M38.6161 3.92259L58.6957 56.2315V0.0138971C51.6349 0.164488 44.8743 1.5348 38.6161 3.92259Z" fill-rule="evenodd" clip-rule="evenodd" fill="#6F87B2"/>
+<path id="Path_4" d="M120 60C120 26.8629 93.1371 0 60 0L60 59.4008L101.978 102.87C113.099 91.9792 120 76.7955 120 60Z" fill-rule="evenodd" clip-rule="evenodd" fill="#451245"/>
+<path id="Path_5" d="M60 120C36.1104 120 15.4817 106.038 5.82866 85.8291L58.772 60.0069L101.036 103.773C90.3054 113.837 75.8725 120 60 120Z" fill-rule="evenodd" clip-rule="evenodd" fill="#C6533D"/>
+</g>
+</svg>
