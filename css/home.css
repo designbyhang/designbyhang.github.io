@@ -156,7 +156,7 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .g{vector-effect:none;stroke-width:var(--gw,1);shape-rendering:crispEdges} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
 .poster-svg .g.a.ln,.poster-svg .g.a.lv{opacity:1;stroke-dasharray:var(--l) calc(var(--l)*2);animation-name:pDraw} /* the draw-in reveals the dash (--l = line length, --l0 = start offset, negative for .rv; hidden before its delay by fill-mode both) instead of scaling and fading the line in: a transform or opacity animation, even once finished, gives every line its own layer and its own sub-pixel offset, so lines smeared over 2-3 device px, each differently */
 .poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:both}
-.poster-svg .pd{animation-name:pIn;animation-duration:.9s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:forwards}
+.poster-svg .pd{opacity:1;animation-name:pdIn;animation-duration:.9s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:both} /* dots fade fill-opacity, not opacity: an opacity animation puts each dot on its own GPU layer, rasterised differently from the painted card (a visible AA change when it lands and drops back); fill-opacity paints in place like the lines' dash draw. Hidden before its delay by fill-mode both */
 /* grid lines and dots stay solid ink, no fade to grey (Hang, 2026-10-24) */
 .poster-svg .g{stroke:var(--c-strong)}.poster-svg .pd{fill:var(--c-strong)}
 @media (prefers-reduced-motion:reduce){.poster-svg .g.a.ln,.poster-svg .g.a.lv,.poster-svg .pd{animation:none;opacity:1}}
@@ -168,9 +168,13 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
 @keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
 @keyframes pIn{to{opacity:1}}
+@keyframes pdIn{from{fill-opacity:0}to{fill-opacity:1}}
 @keyframes pDraw{from{stroke-dashoffset:var(--l0)}to{stroke-dashoffset:0}}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap::before,.poster-cap .poster-title{animation:none;opacity:1}}
+/* settled (js/home.js sets data-set on animationend): the end state without the animation, so nothing stays on a GPU layer once it has landed */
+.poster-svg .a[data-set],.poster-svg .g.a.ln[data-set],.poster-svg .g.a.lv[data-set]{animation:none;opacity:1}
+.poster-cap[data-set]::before{animation:none;opacity:1}.poster-cap[data-set] .poster-title{animation:none}
 html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!important;opacity:1!important}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.intro .media-wrap{aspect-ratio:1;height:auto}.poster-cap{display:none}.intro-in.poster{height:100%}}
 

@@ -140,6 +140,11 @@ function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base
 const THIN_D=.7882 /* 16px at the 1440 design size */,THIN_P=1; /* thin-row height factors (desktop rows are empty; mobile keeps 22px for VISION/STRATEGY) */
 let resnap=()=>{};
 const ovEl=document.querySelector('.poster-ov'),capEl=root.querySelector('.poster-cap');
+/* settle: once a draw-in animation has run, drop it for its static end state (css/home.css [data-set]), the same way .strip.in / .poster-ov.in do.
+   A finished animation that still fills (forwards/both) keeps its element on its own GPU layer for good: 12 dots, 4 letters, 10 keywords/knockouts,
+   the CTA and its knockout stayed promoted after the intro, the masked dots as viewport-sized layers. data-*, not a class: no squircle.js rescans */
+svg.addEventListener('animationend',e=>{const t=e.target;if(t!==svg&&t.classList.contains('a'))t.dataset.set='';});
+if(capEl)capEl.addEventListener('animationend',e=>{if(e.animationName==='pRiseT')capEl.dataset.set='';});
 function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==host)host.insertBefore(svg,host===root?capEl:null);} /* desktop: the unscaled overlay (js above, css .poster-ov); mobile: in the card (the strip is not scaled there) */
   const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
@@ -236,9 +241,16 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
        row band, fading in at --cd) becomes a hole in a mask on the lines and dots: same box, same fade (.a, pIn .9s at TC) */
     {const NS='http://www.w3.org/2000/svg',mk=document.createElementNS(NS,'mask'),r=(a)=>{const e=document.createElementNS(NS,'rect');for(const k in a)e.setAttribute(k,a[k]);return mk.appendChild(e);},
       tr=(cap.style.translate||'0 0').split(' ').map(parseFloat),cl=cap.offsetLeft+(tr[0]||0),ct=cap.offsetTop+(tr[1]||0),hx0=(cl-2)*px,hx1=(cl+cap.offsetWidth+7)*px,hy0=Math.max((ct-6)*px,rT+2*px),hy1=Math.min((ct+cap.offsetHeight+6)*px,rB-2*px);
-     mk.id='pcm';mk.setAttribute('maskUnits','userSpaceOnUse');mk.setAttribute('x',-VW);mk.setAttribute('y',-VH);mk.setAttribute('width',3*VW);mk.setAttribute('height',3*VH);
-     r({x:-VW,y:-VH,width:3*VW,height:3*VH,fill:'#fff'});if(hy1>hy0)r({class:'a',style:`--d:${TC}`,x:hx0,y:hy0,width:hx1-hx0,height:hy1-hy0,fill:'#000'});
-     svg.querySelector('defs').appendChild(mk);svg.querySelectorAll('line.g,circle.pd').forEach(e=>e.setAttribute('mask','url(#pcm)'));}}
+     /* the mask goes only on the lines/dots that cross the hole, and its region is the poster's own box (+8px): every masked element is re-rasterised
+        whenever the hole's fade repaints the mask, and a masked element that is a GPU layer takes the mask region as its bounds. On all 13 lines + 12 dots
+        with a 3x-card region that was 12 dot layers of 3x3 card size re-rasterised every frame of the CTA reveal, and Chrome (GPU raster, Retina)
+        dropped tiles: grid lines, dots or whole letters blinked out for single frames as the intro finished (Hang, 2026-10-27) */
+     const M=8*px,mx0=-M,my0=-M,mw=VW+2*M,mh=VH+2*M,hit=(a0,a1,b0,b1)=>a1>=hx0-M&&a0<=hx1+M&&b1>=hy0-M&&b0<=hy1+M;
+     mk.id='pcm';mk.setAttribute('maskUnits','userSpaceOnUse');mk.setAttribute('x',mx0);mk.setAttribute('y',my0);mk.setAttribute('width',mw);mk.setAttribute('height',mh);
+     r({x:mx0,y:my0,width:mw,height:mh,fill:'#fff'});if(hy1>hy0)r({class:'a',style:`--d:${TC}`,x:hx0,y:hy0,width:hx1-hx0,height:hy1-hy0,fill:'#000'});
+     svg.querySelector('defs').appendChild(mk);if(hy1>hy0)svg.querySelectorAll('line.g,circle.pd').forEach(e=>{const g=k=>+e.getAttribute(k);
+       const b=e.tagName==='circle'?[g('cx')-g('r'),g('cx')+g('r'),g('cy')-g('r'),g('cy')+g('r')]:[Math.min(g('x1'),g('x2')),Math.max(g('x1'),g('x2')),Math.min(g('y1'),g('y2')),Math.max(g('y1'),g('y2'))];
+       if(hit(...b))e.setAttribute('mask','url(#pcm)');});}}
   }
 let lp=null,rt=0,bw=0,bh=0;addEventListener('strip:rest',()=>resnap());const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
 const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:svg.getAnimations({subtree:true}))].forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
