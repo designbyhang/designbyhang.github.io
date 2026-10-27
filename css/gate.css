@@ -56,6 +56,7 @@ html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:p
 .gate-help{margin:16px 0 0;font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{position:relative;color:inherit;text-decoration:none} /* Hang, Oct 23: link grey, as "Don't have one?" */
 /* hover underline = site nav (.home .top nav a::after / .bar-right a .t::after) */
 .gate-help a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.gate-help a{transition:color .24s ease}.gate-help a:hover{color:var(--c-strong)} /* Hang, Oct 26: link goes to the strong text colour (black in light) on hover */
 .gate-help a:hover::after,.gate-help a:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.gate-help a::after{transition:none}}
 /* the site's own theme toggle (js/theme.js) stays visible and above the gate, in its normal position */
