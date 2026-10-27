@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Profile → IAB — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=185"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=186"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -19,12 +19,12 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=185"><link rel="stylesheet" href="../../css/theme.css?v=185">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=185"><script src="../../js/squircle.js?v=185"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=185"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=185"><script src="../shared/appbar/appbar.js?v=185"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=185"><script src="../shared/tabbar/tabbar.js?v=185"></script>
+<link rel="stylesheet" href="../../css/type.css?v=186"><link rel="stylesheet" href="../../css/theme.css?v=186">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=186"><script src="../../js/squircle.js?v=186"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=186"></script><script src="../shared/edge-back/edge-back.js?v=186"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=186"><script src="../shared/appbar/appbar.js?v=186"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=186"><script src="../shared/tabbar/tabbar.js?v=186"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=185">
+<link rel="stylesheet" href="../shared/device/device.css?v=186">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -479,7 +479,7 @@ let pg=null,suppressClick=false;
 profile.addEventListener('pointerdown',e=>{
   if(e.button!==0||screen!==2)return;
   const [x,y]=ptOf(e);stopP();
-  pg={id:e.pointerId,x0:e.clientX,y0:e.clientY,s:S(),py0:py,edge:x<24,peek:ctaState==='peek'&&!mSpring&&py<=.5&&!!e.target.closest('#cta'),card:ctaState==='card'&&!mSpring&&!!e.target.closest('#cta'),mode:null,samples:[[performance.now(),py]]};
+  pg={id:e.pointerId,x0:e.clientX,y0:e.clientY,s:S(),py0:py,edge:EB.zone(x),peek:ctaState==='peek'&&!mSpring&&py<=.5&&!!e.target.closest('#cta'),card:ctaState==='card'&&!mSpring&&!!e.target.closest('#cta'),mode:null,samples:[[performance.now(),py]]};
   if(pg.peek&&peekUpS){peekUpS.cancel();peekUpS=null}             // catch a peek that is still springing back
   if(pg.card&&cardS){cardS.cancel();cardS=null;pg.cd0=cardDy}else if(pg.card)pg.cd0=0
 });
@@ -488,14 +488,14 @@ profile.addEventListener('pointermove',e=>{
   const dx=(e.clientX-pg.x0)/pg.s,dy=(e.clientY-pg.y0)/pg.s;
   if(!pg.mode){
     if(pg.card&&Math.hypot(dx,dy)>6)pg.mode=Math.abs(dy)>=Math.abs(dx)?'card':'done';   // a drag on the floating card moves only the card
-    else if(pg.edge&&dx>8&&Math.abs(dx)>Math.abs(dy))pg.mode='edge';
+    else if(pg.edge&&EB.claims(dx,dy))pg.mode='edge';
     else if(pg.peek&&dy>6&&dy>Math.abs(dx))pg.mode='peek';
     else if(pg.peek&&dy<-6&&-dy>Math.abs(dx))pg.mode='peekUp';          // an upward drag on the peek expands it, it never scrolls the profile
     else if(Math.abs(dy)>6)pg.mode='scroll';
     else return;
     try{profile.setPointerCapture(e.pointerId)}catch(_){}
     suppressClick=true;
-    if(pg.mode==='edge'){phone.classList.add('drag-reel');profile.classList.add('drag')}
+    if(pg.mode==='edge'){phone.classList.add('drag-reel');profile.classList.add('drag');EB.begin(pg.samples[0][0])}
   }
   const now=performance.now();
   if(pg.mode==='scroll'){
@@ -510,11 +510,15 @@ profile.addEventListener('pointermove',e=>{
     if(ctaState!=='card'){pg.mode='done';return}
     cardDy=cardPull(pg.cd0+dy);renderCta();pg.samples.push([now,cardDy]);
   }else if(pg.mode==='edge'){
-    const p=clamp(dx/W);edgeRender(p);pg.samples.push([now,dx]);
+    EB.move(dx);
   }
   while(pg.samples.length>2&&now-pg.samples[0][0]>100)pg.samples.shift();
 });
 function edgeRender(p){host()?.edge(p);pushS.stop();pushX=p*W;pushRender()}   // the swipe back moves the same push value
+/* the edge pop: the shared FMSS edge swipe back (../shared/edge-back): past a third of the width or flicked right finishes */
+const EB=FMSSEdgeBack.create({width:W,onMove:edgeRender,onEnd:done=>{
+  phone.classList.remove('drag-reel');profile.classList.remove('drag');
+  if(done){screen=2;backToReelInstant()}else{pushTo(0,true);host()?.edge(null)}}});
 function pUp(e){
   const d=pg;if(!d||e.pointerId!==d.id)return;pg=null;
   setTimeout(()=>{suppressClick=false},0);
@@ -530,13 +534,7 @@ function pUp(e){
   if(d.mode==='peekUp'){if(ctaState!=='peek')return;
     if(-peekDy>120||v<-500)return expandPeek(Math.min(0,v));
     return peekBack(v)}
-  if(d.mode!=='edge')return;
-  // edge pop: finish if past a third of the width or flicked right
-  const p0=clamp(((e.clientX-d.x0)/d.s)/W);let p=p0;
-  const done=p0>.33||v>500;
-  spring(()=>p,q=>{p=q;edgeRender(q)},done?1:0,{v:v/W,w:done?20:18,eps:.002,veps:.05,onDone:()=>{
-    phone.classList.remove('drag-reel');profile.classList.remove('drag');
-    if(done){screen=2;backToReelInstant()}else{pushTo(0,true);host()?.edge(null)}}});
+  if(d.mode==='edge')EB.end((e.clientX-d.x0)/d.s);
 }
 /* peek → full screen by dragging (or wheel / trackpad swiping) it up: the sheet follows, then springs to the top and hands over to the IAB */
 const PEEK_TOP=54-PEEK.y;                              // peekDy with the peek's top edge under the status bar
