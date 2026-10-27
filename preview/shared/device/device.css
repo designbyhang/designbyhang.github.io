@@ -1,5 +1,5 @@
 /* FMSS shared device tokens: the one source for the phone's device frame (bezel) colour in every FMSS demo
-   (fmss-cb, fmss-hs, fmss-profile, fmss-sol1, fmss-sol2: .bezel-fill and the sol .rim read var(--bezel)).
+   (fmss-cb, fmss-hs, fmss-profile, fmss-sol1, fmss-sol2: .bezel-fill reads var(--bezel), drawn under the screen, never over it).
    Follows the site theme: near-black #111 in light, #868686 grey in dark (#E0E0E0 40% darker). Colour only; the
    frame's width and geometry live with each demo's device markup. */
 :root{--bezel:#111}

@@ -1,6 +1,6 @@
 /* Device cover: the shared foundation for animated case-study covers (hero on the case page, the homepage card, NEXT CASE STUDY cards).
    A cover is the project's cover art (black phone on the project gradient, the same file in light and dark mode) with a live phone screen
-   laid exactly over the screen baked into the art, plus the art's black inner rim, so only the screen content moves.
+   laid exactly over the screen baked into the art, on a black bezel fill under it (the Evolution prototypes' frame setup), so only the screen content moves.
    Markup: <span class="cover-anim [cover-card]" data-cover-anim="NAME" data-art="W H x y" [data-pos="x y"] aria-hidden="true"></span>
      data-art: the art's size and the screen's top-left, in art px (2 art px per design px); data-pos: CSS background-position as fractions.
    A project registers its player once: DeviceCover.register(NAME,{T,rest,build(screenEl)->{anims,imgs,video?}}); the player owns what is
@@ -31,10 +31,10 @@ function squircle(w,h,R,sm){
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")');
 const mvP=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 /* cover art phone (assets/cover-*.webp, one template for every project, measured at 2 art px per design px): circular corners, outer 56,
-   8px bezel, so the screen is 375x812 at 48. Rim: concentric ring from 4px inside the baked outer edge (r 52) to 1.5px over the screen
-   (r 46.5), so neither the art's outer edge nor the screen corner is redrawn off-shape */
+   8px bezel, so the screen is 375x812 at 48. Bezel: as the Evolution prototypes' .bezel-fill, a solid black shape UNDER the screen (from
+   4px inside the baked outer edge, r 52), so the screen's anti-aliased edge meets black and nothing is drawn over the screen */
 const PATH={coverScr:`path('${squircle(375,812,48,0)}')`,
-  coverRim:`path(evenodd,'${mvP(squircle(383,820,52,0),4,4)}${mvP(squircle(372,809,46.5,0),9.5,9.5)}')`};
+  coverBezel:`path('${mvP(squircle(383,820,52,0),4,4)}')`};
 /* WAAPI keyframes from timed samples [{t, ...props}] over a loop of T ms (linear between 8ms samples) */
 const track=(P,T,fn)=>P.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
 
@@ -46,8 +46,8 @@ function mount(host){
   const [W,H,SX,SY]=host.dataset.art.split(/\s+/).map(Number),[PX,PY]=(host.dataset.pos||'.5 .5').split(/\s+/).map(Number);
   const ph=document.createElement('span');ph.className='cv-ph';
   const scr=document.createElement('span');scr.className='cv-scr';
-  const rim=document.createElement('span');rim.className='cv-rim';if(SQ)rim.style.clipPath=PATH.coverRim;
-  ph.append(scr,rim);host.appendChild(ph);
+  const bz=document.createElement('span');bz.className='cv-bz';if(SQ)bz.style.clipPath=PATH.coverBezel;
+  ph.append(bz,scr);host.appendChild(ph);
   const r=P.build(scr),v=r.video,rest=P.rest||0;
   if(SQ)scr.style.clipPath=PATH.coverScr;   // the art's screen shape
   // the loop enters at the player's rest time: the frame that matches the still art, so the first moving frame is the cover

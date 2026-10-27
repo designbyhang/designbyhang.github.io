@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=187">
+<link rel="stylesheet" href="../shared/device/device.css?v=188">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
@@ -30,8 +30,6 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2))}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
-/* rim: the bezel's inner edge drawn on top of the screen, 1.5px over it, so the screen's own clip edge (antialiased per layer) is never what you see */
-.rim{position:absolute;inset:-8px;border:9.5px solid var(--bezel);border-radius:48px;transition:border-color .4s var(--ease),background-color .4s var(--ease)}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
 .L{will-change:transform,opacity}
 /* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
@@ -42,14 +40,14 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
  /* the bezel too: its drop-shadow filter would otherwise be backed at design size (shadow and squircle clip at drawn size, set in fit()) */
  .bezel{transform-origin:0 0;scale:calc(1 / var(--s,.5));right:auto;bottom:auto;width:calc(391px * var(--s,.5));height:calc(828px * var(--s,.5));filter:drop-shadow(calc(40px * var(--s,.5)) 0 calc(20px * var(--s,.5)) rgba(0,0,0,.2))}
  .bezel-fill{border-radius:calc(48px * var(--s,.5))}
- /* and the rim (over the screen) and the label: each its own small layer, so the stage itself paints nothing and needs no design-size backing store */
- .rim{transform-origin:0 0;scale:calc(1 / var(--s,.5));right:auto;bottom:auto;width:calc(391px * var(--s,.5));height:calc(828px * var(--s,.5));border-width:calc(9.5px * var(--s,.5));border-radius:calc(48px * var(--s,.5))}
- .bezel,.rim,.lab{will-change:transform}
- .scr{background:none}.scr>.bg{position:absolute;left:0;top:0;background:#fff;width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ /* and the label: its own small layer, so the stage itself paints nothing and needs no design-size backing store */
+ .bezel,.lab{will-change:transform}
+ /* the white under every layer stops 8px short of the screen's side edges: the layers' anti-aliased side columns meet the bezel there, not white (no light hairline down the sides) */
+ .scr{background:none}.scr>.bg{position:absolute;left:8px;top:0;background:#fff;width:calc(359px * var(--s,.5));height:calc(812px * var(--s,.5))}
  .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
  .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
  .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}}
-/* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge under the rim, so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
+/* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge (clipped by the screen), so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
 .cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
 /* status bar / IAB header seam: a strip in the C header colour, under the C status bar and header, riding with the header for the last 1% of split -> full
    (and while full), so the spring's sub-pixel tail never opens a hairline of the B media between the fixed status bar and the rising header */
@@ -66,7 +64,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=187"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=5"></script>
+<script src="../../js/squircle.js?v=188"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=6"></script>
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
@@ -131,8 +129,6 @@ function squircle(w,h,R,sm){
     `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${Dd} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-Dd} ${BC} ${-Dd} ${ABC} ${-Dd}Z`;
 }
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
-const mv=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
-const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   // outer bezel minus the screen shape inset 1.5px
 const HD=['nike.com',null,null,null];   // phones whose B sheet is an IAB: its header is the shared one (../shared/iab/header.js) for this domain
 const CS=['#fff','#f1f2f6','#fff','#f1f2f6'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (c1-c4 last row)
@@ -152,9 +148,9 @@ PH.forEach((p,i)=>{
     `<i class="L cs" style="background:${CS[i]}"></i>`+
     `<img class="L cb" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(${dp(43)} 0 0 0)">`+
     `<img class="L ct" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(0 0 ${dp(768)} 0)">`+
-    `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
+    `</div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
-  if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
+  if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
   // IAB sheets: the sheet image's header strip is blank (the sheet's white, its rounded corners); the shared header draws on it
   if(HD[i])dev.querySelector('.bs').after(FMSSIABHeader({url:HD[i],cls:'bhd',style:`top:${top}px;will-change:transform`}));
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
@@ -187,8 +183,8 @@ PH.forEach((p,i)=>{
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
 function fit(){const s=scl(),k=+s.toFixed(4);stage.style.setProperty('--s',k);
-  if(IT&&SQ){const p=`path('${squircle(391*k,828*k,48*k,.6)}')`,r=`path(evenodd,'${squircle(391*k,828*k,48*k,.6)}${mv(squircle(372*k,809*k,38.5*k,.6),9.5*k,9.5*k)}')`;
-    stage.querySelectorAll('.bezel-fill').forEach(e=>{e.style.clipPath=p});stage.querySelectorAll('.rim').forEach(e=>{e.style.clipPath=r})}
+  if(IT&&SQ){const p=`path('${squircle(391*k,828*k,48*k,.6)}')`;
+    stage.querySelectorAll('.bezel-fill').forEach(e=>{e.style.clipPath=p})}
   if(half&&s*(devicePixelRatio||1)>1)upgrade()}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;

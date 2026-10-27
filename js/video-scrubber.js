@@ -46,7 +46,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
    'letter-spacing:0;text-shadow:0 0 1px rgba(0,0,0,.16);-webkit-font-smoothing:antialiased}'+
  '.vs-h{position:absolute;height:24px;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}'+
  '.vs-r,.vs-l{position:absolute;left:0;top:10px;width:100%;height:4px;border-radius:16px}'+
- '.vs-r{background:rgba(255,255,255,.2);box-shadow:0 0 1px rgba(0,0,0,.12)}'+
+ '.vs-r{background:rgba(255,255,255,.2)}'+
  // fill: a track-sized pill that clips a full-width white pill slid in from the left (translateX only), so both of its ends stay true
  // semicircles at any position (a scaleX fill squashes its rounded ends into square, uneven ones)
  '.vs-l{overflow:hidden;isolation:isolate}.vs-l>i{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:16px;background:#fff;transform:translateX(-100%)}'+

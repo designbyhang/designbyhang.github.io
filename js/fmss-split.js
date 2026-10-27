@@ -45,12 +45,11 @@ const squircle=window.Squircle.path;
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")');
 const mvP=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 const PATH={scr:squircle(375,812,40,.6),bezel:squircle(391,828,48,.6)};
-PATH.rim=`path(evenodd,'${PATH.bezel}${mvP(squircle(372,809,38.5,.6),9.5,9.5)}')`;   // outer bezel minus the screen shape inset 1.5px
 /* cover art phone (assets/cover-fmss-*.webp, measured at 2 art px per design px): circular corners, outer 56, 8px bezel, so the screen is 48
-   (sol1's own phone keeps its 48/40 at 60% smoothing above). Cover rim: concentric ring from 4px inside the baked outer edge (r 52) to 1.5px
-   over the screen (r 46.5), so neither the art's outer edge nor the screen corner is redrawn off-shape */
+   (sol1's own phone keeps its 48/40 at 60% smoothing above). Cover bezel: as the Evolution prototypes' .bezel-fill, a solid black shape UNDER
+   the screen (from 4px inside the baked outer edge, r 52), so the screen's anti-aliased edge meets black and nothing is drawn over the screen */
 PATH.coverScr=`path('${squircle(375,812,48,0)}')`;
-PATH.coverRim=`path(evenodd,'${mvP(squircle(383,820,52,0),4,4)}${mvP(squircle(372,809,46.5,0),9.5,9.5)}')`;
+PATH.coverBezel=`path('${mvP(squircle(383,820,52,0),4,4)}')`;
 /* fill one 375x812 screen element with phone i (0-3). opt.base = URL of preview/fmss-sol1/assets/ (trailing slash); opt.sheetDy = extra px the B
    sheet sits lower at the split hold only (eased in with a, out with c; the B backdrop runs that much longer under it); opt.video = false to
    leave the <video> without src (caller attaches it lazily via the returned video's data-src). Layer CSS: see .fsp-* in css/card.css
@@ -59,7 +58,8 @@ function screen(el,i,opt){
   const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=5',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
   // bw: a white strip under everything at the split line (shows only while A is hidden, through the anti-aliased bottom row of the B
   // backdrop, whose edge meets the sheet's in the same device row; over the screen's black that row read as a dark hairline)
-  el.innerHTML=`<i class="bw" style="position:absolute;left:0;width:375px;top:${top-2}px;height:${sd+4}px;background:#fff"></i>`+
+  // it stops 8px short of the side edges, so the layers' anti-aliased side columns meet the black under the screen, not white
+  el.innerHTML=`<i class="bw" style="position:absolute;left:8px;width:359px;top:${top-2}px;height:${sd+4}px;background:#fff"></i>`+
     `<img class="L a" alt="" src="${B}a${n}.webp${V}">`+
     `<img class="L bt" alt="" src="${B}bu${n}.webp${V}" style="height:${top+sd}px">`+
     `<div class="mv"><video muted playsinline loop ${lazy?'preload="none" data-src':'preload="auto" src'}="${B}v${n}.mp4${V}" disableremoteplayback poster="${B}p${n}.webp${V}"></video></div>`+
@@ -108,7 +108,7 @@ window.FMSSSplit={PHONES,POSE,T,STEP,marks:{t1,t1e,t2,t2e,t3,t3e,t4,t4e},squircl
 /* ---- FMSS cover animation: [data-fmss-anim] over the FMSS cover (hero, homepage card, NEXT CASE STUDY card) ----
    The element paints the cover art itself (CSS background, the light-mode file in both themes: black phone on the orange gradient,
    never theme-swapped) and lays phone 1 (Offsite Conversions, the hero's Nike screen) over the phone screen baked into that art, with
-   the same black inner rim sol1 draws, so only the screen content moves. The art: data-art "W H x y" = art size and the screen's
+   a black bezel fill under it (the Evolution prototypes' frame setup), so only the screen content moves. The art: data-art "W H x y" = art size and the screen's
    top-left in art px (2 art px per design px). Positioned like the CSS background (cover, data-pos "x y" as fractions). */
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const ART_BASE=(document.currentScript&&document.currentScript.src)||location.href;
@@ -117,8 +117,8 @@ function mount(host){
   const [W,H,SX,SY]=host.dataset.art.split(/\s+/).map(Number),[PX,PY]=(host.dataset.pos||'.5 .5').split(/\s+/).map(Number);
   const ph=document.createElement('span');ph.className='fsp-ph';
   const scr=document.createElement('span');scr.className='fsp-scr';
-  const rim=document.createElement('span');rim.className='fsp-rim';if(SQ)rim.style.clipPath=PATH.coverRim;
-  ph.append(scr,rim);host.appendChild(ph);
+  const bz=document.createElement('span');bz.className='fsp-bz';if(SQ)bz.style.clipPath=PATH.coverBezel;
+  ph.append(bz,scr);host.appendChild(ph);
   // the cover's split line is 1px lower than sol1's (407 vs 406: the prototype's sheet stop), so the still and the B hold line up
   const r=screen(scr,0,{base:new URL('../preview/fmss-sol1/assets/',ART_BASE).href,video:false,sheetDy:1}),v=r.video;
   if(SQ)scr.style.clipPath=PATH.coverScr;   // the art's screen shape, not sol1's

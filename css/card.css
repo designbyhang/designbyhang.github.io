@@ -13,8 +13,7 @@
 .fsp-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .fmss-anim.on .fsp-ph{opacity:1}
 .fsp-scr{position:absolute;inset:8px;overflow:hidden;background:#000;isolation:isolate;border-radius:48px} /* the cover art's screen radius (clip-path path() refines it where supported) */
-.fsp-rim{position:absolute;inset:0;background:#000}
-@supports not (clip-path:path('M0 0H1V1Z')){.fsp-rim{display:none}}
+.fsp-bz{position:absolute;inset:4px;background:#000;border-radius:52px} /* black bezel fill UNDER the screen (Evolution .bezel-fill); clip-path path() refines it */
 html body .fmss-anim .fsp-scr img{position:absolute;left:0;top:0;width:375px;height:812px;max-width:none;display:block;border-radius:0;object-fit:fill;-webkit-user-drag:none}
 .fsp-scr .L{will-change:transform,opacity}
 .fsp-scr .mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
@@ -35,8 +34,7 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
 .cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .cover-anim.on .cv-ph{opacity:1}
 .cv-scr{position:absolute;inset:8px;overflow:hidden;background:#000;isolation:isolate;border-radius:48px} /* the cover art's screen radius (clip-path path() refines it where supported) */
-.cv-rim{position:absolute;inset:0;background:#000}
-@supports not (clip-path:path('M0 0H1V1Z')){.cv-rim{display:none}}
+.cv-bz{position:absolute;inset:4px;background:#000;border-radius:52px} /* black bezel fill UNDER the screen (Evolution .bezel-fill); clip-path path() refines it */
 html body .cover-anim .cv-scr img{position:absolute;left:0;top:0;max-width:none;display:block;border-radius:0;object-fit:fill;-webkit-user-drag:none}
 @media (prefers-reduced-motion:reduce){.cv-ph{display:none}}
 /* VAC player layers (js/vac-chain.js), Figma vac_21 at 2x, in paint order: Feed, the white strip under the split line, Split backdrop,
@@ -45,7 +43,7 @@ html body .cover-anim .cv-scr img{position:absolute;left:0;top:0;max-width:none;
    Reels pages (375x734), Reels chrome, comment bar */
 .cv-scr.vac .vc-l{position:absolute;left:0;top:0;will-change:transform,opacity}
 html body .cover-anim .cv-scr.vac .vc-feed{width:375px;height:812px}
-.cv-scr.vac .vc-bw{top:404px;width:375px;height:4px;background:#fff}
+.cv-scr.vac .vc-bw{left:8px;top:404px;width:359px;height:4px;background:#fff} /* 8px short of the side edges: the side columns meet black, not white */
 html body .cover-anim .cv-scr.vac .vc-bu,html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
 .cv-scr.vac .vc-bos{clip-path:inset(0 0 362px 0)}
 .cv-scr.vac .vc-box{clip-path:inset(44px 0 0 0)}
