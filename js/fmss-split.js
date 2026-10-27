@@ -58,9 +58,9 @@ PATH.coverBezel=`path('${mvP(squircle(383,820,52,0),4,4)}')`;
 function screen(el,i,opt){
   const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=5',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
   // bw: the seam underlay, under everything at the split line (shows only while A is hidden, through the anti-aliased device row where the
-  // B backdrop's last row meets the sheet's first): the sheet image's own top rows, full width, so that row is filled with the colours both
+  // B backdrop's last row meets the sheet's first): the sheet image's own first row (stretched over the strip), full width, so that row is filled with the colours both
   // sides carry (the backdrop's in the sheet's rounded corners, white between), never the screen's black (dark hairline) or plain white
-  el.innerHTML=`<i class="bw" style="position:absolute;left:0;width:375px;top:${top-2}px;height:${sd+4}px;background:url(${B}bl${n}.webp${V}) 0 0/375px auto no-repeat"></i>`+
+  el.innerHTML=`<i class="bw" style="position:absolute;left:0;width:375px;top:${top-2}px;height:${sd+4}px;background:url(${B}bl${n}.webp${V}) 0 0/375px 81200% no-repeat"></i>`+
     `<img class="L a" alt="" src="${B}a${n}.webp${V}">`+
     `<img class="L bt" alt="" src="${B}bu${n}.webp${V}" style="height:${top+sd}px">`+
     `<div class="mv"><video muted playsinline loop ${lazy?'preload="none" data-src':'preload="auto" src'}="${B}v${n}.mp4${V}" disableremoteplayback poster="${B}p${n}.webp${V}"></video></div>`+

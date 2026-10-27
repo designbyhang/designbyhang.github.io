@@ -40,7 +40,7 @@ html body .cover-anim .cv-scr img{position:absolute;left:0;top:0;max-width:none;
    Reels pages (375x734), Reels chrome, comment bar */
 .cv-scr.vac .vc-l{position:absolute;left:0;top:0;will-change:transform,opacity}
 html body .cover-anim .cv-scr.vac .vc-feed{width:375px;height:812px}
-.cv-scr.vac .vc-bw{left:0;top:404px;width:375px;height:4px;background:url(../assets/vac-anim/split-bl.webp?v=3) 0 0/375px auto no-repeat} /* seam underlay: the sheet image's own top rows, full width (the backdrop's colour in the sheet's rounded corners, white between), never black or plain white */
+.cv-scr.vac .vc-bw{left:0;top:404px;width:375px;height:4px;background:url(../assets/vac-anim/split-bl.webp?v=3) 0 0/375px 81200% no-repeat} /* seam underlay: the sheet image's own first row (1 of 812, stretched over the strip: 81200%, so no lower corner row pokes out past the sheet's curve), full width (the backdrop's colour in the sheet's rounded corners, white between), never black or plain white */
 html body .cover-anim .cv-scr.vac .vc-bu,html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
 .cv-scr.vac .vc-bos{clip-path:inset(0 0 362px 0)}
 .cv-scr.vac .vc-box{clip-path:inset(44px 0 0 0)}

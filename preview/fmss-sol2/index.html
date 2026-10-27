@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=206">
+<link rel="stylesheet" href="../shared/device/device.css?v=207">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -33,10 +33,12 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
-/* split-line seam underlay: the B sheet image's own top rows, full width, under every layer at the split line. The backdrop's last row and
+/* split-line seam underlay: the B sheet image's own first row (1 of its 812, stretched over the strip's height: background-size 100% 81200%),
+   full width, under every layer at the split line. Only that row: the strip starts 2px above the sheet, so with the image's top rows laid
+   1:1 its narrower lower corner rows poked out past the sheet's own corner curve in the shared row (a light spike off each rounded corner). The backdrop's last row and
    the sheet's first meet in one anti-aliased device row; this fills it with the colours both sides carry (the backdrop's in the sheet's
    rounded corners, the sheet's white between), never the bezel's black (dark hairline) or a white underlay (light one) */
-.sw{position:absolute;left:0;width:375px;background-position:0 0;background-size:100% auto;background-repeat:no-repeat}
+.sw{position:absolute;left:0;width:375px;background-position:0 0;background-size:100% 81200%;background-repeat:no-repeat}
 .L{will-change:transform,opacity}
 /* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
    375×812 design size × the pixel ratio, ~11MB, some 40 per animation, which pushed iOS Safari past its memory limit), so every animated
@@ -84,7 +86,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=206"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=206"></script>
+<script src="../../js/squircle.js?v=207"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=207"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
