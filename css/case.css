@@ -90,6 +90,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .next .k .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease} /* same underline as BACK / nav links, driven by hovering anywhere on the card */
 .next-hit:hover .k .t::after,.next-hit:focus-visible .k .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.next .k .t::after{transition:none}}
+@media (max-width:640px){.next .k{align-items:flex-end}.next .k .t{width:min-content}.next .k .arr{margin-bottom:.18em}} /* phone: min-content width puts NEXT / CASE / STUDY on one line each (no markup change, every case page); arrow on the STUDY line, centred on it as on one line: (1em line - .64em arrow) / 2 */
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.next-hit{gap:20px;padding:19px 19px 19px 20px}.next .media-wrap{border-radius:round(calc(100cqi / 20), 2px)}}
 .foot{max-width:1152px;margin:-64px auto 48px;padding:0 24px;display:flex;justify-content:center}
 .foot a{text-decoration:none;line-height:1!important;transition:color .2s}
