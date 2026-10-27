@@ -78,7 +78,7 @@ function screen(el,i,opt){
   // live player controls (js/video-scrubber.js): timestamp + seekable track drawn where bc's were, its icons as a crop (ci); split screen
   // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 2080–2400ms after it is reached
   if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`${B}ci${n}.webp${V}`,trackY:top-14,className:'L bc',
-    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null}).el);
+    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3,t2],[t3,t3e,t4e,t4]]),lock:i===0?LOCK:null}).el);
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
   // B top (backdrop, nav bar) dissolves in over A; the B sheet rises from the bottom edge
