@@ -156,11 +156,6 @@ function close(how){if(state!=='open'&&state!=='opening')return;snap=false;view(
   /* the transparent fixed layer covered the edges while collapsing: re-sample the bars from the page (sticky header) now */
   if(window.__dbhResample)__dbhResample();
   if(hadFocus)host.focus({preventScroll:true,focusVisible:false});},e=>aside(1-e));}
-/* the frame's focus ring (site :focus-visible, accent orange) only when it was reached with Tab: browsers also match
-   :focus-visible after programmatic focus or any key press while it is focused (Escape during the opening, arrows), which
-   left an orange outline round the frame after opening and closing */
-let tabAt=-1e9;addEventListener('keydown',e=>{if(e.key==='Tab')tabAt=performance.now();},true);
-host.addEventListener('focus',()=>host.classList.toggle('deck-kbd',performance.now()-tabAt<500));host.addEventListener('blur',()=>host.classList.remove('deck-kbd'));
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
    slide or the remembered one. Coming from below it never expands: the page scrolls past and the container keeps showing its
    current slide; a click or Enter opens it. */

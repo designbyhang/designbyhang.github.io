@@ -84,9 +84,8 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .next{margin-top:clamp(80px,10vw,128px);padding:0;border:1px solid var(--line);background:var(--c-slot)} /* same ground as the case media containers (--c-slot: #f8f8f8 / #202020) */
 .next-hit{display:grid;grid-template-columns:1fr 62%;align-items:center;gap:40px;padding:39px 39px 39px 40px;color:inherit;text-decoration:none} /* 39 + 1px border = 40px from the aside edge */
 .next-card{display:block;container-type:inline-size}
-.next .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:round(calc(100cqi / 30), 2px);overflow:hidden;isolation:isolate;transform:translateZ(0);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);transition:box-shadow .5s var(--ease)}
+.next .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:round(calc(100cqi / 30), 2px);overflow:hidden;isolation:isolate;transform:translateZ(0);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04)}
 .next .media-wrap img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
-.next-hit:hover .media-wrap{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 18px 40px -22px rgba(0,0,0,.3)}
 .next .k{margin:0;justify-self:start;line-height:1;display:flex;align-items:center}.next .k .t{position:relative;display:inline-block}
 .next .k .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease} /* same underline as BACK / nav links, driven by hovering anywhere on the card */
 .next-hit:hover .k .t::after,.next-hit:focus-visible .k .t::after{transform:scaleX(1)}

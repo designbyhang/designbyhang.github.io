@@ -16,11 +16,13 @@
      radius (VAC phone outlines) is redrawn as a smoothed ring ([data-sq-ring]). Page-size containers and anything holding an <iframe>
      (live prototypes lift out of the sheet to full screen as position:fixed; a clip-path would clip and re-stack them) get no clip:
      their four corner slivers are painted over in the backdrop colour instead (background tiles, [data-sq-bd]).
+   [data-sq-tile] opts any element into those tiles in every mode, drawn on its ::after over its content (homepage cards: a full-bleed
+   cover under a plain circular overflow clip moves with the rail, no corner-shape or clip-path mask redrawn with it).
    Left alone everywhere: pills and circles (radius >= half the short side: smoothing is a no-op there), elements that already carry
    their own clip-path (FMSS phone screens and bezels, prototype media: they are shaped by path() directly), SVG, [data-sq-off].
-   Scans run once at DOMContentLoaded, then only for added nodes (one batch per frame), resizes (ResizeObserver) and inline style writes
-   on tracked elements (MutationObserver); writes are batched after reads (no layout thrash). ?sq=off|clip|shape (kept for the session)
-   forces a mode for comparison. */
+   Scans run once at DOMContentLoaded, then only for added nodes (one batch per frame), resizes (ResizeObserver: re-pathed from the last
+   read, no style read), real class changes and inline style writes on tracked elements (MutationObserver); writes are batched after
+   reads (no layout thrash). ?sq=off|clip|shape (kept for the session) forces a mode for comparison. */
 (function(){"use strict";if(window.Squircle)return;
 const SM=.6,F=1.18,K=1.3,KS=`superellipse(${K})`;
 /* Figma corner smoothing as an SVG path (sm 0..1; .6 = Figma 60%) */
@@ -80,8 +82,9 @@ de.dataset.sq=MODE;
 
 /* shared rules: pseudo-elements can't take inline style */
 const css=document.createElement('style');css.id='squircle-css';
-css.textContent=MODE==='shape'?`[data-sq-pe~=b]::before,[data-sq-pe~=a]::after{corner-shape:${KS}}`:
-  ['b::before','a::after'].map(s=>{const [k,pe]=s.split('::');return `[data-sq-ring~=${k}]::${pe}{border-color:transparent!important;background:var(--sq-ring-${k}-c)!important;clip-path:var(--sq-ring-${k})!important}`}).join('');
+css.textContent='[data-sq-tile]{position:relative}[data-sq-tile][data-sq-bd]::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;'+
+  'background-image:var(--sq-ti);background-position:var(--sq-tp);background-size:var(--sq-ts);background-repeat:no-repeat;background-origin:border-box}'+(MODE==='shape'?`[data-sq-pe~=b]::before,[data-sq-pe~=a]::after{corner-shape:${KS}}`:
+  ['b::before','a::after'].map(s=>{const [k,pe]=s.split('::');return `[data-sq-ring~=${k}]::${pe}{border-color:transparent!important;background:var(--sq-ring-${k}-c)!important;clip-path:var(--sq-ring-${k})!important}`}).join(''));
 (document.head||de).appendChild(css);
 
 const LONG=['borderTopLeftRadius','borderTopRightRadius','borderBottomRightRadius','borderBottomLeftRadius'];
@@ -106,8 +109,8 @@ function read(r){
   r.rad=LONG.map(k=>cs[k]);
   if(r.par&&T.get(r.par)){const pc=getComputedStyle(r.par);r.inh=LONG.every((k,i)=>r.rad[i]===pc[k])}else r.inh=false;   // radius: inherit
   r.sh=shadows(cs.boxShadow).filter(s=>!s.inset);r.ov=cs.overflowX==='visible'&&cs.overflowY==='visible';r.skip=null;
-  const big=r.h>2*innerHeight;
-  r.bd=(MODE==='clip'?e.tagName!=='IFRAME'&&(!!e.querySelector('iframe')||big):big)&&cs.backgroundImage==='none'||(r.bd&&r.bdOn);
+  const big=r.h>2*innerHeight;r.tile=e.hasAttribute('data-sq-tile');
+  r.bd=r.tile||(MODE==='clip'?e.tagName!=='IFRAME'&&(!!e.querySelector('iframe')||big):big)&&cs.backgroundImage==='none'||(r.bd&&r.bdOn);
   if(r.bd)r.bdc=backdrop(e);
   if(MODE==='clip'){
     r.ring=[];['::before','::after'].forEach((pe,i)=>{const c=getComputedStyle(e,pe);if(c.content==='none'||c.display==='none')return;
@@ -125,7 +128,7 @@ function clear(r){const s=r.el.style;
   if(r.on==='shape'){r.mine=null;LONG.forEach((k,i)=>s[k]=r.ai[i]);s.removeProperty('corner-shape');r.el.removeAttribute('data-sq-pe')}
   if(r.on==='clip'){if(s.clipPath===r.myClip)s.clipPath='';r.myClip=null;
     ['b','a'].forEach(k=>{s.removeProperty('--sq-ring-'+k);s.removeProperty('--sq-ring-'+k+'-c')});r.el.removeAttribute('data-sq-ring')}
-  if(r.bdOn){['backgroundImage','backgroundPosition','backgroundSize','backgroundRepeat','backgroundOrigin'].forEach(k=>s[k]='');r.bdOn=false;r.el.removeAttribute('data-sq-bd')}
+  if(r.bdOn){['backgroundImage','backgroundPosition','backgroundSize','backgroundRepeat','backgroundOrigin'].forEach(k=>s[k]='');['--sq-ti','--sq-tp','--sq-ts'].forEach(k=>s.removeProperty(k));r.bdOn=false;r.el.removeAttribute('data-sq-bd')}
   r.on=null;r.el.removeAttribute('data-sq');
 }
 function write(r){
@@ -137,8 +140,10 @@ function write(r){
     R.forEach((rr,i)=>{if(!L[i])return;const p=Math.ceil(cp(rr,SM,b).p),ox=i===1||i===2?p-w:0,oy=i>1?p-h:0;
       lay.push(`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${p}' height='${p}'><path transform='translate(${f3(ox)} ${f3(oy)})' fill='${r.bdc}' d='${L[i]}'/></svg>`)}")`);
       sz.push(`${p}px ${p}px`);pos.push(P[i])});
-    s.backgroundImage=lay.join(',');s.backgroundPosition=pos.join(',');s.backgroundSize=sz.join(',');
-    s.backgroundRepeat='no-repeat';s.backgroundOrigin='border-box';r.bdOn=true;e.setAttribute('data-sq-bd','');
+    if(r.tile){s.setProperty('--sq-ti',lay.join(','));s.setProperty('--sq-tp',pos.join(','));s.setProperty('--sq-ts',sz.join(','))}   // on ::after
+    else{s.backgroundImage=lay.join(',');s.backgroundPosition=pos.join(',');s.backgroundSize=sz.join(',');
+      s.backgroundRepeat='no-repeat';s.backgroundOrigin='border-box'}
+    r.bdOn=true;e.setAttribute('data-sq-bd','');
   }else if(MODE==='shape'){
     s.setProperty('corner-shape',KS);
     if(!r.inh){const v=r.rad.map(scale);LONG.forEach((k,i)=>s[k]=v[i]);r.mine=LONG.map(k=>s[k])}else r.mine=null;
@@ -160,17 +165,21 @@ function write(r){
 }
 
 /* tracking */
-const ro=new ResizeObserver(es=>{const rs=[];
+let vp='';const ro=new ResizeObserver(es=>{const rs=[],V=innerWidth+'x'+innerHeight,vc=V!==vp;vp=V;   // viewport change: full re-read (vw/media-query radii)
   es.forEach(en=>{const r=T.get(en.target);if(!r)return;const bs=en.borderBoxSize&&en.borderBoxSize[0];
     const w=bs?bs.inlineSize:en.target.offsetWidth,h=bs?bs.blockSize:en.target.offsetHeight;
-    if(r.on&&Math.abs(w-r.w)<.01&&Math.abs(h-r.h)<.01)return;r.w=w;r.h=h;rs.push(r)});
-  update(rs)});
+    if(r.on&&Math.abs(w-r.w)<.01&&Math.abs(h-r.h)<.01)return;const big=h>2*innerHeight!==r.h>2*innerHeight;r.w=w;r.h=h;
+    if(!r.rad||r.skip||r.bd||big||vc||dirty.has(r))rs.push(r);   // a size-only change keeps the radius/shadow read last time: no getComputedStyle
+    else if(MODE==='clip')rsz.push(r);                         // (a forced style recalc in the middle of every animated frame in WebKit/Safari):
+    else if(pill(r)!==!r.on)rs.push(r)});                      // clip re-paths at the new size; shape scales by itself, only a pill flip re-derives
+  update(rs);rsz.forEach(write);rsz=[]});
+let rsz=[];
 /* inline style writes anywhere (a script animating a radius in from 0 starts tracking here; cheap: inline reads only) and class changes
    on or above tracked elements (a stylesheet radius that changes with state is re-read, never pinned) */
 let dirty=new Set(),draf=0;
 const later=rs=>{rs.forEach(r=>dirty.add(r));if(!draf)draf=requestAnimationFrame(()=>{draf=0;const b=[...dirty].filter(r=>r.el.isConnected);dirty=new Set();update(b)})};
 const mo=new MutationObserver(ms=>{const rs=new Set(),cl=[];
-  ms.forEach(m=>{const t=m.target;if(m.attributeName==='class'){cl.push(t);return}
+  ms.forEach(m=>{const t=m.target;if(m.attributeName==='class'){if(m.oldValue!==t.getAttribute('class'))cl.push(t);return}   // classList.add of a class already there still queues a record (home rail: every frame)
     const r=T.get(t),s=t.style;
     if(!r){if(t.nodeType===1&&!(t instanceof SVGElement)&&LONG.some(k=>!zero(s[k]))&&!t.closest('[data-sq-off]')){const p=t.parentElement;track(t,p&&T.has(p)?p:null)}return}
     if(MODE==='shape'){if(r.mine?LONG.some((k,i)=>s[k]!==r.mine[i]):LONG.map(k=>s[k]).join()!==r.lastInline)rs.add(r)}   // a script wrote its own radius (also while not drawn: hidden, pill, inherit)
@@ -215,6 +224,6 @@ const add=new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.
   if(q.length&&!raf)raf=requestAnimationFrame(flush)});
 // theme toggles change colours baked in (clip rings, backdrop tiles): re-read at the switch and once its .3s fade is done
 let tt=0;const theme=new MutationObserver(()=>{clearTimeout(tt);api.refresh();tt=setTimeout(api.refresh,320)});
-function start(){scan(document.body||de);add.observe(document.body||de,{childList:true,subtree:true});mo.observe(document.body||de,{attributes:true,subtree:true,attributeFilter:['style','class']});theme.observe(de,{attributes:true,attributeFilter:['data-theme']})}
+function start(){scan(document.body||de);add.observe(document.body||de,{childList:true,subtree:true});mo.observe(document.body||de,{attributes:true,subtree:true,attributeOldValue:true,attributeFilter:['style','class']});theme.observe(de,{attributes:true,attributeFilter:['data-theme']})}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
 })();
