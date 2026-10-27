@@ -207,10 +207,13 @@ function create(cfg){
   }
 
   /* ---------- sheet drag (1:1, velocity + position snap); also driven by autoplay with id 'fake' ---------- */
+  const MOUSE_OUT=Y2+(Y1-Y2)*.6;                   // mouse: past here (60% of the way from half to closed) a downward drag is a dismiss
+  const ptype=new Map();                           // pointerId → pointerType of the latest press anywhere in this document (host drags too)
+  addEventListener('pointerdown',e=>{ptype.set(e.pointerId,e.pointerType)},true);
   let drag=null,sc=null;
   function dragStart(clientY,id,scale){
     ySpring.stop();hLock=!!(cfg.holdOnDrag&&cfg.holdOnDrag());
-    drag={id,startY:clientY,y0:y,from:state,moved:false,scale:scale||0,samples:[[performance.now(),y]]};
+    drag={id,startY:clientY,y0:y,from:state,moved:false,scale:scale||0,mouse:ptype.get(id)==='mouse',samples:[[performance.now(),y]]};
     sheet.classList.add('drag');
   }
   function dragMove(clientY){
@@ -218,13 +221,19 @@ function create(cfg){
     let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
     if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
     if(ny<Y3)ny=Y3-(Y3-ny)*.25;
-    y=Math.min(Y1,ny);render();
+    const prev=y;y=Math.min(Y1,ny);render();
     const now=performance.now();drag.samples.push([now,y]);
     while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
+    /* mouse only: a drag pulled down past MOUSE_OUT commits the dismiss right there (the sheet springs closed from where it is, the
+       rest of the gesture is ignored), so nothing the cursor does afterwards can bring it back: a trackpad's drag-lock / three
+       finger drag keeps the button "down" for a moment after the fingers lift, and a release the page never hears leaves the press
+       live. Touch keeps the plain release decision. */
+    if(drag.mouse&&drag.moved&&y>prev&&y>=MOUSE_OUT&&(drag.from===2||!halfOK())&&!(drag.from===3&&collapseOn()))dragEnd({out:true});
   }
-  function dragEnd(){
+  function dragEnd(o){
     if(!drag)return;
     const d=drag;drag=null;sheet.classList.remove('drag');
+    if(o&&o.out){const s=d.samples,a=s[0],b=s[s.length-1];return go(1,{v:Math.max(0,(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0)})}
     if(!d.moved){if(d.from===2)return go(3);return ySpring.to(d.from===3?Y3:Y2,{w:SP.w,z:SP.z})}
     const s=d.samples,a=s[0],b=s[s.length-1];
     const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;   // px/s (+ = down)
@@ -256,17 +265,32 @@ function create(cfg){
     if(sy<0||sy>smax())return scrollBack();
     fling(dt>0&&performance.now()-b[0]<80?(b[1]-a[1])/dt:0);
   }
+  /* a press on the sheet owns its gesture until the button is up, wherever the pointer goes: moves and the release are heard on the
+     window (capture phase), not only on the sheet, so a pointer capture the browser drops mid-drag (or never grants) can't strand
+     it; a mouse move with the button no longer down, the capture lost or the window losing focus count as the release. */
+  let own=null;                                    // the pointerId of the press the sheet itself took
   sheet.addEventListener('pointerdown',e=>{
     if(e.button!==0||state===1)return;
     cfg.onPress&&cfg.onPress(e);
     try{sheet.setPointerCapture(e.pointerId)}catch(_){}
+    if(e.pointerType==='mouse'){const s=getSelection&&getSelection();if(s&&s.rangeCount)s.removeAllRanges()}
+    own=e.pointerId;
     const s0=scaleNow();
     if(state===3&&atFull()&&(e.clientY-sheet.getBoundingClientRect().top)/s0>=CT){scStart(e.clientY,e.pointerId,s0);return}
     dragStart(e.clientY,e.pointerId,s0);
   });
-  sheet.addEventListener('pointermove',e=>{if(sc&&e.pointerId===sc.id)scMove(e.clientY);else if(drag&&e.pointerId===drag.id)dragMove(e.clientY)});
-  const up=e=>{if(sc&&e.pointerId===sc.id)scEnd();else if(drag&&e.pointerId===drag.id)dragEnd()};
-  sheet.addEventListener('pointerup',up);sheet.addEventListener('pointercancel',up);
+  const mine=e=>own!=null&&e.pointerId===own&&((sc&&sc.id===own)||(drag&&drag.id===own));
+  const release=()=>{const id=own;own=null;if(sc&&sc.id===id)scEnd();else if(drag&&drag.id===id)dragEnd()};
+  addEventListener('pointermove',e=>{
+    if(!mine(e))return;
+    if(e.pointerType==='mouse'&&!(e.buttons&1))return release();
+    if(sc)scMove(e.clientY);else if(drag)dragMove(e.clientY);
+  },true);
+  const up=e=>{if(mine(e))release();else if(own!=null&&e.pointerId===own)own=null};
+  addEventListener('pointerup',up,true);addEventListener('pointercancel',up,true);
+  sheet.addEventListener('lostpointercapture',e=>{if(mine(e)&&e.pointerType==='mouse'&&!(e.buttons&1))release()});
+  addEventListener('blur',()=>{if(own!=null&&(sc||drag))release()});
+  ['selectstart','dragstart'].forEach(t=>addEventListener(t,e=>{if(own!=null&&(sc||drag))e.preventDefault()},true));
   sheet.addEventListener('wheel',e=>{
     if(state!==3||!atFull()||drag||sc||!cfg.wheelTo)return;
     cfg.wheelTo(e,cfg.wd?cfg.wd(e):e.deltaY,d=>{const n=clamp(sy+d,0,smax());if(Math.abs(n-sy)<.5)return false;stopScroll();setScroll(n);return true});
@@ -274,7 +298,7 @@ function create(cfg){
   x.addEventListener('click',()=>{if(cfg.onX)cfg.onX();else go(1)});
 
   /* the clean start, instantly */
-  function reset(){if(col)clearCol();ySpring.stop();drag=null;sc=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
+  function reset(){if(col)clearCol();ySpring.stop();drag=null;sc=null;own=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
   function setY(v){ySpring.stop();y=v;render()}
 
   const api={Y1,Y2,Y3,sheet,panel,cap,toolbar:tb,x,web,webv,
