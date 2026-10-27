@@ -8,6 +8,8 @@
      clip; only the corner curve changes: inline corner-shape:superellipse(K) and each radius x F. K/F were fitted against path() at
      r 12/24/48 (rendered and overlaid): max deviation ~1/8px at r24, ~1/4px at r48 (a plain circle is 3/8 and 5/8px off).
      Pseudo-elements whose radius is inherit get corner-shape from a [data-sq-pe] rule (their radius inherits the scaled value).
+     Page-size containers (taller than 2 screens, e.g. main.sheet) get the backdrop tiles below instead: a non-circular corner on a
+     box that holds the whole page makes the compositor redraw all of it through a mask on every scrolled frame (scroll stutter).
    - 'clip' (Safari, Firefox; any browser with clip-path:path()): a clip-path from path(), sized by a ResizeObserver. It never cuts a box-
      shadow or an outer ring: elements that cast a shadow only lose the thin slivers between their circular corner and the smoothed one
      (a pure spread ring, e.g. a phone bezel, is smoothed on its own outer edge instead). A ::before/::after border ring that inherits the
@@ -104,9 +106,10 @@ function read(r){
   r.rad=LONG.map(k=>cs[k]);
   if(r.par&&T.get(r.par)){const pc=getComputedStyle(r.par);r.inh=LONG.every((k,i)=>r.rad[i]===pc[k])}else r.inh=false;   // radius: inherit
   r.sh=shadows(cs.boxShadow).filter(s=>!s.inset);r.ov=cs.overflowX==='visible'&&cs.overflowY==='visible';r.skip=null;
+  const big=r.h>2*innerHeight;
+  r.bd=(MODE==='clip'?e.tagName!=='IFRAME'&&(!!e.querySelector('iframe')||big):big)&&cs.backgroundImage==='none'||(r.bd&&r.bdOn);
+  if(r.bd)r.bdc=backdrop(e);
   if(MODE==='clip'){
-    r.bd=e.tagName!=='IFRAME'&&(!!e.querySelector('iframe')||r.h>2*innerHeight)&&cs.backgroundImage==='none'||(r.bd&&r.bdOn);
-    if(r.bd)r.bdc=backdrop(e);
     r.ring=[];['::before','::after'].forEach((pe,i)=>{const c=getComputedStyle(e,pe);if(c.content==='none'||c.display==='none')return;
       const bw=parseFloat(c.borderTopWidth)||0;
       if(bw>0&&c.borderTopStyle!=='none'&&LONG.every((k,j)=>c[k]===r.rad[j])&&/rgba\(0, 0, 0, 0\)|transparent/.test(c.backgroundColor)&&c.backgroundImage==='none'&&
@@ -121,38 +124,37 @@ function pill(r){const m=Math.min(r.w,r.h)/2-.5;return r.w<1||r.h<1||r.rad.every
 function clear(r){const s=r.el.style;
   if(r.on==='shape'){r.mine=null;LONG.forEach((k,i)=>s[k]=r.ai[i]);s.removeProperty('corner-shape');r.el.removeAttribute('data-sq-pe')}
   if(r.on==='clip'){if(s.clipPath===r.myClip)s.clipPath='';r.myClip=null;
-    ['b','a'].forEach(k=>{s.removeProperty('--sq-ring-'+k);s.removeProperty('--sq-ring-'+k+'-c')});r.el.removeAttribute('data-sq-ring');
-    if(r.bdOn){['backgroundImage','backgroundPosition','backgroundSize','backgroundRepeat','backgroundOrigin'].forEach(k=>s[k]='');r.bdOn=false;r.el.removeAttribute('data-sq-bd')}}
+    ['b','a'].forEach(k=>{s.removeProperty('--sq-ring-'+k);s.removeProperty('--sq-ring-'+k+'-c')});r.el.removeAttribute('data-sq-ring')}
+  if(r.bdOn){['backgroundImage','backgroundPosition','backgroundSize','backgroundRepeat','backgroundOrigin'].forEach(k=>s[k]='');r.bdOn=false;r.el.removeAttribute('data-sq-bd')}
   r.on=null;r.el.removeAttribute('data-sq');
 }
 function write(r){
   const e=r.el,s=e.style;
   if(r.skip||pill(r)){if(r.on)clear(r);return}
-  if(MODE==='shape'){
+  if(r.bd&&r.on&&!r.bdOn)clear(r);
+  if(r.bd){ // backdrop tiles: paint the four slivers in the colour behind (no clip or corner-shape on page-size / prototype-hosting containers)
+    const w=r.w,h=r.h,R=r.rad.map(v=>rpx(v,w,h)),b=Math.min(w,h)/2,L=sliverList(w,h,R,SM),lay=[],pos=[],sz=[],P=['left top','right top','right bottom','left bottom'];
+    R.forEach((rr,i)=>{if(!L[i])return;const p=Math.ceil(cp(rr,SM,b).p),ox=i===1||i===2?p-w:0,oy=i>1?p-h:0;
+      lay.push(`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${p}' height='${p}'><path transform='translate(${f3(ox)} ${f3(oy)})' fill='${r.bdc}' d='${L[i]}'/></svg>`)}")`);
+      sz.push(`${p}px ${p}px`);pos.push(P[i])});
+    s.backgroundImage=lay.join(',');s.backgroundPosition=pos.join(',');s.backgroundSize=sz.join(',');
+    s.backgroundRepeat='no-repeat';s.backgroundOrigin='border-box';r.bdOn=true;e.setAttribute('data-sq-bd','');
+  }else if(MODE==='shape'){
     s.setProperty('corner-shape',KS);
     if(!r.inh){const v=r.rad.map(scale);LONG.forEach((k,i)=>s[k]=v[i]);r.mine=LONG.map(k=>s[k])}else r.mine=null;
     if(r.pe.length)e.setAttribute('data-sq-pe',r.pe.join(' '));else e.removeAttribute('data-sq-pe');
   }else{
     const w=r.w,h=r.h,R=r.rad.map(v=>rpx(v,w,h));
-    if(r.bd){ // backdrop tiles: paint the four slivers in the colour behind (no clip on page-size / prototype-hosting containers)
-      const b=Math.min(w,h)/2,L=sliverList(w,h,R,SM),lay=[],pos=[],sz=[],P=['left top','right top','right bottom','left bottom'];
-      R.forEach((rr,i)=>{if(!L[i])return;const p=Math.ceil(cp(rr,SM,b).p),ox=i===1||i===2?p-w:0,oy=i>1?p-h:0;
-        lay.push(`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${p}' height='${p}'><path transform='translate(${f3(ox)} ${f3(oy)})' fill='${r.bdc}' d='${L[i]}'/></svg>`)}")`);
-        sz.push(`${p}px ${p}px`);pos.push(P[i])});
-      s.backgroundImage=lay.join(',');s.backgroundPosition=pos.join(',');s.backgroundSize=sz.join(',');
-      s.backgroundRepeat='no-repeat';s.backgroundOrigin='border-box';r.bdOn=true;e.setAttribute('data-sq-bd','');
-    }else{
-      let v;
-      if(!r.sh.length&&!r.ov)v=`path('${pathR(w,h,R,SM)}')`;
-      else{const rg=r.sh.filter(q=>!q.x&&!q.y&&!q.b&&q.s>0),ring=rg.length>0,sp=ring?Math.max(...rg.map(q=>q.s)):0;   // a hairline ring is the visible edge: smooth its outside
-        const E=r.ov?4096:Math.ceil(Math.max(0,...r.sh.map(q=>Math.max(Math.abs(q.x),Math.abs(q.y))+q.b*1.5+Math.max(0,q.s))))+4;
-        const cut=ring?slivers(w+2*sp,h+2*sp,R.map(x=>x>.05?x+sp:0),SM,-sp,-sp):slivers(w,h,R,SM);
-        v=`path(evenodd,'M${-E} ${-E}H${w+E}V${h+E}H${-E}Z${cut}')`}
-      if(s.clipPath!==v)s.clipPath=v;r.myClip=s.clipPath;
-      const rk=[];(r.ring||[]).forEach(q=>{const b=q.bw,o=pathR(w,h,R,SM),i=pathR(w-2*b,h-2*b,R.map(x=>Math.max(0,x-b)),SM,b,b);
-        s.setProperty('--sq-ring-'+q.k,`path(evenodd,'${o}${i}')`);s.setProperty('--sq-ring-'+q.k+'-c',q.c);rk.push(q.k)});
-      if(rk.length)e.setAttribute('data-sq-ring',rk.join(' '));else e.removeAttribute('data-sq-ring');
-    }
+    let v;
+    if(!r.sh.length&&!r.ov)v=`path('${pathR(w,h,R,SM)}')`;
+    else{const rg=r.sh.filter(q=>!q.x&&!q.y&&!q.b&&q.s>0),ring=rg.length>0,sp=ring?Math.max(...rg.map(q=>q.s)):0;   // a hairline ring is the visible edge: smooth its outside
+      const E=r.ov?4096:Math.ceil(Math.max(0,...r.sh.map(q=>Math.max(Math.abs(q.x),Math.abs(q.y))+q.b*1.5+Math.max(0,q.s))))+4;
+      const cut=ring?slivers(w+2*sp,h+2*sp,R.map(x=>x>.05?x+sp:0),SM,-sp,-sp):slivers(w,h,R,SM);
+      v=`path(evenodd,'M${-E} ${-E}H${w+E}V${h+E}H${-E}Z${cut}')`}
+    if(s.clipPath!==v)s.clipPath=v;r.myClip=s.clipPath;
+    const rk=[];(r.ring||[]).forEach(q=>{const b=q.bw,o=pathR(w,h,R,SM),i=pathR(w-2*b,h-2*b,R.map(x=>Math.max(0,x-b)),SM,b,b);
+      s.setProperty('--sq-ring-'+q.k,`path(evenodd,'${o}${i}')`);s.setProperty('--sq-ring-'+q.k+'-c',q.c);rk.push(q.k)});
+    if(rk.length)e.setAttribute('data-sq-ring',rk.join(' '));else e.removeAttribute('data-sq-ring');
   }
   r.on=MODE;e.setAttribute('data-sq','');
 }
@@ -205,8 +207,8 @@ function flush(){raf=0;const b=q,c=scanLater;q=[];scanLater=[];b.forEach(n=>{if(
   c.forEach(e=>{if(e.isConnected&&!T.has(e)&&!SKIP.test(e.tagName)&&!e.closest('[data-sq-off]')){const cs=getComputedStyle(e);if(!LONG.every(k=>zero(cs[k]))){const p=e.parentElement;track(e,p&&T.has(p)?p:null)}}})}
 const add=new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)q.push(n)}));
   if(q.length&&!raf)raf=requestAnimationFrame(flush)});
-// theme toggles change colours the clip mode bakes in (rings, backdrop tiles): re-read at the switch and once its .3s fade is done
-let tt=0;const theme=new MutationObserver(()=>{if(MODE!=='clip')return;clearTimeout(tt);api.refresh();tt=setTimeout(api.refresh,320)});
+// theme toggles change colours baked in (clip rings, backdrop tiles): re-read at the switch and once its .3s fade is done
+let tt=0;const theme=new MutationObserver(()=>{clearTimeout(tt);api.refresh();tt=setTimeout(api.refresh,320)});
 function start(){scan(document.body||de);add.observe(document.body||de,{childList:true,subtree:true});mo.observe(document.body||de,{attributes:true,subtree:true,attributeFilter:['style','class']});theme.observe(de,{attributes:true,attributeFilter:['data-theme']})}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
 })();

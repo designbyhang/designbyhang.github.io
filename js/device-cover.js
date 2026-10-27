@@ -56,10 +56,12 @@ function mount(host){
   const fit=()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const s=Math.max(w/W,h/H),ox=(w-W*s)*PX,oy=(h-H*s)*PY;
     ph.style.transform=`translate(${(ox+(SX-16)*s).toFixed(3)}px,${(oy+(SY-16)*s).toFixed(3)}px) scale(${(2*s).toFixed(5)})`};
   new ResizeObserver(fit).observe(host);fit();
-  let seen=false,near=false,ready=false;
+  // on: the site's one-demo-at-a-time pool (js/demos.js) gives this cover the turn (no pool on the page = always)
+  let seen=false,near=false,ready=false,on=!window.dbhDemos;
+  if(window.dbhDemos)window.dbhDemos.add(host,{play:()=>{on=true;upd()},pause:()=>{on=false;upd()}});
   const upd=()=>{
     if(v&&near&&!RM.matches&&v.dataset.src){v.preload='auto';v.src=v.dataset.src;delete v.dataset.src}
-    const go=ready&&seen&&!document.hidden&&!RM.matches;
+    const go=ready&&seen&&on&&!document.hidden&&!RM.matches;
     host.classList.toggle('on',ready&&!RM.matches);
     if(RM.matches&&ready){r.anims.forEach(a=>{a.pause();a.currentTime=rest});if(v&&!v.paused)v.pause();return}
     r.anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});

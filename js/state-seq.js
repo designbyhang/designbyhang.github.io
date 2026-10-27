@@ -59,6 +59,9 @@ function mount(box){var pins=[];
  if(cfg.bind)[].forEach.call(document.querySelectorAll(cfg.bind+' [data-l]'),function(e){els[e.getAttribute('data-l')]=e});
  var sc=1,ins=32,ease=springEase(cfg.spring||[80,20,1]),L=null,i=0,cur={},from={},to={},tr=null,hold=0,clock=0,last=0,raf=0,vis=false,started=false;
  var playing=step?(cfg.autoplay!==false):true,touched=false,entering=false;
+ /* the site's one-demo-at-a-time pool (js/demos.js): an autoplaying piece holds its autoplay while another demo is nearer the window's
+    centre (user steps, toggles and the entrance still run) and resumes from the same frame when its turn comes back */
+ var on=true,demoAsk=null;if(window.dbhDemos&&playing){on=false;demoAsk=dbhDemos.add(box,{play:function(){on=true;kick()},pause:function(){on=false},want:function(){return playing||userPaused}})}
  var FL=/"(sf|hm)"/.test(box.querySelector('script.ss-cfg').textContent),SH=cfg.h||1080,FH=false;
  function layout(){var l=null;(cfg.layouts||[]).forEach(function(x){if(!l&&matchMedia(x.mq).matches)l=x});return l||{}}
  function vals(k,extra){var L2=layout(),v=merge(merge({},cfg.base),cfg.states[k].set);merge(v,L2.base);if(L2.states&&L2.states[k])merge(v,L2.states[k].set);if(extra)merge(v,extra);
@@ -111,7 +114,7 @@ function mount(box){var pins=[];
   for(var key in to){var f=from[key]||to[key],t=to[key],ed=(cfg.edur||{})[key]||tr.d,u=ease(Math.min(1,el/Math.min(ed,tr.d)));cur[key]=cur[key]||{};
    for(var p in t){var fv=f[p]!=null?f[p]:t[p],tv=t[p];cur[key][p]=tv&&tv.map?tv.map(function(c,j){return lerp(fv[j],c,u)}):lerp(fv,tv,u)}}
   drawDots(ease(Math.min(1,el/tr.d)));put();if(done){tr=null;entering=false;drawDots(1)}}
- function running(){return vis&&!document.hidden&&(tr?(playing||tr.manual):(playing&&!RM.matches))}
+ function running(){return vis&&!document.hidden&&(tr?(tr.manual||playing&&on):(playing&&on&&!RM.matches))}
  function kick(){if(!raf&&running()){last=0;raf=requestAnimationFrame(frame)}}
  function frame(now){raf=0;var dt=last?Math.min(128,now-last):16;last=now;clock+=dt;
   if(tr)frameTr();else if(playing&&!RM.matches){hold+=dt;if(hold>=holdOf(i)){go(i+1,{quiet:true});return}drawDots(1)}
@@ -120,7 +123,7 @@ function mount(box){var pins=[];
     autoplay resumes toggle.resume ms after the last tap (the next flip is due then), or when the box scrolls out and back in */
  function resume(){clearTimeout(resumeT);if(!userPaused)return;userPaused=false;playing=true;hold=holdOf(i);kick()}
  function userTap(k){userPaused=true;playing=false;clearTimeout(resumeT);resumeT=setTimeout(resume,tog.resume||6400);go(k==null?i+1:k,{manual:true})}
- function touch(){if(step&&!touched){touched=true;playing=false}}
+ function touch(){if(step&&!touched){touched=true;playing=false;if(demoAsk)demoAsk()}}
  /* step mode: tap/click the media to advance, horizontal swipe to step, arrow keys when focused */
  if(step){var sx=0,sy=0,down=false;
   box.addEventListener('pointerdown',function(ev){if(ev.target.closest('.ss-ctrl'))return;down=true;sx=ev.clientX;sy=ev.clientY});

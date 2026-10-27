@@ -20,21 +20,23 @@ let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;up
    window.dbhPlayPause(box, watch, player, noun): adds the button to box and drives player {paused(), play(), pause()} from watch's visibility; returns its state sync */
 /* the one play/pause icon pair (.mbtn): pause = two strokes, play = filled triangle */
 window.dbhPP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.087 4L5.087 12A0.8 0.8 0 0 0 6.311 12.678L12.711 8.678A0.8 0.8 0 0 0 12.711 7.322L6.311 3.322A0.8 0.8 0 0 0 5.087 4Z"/></svg>';
-window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play');b.type='button';b.className='mbtn vid-btn';
+window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play'),D=window.dbhDemos,on=!D,ask=null;b.type='button';b.className='mbtn vid-btn';
  b.innerHTML=window.dbhPP;box.appendChild(b);
  var sync=function(){var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};
- b.addEventListener('click',function(){if(p.paused()){held=false;p.play()}else{held=true;p.pause()}sync()});sync();
- /* body[data-always-play] (USPS): plays from load on every screen and loops until the button pauses it; never paused for leaving the view.
+ b.addEventListener('click',function(){if(p.paused()){held=false;p.play()}else{held=true;p.pause()}sync();if(ask)ask()});sync();
+ /* only while it has the page's one demo turn (js/demos.js); a manual pause hands the turn on */
+ var seen=always;if(D)ask=D.add(watch,{play:function(){on=true;if(seen&&!held&&p.paused())p.play();sync()},pause:function(){on=false;if(!p.paused())p.pause();sync()},want:function(){return !held}});
+ /* body[data-always-play] (USPS): plays whenever it has the page's one demo turn (no 35% threshold) and loops until the button pauses it.
     Retries on load, when scrolled into view and on the first tap/scroll/key, for browsers that refuse a muted start until then */
- if(always){var kick=function(){if(!held&&p.paused())p.play();sync()};kick();watch.__kick=kick;
+ if(always){var kick=function(){if(on&&!held&&p.paused())p.play();sync()};kick();watch.__kick=kick;
   ['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})});
   if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)kick()})}).observe(watch);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});return sync;}
- if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){if(e.intersectionRatio>=.35){if(!held&&p.paused())p.play()}else if(!p.paused())p.pause();sync()})},{threshold:[0,.35]}).observe(watch);
+ if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){seen=e.intersectionRatio>=.35;if(seen){if(on&&!held&&p.paused())p.play()}else if(!p.paused())p.pause();sync()})},{threshold:[0,.35]}).observe(watch);
  return sync;};
 /* video[data-lazy]: heavy demos get their source only when they near the view (600px ahead), then the play helper starts them */
 (function(){var vs=document.querySelectorAll('video[data-lazy]');if(!vs.length)return;var go=function(v){v.removeAttribute('data-lazy');v.querySelectorAll('source[data-src]').forEach(function(s){s.src=s.getAttribute('data-src');s.removeAttribute('data-src')});v.load()};if(!('IntersectionObserver' in window)){vs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'600px 0px'});vs.forEach(function(v){io.observe(v)})})();
-document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;if(!document.body.hasAttribute('data-always-play')){v.autoplay=false;v.removeAttribute('autoplay');v.pause();}
+document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
  var sync=dbhPlayPause(v.closest('.media')||v.parentNode,v,{paused:function(){return v.paused},play:function(){var p=v.play();if(p&&p.catch)p.catch(function(){})},pause:function(){v.pause()}},'video');
  v.addEventListener('play',sync);v.addEventListener('pause',sync);if(v.__kick){v.addEventListener('loadeddata',v.__kick);v.addEventListener('canplay',v.__kick);}});
 
@@ -45,12 +47,12 @@ document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v
    Reduced motion: no autoplay, no animation */
 (function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
 document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr)return;var imgs=[].slice.call(tr.children),n=imgs.length;if(n<2)return;
- var i=0,playing=!RM.matches,vis=false,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=imgs.map(function(img){return img.getAttribute('alt')||''});
+ var i=0,playing=!RM.matches,vis=false,on=!window.dbhDemos,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=imgs.map(function(img){return img.getAttribute('alt')||''});
  var ctrl=document.createElement('div'),row=document.createElement('div'),pp=document.createElement('button'),sr=document.createElement('span'),bars=[],fills=[];
  ctrl.className='car-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose slide');
  var dots=imgs.map(function(img,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
   b.setAttribute('aria-label','Slide '+(k+1)+' of '+n+(caps[k]?': '+caps[k]:''));b.addEventListener('click',function(){go(k)});row.appendChild(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild);return b});
- pp.type='button';pp.className='mbtn car-pp';pp.innerHTML=window.dbhPP;pp.addEventListener('click',function(){playing=!playing;sync();kick()});
+ pp.type='button';pp.className='mbtn car-pp';pp.innerHTML=window.dbhPP;pp.addEventListener('click',function(){playing=!playing;sync();kick();if(ask)ask()});
  sr.className='car-sr';ctrl.appendChild(row);ctrl.appendChild(pp);c.appendChild(ctrl);c.appendChild(sr);
  row.addEventListener('keydown',function(e){var k=dots.indexOf(document.activeElement),t=null;if(k<0)return;
   if(e.key==='ArrowRight')t=k+1;else if(e.key==='ArrowLeft')t=k-1;else if(e.key==='Home')t=0;else if(e.key==='End')t=n-1;
@@ -66,23 +68,18 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  function draw(){var q=ease(h);for(var k=0;k<n;k++){var t=k===i?1:0;e[k]=h>=1?t:e0[k]+(t-e0[k])*q;
   dots[k].style.width=(24+16*e[k]).toFixed(3)+'px';bars[k].style.width=(5+19*e[k]).toFixed(3)+'px';
   fills[k].style.setProperty('--p',k===i&&h>=1?Math.min(1,RM.matches?1:elapsed/DUR).toFixed(4):0)}}
- function running(){return h<1||(playing&&vis&&!document.hidden)}
+ function running(){return h<1||(playing&&vis&&on&&!document.hidden)}
  function kick(){if(!raf&&running()){last=0;raf=requestAnimationFrame(frame)}}
  function frame(now){raf=0;var dt=last?Math.min(50,now-last):16;last=now;
-  if(h<1)h=Math.min(1,(now-ht)/HAND);else if(playing&&vis&&!document.hidden){elapsed+=dt;if(elapsed>=DUR){go(i+1);return}}
+  if(h<1)h=Math.min(1,(now-ht)/HAND);else if(playing&&vis&&on&&!document.hidden){elapsed+=dt;if(elapsed>=DUR){go(i+1);return}}
   draw();if(running())raf=requestAnimationFrame(frame)}
  if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(x){vis=x.intersectionRatio>=.35;kick()})},{threshold:[0,.35,1]}).observe(c);else vis=true;
  document.addEventListener('visibilitychange',kick);
+ /* the fill runs only while it has the page's one demo turn (js/demos.js) */
+ if(window.dbhDemos)ask=dbhDemos.add(c,{play:function(){on=true;kick()},pause:function(){on=false},want:function(){return playing}});
  if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){playing=false;h=1;sync();draw()}});
  go(0,true);sync();
  });})();
-/* NEXT CASE STUDY card = the homepage project card (css/card.css): a card whose homepage cover loops (USPS: the hero GIF) loops here too,
-   only while on screen; off screen it shows the first-frame still (src swap, so the GIF is not decoded), and always with reduced motion */
-(function(){var ims=document.querySelectorAll('.next img[data-loop]');if(!ims.length)return;var RM=matchMedia('(prefers-reduced-motion: reduce)');
- ims.forEach(function(im){var still=im.getAttribute('src'),loop=im.getAttribute('data-loop'),vis=false,
-  set=function(){var u=vis&&!RM.matches?loop:still;if(im.getAttribute('src')!==u)im.setAttribute('src',u)};
-  if(RM.addEventListener)RM.addEventListener('change',set);
-  if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){vis=e.isIntersecting;set()})}).observe(im.closest('.media-wrap'));});})();
 /* Back to top: always to scrollY 0 (#top is the hero, below the bar); smooth unless reduced motion */
 document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
 /* live prototype iframes (iframe[data-src]): attach src only once the site is unlocked (the same-origin frame then reads the shared
@@ -99,28 +96,6 @@ var arm=function(){if(!('IntersectionObserver' in window)){fs.forEach(go);return
  fs.forEach(function(f){near.observe(f);far.observe(f)})};
 var open=false;try{open=sessionStorage.getItem('dbh-unlocked')==='1'}catch(_){}
 if(open||!document.documentElement.classList.contains('gated'))arm();else addEventListener('gate:unlocked',arm,{once:true})})();
-/* autoplay embeds (iframe[data-autoplay], e.g. the FMSS Solution animations): one plays at a time, the one in view whose centre is
-   nearest the window's vertical centre; every other is told to pause (its clock, videos and loops stop where they are and resume from
-   there). The embed posts {type:'demo-hello'} once it runs (again after each reload by the loader above) and is answered with its
-   state; after that {type:'demo-play'|'demo-pause'} goes out on every change. The embed keeps its own rules on top (reduced motion,
-   its own in-view threshold, a hidden tab), so the host only ever narrows what plays. The Evolution prototypes join the same pool
-   (preview/shared/demo/demo-clock.js freezes the whole prototype). While any frame is lifted full screen (.proto-lift / .fsx-lift)
-   none plays inline (full screen itself is never paused: the embed ignores a pause there) and the pick runs again on close */
-(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-autoplay]'));if(!fs.length)return;
-var cur=null,vis=[],q=0,O=location.origin;
-var send=function(f,on){try{if(f.contentWindow&&f.getAttribute('src'))f.contentWindow.postMessage({type:on?'demo-play':'demo-pause'},O)}catch(_){}};
-var lifted=function(f){return f.classList.contains('proto-lift')||f.classList.contains('fsx-lift')};
-var pick=function(){q=0;var mid=innerHeight/2,best=null,bd=Infinity;
- if(!fs.some(lifted))vis.forEach(function(f){if(!f.getAttribute('src'))return;var r=f.getBoundingClientRect();if(!r.height||r.bottom<=0||r.top>=innerHeight)return;
-  var d=Math.abs(r.top+r.height/2-mid);if(d<bd){bd=d;best=f}});
- if(best===cur)return;var was=cur;cur=best;if(was)send(was,false);if(cur)send(cur,true)};
-var ask=function(){if(!q)q=requestAnimationFrame(pick)};
-if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){var i=vis.indexOf(e.target);
-  if(e.isIntersecting){if(i<0)vis.push(e.target)}else if(i>=0)vis.splice(i,1)});ask()});fs.forEach(function(f){io.observe(f)})}else vis=fs.slice();
-addEventListener('scroll',function(){if(vis.length)ask()},{passive:true});addEventListener('resize',ask);
-if('MutationObserver' in window){var mo=new MutationObserver(ask);fs.forEach(function(f){mo.observe(f,{attributes:true,attributeFilter:['class']})})}
-addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='demo-hello'||e.origin!==O)return;
- for(var i=0;i<fs.length;i++)if(fs[i].contentWindow===e.source){var f=fs[i];pick();send(f,f===cur);return}});})();
 /* phones (<=640px, the breakpoint where these frames go 4:5): each live prototype frame is a tap target (.proto-open) that opens it full
    screen. The full-screen view is the shared © Easter egg / Studio presentation layer (js/hang-egg.js window.dbhLayer: page-colour layer,
    top-right "× CLOSE", its entrance/exit timeline, Esc, iOS scroll lock + flow, theme toggle). The same iframe (no second copy, no reload,
@@ -262,9 +237,8 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  if('MutationObserver' in window)new MutationObserver(sync).observe(f,{attributes:true,attributeFilter:['class']});
  m.appendChild(x)})})();
 
-/* 02 Problem exit-affordance rings (css/case.css .exit-rings): loop runs only while the frame is in view, paused offscreen; reduced motion keeps them static */
-(function(){var m=document.querySelectorAll('.media.exit-rings');if(!m.length||!('IntersectionObserver'in window))return;
+/* 02 Problem exit-affordance rings (css/case.css .exit-rings): a member of the one-at-a-time demo pool (js/demos.js), so the loop runs only while it holds the turn and resumes where it paused; reduced motion (or no pool) keeps them static */
+(function(){var m=document.querySelectorAll('.media.exit-rings');if(!m.length||!window.dbhDemos)return;
  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  document.documentElement.classList.add('rings-js');
- var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle('rings-on',e.isIntersecting)})},{threshold:0.15});
- m.forEach(function(e){io.observe(e)});})();
+ m.forEach(function(e){dbhDemos.add(e,{play:function(){e.classList.add('rings-on')},pause:function(){e.classList.remove('rings-on')}})});})();
