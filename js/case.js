@@ -127,30 +127,59 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    (--frame, html.fs-stage: js/theme.js paints the bars in it), as the Studio presentation and the desktop view. Desktop is unchanged: the shield is display:none above 640px.
    Turned to landscape while open (touch devices): the device is hidden (visibility, the same iframe, no reload), its demo and video hold
    (embed:hold / embed:release, handled in each prototype) and the caption (portrait: none) reads LAND; back in portrait the device
-   returns. Portrait: a one-line instruction per prototype (INS, .proto-ins = the CLOSE button's type) 40px below the device frame, at most
+   returns. Portrait: the instruction (window.dbhIns, below; .fs-ins) 40px below the device frame, at most
    375px wide, its line centred on the theme toggle's (below); device + gap + text fit between the bars (375x812 cap). The lifted iframe keeps the whole box between
    the bars and the device is padded into it (PAD, the same injected style as js/proto-fs.js on desktop: the prototype's frame gets the
    device's top and height, overflow visible), with at least ROOM (device units) above it, so the device's drop-shadow has room inside
    the transparent iframe and never ends on its edge (it was cut to a hard band at the device's top and bottom);
-   the instruction moves as CLOSE does (dbhLayer enter/exit hooks: same trigger, 40ms after CLOSE as UI_STAG, then INS_WAIT 800ms
-   more (WAAPI delay, no timer; a tap or close inside it and it never shows), then a soft
-   opacity-only fade in, the exit's FADE mirrored (400ms, ease-out), no slide (the same entrance on its return to the first screen and after
-   a refresh; the layer is under the lifted iframe; its box starts at the device's bottom edge and clips, 16px bottom padding for the
-   rise). Every exit is a soft opacity-only fade (FADE: 400ms, ease-out, from its current opacity, mid-entrance too):
-   the first tap of the element it describes (TAP, in the prototype's own document; gone until the prototype is back on its first
-   screen), leaving the first screen, and close. Hidden in landscape.
+   the instruction moves as CLOSE does (dbhLayer enter/exit hooks into window.dbhIns; the layer is under the lifted iframe). Hidden in landscape.
    Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js); a load carrying it reopens that prototype at once (no
    fade; the device on its clean start, no autoplay) with the page under it at the prototype, and the instruction then plays its
    entrance (dbhLayer calls enter once the instant open has painted). Full screen never autoplays (html.embed-full: the prototype lands on its clean start and waits for input). */
+/* window.dbhIns: the one instruction under a full-screen prototype, shared by both full-screen views (desktop/tablet js/proto-fs.js,
+   phones the dbhLayer view below; css/case.css .fs-ins = the CLOSE button's type). A one-line instruction per prototype (TEXT, by iframe
+   path). It moves as CLOSE does: same trigger, 40ms after CLOSE's entrance (STAG, Studio's UI_STAG), then WAIT 800ms more (a WAAPI delay,
+   no timer: a tap or close inside it and it never shows), then a soft opacity-only fade in on FADE (400ms, ease-out), no slide; the same
+   entrance on its return to the first screen and after a refresh. Every exit is the same soft fade from its current opacity (mid-entrance
+   too): the first tap of the element it describes (TAP, in the prototype's own document; gone until the prototype is back on its first
+   screen), leaving the first screen (the prototype's {type:'proto-state',home}) and close (once). Its box starts at the device's bottom
+   edge and clips (16px bottom padding); each view places it (top, width, the 40px gap as padding-top) under its own device.
+   make(get, pin): get() returns the caption's <p> (its span is kept once found: the phone layer is gone from dbhLayer.el while it closes);
+   pin(), if given, runs as the entrance starts and ends (the phone view re-measures its layout) */
+window.dbhIns=(function(){var RM=matchMedia('(prefers-reduced-motion: reduce)'),STAG=40,WAIT=800,FADE={duration:400,easing:'cubic-bezier(.25,.1,.25,1)'},
+ TEXT={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad'},
+ TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv'}; /* the reel caption / a product image / the reel's profile picture / the video ad */
+ return {TEXT:TEXT,
+  key:function(u){u=u||'';return Object.keys(TEXT).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0]||''},
+  html:function(t){return '<p class="fs-ins"><span>'+(t||'')+'</span></p>'},
+  make:function(get,pin){var a=null,tapped=false,home=false,shut=false,s=null, /* home: the prototype has reported its clean start this session */
+   span=function(){var p=get();if(p)s=p.firstChild;return s},
+   hide=function(t){t.style.opacity='0'},
+   stop=function(){if(a){a.cancel();a=null}},
+   fade=function(t){if(RM.matches||!t.animate){stop();hide(t);return}var o=+getComputedStyle(t).opacity;stop();
+    t.style.opacity='0';if(o>0){a=t.animate([{opacity:o},{opacity:0}],FADE);a.onfinish=function(){a=null}}},
+   enter=function(d){var t=span();if(tapped||!t)return;if(pin)pin();if(typeof d!=='number')d=STAG+WAIT;stop();t.style.opacity='';if(RM.matches||!t.animate)return;
+    a=t.animate([{opacity:0},{opacity:1}],Object.assign({delay:d,fill:'backwards'},FADE));a.onfinish=function(){a=null;if(pin)pin()}},
+   out=function(){var t=span();if(tapped||!t)return;tapped=true; /* gone for the rest of this full-screen session */
+    if(RM.matches||!t.animate){stop();hide(t);return}
+    if(a&&a.playState!=='finished'&&(a.currentTime||0)<a.effect.getTiming().delay){stop();hide(t);return} /* still waiting: it never appears */
+    fade(t)};
+   return {enter:function(){enter()}, /* with CLOSE's entrance */
+    out:out,
+    hide:function(){var t=span();if(t)hide(t)}, /* on open, before the entrance */
+    settle:function(){var t=span();if(t&&!a&&t.style.opacity==='0')enter()}, /* an open with no CLOSE entrance to trigger it: at its end */
+    exit:function(){var t=span();if(!t||shut)return;shut=true;fade(t)}, /* close: the fade starts once, on its own clock */
+    tap:function(e,k){var x=e.target;if(k&&e.isTrusted&&x&&x.closest&&x.closest(TAP[k]))out()},
+    state:function(h){if(!h){if(home)out()}else{home=true;if(tapped){tapped=false;enter(WAIT)}}}, /* a home:false before the clean start is the inline demo's */
+    reset:function(){stop();tapped=home=shut=false}, /* each open */
+    done:function(){stop();shut=false;s=null}}}}})(); /* closed */
 /* reveal a scroll-in figure (.fx, above) at once: its opacity and transform would hide a lifted (position:fixed) iframe inside it and
    make the figure its containing block (a refresh restore opens before the figure has been scrolled into view) */
 function fxIn(m){var g=m.closest('.fx');if(!g||g.classList.contains('in'))return;g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition=''}
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
- rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_STAG=40,INS_WAIT=800,FADE={duration:400,easing:'cubic-bezier(.25,.1,.25,1)'}, /* every entrance and exit: a soft opacity-only fade, no slide */
- INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad'},
- TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv'}; /* the reel caption / a product image / the reel's profile picture */
+ DI=window.dbhIns;
 var FS=window.dbhFS,
  PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
  ROOM=32; /* drop-shadow(40px 0 20px) = 10px std dev: fully faded by ~30 device px; this much margin is kept above and below the device */
@@ -163,22 +192,9 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var de=document.documentElement,clearSel=function(){try{getSelection().removeAllRanges()}catch(_){}},noSel=function(e){e.preventDefault()},
   nosel=function(on){de.classList.toggle('proto-nosel',on);clearSel();['selectstart','dragstart'].forEach(function(t){document[on?'addEventListener':'removeEventListener'](t,noSel,true)})}; /* while open: no selection on the page */
  var land=function(){if(held)send('embed:hold')}; /* opened in landscape: the device is held */
- var u=f.getAttribute('data-src')||f.getAttribute('src')||'',ik=Object.keys(INS).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0],ins=ik?INS[ik]:'';
- var insA=null,tapped=false,insSt=null,insHome=false, /* insHome: the prototype has reported its clean start this session */
-  insC=null,insEl=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(p)insC=p.firstChild;return insC}, /* kept: dbhLayer.el is null while the layer closes */
-  insHide=function(s){s.style.opacity='0'},
-  insStop=function(){if(insA){insA.cancel();insA=null}},
-  insIn=function(d){var s=insEl();if(tapped||!s)return;pinK='';repin();if(typeof d!=='number')d=INS_STAG+INS_WAIT;insStop();s.style.opacity='';if(rmq.matches||!s.animate)return;
-   insA=s.animate([{opacity:0},{opacity:1}],Object.assign({delay:d,fill:'backwards'},FADE));insA.onfinish=function(){insA=null;pinK='';repin()}},
-  insOut=function(){var s=insEl();if(tapped||!s)return;tapped=true; /* gone for the rest of this full-screen session */
-   if(rmq.matches||!s.animate){insStop();insHide(s);return}
-   if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide(s);return} /* still waiting: it never appears */
-   insFade(s)},
-  /* the soft exit (tap, leaving the first screen, close): from its current opacity and position (mid-entrance too), opacity only */
-  insFade=function(s){if(rmq.matches||!s.animate){insStop();insHide(s);return}var o=+getComputedStyle(s).opacity;insStop();
-   s.style.opacity='0';if(o>0){insA=s.animate([{opacity:o},{opacity:0}],FADE);insA.onfinish=function(){insA=null}}},
-  insExit=function(){var s=insEl();if(!s||insSt)return;insSt=1;insFade(s)}, /* close (dbhLayer's exit, per frame): the fade starts once, on its own clock */
-  onTap=function(e){var t=e.target;if(ik&&e.isTrusted&&t&&t.closest&&t.closest(TAP[ik]))insOut()};
+ var ik=DI.key(f.getAttribute('data-src')||f.getAttribute('src')),ins=ik?DI.TEXT[ik]:'';
+ var I=DI.make(function(){var L=window.dbhLayer,el=L&&L.el;return el&&el.querySelector('.fs-ins')},function(){pinK='';repin()}),
+  onTap=function(e){I.tap(e,ik)};
  /* portrait layout: the instruction's line centred on the theme toggle's (its real rect; at most 375px wide, clear of the toggle); the
     device takes the bars' box from its top down to 40px above the instruction (less ROOM above; the device's width limit and the 812
     cap), padded to that spot inside the iframe. No toggle on screen (or no gain): the bars' box minus 40px + the instruction's height
@@ -187,7 +203,7 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   if(on&&!D.getElementById('fsx-pad-css')){var st=D.createElement('style');st.id='fsx-pad-css';st.textContent=PAD;(D.head||d).appendChild(st)}
   if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px')}
   if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h')}d.classList.toggle('fsx-pad',on)};
- var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.proto-ins');if(!p||!f.classList.contains('proto-lift'))return;
+ var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.fs-ins');if(!p||!f.classList.contains('proto-lift'))return;
   if(held){pad(false);geo=null;return}var r=fbox(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
   var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tb.getBoundingClientRect():null;
   var lb=el.getBoundingClientRect(),vv=window.visualViewport,yb=Math.max(innerHeight,lb.bottom,vv?vv.offsetTop+vv.height:0);if(tr&&(!tr.width||tr.top<0||tr.bottom>yb+1))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
@@ -211,9 +227,9 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var win=null,load=function(){var on=f.classList.contains('proto-lift');full(on);hook();if(on){lay();land()}},
   hook=function(){var w=null;try{w=f.contentWindow}catch(_){}if(w===win)return;if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=w;if(w)try{w.addEventListener('keydown',esc,true);w.addEventListener('click',onTap,true)}catch(_){}};
  /* the prototype's {type:'proto-state',home}: leaving its first screen takes the instruction out (as the tap); back on it and at rest,
-    it comes back with its entrance, INS_WAIT after the settle (a WAAPI delay: leaving again inside it cancels it) */
+    it comes back with its entrance (window.dbhIns) */
  addEventListener('message',function(e){var d=e.data,L=window.dbhLayer;if(!d||d.type!=='proto-state'||e.source!==f.contentWindow||!L||!L.el||!f.classList.contains('proto-lift'))return;
-  if(!d.home){if(insHome)insOut()}else{insHome=true;if(tapped){tapped=false;insIn(INS_WAIT)}}}); /* a home:false before the clean start is the inline demo's */
+  I.state(d.home)});
  /* grow (dbhLayer cfg.grow, js/fs-motion.js): p 0 = the inline frame, 1 = full screen. A = the frame's inner box (live on close: the page is
     back at its scroll), sA = the device scale inline (its own --s), the full-screen device from lay()'s padded box */
  var gut=function(){var e=doc(),bd=e&&e.ownerDocument.body;return bd&&e?{x:(bd.clientWidth-e.clientWidth)/2,y:(bd.clientHeight-e.clientHeight)/2}:{x:0,y:0}},
@@ -228,16 +244,16 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
     if(panel){panel.style.width=innerWidth+'px';panel.style.height=innerHeight+'px'}f.classList.add('proto-anim');if(!o)de.classList.remove('fs-stage');ch.measure();gframe(o?0:1)},
    frame:gframe,
    end:function(o){f.classList.remove('proto-anim');f.style.transform='';if(o){opening=false;if(panel)panel.style.transform='';de.classList.add('fs-stage');}else{ch.reset();gs=null;panel=null}}}; /* stage colour bars once full (the page beside the growing panel keeps its own colour) */
- var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;tapped=false;insHome=false;insStop();insSt=null;
+ var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;I.reset();
   f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   fxIn(m); /* a figure not yet revealed (.fx: opacity 0 + transform, as after a refresh restore) would hide the lifted iframe and pin it to the page, not the screen */
   f.addEventListener('load',load);
   var A0=inner(),g0=gut(),pd=A0.w<=640?24:40;gs={A:A0,g:g0,s0:sNow()||Math.min((A0.h-2*Math.abs(g0.y)-pd*2)/828,(A0.w-2*Math.abs(g0.x)-pd*2)/431)};
-  L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:insIn,exit:insExit,grow:grow,stage:'<i class="proto-panel" aria-hidden="true"></i><p class="proto-ins"><span>'+ins+'</span></p><p class="deck-n hegg-ui"></p>',
-   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift','proto-on');full(true);hook();orient();lay();var s=insEl();if(s)insHide(s);pinOn(true);lqOn(true);land();void f.offsetWidth;
+  L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:I.enter,exit:I.exit,grow:grow,stage:'<i class="proto-panel" aria-hidden="true"></i>'+DI.html(ins)+'<p class="deck-n hegg-ui"></p>',
+   show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift','proto-on');full(true);hook();orient();lay();I.hide();pinOn(true);lqOn(true);land();void f.offsetWidth;
     f.style.transition=''}, /* opaque at once: it grows from the frame (grow), restored or not (the instruction's entrance follows via enter) */
    tabs:function(){return held?[]:[f]},
-   done:function(){nosel(false);insStop();insSt=insC=null;f.removeEventListener('load',load);lqOn(false);pinOn(false);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
+   done:function(){nosel(false);I.done();f.removeEventListener('load',load);lqOn(false);pinOn(false);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on','proto-anim');f.removeAttribute('data-keep');f.style.transition=f.style.opacity=f.style.transform='';full(false);de.classList.remove('fs-stage')}})};
  b.addEventListener('click',function(){go(false)});
  /* refresh restore (phones): this prototype's ?fs= key; the page goes to the prototype first, then the layer is on at once */

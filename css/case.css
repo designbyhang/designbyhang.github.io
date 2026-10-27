@@ -323,12 +323,13 @@ body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
 .hegg.proto-full .proto-panel{display:none;position:fixed;left:0;top:0;z-index:0;transform-origin:0 0;background:var(--frame);will-change:transform;pointer-events:none}
 .hegg.proto-full.hegg-grow .proto-panel{display:block}
 .media.proto iframe.proto-lift.proto-anim{will-change:transform;pointer-events:none}
-/* phone full screen, portrait: the instruction under the device (js/case.js INS sets its top, 40px below the device frame, and width,
-   at most 375px): the figcaption style; landscape keeps only the rotate message */
-.hegg.proto-full .proto-ins{--mono-color:#333;position:absolute;z-index:2;left:0;right:0;top:0;margin:0 auto;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none;overflow:clip;padding-bottom:16px} /* type = CLOSE (.hegg-x), casing as written; under the lifted iframe (.hegg z 50 < .proto-lift); the box starts at the device bottom edge and clips; the 16px bottom padding is the room for the entrance's rise (js/case.js INS_UP) */
-.hegg.proto-full .proto-ins span{display:block}
-html[data-theme=dark] .hegg.proto-full .proto-ins{--mono-color:#cfcfcf}
-.hegg.proto-full.proto-land .proto-ins{display:none}
+/* the instruction under a full-screen prototype, shared by the phone view (here) and desktop's .fsx-bg (css/proto-fs.css);
+   phones in landscape keep only the rotate message */
+.fs-ins{--mono-color:#333;position:absolute;z-index:2;left:0;top:0;margin:0;box-sizing:content-box;overflow:clip;padding-bottom:16px;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none} /* the instruction under a full-screen prototype (window.dbhIns, js/case.js), both views: type = CLOSE, casing as written; under the lifted iframe; the js sets its top (the device's bottom edge), width (at most 375px) and padding-top (the 40px gap); the box clips, 16px bottom padding */
+.fs-ins span{display:block}
+html[data-theme=dark] .fs-ins{--mono-color:#cfcfcf}
+.hegg.proto-full .fs-ins{right:0;margin:0 auto} /* phones: centred in the layer (desktop: js/proto-fs.js sets its left, on the device) */
+.hegg.proto-full.proto-land .fs-ins{display:none}
 html.proto-nosel,html.proto-nosel body{-webkit-user-select:none;user-select:none}   /* phone full screen open (js/case.js): no selection on the page */
 .media.proto iframe.proto-lift.proto-hide{visibility:hidden;pointer-events:none}
 /* Evolution prototypes: the expand button (.proto-x, js/case.js) is only a signifier for the frame's own open target (.proto-open phones /

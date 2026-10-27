@@ -9,19 +9,12 @@
    grown with transform only (FLIP; the panel behind it too), so no layout runs per frame; and the page is never display:none'd
    (Studio's html.deck-flow), since that would hide the lifted iframe. In full screen (html.embed-full in the prototype) it is fully
    interactive and never autoplays: the prototype itself lands on its clean start when html.embed-full is set.
-   Under the device: a one-line instruction per prototype (INS, by iframe path; css .fsx-ins = the CLOSE button's type), 40px
-   below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
-   group centred in it. It moves as CLOSE does
-   (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, then INS_WAIT 800ms more (WAAPI delay, no timer; a tap or
-   close inside it and it never shows), then a soft
-   opacity-only fade in, the exit's FADE mirrored (400ms, ease-out), no slide (the same
-   entrance on its return to the first screen and after a refresh). It lives in the .fsx-bg layer, under the lifted iframe, and its
-   box (.fsx-ins, overflow clip, 16px bottom padding for the rise) starts at the device's bottom edge. On the first tap of the
-   element it describes (TAP, in the prototype's own document), on leaving the first screen and on close it leaves with a soft
-   opacity-only fade (FADE: 400ms, ease-out, from its current opacity, mid-entrance too). Not shown inline.
+   Under the device: the instruction (window.dbhIns, js/case.js; css .fs-ins), 40px below the device frame, at most 375px wide; the
+   device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the group centred in it. It enters with CLOSE (the
+   chrome's onIn) and fades on close; it lives in the .fsx-bg layer, under the lifted iframe. Not shown inline.
    Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js), close clears it; a load carrying it reopens that prototype
    with no expansion (snap: CLOSE and the page chrome at their end state), the page under it at the prototype, the device on its clean
-   start (no autoplay in full screen); the instruction then plays its entrance (above) once restored.
+   start (no autoplay in full screen); the instruction then plays its entrance once restored.
    Phones (<=640px) keep js/case.js's own full screen (.proto-open + window.dbhLayer, with the landscape message): this one is desktop/tablet;
    both grow from and shrink back to the inline frame on the same dbhFS timeline. */
 (()=>{const ms=[...document.querySelectorAll('.proto-fig .media.proto')].filter(m=>m.querySelector('iframe'));if(!ms.length)return;
@@ -35,29 +28,10 @@ bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge de
 const panel=bg.firstChild;const probe=bg.querySelector('.fsx-probe'),MAXH=828;
 const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
-const ins=document.createElement('p');ins.className='fsx-ins';ins.innerHTML='<span></span>';const insS=ins.firstChild;bg.appendChild(ins); /* under the iframe */
-const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad'},
- TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv'}; /* the reel caption / a product image / the reel's profile picture */
-const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
-/* instruction motion: opacity only, no slide; fade in and fade out on the one FADE timing */
-const INS_STAG=40,INS_WAIT=800,FADE={duration:400,easing:'cubic-bezier(.25,.1,.25,1)'}; /* every entrance and exit: a soft opacity-only fade (one FADE timing, 400ms ease-out, mirrored) */
-let insA=null,tapped=false,insHome=false; /* insHome: the prototype has reported its clean start this session */
-const insHide=()=>{insS.style.opacity='0';};
-const insStop=()=>{if(insA){insA.cancel();insA=null;}};
-function insEnter(d=INS_STAG+INS_WAIT){if(tapped||!insS.textContent)return;insStop();insS.style.opacity='';if(rm.matches||!insS.animate)return;
- insA=insS.animate([{opacity:0},{opacity:1}],{...FADE,delay:d,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
-const insOut=()=>{if(tapped)return;tapped=true; /* gone for the rest of this full-screen session */
- if(rm.matches||!insS.animate){insStop();insHide();return;}
- if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide();return;} /* still waiting: it never appears */
- insFade();};
-/* the soft exit (tap, leaving the first screen, close): from its current opacity and position (mid-entrance too), opacity only */
-function insFade(){if(rm.matches||!insS.animate){insStop();insHide();return;}const o=+getComputedStyle(insS).opacity;insStop();
- insS.style.opacity='0';if(o>0){insA=insS.animate([{opacity:o},{opacity:0}],FADE);insA.onfinish=()=>{insA=null;};}}
-const onTap=e=>{const k=cur&&keyOf(cur.f),t=e.target;if(k&&e.isTrusted&&t&&t.closest&&t.closest(TAP[k]))insOut();};
-/* the prototype's {type:'proto-state',home}: leaving its first screen takes the instruction out (as the tap); back on it and at rest,
-   the instruction comes back with its entrance, INS_WAIT after the settle (a WAAPI delay: leaving again inside it cancels it) */
-addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='proto-state'||!cur||e.source!==cur.f.contentWindow||(state!=='open'&&state!=='opening'))return;
- if(!d.home){if(insHome)insOut();}else{insHome=true;if(tapped){tapped=false;insEnter(INS_WAIT);}}}); /* a home:false before the clean start is the inline demo's */
+const DI=window.dbhIns;bg.insertAdjacentHTML('beforeend',DI.html());const ins=bg.lastChild,insS=ins.firstChild; /* under the iframe */
+const keyOf=f=>DI.key(f.getAttribute('src')||f.getAttribute('data-src')),I=DI.make(()=>ins);
+const onTap=e=>{if(cur)I.tap(e,keyOf(cur.f));};
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='proto-state'||!cur||e.source!==cur.f.contentWindow||(state!=='open'&&state!=='opening'))return;I.state(d.home);});
 body.append(bg,fs);
 const btn=fs.querySelector('.deck-x');
 let state='closed',cur=null,tw=null,P=0,G=null,snap=false;
@@ -77,8 +51,8 @@ function releaseToggle(){if(!tb||tb.parentNode!==fs)return;if(tbNext&&tbNext.par
    none of the deck's counter / AUTO SCROLL / landscape toggle offset here); the instruction starts its entrance with CLOSE */
 const hdr=document.querySelector('body>.bar');
 const ch=FS.chrome({hdr,asides:[[document.querySelector('.toc'),null],[document.querySelector('body>.bar .bar-right a'),btn]],lefts:[hdr&&hdr.querySelector('.brand'),document.getElementById('bar-mid')],
- opening:()=>state==='opening',instant:()=>snap,onIn:g=>{if(g.mate===btn)insEnter();}});
-const asideMeasure=()=>{if(state==='closing')insFade();ch.measure();},aside=p=>ch.set(p),asideReset=()=>ch.reset();
+ opening:()=>state==='opening',instant:()=>snap,onIn:g=>{if(g.mate===btn)I.enter();}});
+const asideMeasure=()=>{if(state==='closing')I.exit();ch.measure();},aside=p=>ch.set(p),asideReset=()=>ch.reset();
 /* prototype plumbing, as js/case.js */
 const doc=f=>{try{return f.contentDocument&&f.contentDocument.documentElement}catch(_){return null}};
 const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classList.toggle('embed-full',on)};
@@ -123,12 +97,12 @@ function anim(p0,p1,done,side){if(tw)tw.cancel();tw=FS.tween(p0,p1,p=>{P=p;side(
 function open(m,now){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');snap=!!now;
  f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
  {const g=m.closest('.fx');if(g&&!g.classList.contains('in')){g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition='';}} /* unrevealed .fx (opacity 0 + transform) would hide the lifted iframe and pin it to the page */
- const k=keyOf(f);if(k&&window.dbhView)dbhView.set(k);insStop();tapped=false;insHome=false;insS.textContent=k?INS[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
+ const k=keyOf(f);if(k&&window.dbhView)dbhView.set(k);I.reset();insS.textContent=k?DI.TEXT[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
  f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
- insHide();asideMeasure();aside(0);
- anim(0,1,()=>{state='open';snap=false;f.classList.remove('fsx-anim');if(!insA&&insS.style.opacity==='0')insEnter(); /* no header BACK to trigger it: at the end */bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
+ I.hide();asideMeasure();aside(0);
+ anim(0,1,()=>{state='open';snap=false;f.classList.remove('fsx-anim');I.settle(); /* no header BACK to trigger it: at the end */bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
 function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;snap=false;if(window.dbhView)dbhView.set(null);
  state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
