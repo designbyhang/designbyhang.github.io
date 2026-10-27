@@ -346,13 +346,13 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:r
 /* phone portrait: hero media first, then the hero's stacked Role / Scope|Platforms / Timeline cells (.meta, every case page; styling unchanged).
    .cs-head wraps the hero text + hero media and is an unstyled block everywhere else, so desktop / tablet / landscape are unchanged.
    Here it is a flex column and the hero section passes its children through (display:contents) so .meta can follow the media.
-   Rhythm swapped: title -> media 56 (main's title -> meta), media -> meta 56 (main's meta -> media: hero bottom 48 + media top 8; .meta's own margin-top 56).
+   Rhythm: title/subtitle -> media and media -> meta = --cs-gap (the hero's visual title -> subtitle gap, see the mobile head gap block below).
    The meta's bottom hairline now is the rule above Overview, so Overview's own section hairline is dropped and its label keeps main's 49 below the rule. */
 @media (max-width:640px) and (orientation:portrait){
  body.cs .cs-head{display:flex;flex-direction:column;padding:clamp(20px,5vw,72px) clamp(20px,5vw,72px) 0}
  body.cs .cs-head>.hero{display:contents}
- body.cs .cs-head>.hero-media{order:1;margin:56px 0 0}
- body.cs .cs-head .meta{order:2}
+ body.cs .cs-head>.hero-media{order:1;margin:var(--cs-gap-text) 0 0}
+ body.cs .cs-head .meta{order:2;margin-top:var(--cs-gap)}
  body.cs .cs-head+.wrap>section.sec[data-title]:first-child{--hl-pad:0px}
  body.cs .cs-head+.wrap>section.sec[data-title]:first-child::before{display:none}
 }
@@ -381,3 +381,18 @@ body.cs .media.mframe.phone-demo.pd-col{aspect-ratio:1920/2052;background:#1d1d1
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.pd-row{grid-template-columns:minmax(0,1fr);gap:32px}.pd-rev .sub{order:0}}
 @media (min-width:641px) and (orientation:portrait) and (max-width:1024px){body.cs .media.mframe.phone-demo.pd-col{aspect-ratio:3840/2052}}
 @media (max-width:640px){body.cs .media.mframe.phone-demo.pd-col{aspect-ratio:4/5}}
+/* mobile head gap (every case page, max-width:640px: phone portrait and any narrow width): the hero's spacing below the title text
+   = the visual gap title -> subtitle (FMSS h1 -> .sum). Measured between line boxes (font ascent/descent, the Range rects), not CSS boxes:
+   .sum margin-top 24 + .sum half-leading (28 - 24)/2 = 2 - h1 overhang (49 - 40.8)/2 = 4.1 (Instrument Sans 39/10 at 40px, 19/5 at 20px;
+   h1 40px/1.02 and .sum 20px/28px are fixed at these widths) = 21.9px, off the 8-scale on purpose (it matches the title -> subtitle gap).
+   --cs-gap-text is the margin under the last text block that makes the same visual gap: under .sum minus its half-leading, under a bare h1 plus its overhang.
+   Phone portrait (block above): text -> media and media -> meta. Narrow non-portrait (hero order unchanged): text -> meta and meta -> media. */
+@media (max-width:640px){
+ body.cs .cs-head{--cs-gap:21.9px;--cs-gap-text:calc(var(--cs-gap) + 4.1px)}
+ body.cs .cs-head:has(.hero .sum){--cs-gap-text:calc(var(--cs-gap) - 2px)}
+}
+@media (max-width:640px) and (not (orientation:portrait)){
+ body.cs .cs-head>.hero{padding-bottom:0}
+ body.cs .cs-head .meta{margin-top:var(--cs-gap-text)}
+ body.cs .cs-head>.hero-media{margin-top:var(--cs-gap)}
+}
