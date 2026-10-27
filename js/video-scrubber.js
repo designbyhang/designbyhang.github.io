@@ -12,16 +12,13 @@
      The clock is the host's: sinceSplit() → ms since split screen was reached (negative while it is being entered, null when not in
      it), so a paused demo freezes the fade with it. VideoScrubber.loop() builds that from a looping WAAPI animation and its marks;
      hosts without a timeline can call enterSplit() / leaveSplit() instead
-   - tap to pause (on by default, the FMSS split-screen player: hero cover, preview/fmss-sol1, preview/fmss-sol2; tapToPause:false turns
-     it off for a host whose video tap does something else, as the VAC prototype's tap into Reels): a tap on the video area (tapArea,
-     default the video's parent) while in split screen pauses the video if it is playing and resumes it if paused; the pause icon in the controls becomes a play icon
+   - tap to pause (opt-in, off by default: tapToPause:true): a tap on the video area (tapArea, default the video's parent) while in
+     split screen pauses the video if it is playing and resumes it if paused; the pause icon in the controls becomes a play icon
      (an SVG drawn in the icons' style over the glyph slot pauseSlot:[x,w] of the icon strip) and back. A tap brings the controls
      back, they stay up while paused, and the fade restarts from the tap that resumes. The tap's events stop at the tap area (no card
      link, full-screen opener or prototype gesture sees them); a press that moves (a drag) or is held is not a tap, and the track's
      own drags never reach it. Outside split screen the area is left alone. The host's loop keeps running: if split screen ends while
-     paused, the next entry resumes the video with the controls reset. A tap pause sticks: while it holds, the video's play() is a
-     no-op for everyone but this player (the host's own play calls, the one-demo pool's turn handed back, visibility, a host's frame
-     sync), so only a tap (or the next split-screen entry) resumes it
+     paused, the next entry resumes the video with the controls reset
    - expand (opt-in, o.onExpand): the fullscreen glyph (the strip's first slot, expandSlot:[x,w], default [0,44]) becomes a 44px
      button that calls o.onExpand() on a tap while in split screen and the controls show. Like the track, every one of its events
      stops at it (no tap to pause, card link or prototype gesture sees them); a press that moves or is held is not a tap
@@ -75,7 +72,7 @@ function create(o){
   var v=o.video,doc=(o.document||document);style(doc);
   var x=o.x==null?12:o.x,w=o.w==null?351:o.w,ty=o.trackY==null?392:o.trackY,tb=o.timeY==null?ty-30:o.timeY;
   var root=doc.createElement('div');root.className='vs'+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
-  var tap=o.tapToPause!==false,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
+  var tap=!!o.tapToPause,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
   // icons: one crop; with tap to pause it is cut in three around the pause glyph's slot, so that slot alone can show the play icon
   function slice(a,b,g){return '<i class="vs-i vs-s'+(g?' vs-g':'')+'" style="left:'+(ix+a)+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
   root.innerHTML='<div class="vs-f">'+(o.icons?(tap?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
@@ -140,16 +137,12 @@ function create(o){
   // tap to pause: split-screen clock seen through the last tap (base), new entries (clock back to null or jumping back) reset it
   function tapClock(ms){var entry=ms!=null&&(prev==null||ms<prev-200);prev=ms;
     if(entry){base=0;if(up){up=false;root.classList.remove('vs-p');var q=v.play();q&&q.catch(function(){})}}
-    if(area)area.classList.toggle('vs-tap',live(ms));
+    if(area)area.classList.toggle('vs-tap',ms!=null&&ms>=0);
     return ms==null?null:ms-base}
-  // tappable: split screen reached and the video not covered (the host's sinceSplit.live(), from VideoScrubber.loop's 4th mark)
-  function live(ms){var f=api.since.live;return ms!=null&&ms>=0&&(!f||f())}
-  function toggle(){var ms=api.since();if(!live(ms))return;
+  function toggle(){var ms=api.since();if(ms==null||ms<0)return;
     if(!up&&!v.paused){up=true;v.pause()}else{up=false;var q=v.play();q&&q.catch(function(){});base=ms}
     root.classList.toggle('vs-p',up);fade()}
-  if(tap){area=o.tapArea||v.parentElement;var press=null,PLAY0=v.play;
-    // the sticky pause: every play() on this video, the host's included, waits for the tap that resumes it (this player clears up first)
-    v.play=function(){return up?Promise.resolve():PLAY0.apply(v,arguments)};
+  if(tap){area=o.tapArea||v.parentElement;var press=null;
     var on=function(){return area.classList.contains('vs-tap')},
       TS=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
     TS.forEach(function(n){area.addEventListener(n,function(e){if(!on()&&!(press&&n!=='pointerdown'))return;e.stopPropagation();
@@ -170,12 +163,10 @@ function create(o){
   paint(v.currentTime);list.push(api);run();
   return api;
 }
-/* sinceSplit for a looping WAAPI timeline: anim (any Animation on the loop), T its duration, splits = [[start, reached, end, covered], …] in ms:
-   from `start` (the transition into split screen begins) to `end` the controls are in split screen, counted from `reached`; `covered`
-   (optional, default `end`): from there the video is under another surface (full screen rising over it), so a tap there is not a video tap (f.live()) */
+/* sinceSplit for a looping WAAPI timeline: anim (any Animation on the loop), T its duration, splits = [[start, reached, end], …] in ms:
+   from `start` (the transition into split screen begins) to `end` the controls are in split screen, counted from `reached` */
 function loop(anim,T,splits){function time(){var a=typeof anim==='function'?anim():anim;if(!a)return null;var t=+a.currentTime;return isFinite(t)?((t%T)+T)%T:null}
   var f=function(){var t=time();if(t==null)return null;
-  for(var i=0;i<splits.length;i++){var s=splits[i];if(t>=s[0]&&t<s[2])return t-s[1]}return null};f.time=time;f.T=T;   // f.time(): loop ms (for lock)
-  f.live=function(){var t=time();if(t==null)return false;for(var i=0;i<splits.length;i++){var s=splits[i];if(t>=s[1]&&t<(s[3]==null?s[2]:s[3]))return true}return false};return f}
+  for(var i=0;i<splits.length;i++){var s=splits[i];if(t>=s[0]&&t<s[2])return t-s[1]}return null};f.time=time;f.T=T;return f}   // f.time(): loop ms (for lock)
 window.VideoScrubber={create:create,loop:loop,format:fmt,HOLD:HOLD,GONE:GONE,all:list};
 })();

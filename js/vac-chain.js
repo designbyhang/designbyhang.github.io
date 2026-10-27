@@ -67,7 +67,7 @@ DC.register('vac',{T,rest:REST,
     // live player controls (FMSS: js/video-scrubber.js with the FMSS icon crop): split screen from t1 (reached t1e) to t2; the scrubber
     // fades them out HOLD→GONE after t1e (gone at t1e+2400 = 6240, before the sheet is swiped at 6640): only the close X is left
     if(VS)q('.vc-at').replaceWith(VS.create({video:q('video'),icons:`${FA}ci1.webp${FV}`,trackY:SH-14,className:'vc-l vc-ctl',
-      sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t2]]),lock:LOCK,tapToPause:false}).el);   // the VAC loop: no tap on its video
+      sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t2]]),lock:LOCK}).el);
     else q('.vc-at').remove();
     const mvR=p=>{let x,y,w,h;const L=(A_,B_,e)=>A_.map((v,i)=>lerp(v,B_[i],e));
       if(p.pop){[x,y,w,h]=R.feed;x+=fx(p)}else if(p.c>0){[x,y,w,h]=L(R.split,R.reels,p.c);y+=pageY(p,0)}else [x,y,w,h]=L(R.feed,R.split,p.a);

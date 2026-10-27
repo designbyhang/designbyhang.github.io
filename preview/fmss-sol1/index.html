@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=201">
+<link rel="stylesheet" href="../shared/device/device.css?v=202">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -71,7 +71,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=201"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=201"></script>
+<script src="../../js/squircle.js?v=202"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=202"></script>
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
@@ -140,7 +140,7 @@ const HD=['nike.com',null,null,null];   // phones whose B sheet is an IAB: its h
 const CS=['#fff','#f1f2f6','#fff','#f1f2f6'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (c1-c4 last row)
 const anims=[],imgs=[],vids=[];
-const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3,t2],[t3,t3e,t4e,t4]]);
+const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]);
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i];
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
