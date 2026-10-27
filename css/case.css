@@ -343,3 +343,16 @@ html.rings-js body.cs .media.exit-rings .rings g{opacity:0;animation:exit-rings 
 html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:running}
 @keyframes exit-rings{0%{opacity:0;animation-timing-function:cubic-bezier(.42,0,.58,1)}25%{opacity:1;animation-timing-function:linear}58.333%{opacity:1;animation-timing-function:cubic-bezier(.42,0,.58,1)}83.333%{opacity:0}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){html.rings-js body.cs .media.exit-rings .rings g{animation:none;opacity:1}}
+/* phone portrait: hero media first, then the hero's stacked Role / Scope|Platforms / Timeline cells (.meta, every case page; styling unchanged).
+   .cs-head wraps the hero text + hero media and is an unstyled block everywhere else, so desktop / tablet / landscape are unchanged.
+   Here it is a flex column and the hero section passes its children through (display:contents) so .meta can follow the media.
+   Rhythm swapped: title -> media 56 (main's title -> meta), media -> meta 56 (main's meta -> media: hero bottom 48 + media top 8; .meta's own margin-top 56).
+   The meta's bottom hairline now is the rule above Overview, so Overview's own section hairline is dropped and its label keeps main's 49 below the rule. */
+@media (max-width:640px) and (orientation:portrait){
+ body.cs .cs-head{display:flex;flex-direction:column;padding:clamp(20px,5vw,72px) clamp(20px,5vw,72px) 0}
+ body.cs .cs-head>.hero{display:contents}
+ body.cs .cs-head>.hero-media{order:1;margin:56px 0 0}
+ body.cs .cs-head .meta{order:2}
+ body.cs .cs-head+.wrap>section.sec[data-title]:first-child{--hl-pad:0px}
+ body.cs .cs-head+.wrap>section.sec[data-title]:first-child::before{display:none}
+}
