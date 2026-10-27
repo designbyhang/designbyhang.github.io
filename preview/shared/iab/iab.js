@@ -138,9 +138,15 @@ function create(cfg){
     const n=C.content&&C.content();cc.textContent='';if(n)cc.append(n);cc.style.display='block';
     col={m:0,y0:y,to,r0:16*(1-fullness(y)),oh:+hHalf.style.opacity||0,of:+hFull.style.opacity||0,oa:handle?+handle.style.opacity||0:0,co:+cap.style.opacity||0};
     hLock=false;setState(1);C.onStart&&C.onStart();render();
+    /* the spring's last step lands within eps of m 1 and its exact m 1 render shares a task with the handoff, so it is never painted:
+       the last painted morph frame sat ~1px short of the CTA. Paint m 1 exactly (to() re-read now, so the morph ends on the CTA's
+       resting rect) and hand off on the next frame: pixel-exact, same spring */
     mSpring.to(1,{w:C.w||20,z:1,onDone:()=>{
-      clearCol();resetLoad();stopScroll();setScroll(0);y=Y1;render();
-      cfg.onSettled&&cfg.onSettled(1);C.onDone&&C.onDone();
+      const c=col;if(!c)return;c.to=C.to();c.m=1;render();
+      requestAnimationFrame(()=>{if(col!==c)return;
+        clearCol();resetLoad();stopScroll();setScroll(0);y=Y1;render();
+        cfg.onSettled&&cfg.onSettled(1);C.onDone&&C.onDone();
+      });
     }});
   }
   const collapseOn=()=>!!(cfg.collapse&&(!cfg.collapse.when||cfg.collapse.when()));
