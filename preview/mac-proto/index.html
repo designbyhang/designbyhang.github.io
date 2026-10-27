@@ -60,9 +60,12 @@ video{display:block;object-fit:cover}
 .pg{width:375px;height:734px;will-change:transform}
 .pg .grad{position:absolute;left:0;top:470px;width:375px;height:264px;background:linear-gradient(to top,rgba(0,0,0,.4),rgba(0,0,0,0))}
 .pg img,.pg video,.pg .hs{position:absolute}
-/* the ad details stack (VAC-era Reels ad; refs Kalshi + Muse, @3x 420pt, same pt as this 375 stage): brand row (avatar 36, name, globe; no badge, no "Sponsored"),
-   8 → the caption "... more ⌄", 12 → the CTA, 12 → the "Ad" pill, 12 → the reel's bottom (734). Seed + Ray-Ban: brand 574, caption 618, CTA 650, Ad 698 */
-.det{left:12px;top:574px;width:303px;height:112px}
+/* the ad details stack, identical to sap-demo (d24ee1d; /workspace/sap/previews/ad-label-spec.md), bottom-anchored on the reel's bottom (734):
+   brand row 565–601 (avatar 36, name 15 semibold, the shared globe 12×12 7px after the name's advance, top 577; no badge, no "Sponsored"),
+   caption line 610–630 ("... more ⌄"), CTA 641–685 (303×44, the 60% squircle r12), the shared Ad pill 698–722 (47.5×24). LensCrafters: brand 537,
+   caption 582, carousel 613–685, pill 698 */
+.det{left:12px;top:565px;width:303px;height:120px}
+.cglobe{width:12px;height:12px;pointer-events:none}
 .adp{left:12px;top:698px;width:47.5px;height:24px;pointer-events:none}
 /* the caption's "... more" down arrow: the Caption & Browse arrow (preview/shared/caption/chevron-down.svg, 12×8 box, the 8×4 arrow 2px in),
    5px after the ink of "more", centred on the caption's x-height (line top + 9); left per ad = 12 + the "more" ink end + 3.05 */
@@ -70,9 +73,11 @@ video{display:block;object-fit:cover}
 .ufi{left:326px;top:486px;width:49px;height:237px}
 .lc{background:#101010;overflow:hidden}
 .lc video{left:0;top:126px;width:375px;height:375px}
-.hs{left:12px;top:614px;width:303px;height:72px;overflow:hidden}
+/* the LensCrafters carousel, as sap-demo: 613–685 (bottom on the CTA's bottom), the same thumbnails, the right-edge fade */
+.hs{left:12px;top:613px;width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
 .hs i{position:absolute;left:0;top:0;width:472px;height:72px;display:block;will-change:transform}
-.hs img{top:0;width:72px;height:72px;border-radius:8px}
+.hs span{position:absolute;top:0;width:72px;height:72px;border-radius:8px;overflow:hidden;background:#fff}
+.hs span img{position:absolute;inset:0;width:100%;height:100%}
 .chrome{width:375px;height:96px;z-index:3}
 .bar{top:734px;width:375px;height:78px;z-index:3}
 .pager{width:375px;height:734px;z-index:8;display:none;touch-action:none;cursor:grab}
@@ -89,7 +94,7 @@ video{display:block;object-fit:cover}
 .iab .web>img{position:absolute;left:0;top:0;width:375px;height:1252px}
 #iabRB .web{height:1678px}
 #iabRB .web>img{height:1678.5px}
-.ctap{left:12px;top:650px;width:303px;height:36px;border-radius:6px;background:#000;z-index:9;opacity:0;pointer-events:none;transition:opacity .12s var(--ease)}
+.ctap{left:12px;top:641px;width:303px;height:44px;border-radius:12px;background:#000;z-index:9;opacity:0;pointer-events:none;transition:opacity .12s var(--ease)}
 .ctap.down{opacity:.18}
 /* the device status bar: one, above every surface (the IAB included); only its colour follows the surface (render(): sd) */
 .sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat}
@@ -143,18 +148,18 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <img class="L" alt="" src="assets/grid-nav.webp?v=209" style="left:0;top:44px;width:375px;height:52px">
         </div>
         <div class="L reels" id="reels" aria-hidden="true">
-          <div class="L pg" id="p0"><i class="grad"></i><img class="det" alt="" src="assets/s-det.webp?v=213"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:261.5px;top:625px"><img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=213"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
+          <div class="L pg" id="p0"><i class="grad"></i><img class="det" alt="" src="assets/s-det.webp?v=214"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=214" style="left:113.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:296px;top:617px"><img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=214"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
           <div class="L pg lc" id="p1"><video id="lcv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lenscrafters.webp?v=209" src="../../assets/vac/vac-mac-lenscrafters.mp4?v=209"></video>
-            <img alt="" src="assets/lc-author.webp?v=213" style="left:12px;top:538px;width:303px;height:36px"><img alt="" src="assets/lc-caption.webp?v=211" style="left:12px;top:582px;width:303px;height:20px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:292.5px;top:589px">
-            <div class="hs"><i id="hsr"><img alt="" src="assets/lc-p1.webp?v=209" style="left:0px"><img alt="" src="assets/lc-p2.webp?v=209" style="left:80px"><img alt="" src="assets/lc-p3.webp?v=209" style="left:160px"><img alt="" src="assets/lc-p4.webp?v=209" style="left:240px"><img alt="" src="assets/lc-p5.webp?v=209" style="left:320px"><img alt="" src="assets/lc-p6.webp?v=209" style="left:400px"></i></div>
-            <img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=213"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
-          <div class="L pg" id="p2"><video id="rbv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-rayban.webp?v=209" src="../../assets/vac/vac-mac-rayban.mp4?v=209" style="left:0;top:0;width:375px;height:734px"></video><i class="grad"></i><img class="det" alt="" src="assets/rb-det.webp?v=213"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:296.5px;top:625px"><img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=213"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
+            <img alt="" src="assets/lc-det.webp?v=214" style="left:12px;top:537px;width:303px;height:65px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=214" style="left:156px;top:549px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:292.5px;top:589px">
+            <div class="hs"><i id="hsr"><span style="left:0px"><img alt="" src="assets/lc-p1.webp?v=214"></span><span style="left:80px"><img alt="" src="assets/lc-p2.webp?v=214"></span><span style="left:160px"><img alt="" src="assets/lc-p3.webp?v=214"></span><span style="left:240px"><img alt="" src="assets/lc-p4.webp?v=214"></span><span style="left:320px"><img alt="" src="assets/lc-p5.webp?v=214"></span><span style="left:400px"><img alt="" src="assets/lc-p6.webp?v=214"></span></i></div>
+            <img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=214"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
+          <div class="L pg" id="p2"><video id="rbv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-rayban.webp?v=209" src="../../assets/vac/vac-mac-rayban.mp4?v=209" style="left:0;top:0;width:375px;height:734px"></video><i class="grad"></i><img class="det" alt="" src="assets/rb-det.webp?v=214"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=214" style="left:124.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:296.5px;top:617px"><img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=214"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
           <img class="L chrome" alt="" src="assets/reels-nav.webp?v=209" style="top:44px;height:52px">
           <img class="L bar" alt="" src="assets/reels-bar.webp?v=209">
         </div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
         <i class="L ctap" id="ctap" aria-hidden="true"></i>
-        <button class="L btn cta" id="cta" type="button" style="left:12px;top:650px;width:303px;height:36px" aria-label="Learn more: open oakley.com in the in-app browser (IAB) full screen"></button>
+        <button class="L btn cta" id="cta" type="button" style="left:12px;top:641px;width:303px;height:44px" aria-label="Learn more: open oakley.com in the in-app browser (IAB) full screen"></button>
         <button class="L btn back" id="back" type="button" aria-label="Back to the grid"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
@@ -205,7 +210,8 @@ function squircleAt(ox,oy,w,h,R,sm){   // the same outline, drawn at (ox, oy) (t
 }
 const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
 if(CLIP){phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`;
-  ['t1','t2','t3','t4'].forEach(id=>{$(id).style.clipPath=`path('${squircle(172,272,12,.6)}')`})}
+  ['t1','t2','t3','t4'].forEach(id=>{$(id).style.clipPath=`path('${squircle(172,272,12,.6)}')`});
+  $('ctap').style.clipPath=`path('${squircle(303,44,12,.6)}')`}   // the CTA press dim: the CTA's own 60% squircle (as sap-demo)
 else ['t1','t2','t3','t4'].forEach(id=>{$(id).style.borderRadius='12px'});
 
 /* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move (664ms) ---------- */
@@ -295,7 +301,7 @@ function mkIAB(j){const S=SITE[j];
   return I}
 SITE[0].iab=mkIAB(0);SITE[2].iab=mkIAB(2);
 const iab=SITE[0].iab,iabRB=SITE[2].iab;act=iab;
-const CTA_R=[12,650,303,36];
+const CTA_R=[12,641,303,44];
 const ctaAt=(x,y)=>x>=CTA_R[0]&&x<=CTA_R[0]+CTA_R[2]&&y>=CTA_R[1]&&y<=CTA_R[1]+CTA_R[3];
 function ctaPage(){const j=Math.round(k);return SITE[j]&&Math.abs(k-j)<.01?j:-1}   // the reel at rest has a Learn more that opens a site
 function ctaDown(on){$('ctap').classList.toggle('down',!!on)}   // press feedback on the Learn more button
@@ -326,7 +332,7 @@ mv.tabIndex=0;
    LensCrafters' product row scrolls sideways (a horizontal drag that starts on it) ---------- */
 function setReels(on){pager.classList.toggle('on',on);$('back').classList.toggle('on',on)}
 let pd=null;
-const HS=[12,614,303,72],HMIN=-(5*80+72-303);
+const HS=[12,613,303,72],HMIN=-(5*80+72-303);
 pager.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='reels')return;kA.stop();
   const [px,py]=ptOf(ev),onHs=Math.abs(k-1)<.01&&px>=HS[0]&&px<=HS[0]+HS[2]&&py>=HS[1]&&py<=HS[1]+HS[3];
   if(ctaPage()>=0&&ctaAt(px,py))ctaDown(true);
@@ -472,7 +478,7 @@ const STEPS=[
   gridTurns,tk=>tap(98,306,tk,openSeed),             // the grid's four turns; tap the Oakley ad → it grows into the seed reel (664, from 632)
   3600,tk=>swipeUp(tk),                               // Oakley → LensCrafters (664 push, from 632)
   2800,tk=>swipeUp(tk),                               // LensCrafters → Ray-Ban
-  1600,tk=>tap(163.5,668,tk,openCta,true),            // Learn more (pressed) → ray-ban.com opens full screen on the IAB
+  1600,tk=>tap(163.5,663,tk,openCta,true),            // Learn more (pressed) → ray-ban.com opens full screen on the IAB
   1440,tk=>pageScroll(240,tk),                        // read, then scroll the page a little
   640,tk=>tap(347,68,tk,()=>act.go(1)),               // × → the sheet closes back onto the Ray-Ban reel
   960,tk=>tap(24,70,tk,back)];                        // Back → the pop to the grid (664, from 632), and round again
