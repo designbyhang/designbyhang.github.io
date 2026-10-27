@@ -26,7 +26,7 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
    in light and dark) and plays the project's loop on the phone screen baked into it (players: js/vac-chain.js; FMSS keeps its own .fmss-anim/.fsp-* above until it moves onto js/device-cover.js).
    Static (reduced motion, before the screens decode): just the art = the current cover. */
 .cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;contain:layout paint}
-.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=135)}
+.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=216)}
 .hero-slot.cover-wrap{position:relative}
 .cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .cover-anim.on .cv-ph{opacity:1}
@@ -34,20 +34,59 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
 .cv-bz{position:absolute;inset:4px;background:#000;border-radius:52px} /* black bezel fill UNDER the screen (Evolution .bezel-fill); clip-path path() refines it */
 html body .cover-anim .cv-scr img{position:absolute;left:0;top:0;max-width:none;display:block;border-radius:0;object-fit:fill;-webkit-user-drag:none}
 @media (prefers-reduced-motion:reduce){.cv-ph{display:none}}
-/* VAC player layers (js/vac-chain.js), Figma vac_21 at 2x, in paint order: Feed, the white strip under the split line, Split backdrop,
-   Porsche Reels page, the media (shared element with the <video>, sized by the player), Reels like icon, FMSS status bar + close X overlay
-   (two clips of bo1), live player controls (js/video-scrubber.js, laid out in screen px), the site sheet + shared IAB header, chained
-   Reels pages (375x734), Reels chrome, comment bar */
+/* VAC player layers (js/vac-chain.js), design px (375x812 screen), in paint order: Feed (the cleared Figma Feed + the post's DOM), Split
+   backdrop (live, blurred), the seed's black Reels page, the media (shared element with the <video>, sized by the player), the seed's
+   Reels UI, FMSS status bar + close X overlay (two clips of bo1), live player controls (js/video-scrubber.js), the site sheet + shared IAB
+   header, chained Reels pages (375x734, video + UI), Reels chrome, comment composer, the touch marker (.cv-touch). Reels measures: the
+   Figma Reels component (Card 6 Screen 140796:11916); type SF Pro (the system face on Apple devices), Inter / Helvetica elsewhere */
+.cv-scr.vac{--vc-f:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;font-family:var(--vc-f);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.cv-scr.vac p{position:absolute;margin:0;padding:0;white-space:nowrap;font-family:var(--vc-f);font-style:normal;letter-spacing:0}
 .cv-scr.vac .vc-l{position:absolute;left:0;top:0;will-change:transform,opacity}
-html body .cover-anim .cv-scr.vac .vc-feed{width:375px;height:812px}
-.cv-scr.vac .vc-bw{left:0;top:404px;width:375px;height:4px;background:url(../assets/vac-anim/split-bl.webp?v=3) 0 0/375px 81200% no-repeat} /* seam underlay: the sheet image's own first row (1 of 812, stretched over the strip: 81200%, so no lower corner row pokes out past the sheet's curve), full width (the backdrop's colour in the sheet's rounded corners, white between), never black or plain white */
-html body .cover-anim .cv-scr.vac .vc-bu,html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
+html body .cover-anim .cv-scr.vac .vc-feed{width:375px;height:812px;background:#fff}
+html body .cover-anim .cv-scr.vac .vc-fb{width:375px;height:812px}
+html body .cover-anim .cv-scr.vac .vc-fav{left:12px;top:116px;width:40px;height:40px;border-radius:50%}
+.cv-scr.vac .vc-fn{left:60px;top:118px;display:flex;align-items:center;gap:4px;font:600 17px/20px var(--vc-f);color:#050505}
+html body .cover-anim .cv-scr.vac .vc-fn img,html body .cover-anim .cv-scr.vac .vc-nm img,html body .cover-anim .cv-scr.vac .vc-in img{position:static;flex:none}
+html body .cover-anim .cv-scr.vac .vc-fbd{width:12px;height:12px}
+.cv-scr.vac .vc-fc{left:12px;top:168px;width:351px;white-space:normal;font:400 15px/20px var(--vc-f);color:#050505;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:40px}
+.cv-scr.vac .vc-fu{left:12px;top:597px;font:400 13px/16px var(--vc-f);color:#65676b}
+.cv-scr.vac .vc-fh{left:12px;top:617px;width:251px;overflow:hidden;text-overflow:ellipsis;font:500 15px/20px var(--vc-f);color:#050505}
+.cv-scr.vac .vc-fcta{left:271px;top:604px;width:92px;height:28px;text-align:center;font:600 14px/28px var(--vc-f);color:#050505}
+.cv-scr.vac .vc-amb{width:375px;height:432px;overflow:hidden;background:#000}
+.cv-scr.vac .vc-amb canvas{position:absolute;left:-24px;top:-24px;width:423px;height:480px;filter:blur(24px)}
+.cv-scr.vac .vc-amb::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.24)}
+.cv-scr.vac .vc-p0,.cv-scr.vac .vc-pg{width:375px;height:734px;overflow:hidden;background:#000}
+.cv-scr.vac .vc-mv video.vc-v{object-position:50% 0}
+.cv-scr.vac .vc-mv{overflow:hidden;background:#000;will-change:left,top,width,height,clip-path}
+html body .cover-anim .cv-scr.vac video.vc-v{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block;margin:0;border-radius:0;background:none}
+.cv-scr.vac .vc-ui{position:absolute;left:0;top:0;width:375px;height:734px}
+.cv-scr.vac .vc-gb{position:absolute;left:0;bottom:0;width:375px;height:264px;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.675) 20%,rgba(0,0,0,.563) 39.65%,rgba(0,0,0,.375) 60.35%,rgba(0,0,0,.15) 80.13%,rgba(0,0,0,0) 100%)}
+.cv-scr.vac .vc-ufi{position:absolute;left:327px;top:0;width:48px;height:734px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.62))}
+.cv-scr.vac .vc-ufi span{position:absolute;left:0;width:48px;height:56px}
+html body .cover-anim .cv-scr.vac .vc-ic{left:12px;top:0;width:24px;height:24px}
+.cv-scr.vac .vc-ufi b{position:absolute;left:0;top:28px;width:48px;text-align:center;font:590 13px/16px var(--vc-f);font-weight:600;letter-spacing:-.08px;color:#fff}
+.cv-scr.vac .vc-dt{position:absolute;left:12px;top:606px;width:303px;height:116px}
+html body .cover-anim .cv-scr.vac .vc-av{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff}
+.cv-scr.vac .vc-nm{left:44px;top:-1px;display:flex;align-items:center;gap:4px;font:600 15px/20px var(--vc-f);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}
+html body .cover-anim .cv-scr.vac .vc-bd{width:12px;height:12px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.62))}
+.cv-scr.vac .vc-sp{left:44px;top:20px;font:400 12px/16px var(--vc-f);color:rgba(255,255,255,.7);text-shadow:0 0 1px rgba(0,0,0,.62)}
+.cv-scr.vac .vc-cp{left:0;top:48px;width:303px;display:flex;gap:4px;font:400 15px/20px var(--vc-f);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}
+.cv-scr.vac .vc-cp span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.cv-scr.vac .vc-cp em{flex:none;font-style:normal;color:rgba(255,255,255,.7)}
+.cv-scr.vac .vc-cta{left:0;top:80px;width:303px;height:36px;border-radius:8px;text-align:center;font:600 15px/36px var(--vc-f);letter-spacing:-.24px;color:#fff}
+html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
 .cv-scr.vac .vc-bos{clip-path:inset(0 0 362px 0)}
 .cv-scr.vac .vc-box{clip-path:inset(44px 0 0 0)}
-html body .cover-anim .cv-scr.vac .vc-pp,html body .cover-anim .cv-scr.vac .vc-pg{width:375px;height:734px}
-.cv-scr.vac .vc-mv{overflow:hidden;will-change:left,top,width,height,clip-path}
-html body .cover-anim .cv-scr.vac .vc-mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;margin:0;border-radius:0;background:none}
-html body .cover-anim .cv-scr.vac .vc-ufi{left:330px;top:488px;width:42px;height:67px}
-html body .cover-anim .cv-scr.vac .vc-sh{top:406px;width:375px;height:406px}
-html body .cover-anim .cv-scr.vac .vc-chrome{width:375px;height:180px}
+.cv-scr.vac .vc-sh{width:375px;height:422px;overflow:hidden;background:#fff;border-radius:16px 16px 0 0}
+html body .cover-anim .cv-scr.vac .vc-site{left:0;top:52px;width:375px;height:722px}
+.cv-scr.vac .vc-chrome{width:375px;height:178px}
+.cv-scr.vac .vc-gt{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,0))}
+.cv-scr.vac .vc-tm{left:30px;top:13px;font:600 15px/20px var(--vc-f);letter-spacing:-.24px;color:#fff}
+html body .cover-anim .cv-scr.vac .vc-st{left:283px;top:17.33px;width:66.66px;height:11.34px}
+html body .cover-anim .cv-scr.vac .vc-bk{left:12px;top:58px;width:24px;height:24px}
 .cv-scr.vac .vc-bar{top:734px;width:375px;height:78px;background:#000}
+.cv-scr.vac .vc-in{box-sizing:content-box;left:12px;top:8px;width:327px;height:40px;padding:0 12px;border-radius:20px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;font:400 15px/20px var(--vc-f);letter-spacing:-.24px;color:rgba(255,255,255,.9)}
+html body .cover-anim .cv-scr.vac .vc-em{width:20px;height:20px}
+.cv-scr.vac .vc-hi{position:absolute;left:120.5px;top:64px;width:134px;height:5px;border-radius:3px;background:#fff}
+/* scripted touch marker (DeviceCover.finger / .touch(): the Evolution prototypes' autoplay finger, as VideoScrubber's .vs-m), never takes input */
+.cv-touch{position:absolute;left:0;top:0;z-index:9;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;background:rgba(255,255,255,.5);box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 1px rgba(0,0,0,.28),0 2px 12px rgba(0,0,0,.4);will-change:transform,opacity}

@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="chevron-left" filter="url(#filter0_d_0_1430)">
+<path id="Union" d="M15.8839 20.8839C16.3721 20.3957 16.3721 19.6043 15.8839 19.1161L8.94456 12.1768C8.84693 12.0791 8.84693 11.9209 8.94456 11.8232L15.8839 4.88389C16.3721 4.39573 16.3721 3.60427 15.8839 3.11612C15.3957 2.62796 14.6043 2.62796 14.1161 3.11612L7.1768 10.0555C6.10286 11.1294 6.10285 12.8706 7.17679 13.9445L14.1161 20.8839C14.6043 21.372 15.3957 21.372 15.8839 20.8839Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/>
+</g>
+<defs>
+<filter id="filter0_d_0_1430" x="-1" y="-1" width="26" height="26" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="0.5"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.62 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1430"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1430" result="shape"/>
+</filter>
+</defs>
+</svg>

@@ -4,8 +4,12 @@
    laid exactly over the screen baked into the art, on a black bezel fill under it (the Evolution prototypes' frame setup), so only the screen content moves.
    Markup: <span class="cover-anim" data-cover-anim="NAME" data-art="W H x y" [data-pos="x y"] aria-hidden="true"></span>
      data-art: the art's size and the screen's top-left, in art px (2 art px per design px); data-pos: CSS background-position as fractions.
-   A project registers its player once: DeviceCover.register(NAME,{T,rest,build(screenEl)->{anims,imgs,video?}}); the player owns what is
-   on the screen, this module owns the frame, fit, start, pause and reduced motion. Players: js/vac-chain.js (vac). FMSS (js/fmss-split.js, [data-fmss-anim]) still mounts
+   A project registers its player once: DeviceCover.register(NAME,{T,rest,build(screenEl)->{anims,imgs,video?,videos?,frame?}}); the player owns
+   what is on the screen, this module owns the frame, fit, start, pause and reduced motion. video / videos: the screen's <video>s (data-src,
+   loaded once the cover is near, played and paused with the demo; a player's VideoScrubber lock parks the ones it covers). frame: an
+   optional per-display-frame painter (a canvas layer drawn from a video), called only while the demo runs.
+   Scripted touches: DeviceCover.finger() is the touch marker (the Evolution prototypes' autoplay finger, as VideoScrubber's demo tap
+   .vs-m: 44px grey disc, white ring) and DeviceCover.touch(T,gestures) its loop keyframes, so a demo shows the taps and swipes it plays. Players: js/vac-chain.js (vac). FMSS (js/fmss-split.js, [data-fmss-anim]) still mounts
    itself with the same frame, fit and helpers; it moves onto this module once its in-flight changes land (the frame CSS mirrors .fsp-*).
    Shared motion helpers (spring, 8ms resampling, squircle) live here too so every cover moves the same way. */
 (function(){"use strict";if(window.DeviceCover)return;
@@ -38,6 +42,24 @@ const PATH={coverScr:`path('${squircle(375,812,48,0)}')`,
   coverBezel:`path('${mvP(squircle(383,820,52,0),4,4)}')`};
 /* WAAPI keyframes from timed samples [{t, ...props}] over a loop of T ms (linear between 8ms samples) */
 const track=(P,T,fn)=>P.map(p=>Object.assign({offset:Math.min(1,p.t/T),easing:'linear'},fn(p)));
+/* touch marker keyframes over a loop of T ms. gestures: [{t, x, y, dx?, dy?, move?, ease?}]: the finger lands at x,y (design px) at t, moves
+   dx,dy over `move` ms (0 = a tap; ease(u) shapes it, default ease-in u², a drag gathering speed before its release) and lifts at t+move.
+   Envelope (VideoScrubber's demo tap): fades in over 240ms to t-160, presses (scale .85) over 160ms to t, releases over 120ms after the
+   lift, fades out over the next 280ms. Sampled on the 8ms grid, linear between, ease-out curves; the gaps between gestures are hidden. */
+const eo=u=>1-(1-u)*(1-u)*(1-u);
+function touch(T,G){const K=[],put=(t,o,x,y,s)=>K.push({t,o,x,y,s});
+  G.slice().sort((a,b)=>a.t-b.t).forEach(g=>{const m=g.move||0,dx=g.dx||0,dy=g.dy||0,ez=g.ease||(u=>u*u),d=g.t,u=d+m;
+    for(let t=d-400;t<=u+400;t+=STEP){let o,s,k=0;
+      if(t<d-160){o=eo((t-d+400)/240);s=1}else if(t<d){o=1;s=1-.15*eo((t-d+160)/160)}
+      else if(t<=u){o=1;s=.85;k=m?ez((t-d)/m):0}else{k=1;const r=t-u;s=r<120?.85+.15*eo(r/120):1;o=r<=120?1:1-eo((r-120)/280)}
+      put(t,o,g.x+dx*k,g.y+dy*k,s)}});
+  K.sort((a,b)=>a.t-b.t);const out=[{offset:0,opacity:0,transform:'translate(-200px,-200px)',easing:'linear'}];
+  K.forEach((k,i)=>{const t=((k.t%T)+T)%T,f=(x,n)=>x.toFixed(n);
+    out.push({offset:t/T,opacity:+f(.9*k.o,3),transform:`translate(${f(k.x-22,2)}px,${f(k.y-22,2)}px) scale(${f(k.s,3)})`,easing:'linear'})});
+  out.sort((a,b)=>a.offset-b.offset);out.push({offset:1,opacity:0,transform:'translate(-200px,-200px)',easing:'linear'});
+  // hidden between gestures: each gesture's first and last key fall to 0 opacity in place (they already do: o=0 at both ends)
+  return out}
+const finger=()=>{const f=document.createElement('i');f.className='cv-touch';f.setAttribute('aria-hidden','true');return f};
 
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const players={};
@@ -49,7 +71,7 @@ function mount(host){
   const scr=document.createElement('span');scr.className='cv-scr';
   const bz=document.createElement('span');bz.className='cv-bz';if(SQ)bz.style.clipPath=PATH.coverBezel;
   ph.append(bz,scr);host.appendChild(ph);
-  const r=P.build(scr),v=r.video,rest=P.rest||0;
+  const r=P.build(scr),vids=(r.videos||[]).concat(r.video&&!(r.videos||[]).includes(r.video)?[r.video]:[]),rest=P.rest||0;
   if(SQ)scr.style.clipPath=PATH.coverScr;   // the art's screen shape
   // the loop enters at the player's rest time: the frame that matches the still art, so the first moving frame is the cover
   r.anims.forEach(a=>a.currentTime=rest);
@@ -60,13 +82,15 @@ function mount(host){
   // on: the site's one-demo-at-a-time pool (js/demos.js) gives this cover the turn (no pool on the page = always)
   let seen=false,near=false,ready=false,on=!window.dbhDemos;
   if(window.dbhDemos)window.dbhDemos.add(host,{play:()=>{on=true;upd()},pause:()=>{on=false;upd()}});
+  let fr=0;const paint=()=>{fr=requestAnimationFrame(paint);r.frame()};   // the player's per-frame painter, only while the demo runs
   const upd=()=>{
-    if(v&&near&&!RM.matches&&v.dataset.src){v.preload='auto';v.src=v.dataset.src;delete v.dataset.src}
+    if(near&&!RM.matches)vids.forEach(v=>{if(v.dataset.src){v.preload='auto';v.src=v.dataset.src;delete v.dataset.src}});
     const go=ready&&seen&&on&&!document.hidden&&!RM.matches;
     host.classList.toggle('on',ready&&!RM.matches);
-    if(RM.matches&&ready){r.anims.forEach(a=>{a.pause();a.currentTime=rest});if(v&&!v.paused)v.pause();return}
+    if(RM.matches&&ready){r.anims.forEach(a=>{a.pause();a.currentTime=rest});vids.forEach(v=>{if(!v.paused)v.pause()});return}
     r.anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
-    if(v){if(go){if(v.paused&&v.src){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()}
+    vids.forEach(v=>{if(go){if(v.paused&&v.src){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
+    if(r.frame){if(go&&!fr)fr=requestAnimationFrame(paint);else if(!go&&fr){cancelAnimationFrame(fr);fr=0}}
   };
   new IntersectionObserver(es=>{const e=es[es.length-1];near=e.isIntersecting;upd()},{rootMargin:'400px'}).observe(host);
   new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.1}).observe(host);
@@ -82,5 +106,5 @@ function register(name,player){players[name]=player;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>scan(name));else scan(name)}
 /* asset base for a player script: call with document.currentScript while the script runs */
 const base=(script,rel)=>new URL(rel,(script&&script.src)||location.href).href;
-window.DeviceCover={STEP,spring,resample,squircle,SQ,mvP,PATH,track,register,mount,base};
+window.DeviceCover={STEP,spring,resample,squircle,SQ,mvP,PATH,track,touch,finger,register,mount,base};
 })();
