@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=212">
+<link rel="stylesheet" href="../shared/device/device.css?v=213">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -73,7 +73,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=212"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=212"></script>
+<script src="../../js/squircle.js?v=213"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=213"></script>
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
@@ -162,8 +162,8 @@ PH.forEach((p,i)=>{
     `<img class="L bs" alt="" src="${AS}bl${i+1}.webp${V}" style="top:${top}px;height:${dp(812-top)}">`+
     `<i class="L cu" style="background:${CU[i]}"></i>`+
     `<i class="L cs" style="background:${CS[i]}"></i>`+
-    `<img class="L cb" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(${dp(43)} 0 0 0)">`+
-    `<img class="L ct" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(0 0 ${dp(768)} 0)">`+
+    `<img class="L cb" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(${43/8.12}% 0 0 0)">`+
+    `<img class="L ct" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(0 0 ${768/8.12}% 0)">`+
     `</div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
@@ -198,9 +198,18 @@ PH.forEach((p,i)=>{
   A('.ct',p=>({opacity:p.c}));
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
+/* drawn-size boxes in whole px: Chromium paints a box snapped to whole px of its own coordinate space, and a drawn-size layer's own space
+   is drawn px, so a fractional drawn size (812 x .524 = 425.49) painted as 425 and, scaled back up by 1/s, stopped up to half a drawn px
+   (~1 design px) short of the screen's bottom or right edge (the bezel showing through there and round the bottom corners), or ran past it,
+   depending on the frame width. Each one (screen layers, bezel) is laid out at its drawn size rounded to whole px and scaled back to its
+   exact design size per axis: same place, same size, nothing snapped away */
+function snap(k){stage.querySelectorAll('.scr .L,.scr .rl,.bezel').forEach(e=>{let d=e._dz;
+  if(!d){const c=getComputedStyle(e);d=e._dz=[Math.round(parseFloat(c.width)/k),Math.round(parseFloat(c.height)/k)]}
+  const w=Math.max(1,Math.round(d[0]*k)),h=Math.max(1,Math.round(d[1]*k));e._dw=[w,h];
+  e.style.width=w+'px';e.style.height=h+'px';e.style.scale=`${d[0]/w} ${d[1]/h}`})}
 function fit(){const s=scl(),k=+s.toFixed(4);stage.style.setProperty('--s',k);
-  if(IT&&SQ){const p=`path('${squircle(391*k,828*k,48*k,.6)}')`;
-    stage.querySelectorAll('.bezel-fill').forEach(e=>{e.style.clipPath=p})}
+  if(IT)snap(k);
+  if(IT&&SQ)stage.querySelectorAll('.bezel').forEach(b=>{b.firstChild.style.clipPath=`path('${squircle(b._dw[0],b._dw[1],48*k,.6)}')`});
   if(half&&s*(devicePixelRatio||1)>1)upgrade()}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;
