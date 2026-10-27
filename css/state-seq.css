@@ -48,14 +48,21 @@ body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-
 .ss-roll>span+span{opacity:0}
 @media (prefers-reduced-motion:reduce){.sseq .ss-stage *{transition:none}}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .car-pp{display:none}} /* nothing to pause: the key frame is static */
-/* before/after pills (cfg.toggle): each pill IS a .mbtn (case.css: 32px tall, 1px ring, .2s ease; theme.css: the media glass = --c-paper 44%
-   + blur 24px saturate 1.6, --ring-media edge, 40% hover ring) stretched to a 16px-radius pill like .car-dots, in the .car-ctrl row
-   (8px gap, 32px inset, 16px on phones). Text = the caption type (Instrument Sans 14/18 400). Active: --c-strong; inactive: 40% ink
-   (the .car-bar dot tone) on a slightly darker fill. No focus ring, hover zoom or glow */
-body.cs .media.mframe.sseq .mbtn.ss-pill{width:auto;padding:0 16px;border-radius:16px;font:400 14px/18px "Instrument Sans",system-ui,sans-serif;letter-spacing:0;white-space:nowrap;transition:border-color .2s ease,color .2s ease,background-color .2s ease}
-body.cs .media.mframe.sseq .mbtn.ss-pill[aria-pressed=false]{color:color-mix(in srgb,var(--c-strong) 40%,transparent)}
-html[data-theme=dark] body.cs .media.mframe.sseq .mbtn.ss-pill[aria-pressed=false]{background:color-mix(in srgb,color-mix(in srgb,var(--c-paper) 56%,#000) 44%,transparent)} /* dark: the slightly darker fill; light: the plain theme glass */
-@media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .mbtn.ss-pill{transition:none}}
+/* before/after segmented control (cfg.toggle), iOS style, in the .car-ctrl spot (32px inset, 16px on phones): a pill track of two equal
+   segments + a raised thumb (2px inset) that slides behind the active label (--k, set by state-seq.js, autoplay too) on the SLOW spring
+   (k80 c20 m1) as a linear() curve over 480ms. Track + thumb fill are clipped to 60%-smoothed squircles (js segClip); the thumb's shadow
+   rides on its unclipped wrapper. Light: the iOS translucent track (gray 12%) on the theme ground, white thumb, #171717 type; dark: gray
+   24% + blur, #636366 thumb, white type. Labels: the mono label (--t-label: Bitcount Grid Single, .04em, caps) at 12px (10px on phones),
+   one weight, so the inactive one is 56% ink. 28px tall x 64px segments (24 x 56 on phones). No focus ring, hover zoom or glow */
+body.cs .media.mframe.sseq .ss-seg{--sw:64px;--sh:28px;position:relative;display:grid;grid-template-columns:repeat(var(--n,2),var(--sw));height:var(--sh);padding:2px;box-sizing:border-box;border-radius:calc(var(--sh)/2);background:rgba(118,118,128,.12);color:#171717;--th:#fff}
+html[data-theme=dark] body.cs .media.mframe.sseq .ss-seg{background:rgba(118,118,128,.24);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);color:#fff;--th:#636366}
+body.cs .media.mframe.sseq .ss-thumb{position:absolute;left:2px;top:2px;width:var(--sw);height:calc(var(--sh) - 4px);transform:translateX(calc(var(--k,0)*100%));filter:drop-shadow(0 3px 4px rgba(0,0,0,.12)) drop-shadow(0 3px .5px rgba(0,0,0,.04));transition:transform 480ms linear(0,.165,.413,.612,.751,.842,.9,.937,.961,.976,.985,.991,.995,.997,.998,.999,1);pointer-events:none}
+body.cs .media.mframe.sseq .ss-thumb>i{display:block;width:100%;height:100%;background:var(--th);border-radius:calc(var(--sh)/2)}
+body.cs .media.mframe.sseq .mbtn.ss-sb{position:relative;width:auto;height:100%;border:0;border-radius:0;background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important;outline:none;color:color-mix(in srgb,currentColor 56%,transparent);font:var(--t-label);font-size:12px;letter-spacing:var(--t-label-ls);font-variation-settings:"CRSV" 0,"ELSH" 0,"ELXP" 0;text-transform:uppercase;white-space:nowrap;top:1px;padding:0 0 0 var(--t-label-ls);transition:color 480ms ease}
+body.cs .media.mframe.sseq .mbtn.ss-sb[aria-pressed=true]{color:inherit}
+body.cs .media.mframe.sseq .mbtn.ss-sb:hover{transform:none;border:0}
+@media (max-width:640px){body.cs .media.mframe.sseq .ss-seg{--sw:56px;--sh:24px}body.cs .media.mframe.sseq .mbtn.ss-sb{font-size:10px}}
+@media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .ss-thumb{transition:none}}
 body.cs .media.mframe.sseq.ss-tapf{cursor:pointer}
 /* card pieces (conviction): each card holds a + = the media play/pause button itself (.mbtn: 32px, 1px ring, glass, .2s ring), kept 32px
    (16px on phones) in CSS px from the card's right and bottom whatever the stage scale (--inv = 1/scale, set by state-seq.js); --pin shifts

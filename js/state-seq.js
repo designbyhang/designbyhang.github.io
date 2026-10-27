@@ -40,6 +40,15 @@ function merge(dst,src){if(src)for(var key in src){dst[key]=dst[key]||{};for(var
 function clone(v){var o={};for(var key in v){o[key]={};for(var p in v[key]){var q=v[key][p];o[key][p]=q&&q.slice?q.slice():q}}return o}
 var ARR='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>';
 
+/* Figma 60% corner smoothing as an SVG path (same maths as FMSSSplit.squircle in js/fmss-split.js; R clamps to half the short side) */
+function squircle(w,h,R,sm){if(window.FMSSSplit&&FMSSSplit.squircle)return FMSSSplit.squircle(w,h,R,sm);
+ var rad=function(x){return x*Math.PI/180},bud=Math.min(w,h)/2;R=Math.min(R,bud);var p=(1+sm)*R,am=90*(1-sm),arc=Math.sin(rad(am/2))*R*Math.SQRT2,p34=R*Math.tan(rad((90-am)/4)),be=45*sm,
+ c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be)),b=(p-arc-c-d)/3,a=2*b;if(p>bud){var m=bud-d-arc-c;b=Math.min(b,m-m/6);a=m-b;p=bud}
+ var f=function(v){return +v.toFixed(3)},A=f(a),AB=f(a+b),X=f(a+b+c),BC=f(b+c),C=f(c),D=f(d),S=f(arc),r=f(R);
+ return 'M'+f(w-p)+' 0c'+A+' 0 '+AB+' 0 '+X+' '+D+'a'+r+' '+r+' 0 0 1 '+S+' '+S+'c'+D+' '+C+' '+D+' '+BC+' '+D+' '+X+'L'+w+' '+f(h-p)+'c0 '+A+' 0 '+AB+' '+(-D)+' '+X+'a'+r+' '+r+' 0 0 1 '+(-S)+' '+S+'c'+(-C)+' '+D+' '+(-BC)+' '+D+' '+(-X)+' '+D+
+  'L'+f(p)+' '+h+'c'+(-A)+' 0 '+(-AB)+' 0 '+(-X)+' '+(-D)+'a'+r+' '+r+' 0 0 1 '+(-S)+' '+(-S)+'c'+(-D)+' '+(-C)+' '+(-D)+' '+(-BC)+' '+(-D)+' '+(-X)+'L0 '+f(p)+'c0 '+(-A)+' 0 '+(-AB)+' '+D+' '+(-X)+'a'+r+' '+r+' 0 0 1 '+S+' '+(-S)+'c'+C+' '+(-D)+' '+BC+' '+(-D)+' '+X+' '+(-D)+'Z'}
+/* before/after segmented control: track + thumb fill clipped to 60%-smoothed pills, re-cut whenever the box resizes (phone sizes differ) */
+function segClip(seg){[seg,seg.firstChild.firstChild].forEach(function(e){var w=e.offsetWidth,h=e.offsetHeight;if(w&&h)e.style.clipPath="path('"+squircle(w,h,h/2,.6)+"')"})}
 function mount(box){var pins=[];
  var cfg=JSON.parse(box.querySelector('script.ss-cfg').textContent),stage=box.querySelector('.ss-stage'),fig=box.closest('figure');
  var cap=fig&&fig.querySelector('figcaption'),n=cfg.states.length,step=cfg.mode==='step',els={};
@@ -71,7 +80,7 @@ function mount(box){var pins=[];
    if('pc' in v)p.e.style.setProperty('--pinb',(v.pc*(((+v.h||0)-32/sc)/2-ins/sc)).toFixed(2)+'px')})}
  /* fh (cfg or layout): the stage takes the box's own aspect: W design px wide, as tall as the box (no letterbox), so stage edges = box edges */
  function fit(){L=layout();var W=L.w||cfg.w||1920,s=box.clientWidth/W;FH=L.fh!=null?!!L.fh:!!cfg.fh;var H=FH?box.clientHeight/s:(L.h||cfg.h||1080);SH=H;var oy=(box.clientHeight-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
-  stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put()}
+  stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put();if(tg)segClip(tg[0].parentNode)}
  /* controls */
  var tog=!step&&cfg.toggle,tg=null,resumeT=0,userPaused=false,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
  ctrl.className='car-ctrl ss-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose state');
@@ -82,10 +91,12 @@ function mount(box){var pins=[];
   row.appendChild(b);dots.push(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild)});
  if(cfg.controls===false){}
  else if(step){prev=mbtn('ss-prev',ARR,'Previous',function(){touch();go(i-1)});next=mbtn('ss-next',ARR,'Next',function(){touch();go(i+1)});ctrl.appendChild(prev);ctrl.appendChild(row);ctrl.appendChild(next)}
- else if(tog){tg=[];cfg.states.forEach(function(st,k){var b=mbtn('ss-pill',st.short||st.name||String(k+1),'',function(){userTap(k)});b.setAttribute('aria-label','Show '+(st.name||st.short));tg.push(b);ctrl.appendChild(b)});ctrl.setAttribute('role','group');ctrl.setAttribute('aria-label','Before and after')}
+ else if(tog){tg=[];var seg=document.createElement('div'),th=document.createElement('span');seg.className='ss-seg';th.className='ss-thumb';th.innerHTML='<i></i>';seg.appendChild(th);
+  cfg.states.forEach(function(st,k){var b=mbtn('ss-sb',st.short||st.name||String(k+1),'',function(){userTap(k)});b.setAttribute('aria-label','Show '+(st.name||st.short));tg.push(b);seg.appendChild(b)});
+  seg.style.setProperty('--n',n);ctrl.appendChild(seg);ctrl.setAttribute('role','group');ctrl.setAttribute('aria-label','Before and after')}
  else{pp=mbtn('car-pp',window.dbhPP||'','Pause',function(){playing=!playing;sync();kick()});ctrl.appendChild(row);ctrl.appendChild(pp)}
  sr.className='car-sr';sr.setAttribute('aria-live','polite');if(cfg.controls!==false)box.appendChild(ctrl);box.appendChild(sr);
- function sync(){if(tg)tg.forEach(function(b,k){b.setAttribute('aria-pressed',k===i?'true':'false')});if(pp){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' animation')}}
+ function sync(){if(tg){tg.forEach(function(b,k){b.setAttribute('aria-pressed',k===i?'true':'false')});tg[0].parentNode.style.setProperty('--k',i)}if(pp){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' animation')}}
  /* dots: slot openness e[k] eases with the transition, so the pill keeps one width */
  var e=cfg.states.map(function(){return 0}),e0=e.slice();
  function drawDots(q){if(tg)return;for(var k=0;k<n;k++){var t=k===i?1:0,v=q>=1?t:e0[k]+(t-e0[k])*q;e[k]=v;
