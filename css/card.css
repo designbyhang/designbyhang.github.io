@@ -22,3 +22,37 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
 .fsp-scr .cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
 .fsp-scr .cs{position:absolute;left:-4px;right:-4px;top:24px;height:28px}
 @media (prefers-reduced-motion:reduce){.fsp-ph{display:none}}
+/* Device cover (js/device-cover.js [data-cover-anim]): the animated case-study cover on the hero, the homepage card and the NEXT CASE STUDY
+   card. The layer paints the project's cover art itself (the light-mode file in both themes: black phone on the project gradient, identical
+   in light and dark) and plays the project's loop on the phone screen baked into it (players: js/vac-chain.js; FMSS keeps its own .fmss-anim/.fsp-* above until it moves onto js/device-cover.js).
+   Static (reduced motion, before the screens decode): just the art = the current cover. .cover-card: the homepage / NEXT card's art panel
+   (x 1280–2880 of the 2880x1640 home cover). */
+.cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;contain:layout paint}
+.cover-anim.cover-card{left:44.4444%;background-position:100% 50%}
+.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=135)}
+.cover-anim.cover-card[data-cover-anim=vac]{background-image:url(../assets/cover-vac-home.webp?v=135)}
+.media-wrap.cover-wrap,.hero-slot.cover-wrap{position:relative}
+.cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
+.cover-anim.on .cv-ph{opacity:1}
+.cv-scr{position:absolute;inset:8px;overflow:hidden;background:#000;isolation:isolate;border-radius:48px} /* the cover art's screen radius (clip-path path() refines it where supported) */
+.cv-rim{position:absolute;inset:0;background:#000}
+@supports not (clip-path:path('M0 0H1V1Z')){.cv-rim{display:none}}
+html body .cover-anim .cv-scr img{position:absolute;left:0;top:0;max-width:none;display:block;border-radius:0;object-fit:fill;-webkit-user-drag:none}
+@media (prefers-reduced-motion:reduce){.cv-ph{display:none}}
+/* VAC player layers (js/vac-chain.js), Figma vac_21 at 2x, in paint order: Feed, the white strip under the split line, Split backdrop,
+   Porsche Reels page, the media (shared element with the <video>, sized by the player), Reels like icon, FMSS status bar + close X overlay
+   (two clips of bo1), live player controls (js/video-scrubber.js, laid out in screen px), the site sheet + shared IAB header, chained
+   Reels pages (375x734), Reels chrome, comment bar */
+.cv-scr.vac .vc-l{position:absolute;left:0;top:0;will-change:transform,opacity}
+html body .cover-anim .cv-scr.vac .vc-feed{width:375px;height:812px}
+.cv-scr.vac .vc-bw{top:404px;width:375px;height:4px;background:#fff}
+html body .cover-anim .cv-scr.vac .vc-bu,html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
+.cv-scr.vac .vc-bos{clip-path:inset(0 0 362px 0)}
+.cv-scr.vac .vc-box{clip-path:inset(44px 0 0 0)}
+html body .cover-anim .cv-scr.vac .vc-pp,html body .cover-anim .cv-scr.vac .vc-pg{width:375px;height:734px}
+.cv-scr.vac .vc-mv{overflow:hidden;will-change:left,top,width,height,clip-path}
+html body .cover-anim .cv-scr.vac .vc-mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;margin:0;border-radius:0;background:none}
+html body .cover-anim .cv-scr.vac .vc-ufi{left:330px;top:488px;width:42px;height:67px}
+html body .cover-anim .cv-scr.vac .vc-sh{top:406px;width:375px;height:406px}
+html body .cover-anim .cv-scr.vac .vc-chrome{width:375px;height:180px}
+.cv-scr.vac .vc-bar{top:734px;width:375px;height:78px;background:#000}
