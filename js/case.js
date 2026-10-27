@@ -53,9 +53,50 @@ window.dbhSwipe=function(el,step,opt){var skip=(opt&&opt.skip)||'.car-ctrl,.ss-c
   if(now-wt>200){held=false;acc=0}wt=now;if(held)return;acc+=e.deltaX*(e.deltaMode?16:1);if(Math.abs(acc)>=40){held=true;step(acc>0?1:-1);acc=0}},{passive:false});};
 /* video[data-lazy]: heavy demos get their source only when they near the view (600px ahead), then the play helper starts them */
 (function(){var vs=document.querySelectorAll('video[data-lazy]');if(!vs.length)return;var go=function(v){v.removeAttribute('data-lazy');v.querySelectorAll('source[data-src]').forEach(function(s){s.src=s.getAttribute('data-src');s.removeAttribute('data-src')});v.load()};if(!('IntersectionObserver' in window)){vs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'600px 0px'});vs.forEach(function(v){io.observe(v)})})();
-document.querySelectorAll('video.demo-video').forEach(function(v){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
+document.querySelectorAll('video.demo-video').forEach(function(v){if(v.closest('[data-alternate]'))return;v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
  var sync=dbhPlayPause(v.closest('.media')||v.parentNode,v,{paused:function(){return v.paused},play:function(){var p=v.play();if(p&&p.catch)p.catch(function(){})},pause:function(){v.pause()}},'video');
  v.addEventListener('play',sync);v.addEventListener('pause',sync);if(v.__kick){v.addEventListener('loadeddata',v.__kick);v.addEventListener('canplay',v.__kick);}});
+/* [data-alternate] (on a row of demo videos, e.g. the .inc-row of VAC 02 Problem): the videos take turns, in DOM order, one loop each,
+   forever. The row is ONE member of the page's one-demo pool (js/demos.js), so it never splits into two competing members; while it
+   holds the pool's turn only the current video plays, and only while that video is >= 35% in view (as every demo video). At the end of
+   its loop it rewinds to its first frame (the poster frame) and the next one plays from its start. A video waiting for its turn always
+   sits on its first frame.
+   Visibility (phones, where the pair stacks): when the video whose turn it is drops below 35% in view while a sibling is >= 35%, the
+   turn goes to that sibling now: it starts from its first frame (where a waiting video always is, as at the end of a loop or a play
+   press) and the one leaving rewinds to its poster (it is all but off screen). After that loop the rotation goes on; a turn that falls
+   on a video below 35% while a sibling is in view passes straight back, so the visible one keeps looping. Neither >= 35%: both pause
+   in place. Side by side (desktop) both are in view, so the rotation is pure. The pool measures the row while the videos sit side by
+   side, and the video that would play (box()) while they stack, so the nearest-centre pick sees what is actually on screen.
+   Losing the pool's turn pauses the current video where it is; the turn back resumes it from there. The buttons (one per video, as
+   every .vid-btn): play on a waiting video switches to it at once (the other pauses and goes back to its first frame), even if the
+   other is more in view, and it keeps the turn until it scrolls out (below 35%, or out of view entirely, as nothing plays off screen) or
+   its loop ends; pause holds the whole row (want() false: nothing auto-advances or hands over, the pool may hand the turn to another
+   demo) until play is pressed on either. Icons follow each video's real state */
+document.querySelectorAll('[data-alternate]').forEach(function(row){var vs=[].slice.call(row.querySelectorAll('video.demo-video'));if(!vs.length)return;
+ var D=window.dbhDemos,always=document.body.hasAttribute('data-always-play'),IO='IntersectionObserver' in window&&!always,on=!D,held=false,k=0,pin=-1,ask=null,bs=[],
+  ok=vs.map(function(){return !IO}),any=vs.map(function(){return !IO});   // ok[j]: >= 35% in view; any[j]: any part in view
+ var play=function(v){var p=v.play();if(p&&p.catch)p.catch(function(){})},
+  sync=function(){vs.forEach(function(v,j){var b=bs[j],o=!v.paused;b.setAttribute('aria-pressed',o?'true':'false');b.setAttribute('aria-label',(o?'Pause ':'Play ')+(v.getAttribute('aria-label')||'video'))})},
+  rewind=function(v){try{if(v.currentTime)v.currentTime=0}catch(_){}},
+  can=function(j){return ok[j]||(pin===j&&any[j])},
+  /* who should hold the turn: the current video while it may play, else the first sibling >= 35% in view, else the current one */
+  next=function(){if(can(k))return k;for(var i=1;i<vs.length;i++){var j=(k+i)%vs.length;if(ok[j])return j}return k},
+  turn=function(j){if(j===k)return;var o=vs[k];o.pause();rewind(o);k=j},
+  run=function(){if(on&&!held)turn(next());vs.forEach(function(v,j){if(j!==k&&!v.paused)v.pause()});var v=vs[k];if(on&&!held&&can(k)){if(v.paused)play(v)}else if(!v.paused)v.pause();sync()};
+ vs.forEach(function(v,j){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=false;v.autoplay=false;v.removeAttribute('autoplay');v.removeAttribute('loop');v.pause();
+  var b=document.createElement('button');b.type='button';b.className='mbtn vid-btn';b.innerHTML=window.dbhPP;(v.closest('.media')||v.parentNode).appendChild(b);bs.push(b);
+  b.addEventListener('click',function(){if(v.paused){held=false;turn(j);pin=j;play(v)}else{held=true;v.pause()}sync();if(ask)ask()});
+  v.addEventListener('play',function(){if(j!==k||!on||held||!can(j))v.pause();sync()});v.addEventListener('pause',sync);
+  /* one loop done: the next video's turn, from its start (only while the row runs; a held row stays where it is) */
+  v.addEventListener('ended',function(){if(j!==k)return;pin=-1;var n=(k+1)%vs.length;rewind(v);if(n!==k){k=n;rewind(vs[k])}run();if(ask)ask()})});
+ sync();
+ if(D)ask=D.add(row,{play:function(){on=true;run()},pause:function(){on=false;vs.forEach(function(v){if(!v.paused)v.pause()});sync()},want:function(){return !held},
+  box:function(){var a=vs[0].getBoundingClientRect(),z=vs[vs.length-1].getBoundingClientRect();return z.top>=a.bottom-1?vs[held?k:next()]:row}});
+ if(always){var kick=function(){run()};['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});vs.forEach(function(v){v.addEventListener('canplay',kick)})}
+ if(IO){var io=new IntersectionObserver(function(es){es.forEach(function(e){var j=vs.indexOf(e.target),was=ok[j];ok[j]=e.isIntersecting&&e.intersectionRatio>=.35;any[j]=e.isIntersecting&&e.intersectionRatio>0;
+   if(pin===j&&((was&&!ok[j])||!any[j]))pin=-1});run();if(ask)ask()},{threshold:[0,.35]});vs.forEach(function(v){io.observe(v)})}
+});
 
 /* solution carousel: a pill of dots (one per slide) + play/pause. Each slide fills over 5s (linear), then a 1s handoff
    (easeInOutQuad = cubic-bezier(.455,.03,.515,.955)): the active bar drops its fill and shrinks to a dot while the next dot grows

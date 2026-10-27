@@ -6,6 +6,8 @@
      dbhDemos.add(el, {play(), pause(), want()})  el = the box measured for "nearest the centre". play/pause are called on every change
        (a new member starts paused: it plays once the pool picks it). want() (optional) false = not autoplaying right now (user-paused,
        a stepped piece after its first touch): it never takes the turn. Returns ask(): call it when want() may have changed.
+       box() (optional) returns the element to measure instead of el right now (it must sit inside el, which is what is observed):
+       a [data-alternate] row of stacked videos is measured at the video that would play, not at the row's centre.
      dbhDemos.ask()  re-pick on the next frame (after anything that moves members without a scroll, resize or intersection change).
    Each member keeps its own rules on top (reduced motion, its own in-view threshold, a hidden tab): the pool only ever narrows what plays.
    Members today: js/state-seq.js loops (VAC Solution, Citi intro), js/device-cover.js and js/fmss-split.js covers (case page heroes,
@@ -20,7 +22,7 @@
 var ms=[],cur=null,vis=[],q=0,O=location.origin,io=null;
 var lifted=function(){for(var i=0;i<ms.length;i++){var c=ms[i].el.classList;if(c.contains('proto-lift')||c.contains('fsx-lift'))return true}return false};
 var pick=function(){q=0;var cx=innerWidth/2,cy=innerHeight/2,best=null,bd=Infinity;
- if(!lifted())vis.forEach(function(m){if(m.want&&!m.want())return;var r=m.el.getBoundingClientRect();
+ if(!lifted())vis.forEach(function(m){if(m.want&&!m.want())return;var r=(m.box&&m.box()||m.el).getBoundingClientRect();
   if(!r.width||!r.height||r.bottom<=0||r.top>=innerHeight||r.right<=0||r.left>=innerWidth)return;
   var dx=r.left+r.width/2-cx,dy=r.top+r.height/2-cy,d=dx*dx+dy*dy;if(d<bd){bd=d;best=m}});
  if(best===cur)return;var was=cur;cur=best;if(was)was.pause();if(cur)cur.play()};
@@ -28,7 +30,7 @@ var ask=function(){if(!q)q=requestAnimationFrame(pick)};
 if('IntersectionObserver' in window)io=new IntersectionObserver(function(es){es.forEach(function(e){var m=null;
   for(var i=0;i<ms.length;i++)if(ms[i].el===e.target){m=ms[i];break}var k=vis.indexOf(m);
   if(e.isIntersecting){if(k<0)vis.push(m)}else if(k>=0)vis.splice(k,1)});ask()},{threshold:[0,.25,.5,.75,1]});
-function add(el,h){var m={el:el,play:h.play,pause:h.pause,want:h.want};ms.push(m);if(io)io.observe(el);else vis.push(m);ask();return ask}
+function add(el,h){var m={el:el,play:h.play,pause:h.pause,want:h.want,box:h.box};ms.push(m);if(io)io.observe(el);else vis.push(m);ask();return ask}
 var api=window.dbhDemos={add:add,ask:ask,current:function(){return cur&&cur.el}};
 addEventListener('scroll',function(){if(vis.length)ask()},{passive:true});addEventListener('resize',ask);
 addEventListener('strip:rest',ask);   // the homepage rail (js/home.js) moves its cards by transform, then says when it settles
