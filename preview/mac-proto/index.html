@@ -49,10 +49,10 @@ video{display:block;object-fit:cover}
 /* layers, bottom → top. Grid: "Suggested for you", four ad tiles (172×272, r12, the 60% squircle); tile 1 (Oakley) is the seed video
    itself (.mv), which grows into Reels. Reels: the chain Oakley → LensCrafters → Ray-Ban, one 734px pitch, the comment bar under it */
 .grid{width:375px;height:812px;z-index:1;will-change:transform}
-.tile{width:172px;height:272px;overflow:hidden;background:#2a262a;will-change:transform,opacity}
+.tile{width:172px;height:272px;overflow:hidden;background:#131013 center/cover no-repeat;will-change:transform,opacity}
 .tile video,.tile canvas{position:absolute;inset:0;width:100%;height:100%}
 .rbg{width:375px;height:812px;z-index:2;background:#000;opacity:0;will-change:transform,opacity}
-.mv{z-index:5;overflow:hidden;background:#2a262a;cursor:pointer;-webkit-tap-highlight-color:transparent;will-change:left,top,width,height}
+.mv{z-index:5;width:375px;height:734px;overflow:hidden;background:#131013 center/cover no-repeat;cursor:pointer;-webkit-tap-highlight-color:transparent;transform-origin:0 0;will-change:transform,clip-path}
 .mv video{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .gtop{width:375px;height:812px;z-index:6;pointer-events:none;will-change:transform,opacity}
 .th{width:171.5px;height:60px}
@@ -87,9 +87,15 @@ video{display:block;object-fit:cover}
 .finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .248s var(--ease),scale .176s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
 .finger.down,.ufinger.down{scale:.85}
+/* the scripted touch: the same FMSS circle with more contrast, so it reads on the bright Oakley tile at the inline scale */
+.finger{background:rgba(120,120,120,.5);box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.2),0 2px 12px rgba(0,0,0,.45)}
+.finger.on{opacity:1}
 .ufinger{z-index:61;transition:opacity .152s var(--ease),scale .12s var(--ease)}
 .phone.u-on .finger{opacity:0!important}
 .xf{left:0;top:0;width:100%;height:100%;z-index:95;pointer-events:none;opacity:0;background:#000}
+/* first load: the screen holds on the grid's ground (status bar and home indicator showing) until every tile's poster and first video
+   frame has decoded, then the grid fades in whole (248ms): a tile never shows empty */
+.ldc{left:0;top:0;width:375px;height:812px;z-index:38;pointer-events:none;background:#131013}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
@@ -111,13 +117,13 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
         <div class="L grid" id="grid">
-          <div class="L tile" id="t1" style="left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
-          <div class="L tile" id="t2" style="left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-zenni.webp?v=209" src="../../assets/vac/vac-mac-zenni.mp4?v=209"></video></div>
-          <div class="L tile" id="t3" style="left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=209" src="../../assets/vac/vac-mac-lululemon.mp4?v=209"></video></div>
-          <div class="L tile" id="t4" style="left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-chickfila.webp?v=209" src="../../assets/vac/vac-mac-chickfila.mp4?v=209"></video></div>
+          <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=209);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-zenni.webp?v=209);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-zenni.webp?v=209" src="../../assets/vac/vac-mac-zenni.mp4?v=209"></video></div>
+          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=209);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=209" src="../../assets/vac/vac-mac-lululemon.mp4?v=209"></video></div>
+          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-chickfila.webp?v=209);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-chickfila.webp?v=209" src="../../assets/vac/vac-mac-chickfila.mp4?v=209"></video></div>
         </div>
         <i class="L rbg" id="rbg" aria-hidden="true"></i>
-        <div class="L mv" id="mv" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=209" src="../../assets/vac/vac-mac-oakley.mp4?v=209"></video></div>
+        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=209)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=209" src="../../assets/vac/vac-mac-oakley.mp4?v=209"></video></div>
         <div class="L gtop" id="gtop" aria-hidden="true">
           <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=209" style="left:12px;top:170px">
           <img class="L th" id="h2" alt="" src="assets/tile-h2.webp?v=209" style="left:191.5px;top:170px">
@@ -141,6 +147,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="L btn back" id="back" type="button" aria-label="Back to the grid"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
+        <i class="L ldc" id="ldc" aria-hidden="true"></i>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
         <div class="L finger" id="finger" aria-hidden="true"></div>
@@ -181,6 +188,9 @@ function squircle(w,h,R,sm){
     `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-D}a${r} ${r} 0 0 1 ${-S} ${-S}c${-D} ${-C} ${-D} ${-BC} ${-D} ${-ABC}`+
     `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${D} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-D} ${BC} ${-D} ${ABC} ${-D}Z`;
 }
+function squircleAt(ox,oy,w,h,R,sm){   // the same outline, drawn at (ox, oy) (the seed's clip inside its full-size box)
+  return squircle(w,h,R,sm).replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,x,y)=>c+(+(+x+ox).toFixed(3))+' '+(+(+y+oy).toFixed(3)));
+}
 const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
 if(CLIP){phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`;
   ['t1','t2','t3','t4'].forEach(id=>{$(id).style.clipPath=`path('${squircle(172,272,12,.6)}')`})}
@@ -193,7 +203,7 @@ function springEase(p){var k=p[0],c=p[1],m=p[2]||1,w0=Math.sqrt(k/m),z=c/(2*Math
   else{var s=w0*Math.sqrt(z*z-1),r1=-z*w0+s,r2=-z*w0-s,A=r2/(r2-r1),B=1-A;x=t=>1-(A*Math.exp(r1*t)+B*Math.exp(r2*t))}
   var T=0;for(var t=0;t<20;t+=.0005)if(Math.abs(1-x(t))>=.001)T=t;T+=.0005;var xe=x(T);
   return u=>u<=0?0:u>=1?1:x(u*T)/xe}
-const SLOW=springEase([80,20,1]),DUR=664,INTRO=496;
+const SLOW=springEase([80,20,1]),DUR=664;
 function anim(get,set){let raf=0,busy=false;
   return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
     to(target,{ms=DUR,onDone}={}){cancelAnimationFrame(raf);const from=get();
@@ -216,14 +226,20 @@ let VIDS=[],sheetP=0,sd=0,lastR='',lastSb='',lastHome='',hx=0;
 const pageY=j=>PG*clamp(j-k,-1,1);
 function render(){
   const pop=mode==='pop',rx=pop?375*b:0,gx=pop?-120*(1-b):0,full=pop||e>=1;
-  /* the seed video: the tile's box → the reel's (one element, no cut), then it rides page 0 */
+  /* the seed video: ONE full-size box (375×734, the reel's), scaled down onto the tile and clipped to it (shared element). The grow
+     is a transform + clip, so the video never resizes or re-lays out and keeps playing through it; tile and reel crop the same way
+     (cover, centred), so the frame is continuous. Then it rides page 0 */
   let x,y,w,h,r;
   if(full){[x,y,w,h]=FULL;x+=rx;y+=pageY(0);r=0}
   else{x=lerp(TILE[0],FULL[0],e);y=lerp(TILE[1],FULL[1],e)+24*(1-g);w=lerp(TILE[2],FULL[2],e);h=lerp(TILE[3],FULL[3],e);r=12*(1-e)}
-  mv.style.left=x.toFixed(2)+'px';mv.style.top=y.toFixed(2)+'px';mv.style.width=w.toFixed(2)+'px';mv.style.height=h.toFixed(2)+'px';
+  const sc=Math.max(w/375,h/734),cw=(375*sc-w)/2/sc,ch=(734*sc-h)/2/sc;
+  mv.style.transform=`translate3d(${(x-cw*sc).toFixed(3)}px,${(y-ch*sc).toFixed(3)}px,0) scale(${sc.toFixed(5)})`;
   op(mv,full?1:g);
-  const key=`${w.toFixed(1)},${h.toFixed(1)},${r.toFixed(2)}`;
-  if(key!==lastR){lastR=key;if(CLIP&&r>.05)mv.style.clipPath=`path('${squircle(w,h,r,.6)}')`;else{mv.style.clipPath='';mv.style.borderRadius=r>.05?r+'px':''}}
+  const key=`${cw.toFixed(2)},${ch.toFixed(2)},${r.toFixed(2)},${sc.toFixed(4)}`;
+  if(key!==lastR){lastR=key;
+    if(cw<.01&&ch<.01&&r<.05)mv.style.clipPath='';
+    else if(CLIP&&r>.05)mv.style.clipPath=`path('${squircleAt(cw,ch,375-2*cw,734-2*ch,r/sc,.6)}')`;
+    else mv.style.clipPath=`inset(${ch.toFixed(2)}px ${cw.toFixed(2)}px round ${(r/sc).toFixed(2)}px)`}
   /* the grid: fades under the growing tile (Figma's smart animate), slides back in from −120 on the pop */
   const gv=pop?1:1-e;
   els.grid.style.transform=tr(gx,0);els.gtop.style.transform=tr(gx,0);
@@ -365,6 +381,17 @@ new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35
 function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{VIDS.forEach(([v])=>v.pause());stopAuto()}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){VIDS.forEach(([v])=>v.pause());stopAuto()}else{vidSync();sched()}});
 
+/* ---------- first load: hold until the grid can paint whole (posters + nav decoded, each grid video's first frame), max 3.2s ---------- */
+let ready=false;
+(function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley','vac-mac-zenni','vac-mac-lululemon','vac-mac-chickfila'].map(n=>'../../assets/vac/'+n+'.webp?v=209'));
+  const dec=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
+  const vf=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true})});
+  const all=Promise.all(imgs.map(dec).concat([vid,...tv].map(vf)));
+  let done=false;const go=()=>{if(done)return;done=true;ready=true;const c=$('ldc');
+    if(RM.matches||!c.animate)c.remove();else c.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out',fill:'forwards'}).onfinish=()=>c.remove();
+    sched()};
+  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+
 /* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
 function say(t){$('live').textContent=t}
 let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
@@ -374,8 +401,9 @@ $('theme').addEventListener('click',()=>{const h=document.documentElement;const 
 (function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
 
 /* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only, no input; full screen moves only on real input.
-   One loop, 16.2s (every time a multiple of 8ms): fade 248 · grid intro 400 + 496 settle · dwell 2496 · tap Oakley (832; the 664
-   grow starts at 472) · seed 4000 · swipe up (880; the 664 push starts at 520) · LensCrafters 3000 · swipe up · Ray-Ban 3000 ---------- */
+   One loop, 16.48s (every time a multiple of 8ms): grid 2496 · tap Oakley (912; the 664 grow starts at 552) · seed 4000 · swipe up
+   (880; the 664 push starts at 520) · LensCrafters 3200 · swipe up · Ray-Ban 3200 · tap Back (912; the 664 pop to the grid starts at
+   552) · round again from the grid: no cut anywhere in the loop ---------- */
 const finger=$('finger');
 let autoOn=false,token=0,stepI=0,inStep=false,broken=false,userDirty=false;
 const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(48,left))};f()});
@@ -383,18 +411,16 @@ const easeIn=q=>q*q;
 const frames=(ms,tk,fn)=>new Promise((res,rej)=>{const t0=performance.now();const f=now=>{if(tk!==token)return rej('x');const q=clamp((now-t0)/ms);fn(q);q<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
 function fingerAt(x,y){finger.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
 function fingerOff(){finger.classList.remove('on','down')}
-async function tap(x,y,tk,fn){fingerAt(x,y);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');await wait(152,tk);fn();finger.classList.remove('down');await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
+async function tap(x,y,tk,fn){fingerAt(x,y);finger.classList.add('on');await wait(400,tk);finger.classList.add('down');await wait(152,tk);fn();finger.classList.remove('down');await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}   // 912: the touch shows 400 before the press
 async function swipeUp(tk){   // one ad up the chain
   const k0=Math.round(k),y0=560;fingerAt(187.5,y0);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');kA.stop();
   try{await frames(200,tk,q=>{const d=96*easeIn(q);fingerAt(187.5,y0-d);k=k0+d/PG;render()})}catch(err){k=k0;render();throw err}
   finger.classList.remove('down');step(Math.min(N,k0+1));await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
-async function intro(tk){g=0;render();await wait(400,tk);await new Promise((res,rej)=>{gA.to(1,{ms:INTRO,onDone:()=>tk===token?res():rej('x')})})}
 const STEPS=[
-  tk=>intro(tk),                                     // the grid: tiles rise in (400 hold, 496 Slow settle)
-  2496,tk=>tap(98,306,tk,openSeed),                 // tap the Oakley ad → it grows into the seed reel
-  4000,tk=>swipeUp(tk),                              // Oakley → LensCrafters
-  3000,tk=>swipeUp(tk),                              // LensCrafters → Ray-Ban
-  3000,tk=>xfade(tk,0)];                             // fade, back to the grid (tiles hidden for the intro)
+  2496,tk=>tap(98,306,tk,openSeed),                 // the grid; tap the Oakley ad → it grows into the seed reel (664, from 552)
+  4000,tk=>swipeUp(tk),                              // Oakley → LensCrafters (664 push, from 520)
+  3200,tk=>swipeUp(tk),                              // LensCrafters → Ray-Ban
+  3200,tk=>tap(24,70,tk,back)];                      // Back → the pop to the grid (664, from 552), and round again
 async function loop(tk){while(tk===token){const s=STEPS[stepI];if(typeof s==='number')await wait(s,tk);else{inStep=true;await s(tk);inStep=false}stepI=(stepI+1)%STEPS.length}}
 const xf=document.createElement('div');xf.className='L xf';xf.setAttribute('aria-hidden','true');phone.appendChild(xf);
 function reset(gv=1){gA.stop();toGrid();g=gv;render();fingerOff();homeS=null;homeTell(true)}
@@ -406,11 +432,10 @@ let wasInl=INL();
 if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
   if(!i){stopAuto();reset();stepI=0;broken=userDirty=false;return}   // into full screen: the clean start (the grid), no demo
   if(stepI||userDirty)broken=true;sched()}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
-function canRun(){return !(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
+function canRun(){return ready&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
 function startAuto(){if(autoOn||!canRun())return;autoOn=true;const tk=++token;frame.dataset.autoplay='on';
   const run=()=>loop(tk).catch(()=>{});
-  if(broken||userDirty||mode!=='grid'||g<1){broken=userDirty=false;stepI=1;xfade(tk).then(run,()=>{})}
-  else{if(stepI===0)stepI=1;run()}}   // the first run starts on the grid already there (no intro over a poster that is showing)
+  if(broken||userDirty||mode!=='grid'){broken=userDirty=false;stepI=0;xfade(tk).then(run,()=>{})}else run()}
 function stopAuto(){if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();if(inStep){inStep=false;broken=true}}
 function sched(){if(!autoOn&&canRun())startAuto()}
 function userActed(){if(INL())return;userDirty=true}
