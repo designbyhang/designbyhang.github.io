@@ -1,5 +1,5 @@
-/* VAC cover: the "vac" device-cover player ([data-cover-anim="vac"], js/device-cover.js, load it first): hero on projects/vac.html, the
-   homepage card, the NEXT CASE STUDY card on projects/fmss.html.
+/* VAC cover: the "vac" device-cover player ([data-cover-anim="vac"], js/device-cover.js, load it first): the hero on projects/vac.html only
+   (the homepage and NEXT CASE STUDY cards show the still cover art).
    The Solution end to end, "Lower Funnel Ads — with VAC" (Figma vac_21, assets/vac/vac-21): the user meets a video ad in Feed, taps it into
    Split Screen (video on top, the advertiser's site in a sheet below), swipes the sheet down into the Reels Player, then swipes up through
    the chained ads, and Back returns to Feed. One seamless loop of 20000ms:

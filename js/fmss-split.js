@@ -1,7 +1,8 @@
 /* FMSS split screen motion: the Solution 1 loop ("across ad objectives", preview/fmss-sol1) as one shared engine.
    FMSSSplit.screen(el,i,opt) fills a 375x812 phone screen element with phone i's layers (A feed -> B split screen -> C full screen ->
    B -> A) and returns its Web Animations, images and video; every phone shares one clock (T) and one pose track (POSE).
-   Used by the FMSS cover animation ([data-fmss-anim], below: hero on projects/fmss.html, the homepage card, NEXT CASE STUDY cards).
+   Used by the FMSS cover animation ([data-fmss-anim], below: hero on projects/fmss.html only; the homepage and NEXT
+   CASE STUDY cards show the still cover art).
    Motion, holds and layer recipe are sol1's, unchanged (see the notes inline); only the container (bezel, label, frame) is the caller's. */
 (function(){"use strict";if(window.FMSSSplit)return;
 /* phones (sol1 PH/MED/CS/CU): split line (B sheet top), feed (A) media height ah, split screen (B) media y/height,
@@ -105,7 +106,7 @@ function screen(el,i,opt){
 }
 window.FMSSSplit={PHONES,POSE,T,STEP,marks:{t1,t1e,t2,t2e,t3,t3e,t4,t4e},squircle,PATH,SQ,screen};
 
-/* ---- FMSS cover animation: [data-fmss-anim] over the FMSS cover (hero, homepage card, NEXT CASE STUDY card) ----
+/* ---- FMSS cover animation: [data-fmss-anim] over the FMSS cover (the hero on projects/fmss.html) ----
    The element paints the cover art itself (CSS background, the light-mode file in both themes: black phone on the orange gradient,
    never theme-swapped) and lays phone 1 (Offsite Conversions, the hero's Nike screen) over the phone screen baked into that art, with
    a black bezel fill under it (the Evolution prototypes' frame setup), so only the screen content moves. The art: data-art "W H x y" = art size and the screen's

@@ -1,7 +1,8 @@
-/* Device cover: the shared foundation for animated case-study covers (hero on the case page, the homepage card, NEXT CASE STUDY cards).
+/* Device cover: the shared foundation for animated case-study covers (the case-page hero only:
+   homepage and NEXT CASE STUDY cards show the still cover art, no demo).
    A cover is the project's cover art (black phone on the project gradient, the same file in light and dark mode) with a live phone screen
    laid exactly over the screen baked into the art, on a black bezel fill under it (the Evolution prototypes' frame setup), so only the screen content moves.
-   Markup: <span class="cover-anim [cover-card]" data-cover-anim="NAME" data-art="W H x y" [data-pos="x y"] aria-hidden="true"></span>
+   Markup: <span class="cover-anim" data-cover-anim="NAME" data-art="W H x y" [data-pos="x y"] aria-hidden="true"></span>
      data-art: the art's size and the screen's top-left, in art px (2 art px per design px); data-pos: CSS background-position as fractions.
    A project registers its player once: DeviceCover.register(NAME,{T,rest,build(screenEl)->{anims,imgs,video?}}); the player owns what is
    on the screen, this module owns the frame, fit, start, pause and reduced motion. Players: js/vac-chain.js (vac). FMSS (js/fmss-split.js, [data-fmss-anim]) still mounts
