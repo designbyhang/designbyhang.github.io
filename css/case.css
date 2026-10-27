@@ -365,8 +365,7 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:r
    rgba(255,255,255,.2) outside stroke) laid out like the art (1624x1824): phone 75.4% of the height from 9.9% down, centred across.
    Sizes run on the frame's height (cqh) so the phone scales with the frame. Controls use the dark-theme glass in both themes.
    Text cell (.pd-txt) = the module's size, no box; text uses the 04 Opportunity type (.prose h2 + p.t-body), inset by the site content
-   margin (--wrap-pad, the .wrap padding) and centred vertically. A module figcaption (02) sits 14px under the module; the text cell
-   gives up the caption's 32px (14 + 18 line) at the bottom so it stays the module's height.
+   margin (--wrap-pad, the .wrap padding) and centred vertically.
    Stacked (phones, portrait tablets): text above its module, flush to the content column; 64px above each text, 32px text -> module */
 body.cs .media.mframe.phone-demo{container-type:size;--c-paper:#1a1a1a;--c-strong:#f2f2f2;--ring-media:rgba(255,255,255,.12);background:#1d1d1d;align-items:flex-start}
 .phone-demo .pd-phone{position:relative;flex:none;height:75.4386cqh;margin-top:9.8684cqh;aspect-ratio:375/812;border-radius:4.4444cqh;overflow:hidden;background:#000;box-shadow:0 0 0 .7407cqh rgba(255,255,255,.2);transform:translateZ(0)}
@@ -375,14 +374,12 @@ body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo 
 .inc2 .pd-row{align-items:stretch}
 .pd-rev .pd-txt{order:2}
 .pd-txt{display:flex;flex-direction:column;justify-content:center;min-width:0;padding-inline:var(--wrap-pad)}
-.pd-row:has(figcaption) .pd-txt{margin-bottom:32px}
 .pd-txt .prose>:last-child{margin-bottom:0}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){
  .pd-rows{margin-top:0}
  .inc2 .pd-row{gap:0}
  .pd-rev .pd-txt{order:0}
  .pd-txt{padding:64px 0 32px}
- .pd-row:has(figcaption) .pd-txt{margin-bottom:0}
 }
 /* mobile head gap (every case page, max-width:640px: phone portrait and any narrow width): the hero's spacing below the title text
    = the visual gap title -> subtitle (FMSS h1 -> .sum). Measured between line boxes (font ascent/descent, the Range rects), not CSS boxes:
