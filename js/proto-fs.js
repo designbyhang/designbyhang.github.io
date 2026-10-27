@@ -13,12 +13,12 @@
    below the device frame, at most 375px wide; the device shrinks (375x812 cap kept) so device + gap + text fit the probe box, the
    group centred in it. It moves as CLOSE does
    (same trigger on the expansion, 40ms after CLOSE as Studio's UI_STAG, then INS_WAIT 800ms more (WAAPI delay, no timer; a tap or
-   close inside it and it never shows), 448ms on
-   CLOSE's curve, opacity 0 -> 1 on the same curve) but vertically: it rises INS_UP (16px) into place while fading in (the same
+   close inside it and it never shows), then a soft
+   opacity-only fade in, the exit's FADE mirrored (400ms, ease-out), no slide (the same
    entrance on its return to the first screen and after a refresh). It lives in the .fsx-bg layer, under the lifted iframe, and its
    box (.fsx-ins, overflow clip, 16px bottom padding for the rise) starts at the device's bottom edge. On the first tap of the
    element it describes (TAP, in the prototype's own document), on leaving the first screen and on close it leaves with a soft
-   opacity-only fade (OUT_MS 400ms, ease-out, from its current opacity and position, mid-entrance too). Not shown inline.
+   opacity-only fade (FADE: 400ms, ease-out, from its current opacity, mid-entrance too). Not shown inline.
    Refresh: open writes ?fs=<prototype> (window.dbhView, js/hang-egg.js), close clears it; a load carrying it reopens that prototype
    with no expansion (snap: CLOSE and the page chrome at their end state), the page under it at the prototype, the device on its clean
    start (no autoplay in full screen); the instruction then plays its entrance (above) once restored.
@@ -39,20 +39,20 @@ const ins=document.createElement('p');ins.className='fsx-ins';ins.innerHTML='<sp
 const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad'},
  TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv'}; /* the reel caption / a product image / the reel's profile picture */
 const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
-/* instruction motion: CLOSE's entrance (uiEnter) on the y axis, rising INS_UP; exits fade only */
-const INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,OUT_MS=400,OUT_EASE='cubic-bezier(.25,.1,.25,1)'; /* every exit: a soft opacity-only fade (OUT_MS on OUT_EASE, ease-out) */
+/* instruction motion: opacity only, no slide; fade in and fade out on the one FADE timing */
+const INS_STAG=40,INS_WAIT=800,FADE={duration:400,easing:'cubic-bezier(.25,.1,.25,1)'}; /* every entrance and exit: a soft opacity-only fade (one FADE timing, 400ms ease-out, mirrored) */
 let insA=null,tapped=false,insHome=false; /* insHome: the prototype has reported its clean start this session */
-const insHide=()=>{insS.style.opacity='0';insS.style.translate='';};
+const insHide=()=>{insS.style.opacity='0';};
 const insStop=()=>{if(insA){insA.cancel();insA=null;}};
-function insEnter(d=INS_STAG+INS_WAIT){if(tapped||!insS.textContent)return;insStop();insS.style.opacity=insS.style.translate='';if(rm.matches||!insS.animate)return;
- insA=insS.animate([{opacity:0,translate:'0 '+INS_UP+'px'},{opacity:1,translate:'0 0'}],{duration:INS_MS,delay:d,easing:FS.UI.EASE,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
+function insEnter(d=INS_STAG+INS_WAIT){if(tapped||!insS.textContent)return;insStop();insS.style.opacity='';if(rm.matches||!insS.animate)return;
+ insA=insS.animate([{opacity:0},{opacity:1}],{...FADE,delay:d,fill:'backwards'});insA.onfinish=()=>{insA=null;};}
 const insOut=()=>{if(tapped)return;tapped=true; /* gone for the rest of this full-screen session */
  if(rm.matches||!insS.animate){insStop();insHide();return;}
  if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insStop();insHide();return;} /* still waiting: it never appears */
  insFade();};
 /* the soft exit (tap, leaving the first screen, close): from its current opacity and position (mid-entrance too), opacity only */
-function insFade(){if(rm.matches||!insS.animate){insStop();insHide();return;}const cs=getComputedStyle(insS),o=+cs.opacity,y=cs.translate;insStop();
- insS.style.translate=y==='none'?'':y;insS.style.opacity='0';if(o>0){insA=insS.animate([{opacity:o},{opacity:0}],{duration:OUT_MS,easing:OUT_EASE});insA.onfinish=()=>{insA=null;};}}
+function insFade(){if(rm.matches||!insS.animate){insStop();insHide();return;}const o=+getComputedStyle(insS).opacity;insStop();
+ insS.style.opacity='0';if(o>0){insA=insS.animate([{opacity:o},{opacity:0}],FADE);insA.onfinish=()=>{insA=null;};}}
 const onTap=e=>{const k=cur&&keyOf(cur.f),t=e.target;if(k&&e.isTrusted&&t&&t.closest&&t.closest(TAP[k]))insOut();};
 /* the prototype's {type:'proto-state',home}: leaving its first screen takes the instruction out (as the tap); back on it and at rest,
    the instruction comes back with its entrance, INS_WAIT after the settle (a WAAPI delay: leaving again inside it cancels it) */
