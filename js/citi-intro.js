@@ -25,7 +25,7 @@
 var box=document.querySelector('[data-citi-intro]');if(!box)return;
 var stage=box.querySelector('.ss-stage');
 var A=(function(){var s=document.currentScript&&document.currentScript.src;return s?s.replace(/js\/citi-intro\.js.*$/,'assets/citi/intro/'):'../assets/citi/intro/'})();
-var V='?v=178';
+var V='?v=179';
 
 /* ---- THEMES: tokens + copy per tier (Figma citi_12 / citi_13). Only gold is filled; blue / priority need their tokens read from
    141388:15297 / 141388:15681 (accent hues, gradient stops) and a tile-order variant before they can be added here. */
