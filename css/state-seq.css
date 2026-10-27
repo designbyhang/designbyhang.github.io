@@ -26,7 +26,7 @@ body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-
 .sseq .ss-mk{height:32px;border-radius:6px;color:#000;overflow:hidden}
 .sseq .ss-mk>span{position:absolute;left:0;right:0;top:4px}
 /* 07 conviction cards (vac_24..27): --frame cards on a --sheet container, radius 48, clipped; titles Instrument Sans 64/64 -.04em, body 24/32 two columns */
-.sseq .cv-box{background:var(--frame);border-radius:48px;overflow:hidden} /* cards = the container's former ground (--frame), both themes */
+.sseq .cv-box{background:var(--frame);border:calc(1px*var(--inv,1)) solid var(--line);box-sizing:border-box;border-radius:48px;overflow:hidden} /* cards = the same 1px outline as the case media containers (1 CSS px at any stage scale via --inv); the container's former ground (--frame), both themes */
 body.cs .media.mframe.sseq.ss-cards{background:var(--sheet);border-color:transparent!important} /* container = the page content sheet (--sheet), both themes: one surface, no visible box */
 .sseq .cv-h{font:400 72px/72px var(--sans);letter-spacing:-2.88px;white-space:nowrap}
 .sseq .ss-stage .cv-box .cv-b{position:absolute;left:0;top:264px;display:flex;gap:120px;width:1480px;font:400 30px/40px var(--sans);white-space:normal} /* 80px-margin cards: body 24/32 -> 30/40 */
