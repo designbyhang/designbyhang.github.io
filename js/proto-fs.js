@@ -36,8 +36,8 @@ const panel=bg.firstChild;const probe=bg.querySelector('.fsx-probe'),MAXH=828;
 const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');
 fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#evolution" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
 const ins=document.createElement('p');ins.className='fsx-ins';ins.innerHTML='<span></span>';const insS=ins.firstChild;bg.appendChild(ins); /* under the iframe */
-const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
- TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
+const INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad'},
+ TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv'}; /* the reel caption / a product image / the reel's profile picture */
 const keyOf=f=>{const u=f.getAttribute('src')||f.getAttribute('data-src')||'';return Object.keys(INS).find(k=>u.indexOf('/'+k+'/')>=0)||'';};
 /* instruction motion: CLOSE's entrance (uiEnter) on the y axis, rising INS_UP; exits fade only */
 const INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,OUT_MS=400,OUT_EASE='cubic-bezier(.25,.1,.25,1)'; /* every exit: a soft opacity-only fade (OUT_MS on OUT_EASE, ease-out) */

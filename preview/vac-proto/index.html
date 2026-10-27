@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VAC · Feed → Split Screen → Reels — interactive prototype</title>
+<script src="../shared/demo/demo-clock.js?v=163"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=163"><link rel="stylesheet" href="../../css/theme.css?v=163">
+<!-- shared FMSS foundation: the IAB sheet (header + sheet), the live player controls (js/video-scrubber.js, as in FMSS Solution 1) -->
+<link rel="stylesheet" href="../shared/iab/iab.css?v=163"><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=163"></script>
+<script src="../../js/video-scrubber.js?v=163"></script>
+<!-- preview-only page: no gate.js / passcode -->
+<link rel="stylesheet" href="../shared/device/device.css?v=163">
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone: 375×812 screen + 8px theme-aware bezel (FMSS Evolution prototypes) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.phone img{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.L{position:absolute;left:0;top:0;display:block;margin:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit}
+.btn:focus,.btn:focus-visible{outline:none}
+/* layers, bottom → top (the cover's VAC chain, js/vac-chain.js, as one interactive screen) */
+.feed{width:375px;height:812px;z-index:1;will-change:transform}
+.bu{width:375px;height:430px;z-index:3;opacity:0;pointer-events:none}
+.bu img{position:absolute;left:0;top:0;width:375px;height:406px}
+/* the backdrop's last row, stretched 24px under the split line: the half sheet's rounded corners show the backdrop, not the feed */
+.bu i{position:absolute;left:0;top:405px;width:375px;height:1px;transform-origin:0 0;transform:scaleY(25);background:url(../../assets/vac-anim/split-bu.webp?v=163) 0 -405px/375px 406px no-repeat}
+.pp{width:375px;height:734px;z-index:4;opacity:0}
+.mv{z-index:5;overflow:hidden;background:#000;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;will-change:left,top,width,height}
+.mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.ufi{left:330px;top:488px;width:42px;height:67px;z-index:6;opacity:0}
+/* FMSS overlay bo1 (Solution 1's split screen), two clips: the status bar, and the close X */
+.bo{width:375px;height:406px;z-index:7;opacity:0}
+.bos{clip-path:inset(0 0 362px 0)}
+.box{clip-path:inset(44px 0 0 0)}
+.ctl{z-index:8}
+.splx{left:325px;top:46px;width:44px;height:44px;z-index:9;border-radius:22px;display:none}
+.splx.on{display:block}
+/* the shared IAB, in its own 375×812 host */
+.iab{width:375px;height:812px;z-index:20;pointer-events:none}
+.iab .web{height:1002px;background:#fff}
+.iab .web>img{position:absolute;left:0;top:0;width:375px;height:1002px}
+.stk{width:375px;height:44px;z-index:21;opacity:0;pointer-events:none;background:#000;-webkit-mask:url(../fmss-sol1/assets/bo1.webp?v=5) 0 0/375px 406px no-repeat;mask:url(../fmss-sol1/assets/bo1.webp?v=5) 0 0/375px 406px no-repeat}   /* the status glyphs, black, over the full IAB's white band */
+/* Reels: chained pages (one 734px pitch), its chrome and comment bar */
+.pg{width:375px;height:734px;z-index:30;opacity:0;will-change:transform}
+.pager{width:375px;height:734px;z-index:32;display:none;touch-action:none;cursor:grab}
+.pager.on{display:block}
+.pager.drag{cursor:grabbing}
+.chrome{width:375px;height:180px;z-index:33;opacity:0}
+.bar{top:734px;width:375px;height:78px;z-index:33;opacity:0}
+.back{left:0;top:46px;width:48px;height:48px;z-index:34;display:none}
+.back.on{display:block}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#000;z-index:40;pointer-events:none;opacity:0}
+.finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .248s var(--ease),scale .176s var(--ease)}
+.finger.on,.ufinger.on{opacity:.9}
+.finger.down,.ufinger.down{scale:.85}
+.ufinger{z-index:61;transition:opacity .152s var(--ease),scale .12s var(--ease)}
+.phone.u-on .finger{opacity:0!important}
+.xf{left:0;top:0;width:100%;height:100%;z-index:95;pointer-events:none;opacity:0;background:#000}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below,html.embed .spacer{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1>VAC · Feed → Split Screen → Reels</h1><p>Interactive prototype · the FMSS player controls and IAB sheet, shared</p></div>
+    <button class="theme" id="theme" type="button">Theme</button>
+  </header>
+  <div class="mframe" id="frame">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <img class="L feed" id="feed" alt="" src="../../assets/vac-anim/feed.webp?v=163">
+        <div class="L bu" id="bu"><img alt="" src="../../assets/vac-anim/split-bu.webp?v=163"><i></i></div>
+        <img class="L pp" id="pp" alt="" src="../../assets/vac-anim/porsche.webp?v=163">
+        <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/mist.webp?v=163" src="../../assets/vac-anim/porsche.mp4?v=163"></video></div>
+        <img class="L ufi" id="ufi" alt="" src="../../assets/vac-anim/ufi.webp?v=163">
+        <img class="L bo bos" id="bos" alt="" src="../fmss-sol1/assets/bo1.webp?v=5">
+        <img class="L bo box" id="box" alt="" src="../fmss-sol1/assets/bo1.webp?v=5">
+        <i class="L" id="ctlAt"></i>
+        <button class="L btn splx" id="splx" type="button" aria-label="Close split screen"></button>
+        <div class="L iab" id="iab"></div>
+        <i class="L stk" id="stk" aria-hidden="true"></i>
+        <img class="L pg" id="p1" alt="" src="../../assets/vac-anim/on.webp?v=163">
+        <img class="L pg" id="p2" alt="" src="../../assets/vac-anim/away.webp?v=163">
+        <img class="L pg" id="p3" alt="" src="../../assets/vac-anim/perrier.webp?v=163">
+        <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
+        <img class="L chrome" id="chrome" alt="" src="../../assets/vac-anim/chrome.webp?v=163">
+        <img class="L bar" id="bar" alt="" src="assets/bar.webp?v=163">
+        <button class="L btn back" id="back" type="button" aria-label="Back to Feed"></button>
+        <i class="L home" id="home" aria-hidden="true"></i>
+        <div class="L finger" id="finger" aria-hidden="true"></div>
+        <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">Tap the video ad in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; tap the video to pause and bring them back, drag the scrubber to seek. Swipe the sheet, or the video, down into Reels, then swipe up through the chain. Back (or × in Split Screen) returns to Feed.</p>
+  <div class="spacer" style="height:120vh" aria-hidden="true"></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),mv=$('mv'),pager=$('pager');
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const SP=FMSSIAB.makeSpring;
+
+/* ---------- fit phone to container (same as the FMSS Evolution prototypes) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');
+  const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- Figma corner smoothing (same squircle as fmss-cb / fmss-profile) ---------- */
+function squircle(w,h,R,sm){
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
+  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),D=f(d),S=f(arc),r=f(R);
+  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${D}a${r} ${r} 0 0 1 ${S} ${S}c${D} ${C} ${D} ${BC} ${D} ${ABC}`+
+    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-D} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${D} ${-BC} ${D} ${-ABC} ${D}`+
+    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-D}a${r} ${r} 0 0 1 ${-S} ${-S}c${-D} ${-C} ${-D} ${-BC} ${-D} ${-ABC}`+
+    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${D} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-D} ${BC} ${-D} ${ABC} ${-D}Z`;
+}
+const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
+if(CLIP){phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`}
+
+/* ---------- the screen: one set of values, everything rendered from them (the cover's VAC chain, live) ----------
+   a  Feed → Split Screen (0 → 1)          c  Split Screen → Reels (0 → 1; = 1 − the IAB sheet's t while the sheet is swiped down)
+   k  the Reels chain (0 Porsche · 1 On · 2 Away · 3 Perrier)   b  Back: the pop to Feed (0 → 1)
+   Springs: the shared FMSS spring (FMSSIAB.makeSpring, critically damped), ω16 as the cover's chain; the sheet is the shared IAB's. */
+const R={feed:[0,216,375,375],split:[12,44,351,350],reels:[0,180,375,375]};
+const SH=406,PG=734,N=3;
+let a=0,c=0,k=0,b=0,mode='feed';   // feed · enter · split · toReels · reels · pop · toFeed
+const aS=SP(()=>a,v=>{a=v;render()}),kS=SP(()=>k,v=>{k=v;render()}),bS=SP(()=>b,v=>{b=v;render()});
+const pageY=j=>PG*clamp(j-k,-1,1);
+const L3=(A,B,e)=>A.map((v,i)=>lerp(v,B[i],e));
+const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
+const els={feed:$('feed'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),bos:$('bos'),box:$('box'),stk:$('stk'),chrome:$('chrome'),bar:$('bar'),home:$('home'),p:[null,$('p1'),$('p2'),$('p3')]};
+let sheetT=0,sd=0,lastR='';
+const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
+function render(){
+  const pop=mode==='pop',rx=pop?375*b:0,fx=pop?-120*(1-b):0;
+  let x,y,w,h;
+  if(pop){[x,y,w,h]=R.feed;x+=fx}else if(c>0){[x,y,w,h]=L3(R.split,R.reels,c);y+=pageY(0)}else [x,y,w,h]=L3(R.feed,R.split,a);
+  x+=pop?0:rx;
+  mv.style.left=x.toFixed(2)+'px';mv.style.top=y.toFixed(2)+'px';mv.style.width=w.toFixed(2)+'px';mv.style.height=h.toFixed(2)+'px';
+  mv.style.zIndex=pop?'2':'';
+  const r=pop?0:16*a*(1-c),key=`${w.toFixed(1)},${h.toFixed(1)},${r.toFixed(2)}`;
+  if(key!==lastR){lastR=key;if(CLIP&&r>.05)mv.style.clipPath=`path('${squircle(w,h,r,.6)}')`;else{mv.style.clipPath='';mv.style.borderRadius=r>.05?r+'px':''}}
+  els.feed.style.visibility=a<1||pop?'visible':'hidden';els.feed.style.transform=pop?tr(fx,0):'';
+  op(els.bu,pop?0:a*(1-c));
+  op(els.pp,k<1?c:0);els.pp.style.transform=tr(rx,pageY(0));
+  op(els.ufi,k<1?clamp((c-.5)/.5):0);els.ufi.style.transform=tr(rx,pageY(0));
+  op(els.bos,pop?0:a*(1-c));
+  const xo=pop?0:a*clamp(1-2*c);op(els.box,xo);
+  els.box.style.transform=c>0?tr(x+w-363,y-44):'';
+  if(ctl){ctl.style.transform=c>0?tr(0,y-44):tr(0,185*(1-a));op(ctl,xo);const hv=xo>.01?'':'hidden';if(ctl.style.visibility!==hv)ctl.style.visibility=hv}
+  for(let j=1;j<=N;j++){const e=els.p[j];op(e,c>=1||pop?(Math.abs(j-k)<1?1:0):0);e.style.transform=tr(rx,pageY(j))}
+  op(els.chrome,c);els.chrome.style.transform=tr(rx,0);
+  op(els.bar,c);els.bar.style.transform=tr(rx,0);
+  op(els.home,mode==='feed'?0:sheetT*(1-c));
+  op(els.stk,sd);
+  vidSync();
+}
+
+/* ---------- the live player controls: the shared FMSS VideoScrubber (timestamp + 16px pill track, drag to seek, tap to pause) ---------- */
+const VS=window.VideoScrubber;let vs=null,ctl=null;
+if(VS){vs=VS.create({video:vid,icons:'../fmss-sol1/assets/ci1.webp?v=5',trackY:SH-14,className:'L ctl',tapToPause:true,tapArea:mv});ctl=vs.el;$('ctlAt').replaceWith(ctl)}
+else $('ctlAt').remove();
+
+/* ---------- the IAB: the shared FMSS sheet (half sheet under the video, full screen on tap or swipe up) ---------- */
+const iab=FMSSIAB.create({host:$('iab'),y2:SH,label:'In-app browser (IAB): porsche.com',url:'porsche.com',
+  headers:{full:'assets/iab-header-full.svg?v=163'},fullTop:2,handle:true,shift:'p',
+  web:'<div class="web"><img alt="" src="assets/page.webp?v=163"></div>',webH:1002,
+  onRender:o=>{sheetT=o.t;sd=o.sd;if(mode==='split'||mode==='toReels')c=1-o.t;render()},
+  onState:s=>{$('splx').classList.toggle('on',s===2&&mode==='split')},
+  onClose:()=>{if(mode!=='split')return;mode='toReels';vs&&vs.leaveSplit();$('splx').classList.remove('on');say('Reels')},
+  onClosed:()=>{if(mode==='toReels'){mode='reels';c=1;setReels(true);render()}},
+  onX:()=>iab.go(2),
+  wheelTo:(e,d,apply)=>{if(apply(d)&&e.cancelable)e.preventDefault()}});
+
+/* ---------- Feed → Split Screen ---------- */
+function openSplit(){
+  if(mode!=='feed'||aS.busy||bS.busy)return;
+  mode='enter';homeTell(false);c=0;
+  vid.currentTime=0;
+  iab.go(2,{w:16});
+  aS.to(1,{w:16,onDone:()=>{if(mode!=='enter')return;mode='split';vs&&vs.enterSplit();$('splx').classList.toggle('on',iab.state===2);say('Split Screen')}});
+}
+function closeSplit(){   // × (or Escape): back to Feed
+  if(mode!=='split'||iab.busy)return;
+  mode='toFeed';vs&&vs.leaveSplit();$('splx').classList.remove('on');
+  iab.go(1,{w:16});
+  aS.to(0,{w:16,onDone:()=>{if(mode!=='toFeed')return;mode='feed';render();homeTell(true);say('Feed')}});
+}
+$('splx').addEventListener('click',e=>{e.stopPropagation();closeSplit()});
+
+/* the video: a tap in Feed opens Split Screen; in Split Screen a tap pauses (VideoScrubber) and a swipe down drags the sheet with it */
+let mp=null;
+mv.addEventListener('pointerdown',e=>{if(e.button>0)return;
+  mp={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),moved:false,sheet:false};
+  try{mv.setPointerCapture(e.pointerId)}catch(_){}});
+mv.addEventListener('pointermove',e=>{if(!mp||e.pointerId!==mp.id)return;
+  const dx=e.clientX-mp.x,dy=e.clientY-mp.y;if(Math.hypot(dx,dy)>10)mp.moved=true;
+  if(!mp.sheet&&mode==='split'&&iab.state===2&&!iab.busy&&dy>8&&dy>Math.abs(dx)){mp.sheet=true;iab.dragStart(mp.y,mp.id)}
+  if(mp.sheet)iab.dragMove(e.clientY)});
+function mvUp(e){if(!mp||e.pointerId!==mp.id)return;const p=mp;mp=null;
+  if(p.sheet){if(e.type==='pointercancel'){iab.dragMove(p.y)}iab.dragEnd();return}
+  if(e.type==='pointerup'&&!p.moved&&mode==='feed')openSplit()}
+mv.addEventListener('pointerup',mvUp);mv.addEventListener('pointercancel',mvUp);
+mv.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&mode==='feed'){e.preventDefault();openSplit()}});
+mv.tabIndex=0;
+
+/* ---------- Reels: the vertical chain Porsche → On → Away → Perrier (1:1 drag, projected snap, a flick moves one) ---------- */
+function setReels(on){pager.classList.toggle('on',on);$('back').classList.toggle('on',on)}
+let pd=null;
+pager.addEventListener('pointerdown',e=>{if(e.button>0||mode!=='reels')return;kS.stop();
+  pd={id:e.pointerId,y:e.clientY,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
+  try{pager.setPointerCapture(e.pointerId)}catch(_){}pager.classList.add('drag')});
+pager.addEventListener('pointermove',e=>{if(!pd||e.pointerId!==pd.id)return;
+  let n=pd.k0-(e.clientY-pd.y)/pd.sc/PG;if(n<0)n*=.35;else if(n>N)n=N+(n-N)*.35;k=n;render();
+  const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
+function pagerUp(e){if(!pd||e.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');
+  const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, to the next reel)
+  let t=Math.round(k+v*.18);const from=Math.round(d.k0);
+  if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);   // a flick (320px/s) always moves one reel its way
+  step(t,v)}
+pager.addEventListener('pointerup',pagerUp);pager.addEventListener('pointercancel',pagerUp);
+function step(t,v=0){kS.to(t,{v,w:16,onDone:()=>say(['Porsche','On','Away','Perrier'][t]+' reel')})}
+let wAcc=0,wT=0;
+pager.addEventListener('wheel',e=>{if(mode!=='reels')return;if(e.cancelable)e.preventDefault();
+  const now=performance.now();if(now-wT<480){return}wAcc+=e.deltaY;
+  if(Math.abs(wAcc)>40){const t=clamp(Math.round(k)+(wAcc>0?1:-1),0,N);wAcc=0;wT=now;if(t!==Math.round(k))step(t)}},{passive:false});
+
+/* Back: the pop (Reels slides off right, Feed in from the left at −120), then the clean Feed */
+function back(){
+  if(mode!=='reels')return;kS.stop();k=Math.round(k);mode='pop';setReels(false);b=0;render();
+  bS.to(1,{w:16,onDone:()=>{toFeed();homeTell(true);say('Feed')}});
+}
+$('back').addEventListener('click',back);
+function toFeed(){aS.stop();kS.stop();bS.stop();mode='feed';a=c=k=b=0;iab.reset();vs&&vs.leaveSplit();setReels(false);$('splx').classList.remove('on');
+  sheetT=0;sd=0;vid.currentTime=0;render()}
+document.addEventListener('keydown',e=>{if(INL())return;
+  if(e.key==='Escape'){userActed();if(iab.state===3)iab.go(2);else if(mode==='split')closeSplit();else if(mode==='reels')back()}
+  else if(mode==='reels'&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();step(clamp(Math.round(k)+(e.key==='ArrowDown'?1:-1),0,N))}});
+
+/* ---------- the video: plays while it is on screen (paused only by the user's tap in Split Screen, or the scrubber's drag) ---------- */
+let seen=false,visible=false,held=false;
+function vidShould(){
+  if(!visible||document.hidden)return false;
+  if(vs&&vs.dragging())return false;
+  if(mode==='split'&&vs&&vs.paused())return false;
+  if((mode==='reels'||mode==='toReels')&&k>=.999)return false;
+  return true;
+}
+let vT=0;
+function vidSync(){const sh=vidShould();
+  if(sh&&vid.paused&&!vT){vT=1;const p=vid.play();if(p&&p.then)p.then(()=>{vT=0},()=>{vT=0;armGesture()});else vT=0}
+  else if(!sh&&!vid.paused&&!(vs&&vs.dragging())&&!(mode==='split'))vid.pause()}
+function armGesture(){const f=()=>{removeEventListener('pointerdown',f,true);vidSync()};addEventListener('pointerdown',f,true)}
+vid.addEventListener('canplay',vidSync);addEventListener('pageshow',vidSync);
+addEventListener('demo:host',()=>setVis());addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{vid.pause();stopAuto()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else{vidSync();sched()}});
+
+/* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
+function say(t){$('live').textContent=t}
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
+
+/* ---------- theme toggle + follow the site theme ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',e=>{if(e.key===null||e.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+
+/* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only; full screen moves only on real input ---------- */
+const finger=$('finger');
+let autoOn=false,token=0,stepI=0,inStep=false,broken=false,userDirty=false;
+const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(48,left))};f()});
+const easeIO=q=>-(Math.cos(Math.PI*q)-1)/2,easeIn=q=>q*q;
+const frames=(ms,tk,fn)=>new Promise((res,rej)=>{const t0=performance.now();const f=now=>{if(tk!==token)return rej('x');const q=clamp((now-t0)/ms);fn(q);q<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+function fingerAt(x,y){finger.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function fingerOff(){finger.classList.remove('on','down')}
+async function tap(x,y,tk,fn){fingerAt(x,y);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');await wait(152,tk);fn();finger.classList.remove('down');await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
+const toClient=(x,y)=>{const r=phone.getBoundingClientRect(),s=r.width/375;return [r.left+x*s,r.top+y*s]};
+async function scrub(tk){   // a real drag on the scrubber's hit strip (synthetic pointer events: the module's own seek path)
+  if(!vs)return;const hit=vs.el.querySelector('.vs-h'),ty=SH-14,f0=Math.max(0,vs.fraction()),x0=12+351*f0,x1=12+351*.24;
+  const ev=(t,x)=>{const [cx,cy]=toClient(x,ty);hit.dispatchEvent(new PointerEvent(t,{bubbles:true,cancelable:true,pointerId:77,pointerType:'touch',isPrimary:true,clientX:cx,clientY:cy,button:0,buttons:t==='pointerup'?0:1}))};
+  fingerAt(x0,ty);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');ev('pointerdown',x0);
+  try{await frames(720,tk,q=>{const x=lerp(x0,x1,easeIO(q));fingerAt(x,ty);ev('pointermove',x)})}catch(e){ev('pointerup',x1);throw e}
+  await wait(96,tk);ev('pointerup',x1);finger.classList.remove('down');await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
+async function swipeSheet(tk){   // the sheet swiped down from its header: Split Screen → Reels
+  const y0=SH+24;fingerAt(187.5,y0);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');iab.dragStart(0,'fake',1);
+  try{await frames(288,tk,q=>{const d=200*easeIn(q);fingerAt(187.5,y0+d);iab.dragMove(d)})}catch(e){iab.cancelFake();throw e}
+  iab.dragEnd();finger.classList.remove('down');await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
+async function swipeUp(tk){   // one reel up the chain
+  const k0=Math.round(k),y0=560;fingerAt(187.5,y0);finger.classList.add('on');await wait(320,tk);finger.classList.add('down');kS.stop();
+  try{await frames(200,tk,q=>{const d=96*easeIn(q);fingerAt(187.5,y0-d);k=k0+d/PG;render()})}catch(e){k=k0;render();throw e}
+  finger.classList.remove('down');step(Math.min(N,k0+1),1200/PG);await wait(120,tk);finger.classList.remove('on');await wait(240,tk)}
+const STEPS=[
+  2400,tk=>tap(187.5,404,tk,openSplit),            // Feed: tap the video ad → Split Screen, porsche.com loads in the sheet
+  3200,tk=>tap(187.5,220,tk,()=>vs&&vs.togglePause()),   // the controls have faded (only × is left): a tap pauses, controls back, play icon
+  640,tk=>scrub(tk),                                // drag the scrubber: the video seeks, the timestamp follows
+  800,tk=>tap(187.5,220,tk,()=>vs&&vs.togglePause()),    // resume: the controls fade again
+  3200,tk=>swipeSheet(tk),                          // swipe the sheet down → Reels
+  1600,tk=>swipeUp(tk),1600,tk=>swipeUp(tk),1600,tk=>swipeUp(tk),   // Porsche → On → Away → Perrier
+  1600,tk=>tap(23,70,tk,back),                      // Back → Feed
+  1600];
+async function loop(tk){while(tk===token){const s=STEPS[stepI];if(typeof s==='number')await wait(s,tk);else{inStep=true;await s(tk);inStep=false}stepI=(stepI+1)%STEPS.length}}
+const xf=document.createElement('div');xf.className='L xf';xf.setAttribute('aria-hidden','true');phone.appendChild(xf);
+function reset(){toFeed();fingerOff();homeS=null;homeTell(true)}
+function xfade(tk){if(RM.matches||!xf.animate){reset();return Promise.resolve()}
+  return new Promise((res,rej)=>{const an=xf.animate([{opacity:0},{opacity:1}],{duration:120,easing:'ease-in',fill:'forwards'});
+    an.onfinish=()=>{reset();xf.animate([{opacity:1},{opacity:0}],{duration:128,easing:'ease-out'}).onfinish=()=>{tk===token?res():rej('x')};an.cancel()}})}
+const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
+  if(!i){stopAuto();reset();stepI=0;broken=userDirty=false;return}   // into full screen: the clean start, no demo
+  if(stepI||userDirty)broken=true;sched()}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+function canRun(){return !(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
+function startAuto(){if(autoOn||!canRun())return;autoOn=true;const tk=++token;frame.dataset.autoplay='on';
+  const run=()=>loop(tk).catch(()=>{});
+  if(broken||userDirty||mode!=='feed'){broken=userDirty=false;stepI=0;xfade(tk).then(run,()=>{})}else run()}
+function stopAuto(){if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();if(inStep){inStep=false;broken=true}}
+function sched(){if(!autoOn&&canRun())startAuto()}
+function userActed(){if(INL())return;userDirty=true}
+frame.addEventListener('pointerdown',e=>{if(e.isTrusted)userActed()},{capture:true,passive:true});
+
+/* ---------- real pointer → touch-indicator circle (same as the FMSS prototypes) ---------- */
+const uf=$('ufinger');let uShow=false,uTouch=null;
+const FINE=matchMedia('(hover:hover) and (pointer:fine)'),isFine=e=>e.pointerType!=='touch'&&FINE.matches;
+function ptOf(e){const r=phone.getBoundingClientRect(),s=r.width/375;return [(e.clientX-r.left)/s,(e.clientY-r.top)/s]}
+function uPos(e){const [x,y]=ptOf(e);uf.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
+phone.addEventListener('pointerdown',e=>{if(!e.isTrusted)return;if(!isFine(e))uTouch=e.pointerId;uPos(e);uShow=true;uf.classList.add('on','down');phone.classList.add('u-on')},true);
+phone.addEventListener('pointermove',e=>{if(e.isTrusted&&uShow&&(e.pointerId===uTouch||isFine(e)))uPos(e)},true);
+function uUp(e){if(!e.isTrusted)return;uf.classList.remove('down');if(e.pointerId===uTouch){uTouch=null;uOff()}else if(isFine(e))uOff()}
+addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
+phone.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+
+window.__vac={get mode(){return mode},get a(){return a},get c(){return c},get k(){return k},get b(){return b},iab,vs,vid,
+  openSplit,closeSplit,back,step,reset,get auto(){return autoOn},get stepI(){return stepI}};
+render();homeTell(true);
+})();
+</script>
+</body>
+</html>

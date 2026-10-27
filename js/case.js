@@ -154,8 +154,8 @@ function fxIn(m){var g=m.closest('.fx');if(!g||g.classList.contains('in'))return
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
  rmq=matchMedia('(prefers-reduced-motion: reduce)'),INS_MS=448,INS_STAG=40,INS_WAIT=800,INS_UP=16,INS_EASE='cubic-bezier(.2,.8,.2,1)',OUT_MS=400,OUT_EASE='cubic-bezier(.25,.1,.25,1)', /* CLOSE's entrance curve (js/hang-egg.js UI_EASE); every exit: a soft opacity-only fade */
- INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture'},
- TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author'}; /* the reel caption / a product image / the reel's profile picture */
+ INS={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad'},
+ TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv'}; /* the reel caption / a product image / the reel's profile picture */
 var FS=window.dbhFS,
  PAD='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}',
  ROOM=32; /* drop-shadow(40px 0 20px) = 10px std dev: fully faded by ~30 device px; this much margin is kept above and below the device */
