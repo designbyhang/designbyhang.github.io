@@ -1,9 +1,9 @@
 /* Colour tokens + light/dark themes. Light values equal the original hard-coded colours (zero visual change). */
-:root{--ring-media:rgba(0,0,0,.08);--c-strong:#111;--c-paper:#fff;--c-grid:#eeeeee;--c-label:#333;--cap:rgba(23,23,23,.56);--c-slot:#F8F8F8;--c-dot:#cfcfcf;--c-res:var(--ink)}
+:root{--ring-media:rgba(0,0,0,.08);--c-strong:#111;--c-paper:#fff;--c-grid:#eeeeee;--c-label:#333;--cap:rgba(23,23,23,.56);--c-slot:#F8F8F8;--c-dot:#cfcfcf;--c-res:var(--ink);--red-text:#c62828}
 .poster-svg circle{fill:var(--c-grid)}
 html[data-theme=dark]{color-scheme:dark;
   --page:#111;--card:#1a1a1a;--sheet:#1a1a1a;--ink:#f2f2f2;--body:#dcdcdc;--mute:#a6a6a6;--faint:#999;--line:#2a2a2a;--frame:#222;
-  --ring-media:rgba(255,255,255,.12);--c-strong:#f2f2f2;--c-paper:#1a1a1a;--c-grid:#2a2a2a;--c-label:#cfcfcf;--cap:rgba(242,242,242,.56);--c-slot:#202020;--c-dot:#555}
+  --ring-media:rgba(255,255,255,.12);--c-strong:#f2f2f2;--c-paper:#1a1a1a;--c-grid:#2a2a2a;--c-label:#cfcfcf;--cap:rgba(242,242,242,.56);--c-slot:#202020;--c-dot:#555;--red-text:#ff5151}
 html[data-theme=dark] .media.dark,html[data-theme=dark] .media.draw{border-color:#2a2a2a!important}
 html[data-theme=dark] .res{background:#0b0b0b;border:1px solid #2a2a2a}
 html[data-theme=dark] .skip{color:#111}
