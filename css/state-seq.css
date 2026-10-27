@@ -1,0 +1,70 @@
+/* state-seq (js/state-seq.js): config-driven animated media. The box is the site's dark .media.mframe (3840/2052, 1px --line, square,
+   #000 ground in both themes); the stage is a fixed design-px frame scaled to the box width (js sets size + transform), so every layer
+   keeps Figma's px geometry. Controls on the black ground use the dark-theme glass in both themes (as .phone-demo). No hover zoom, no
+   inner scroll, no focus ring (css/theme.css removes rings site-wide) */
+body.cs .media.mframe.sseq{display:block;background:#000;--c-paper:#1a1a1a;--c-strong:#f2f2f2;--ring-media:rgba(255,255,255,.12);user-select:none;-webkit-user-select:none}
+.sseq .ss-stage{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;color:#fff;contain:layout style}
+.sseq .ss-stage [data-l]:not(span):not(svg),.sseq .ss-stage .ss-abs{position:absolute;left:0;top:0;transform-origin:0 0}
+body.cs .media.mframe.sseq img{transition:none;transform:none;border-radius:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
+body.cs .media.sseq:hover img{transform:none}
+.sseq.ss-step{cursor:pointer;touch-action:pan-y}
+.ss-ctrl .mbtn svg{stroke-width:1.5}
+.ss-ctrl .ss-next svg{transform:scaleX(-1)}
+/* phones: rounded screens; .st = the 1px inside stroke (white 20%), .sh = the 40/0/24 drop shadow (black 24%) */
+.sseq .ss-ph{overflow:hidden;background:#000;border-radius:32px}
+.sseq .ss-ph.st::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.2);border-radius:inherit;pointer-events:none}
+.sseq .ss-ph.sh{box-shadow:40px 0 24px rgba(0,0,0,.24)}
+.sseq .r30{border-radius:30px}.sseq .r28{border-radius:28px}.sseq .r26{border-radius:26px}
+/* annotation type: Bitcount Grid Single 16/24, +.32 tracking, centred, white; keywords yellow (old flow) / green (VAC) */
+.sseq .ss-note,.sseq .ss-mk,.sseq .ss-lab{font:400 16px/24px "Bitcount Grid Single",var(--mono,monospace);letter-spacing:.32px;font-variation-settings:"CRSV" 0,"ELSH" 0,"ELXP" 0;text-align:center;white-space:nowrap}
+body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-7.36px;height:15px;width:auto;max-width:none;object-fit:fill}
+.sseq .ss-stage .ss-note .ss-t{position:absolute;left:0;top:20px;width:100%}
+.sseq .y{color:#ffcd2a}.sseq .g{color:#34c759}
+.sseq .ss-mk{height:32px;border-radius:6px;color:#000;overflow:hidden}
+.sseq .ss-mk>span{position:absolute;left:0;right:0;top:4px}
+/* 07 conviction cards (vac_24..27): #1d1d1f cards, radius 48, clipped; titles Instrument Sans 64/64 -.04em, body 24/32 two columns */
+.sseq .cv-hd{font:400 56px/56px var(--sans);letter-spacing:-2.24px;white-space:nowrap}
+.sseq .cv-box{background:#1d1d1f;border-radius:48px;overflow:hidden}
+.sseq .cv-h{font:400 64px/64px var(--sans);letter-spacing:-2.56px;white-space:nowrap}
+.sseq .ss-stage .cv-box .cv-b{position:absolute;left:0;top:240px;display:flex;gap:120px;width:1280px;font:400 24px/32px var(--sans);white-space:normal}
+.sseq .cv-b>div{flex:none;width:580px}
+.sseq .cv-b br.fl{display:none} /* Figma's hard breaks were set for 640px columns; the open card is 1520 wide here so both neighbours peek */
+.sseq .cv-b p+p{margin-top:36px}  /* blank line (32) + Figma paragraph spacing (4) */
+.sseq .cv-b em{font-style:italic}
+@media (max-width:640px){
+ body.cs .media.mframe.sseq.ss-tall{aspect-ratio:900/1744}
+ body.cs .media.mframe.sseq.ss-sol{aspect-ratio:3/2} /* phones: a taller frame + the stage nudged up (layouts oy) so the marker pills clear the controls */
+ .sseq.ss-tall .ss-stage .cv-box .cv-b{top:216px;display:block;width:708px;font-size:30px;line-height:40px}
+ .sseq.ss-tall .cv-b>div{width:auto}.sseq.ss-tall .cv-b>div+div{margin-top:40px}
+ .sseq.ss-tall .cv-b p+p{margin-top:40px}
+ .sseq.ss-tall .cv-b br.fl{display:none}
+ .sseq.ss-tall .cv-h{font-size:56px;line-height:56px;letter-spacing:-2.24px}
+}
+/* page headline above a Solution container: the case-page h3 (.sub h3 type) whose last words roll with the state (js binds them) */
+.ss-hd{margin-top:clamp(48px,6vw,72px);margin-bottom:24px}
+.ss-hd h3{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin:0}
+.ss-roll{display:inline-grid;vertical-align:top}
+.ss-roll>span{grid-area:1/1;white-space:nowrap}
+.ss-roll>span+span{opacity:0}
+@media (prefers-reduced-motion:reduce){.sseq .ss-stage *{transition:none}}
+@media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .car-pp{display:none}} /* nothing to pause: the key frame is static */
+/* before/after pills (cfg.toggle): each pill IS a .mbtn (case.css: 32px tall, 1px ring, .2s ease; theme.css: the media glass = --c-paper 44%
+   + blur 24px saturate 1.6, --ring-media edge, 40% hover ring) stretched to a 16px-radius pill like .car-dots, in the .car-ctrl row
+   (8px gap, 32px inset, 16px on phones). Text = the caption type (Instrument Sans 14/18 400). Active: --c-strong; inactive: 40% ink
+   (the .car-bar dot tone) on a slightly darker fill. No focus ring, hover zoom or glow */
+body.cs .media.mframe.sseq .mbtn.ss-pill{width:auto;padding:0 16px;border-radius:16px;font:400 14px/18px "Instrument Sans",system-ui,sans-serif;letter-spacing:0;white-space:nowrap;transition:border-color .2s ease,color .2s ease,background-color .2s ease}
+body.cs .media.mframe.sseq .mbtn.ss-pill[aria-pressed=false]{color:color-mix(in srgb,var(--c-strong) 40%,transparent);background:color-mix(in srgb,color-mix(in srgb,var(--c-paper) 56%,#000) 44%,transparent)}
+@media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .mbtn.ss-pill{transition:none}}
+body.cs .media.mframe.sseq.ss-tapf{cursor:pointer}
+/* card pieces (conviction): each card holds a + = the media play/pause button itself (.mbtn: 32px, 1px ring, glass, .2s ring), kept 32px
+   (16px on phones) in CSS px from the card's right and bottom whatever the stage scale (--inv = 1/scale, set by state-seq.js); --pin shifts
+   it left so a card pushed past the right edge still shows its +. The open card's + turns 45deg into an x with the card's spring (layer a) */
+body.cs .media.mframe.sseq{--ins:32px}
+body.cs .media.mframe.sseq.ss-cards{cursor:default}
+body.cs .media.mframe.sseq .ss-stage [data-go]{pointer-events:auto;cursor:pointer}
+body.cs .media.mframe.sseq .ss-stage .mbtn.cv-plus{position:absolute;left:auto;top:auto;right:calc(var(--ins)*var(--inv,1) + var(--pin,0px));bottom:calc(var(--ins)*var(--inv,1));transform:scale(var(--inv,1));transform-origin:100% 100%;z-index:2}
+body.cs .media.mframe.sseq .ss-stage .cv-plus svg{transform-origin:50% 50%}
+@media (max-width:640px){body.cs .media.mframe.sseq{--ins:16px}}
+/* resting-card teaser (layer bNs): the opening sentence of the card's copy under its title, body type; fades out as the card opens */
+body.cs .media.mframe.sseq .ss-stage .cv-s{margin:0;font:400 24px/32px var(--sans);white-space:normal}
+@media (max-width:640px){body.cs .media.mframe.sseq.ss-tall .ss-stage .cv-s{font-size:30px;line-height:40px}}

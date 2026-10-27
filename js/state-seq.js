@@ -1,0 +1,132 @@
+/* state-seq: one shared, config-driven state-sequence player for animated media (Figma smart-animate recreated on the web).
+   Markup: a .media.sseq box holding a .ss-stage (a fixed design-px frame, e.g. 1920x1080, scaled to the box width and centred) whose
+   layers carry data-l="key", plus <script type="application/json" class="ss-cfg">. Layers outside the box (e.g. a page headline whose
+   words swap with the state) join through cfg.bind (a selector); they move in CSS px. No per-container code: everything is config.
+   cfg = {
+     mode: "loop" | "step",          loop = autoplay forever (holds + transitions); step = user steps (tap/click media, prev/next, swipe,
+                                     arrow keys, dots); autoplay:true lets a step piece play by itself until the first touch
+     autoplay: true,                 step mode only
+     spring: [80,20,1],              Figma spring [stiffness, damping, mass]; default SLOW. Curve = the analytic spring, normalised over
+                                     its 0.1% settle and time-scaled to the transition duration (= the linear() curve, unsampled)
+     dur: 1664, tr: {"0>1":832},     transition ms (default, and per "from>to" pair); edur: {key: ms} shortens one layer's tween
+     hold: 2400,                     hold ms per state (state.hold overrides)
+     toggle: {resume:6400,tapFrame:true},  loop mode: one .mbtn pill per state (state.short = its label, e.g. Before / After) replaces
+                                     dots + play/pause; the active pill follows the state (autoplay too). A pill tap sets that state at
+                                     once and pauses autoplay, which resumes resume ms after the last tap (that flip is due then) or when
+                                     the box scrolls out and back in; tapFrame = tapping the frame flips too
+     rm: 1,                          reduced motion: the static key frame shown (no autoplay; steps cut instantly)
+     enter: {set, dur},                (a layout may carry its own enter)              optional one-time entrance: layers start at state 0 merged with enter.set and animate into state 0
+                                     the first time the piece is in view
+     base: {key: {x,y,w,h,s,o,r,c,k}},   x/y translate, w/h size, s scale, o opacity, r radius (design px); c background, k text colour (#hex)
+     states: [{name, caption, hold, set: {key: {...}}}],
+     layouts: [{mq, w, h, oy, base, states: [{set}]}]   media-query layout overrides (e.g. a phone frame) merged over the default
+     w: 1920, h: 1080, oy: 0         stage size in design px; oy shifts the stage vertically inside the box (design px)
+   }
+   Timing: every value is ms on an 8ms grid. Runs only while >= 35% in view (IntersectionObserver) and the tab is visible;
+   the play/pause (loop mode) or any touch (step mode) sticks. Controls: the site's carousel pill (.car-dots, one dot per state, the
+   active one filling over its hold) + .mbtn buttons (css/case.css, glass in css/theme.css), 32px inset (16px on phones). */
+(function(){
+var RM=matchMedia('(prefers-reduced-motion: reduce)'),springs={};
+function springEase(p){var key=p.join(',');if(springs[key])return springs[key];
+ var k=p[0],c=p[1],m=p[2]||1,w0=Math.sqrt(k/m),z=c/(2*Math.sqrt(k*m)),x;
+ if(z<1){var wd=w0*Math.sqrt(1-z*z);x=function(t){return 1-Math.exp(-z*w0*t)*(Math.cos(wd*t)+z*w0/wd*Math.sin(wd*t))}}
+ else if(z===1){x=function(t){return 1-Math.exp(-w0*t)*(1+w0*t)}}
+ else{var s=w0*Math.sqrt(z*z-1),r1=-z*w0+s,r2=-z*w0-s,A=r2/(r2-r1),B=1-A;x=function(t){return 1-(A*Math.exp(r1*t)+B*Math.exp(r2*t))}}
+ var T=0;for(var t=0;t<20;t+=.0005)if(Math.abs(1-x(t))>=.001)T=t;T+=.0005;var xe=x(T);  /* settle: last time outside the 0.1% band */
+ return springs[key]=function(u){return u<=0?0:u>=1?1:x(u*T)/xe}}
+function hex(h){h=h.replace('#','');return[parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
+function merge(dst,src){if(src)for(var key in src){dst[key]=dst[key]||{};for(var p in src[key]){var v=src[key][p];dst[key][p]=(p==='c'||p==='k')&&typeof v==='string'?hex(v):v}}return dst}
+function clone(v){var o={};for(var key in v){o[key]={};for(var p in v[key]){var q=v[key][p];o[key][p]=q&&q.slice?q.slice():q}}return o}
+var ARR='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>';
+
+function mount(box){var pins=[];
+ var cfg=JSON.parse(box.querySelector('script.ss-cfg').textContent),stage=box.querySelector('.ss-stage'),fig=box.closest('figure');
+ var cap=fig&&fig.querySelector('figcaption'),n=cfg.states.length,step=cfg.mode==='step',els={};
+ [].forEach.call(box.querySelectorAll('[data-l]'),function(e){els[e.getAttribute('data-l')]=e});
+ /* .ss-pin: a CSS-px control inside a layer (e.g. a card's + button); --pin keeps it inside the stage's visible width when its layer
+    runs past the right edge (a card pushed out still shows its button) */
+ [].forEach.call(box.querySelectorAll('.ss-pin'),function(e){var l=e.parentNode.closest('[data-l]');if(l)pins.push({e:e,k:l.getAttribute('data-l')})});
+ if(cfg.bind)[].forEach.call(document.querySelectorAll(cfg.bind+' [data-l]'),function(e){els[e.getAttribute('data-l')]=e});
+ var sc=1,ins=32,ease=springEase(cfg.spring||[80,20,1]),L=null,i=0,cur={},from={},to={},tr=null,hold=0,clock=0,last=0,raf=0,vis=false,started=false;
+ var playing=step?(cfg.autoplay!==false):true,touched=false,entering=false;
+ function layout(){var l=null;(cfg.layouts||[]).forEach(function(x){if(!l&&matchMedia(x.mq).matches)l=x});return l||{}}
+ function vals(k,extra){var L2=layout(),v=merge(merge({},cfg.base),cfg.states[k].set);merge(v,L2.base);if(L2.states&&L2.states[k])merge(v,L2.states[k].set);if(extra)merge(v,extra);return v}
+ function holdOf(k){return cfg.states[k].hold||cfg.hold||2400}
+ function durOf(a,b){return RM.matches?0:((cfg.tr||{})[a+'>'+b]||cfg.dur||1664)}
+ function put(){for(var key in cur){var e=els[key],v=cur[key];if(!e)continue;var t='';
+  if('x' in v||'y' in v)t='translate('+(+(v.x||0)).toFixed(2)+'px,'+(+(v.y||0)).toFixed(2)+'px)';if('s' in v)t+=' scale('+(+v.s).toFixed(4)+')';if('a' in v)t+=' rotate('+(+v.a).toFixed(3)+'deg)';if(t)e.style.transform=t;
+  if('w' in v)e.style.width=(+v.w).toFixed(2)+'px';if('h' in v)e.style.height=(+v.h).toFixed(2)+'px';if('r' in v)e.style.borderRadius=(+v.r).toFixed(2)+'px';
+  if('o' in v){e.style.opacity=(+v.o).toFixed(4);e.style.visibility=v.o<.001?'hidden':''}
+  if(v.c)e.style.backgroundColor='rgb('+v.c.map(Math.round)+')';if(v.k)e.style.color='rgb('+v.k.map(Math.round)+')'}
+  pins.forEach(function(p){var v=cur[p.k];if(!v)return;var W=(L&&L.w)||cfg.w||1920,m=(ins+48)/sc,over=Math.max(0,Math.min((+v.x||0)+(+v.w||0)-W,(+v.w||0)-m));p.e.style.setProperty('--pin',over.toFixed(2)+'px')})}
+ function fit(){L=layout();var W=L.w||cfg.w||1920,H=L.h||cfg.h||1080,s=box.clientWidth/W,oy=(box.clientHeight-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
+  stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(cur)put()}
+ /* controls */
+ var tog=!step&&cfg.toggle,tg=null,resumeT=0,userPaused=false,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
+ ctrl.className='car-ctrl ss-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose state');
+ function mbtn(cls,html,label,fn){var b=document.createElement('button');b.type='button';b.className='mbtn '+cls;b.innerHTML=html;b.setAttribute('aria-label',label);
+  b.addEventListener('click',function(ev){ev.stopPropagation();fn()});return b}
+ cfg.states.forEach(function(st,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
+  b.setAttribute('aria-label',(st.name||('State '+(k+1)))+' ('+(k+1)+' of '+n+')');b.addEventListener('click',function(ev){ev.stopPropagation();touch();go(k,{manual:true})});
+  row.appendChild(b);dots.push(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild)});
+ if(cfg.controls===false){}
+ else if(step){prev=mbtn('ss-prev',ARR,'Previous',function(){touch();go(i-1)});next=mbtn('ss-next',ARR,'Next',function(){touch();go(i+1)});ctrl.appendChild(prev);ctrl.appendChild(row);ctrl.appendChild(next)}
+ else if(tog){tg=[];cfg.states.forEach(function(st,k){var b=mbtn('ss-pill',st.short||st.name||String(k+1),'',function(){userTap(k)});b.setAttribute('aria-label','Show '+(st.name||st.short));tg.push(b);ctrl.appendChild(b)});ctrl.setAttribute('role','group');ctrl.setAttribute('aria-label','Before and after')}
+ else{pp=mbtn('car-pp',window.dbhPP||'','Pause',function(){playing=!playing;sync();kick()});ctrl.appendChild(row);ctrl.appendChild(pp)}
+ sr.className='car-sr';sr.setAttribute('aria-live','polite');if(cfg.controls!==false)box.appendChild(ctrl);box.appendChild(sr);
+ function sync(){if(tg)tg.forEach(function(b,k){b.setAttribute('aria-pressed',k===i?'true':'false')});if(pp){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' animation')}}
+ /* dots: slot openness e[k] eases with the transition, so the pill keeps one width */
+ var e=cfg.states.map(function(){return 0}),e0=e.slice();
+ function drawDots(q){if(tg)return;for(var k=0;k<n;k++){var t=k===i?1:0,v=q>=1?t:e0[k]+(t-e0[k])*q;e[k]=v;
+  dots[k].style.width=(24+16*v).toFixed(3)+'px';bars[k].style.width=(5+19*v).toFixed(3)+'px';dots[k].setAttribute('aria-current',k===i?'true':'false');
+  var p=0;if(k===i&&q>=1)p=(step&&!playing)||RM.matches?1:Math.min(1,hold/holdOf(i));fills[k].style.setProperty('--p',p.toFixed(4))}}
+ function setCap(){var st=cfg.states[i];if(cap&&st.caption!=null&&!cap.hasAttribute('data-static'))cap.textContent=st.caption;box.setAttribute('aria-label',(st.name||'')+(n>1?' ('+(i+1)+' of '+n+')':''))}
+ function go(k,opt){k=cfg.wrap===false?Math.max(0,Math.min(n-1,k)):(k%n+n)%n;opt=opt||{};var a=i,d=opt.dur!=null?opt.dur:durOf(a,k);if(k===a&&!opt.force)return;
+  from=clone(cur);to=vals(k);e0=e.slice();i=k;hold=0;tr={t0:clock,d:d,manual:!!opt.manual||step};setCap();sync();if(!opt.quiet)sr.textContent=cfg.states[k].name||'';
+  if(!d){cur=clone(to);tr=null;put();drawDots(1)}kick()}
+ function lerp(a,b,u){return a+(b-a)*u}
+ function frameTr(){var el=clock-tr.t0,done=el>=tr.d;
+  for(var key in to){var f=from[key]||to[key],t=to[key],ed=(cfg.edur||{})[key]||tr.d,u=ease(Math.min(1,el/Math.min(ed,tr.d)));cur[key]=cur[key]||{};
+   for(var p in t){var fv=f[p]!=null?f[p]:t[p],tv=t[p];cur[key][p]=tv&&tv.map?tv.map(function(c,j){return lerp(fv[j],c,u)}):lerp(fv,tv,u)}}
+  drawDots(ease(Math.min(1,el/tr.d)));put();if(done){tr=null;entering=false;drawDots(1)}}
+ function running(){return vis&&!document.hidden&&(tr?(playing||tr.manual):(playing&&!RM.matches))}
+ function kick(){if(!raf&&running()){last=0;raf=requestAnimationFrame(frame)}}
+ function frame(now){raf=0;var dt=last?Math.min(128,now-last):16;last=now;clock+=dt;
+  if(tr)frameTr();else if(playing&&!RM.matches){hold+=dt;if(hold>=holdOf(i)){go(i+1,{quiet:true});return}drawDots(1)}
+  if(running())raf=requestAnimationFrame(frame)}
+ /* toggle (loop mode, cfg.toggle): a tap flips to the other state at once and pauses autoplay;
+    autoplay resumes toggle.resume ms after the last tap (the next flip is due then), or when the box scrolls out and back in */
+ function resume(){clearTimeout(resumeT);if(!userPaused)return;userPaused=false;playing=true;hold=holdOf(i);kick()}
+ function userTap(k){userPaused=true;playing=false;clearTimeout(resumeT);resumeT=setTimeout(resume,tog.resume||6400);go(k==null?i+1:k,{manual:true})}
+ function touch(){if(step&&!touched){touched=true;playing=false}}
+ /* step mode: tap/click the media to advance, horizontal swipe to step, arrow keys when focused */
+ if(step){var sx=0,sy=0,down=false;
+  box.addEventListener('pointerdown',function(ev){if(ev.target.closest('.ss-ctrl'))return;down=true;sx=ev.clientX;sy=ev.clientY});
+  box.addEventListener('pointerup',function(ev){if(!down)return;down=false;var dx=ev.clientX-sx,dy=ev.clientY-sy;touch();
+   if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy))go(i+(dx<0?1:-1));else if(Math.abs(dx)<10&&Math.abs(dy)<10){
+    var t=ev.target.closest&&ev.target.closest('[data-go]');
+    if(t&&box.contains(t)){var k=+t.getAttribute('data-go');go(i===k&&t.hasAttribute('data-back')?+t.getAttribute('data-back'):k)}
+    else if(cfg.tapAdvance!==false)go(i+1)}});
+  box.addEventListener('pointercancel',function(){down=false})
+  box.addEventListener('click',function(ev){if(ev.detail)return;var t=ev.target.closest&&ev.target.closest('[data-go]');if(!t||!box.contains(t))return;touch();var k=+t.getAttribute('data-go');go(i===k&&t.hasAttribute('data-back')?+t.getAttribute('data-back'):k)})}
+ if(tog&&tog.tapFrame!==false){var tx=0,ty=0,tdn=false;box.classList.add('ss-tapf');
+  box.addEventListener('pointerdown',function(ev){if(ev.target.closest('.ss-ctrl'))return;tdn=true;tx=ev.clientX;ty=ev.clientY});
+  box.addEventListener('pointerup',function(ev){if(!tdn)return;tdn=false;if(Math.abs(ev.clientX-tx)<10&&Math.abs(ev.clientY-ty)<10)userTap()});
+  box.addEventListener('pointercancel',function(){tdn=false})}
+ box.addEventListener('keydown',function(ev){if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){ev.preventDefault();if(tog){userTap();return}touch();go(i+(ev.key==='ArrowRight'?1:-1))}});
+ /* start */
+ var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
+ fit();put();e[i]=1;drawDots(1);setCap();sync();
+ if('ResizeObserver' in window)new ResizeObserver(fit).observe(box);else addEventListener('resize',fit);
+ (cfg.layouts||[]).forEach(function(x){var q=matchMedia(x.mq);if(q.addEventListener)q.addEventListener('change',function(){fit();if(!tr){cur=vals(i);put()}})});
+ function show(v){if(v&&!started&&cfg.autoOnce&&!RM.matches)setTimeout(function(){if(!touched&&i===0)go(cfg.autoOnce.to,{manual:true})},cfg.autoOnce.delay||0);if(!v&&vis&&userPaused){userPaused=false;clearTimeout(resumeT);playing=true;hold=0}vis=v;if(v&&!started){started=true;if(entering){from=clone(cur);to=vals(i);tr={t0:clock,d:EN.dur||1248,manual:true}}}kick()}
+ var gated=function(){return document.documentElement.classList.contains('gated')},ratio=0;
+ if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(x){ratio=x.intersectionRatio;if(!gated())show(ratio>=.35)})},{threshold:[0,.35,1]}).observe(box);else show(true);
+ addEventListener('gate:unlocked',function(){show(ratio>=.35)});
+ document.addEventListener('visibilitychange',kick);
+ if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){tr=null;if(cfg.rm!=null)i=cfg.rm;cur=vals(i);put();e=e.map(function(_,k){return k===i?1:0});drawDots(1);setCap()}kick()});
+ box.__ss={go:go,state:function(){return{i:i,playing:playing,vis:vis,tr:!!tr,clock:clock,hold:hold,userPaused:userPaused}},tap:function(){userTap()}};
+}
+function init(){[].forEach.call(document.querySelectorAll('.media.sseq'),function(b){try{mount(b)}catch(err){if(window.console)console.error('state-seq',err)}})}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+})();
