@@ -2,18 +2,18 @@
 const mqR=matchMedia('(prefers-reduced-motion: reduce)'),mqM=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)');
 const cards=[...strip.children];let act=-1;
 /* poster overlay (css/home.css .poster-ov): on desktop the intro poster's SVG (grid, dots, letters, keywords) is painted here, in the rail above the strip,
-   not inside the scaled strip. While the strip moves the overlay copies its translate+scale; at rest it carries no scale at all, only a whole-device-pixel
-   translate, and the SVG is sized to the card's on-screen size. So the grid is rasterised once, at the screen's own resolution, whatever the browser
-   composites (Safari on macOS rasterises a composited scaled strip at 1x and GPU-magnifies it ~1.6x, which turned every snapped 1px line into 1.6 or 3.3
-   device px; a <video>, GIF or running animation anywhere in the strip triggers that) */
-const pRoot=document.getElementById('poster'),ov=pRoot?rail.appendChild(Object.assign(document.createElement('div'),{className:'poster-ov'})):null;let og=null;
+   not inside the scaled strip. It never carries a scale(): every frame, moving or at rest, it is laid out at the card's on-screen size (RW*s x RH*s) and
+   moved by a whole-device-pixel translate only. A scale() on a composited layer makes the engine stretch a bitmap rasterised at some other scale (Safari:
+   the 1px lines came out thick and soft, horizontals worst, and the dots smeared, until the rail settled); laid out at its real size the SVG is drawn at
+   the screen's own resolution in every frame, and its lines are 1 css px by construction (css/home.css .poster-svg .g). The letters and keywords are
+   in their own SVG (.poster-ws): while the rail moves it keeps the size it had when it last rested and follows by a scale() (not composited, so it is
+   repainted, not stretched); re-sizing SVG text every frame cost a full text layout per frame. At rest it is laid out at its on-screen size again. */
+const pRoot=document.getElementById('poster'),ov=pRoot?rail.appendChild(Object.assign(document.createElement('div'),{className:'poster-ov'})):null;let og=null,ovW=null,ovB=0,ovL=[0,1];
 if(ov){ov.setAttribute('aria-hidden','true');ov.addEventListener('animationend',e=>{if(e.target===ov)ov.classList.add('in');});}
-function ovSet(tx,s,rest){if(!ov)return;if(!on||!og){ov.style.display='none';return;}ov.style.display='';
-  const x=og.SL+tx+s*og.RX,y=og.ST+og.SH/2+s*(og.RY-og.SH/2);
-  if(!rest){ov.classList.add('mv');ov.style.width=og.RW+'px';ov.style.height=og.RH+'px';ov.style.transform=`translate(${x.toFixed(3)}px,${y.toFixed(3)}px) scale(${s})`;dispatchEvent(new Event('strip:move'));return;} /* strip:move: the poster re-fits its grid to this frame's on-screen scale and position (as at rest), so lines and dots keep their at-rest width while it moves */
-  const d=devicePixelRatio||1,rr=rail.getBoundingClientRect(),sn=(v,o)=>Math.round((o+v)*d)/d-o; /* whole device px on the page */
-  ov.classList.remove('mv');ov.style.width=(og.RW*s)+'px';ov.style.height=(og.RH*s)+'px';ov.style.transform=`translate(${sn(x,rr.left)}px,${sn(y,rr.top)}px)`;}
-let ovS={tx:0,s:1};
+function ovSet(tx,s,rest){if(!ov)return;ovL=[tx,s];if(!on||!og){ov.style.display='none';return;}ov.style.display='';
+  const x=og.SL+tx+s*og.RX,y=og.ST+og.SH/2+s*(og.RY-og.SH/2),d=devicePixelRatio||1,sn=(v,o)=>Math.round((o+v)*d)/d-o; /* whole device px on the page; rail origin cached by measure(), so no layout read per frame */
+  ov.style.width=(og.RW*s)+'px';ov.style.height=(og.RH*s)+'px';ov.style.transform=`translate(${sn(x,og.PX-scrollX)}px,${sn(y,og.PY-scrollY)}px)`;
+  if(!ovW||ovW.parentNode!==ov)ovW=ov.querySelector(':scope>.poster-ws');if(ovW){if(rest||!ovB)ovB=s;ovW.style.width=(og.RW*ovB)+'px';ovW.style.height=(og.RH*ovB)+'px';ovW.style.transform=s===ovB?'':`scale(${s/ovB})`;}}
 const dots=dotsEl?cards.map((k,i)=>{const b=document.createElement('button');b.type='button';b.innerHTML='<i></i>';b.setAttribute('aria-label',`Card ${i+1} of ${cards.length}`+(k.id==='about'?': About':''));b.addEventListener('click',()=>{if(on)to(centers[i]-c0);else k.scrollIntoView({behavior:mqR.matches?'auto':'smooth',block:'center'});});dotsEl.appendChild(b);return b;}):[];
 const thumb=dotsEl?dotsEl.appendChild(Object.assign(document.createElement('i'),{className:'dots-cur'})):null;
 // liquid highlighter: centre follows the gauge exactly; width is a spring driven by velocity (lead edge leads, trail lags)
@@ -30,7 +30,7 @@ const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
     if(busy)this.raf=requestAnimationFrame(t=>this.step(t));else{this.raf=0;this.v=0;this.w=BASE;thumb.style.width=BASE+'px';thumb.style.transform=`translate3d(${(this.c-BASE/2).toFixed(2)}px,0,0)`;}}};
 let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false,mvT=0;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
-function measure(){on=!mqM.matches;if(!on){strip.style.transform='';strip.style.removeProperty('--ox');strip.style.removeProperty('--oy');ovSet(0,1,true);return;}
+function measure(){on=!mqM.matches;if(!on){strip.style.transform='';strip.style.removeProperty('--ox');strip.style.removeProperty('--oy');ovSet(0,1);return;}
   /* the rail is out of layout (html.hegg-flow: the © egg / a full-screen layer makes itself the document and collapses the page to height 0; a resize or the
      fonts.ready measure can land while it is open): keep the last real geometry instead of measuring a 0-height rail (s0 = 1, the poster overlay's og
      at the collapsed strip), and let the rail's ResizeObserver below re-measure once it is back. Before that, closing the egg after a resize left the
@@ -42,7 +42,7 @@ function measure(){on=!mqM.matches;if(!on){strip.style.transform='';strip.style.
      whole device px too (n = 1 at dpr 1/2/3, 2 at 1.5, 4 at 1.25) makes painted = measured everywhere, so the poster's pixel-snapped lines land as computed. */
   {strip.style.setProperty('--ox','0px');strip.style.setProperty('--oy','0px');const d=devicePixelRatio||1;let n=1;while(n<4&&Math.abs(n*d-Math.round(n*d))>.01)n++;
    const r=strip.getBoundingClientRect(),q=v=>Math.round(v/n)*n-v;strip.style.setProperty('--ox',q(r.left+scrollX).toFixed(4)+'px');strip.style.setProperty('--oy',q(r.top+scrollY).toFixed(4)+'px');}
-  if(pRoot){const rr=rail.getBoundingClientRect(),sr=strip.getBoundingClientRect(),pr=pRoot.getBoundingClientRect();og={SL:sr.left-rr.left,ST:sr.top-rr.top,SH:sr.height,RX:pr.left-sr.left,RY:pr.top-sr.top,RW:pr.width,RH:pr.height};} /* overlay geometry, strip untransformed */
+  if(pRoot){const rr=rail.getBoundingClientRect(),sr=strip.getBoundingClientRect(),pr=pRoot.getBoundingClientRect();og={PX:rr.left+scrollX,PY:rr.top+scrollY,SL:sr.left-rr.left,ST:sr.top-rr.top,SH:sr.height,RX:pr.left-sr.left,RY:pr.top-sr.top,RW:pr.width,RH:pr.height};} /* overlay geometry, strip untransformed */
   centers=cards.map(k=>k.offsetLeft+k.offsetWidth/2);cw=cards[0].offsetWidth;ch=cw*.569444;c0=centers[0];
   max=centers[centers.length-1]-c0;
   // landing: intro ≈73% of viewport width, capped so it fits ~62% of the rail height
@@ -53,8 +53,8 @@ const sfx=window.dbhSfx; // shared dial sound (js/sfx.js)
 // screenX(p) = W/2 + (p - c0 - x)·s ; scale eases s0→1 over the first card's width, and back 1→s0 over the last (About)
 function render(){const span=cw+parseFloat(getComputedStyle(strip).columnGap||0);
   const p=clamp(x/span,0,1),q=clamp((max-x)/span,0,1),s=Math.max(s0+(1-s0)*ease(p),s0+(1-s0)*ease(q));
-  const tx=+(W/2-(c0+x)*s).toFixed(2),sc=+s.toFixed(4);strip.style.transform=`translate(${tx}px,0) scale(${sc})`;ovS={tx,s:sc};ovSet(tx,sc,false);
-  strip.classList.add('mv');clearTimeout(mvT);mvT=setTimeout(()=>{strip.classList.remove('mv');ovSet(ovS.tx,ovS.s,true);dispatchEvent(new Event('strip:rest'));},200); /* strip:rest: the poster re-snaps its grid to the new scale */
+  const tx=+(W/2-(c0+x)*s).toFixed(2),sc=+s.toFixed(4);strip.style.transform=`translate(${tx}px,0) scale(${sc})`;ovSet(tx,sc);
+  strip.classList.add('mv');clearTimeout(mvT);mvT=setTimeout(()=>{strip.classList.remove('mv');ovSet(...ovL,true);dispatchEvent(new Event('strip:rest'));},200); /* strip:rest: js/demos.js */
   strip.dataset.p=p.toFixed(3);if(on)sfx.move(x,span);if(on)navAct(x>max-span/2);
   let a=0,bd=1e9;centers.forEach((c,i)=>{const d=Math.abs(c-c0-x);if(d<bd){bd=d;a=i;}});
   if(thumb&&dots.length){let k=0;while(k<centers.length-2&&centers[k+1]-c0<x)k++;const f=clamp((x-(centers[k]-c0))/((centers[k+1]-centers[k])||1),0,1),d0=dots[k],d1=dots[k+1]||d0,p0=d0.offsetLeft+d0.offsetWidth/2,p1=d1.offsetLeft+d1.offsetWidth/2;blob.to(p0+(p1-p0)*f);
@@ -125,7 +125,7 @@ if(ri>=0){measure();restore();(document.fonts?document.fonts.ready:Promise.resol
 addEventListener('pageshow',e=>{if(e.persisted)try{sessionStorage.removeItem('dbh-ret');}catch(_){}});
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
 // intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
-(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg'),MP=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)'),mqR=matchMedia('(prefers-reduced-motion: reduce)') /* portrait = the page's mobile-portrait query (the portrait card is wider than tall now) */;
+(()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg'),wsv=document.createElementNS('http://www.w3.org/2000/svg','svg') /* letters + keywords (js above: ovSet) */,MP=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)'),mqR=matchMedia('(prefers-reduced-motion: reduce)') /* portrait = the page's mobile-portrait query (the portrait card is wider than tall now) */;
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],xe:[110,319.5,381.5,591,800.5,850.5,1060] /* v17: four letter columns equal (209.5) */,ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
@@ -154,14 +154,14 @@ function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):
 function inkT(ch,fs,font,sc){const S=Math.max(100,Math.round(fs*sc)),k=fs/S,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,S*.3,base);
   const d=inkC.getImageData(0,0,cv.width,cv.height).data;for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127)return(y-base)*k;return 0;}
 const THIN_D=.7882 /* 16px at the 1440 design size */,THIN_P=1; /* thin-row height factors (desktop rows are empty; mobile keeps 22px for VISION/STRATEGY) */
-let resnap=()=>{};
 const ovEl=document.querySelector('.poster-ov'),capEl=root.querySelector('.poster-cap');
 /* settle: once a draw-in animation has run, drop it for its static end state (css/home.css [data-set]), the same way .strip.in / .poster-ov.in do.
    A finished animation that still fills (forwards/both) keeps its element on its own GPU layer for good: 12 dots, 4 letters, 10 keywords/knockouts,
    the CTA and its knockout stayed promoted after the intro, the masked dots as viewport-sized layers. data-*, not a class: no squircle.js rescans */
-svg.addEventListener('animationend',e=>{const t=e.target;if(t!==svg&&t.classList.contains('a'))t.dataset.set='';});
+wsv.setAttribute('class','poster-svg poster-ws');wsv.setAttribute('aria-hidden','true');wsv.setAttribute('preserveAspectRatio','none');
+[svg,wsv].forEach(v=>v.addEventListener('animationend',e=>{const t=e.target;if(t!==v&&t.classList.contains('a'))t.dataset.set='';}));
 if(capEl)capEl.addEventListener('animationend',e=>{if(e.animationName==='pRiseT')capEl.dataset.set='';});
-function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==host)host.insertBefore(svg,host===root?capEl:null);} /* desktop: the unscaled overlay (js above, css .poster-ov); mobile: in the card (the strip is not scaled there) */
+function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==host||wsv.parentNode!==host){host.insertBefore(svg,host===root?capEl:null);host.insertBefore(wsv,svg.nextSibling);if(host===root)['width','height','transform'].forEach(k=>wsv.style.removeProperty(k)) /* mobile: 100% of the card (css) */;}} /* desktop: the unscaled overlay (js above, css .poster-ov); mobile: in the card (the strip is not scaled there) */
   const cw=root.clientWidth,ch=root.clientHeight,port=MP.matches,G0=port?P:L,px=G0.W/cw,VW=G0.W,VH=ch*px;
   // equal grid inset on all four sides (same cqi as the caption block); positions remap to the box, glyphs scale uniformly
   const YS=G0.ys,Bw0=YS[2]-YS[1],Bw=port?Bw0*THIN_P:Bw0*THIN_D /* v19: thinner keyword rows, height given to the big rows */,nR=Math.ceil((YS.length-1)/2),Rh=(YS[YS.length-1]-YS[0]-Math.floor((YS.length-1)/2)*Bw)/nR /* big rows + thin rows (mobile ends on a thin row) */,YN=YS.map((v,i)=>YS[0]+Math.ceil(i/2)*Rh+Math.floor(i/2)*Bw); // equal row bands
@@ -170,13 +170,13 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
   const XS=G0.xs,XE=G0.xe,xq=x=>{for(let i=1;i<XS.length;i++)if(x<=XS[i]||i===XS.length-1)return XE[i-1]+(x-XS[i-1])*(XE[i]-XE[i-1])/(XS[i]-XS[i-1]);};
   const sx=(VW-2*m)/(gx1-gx0),sy=(VH-2*m)/(gy1-gy0),X=x=>m+(xq(x)-gx0)*sx,Y=y=>m+(yq(y)-gy0)*sy;
   const f=Math.max(1,(ch/G0.H)/(cw/G0.W)); // keep the earlier rendered size of the small marks
-  /* crisp, even hairlines (Hang, 2026-10-24/26): every grid line is a whole number of device px wide (1 css px; round(dpr) device px at fractional dpr)
-     and centred on the device pixel grid of the screen, through the strip's scale (~1.66x at rest on desktop). shape-rendering:crispEdges (css) then fills
-     exactly that many pixel columns per line, never one more or less. This holds because, at rest, nothing scaled is a GPU layer (css/home.css .media-wrap):
-     the strip is painted straight into the page at full resolution, and its layout origin sits on whole px (measure()), so getBoundingClientRect is where
-     every engine paints. */
+  /* crisp, even hairlines (Hang, 2026-10-24/26/27): every grid line is a filled <rect> exactly --lw wide (round(dpr) device px: 1 css px at dpr 1/2/3),
+     centred on the device pixel grid of the screen. Its position is a percentage of the SVG box rounded in css (css/home.css .poster-svg .g: round() to
+     --dp = 1 device px, on the page's pixel grid via --ox/--oy), so the browser re-resolves it whenever the box changes size, every frame the rail moves
+     and at rest alike, with no script; and the SVG box is always the card's on-screen size (the overlay above never scales it), so nothing stretches the
+     drawn pixels. The start dots use the same rounded centres. The keywords' and the CTA's grid positions (SX/SY) are rounded the same way, here. */
   const R0=svg.getBoundingClientRect(),kx=R0.width>0?R0.width/VW:1/px,ky=R0.height>0?R0.height/VH:1/px,dpr=window.devicePixelRatio||1,wd=Math.max(1,Math.round(dpr)) /* line width in device px */,odd=wd%2===1 /* odd widths centre on a half device pixel */,
-    snp=(v,o,k)=>{const d=(o+v*k)*dpr,t=odd?Math.floor(d)+.5:Math.round(d);return(t/dpr-o)/k;},SX=x=>snp(X(x),R0.left,kx),SY=y=>snp(Y(y),R0.top,ky);
+    fr=o=>o-Math.floor(o*dpr)/dpr /* the box origin's offset from the page's device pixel grid */,snp=(v,o,k)=>{const d=(o+v*k)*dpr,t=odd?Math.floor(d)+.5:Math.round(d);return(t/dpr-o)/k;},SX=x=>snp(X(x),R0.left,kx),SY=y=>snp(Y(y),R0.top,ky);
   const G={xs:G0.xs.map(SX),ys:G0.ys.map(SY),
     letters:G0.letters.map(l=>{const c=[X(l[1][0]),Y(l[1][1]),X(l[1][2]),Y(l[1][3])],fs=l[2]*sx;return[l[0],c,fs,X(l[3]),c[1]+(l[4]-l[1][1])*sx,l[5]];}),
     words:G0.words.map(p=>p.length>4?[p[0],X(p[1]),Y(p[2]),X(p[3]),Y(p[4])]:[p[0],SX(p[1]),SY(p[2])]) /* on-grid keywords use the same snapped lines as the grid, or their band lookup misses it */};
@@ -184,20 +184,21 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
     G.words.forEach(p=>{const t=inkC.measureText(p[0].toUpperCase()),iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft,bw=p.length>4?p[3]-p[1]:G.xs.find(v=>v>p[1]+.01)-p[1],nY=G.ys.find(v=>v>p[2]+.01),bh=p.length>4?p[4]-p[2]:nY-p[2];k=Math.min(k,(bw-2*PADX)/iw,(bh-2*PADY)/(.73*m0));});
     inkC.letterSpacing='0px';return m0*Math.max(.5,k);})();/* mono text 12px, scaled down (all keywords together) only when the narrowest keyword box can't fit it with 10px/6px padding, e.g. mobile landscape */let out='<defs>',body='';
   G.letters.forEach((l,i)=>{const c=l[1];out+=`<clipPath id="pc${i}"><rect x="${c[0]}" y="${c[1]}" width="${c[2]-c[0]}" height="${c[3]-c[1]}"/></clipPath>`;});out+='</defs>';
-  const ln=(x1,y1,x2,y2,c,d)=>{const l=Math.abs(x2-x1)+Math.abs(y2-y1);body+=`<line class="${c} a ${x1===x2?'lv':'ln'}" style="--d:${d};--l:${l};--l0:${/\brv\b/.test(c)?-l:l}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;};
-  const y0=G.ys[0],y1=G.ys[G.ys.length-1],x0=G.xs[0],x1=G.xs[G.xs.length-1];
+  /* grid lines and dots live in the outer SVG (css px, no viewBox) and are placed by percentages of its box; letters and keywords in the inner viewBox SVG */
+  const UX=G0.xs.map(X),UY=G0.ys.map(Y),nx=UX.length-1,ny=UY.length-1,PX=v=>(100*v/VW).toFixed(5)+'%',PY=v=>(100*v/VH).toFixed(5)+'%',GB=[];let gl='',gd='';
+  const ln=(v,c,a,b,cls,d)=>{GB.push(v?[c,c,a,b]:[a,b,c,c]);gl+=`<rect class="${cls} a ${v?'lv':'ln'}" style="--d:${d};--c:${(v?PX:PY)(c)};--a:${(v?PY:PX)(a)};--b:${(v?PY:PX)(b)}"/>`;};
   /* grid draw-in (as in the Studio Model deck): one element per line, verticals alternate top->bottom / bottom->top at i*150ms,
      horizontals alternate left->right / right->left from 800ms, 1.7s each, cubic-bezier(.65,0,.35,1) (css .g.a / .rv).
      Then the letters slide in (1.1s, 110ms apart) from 0.2s before the last line lands; once they have landed all keywords fade in
      together (.wf, 0.7s); once that fade ends the CTA rises from its row (desktop). Dots: one per line start, each 400ms ahead of its line, after a 0.4s blank lead; dots + lines settle to grey as the keywords appear. */
   /* dots land first, then the lines, letters and words; dots and lines turn grey as the words appear (Hang, 2026-10-24) */
   /* one dot where each grid line begins (shared starts merge), each timed just ahead of its own line */
-  const SD=[];{const st=[];const nx=G.xs.length-1,ny=G.ys.length-1;G.xs.forEach((x,i)=>st.push([x,i%2?G.ys[ny]:G.ys[0],i*300,i,i%2?ny:0]));G.ys.forEach((y,i)=>st.push([i%2?G.xs[nx]:G.xs[0],y,800+i*150,i%2?nx:0,i]));
+  const SD=[];{const st=[];UX.forEach((x,i)=>st.push([x,i%2?UY[ny]:UY[0],i*300]));UY.forEach((y,i)=>st.push([i%2?UX[nx]:UX[0],y,800+i*150]));
     st.sort((a,b)=>a[2]-b[2]).forEach(p=>{if(!SD.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<.5))SD.push(p);});}
   const PL=400 /* 0.4s blank before the first dot (Hang, 2026-10-24) */,DO=PL+400 /* each dot lands 400ms before its own line starts drawing out of it (Hang, 2026-10-24) */,
-    LS=1700,ST=150,HO=800,VS=300 /* vertical lines' dots + lines step in left to right, 300ms apart */,LEND=DO+Math.max((G.xs.length-1)*VS,HO+(G.ys.length-1)*ST)+LS,TL=LEND-200,SQ=110,
+    LS=1700,ST=150,HO=800,VS=300 /* vertical lines' dots + lines step in left to right, 300ms apart */,LEND=DO+Math.max(nx*VS,HO+ny*ST)+LS,TL=LEND-200,SQ=110,
     TW=TL+(G.letters.length-1)*SQ+1100,TC=TW+700;
-  G.xs.forEach((x,i)=>ln(x,y0,x,y1,'g'+(i%2?' rv':''),DO+i*VS));G.ys.forEach((y,i)=>ln(x0,y,x1,y,'g'+(i%2?' rv':''),DO+HO+i*ST));
+  UX.forEach((x,i)=>ln(1,x,UY[0],UY[ny],'g'+(i%2?' rv':''),DO+i*VS));UY.forEach((y,i)=>ln(0,y,UX[0],UX[nx],'g'+(i%2?' rv':''),DO+HO+i*ST));
   const FS=getComputedStyle(document.documentElement),sans=FS.getPropertyValue('--sans').trim(),mf=FS.getPropertyValue('--mono').trim(),CAP=.73,wo=5*sx;
   const gap0=(()=>{const h=G.letters.find(l=>l[5]),w=G.words.find(p=>p[0]===h[5]);return w[1]+wo+inkL('C',mono,-mono,0,'400 # '+mf)-h[1][0]; /* base gap: keyword inset measured on 'C' */})();
   // v11: one shared glyph size; each letter centred in its column (equal left/right ink gap), top gap = shared gap
@@ -230,17 +231,13 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
   wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
   G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
-    SD.forEach(d=>{body+=`<circle class="a pd" style="--d:${PL+d[2]}" fill="#eeeeee" cx="${d[0]}" cy="${d[1]}" r="${2.5/kx}"/>`;});
-  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.style.setProperty('--gw',wd/dpr/kx); /* wd device px on screen (1 css px at dpr 1/2/3), in user units */svg.setAttribute('preserveAspectRatio','none');svg.innerHTML=out+body;
-  /* re-snap at rest: the strip's scale changes as it moves (1.66x at landing, less once scrolled), so when it settles (strip:rest) the lines, their width
-     and the start dots are re-fitted to the device pixel grid at the new scale, without rebuilding (the draw-in keeps running) */
-  {const UX=G0.xs.map(X),UY=G0.ys.map(Y),LS=[...svg.querySelectorAll('line.g')],DS=[...svg.querySelectorAll('circle.pd')],nx=UX.length-1,ny=UY.length-1;
-   resnap=()=>{const R=svg.getBoundingClientRect();if(!(R.width>0&&R.height>0))return;const kx=R.width/VW,ky=R.height/VH,xs=UX.map(v=>snp(v,R.left,kx)),ys=UY.map(v=>snp(v,R.top,ky)),
-     set=(e,a)=>{for(const k in a)e.setAttribute(k,a[k]);},sl=(e,x1,y1,x2,y2)=>{const l=Math.abs(x2-x1)+Math.abs(y2-y1);set(e,{x1,y1,x2,y2});e.style.setProperty('--l',l);e.style.setProperty('--l0',e.classList.contains('rv')?-l:l);};
-     xs.forEach((x,i)=>sl(LS[i],x,ys[0],x,ys[ny]));ys.forEach((y,i)=>sl(LS[nx+1+i],xs[0],y,xs[nx],y));DS.forEach((e,i)=>set(e,{cx:xs[SD[i][3]],cy:ys[SD[i][4]],r:2.5/kx}));svg.style.setProperty('--gw',wd/dpr/kx);};}
+  SD.forEach(d=>{gd+=`<circle class="a pd" style="--d:${PL+d[2]};--x:${PX(d[0])};--y:${PY(d[1])}" r="2.5"/>`;});
+  svg.removeAttribute('viewBox');svg.removeAttribute('preserveAspectRatio');
+  {const v={'--dp':1/dpr+'px','--lw':wd/dpr+'px','--lc':(odd?.5/dpr:0)+'px','--rm':odd?'down':'nearest','--ox':fr(R0.left)+'px','--oy':fr(R0.top)+'px'};for(const k in v)svg.style.setProperty(k,v[k]);}
+  svg.innerHTML=`<defs></defs>${gl}${gd}`;wsv.setAttribute('viewBox',`0 0 ${VW} ${VH}`);wsv.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
-  svg.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));
+  wsv.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));
     const lx0=G.words.find(w=>w[0]===t.textContent)[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);t.before(r);});
   // caption: same ink gap from the grid lines as the H/A/N letters
   const cap=port?null:root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
@@ -252,7 +249,7 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
     cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate='-.58px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */
     /* CTA rises from the bottom of its row: the cap (static) clips to the row band, the button slides (css/home.css) */
     const cT=ch-parseFloat(cap.style.bottom)-cap.offsetHeight,yT=rT/px-cT,yB=rB/px-cT;cap.style.clipPath=`polygon(-50% ${yT.toFixed(2)}px,150% ${yT.toFixed(2)}px,150% ${yB.toFixed(2)}px,-50% ${yB.toFixed(2)}px)`;
-    cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');
+    cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');cap.dataset.t=''; /* css/home.css: the CTA reveal exists only once timed */
     /* the grid is drawn above the card now (overlay), so the CTA's knockout (.poster-cap::before: cap box +6px above/below, -2px/+7px sides, clipped to the
        row band, fading in at --cd) becomes a hole in a mask on the lines and dots: same box, same fade (.a, pIn .9s at TC) */
     {const NS='http://www.w3.org/2000/svg',mk=document.createElementNS(NS,'mask'),r=(a)=>{const e=document.createElementNS(NS,'rect');for(const k in a)e.setAttribute(k,a[k]);return mk.appendChild(e);},
@@ -262,17 +259,19 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
         with a 3x-card region that was 12 dot layers of 3x3 card size re-rasterised every frame of the CTA reveal, and Chrome (GPU raster, Retina)
         dropped tiles: grid lines, dots or whole letters blinked out for single frames as the intro finished (Hang, 2026-10-27) */
      const M=8*px,mx0=-M,my0=-M,mw=VW+2*M,mh=VH+2*M,hit=(a0,a1,b0,b1)=>a1>=hx0-M&&a0<=hx1+M&&b1>=hy0-M&&b0<=hy1+M;
-     mk.id='pcm';mk.setAttribute('maskUnits','userSpaceOnUse');mk.setAttribute('x',mx0);mk.setAttribute('y',my0);mk.setAttribute('width',mw);mk.setAttribute('height',mh);
-     r({x:mx0,y:my0,width:mw,height:mh,fill:'#fff'});if(hy1>hy0)r({class:'a',style:`--d:${TC}`,x:hx0,y:hy0,width:hx1-hx0,height:hy1-hy0,fill:'#000'});
-     svg.querySelector('defs').appendChild(mk);if(hy1>hy0)svg.querySelectorAll('line.g,circle.pd').forEach(e=>{const g=k=>+e.getAttribute(k);
-       const b=e.tagName==='circle'?[g('cx')-g('r'),g('cx')+g('r'),g('cy')-g('r'),g('cy')+g('r')]:[Math.min(g('x1'),g('x2')),Math.max(g('x1'),g('x2')),Math.min(g('y1'),g('y2')),Math.max(g('y1'),g('y2'))];
+     const bx=(x,y,w,h)=>({x:PX(x),y:PY(y),width:PX(w),height:PY(h)}) /* the lines' and dots' (outer) SVG is in css px of the box: the same rects as percentages */;
+     mk.id='pcm';mk.setAttribute('maskUnits','userSpaceOnUse');{const a=bx(mx0,my0,mw,mh);for(const k in a)mk.setAttribute(k,a[k]);}
+     r({...bx(mx0,my0,mw,mh),fill:'#fff'});if(hy1>hy0)r({class:'a',style:`--d:${TC}`,...bx(hx0,hy0,hx1-hx0,hy1-hy0),fill:'#000'});
+     svg.querySelector('defs').appendChild(mk);const rd=2.5/kx;if(hy1>hy0)svg.querySelectorAll(':scope>.g,:scope>.pd').forEach((e,i)=>{const b=i<GB.length?GB[i]:(d=>[d[0]-rd,d[0]+rd,d[1]-rd,d[1]+rd])(SD[i-GB.length]);
        if(hit(...b))e.setAttribute('mask','url(#pcm)');});}}
   }
-let lp=null,rt=0,bw=0,bh=0;addEventListener('strip:rest',()=>resnap());addEventListener('strip:move',()=>resnap()); /* moving too: the overlay carries the strip's scale, so a width/positions fitted to the last rest scale drew the lines s/s_rest as thick (up to 1.66x, soft) until the rest timer re-fitted them */const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
-const bt0=performance.now();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();const el=performance.now()-bt0;[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:svg.getAnimations({subtree:true}))].forEach(a=>{try{a.currentTime=el;}catch(e){}});});rb(); /* the font rebuild keeps the draw-in's clock (no restart blink) */
-addEventListener('resize',()=>rbs());addEventListener('gate:unlocked',()=>{lp=null;rb();}); /* rebuild the poster at its real size (it was built hidden under the gate) */
+let lp=null,rt=0,bw=0,bh=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
+/* one entrance clock (bt0) for the lines, letters and CTA: a rebuild keeps it (fonts: no restart blink); gate unlock restarts all of it together */
+let bt0=performance.now();const sync=()=>{const el=performance.now()-bt0;[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:[...svg.getAnimations({subtree:true}),...wsv.getAnimations({subtree:true})])].forEach(a=>{try{a.currentTime=el;}catch(e){}});};
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();sync();});rb();
+addEventListener('resize',()=>rbs());addEventListener('gate:unlocked',()=>{bt0=performance.now();if(capEl)delete capEl.dataset.set;lp=null;rb();sync();}); /* rebuild the poster at its real size (it was built hidden under the gate) */
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
-const rbs=()=>{clearTimeout(rt);const w=root.offsetWidth,h=root.offsetHeight;if(Math.abs(w-bw)<=1&&Math.abs(h-bh)<=1&&root.style.visibility!=='hidden')return;root.style.visibility=svg.style.visibility='hidden';rt=setTimeout(()=>{const w2=root.offsetWidth,h2=root.offsetHeight;if(Math.abs(w2-bw)>1||Math.abs(h2-bh)>1||MP.matches!==lp){lp=null;rb();}requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility=svg.style.visibility='';}));},500);}; /* rotation/resize: hide, wait until the size stops changing, rebuild once, show (one draw-in) */if(window.ResizeObserver)new ResizeObserver(rbs).observe(root);addEventListener('orientationchange',rbs);
+const rbs=()=>{clearTimeout(rt);const w=root.offsetWidth,h=root.offsetHeight;if(Math.abs(w-bw)<=1&&Math.abs(h-bh)<=1&&root.style.visibility!=='hidden')return;root.style.visibility=svg.style.visibility=wsv.style.visibility='hidden';rt=setTimeout(()=>{const w2=root.offsetWidth,h2=root.offsetHeight;if(Math.abs(w2-bw)>1||Math.abs(h2-bh)>1||MP.matches!==lp){lp=null;rb();sync();}requestAnimationFrame(()=>requestAnimationFrame(()=>{root.style.visibility=svg.style.visibility=wsv.style.visibility='';}));},500);}; /* rotation/resize: hide, wait until the size stops changing, rebuild once, show (one draw-in) */if(window.ResizeObserver)new ResizeObserver(rbs).observe(root);addEventListener('orientationchange',rbs);
 // mobile portrait: once the draw-in finishes, glide the first project card into view (once; cancelled by any user input; never with reduced motion)
 let done=false,raf=0;
 const stop=e=>{if(e&&e.type==='scroll'&&performance.now()-(window.__dbhNudge||-1e9)<400)return; /* theme.js's 1px bar re-sample nudge is not user input */done=true;cancelAnimationFrame(raf);ev.forEach(e=>removeEventListener(e,stop,true));},ev=['wheel','touchstart','pointerdown','keydown','scroll'];

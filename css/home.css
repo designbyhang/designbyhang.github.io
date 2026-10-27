@@ -115,17 +115,17 @@ main{flex:1;display:flex;min-height:0;position:relative}
 
 /* ── Intro card v3: Swiss construction poster (SVG built in js/home.js; revert = this block + intro markup + poster JS) ── */
 /* desktop: the poster SVG is drawn in .poster-ov (js/home.js), a sibling of the strip inside the rail, so it is never inside the strip's scale().
-   Moving: it copies the strip's translate+scale (GPU layer like .strip.mv). At rest: no scale, a whole-device-px translate, the SVG at on-screen size, so
-   every grid line is rasterised at the screen's resolution exactly where it was snapped, in every engine and whatever the strip's compositing. */
+   Every frame, moving or at rest, it is laid out at the card's on-screen size with a whole-device-px translate and no scale, so it is always drawn at
+   the screen's resolution and no engine stretches it as a bitmap. */
 .poster-ov{position:absolute;left:0;top:0;z-index:1;pointer-events:none;transform-origin:0 0;contain:strict;opacity:0;animation:fade .8s var(--ease) .05s forwards}
-.poster-ov.in{opacity:1;animation:none}.poster-ov.mv{will-change:transform}
+.poster-ov.in{opacity:1;animation:none}
 html.ret .poster-ov{animation:none!important;opacity:1!important}
 @media (prefers-reduced-motion:reduce){.poster-ov{opacity:1;animation:none}}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.poster-ov{display:none!important}}
 .intro .media-wrap{container-type:inline-size;transform:none} /* never a GPU layer: composited, the scaled poster is resampled and its 1px grid lines blur unevenly */
 .intro-in.poster{position:relative;display:block;height:100%;padding:0}
 .poster-svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:hidden}
-.poster-svg .g{stroke:#000;stroke-opacity:.22;stroke-width:1;stroke-dasharray:1 4;vector-effect:non-scaling-stroke;fill:none}
+.poster-ws{transform-origin:0 0} /* letters + keywords: desktop sizes it to the card at rest and scales it (js/home.js ovSet) */
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
@@ -134,7 +134,6 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
 .poster-svg .nd{stroke:#111;stroke-opacity:.55}
-.poster-svg .g{stroke:var(--c-grid);stroke-opacity:1;stroke-dasharray:none;shape-rendering:crispEdges}
 
 .poster-svg .ko{fill:var(--ko,var(--c-paper))}
 .poster-title,.poster-hint{background:var(--ko,var(--c-paper));box-shadow:-2px 0 0 var(--ko,var(--c-paper)),2px 0 0 var(--ko,var(--c-paper))}
@@ -144,19 +143,35 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 /* CTA rise (row clip band, --rise, --cd: js/home.js): the button slides up inside the static cap; its knockout moves to the
    cap's ::before (static, fades in), so no gap is dragged through the grid lines while it moves */
 .poster-cap{isolation:isolate}
-.poster-cap::before{content:"";position:absolute;inset:-6px -7px -6px -2px;z-index:-1;background:var(--ko,var(--c-paper));opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) var(--cd,0ms) forwards}
-.poster-cap .poster-title{background:none;box-shadow:none;animation:pRiseT 1.1s cubic-bezier(.2,.7,.2,1) var(--cd,0ms) both}
+/* the reveal is declared only once build() has timed it after the lines ([data-t] with --cd, js/home.js): untimed, it ran at 0ms and could finish
+   (and settle, [data-set]) before the poster was drawn */
+.poster-cap:not([data-t]){visibility:hidden}
+.poster-cap::before{content:"";position:absolute;inset:-6px -7px -6px -2px;z-index:-1;background:var(--ko,var(--c-paper));opacity:0}
+.poster-cap[data-t]::before{animation:pIn .9s cubic-bezier(.2,.7,.2,1) var(--cd) forwards}
+.poster-cap .poster-title{background:none;box-shadow:none}
+.poster-cap[data-t] .poster-title{animation:pRiseT 1.1s cubic-bezier(.2,.7,.2,1) var(--cd) both}
 .poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:var(--c-strong)}
 .poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
 .poster-svg .a{opacity:0;animation:pIn .9s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
-.poster-svg .g.a{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1)} /* alternating grid draw, odd lines reversed (.rv); delays in js/home.js */
-.poster-svg .g{vector-effect:none;stroke-width:var(--gw,1);shape-rendering:crispEdges} /* 1 css px in user units (--gw, js/home.js; the viewBox scale is uniform): non-scaling-stroke under the near-zero scale of the slow-starting draw made the stroke enormous and stalled rendering */
-.poster-svg .g.a.ln,.poster-svg .g.a.lv{opacity:1;stroke-dasharray:var(--l) calc(var(--l)*2);animation-name:pDraw} /* the draw-in reveals the dash (--l = line length, --l0 = start offset, negative for .rv; hidden before its delay by fill-mode both) instead of scaling and fading the line in: a transform or opacity animation, even once finished, gives every line its own layer and its own sub-pixel offset, so lines smeared over 2-3 device px, each differently */
-.poster-svg .g.a.ln,.poster-svg .g.a.lv{animation-duration:1.7s;animation-timing-function:cubic-bezier(.65,0,.35,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:both}
+/* grid lines (js/home.js build): filled rects in the outer SVG, whose user units are the box's css px. --c is the line's position across, --a/--b its
+   ends along, as percentages of the box; each is rounded to the device pixel grid (--dp = 1 device px, --ox/--oy = the box's offset from the page's
+   grid, --rm = nearest, or down for odd widths, whose centres sit on half device px via --lc). Width --lw = round(dpr) device px. The browser resolves
+   this at every box size, so the lines are --lw wide on whole device px in every frame, with no script and no fitting */
+.poster-svg .lv{x:calc(round(var(--rm),var(--c) + var(--ox),var(--dp)) - var(--ox) + var(--lc) - var(--lw)/2);width:var(--lw);
+  --A:calc(round(var(--rm),var(--a) + var(--oy),var(--dp)) - var(--oy) + var(--lc));--B:calc(round(var(--rm),var(--b) + var(--oy),var(--dp)) - var(--oy) + var(--lc));y:var(--A);height:calc(var(--B) - var(--A))}
+.poster-svg .ln{y:calc(round(var(--rm),var(--c) + var(--oy),var(--dp)) - var(--oy) + var(--lc) - var(--lw)/2);height:var(--lw);
+  --A:calc(round(var(--rm),var(--a) + var(--ox),var(--dp)) - var(--ox) + var(--lc));--B:calc(round(var(--rm),var(--b) + var(--ox),var(--dp)) - var(--ox) + var(--lc));x:var(--A);width:calc(var(--B) - var(--A))}
+.poster-svg .pd{cx:calc(round(var(--rm),var(--x) + var(--ox),var(--dp)) - var(--ox) + var(--lc));cy:calc(round(var(--rm),var(--y) + var(--oy),var(--dp)) - var(--oy) + var(--lc))} /* start dots: on the lines' rounded centres */
+.poster-svg .g{shape-rendering:crispEdges}
+/* draw-in: alternating, odd lines (.rv) grow from their far end; 1.7s cubic-bezier(.65,0,.35,1) from --d (js/home.js), hidden before it (fill-mode both).
+   The rect's length grows from 0 (painted in place, like the dots' fill-opacity): a transform or opacity animation, even once finished, gives every line
+   its own layer and its own sub-pixel offset, so lines smeared over 2-3 device px, each differently */
+.poster-svg .g.a.ln,.poster-svg .g.a.lv{opacity:1;--g0:var(--A);animation:pDrawV 1.7s cubic-bezier(.65,0,.35,1) calc(var(--d,0)*1ms) both}
+.poster-svg .g.a.ln{animation-name:pDrawH}.poster-svg .g.a.rv{--g0:var(--B)}
 .poster-svg .pd{opacity:1;animation-name:pdIn;animation-duration:.9s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-delay:calc(var(--d,0)*1ms);animation-fill-mode:both} /* dots fade fill-opacity, not opacity: an opacity animation puts each dot on its own GPU layer, rasterised differently from the painted card (a visible AA change when it lands and drops back); fill-opacity paints in place like the lines' dash draw. Hidden before its delay by fill-mode both */
 /* grid lines and dots stay solid ink, no fade to grey (Hang, 2026-10-24) */
-.poster-svg .g{stroke:var(--c-strong)}.poster-svg .pd{fill:var(--c-strong)}
+.poster-svg .g,.poster-svg .pd{fill:var(--c-strong)}
 @media (prefers-reduced-motion:reduce){.poster-svg .g.a.ln,.poster-svg .g.a.lv,.poster-svg .pd{animation:none;opacity:1}}
 .poster-svg .wd{transform-box:fill-box;transform-origin:0 100%;animation-name:pUp}
 .poster-svg .lt{animation-name:pSlide;animation-duration:1.1s}
@@ -167,9 +182,9 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 @keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
 @keyframes pIn{to{opacity:1}}
 @keyframes pdIn{from{fill-opacity:0}to{fill-opacity:1}}
-@keyframes pDraw{from{stroke-dashoffset:var(--l0)}to{stroke-dashoffset:0}}
+@keyframes pDrawV{from{y:var(--g0);height:0}}@keyframes pDrawH{from{x:var(--g0);width:0}}
 @keyframes pUp{from{opacity:0;transform:translateY(6%)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap::before,.poster-cap .poster-title{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.poster-svg .a,.poster-cap[data-t]::before,.poster-cap[data-t] .poster-title{animation:none;opacity:1}}
 /* settled (js/home.js sets data-set on animationend): the end state without the animation, so nothing stays on a GPU layer once it has landed */
 .poster-svg .a[data-set],.poster-svg .g.a.ln[data-set],.poster-svg .g.a.lv[data-set]{animation:none;opacity:1}
 .poster-cap[data-set]::before{animation:none;opacity:1}.poster-cap[data-set] .poster-title{animation:none}
