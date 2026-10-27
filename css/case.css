@@ -17,7 +17,7 @@ img{display:block;max-width:100%;height:auto}
 .prog i{display:block;height:100%;background:var(--ink);transform-origin:0 0;transform:scaleX(0)}
 /* sheet */
 .sheet{max-width:1152px;margin:8px auto 96px;background:var(--sheet);border-radius:28px;box-shadow:0 0 0 1px rgba(0,0,0,.03),0 1px 2px rgba(0,0,0,.03);padding:0 0 64px;overflow:clip}
-.wrap{padding:0 clamp(20px,5vw,72px)}
+.wrap{--wrap-pad:clamp(20px,5vw,72px);padding:0 var(--wrap-pad)} /* --wrap-pad = the site content margin (also the VAC 05 text-cell inset) */
 /* hero */
 .hero{padding-top:clamp(56px,9vw,112px);padding-bottom:48px}
 .kicker{font:400 13px/1.5 var(--mono);color:var(--mute);letter-spacing:0;margin-bottom:24px}
@@ -50,7 +50,7 @@ figcaption strong{font-family:inherit;font-weight:600;font-size:inherit;line-hei
 .sec{padding-top:clamp(72px,10vw,128px)}
 .sec-grid{display:grid;grid-template-columns:232px minmax(0,1fr);gap:0 48px}
 .sec-label{font:400 13px/1.9 var(--mono);color:var(--faint);padding-top:6px;white-space:nowrap}
-.sec h2{font:var(--t-h2);letter-spacing:var(--t-h2-ls);color:var(--ink);margin-bottom:24px;max-width:none} /* h2s fill the 480px text column (no 22ch cap) */
+.sec h2,.pd-txt h2{font:var(--t-h2);letter-spacing:var(--t-h2-ls);color:var(--ink);margin-bottom:24px;max-width:none} /* h2s fill the 480px text column (no 22ch cap) */
 .prose{max-width:480px}
 .prose p{margin-bottom:20px}
 .prose p.lead{font-size:var(--t-lead-size);line-height:var(--t-lead-lh);color:var(--ink);letter-spacing:var(--t-lead-ls)}
@@ -366,21 +366,26 @@ body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo 
 @media (max-width:640px){body.cs .media.mframe.phone-demo{aspect-ratio:4/5}}
 /* red emphasis inside body copy: same type as the paragraph, colour only. --red-text (css/theme.css): #c62828 light / #ff5151 dark (the FMSS marker red), both >= 4.5:1 on their page */
 .t-red{color:var(--red-text)}
-/* VAC 05 Current State: two rows of text + phone module (row 1 text | module, row 2 module | text). The module is the Problem one
-   (.media.dark.mframe.phone-demo) in the FMSS Inconsistencies column frame (1920/2052; 3840/2052 portrait tablets; 4:5 phones) on its
-   #1d1d1d ground, laid out like that art (1624x1824): phone 75.4% of the height from 9.9% down, centred.
-   Desktop: two equal columns, 48px gap (= .sec-grid), text centred on the module,
-   64px between rows (= the old .sub spacing). Stacked: text then module for both rows, 32px apart, 64px between rows */
-.pd-rows{margin-top:64px;display:grid;gap:64px}
-.pd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:center}
-.pd-row .sub{margin:0}
-.pd-rev .sub{order:2}
-.pd-fig{margin:0;min-width:0}
-body.cs .media.mframe.phone-demo.pd-col{aspect-ratio:1920/2052;background:#1d1d1d;align-items:flex-start}
+/* VAC 05 Current State: two rows of text cell + phone module (row 1 text | module, row 2 module | text), stacked with no gap so the
+   modules meet corner to corner. Layout = the FMSS Inconsistencies pair (.inc2 .inc-row / .inc-col: two equal columns, 24px gap,
+   1920/2052 frames; 3840/2052 portrait tablets; 4:5 phones), so each module is exactly the FMSS column width. The module is the
+   Problem one (.media.dark.mframe.phone-demo) on #1d1d1d, laid out like that art (1624x1824): phone 75.4% of the height from 9.9% down.
+   Text cell (.pd-txt) = the module's size, no box; text uses the 04 Opportunity type (.prose h2 + p.t-body), inset by the site content
+   margin (--wrap-pad, the .wrap padding) and centred vertically.
+   Stacked (phones, portrait tablets): text above its module, flush to the content column; 64px above each text, 32px text -> module */
+.pd-rows{margin-top:64px}
+.inc2 .pd-row{align-items:stretch}
+.pd-rev .pd-txt{order:2}
+.pd-txt{display:flex;flex-direction:column;justify-content:center;min-width:0;padding-inline:var(--wrap-pad)}
+.pd-txt .prose>:last-child{margin-bottom:0}
+body.cs .media.mframe.phone-demo.pd-col{background:#1d1d1d;align-items:flex-start}
 .pd-col .pd-phone{height:75.4386cqh;margin-top:9.8684cqh}
-@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.pd-row{grid-template-columns:minmax(0,1fr);gap:32px}.pd-rev .sub{order:0}}
-@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){body.cs .media.mframe.phone-demo.pd-col{aspect-ratio:3840/2052}}
-@media (max-width:640px){body.cs .media.mframe.phone-demo.pd-col{aspect-ratio:4/5}}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){
+ .pd-rows{margin-top:0}
+ .inc2 .pd-row{gap:0}
+ .pd-rev .pd-txt{order:0}
+ .pd-txt{padding:64px 0 32px}
+}
 /* mobile head gap (every case page, max-width:640px: phone portrait and any narrow width): the hero's spacing below the title text
    = the visual gap title -> subtitle (FMSS h1 -> .sum). Measured between line boxes (font ascent/descent, the Range rects), not CSS boxes:
    .sum margin-top 24 + .sum half-leading (28 - 24)/2 = 2 - h1 overhang (49 - 40.8)/2 = 4.1 (Instrument Sans 39/10 at 40px, 19/5 at 20px;
