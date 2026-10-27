@@ -21,8 +21,8 @@ img{display:block;max-width:100%;height:auto}
 /* hero */
 .hero{padding-top:clamp(56px,9vw,112px);padding-bottom:48px}
 .kicker{font:400 13px/1.5 var(--mono);color:var(--mute);letter-spacing:0;margin-bottom:24px}
-.hero h1{font:var(--t-display);letter-spacing:var(--t-display-ls);color:var(--ink);max-width:12ch}
-.hero .sum{margin-top:24px;font:var(--t-lead-hero);letter-spacing:var(--t-lead-ls);color:var(--ink);max-width:30ch}
+.hero h1{font:var(--t-display);letter-spacing:var(--t-display-ls);color:var(--ink)}
+.hero .sum{margin-top:24px;font:var(--t-lead-hero);letter-spacing:var(--t-lead-ls);color:var(--ink)}
 .meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:56px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .meta>div{padding:32px 24px 32px 0}
 .meta>div+div{padding-left:24px;border-left:1px solid var(--line)}
@@ -125,8 +125,6 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 
 
 .phones.three{max-width:960px;margin-inline:auto}
-.hero h1{max-width:14ch}
-.sum{max-width:34ch}
 .bar-right a{font-size:13px}
 .media.cover{border:0;background:transparent;border-radius:clamp(14px,2.2vw,30px)}
 .media.cover img{border-radius:inherit}
