@@ -1,6 +1,6 @@
 /* HANG easter egg: opens from the homepage copyright line (js/hang-egg.js). --page background; the letters take a random vivid colour each beat (js/hang-cube.js colors:'random'), no glow.
    Full-viewport layer in the page colour, z 50, so the light/dark toggle (z 60) stays on top and switches the egg live.
-   Media container 576x576 on desktop (capped by the viewport, clear of the 58px top bar above and below, snapped down to a multiple of 8px); phones (<=640px): 80% of (viewport width - 16px each side), square, centred.
+   Media container 688x688 on desktop (capped by the viewport: 1.2x (viewport height - 2 x 58px), at most viewport - 16px each side, snapped down to a multiple of 8px); phones (<=640px): 80% of (viewport width - 16px each side), square, centred.
    Close = the Studio presentation's "× CLOSE" (projects/studio-present.js: .bar.deck-bar > nav.bar-right > a.ax with .arr.arr-back + .t),
    same markup and classes, top right of the viewport inside the safe area. Its icon comes from css/arrows.css (shared with the homepage);
    the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
@@ -18,14 +18,16 @@ footer.bot>span.hegg-trg{cursor:pointer}
 /* grow (js/hang-egg.js cfg.grow): while the view expands from / collapses into the page the layer paints nothing (the cfg draws its own
    expanding panel, js/fs-motion.js timeline), no fade */
 .hegg.hegg-grow,.hegg.hegg-grow:focus,.hegg.hegg-grow:focus-visible{background:none;box-shadow:none;opacity:1;transition:none}
-.hegg-stage{position:relative;z-index:1;width:min(576px,calc(100% - 32px),calc(100vh - 116px));aspect-ratio:1;background:var(--page)}
-/* desktop (>640px): the stage snaps DOWN to a multiple of 8px as the window shrinks (576, 568, 560 ... 480 ...), max 576px; the height
-   term keeps 58px (the CLOSE bar) clear above and below. Browsers without round() keep the unsnapped size; js/hang-egg.js snaps the drawn
+.hegg-stage{position:relative;z-index:1;width:min(688px,calc(100% - 32px),calc(100vh - 32px),calc((100vh - 116px) * 1.2));aspect-ratio:1;background:var(--page)}
+/* desktop (>640px): the stage snaps DOWN to a multiple of 8px as the window shrinks (688, 680, 672 ... 480 ...), max 688px (H 20%
+   larger, was 576 / the 58px CLOSE bar kept clear above and below): 1.2x the old size (100vh - 116px) wherever that still fits, never more
+   than the window minus 16px on each side (width and height), so the stage, the H and its animation are never clipped. The H ink stays
+   well clear of the CLOSE row (the stage only has the page colour and sits under the bar). Browsers without round() keep the unsnapped size; js/hang-egg.js snaps the drawn
    letters to the 8px grid either way. The stage is centred on the window, not on the layer: html keeps a stable scrollbar gutter
    (css/theme.css), so on classic-scrollbar systems the layer is narrower than the window by the gutter and its centre sits half a gutter
    left; the negative right margin (= -gutter, 0 with overlay scrollbars) moves the grid-centred stage back onto the window's centre line. */
 @media (min-width:641px){.hegg-stage{margin-right:calc(100% - 100vw)}
- @supports (width:round(down,100px,8px)){.hegg-stage{width:round(down,min(576px,calc(100% - 32px),calc(100vh - 116px)),8px)}}}
+ @supports (width:round(down,100px,8px)){.hegg-stage{width:round(down,min(688px,calc(100% - 32px),calc(100vh - 32px),calc((100vh - 116px) * 1.2)),8px)}}}
 /* the canvas host (js/hang-egg.js): fills the stage on phones; on desktop hang-egg.js sizes and places it so the letters are a multiple
    of 8px and their ink is centred in the stage */
 .hegg-cv{position:absolute;inset:0}

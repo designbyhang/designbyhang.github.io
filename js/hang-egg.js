@@ -100,7 +100,7 @@ trg.classList.add('hegg-trg');trg.tabIndex=0;trg.setAttribute('role','button');t
 /* desktop (>640px) letter fit: HangCube draws a letter K = letterCap x size (.88 x .74 = .6512) of its box, with its centre .02 of the box
    below the box centre (js/hang-cube.js draw(): oy = Hc/2 + S*.02, the gate's optical drop; left as is so the gate renders the same). The
    egg mounts it into a host inside the stage (css/hang-egg.css: stage = a multiple of 8px): the H is snapped to the nearest multiple of 8
-   (576 stage -> 376 H), the host is that H / K square, centred on the stage and raised by the renderer's drop, so the ink of the H sits
+   (688 stage -> 448 H; was 576 -> 376), the host is that H / K square, centred on the stage and raised by the renderer's drop, so the ink of the H sits
    exactly in the middle of the stage, which is centred on the window: equal space above and below, left and right. Phones: host = stage. */
 const OY=.02,desk=matchMedia('(min-width:641px)');
 const fit=(st,h)=>{const s=h.style;if(!desk.matches){s.left=s.top=s.width=s.height='';return;}
