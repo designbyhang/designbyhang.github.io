@@ -12,7 +12,18 @@
      The clock is the host's: sinceSplit() → ms since split screen was reached (negative while it is being entered, null when not in
      it), so a paused demo freezes the fade with it. VideoScrubber.loop() builds that from a looping WAAPI animation and its marks;
      hosts without a timeline can call enterSplit() / leaveSplit() instead
-   - tap to pause (opt-in, off by default: tapToPause:true): a tap on the video area (tapArea, default the video's parent) while in
+   - read only (opt-in, o.readOnly: the case-page heroes (js/fmss-split.js cover, js/vac-chain.js) and the Solution demos (preview/fmss-sol1,
+     preview/fmss-sol2), per Hang: "no interaction, just demo playing"): the controls are drawn and synced exactly as below (time, fill,
+     thumb, the fade) but take no input at all: no seek strip listeners, no tap to pause, no expand button, and every part of the
+     player is pointer-events:none with the default cursor, so a press, drag or click passes straight through to whatever is under it
+   - demo taps (opt-in, o.demoTaps = [[pauseAt, resumeAt], …] in loop ms, from VideoScrubber.loop's clock; o.tapAt = [x, y] design px):
+     a scripted tap to pause, for a read-only demo that shows what a tap on the video does. A touch marker (the Evolution prototypes'
+     autoplay finger, preview/fmss-cb .finger: 44px grey disc, white ring) taps the video at tapAt: it fades in (240ms), presses
+     (160ms), and on its release the video pauses exactly as a real tap to pause (playhead, fill, thumb and time stop, the controls come
+     back and stay up, the pause glyph becomes the play icon); at resumeAt a second tap resumes it and the controls' fade restarts from
+     there. The marker is drawn from the loop clock each frame (paused demo, paused marker) and takes no input; a lock is freed by the
+     pause until its next park, as after a real tap. Off under reduced motion
+   - tap to pause (opt-in, off by default: tapToPause:true; never with readOnly): a tap on the video area (tapArea, default the video's parent) while in
      split screen pauses the video if it is playing and resumes it if paused; the pause icon in the controls becomes a play icon
      (an SVG drawn in the icons' style over the glyph slot pauseSlot:[x,w] of the icon strip) and back. A tap brings the controls
      back, they stay up while paused, and the fade restarts from the tap that resumes. The tap's events stop at the tap area (no card
@@ -58,7 +69,12 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
  // no focus ring, outline or tap highlight on any part of the player, keyboard focus included (the FMSS demos' audience never uses a keyboard)
  '.vs,.vs *,.vs-tap{-webkit-tap-highlight-color:transparent}'+
- ':is(.vs,.vs *,.vs-tap):is(:focus,:focus-visible,:active){outline:none!important;-webkit-tap-highlight-color:transparent}';
+ ':is(.vs,.vs *,.vs-tap):is(:focus,:focus-visible,:active){outline:none!important;-webkit-tap-highlight-color:transparent}'+
+ // read only: nothing of the player takes the pointer (no hit strip, no cursor change)
+ '.vs.vs-ro,.vs.vs-ro *{pointer-events:none!important;cursor:auto!important}'+
+ // demo tap marker (preview/fmss-cb .finger): drawn over the video, outside the fading controls, never takes the pointer
+ '.vs-m{position:absolute;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;transform:translate(-50%,-50%);background:rgba(140,140,140,.35);'+
+   'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
 // play glyph matching the strip's pause (two 5.5×17 rounded bars, 14 wide): a 14×17 white triangle with rounded corners, same optical size
 var PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4.6c0-1 1.1-1.6 1.9-1.1l10.4 7.4c.7.5.7 1.6 0 2.1L9.4 20.4c-.8.6-1.9 0-1.9-1z" fill="#fff"/></svg>';
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
@@ -67,18 +83,18 @@ function tick(){raf=0;for(var i=0;i<list.length;i++)list[i]._tick();if(list.leng
 function run(){if(!raf&&list.length)raf=requestAnimationFrame(tick)}
 var STOP=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
 /* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
-       tapToPause, tapArea, pauseSlot, onExpand, expandSlot} */
+       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, demoTaps, tapAt} */
 function create(o){
   var v=o.video,doc=(o.document||document);style(doc);
   var x=o.x==null?12:o.x,w=o.w==null?351:o.w,ty=o.trackY==null?392:o.trackY,tb=o.timeY==null?ty-30:o.timeY;
-  var root=doc.createElement('div');root.className='vs'+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
-  var tap=!!o.tapToPause,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
+  var ro=!!o.readOnly,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
+  var tap=!ro&&!!o.tapToPause,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
   // icons: one crop; with tap to pause it is cut in three around the pause glyph's slot, so that slot alone can show the play icon
   function slice(a,b,g){return '<i class="vs-i vs-s'+(g?' vs-g':'')+'" style="left:'+(ix+a)+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
-  root.innerHTML='<div class="vs-f">'+(o.icons?(tap?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
+  root.innerHTML='<div class="vs-f">'+(o.icons?(tl?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+x+'px;top:'+(tb-13.75)+'px"></p>'+
-    '<div class="vs-h" role="slider" aria-label="Seek" aria-valuemin="0" style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>';
+    '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
   var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=null,pend=null,up=false,base=0,prev=null,area=null;
   var api={el:root,video:v,dragging:function(){return !!drag},
@@ -91,7 +107,7 @@ function create(o){
   function paint(t){var d=D(),fr=d?Math.min(1,Math.max(0,t/d)):0;
     if(fr!==last.fr){last.fr=fr;fill.style.transform='translateX('+((fr-1)*w).toFixed(2)+'px)';knob.style.transform='translateX('+(fr*w)+'px)'}
     var s=d?fmt(Math.min(t,d))+' / '+fmt(d):'';if(s!==last.txt){last.txt=s;tx.textContent=s;hit.setAttribute('aria-valuemax',Math.floor(d));hit.setAttribute('aria-valuenow',Math.floor(t))}}
-  function fade(){var ms=api.since();if(tap)ms=tapClock(ms);if(drag||up)ms=null;var op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE),off=op===0;
+  function fade(){var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;var op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE),off=op===0;
     if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4))}
     if(off!==last.off){last.off=off;root.classList.toggle('vs-off',off)}}
   // hit strip: 24 design px round the track, taller where the phone is drawn small (at least 12 CSS px, at most 48 design px)
@@ -121,19 +137,37 @@ function create(o){
     // a start or a stall (>1s off) seeks, at most every 1.5s; smaller drift is eased out with the playback rate (±15%)
     if((bad&&!(want>=av[0]&&want<av[1]))||(ad>1&&now-ls>1500)){ls=now;seek(want)}else if(ad>.03&&!v.paused)r=Math.min(1.15,Math.max(.85,1-df));
     if(Math.abs(v.playbackRate-r)>.01)try{v.playbackRate=r}catch(_){}}
-  api._tick=function(){fade();if(lk)lock();if(!drag){if(!(n++%32)&&!last.off)hitSize();paint(v.currentTime)}};
+  // demo taps: the pause state and the marker are functions of the loop clock (so a jump or a paused demo stays consistent)
+  var mk=dm&&root.querySelector('.vs-m'),DC=o.sinceSplit&&o.sinceSplit.time,DT=o.sinceSplit&&o.sinceSplit.T,mo=-1,msc=-1,ft=null;
+  if(mk){var ta=o.tapAt||[188,200];mk.style.left=ta[0]+'px';mk.style.top=ta[1]+'px'}
+  // marker envelope round a tap's release r (ms from it): fade in -400..-160, press -160..0 (scale .85), release 0..120, fade out 120..400
+  function env(r){var e=function(k){return easeOut(Math.min(1,Math.max(0,k)))};
+    if(r<-400||r>400)return null;return {op:.9*(r<-160?e((r+400)/240):r<=120?1:1-e((r-120)/280)),sc:r<-160?1:r<=0?1-.15*e((r+160)/160):.85+.15*e(r/120)}}
+  function demo(){if(!DC||!DT||RM.matches)return;var L=DC();if(L==null)return;var want=false,best=null;
+    for(var i=0;i<dm.length;i++){var a=dm[i][0],b=dm[i][1];if(md(L-a,DT)<md(b-a,DT))want=true;
+      [a,b].forEach(function(X){var r=md(L-X+DT/2,DT)-DT/2,E=env(r);if(E&&(!best||E.op>best.op))best=E})}
+    if(mk){var op=best?+best.op.toFixed(3):0,sc=best?+best.sc.toFixed(3):1;if(op!==mo){mo=op;mk.style.opacity=op?String(op):''}
+      if(sc!==msc){msc=sc;mk.style.transform='translate(-50%,-50%) scale('+sc+')'}}
+    var ms=api.since();
+    if(want!==up){if(want){if(ms==null||ms<0)return;up=true;pend=null;v.pause();ft=v.currentTime}else{up=false;ft=null;var q=v.play();q&&q.catch(function(){});if(ms!=null)base=ms}
+      root.classList.toggle('vs-p',up)}
+    else if(up&&!v.paused)v.pause()}   // a host play() while the demo pause holds (pool, visibility) is undone
+  // while demo-paused the controls show the frame paused on (WebKit re-reports currentTime for a moment after a pause)
+  api._tick=function(){if(dm)demo();fade();if(lk)lock();if(!drag){if(!(n++%32)&&!last.off)hitSize();paint(up&&ft!=null?ft:v.currentTime)}};
   v.addEventListener('seeked',function(){if(pend!=null){var p=pend;pend=null;seek(p)}});
   ['loadedmetadata','durationchange','emptied'].forEach(function(e){v.addEventListener(e,function(){last.fr=-1;if(!drag)paint(v.currentTime)})});
   function seek(t){if(v.seeking){pend=t;return}try{v.currentTime=t}catch(_){}}
   function frAt(e){var r=hit.getBoundingClientRect();return r.width?Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)):0}
   function move(e){var d=D();if(!d)return;var t=frAt(e)*d,av=lk&&lk.avoid;drag.t=t;paint(t);seek(av&&t>=av[0]&&t<av[1]?av[1]:t)}
+  // seek (not read only): the strip's events stop at it, a press captures the pointer and drags the playhead
+  if(!ro){
   STOP.forEach(function(n){hit.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
   hit.addEventListener('pointerdown',function(e){if(e.button>0||!D())return;e.preventDefault();drag={id:e.pointerId,play:!v.paused,t:0};
     try{hit.setPointerCapture(e.pointerId)}catch(_){}if(!v.paused)v.pause();move(e)});
   hit.addEventListener('pointermove',function(e){if(drag&&e.pointerId===drag.id)move(e)});
   function end(e){if(!drag||e.pointerId!==drag.id)return;var p=drag.play;drag=null;try{hit.releasePointerCapture(e.pointerId)}catch(_){}
     if(p){var q=v.play();q&&q.catch(function(){})}}
-  hit.addEventListener('pointerup',end);hit.addEventListener('pointercancel',end);hit.addEventListener('lostpointercapture',end);
+  hit.addEventListener('pointerup',end);hit.addEventListener('pointercancel',end);hit.addEventListener('lostpointercapture',end);}
   // tap to pause: split-screen clock seen through the last tap (base), new entries (clock back to null or jumping back) reset it
   function tapClock(ms){var entry=ms!=null&&(prev==null||ms<prev-200);prev=ms;
     if(entry){base=0;if(up){up=false;root.classList.remove('vs-p');var q=v.play();q&&q.catch(function(){})}}
@@ -151,7 +185,7 @@ function create(o){
     area.addEventListener('pointermove',function(e){if(press&&e.pointerId===press.id&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10)press.moved=true});
     area.addEventListener('pointercancel',function(){press=null});
     area.addEventListener('pointerup',function(e){var p=press;press=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!on())return;toggle()})}
-  if(o.onExpand){var es=o.expandSlot||[0,44],eb=doc.createElement('button'),ep=null;eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label','Expand');
+  if(o.onExpand&&!ro){var es=o.expandSlot||[0,44],eb=doc.createElement('button'),ep=null;eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label','Expand');
     eb.style.left=(ix+es[0])+'px';eb.style.width=es[1]+'px';eb.style.top=(iy-10)+'px';f.appendChild(eb);
     var eOn=function(){var ms=api.since();return ms!=null&&ms>=0&&!last.off};
     STOP.forEach(function(n){eb.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});

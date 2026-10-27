@@ -34,8 +34,15 @@ const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640),dur=S=>(S.length-1
    (+2016, 6560: video 7.12s at t2e, 280ms before the guard) and full screen (+1984, 5632). Transitions unchanged (640/560).
    Marks: t1 2096, t1e 2736, t2 9296, t2e 9856, t3 15488, t3e 16048, t4 18952, t4e 19592, T 20000. sol1's other clips (v2-v4: 8.433, 15.233,
    14.400s) keep running free on their own native loop as before (locking them too made WebKit stall on the seeks and the shared wrap) */
-const B1=6560,B2=2904,t1=2096,t1e=t1+dur(R1),t2=t1e+B1,t2e=t2+dur(R2),t3=t2e+5632,t3e=t3+dur(R3),t4=t3e+B2,t4e=t4+dur(R4),T=t4e+408;
+/* Demo tap (per Hang: the split screen demo shows the video tap, tap to pause / resume): phone 1's video is tap-paused for
+   TAP_P (1200ms) in the first split hold, TAP1 = t1e+3200 (just after the controls have faded, so the tap visibly brings them back) to
+   TAP2 = TAP1+1200, by VideoScrubber's demoTaps (marker + pause). So that the clip still shows 7.12s at t2e (and never reaches the close-up),
+   that hold grows by the pause (6560 -> 7760) and full screen gives it back (5632 -> 4432): t3, T, the park's end frame (8.485s) and
+   the lock (zero, park, avoid) are unchanged; the clip runs free from the resume to t2e (as after any tap) and the park re-locks it.
+   Marks now: t1 2096, t1e 2736, TAP1 5936, TAP2 7136, t2 10496, t2e 11056, t3 15488, t3e 16048, t4 18952, t4e 19592, T 20000 */
+const TAP_P=1200,B1=6560+TAP_P,B2=2904,t1=2096,t1e=t1+dur(R1),t2=t1e+B1,t2e=t2+dur(R2),t3=t2e+5632-TAP_P,t3e=t3+dur(R3),t4=t3e+B2,t4e=t4+dur(R4),T=t4e+408;
 const LOCK={zero:t1e,park:[t2e,t3],avoid:[7.4,8.37]};   // phone 1's video lock (see above), the same in js/fmss-split.js and preview/fmss-sol1
+const TAPS=[[t1e+3200,t1e+3200+TAP_P]];   // phone 1's demo tap: pause at TAP1, resume at TAP2 (loop ms), the same in js/fmss-split.js and preview/fmss-sol1
 /* the loop as poses: a = surface -> split progress, c = split -> full progress, one sample every 8ms inside each transition */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
   seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
@@ -75,10 +82,11 @@ function screen(el,i,opt){
   if(p.url)el.querySelector('.bs').after(window.FMSSIABHeader({url:p.url,cls:'bhd',style:`top:${top}px;will-change:transform`}));
   if(SQ)el.style.clipPath=`path('${PATH.scr}')`;
   const q=s=>el.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},A=(s,fn)=>anims.push(q(s).animate(track(fn),o));
-  // live player controls (js/video-scrubber.js): timestamp + seekable track drawn where bc's were, its icons as a crop (ci); split screen
-  // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 2080–2400ms after it is reached
-  if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`${B}ci${n}.webp${V}`,trackY:top-14,className:'L bc',
-    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null}).el);
+  // live player controls (js/video-scrubber.js): timestamp + track drawn where bc's were, its icons as a crop (ci); split screen
+  // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 2080–2400ms after it is reached.
+  // Read only: the hero demo just plays (no seek, no tap to pause, default cursor); phone 1 shows the scripted video tap (TAPS)
+  if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`${B}ci${n}.webp${V}`,trackY:top-14,className:'L bc',readOnly:true,
+    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null,demoTaps:i===0?TAPS:null}).el);
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
   // B top (backdrop, nav bar) dissolves in over A; the B sheet rises from the bottom edge
