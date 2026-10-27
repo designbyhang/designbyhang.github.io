@@ -81,8 +81,10 @@ function mount(box){var pins=[];
   pins.forEach(function(p){var v=cur[p.k];if(!v)return;var W=(L&&L.w)||cfg.w||1920,m=(ins+48)/sc,over=Math.max(0,Math.min((+v.x||0)+(+v.w||0)-W,(+v.w||0)-m));p.e.style.setProperty('--pin',over.toFixed(2)+'px');
    /* pc 0..1 on the layer: lift its pinned button from the bottom inset to the layer's vertical centre (tabs) */
    if('pc' in v)p.e.style.setProperty('--pinb',(v.pc*(((+v.h||0)-32/sc)/2-ins/sc)).toFixed(2)+'px')})}
- /* fh (cfg or layout): the stage takes the box's own aspect: W design px wide, as tall as the box (no letterbox), so stage edges = box edges */
- function fit(){L=layout();var W=L.w||cfg.w||1920,s=box.clientWidth/W;FH=L.fh!=null?!!L.fh:!!cfg.fh;var H=FH?box.clientHeight/s:(L.h||cfg.h||1080);SH=H;var oy=(box.clientHeight-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
+ /* fh (cfg or layout): the stage takes the box's own aspect: W design px wide, as tall as the box (no letterbox), so stage edges = box edges.
+    The box width and height are its computed (fractional) inner size: clientWidth/clientHeight round to whole px, which pushed the stage up
+    to 1/2px past a fractional box's right edge and left the fh margins (hm) up to 1/2px uneven */
+ function fit(){L=layout();var cs=getComputedStyle(box),pf=function(k){return parseFloat(cs[k])||0},bb=cs.boxSizing==='border-box',bw=pf('width')?pf('width')+(bb?-pf('borderLeftWidth')-pf('borderRightWidth'):pf('paddingLeft')+pf('paddingRight')):box.clientWidth,bh=pf('height')?pf('height')+(bb?-pf('borderTopWidth')-pf('borderBottomWidth'):pf('paddingTop')+pf('paddingBottom')):box.clientHeight,W=L.w||cfg.w||1920,s=bw/W;FH=L.fh!=null?!!L.fh:!!cfg.fh;var H=FH?bh/s:(L.h||cfg.h||1080);SH=H;var oy=(bh-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
   stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put();if(tg)segClip(tg[0].parentNode)}
  /* controls */
  var tog=!step&&cfg.toggle,tg=null,resumeT=0,userPaused=false,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;

@@ -26,18 +26,19 @@ body.cs .media.mframe.sseq .ss-note img.ss-arr{position:absolute;left:-1px;top:-
 .sseq .ss-mk{height:32px;border-radius:6px;color:#000;overflow:hidden}
 .sseq .ss-mk>span{position:absolute;left:0;right:0;top:4px}
 /* 07 conviction cards (vac_24..27): --frame cards on a --sheet container, radius 48, clipped; titles Instrument Sans 64/64 -.04em, body 24/32 two columns */
-.sseq .cv-box{background:var(--frame);border:calc(1px*var(--inv,1)) solid var(--line);box-sizing:border-box;border-radius:48px;overflow:hidden} /* cards = the same 1px outline as the case media containers (1 CSS px at any stage scale via --inv); the container's former ground (--frame), both themes */
-body.cs .media.mframe.sseq.ss-cards{background:var(--sheet);border-color:transparent!important} /* container = the page content sheet (--sheet), both themes: one surface, no visible box */
+.sseq .cv-box{background:var(--frame);border:calc(1px*var(--inv,1)) solid var(--line);border-width:round(down,1px*var(--inv,1),1px);box-sizing:border-box;border-radius:48px;overflow:hidden} /* cards = the same 1px outline as the case media containers (1 CSS px at any stage scale via --inv); the container's former ground (--frame), both themes. The width is floored to whole stage px (what Chrome does anyway; WebKit on 2x screens otherwise keeps half px) so the body column math below can subtract exactly the same border */
+body.cs .media.mframe.sseq.ss-cards{background:var(--sheet);border:0!important;max-width:100%;aspect-ratio:1920/1066} /* 1920 x 1066 stage (the media 3840/2052 = 1026 tall + 40): cards = stage height - hm 160, so 80 above, 80 below and every card 40 taller at the bottom, content top unchanged, + / x ride the bottom edge */ /* container = the page content sheet (--sheet), both themes: one surface, no visible box; no (invisible) 1px border either, so the stage, and the card row on it, spans the container's full width: the same edges as the other case media */
 .sseq .cv-h{font:400 72px/72px var(--sans);letter-spacing:-2.88px;white-space:nowrap}
-.sseq .ss-stage .cv-box .cv-b{position:absolute;left:0;top:264px;display:flex;gap:120px;width:1480px;font:400 30px/40px var(--sans);white-space:normal} /* 80px-margin cards: body 24/32 -> 30/40 */
-.sseq .cv-b>div{flex:none;width:680px}
-.sseq .cv-b br.fl{display:none} /* Figma's hard breaks were set for 640px columns; the open card is 1520 wide here so both neighbours peek */
+.sseq .ss-stage .cv-box .cv-b{position:absolute;left:0;top:264px;display:flex;gap:80px;width:calc(1838px - (var(--ins,32px) + 44px)*var(--inv,1));width:calc(1840px - (var(--ins,32px) + 44px)*var(--inv,1) - 2*round(down,1px*var(--inv,1),1px));font:400 30px/40px var(--sans);white-space:normal} /* cards span the container (stage) edge to edge, 80px padding: body 24/32 -> 30/40. The open card is the full 1920 stage; the body runs from its 80 left padding to 12 CSS px short of the x button. The button is 32 CSS px at --ins inside the card's right border, so the body's right edge sits ins + 32 + 12 CSS px = (ins + 44) x --inv design px inside that border: width = 1920 - 80 - (ins + 44) x inv - 2 x the card border (the same round(down, 1px x inv, 1px) as .cv-box; the first width is the fallback without round()). border | 80 | column | 80 | column | 12 | x | ins | border */
+.sseq .cv-b>div{flex:1 1 0;min-width:0} /* the text boxes share that width equally: equal columns, one gap = the card padding */
+.sseq .cv-b br.fl{display:none} /* Figma's hard breaks were set for 640px columns */
 .sseq .cv-b p+p{margin-top:40px}  /* one blank line */
 .sseq .cv-b em{font-style:italic}
 @media (max-width:640px){
  body.cs .media.mframe.sseq.ss-tall{aspect-ratio:9/16}
+ body.cs .media.mframe.sseq.ss-cards{aspect-ratio:900/1720} /* conviction phone stage 900 x 1720 (was 1600): cards 488 -> 528, peek tabs 200 -> 240 (title re-centred), so each box is 40 taller at the bottom; the open card takes the rest, 1296 -> 1376, so the open states keep 40 margins top and bottom (40 | card | 24 | tabs | 40; layout in the vac.html cfg) */
  body.cs .media.mframe.sseq.ss-sol{aspect-ratio:3/2} /* phones: a taller frame + the stage nudged up (layouts oy) so the marker pills clear the controls */
- .sseq.ss-tall .ss-stage .cv-box .cv-b{top:200px;display:block;width:708px;font-size:31px;line-height:41.33px}
+ .sseq.ss-tall .ss-stage .cv-box .cv-b{top:200px;display:block;width:788px;font-size:31px;line-height:41.33px}
  .sseq.ss-tall .cv-b>div{width:auto}.sseq.ss-tall .cv-b>div+div{margin-top:41.33px}
  .sseq.ss-tall .cv-b p+p{margin-top:41.33px}
  .sseq.ss-tall .cv-b br.fl{display:none}
