@@ -46,7 +46,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit;pointer-events:none}
 .btn:focus,.btn:focus-visible{outline:none}
 video{display:block;object-fit:cover}
-/* layers, bottom → top. The seed (Ray-Ban, its Sponsored + "Explore more like this" row); the pivot: a stack of similar ads (Warby
+/* layers, bottom → top. The seed (Ray-Ban, its Ad pill + "Explore more like this" row); the pivot: a stack of similar ads (Warby
    Parker → Zenni → Even Realities → LensCrafters; inline skips Even), one 734px pitch, that slides in from the right over the seed;
    the comment bar; the top bar (For you nav ↔ the pivot's back chevron, crossfaded) */
 .seed,.stack{width:375px;height:734px;will-change:transform;overflow:hidden}
@@ -57,7 +57,7 @@ video{display:block;object-fit:cover}
 .fv{left:0;top:0;width:375px;height:734px}
 .tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
 .grad{left:0;top:470px;width:375px;height:264px;background:linear-gradient(to top,rgba(0,0,0,.4) 0%,rgba(0,0,0,.36) 20%,rgba(0,0,0,.3) 39.65%,rgba(0,0,0,.2) 60.35%,rgba(0,0,0,.08) 80.13%,rgba(0,0,0,0) 100%)}
-.det{left:12px;top:570px;width:303px;height:116px}
+.det{left:12px;top:565px;width:303px;height:120px}
 /* the caption's "... more" down arrow: the Caption & Browse arrow (preview/shared/caption/chevron-down.svg, 12×8 box, the 8×4 arrow 2px in),
    5px after the ink of "more", centred on the caption's x-height (line top + 9); left per ad = 12 + the "more" ink end + 3.05 */
 .cchev{width:12px;height:8px;pointer-events:none}
@@ -68,13 +68,18 @@ video{display:block;object-fit:cover}
 .pill i,.press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease)}
 .pill i{border-radius:24px}
 .pill i.on,.press.on{opacity:1;transition-duration:.12s}
-.sp{left:0;width:94px}
-.chip{left:98px;width:153px;opacity:0;will-change:transform,opacity}
-.press{border-radius:6px}
+.sp{left:0;width:47.5px}
+/* the Ad label (Reels, 2025+; replaced "Sponsored"): the shared pill, preview/shared/caption/ad-pill.svg, drawn with its own fill; 12px above the reel's
+   bottom edge (top 698), left-aligned with the CTA. The brand row has the shared globe (preview/shared/caption/globe.svg) 7px after the name;
+   stack (bottom-anchored, from Hang's Reels references): author 565 · caption line 610 · CTA 641–685 · Ad 698–722 (see previews/ad-label-spec.md) */
+.pill.sp{background:none}
+.cglobe{width:12px;height:12px;pointer-events:none}
+.chip{left:51.5px;width:153px;opacity:0;will-change:transform,opacity}
+.press{border-radius:12px}
 .zl{left:0;top:0;width:375px;height:734px;opacity:0}
 .lc{background:#101010}
 .lc .fv{top:126px;height:375px;background:#101010 0 0/375px 375px no-repeat}
-.hs{left:12px;top:614px;width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
+.hs{left:12px;top:613px;width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
 .hs>b{position:absolute;left:0;top:0;width:472px;height:72px;display:block;will-change:transform}
 .hs span{position:absolute;top:0;width:72px;height:72px;border-radius:8px;overflow:hidden;background:#fff}
 .hs span img{position:absolute;inset:0;width:100%;height:100%}
@@ -89,8 +94,8 @@ video{display:block;object-fit:cover}
 .chev{left:12px;top:58px;width:24px;height:24px;z-index:5;opacity:0;pointer-events:none;overflow:visible}
 .touch{width:375px;height:812px;z-index:8;touch-action:none;display:none}
 .touch.on{display:block}
-#chipb{left:110px;top:698px;width:153px;height:24px;z-index:9}
-#cta{left:12px;top:650px;width:303px;height:36px;z-index:9}
+#chipb{left:63.5px;top:698px;width:153px;height:24px;z-index:9}
+#cta{left:12px;top:641px;width:303px;height:44px;z-index:9}
 #back{left:2px;top:48px;width:44px;height:44px;z-index:9}
 /* the shared IAB, in its own 375×812 host, over every surface with the FMSS dim under it (Learn more → full screen) */
 .dim{width:375px;height:812px;z-index:19;background:rgba(0,0,0,.4);opacity:0;pointer-events:none}
@@ -131,26 +136,26 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L seed" id="seed" aria-hidden="true">
           <video class="fv" id="sv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-rayban.webp?v=209" src="../../assets/vac/vac-sap-rayban.mp4?v=209"></video>
           <i class="tgrad"></i><i class="grad"></i>
-          <img class="det" alt="" src="assets/det-rayban.webp?v=209"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:296.5px;top:625px">
-          <div class="row"><span class="pill sp"><img alt="" src="assets/sp.webp?v=209"></span><span class="pill chip" id="chip"><img alt="" src="assets/chip.webp?v=209"><i id="chipPress"></i></span></div>
-          <i class="press" id="ctaPress" style="left:12px;top:650px;width:303px;height:36px"></i>
+          <img class="det" alt="" src="assets/det-rayban.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:124.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:296.5px;top:617px">
+          <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span><span class="pill chip" id="chip"><img alt="" src="assets/chip.webp?v=209"><i id="chipPress"></i></span></div>
+          <i class="press" id="ctaPress" style="left:12px;top:641px;width:303px;height:44px"></i>
           <img class="ufi" alt="" src="assets/ufi.webp?v=209">
         </div>
         <div class="L stack" id="stack" aria-hidden="true">
           <div class="L pg" id="pw" style="background-image:url(../../assets/vac/vac-sap-warby.webp?v=209)"><video class="fv" id="wv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-warby.webp?v=209" src="../../assets/vac/vac-sap-warby.mp4?v=209"></video>
-            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-warby.webp?v=209"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:266px;top:625px"><i class="press" style="left:12px;top:650px;width:303px;height:36px"></i>
-            <div class="row"><span class="pill sp"><img alt="" src="assets/sp.webp?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-warby.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:161px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:266px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
           <div class="L pg" id="pz" style="background-image:url(../../assets/vac/vac-sap-zenni.webp?v=209)"><video class="fv" id="zv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-zenni.webp?v=209" src="../../assets/vac/vac-sap-zenni.mp4?v=209"></video>
             <img class="zl" id="zl" alt="" src="../../assets/vac/vac-sap-zenni-last.webp?v=209">
-            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-zenni.webp?v=209"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:268px;top:625px"><i class="press" style="left:12px;top:650px;width:303px;height:36px"></i>
-            <div class="row"><span class="pill sp"><img alt="" src="assets/sp.webp?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-zenni.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:159px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:268px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
           <div class="L pg" id="pe" style="background-image:url(../../assets/vac/vac-sap-even.webp?v=209)"><video class="fv" id="ev" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-even.webp?v=209" src="../../assets/vac/vac-sap-even.mp4?v=209"></video>
-            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-even.webp?v=209"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:254px;top:625px"><i class="press" style="left:12px;top:650px;width:303px;height:36px"></i>
-            <div class="row"><span class="pill sp"><img alt="" src="assets/sp.webp?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-even.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:162.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:254px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
           <div class="L pg lc" id="pl"><video class="fv" id="lv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-lc.webp?v=209" src="../../assets/vac/vac-sap-lc.mp4?v=209" style="background-image:url(../../assets/vac/vac-sap-lc.webp?v=209)"></video>
-            <img alt="" src="assets/det-lc.webp?v=209" style="left:12px;top:534px;width:303px;height:68px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:292.5px;top:589px">
+            <img alt="" src="assets/det-lc.webp?v=209" style="left:12px;top:537px;width:303px;height:65px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:156px;top:549px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:292.5px;top:589px">
             <div class="hs"><b id="hsr"><span style="left:0"><img alt="" src="assets/lc-1.webp?v=209"><i class="press"></i></span><span style="left:80px"><img alt="" src="assets/lc-2.webp?v=209"><i class="press"></i></span><span style="left:160px"><img alt="" src="assets/lc-3.webp?v=209"><i class="press"></i></span><span style="left:240px"><img alt="" src="assets/lc-4.webp?v=209"><i class="press"></i></span><span style="left:320px"><img alt="" src="assets/lc-5.webp?v=209"><i class="press"></i></span><span style="left:400px"><img alt="" src="assets/lc-6.webp?v=209"><i class="press"></i></span></b></div>
-            <div class="row"><span class="pill sp"><img alt="" src="assets/sp.webp?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
         </div>
         <img class="L bar" alt="" src="assets/bar.webp?v=209" aria-hidden="true">
         <i class="L navp" id="navp" aria-hidden="true"></i><i class="L navo" id="navo" aria-hidden="true"></i>
@@ -171,7 +176,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">A Ray-Ban ad in Reels. A few seconds in, "Explore more like this" appears beside Sponsored; tap it to pivot sideways into a stack of similar ads, and swipe up through it (Warby Parker → Zenni → Even Realities → LensCrafters). Back (the chevron, Escape, or an edge swipe from the left) returns to the Ray-Ban reel. Learn more on the Ray-Ban ad opens ray-ban.com in the in-app browser full screen; ×, Escape or a swipe down returns to the reel.</p>
+  <p class="below">A Ray-Ban ad in Reels. A few seconds in, "Explore more like this" appears beside the Ad label; tap it to pivot sideways into a stack of similar ads, and swipe up through it (Warby Parker → Zenni → Even Realities → LensCrafters). Back (the chevron, Escape, or an edge swipe from the left) returns to the Ray-Ban reel. Learn more on the Ray-Ban ad opens ray-ban.com in the in-app browser full screen; ×, Escape or a swipe down returns to the reel.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -195,6 +200,7 @@ new ResizeObserver(fit).observe(frame);fit();
 /* ---------- Figma corner smoothing: the site's squircle (js/squircle.js, 60%); its auto mode also smooths the CTA press overlays (r6)
    and the LensCrafters thumbnails (r8) ---------- */
 const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
+document.querySelectorAll('.seed>.press,.pg>.press').forEach(e=>{if(window.Squircle)e.style.clipPath=`path('${Squircle.path(303,44,12,.6)}')`});   // the CTA press dim: the CTA's own 60% squircle
 if(CLIP&&window.Squircle){phone.style.clipPath=`path('${Squircle.path(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${Squircle.path(391,828,48,.6)}')`}
 
 /* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move ----------
@@ -258,7 +264,7 @@ const iab=FMSSIAB.create({host:$('iab'),label:'In-app browser (IAB): ray-ban.com
   onClosed:()=>{if(cta){cta=null;render()}},
   onX:()=>iab.go(1),
   wheelTo:(ev,d,apply)=>{if(apply(d)&&ev.cancelable)ev.preventDefault()}});
-const R={chip:[110,698,153,24],cta:[12,650,303,36],back:[2,48,44,44],hs:[12,614,303,72]};
+const R={chip:[63.5,698,153,24],cta:[12,641,303,44],back:[2,48,44,44],hs:[12,613,303,72]};
 const inR=(r,x,y)=>x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];
 function openCta(){
   if(INL()||cta||mode!=='seed'||iab.state!==1||iab.busy)return false;
@@ -400,7 +406,7 @@ function touchF(t,on,down,up){   // a scripted touch: opacity (in 248 from on, o
   return {o,s}}
 function fingerAt(t){
   let f=null,x=0,y=0;
-  if((f=touchF(t,E.f1,E.d1,E.u1))){x=186.5;y=710}
+  if((f=touchF(t,E.f1,E.d1,E.u1))){x=140;y=710}
   else if((f=touchF(t,E.f2,E.d2,E.r2))){x=187.5;y=560-DRAG*easeIn(clamp((t-E.d2)/DRAGMS))}
   else if((f=touchF(t,E.f3,E.d3,E.r3))){x=187.5;y=560-DRAG*easeIn(clamp((t-E.d3)/DRAGMS))}
   else if((f=touchF(t,E.f4,E.d4,E.u4))){x=24;y=70}
