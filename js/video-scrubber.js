@@ -19,6 +19,9 @@
      link, full-screen opener or prototype gesture sees them); a press that moves (a drag) or is held is not a tap, and the track's
      own drags never reach it. Outside split screen the area is left alone. The host's loop keeps running: if split screen ends while
      paused, the next entry resumes the video with the controls reset
+   - expand (opt-in, o.onExpand): the fullscreen glyph (the strip's first slot, expandSlot:[x,w], default [0,44]) becomes a 44px
+     button that calls o.onExpand() on a tap while in split screen and the controls show. Like the track, every one of its events
+     stops at it (no tap to pause, card link or prototype gesture sees them); a press that moves or is held is not a tap
    - lock (opt-in, o.lock = {zero, park:[from, to], avoid:[from, to]}): the video's playhead is a function of the host's loop clock
      (sinceSplit from VideoScrubber.loop(), or o.lock.clock / o.lock.T), so the same video moment shows at the same loop moment: loop
      time `zero` (ms) shows video 0:00 and the video runs 1:1 with the loop. Over `park` (loop ms, where the host covers the video) it
@@ -48,7 +51,8 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  // semicircles at any position (a scaleX fill squashes its rounded ends into square, uneven ones)
  '.vs-l{overflow:hidden;isolation:isolate}.vs-l>i{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:16px;background:#fff;transform:translateX(-100%)}'+
  '.vs-b{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.16)}'+
- '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h{pointer-events:none}'+
+ '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h,.vs.vs-off .vs-e{pointer-events:none}'+
+ '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
  '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s svg{display:none;position:absolute;left:50%;top:0;margin-left:-12px;width:24px;height:24px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.24))}'+
  '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s svg{display:block}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
@@ -62,7 +66,8 @@ var list=[],raf=0;
 function tick(){raf=0;for(var i=0;i<list.length;i++)list[i]._tick();if(list.length)raf=requestAnimationFrame(tick)}
 function run(){if(!raf&&list.length)raf=requestAnimationFrame(tick)}
 var STOP=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
-/* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className} */
+/* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
+       tapToPause, tapArea, pauseSlot, onExpand, expandSlot} */
 function create(o){
   var v=o.video,doc=(o.document||document);style(doc);
   var x=o.x==null?12:o.x,w=o.w==null?351:o.w,ty=o.trackY==null?392:o.trackY,tb=o.timeY==null?ty-30:o.timeY;
@@ -146,6 +151,15 @@ function create(o){
     area.addEventListener('pointermove',function(e){if(press&&e.pointerId===press.id&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10)press.moved=true});
     area.addEventListener('pointercancel',function(){press=null});
     area.addEventListener('pointerup',function(e){var p=press;press=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!on())return;toggle()})}
+  if(o.onExpand){var es=o.expandSlot||[0,44],eb=doc.createElement('button'),ep=null;eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label','Expand');
+    eb.style.left=(ix+es[0])+'px';eb.style.width=es[1]+'px';eb.style.top=(iy-10)+'px';f.appendChild(eb);
+    var eOn=function(){var ms=api.since();return ms!=null&&ms>=0&&!last.off};
+    STOP.forEach(function(n){eb.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
+    eb.addEventListener('pointerdown',function(e){if(e.button>0)return;ep={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),moved:false}});
+    eb.addEventListener('pointermove',function(e){if(ep&&e.pointerId===ep.id&&Math.hypot(e.clientX-ep.x,e.clientY-ep.y)>10)ep.moved=true});
+    eb.addEventListener('pointercancel',function(){ep=null});
+    eb.addEventListener('pointerup',function(e){var p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!eOn())return;o.onExpand()});
+    eb.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&eOn()){e.preventDefault();e.stopPropagation();o.onExpand()}})}
   paint(v.currentTime);list.push(api);run();
   return api;
 }

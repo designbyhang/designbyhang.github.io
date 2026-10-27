@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VAC · Feed → Split Screen → Reels — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=179"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=180"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,12 +17,12 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=179"><link rel="stylesheet" href="../../css/theme.css?v=179">
+<link rel="stylesheet" href="../../css/type.css?v=180"><link rel="stylesheet" href="../../css/theme.css?v=180">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet), the live player controls (js/video-scrubber.js, as in FMSS Solution 1) -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=179"><script src="../../js/squircle.js?v=179"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=179"></script>
-<script src="../../js/video-scrubber.js?v=179"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=180"><script src="../../js/squircle.js?v=180"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=180"></script>
+<script src="../../js/video-scrubber.js?v=180"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=179">
+<link rel="stylesheet" href="../shared/device/device.css?v=180">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -63,8 +63,17 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .ctl{z-index:8}
 .splx{left:325px;top:46px;width:44px;height:44px;z-index:9;border-radius:22px;display:none}
 .splx.on{display:block}
-/* the shared IAB, in its own 375×812 host */
+/* the ad's CTAs (Feed: the porsche.com footer under the video, Learn more included; Reels: Learn more): each opens the full IAB.
+   Feed's is a real button; Reels' sits over the pager, so a tap on it is read by the pager (a swipe that starts there still swipes) */
+.cta{z-index:6;display:none}
+.cta.on{display:block}
+.ctar{z-index:34;pointer-events:none}
+/* the shared IAB, in its own 375×812 host; opened from a CTA it is lifted over every surface (Reels included) with the FMSS dim under it */
 .iab{width:375px;height:812px;z-index:20;pointer-events:none}
+.dim{width:375px;height:812px;z-index:19;background:rgba(0,0,0,.4);opacity:0;pointer-events:none}
+.phone.cta-open .dim{z-index:36}
+.phone.cta-open .iab{z-index:37}
+.phone.cta-open .stk{z-index:38}
 .iab .web{height:1002px;background:#fff}
 .iab .web>img{position:absolute;left:0;top:0;width:375px;height:1002px}
 .stk{width:375px;height:44px;z-index:21;opacity:0;pointer-events:none;background:#000;-webkit-mask:url(../fmss-sol1/assets/bo1.webp?v=5) 0 0/375px 406px no-repeat;mask:url(../fmss-sol1/assets/bo1.webp?v=5) 0 0/375px 406px no-repeat}   /* the status glyphs, black, over the full IAB's white band */
@@ -104,23 +113,26 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
-        <img class="L feed" id="feed" alt="" src="../../assets/vac-anim/feed.webp?v=179">
-        <div class="L bu" id="bu"><img alt="" src="../../assets/vac-anim/split-bu.webp?v=179"><i></i></div>
-        <img class="L pp" id="pp" alt="" src="../../assets/vac-anim/porsche.webp?v=179">
-        <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/mist.webp?v=179" src="../../assets/vac-anim/porsche.mp4?v=179"></video></div>
-        <img class="L ufi" id="ufi" alt="" src="../../assets/vac-anim/ufi.webp?v=179">
+        <img class="L feed" id="feed" alt="" src="../../assets/vac-anim/feed.webp?v=180">
+        <div class="L bu" id="bu"><img alt="" src="../../assets/vac-anim/split-bu.webp?v=180"><i></i></div>
+        <img class="L pp" id="pp" alt="" src="../../assets/vac-anim/porsche.webp?v=180">
+        <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/mist.webp?v=180" src="../../assets/vac-anim/porsche.mp4?v=180"></video></div>
+        <img class="L ufi" id="ufi" alt="" src="../../assets/vac-anim/ufi.webp?v=180">
         <img class="L bo bos" id="bos" alt="" src="../fmss-sol1/assets/bo1.webp?v=5">
         <img class="L bo box" id="box" alt="" src="../fmss-sol1/assets/bo1.webp?v=5">
         <i class="L" id="ctlAt"></i>
         <button class="L btn splx" id="splx" type="button" aria-label="Close split screen"></button>
+        <button class="L btn cta" id="ctaFeed" type="button" style="left:0;top:591px;width:375px;height:54px" aria-label="porsche.com, The Porsche Taycan, Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
+        <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
         <i class="L stk" id="stk" aria-hidden="true"></i>
-        <img class="L pg" id="p1" alt="" src="../../assets/vac-anim/on.webp?v=179">
-        <img class="L pg" id="p2" alt="" src="../../assets/vac-anim/away.webp?v=179">
-        <img class="L pg" id="p3" alt="" src="../../assets/vac-anim/perrier.webp?v=179">
+        <img class="L pg" id="p1" alt="" src="../../assets/vac-anim/on.webp?v=180">
+        <img class="L pg" id="p2" alt="" src="../../assets/vac-anim/away.webp?v=180">
+        <img class="L pg" id="p3" alt="" src="../../assets/vac-anim/perrier.webp?v=180">
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
-        <img class="L chrome" id="chrome" alt="" src="../../assets/vac-anim/chrome.webp?v=179">
-        <img class="L bar" id="bar" alt="" src="assets/bar.webp?v=179">
+        <img class="L chrome" id="chrome" alt="" src="../../assets/vac-anim/chrome.webp?v=180">
+        <img class="L bar" id="bar" alt="" src="assets/bar.webp?v=180">
+        <button class="L btn cta ctar" id="ctaReels" type="button" style="left:12px;top:686px;width:303px;height:36px" aria-label="Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <button class="L btn back" id="back" type="button" aria-label="Back to Feed"></button>
         <i class="L home" id="home" aria-hidden="true"></i>
         <div class="L finger" id="finger" aria-hidden="true"></div>
@@ -129,7 +141,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap the video ad in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; tap the video to pause and bring them back, drag the scrubber to seek. Swipe the sheet, or the video, down into Reels, then swipe up through the chain. Back (or × in Split Screen) returns to Feed.</p>
+  <p class="below">Tap the video ad in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; tap the video to pause and bring them back, drag the scrubber to seek. Swipe the sheet, or the video, down into Reels, then swipe up through the chain. Back (or × in Split Screen) returns to Feed. The ad's call to action (the porsche.com footer in Feed, Learn more in Reels) opens porsche.com in the in-app browser full screen; ×, Escape or a swipe down returns to where you were.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -176,8 +188,8 @@ const aS=SP(()=>a,v=>{a=v;render()}),kS=SP(()=>k,v=>{k=v;render()}),bS=SP(()=>b,
 const pageY=j=>PG*clamp(j-k,-1,1);
 const L3=(A,B,e)=>A.map((v,i)=>lerp(v,B[i],e));
 const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
-const els={feed:$('feed'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),bos:$('bos'),box:$('box'),stk:$('stk'),chrome:$('chrome'),bar:$('bar'),home:$('home'),p:[null,$('p1'),$('p2'),$('p3')]};
-let sheetT=0,sd=0,lastR='';
+const els={dim:$('dim'),feed:$('feed'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),bos:$('bos'),box:$('box'),stk:$('stk'),chrome:$('chrome'),bar:$('bar'),home:$('home'),p:[null,$('p1'),$('p2'),$('p3')]};
+let sheetT=0,sheetP=0,sd=0,lastR='';
 const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
 function render(){
   const pop=mode==='pop',rx=pop?375*b:0,fx=pop?-120*(1-b):0;
@@ -199,26 +211,50 @@ function render(){
   for(let j=1;j<=N;j++){const e=els.p[j];op(e,c>=1||pop?(Math.abs(j-k)<1?1:0):0);e.style.transform=tr(rx,pageY(j))}
   op(els.chrome,c);els.chrome.style.transform=tr(rx,0);
   op(els.bar,c);els.bar.style.transform=tr(rx,0);
-  op(els.home,mode==='feed'?0:sheetT*(1-c));
+  op(els.home,cta?sheetP:mode==='feed'?0:sheetT*(1-c));
+  op(els.dim,cta?sheetP:0);
+  CTA.feed.el.classList.toggle('on',mode==='feed'&&!cta);
+  CTA.reels.el.classList.toggle('on',mode==='reels'&&!cta&&Math.round(k)===0);
   op(els.stk,sd);
   vidSync();
 }
 
 /* ---------- the live player controls: the shared FMSS VideoScrubber (timestamp + 16px pill track, drag to seek, tap to pause) ---------- */
 const VS=window.VideoScrubber;let vs=null,ctl=null;
-if(VS){vs=VS.create({video:vid,icons:'../fmss-sol1/assets/ci1.webp?v=5',trackY:SH-14,className:'L ctl',tapToPause:true,tapArea:mv});ctl=vs.el;$('ctlAt').replaceWith(ctl)}
+if(VS){vs=VS.create({video:vid,icons:'../fmss-sol1/assets/ci1.webp?v=5',trackY:SH-14,className:'L ctl',tapToPause:true,tapArea:mv,onExpand:()=>toReels()});ctl=vs.el;$('ctlAt').replaceWith(ctl)}
 else $('ctlAt').remove();
 
-/* ---------- the IAB: the shared FMSS sheet (half sheet under the video, full screen on tap or swipe up) ---------- */
+/* ---------- the IAB: the shared FMSS sheet. Two ways in, one sheet (porsche.com, the Taycan page):
+   · Split Screen: the half sheet under the video, full screen on tap or swipe up, × back to half, swiped down into Reels
+   · a CTA (cta = the surface it was tapped on, 'feed' | 'reels'): closed ↔ full only, as FMSS H-Scroll's Learn more
+     (openCta(): go(3) ω16, the full header held, the surface dimmed under it); ×, Escape or a swipe down closes it back onto
+     that surface, untouched (mode, reel, video all as they were) ---------- */
+let cta=null;
 const iab=FMSSIAB.create({host:$('iab'),y2:SH,label:'In-app browser (IAB): porsche.com',url:'porsche.com',
   headers:{full:'assets/iab-header-full.svg?v=163'},fullTop:2,handle:true,shift:'p',
-  web:'<div class="web"><img alt="" src="assets/page.webp?v=179"></div>',webH:1002,
-  onRender:o=>{sheetT=o.t;sd=o.sd;if(mode==='split'||mode==='toReels')c=1-o.t;render()},
-  onState:s=>{$('splx').classList.toggle('on',s===2&&mode==='split')},
-  onClose:()=>{if(mode!=='split')return;mode='toReels';vs&&vs.leaveSplit();$('splx').classList.remove('on');say('Reels')},
-  onClosed:()=>{if(mode==='toReels'){mode='reels';c=1;setReels(true);render()}},
-  onX:()=>iab.go(2),
+  web:'<div class="web"><img alt="porsche.com: Taycan 4 Cross Turismo, Build &amp; Price" src="assets/page.webp?v=180"></div>',webH:1002,
+  fullness:y=>cta?clamp((iab.Y1-y)/(iab.Y1-iab.Y3)):clamp((iab.Y2-y)/(iab.Y2-iab.Y3)),
+  halfOK:()=>!cta,hold:(f,t)=>cta?true:(f===1&&t===3)||(f===3&&t===1),holdOnDrag:()=>!!cta,
+  onRender:o=>{sheetT=o.t;sheetP=o.p;sd=o.sd;if(mode==='split'||mode==='toReels')c=1-o.t;render()},
+  onState:s=>{$('splx').classList.toggle('on',s===2&&mode==='split');if(cta)say(s===1?(cta==='reels'?'Reels':'Feed'):'porsche.com open full screen')},
+  onClose:()=>{if(cta||mode!=='split')return;mode='toReels';vs&&vs.leaveSplit();$('splx').classList.remove('on');say('Reels')},
+  onClosed:()=>{if(cta){const f=cta;cta=null;phone.classList.remove('cta-open');render();if(f==='feed'&&mode==='feed')homeTell(true);return}
+    if(mode==='toReels'){mode='reels';c=1;setReels(true);render()}},
+  onX:()=>cta?iab.go(1):iab.go(2),
   wheelTo:(e,d,apply)=>{if(apply(d)&&e.cancelable)e.preventDefault()}});
+
+/* ---------- the CTAs → the full IAB: one path for every surface (each says where it sits and when it is live) ---------- */
+const CTA={
+  feed:{el:$('ctaFeed'),r:[0,591,375,54],on:()=>mode==='feed'&&!aS.busy&&!bS.busy},
+  reels:{el:$('ctaReels'),r:[12,686,303,36],on:()=>mode==='reels'&&!pd&&!kS.busy&&Math.abs(k)<.01}};
+const ctaAt=(from,x,y)=>{const r=CTA[from].r;return x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3]};
+function openCta(from){
+  if(cta||!CTA[from].on()||iab.state!==1||iab.busy)return false;
+  cta=from;phone.classList.add('cta-open');homeTell(false);
+  iab.go(3,{w:16,why:'learn-more'});return true;
+}
+CTA.feed.el.addEventListener('click',()=>openCta('feed'));
+CTA.reels.el.addEventListener('click',()=>openCta('reels'));   // keyboard; a pointer tap comes through the pager (pagerUp)
 
 /* ---------- Feed → Split Screen ---------- */
 function openSplit(){
@@ -235,6 +271,9 @@ function closeSplit(){   // × (or Escape): back to Feed
   aS.to(0,{w:16,onDone:()=>{if(mode!=='toFeed')return;mode='feed';render();homeTell(true);say('Feed')}});
 }
 $('splx').addEventListener('click',e=>{e.stopPropagation();closeSplit()});
+/* Split Screen → Reels: the sheet closes and its close carries the screen into Reels (onClose / onClosed): the same iab.go(1) a swipe
+   down on the sheet or the video ends in (the IAB's snap, ω16). The controls' expand button asks for it here */
+function toReels(){if(mode!=='split'||iab.state!==2||iab.busy||cta)return;iab.go(1)}
 
 /* the video: a tap in Feed opens Split Screen; in Split Screen a tap pauses (VideoScrubber) and a swipe down drags the sheet with it */
 let mp=null;
@@ -256,12 +295,14 @@ mv.tabIndex=0;
 function setReels(on){pager.classList.toggle('on',on);$('back').classList.toggle('on',on)}
 let pd=null;
 pager.addEventListener('pointerdown',e=>{if(e.button>0||mode!=='reels')return;kS.stop();
-  pd={id:e.pointerId,y:e.clientY,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
+  pd={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
   try{pager.setPointerCapture(e.pointerId)}catch(_){}pager.classList.add('drag')});
 pager.addEventListener('pointermove',e=>{if(!pd||e.pointerId!==pd.id)return;
+  if(Math.hypot(e.clientX-pd.x,e.clientY-pd.y)>10)pd.moved=true;
   let n=pd.k0-(e.clientY-pd.y)/pd.sc/PG;if(n<0)n*=.35;else if(n>N)n=N+(n-N)*.35;k=n;render();
   const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
 function pagerUp(e){if(!pd||e.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');
+  if(e.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(e);if(ctaAt('reels',px,py-pageY(0))&&openCta('reels'))return}   // a tap on Learn more
   const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, to the next reel)
   let t=Math.round(k+v*.18);const from=Math.round(d.k0);
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);   // a flick (320px/s) always moves one reel its way
@@ -279,10 +320,10 @@ function back(){
   bS.to(1,{w:16,onDone:()=>{toFeed();homeTell(true);say('Feed')}});
 }
 $('back').addEventListener('click',back);
-function toFeed(){aS.stop();kS.stop();bS.stop();mode='feed';a=c=k=b=0;iab.reset();vs&&vs.leaveSplit();setReels(false);$('splx').classList.remove('on');
+function toFeed(){aS.stop();kS.stop();bS.stop();mode='feed';a=c=k=b=0;cta=null;phone.classList.remove('cta-open');iab.reset();vs&&vs.leaveSplit();setReels(false);$('splx').classList.remove('on');
   sheetT=0;sd=0;vid.currentTime=0;render()}
 document.addEventListener('keydown',e=>{if(INL())return;
-  if(e.key==='Escape'){userActed();if(iab.state===3)iab.go(2);else if(mode==='split')closeSplit();else if(mode==='reels')back()}
+  if(e.key==='Escape'){userActed();if(cta){if(iab.state!==1)iab.go(1)}else if(iab.state===3)iab.go(2);else if(mode==='split')closeSplit();else if(mode==='reels')back()}
   else if(mode==='reels'&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();step(clamp(Math.round(k)+(e.key==='ArrowDown'?1:-1),0,N))}});
 
 /* ---------- the video: plays while it is on screen (paused only by the user's tap in Split Screen, or the scrubber's drag) ---------- */
@@ -379,7 +420,7 @@ addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true
 phone.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
 
 window.__vac={get mode(){return mode},get a(){return a},get c(){return c},get k(){return k},get b(){return b},iab,vs,vid,
-  openSplit,closeSplit,back,step,reset,get auto(){return autoOn},get stepI(){return stepI}};
+  get cta(){return cta},openCta,openSplit,closeSplit,back,step,reset,get auto(){return autoOn},get stepI(){return stepI}};
 render();homeTell(true);
 })();
 </script>
