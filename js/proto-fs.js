@@ -59,7 +59,10 @@ const full=(f,on)=>{const d=doc(f);if(d&&d.classList.contains('embed'))d.classLi
 /* full screen pads the prototype's own frame inside a full-viewport iframe (style injected into the same-origin prototype
    document while lifted): the device box gets the 64px margins and the 375x812 cap, and the transparent
    iframe around it leaves room for the device's drop-shadow, so it never ends on the iframe edge */
-const PAD_CSS='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}';
+/* while lifted, the prototype's html/body/.mframe switch to transparent (html.embed-full) at once: their own 400ms background-color
+   transition would leave the whole full-viewport iframe painted --frame for its first ~400ms, a grey box (laid out at the viewport,
+   scaled about the device) that drops out below the expanding panel; on close the inline colour is set back before this lifts */
+const PAD_CSS='html.fsx-pad .wrap{padding:var(--fsx-t,0px) 0 0!important}html.fsx-pad .mframe{height:var(--fsx-h,100vh)!important;overflow:visible!important;contain:none!important}html.fsx-pad,html.fsx-pad body,html.fsx-pad .mframe{transition:none!important}';
 const pad=(f,on,t,h)=>{const d=doc(f);if(!d)return;const D=d.ownerDocument;
  if(on&&!D.getElementById('fsx-pad-css')){const st=D.createElement('style');st.id='fsx-pad-css';st.textContent=PAD_CSS;(D.head||d).appendChild(st);}
  if(on&&t!=null){d.style.setProperty('--fsx-t',t+'px');d.style.setProperty('--fsx-h',h+'px');}
@@ -107,7 +110,7 @@ function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;snap=false;if(window.dbhView)dbhView.set(null);
  state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
-  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.removeAttribute('data-keep');f.style.transform='';f.style.width='';full(f,false);pad(f,false);
+  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.removeAttribute('data-keep');f.style.transform='';f.style.width='';full(f,false);{const d=doc(f);if(d)void d.offsetWidth;}pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
   state='closed';de.classList.remove('deck-open');cur=null;G=null;P=0;if(window.__dbhResample)__dbhResample();
   if(hadFocus&&b)b.focus({preventScroll:true,focusVisible:false});},aside);}
