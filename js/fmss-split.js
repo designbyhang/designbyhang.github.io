@@ -5,8 +5,10 @@
    Motion, holds and layer recipe are sol1's, unchanged (see the notes inline); only the container (bezel, label, frame) is the caller's. */
 (function(){"use strict";if(window.FMSSSplit)return;
 /* phones (sol1 PH/MED/CS/CU): split line (B sheet top), feed (A) media height ah, split screen (B) media y/height,
-   C status bar + IAB header colour (one continuous surface), bottom colour of each C screen (c1-c4 last row) */
-const PHONES=[{label:'Offsite Conversions',top:406,ah:375,by:44,bh:350,cs:'#fff',cu:'#fff'},
+   C status bar + IAB header colour (one continuous surface), bottom colour of each C screen (c1-c4 last row); url: the B sheet is an IAB
+   for that domain: its header is the shared one (preview/shared/iab/header.js, loaded before this file) drawn on the sheet image's blank
+   header strip, riding with the sheet on the same track as .bs */
+const PHONES=[{label:'Offsite Conversions',top:406,ah:375,by:44,bh:350,cs:'#fff',cu:'#fff',url:'nike.com'},
   {label:'Lead Generation',top:406,ah:375,by:44,bh:350,cs:'#f1f2f6',cu:'#fff'},
   {label:'Business Messages',top:406,ah:375,by:44,bh:350,cs:'#fff',cu:'#ccd1d8'},
   {label:'App Installs',top:406,ah:240,by:107,bh:225,cs:'#f1f2f6',cu:'#fff'}];
@@ -62,7 +64,7 @@ PATH.coverRim=`path(evenodd,'${mvP(squircle(383,820,52,0),4,4)}${mvP(squircle(37
    leave the <video> without src (caller attaches it lazily via the returned video's data-src). Layer CSS: see .fsp-* in css/card.css
    (sol1 keeps the same rules inline under its own class names). */
 function screen(el,i,opt){
-  const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=4',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
+  const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=5',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
   // bw: a white strip under everything at the split line (shows only while A is hidden, through the anti-aliased bottom row of the B
   // backdrop, whose edge meets the sheet's in the same device row; over the screen's black that row read as a dark hairline)
   el.innerHTML=`<i class="bw" style="position:absolute;left:0;width:375px;top:${top-2}px;height:${sd+4}px;background:#fff"></i>`+
@@ -76,6 +78,8 @@ function screen(el,i,opt){
     `<i class="L cs" style="background:${p.cs}"></i>`+
     `<img class="L cb" alt="" src="${B}c${n}.webp${V}" style="clip-path:inset(43px 0 0 0)">`+
     `<img class="L ct" alt="" src="${B}c${n}.webp${V}" style="clip-path:inset(0 0 768px 0)">`;
+  // IAB sheet: the sheet image's header strip is blank (the sheet's white, its rounded corners); the shared header draws on it
+  if(p.url)el.querySelector('.bs').after(window.FMSSIABHeader({url:p.url,cls:'bhd',style:`top:${top}px;will-change:transform`}));
   if(SQ)el.style.clipPath=`path('${PATH.scr}')`;
   const q=s=>el.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},A=(s,fn)=>anims.push(q(s).animate(track(fn),o));
   // live player controls (js/video-scrubber.js): timestamp + seekable track drawn where bc's were, its icons as a crop (ci); split screen
@@ -98,6 +102,7 @@ function screen(el,i,opt){
   // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
   A('.bs',p=>({transform:`translateY(${(dn*(1-p.a)-up*p.c+sd*p.a*(1-p.c)).toFixed(2)}px)`}));
+  if(p.url)A('.bhd',e=>({transform:`translateY(${(dn*(1-e.a)-up*e.c+sd*e.a*(1-e.c)).toFixed(2)}px)`}));   // its header rides with it
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   A('.cs',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.99?1:0}));
   A('.cu',p=>({transform:`translateY(${(up*(1-p.c)).toFixed(2)}px)`,opacity:p.c>=.6?1:0}));

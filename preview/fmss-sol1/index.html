@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=136">
+<link rel="stylesheet" href="../shared/device/device.css?v=137">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
@@ -66,13 +66,13 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/video-scrubber.js?v=3"></script>
+<script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=3"></script>
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
 /* media rects from the Figma frames: feed (A) full bleed x0 y216 375 wide; split screen (B) x12, 351 wide, radius 16 */
 const MED=[{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:240,by:107,bh:225}];
-const V='?v=4';
+const V='?v=5';
 /* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
    a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
    ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
@@ -131,6 +131,7 @@ function squircle(w,h,R,sm){
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
 const mv=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   // outer bezel minus the screen shape inset 1.5px
+const HD=['nike.com',null,null,null];   // phones whose B sheet is an IAB: its header is the shared one (../shared/iab/header.js) for this domain
 const CS=['#fff','#f1f2f6','#fff','#f1f2f6'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (c1-c4 last row)
 const anims=[],imgs=[],vids=[];
@@ -152,6 +153,8 @@ PH.forEach((p,i)=>{
     `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
+  // IAB sheets: the sheet image's header strip is blank (the sheet's white, its rounded corners); the shared header draws on it
+  if(HD[i])dev.querySelector('.bs').after(FMSSIABHeader({url:HD[i],cls:'bhd',style:`top:${top}px;will-change:transform`}));
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
   // live player controls (../../js/video-scrubber.js): timestamp + seekable track where bc's were (design px, not a drawn-size .L layer:
   // it is small), its icons as a crop (ci); they fade out 2080–2400ms after split screen is reached (t1e, t3e)
@@ -173,6 +176,7 @@ PH.forEach((p,i)=>{
   // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
   A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));
+  if(HD[i])A('.bhd',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // its header rides with it
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
   A('.cu',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve

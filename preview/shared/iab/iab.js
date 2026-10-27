@@ -5,10 +5,11 @@
    sheet → full. Full screen: a press below the header scrolls the page (rubber-band ×0.35, spring-back ω16, fling τ 325ms) and a
    pull past the page top hands over to the sheet. Every open from closed plays the page load (1140ms bar, page fades in after 1/3).
 
-   const iab=FMSSIAB.create({host, y2, label, headers:{half,full}, fullTop, handle, web:'<img …>', webH, visH, …hooks});
+   const iab=FMSSIAB.create({host, y2, label, url, headers:{full}, fullTop, handle, web:'<img …>', webH, visH, …hooks});
    Per-prototype config (all optional unless noted):
      host*        375×812 layer the IAB is built into          label     dialog name, e.g. 'In-app browser (IAB): nike.com'
-     headers*     {half, full} header vectors (site specific)    web*      the page's markup (first element scrolls / fades)
+     url*         the site's domain: the half sheet's header is the shared one (header.js, loaded first), with url/<url>.svg
+     headers*     {full} the full screen header vector (site specific)   web*      the page's markup (first element scrolls / fades)
      webH*        page height (number or function)               visH      visible page height in full (smax = webH - visH)
      y2           half-sheet top (406)                           fullTop   full header's top inside the sheet (0); content top = fullTop + 46
      handle       a 20px drag strip at the sheet's top           halfZ     damping into half (.82)
@@ -62,6 +63,8 @@ function makeSpring(get,set){
       raf=requestAnimationFrame(step);
     }};
 }
+/* the sheet header (half sheet): the shared FMSS IAB sheet header, header.js (load it before this file) */
+const header=o=>window.FMSSIABHeader(o);
 function create(cfg){
   const host=cfg.host,Y1=812,Y2=cfg.y2||406,Y3=44,FT=cfg.fullTop||0,CT=FT+46;
   const SP=Object.assign({w:18,z:1,wClose:16},cfg.spring||{});
@@ -79,7 +82,7 @@ function create(cfg){
   const sheet=el('div','iab-sheet',{id:'sheet',role:'dialog','aria-modal':'false','aria-label':cfg.label||'In-app browser (IAB)','aria-hidden':'true'});
   const cap=el('i','iab-cap',{'aria-hidden':'true'});
   const panel=el('div','iab-panel');
-  const hHalf=el('img','iab-h iab-hh',{id:'hHalf',src:cfg.headers.half,alt:''});
+  const hHalf=header({url:cfg.url,cls:'iab-h iab-hh',id:'hHalf'});
   const hFull=el('img','iab-h iab-hf',{id:'hFull',src:cfg.headers.full,alt:''});hFull.style.top=FT+'px';
   const handle=cfg.handle?el('div','iab-handle',{id:'handle','aria-hidden':'true'}):null;
   const loadEl=el('div','iab-load',{id:'load','aria-hidden':'true'}),loadFill=el('i','',{id:'loadFill'});loadEl.appendChild(loadFill);
@@ -283,5 +286,5 @@ function create(cfg){
     holdHeader(v){hLock=!!v}};
   return api;
 }
-window.FMSSIAB={create,makeSpring,playLoad,LOAD_MS,LOAD_THIRD,LOAD_OUT,LOAD_KF};
+window.FMSSIAB={create,header:window.FMSSIABHeader,makeSpring,playLoad,LOAD_MS,LOAD_THIRD,LOAD_OUT,LOAD_KF};
 })();

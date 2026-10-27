@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=136">
+<link rel="stylesheet" href="../shared/device/device.css?v=137">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
@@ -79,7 +79,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/video-scrubber.js?v=2"></script>
+<script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=2"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -90,7 +90,7 @@ const MED=[
   {a:[0,44,375,667], ar:[16,16,16,16],asm:.6,b:[12,44,351,624],cs:0},  // Stories: canvas -> inset canvas
   {a:[12,644,74,74], ar:[8,0,0,8],asm:0,  b:[12,44,351,350],cs:406}];  // In-Content: banner thumbnail -> inset
 const BR=16,BSM=.6;
-const V='?v=5';
+const V='?v=6';
 /* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
    a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
    ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
@@ -148,6 +148,7 @@ const rimP=`path(evenodd,'${bzP}${mv(squircle(372,809,38.5,.6),9.5,9.5)}')`;   /
 const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))"><g fill="#fff"><circle cx="4" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="20" cy="12" r="2.5"/></g></svg>';
 const CROSS='<svg viewBox="0 0 24 24" style="left:44px"><path d="M6 6L18 18M18 6L6 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>';
 const CHECK='<svg viewBox="0 0 12 12"><mask id="ck"><rect width="12" height="12" fill="#fff"/><path d="M3.4 6.1L5.1 7.8L8.6 4.2" stroke="#000" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></mask><circle cx="6" cy="6" r="6" fill="#fff" mask="url(#ck)"/></svg>';
+const HD=[null,null,'away.com','away.com'];   // phones whose B sheet is an IAB: its header is the shared one (../shared/iab/header.js) for this domain
 const CS=['#f1f2f6','#f1f2f6','#fff','#fff'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#f7f7f7','#f7f7f7','#fff','#fff'];   // bottom colour of each C screen (c1-c4 last row)
 const anims=[],imgs=[],vids=[];let reel=null,thumb=null,clock=null,scrub4=null;
@@ -169,6 +170,8 @@ PH.forEach((p,i)=>{
     `</div><div class="rim"></div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`;const r=dev.querySelector('.rim');r.style.border='0';r.style.borderRadius='0';r.style.background='var(--bezel)';r.style.clipPath=rimP}
+  // IAB sheets: the sheet image's header strip is blank (the sheet's white, its rounded corners); the shared header draws on it
+  if(HD[i])dev.querySelector('.bs').after(FMSSIABHeader({url:HD[i],cls:'bhd',style:`top:${top}px;will-change:transform`}));
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('.mv video'));if(n===4){reel=q('.rl video');thumb=q('.mv video');clock=null}
   // live player controls (../../js/video-scrubber.js): timestamp + seekable track where bc's were, icons as a crop (ci); they fade out
   // 2080–2400ms after split screen is reached (t1e, t3e)
@@ -196,6 +199,7 @@ PH.forEach((p,i)=>{
   // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
   A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));
+  if(HD[i])A('.bhd',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // its header rides with it
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
   A('.cu',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
