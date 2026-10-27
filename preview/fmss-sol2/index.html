@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=196">
+<link rel="stylesheet" href="../shared/device/device.css?v=197">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
@@ -31,6 +31,10 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
+/* split-line seam underlay: the B sheet image's own top rows, full width, under every layer at the split line. The backdrop's last row and
+   the sheet's first meet in one anti-aliased device row; this fills it with the colours both sides carry (the backdrop's in the sheet's
+   rounded corners, the sheet's white between), never the bezel's black (dark hairline) or a white underlay (light one) */
+.sw{position:absolute;left:0;width:375px;background-position:0 0;background-size:100% auto;background-repeat:no-repeat}
 .L{will-change:transform,opacity}
 /* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
    375×812 design size × the pixel ratio, ~11MB, some 40 per animation, which pushed iOS Safari past its memory limit), so every animated
@@ -45,6 +49,7 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
  /* the white under every layer stops 8px short of the screen's side edges: the layers' anti-aliased side columns meet the bezel there, not white (no light hairline down the sides) */
  .scr{background:none}.scr>.bg{position:absolute;left:8px;top:0;background:#fff;width:calc(359px * var(--s,.5));height:calc(812px * var(--s,.5))}
  .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ .scr .sw{width:calc(375px * var(--s,.5))}
  .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
  .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}
  .scr .rl{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}}
@@ -77,7 +82,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=196"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=4"></script>
+<script src="../../js/squircle.js?v=197"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=4"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -159,7 +164,7 @@ PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i],n=i+1;
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
   const im=(c,f,st)=>`<img class="L ${c}" alt="" src="${AS}${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${dp(top)}`;
-  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+
+  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+`<i class="L sw" style="top:${top-2}px;height:${dp(4)};background-image:url(${AS}bl${n}.webp${V})"></i>`+
     im('au',`au${n}`)+(n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}r4.webp${V}" src="${AS}r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+im('bu',`bu${n}`,cut)+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${n}.webp${V}" src="${AS}v${n}.mp4${V}"></video></div>`+
     (n===3?im('sg','sg3'):'')+(n!==1?im('ao',`ao${n}`):'')+(m.cs?(VS?'<i class="vs-at"></i>':im('bc',`bc${n}`,cut)):'')+im('bo',`bo${n}`,cut)+

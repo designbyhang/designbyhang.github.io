@@ -74,7 +74,7 @@ DC.register('vac',{T,rest:REST,
       return [x,y,w,h]};
     // Feed: under everything; hidden while Split/Reels cover it, back for Back (the pop slides it in from the left)
     An('.vc-feed',p=>({opacity:p.a<1||p.pop?1:0,transform:tr(fx(p),0)}));
-    // white strip under the split line (FMSS .bw): the backdrop's last row meets the sheet's on white, not on the screen's black
+    // seam underlay under the split line (FMSS .bw): the backdrop's last row meets the sheet's on the sheet's own top rows, not on the screen's black
     An('.vc-bw',p=>({opacity:p.c>0||p.pop?0:1}));
     // Split backdrop (blurred video) dissolves in over Feed (FMSS .bt); gone once Reels covers it
     An('.vc-bu',p=>({opacity:p.c<1&&!p.pop?p.a:0}));

@@ -31,6 +31,11 @@ const blob={c:null,pc:null,w:BASE,wv:0,v:0,dir:1,raf:0,last:0,
 let W,H,cw,ch,c0,centers,max,s0,t=0,x=0,raf=0,on=false,mvT=0;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
 function measure(){on=!mqM.matches;if(!on){strip.style.transform='';strip.style.removeProperty('--ox');strip.style.removeProperty('--oy');ovSet(0,1,true);return;}
+  /* the rail is out of layout (html.hegg-flow: the © egg / a full-screen layer makes itself the document and collapses the page to height 0; a resize or the
+     fonts.ready measure can land while it is open): keep the last real geometry instead of measuring a 0-height rail (s0 = 1, the poster overlay's og
+     at the collapsed strip), and let the rail's ResizeObserver below re-measure once it is back. Before that, closing the egg after a resize left the
+     strip at scale 1 and the overlay grid parked under the top bar (Hang, 2026-10-27) */
+  if(og&&!rail.clientHeight)return;
   W=rail.clientWidth;H=rail.clientHeight;strip.style.transform='none';
   /* whole-pixel layout origin (css/home.css --ox/--oy): engines snap a transformed box's offset before applying the transform (Chrome to css px, WebKit to
      device px), so a fractional origin (top:50% - ch/2) moved the painted card off getBoundingClientRect by up to .5px x scale. A step of n css px that is
@@ -108,7 +113,7 @@ let navA=null,navT=0;function navAct(ab){if(ab===navA)return;navA=ab;document.qu
 const mTrack=()=>{if(on||!thumb||!dots.length)return;const vc=innerHeight/2;let a=0,bd=1e9;cards.forEach((k,i)=>{const r=k.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vc);if(d<bd){bd=d;a=i;}});
   const b=dots[a];blob.to(b.offsetLeft+b.offsetWidth/2);dotsEl.dataset.settled='';if(a!==act){act=a;dots.forEach((x,i)=>x.setAttribute('aria-current',i===a?'true':'false'));}const ab=cards[cards.length-1].getBoundingClientRect(),vis=Math.max(0,Math.min(ab.bottom,innerHeight)-Math.max(ab.top,0))/Math.min(ab.height,innerHeight);navAct(vis>.5);};
 addEventListener('scroll',mTrack,{passive:true});addEventListener('resize',mTrack);setTimeout(mTrack,300);
-strip.addEventListener('animationend',e=>{if(e.target===strip)strip.classList.add('in');}); /* css/home.css .strip.in */addEventListener('gate:unlocked',measure); /* the strip was measured at height 0 under the gate (s0 = 1): re-measure on unlock so the first card lands enlarged */addEventListener('resize',measure);mqR.addEventListener('change',measure);mqM.addEventListener('change',measure);
+strip.addEventListener('animationend',e=>{if(e.target===strip)strip.classList.add('in');}); /* css/home.css .strip.in */addEventListener('gate:unlocked',measure); /* the strip was measured at height 0 under the gate (s0 = 1): re-measure on unlock so the first card lands enlarged */addEventListener('resize',measure);mqR.addEventListener('change',measure);if(window.ResizeObserver){let rw=-1,rh=-1;new ResizeObserver(()=>{const w=rail.clientWidth,h=rail.clientHeight;if(w===rw&&h===rh)return;const was=rh;rw=w;rh=h;if(was!==0||!h)return;measure();}).observe(rail);} /* the rail back from 0 height (egg closed, gate gone): re-measure at its real size */mqM.addEventListener('change',measure);
 // return from a case study: put the card where it was (same layout) or centred (other layout / next-project), no intro replay
 const R=window.__dbhRet,ri=R?cards.findIndex(k=>{const a=k.querySelector('a.hit');return a&&a.getAttribute('href')==='projects/'+R.slug+'.html';}):-1;
 function restore(){if(ri<0)return;if(on){t=x=clamp(R.m==='h'&&typeof R.t==='number'?R.t:centers[ri]-c0,0,max);tw=null;render();return;}
