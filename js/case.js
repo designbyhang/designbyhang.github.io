@@ -251,7 +251,7 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tb.getBoundingClientRect():null;
   var lb=el.getBoundingClientRect(),vv=window.visualViewport,yb=Math.max(innerHeight,lb.bottom,vv?vv.offsetTop+vv.height:0);if(tr&&(!tr.width||tr.top<0||tr.bottom>yb+1))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
   var T=p.firstChild?p.firstChild.offsetHeight:0,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*W/531))),t=Math.round((r.height-h-g-T)/2);
-  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*W/531)));t=ct-g-r.top-h}}
+  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2-(innerHeight-de.clientHeight)),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*W/531)));t=ct-g-r.top-h}}
   pad(true,t,h);geo={t:t,h:h};p.style.top=(r.top-lb.top+t+h)+'px';p.style.paddingTop=g+'px'};
  /* the lifted iframe's layout box (position:fixed, so offsets are viewport px), not its rect: it is transformed while it grows */
  var fbox=function(){return {left:f.offsetLeft,top:f.offsetTop,width:f.offsetWidth,height:f.offsetHeight}},geo=null;

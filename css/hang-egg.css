@@ -56,8 +56,8 @@ html.hegg-flow .hegg-edge{display:block}
 html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
 /* the CLOSE row spans the top edge: let hits (and WebKit's edge sampler) through to the strip, except on CLOSE itself */
 .hegg .bar.hegg-bar{pointer-events:none}.hegg .hegg-bar .bar-right{pointer-events:auto}
-/* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (absolute, safe area) */
-.hegg .bar.hegg-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+/* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (safe area); fixed, not absolute: in html.hegg-flow the layer is in the document flow and iOS Safari scrolls it under its bars, the viewport-fixed row (as the theme toggle) stays in view */
+.hegg .bar.hegg-bar{position:fixed;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (max-width:900px){.hegg .bar.hegg-bar{padding:0 clamp(20px,5vw,72px)}}
 @media (max-width:640px){.hegg .bar.hegg-bar{height:50px}}
 /* link = case.css .bar-right a (14px Bitcount mono, .04em, word-spacing -.32em, --mono-color as the Studio bar, --ink on hover) + hover/focus underline on .t */
@@ -71,6 +71,6 @@ html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
    message (js/case.js, .hegg.proto-full) uses it as is; studio.html keeps its breakpoint and layout rules after it */
 .deck-n{position:absolute;z-index:2;right:calc(clamp(16px,3vw,32px) + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);margin:0;font-family:var(--mono);font-size:var(--mono-size);letter-spacing:var(--mono-ls);word-spacing:-.32em;line-height:1;color:var(--mono-color);pointer-events:none;font-variant-numeric:tabular-nums}
 /* FMSS phone full screen, turned to landscape (js/case.js): the device is hidden and the message sits mid-screen */
-.hegg.proto-full .deck-n{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;line-height:1.6}
+.hegg.proto-full .deck-n{position:fixed;right:auto;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;line-height:1.6}
 .hegg.proto-full .deck-n{--mono-color:#333;--ink:#171717}
 html[data-theme=dark] .hegg.proto-full .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}

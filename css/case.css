@@ -325,7 +325,7 @@ body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
 .proto-open{display:none}
 @media (max-width:640px){.proto-open{display:block;position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 }
-.media.proto iframe.proto-lift{position:fixed;z-index:51;left:0;right:0;top:calc(48px + env(safe-area-inset-top,0px));width:100%;height:calc(100% - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));visibility:visible;pointer-events:auto;touch-action:none;background:none}
+.media.proto iframe.proto-lift{position:fixed;z-index:51;left:0;right:0;top:calc(48px + env(safe-area-inset-top,0px));width:100%;height:calc(100% - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100svh - 96px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));will-change:transform;visibility:visible;pointer-events:auto;touch-action:none;background:none}
 /* entry/exit = the Studio presentation's (js/case.js grow on js/fs-motion.js): the stage colour panel (--frame, the inline frame's own) grows
    from the inline frame to the screen while the lifted iframe moves/scales with it (transform only, no input while it moves); full
    screen is the stage colour, as Studio and the desktop view (css/proto-fs.css) */
@@ -333,7 +333,7 @@ body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
 .hegg.proto-full .hegg-edge{background:var(--frame)}
 .hegg.proto-full .proto-panel{display:none;position:fixed;left:0;top:0;z-index:0;transform-origin:0 0;background:var(--frame);will-change:transform;pointer-events:none}
 .hegg.proto-full.hegg-grow .proto-panel{display:block}
-.media.proto iframe.proto-lift.proto-anim{will-change:transform;pointer-events:none}
+.media.proto iframe.proto-lift.proto-anim{pointer-events:none}
 /* the instruction under a full-screen prototype, shared by the phone view (here) and desktop's .fsx-bg (css/proto-fs.css);
    phones in landscape keep only the rotate message */
 .fs-ins{--mono-color:#333;position:absolute;z-index:2;left:0;top:0;margin:0;box-sizing:content-box;overflow:clip;padding-bottom:16px;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none} /* the instruction under a full-screen prototype (window.dbhIns, js/case.js), both views: type = CLOSE, casing as written; under the lifted iframe; the js sets its top (the device's bottom edge), width (at most 375px) and padding-top (the 40px gap); the box clips, 16px bottom padding */
