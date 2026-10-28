@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MAC · Multi-Ad Chaining: grid → Reels chain — interactive prototype</title>
+<script src="../shared/demo/demo-clock.js?v=209"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=209"><link rel="stylesheet" href="../../css/theme.css?v=209">
+<!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
+<link rel="stylesheet" href="../shared/iab/iab.css?v=209"><script src="../../js/squircle.js?v=209"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=209"></script><script src="../shared/edge-back/edge-back.js?v=209"></script>
+<!-- preview-only page: no gate.js / passcode -->
+<link rel="stylesheet" href="../shared/device/device.css?v=209">
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone: 375×812 screen + 8px theme-aware bezel (as preview/vac-proto) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#131013;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.phone img,.phone video,.phone canvas{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.L{position:absolute;left:0;top:0;display:block;margin:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit}
+.btn:focus,.btn:focus-visible,.mv:focus,.mv:focus-visible{outline:none}
+video{display:block;object-fit:cover}
+/* layers, bottom → top. Grid: "Suggested for you", four ad tiles (172×272, r12, the 60% squircle); tile 1 (Oakley) is the seed video
+   itself (.mv), which grows into Reels. Reels: the chain Oakley → LensCrafters → Ray-Ban, one 734px pitch, the comment bar under it */
+.grid{width:375px;height:812px;z-index:1;will-change:transform}
+.tile{width:172px;height:272px;overflow:hidden;background:#131013 center/cover no-repeat;will-change:transform,opacity}
+.tile video,.tile canvas{position:absolute;inset:0;width:100%;height:100%}
+.rbg{width:375px;height:812px;z-index:2;background:#000;opacity:0;will-change:transform,opacity}
+.mv{z-index:5;width:375px;height:734px;overflow:hidden;background:#131013 center/cover no-repeat;cursor:pointer;-webkit-tap-highlight-color:transparent;transform-origin:0 0;will-change:transform,clip-path}
+.mv video{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.gtop{width:375px;height:812px;z-index:6;pointer-events:none;will-change:transform,opacity}
+.th{width:171.5px;height:60px}
+.reels{width:375px;height:812px;z-index:7;pointer-events:none;opacity:0;will-change:transform}
+.pg{width:375px;height:734px;will-change:transform}
+.pg .grad{position:absolute;left:0;top:470px;width:375px;height:264px;background:linear-gradient(to top,rgba(0,0,0,.4),rgba(0,0,0,0))}
+.pg img,.pg video,.pg .hs{position:absolute}
+/* the ad details stack, identical to sap-demo (d24ee1d; /workspace/sap/previews/ad-label-spec.md), bottom-anchored on the reel's bottom (734):
+   brand row 565–601 (avatar 36, name 15 semibold, the shared globe 12×12 7px after the name's advance, top 577; no badge, no "Sponsored"),
+   caption line 610–630 ("... more ⌄"), CTA 641–685 (303×44, the 60% squircle r12), the shared Ad pill 698–722 (47.5×24). LensCrafters: brand 537,
+   caption 582, carousel 613–685, pill 698 */
+.det{left:12px;top:565px;width:303px;height:120px}
+.cglobe{width:12px;height:12px;pointer-events:none}
+.adp{left:12px;top:698px;width:47.5px;height:24px;pointer-events:none}
+/* the caption's "... more" down arrow: the Caption & Browse arrow (preview/shared/caption/chevron-down.svg, 12×8 box, the 8×4 arrow 2px in),
+   5px after the ink of "more", centred on the caption's x-height (line top + 9); left per ad = 12 + the "more" ink end + 3.05 */
+.cchev{width:12px;height:8px;pointer-events:none}
+.ufi{left:326px;top:486px;width:49px;height:237px}
+.lc{background:#101010;overflow:hidden}
+.lc video{left:0;top:126px;width:375px;height:375px}
+/* the LensCrafters carousel, as sap-demo: 613–685 (bottom on the CTA's bottom), the same thumbnails, the right-edge fade */
+.hs{left:12px;top:613px;width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
+.hs i{position:absolute;left:0;top:0;width:472px;height:72px;display:block;will-change:transform}
+.hs span{position:absolute;top:0;width:72px;height:72px;border-radius:8px;overflow:hidden;background:#fff}
+.hs span img{position:absolute;inset:0;width:100%;height:100%}
+.chrome{width:375px;height:96px;z-index:3}
+.bar{top:734px;width:375px;height:78px;z-index:3}
+.pager{width:375px;height:734px;z-index:8;display:none;touch-action:none;cursor:grab}
+.pager.on{display:block}
+.pager.drag{cursor:grabbing}
+.cta{z-index:9;display:none;pointer-events:none}
+.cta.on{display:block}
+.back{left:2px;top:48px;width:44px;height:44px;z-index:9;display:none}
+.back.on{display:block}
+/* the shared IAB, in its own 375×812 host, over every surface with the FMSS dim under it (Learn more → full screen) */
+.dim{width:375px;height:812px;z-index:19;background:rgba(0,0,0,.4);opacity:0;pointer-events:none}
+.iab{width:375px;height:812px;z-index:20;pointer-events:none}
+.iab .web{height:1252px;background:#fff}
+.iab .web>img{position:absolute;left:0;top:0;width:375px;height:1252px}
+#iabRB .web{height:1678px}
+#iabRB .web>img{height:1678.5px}
+.ctap{left:12px;top:641px;width:303px;height:44px;border-radius:12px;background:#000;z-index:9;opacity:0;pointer-events:none;transition:opacity .12s var(--ease)}
+.ctap.down{opacity:.18}
+/* the device status bar: one, above every surface (the IAB included); only its colour follows the surface (render(): sd) */
+.sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:40;pointer-events:none}
+.finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .248s var(--ease),scale .176s var(--ease)}
+.finger.on,.ufinger.on{opacity:.9}
+.finger.down,.ufinger.down{scale:.85}
+/* the scripted touch: the same FMSS circle with more contrast, so it reads on the bright Oakley tile at the inline scale */
+.finger{background:rgba(120,120,120,.5);box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.2),0 2px 12px rgba(0,0,0,.45)}
+.finger.on{opacity:1}
+.ufinger{z-index:61;transition:opacity .152s var(--ease),scale .12s var(--ease)}
+.phone.u-on .finger{opacity:0!important}
+.xf{left:0;top:0;width:100%;height:100%;z-index:95;pointer-events:none;opacity:0;background:#000}
+/* first load: the screen holds on the grid's ground (status bar and home indicator showing) until every tile's poster and first video
+   frame has decoded, then the grid fades in whole (248ms): a tile never shows empty */
+.ldc{left:0;top:0;width:375px;height:812px;z-index:38;pointer-events:none;background:#131013}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below,html.embed .spacer{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1>MAC · Multi-Ad Chaining</h1><p>Interactive prototype · a grid of ads, each the seed of a Reels ad chain · the FMSS IAB sheet and edge swipe back, shared</p></div>
+    <button class="theme" id="theme" type="button">Theme</button>
+  </header>
+  <div class="mframe" id="frame">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <div class="L grid" id="grid">
+          <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=210);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=210);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=210" src="../../assets/vac/vac-mac-samsung.mp4?v=210"></video></div>
+          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=209);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=209" src="../../assets/vac/vac-mac-lululemon.mp4?v=209"></video></div>
+          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=209);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=209" src="../../assets/vac/vac-mac-starbucks.mp4?v=209"></video></div>
+        </div>
+        <i class="L rbg" id="rbg" aria-hidden="true"></i>
+        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=210)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=210" src="../../assets/vac/vac-mac-oakley.mp4?v=210"></video></div>
+        <div class="L gtop" id="gtop" aria-hidden="true">
+          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=209" style="left:12px;top:170px">
+          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=209" style="left:191.5px;top:170px;width:171px">
+          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=209" style="left:12px;top:450px">
+          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=209" style="left:192px;top:450px">
+          <img class="L" alt="" src="assets/grid-title.webp?v=209" style="left:116px;top:116px;width:144px;height:39.5px">
+          <img class="L" alt="" src="assets/grid-nav.webp?v=209" style="left:0;top:44px;width:375px;height:52px">
+        </div>
+        <div class="L reels" id="reels" aria-hidden="true">
+          <div class="L pg" id="p0"><i class="grad"></i><img class="det" alt="" src="assets/s-det.webp?v=214"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=214" style="left:113.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:301px;top:617px"><img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=214"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
+          <div class="L pg lc" id="p1"><video id="lcv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lenscrafters.webp?v=209" src="../../assets/vac/vac-mac-lenscrafters.mp4?v=209"></video>
+            <img alt="" src="assets/lc-det.webp?v=214" style="left:12px;top:537px;width:303px;height:65px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=214" style="left:156px;top:549px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:304px;top:589px">
+            <div class="hs"><i id="hsr"><span style="left:0px"><img alt="" src="assets/lc-p1.webp?v=214"></span><span style="left:80px"><img alt="" src="assets/lc-p2.webp?v=214"></span><span style="left:160px"><img alt="" src="assets/lc-p3.webp?v=214"></span><span style="left:240px"><img alt="" src="assets/lc-p4.webp?v=214"></span><span style="left:320px"><img alt="" src="assets/lc-p5.webp?v=214"></span><span style="left:400px"><img alt="" src="assets/lc-p6.webp?v=214"></span></i></div>
+            <img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=214"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
+          <div class="L pg" id="p2"><video id="rbv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-rayban.webp?v=209" src="../../assets/vac/vac-mac-rayban.mp4?v=209" style="left:0;top:0;width:375px;height:734px"></video><i class="grad"></i><img class="det" alt="" src="assets/rb-det.webp?v=214"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=214" style="left:124.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=211" style="left:303.5px;top:617px"><img class="adp" alt="" src="../shared/caption/ad-pill.svg?v=214"><img class="ufi" alt="" src="assets/s-ufi.webp?v=209"></div>
+          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=209" style="top:44px;height:52px">
+          <img class="L bar" alt="" src="assets/reels-bar.webp?v=209">
+        </div>
+        <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
+        <i class="L ctap" id="ctap" aria-hidden="true"></i>
+        <button class="L btn cta" id="cta" type="button" style="left:12px;top:641px;width:303px;height:44px" aria-label="Learn more: open oakley.com in the in-app browser (IAB) full screen"></button>
+        <button class="L btn back" id="back" type="button" aria-label="Back to the grid"></button>
+        <i class="L dim" id="dim" aria-hidden="true"></i>
+        <div class="L iab" id="iab"></div>
+        <div class="L iab" id="iabRB"></div>
+        <i class="L ldc" id="ldc" aria-hidden="true"></i>
+        <i class="L sb" id="sb" aria-hidden="true"></i>
+        <i class="L home" id="home" aria-hidden="true"></i>
+        <div class="L finger" id="finger" aria-hidden="true"></div>
+        <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">A Suggested for you grid of ads. Tap the Oakley ad: it grows into Reels and seeds a chain of related ads; swipe up through it (Oakley → LensCrafters → Ray-Ban). Learn more on the Oakley ad opens oakley.com, and on the Ray-Ban ad ray-ban.com, in the in-app browser full screen; ×, Escape or a swipe down returns to the reel. Back (or an edge swipe from the left) returns to the grid.</p>
+  <div class="spacer" style="height:120vh" aria-hidden="true"></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),mv=$('mv'),pager=$('pager');
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ---------- fit phone to container (as preview/vac-proto) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');
+  const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- Figma corner smoothing (the site's squircle, 60%) ---------- */
+function squircle(w,h,R,sm){
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
+  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),D=f(d),S=f(arc),r=f(R);
+  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${D}a${r} ${r} 0 0 1 ${S} ${S}c${D} ${C} ${D} ${BC} ${D} ${ABC}`+
+    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-D} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${D} ${-BC} ${D} ${-ABC} ${D}`+
+    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-D}a${r} ${r} 0 0 1 ${-S} ${-S}c${-D} ${-C} ${-D} ${-BC} ${-D} ${-ABC}`+
+    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${D} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-D} ${BC} ${-D} ${ABC} ${-D}Z`;
+}
+function squircleAt(ox,oy,w,h,R,sm){   // the same outline, drawn at (ox, oy) (the seed's clip inside its full-size box)
+  return squircle(w,h,R,sm).replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,x,y)=>c+(+(+x+ox).toFixed(3))+' '+(+(+y+oy).toFixed(3)));
+}
+const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
+if(CLIP){phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${squircle(391,828,48,.6)}')`;
+  ['t1','t2','t3','t4'].forEach(id=>{$(id).style.clipPath=`path('${squircle(172,272,12,.6)}')`});
+  $('ctap').style.clipPath=`path('${squircle(303,44,12,.6)}')`}   // the CTA press dim: the CTA's own 60% squircle (as sap-demo)
+else ['t1','t2','t3','t4'].forEach(id=>{$(id).style.borderRadius='12px'});
+
+/* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move (664ms) ---------- */
+function springEase(p){var k=p[0],c=p[1],m=p[2]||1,w0=Math.sqrt(k/m),z=c/(2*Math.sqrt(k*m)),x;
+  if(z<1){var wd=w0*Math.sqrt(1-z*z);x=t=>1-Math.exp(-z*w0*t)*(Math.cos(wd*t)+z*w0/wd*Math.sin(wd*t))}
+  else if(z===1){x=t=>1-Math.exp(-w0*t)*(1+w0*t)}
+  else{var s=w0*Math.sqrt(z*z-1),r1=-z*w0+s,r2=-z*w0-s,A=r2/(r2-r1),B=1-A;x=t=>1-(A*Math.exp(r1*t)+B*Math.exp(r2*t))}
+  var T=0;for(var t=0;t<20;t+=.0005)if(Math.abs(1-x(t))>=.001)T=t;T+=.0005;var xe=x(T);
+  return u=>u<=0?0:u>=1?1:x(u*T)/xe}
+const SLOW=springEase([80,20,1]),DUR=664;
+function anim(get,set){let raf=0,busy=false;
+  return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
+    to(target,{ms=DUR,onDone}={}){cancelAnimationFrame(raf);const from=get();
+      if(RM.matches||ms<=0||from===target){set(target);busy=false;onDone&&onDone();return}
+      busy=true;const t0=performance.now();
+      const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,SLOW(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
+      raf=requestAnimationFrame(f)}}}
+
+/* ---------- the screen: one set of values, everything rendered from them ----------
+   e  grid → Reels: the Oakley tile grows into the seed reel (0 → 1)     k  the chain (0 Oakley · 1 LensCrafters · 2 Ray-Ban)
+   b  back: the pop to the grid (0 → 1)                                  g  the grid's intro (tiles rise in, inline only) */
+const TILE=[12,170,172,272],FULL=[0,0,375,734],PG=734,N=2;
+let e=0,k=0,b=0,g=1,mode='grid';   // grid · open · reels · pop
+const eA=anim(()=>e,v=>{e=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),bA=anim(()=>b,v=>{b=v;render()}),gA=anim(()=>g,v=>{g=v;render()});
+const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
+const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
+const els={t1:$('t1'),grid:$('grid'),rbg:$('rbg'),gtop:$('gtop'),reels:$('reels'),sb:$('sb'),home:$('home'),dim:$('dim'),snap:$('snap'),hsr:$('hsr'),
+  t:[$('t2'),$('t3'),$('t4')],h:[$('h1'),$('h2'),$('h3'),$('h4')],p:[$('p0'),$('p1'),$('p2')]};
+let VIDS=[],sheetP=0,sd=0,lastR='',lastSb='',lastHome='',hx=0,lastCj=-1;
+const pageY=j=>PG*clamp(j-k,-1,1);
+function render(){
+  const pop=mode==='pop',rx=pop?375*b:0,gx=pop?-120*(1-b):0,full=pop||e>=1;
+  /* the seed video: ONE full-size box (375×734, the reel's), scaled down onto the tile and clipped to it (shared element). The grow
+     is a transform + clip, so the video never resizes or re-lays out and keeps playing through it; tile and reel crop the same way
+     (cover, centred), so the frame is continuous. Then it rides page 0 */
+  let x,y,w,h,r;
+  if(full){[x,y,w,h]=FULL;x+=rx;y+=pageY(0);r=0}
+  else{x=lerp(TILE[0],FULL[0],e);y=lerp(TILE[1],FULL[1],e)+24*(1-g);w=lerp(TILE[2],FULL[2],e);h=lerp(TILE[3],FULL[3],e);r=12*(1-e)}
+  const sc=Math.max(w/375,h/734),cw=(375*sc-w)/2/sc,ch=(734*sc-h)/2/sc;
+  mv.style.transform=`translate3d(${(x-cw*sc).toFixed(3)}px,${(y-ch*sc).toFixed(3)}px,0) scale(${sc.toFixed(5)})`;
+  op(mv,full?1:g);
+  const key=`${cw.toFixed(2)},${ch.toFixed(2)},${r.toFixed(2)},${sc.toFixed(4)}`;
+  if(key!==lastR){lastR=key;
+    if(cw<.01&&ch<.01&&r<.05)mv.style.clipPath='';
+    else if(CLIP&&r>.05)mv.style.clipPath=`path('${squircleAt(cw,ch,375-2*cw,734-2*ch,r/sc,.6)}')`;
+    else mv.style.clipPath=`inset(${ch.toFixed(2)}px ${cw.toFixed(2)}px round ${(r/sc).toFixed(2)}px)`}
+  /* the grid: fades under the growing tile (Figma's smart animate), slides back in from −120 on the pop */
+  const gv=pop?1:1-e;
+  els.grid.style.transform=tr(gx,0);els.gtop.style.transform=tr(gx,0);
+  els.grid.style.visibility=e>=1&&!pop?'hidden':'visible';
+  const ty=24*(1-g);
+  els.t.forEach(t=>{op(t,gv*g);t.style.transform=tr(0,ty)});
+  els.h.forEach(t=>{op(t,g);t.style.transform=tr(0,ty)});
+  op(els.t1,pop?1:0);
+  op(els.gtop,gv);
+  /* Reels: black ground with the grow, its UI (gradient, details, UFI, back, comment bar) over its second half */
+  op(els.rbg,pop?1:e);els.rbg.style.transform=tr(rx,0);
+  op(els.reels,pop?1:clamp((e-.5)/.5));els.reels.style.transform=tr(rx,0);
+  for(let j=0;j<=N;j++){const p=els.p[j],vis=Math.abs(j-k)<1;p.style.visibility=vis?'visible':'hidden';p.style.transform=tr(0,pageY(j))}
+  els.hsr.style.transform=tr(hx,0);
+  const cj=ctaPage();$('cta').classList.toggle('on',mode==='reels'&&cta===null&&cj>=0);
+  if(cj>=0&&cj!==lastCj){lastCj=cj;$('cta').setAttribute('aria-label',`Learn more: open ${SITE[cj].url} in the in-app browser (IAB) full screen`)}
+  op(els.dim,cta!==null?sheetP:0);
+  /* status bar and home indicator: light on the dark app, dark on the IAB's white page, on the sheet's own spring */
+  const gl=Math.round(255*clamp(1-sd)),sbc=`rgb(${gl},${gl},${gl})`;if(sbc!==lastSb){lastSb=sbc;els.sb.style.backgroundColor=sbc}
+  const hl=Math.round(255*clamp(1-(cta!==null?sheetP:0))),hc=`rgb(${hl},${hl},${hl})`;if(hc!==lastHome){lastHome=hc;els.home.style.backgroundColor=hc}
+  vidSync();
+}
+
+/* ---------- the IAB: the shared FMSS sheet, closed ↔ full only (Learn more, as vac-proto's CTA path); ×, Escape or a swipe down
+   closes it back onto the reel, untouched. One sheet per site (Oakley on the seed, Ray-Ban on the last ad of the chain), each in its
+   own host; the module is shared and unchanged ---------- */
+let cta=null,act=null;   // cta: the page whose IAB is open (0 Oakley · 2 Ray-Ban) · act: the sheet that drives the dim and the bars
+const SITE={0:{url:'oakley.com',name:'Oakley',host:'iab',hdr:'assets/iab-header-full.svg?v=209',page:'assets/page.webp?v=209',alt:'oakley.com: Oakley Meta HSTN',webH:1252},
+  2:{url:'ray-ban.com',name:'Ray-Ban',host:'iabRB',hdr:'assets/iab-header-full-rayban.svg?v=209',page:'assets/page-rayban.webp?v=209',alt:'ray-ban.com: Ray-Ban Meta glasses',webH:1678}};
+function mkIAB(j){const S=SITE[j];
+  const I=FMSSIAB.create({host:$(S.host),label:'In-app browser (IAB): '+S.url,url:S.url,
+    headers:{full:S.hdr},fullTop:2,handle:true,shift:'p',
+    web:`<div class="web"><img alt="${S.alt}" src="${S.page}"></div>`,webH:S.webH,
+    fullness:y=>clamp((I.Y1-y)/(I.Y1-I.Y3)),halfOK:()=>false,hold:()=>true,holdOnDrag:()=>true,
+    onRender:o=>{if(I!==act)return;sheetP=o.p;sd=o.sd;render()},
+    onState:s=>{if(cta===j)say(s===1?S.name+' reel':S.url+' open full screen')},
+    onClosed:()=>{if(cta===j){cta=null;phone.classList.remove('cta-open');render()}},
+    onX:()=>I.go(1),
+    wheelTo:(ev,d,apply)=>{if(apply(d)&&ev.cancelable)ev.preventDefault()}});
+  $(S.host).querySelectorAll('[id]').forEach(n=>{n.id=S.host+'-'+n.id});   // the module names its parts by id; keep the two sheets' ids unique
+  return I}
+SITE[0].iab=mkIAB(0);SITE[2].iab=mkIAB(2);
+const iab=SITE[0].iab,iabRB=SITE[2].iab;act=iab;
+const CTA_R=[12,641,303,44];
+const ctaAt=(x,y)=>x>=CTA_R[0]&&x<=CTA_R[0]+CTA_R[2]&&y>=CTA_R[1]&&y<=CTA_R[1]+CTA_R[3];
+function ctaPage(){const j=Math.round(k);return SITE[j]&&Math.abs(k-j)<.01?j:-1}   // the reel at rest has a Learn more that opens a site
+function ctaDown(on){$('ctap').classList.toggle('down',!!on)}   // press feedback on the Learn more button
+function openCta(){
+  const j=ctaPage();
+  if(cta!==null||mode!=='reels'||kA.busy||j<0)return false;
+  const I=SITE[j].iab;if(I.state!==1||I.busy||(act&&act!==I&&act.state!==1))return false;
+  cta=j;act=I;phone.classList.add('cta-open');
+  I.go(3,{w:16,why:'learn-more'});return true;
+}
+$('cta').addEventListener('click',()=>openCta());   // keyboard; a pointer tap comes through the pager (pagerUp)
+
+/* ---------- grid → the seed reel: the Oakley tile grows into Reels (Figma: smart animate, Slow) ---------- */
+function openSeed(){
+  if(mode!=='grid'||bA.busy||g<1)return;
+  rotate(-1,true);mode='open';homeTell(false);k=0;hx=0;
+  eA.to(1,{onDone:()=>{if(mode!=='open')return;mode='reels';setReels(true);render();say('Oakley reel')}});
+}
+let mp=null;
+mv.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='grid')return;mp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false}});
+mv.addEventListener('pointermove',ev=>{if(mp&&ev.pointerId===mp.id&&Math.hypot(ev.clientX-mp.x,ev.clientY-mp.y)>10)mp.moved=true});
+function mvUp(ev){if(!mp||ev.pointerId!==mp.id)return;const p=mp;mp=null;if(ev.type==='pointerup'&&!p.moved)openSeed()}
+mv.addEventListener('pointerup',mvUp);mv.addEventListener('pointercancel',mvUp);
+mv.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&mode==='grid'){ev.preventDefault();openSeed()}});
+mv.tabIndex=0;
+
+/* ---------- Reels: the chain Oakley → LensCrafters → Ray-Ban (1:1 drag, projected snap, a flick moves one; Figma: push, Slow).
+   LensCrafters' product row scrolls sideways (a horizontal drag that starts on it) ---------- */
+function setReels(on){pager.classList.toggle('on',on);$('back').classList.toggle('on',on)}
+let pd=null;
+const HS=[12,613,303,72],HMIN=-(5*80+72-303);
+pager.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='reels')return;kA.stop();
+  const [px,py]=ptOf(ev),onHs=Math.abs(k-1)<.01&&px>=HS[0]&&px<=HS[0]+HS[2]&&py>=HS[1]&&py<=HS[1]+HS[3];
+  if(ctaPage()>=0&&ctaAt(px,py))ctaDown(true);
+  pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,onHs,hx0:hx,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
+  try{pager.setPointerCapture(ev.pointerId)}catch(_){}pager.classList.add('drag')});
+pager.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
+  const dx=ev.clientX-pd.x,dy=ev.clientY-pd.y;if(Math.hypot(dx,dy)>10){pd.moved=true;ctaDown(false)}
+  if(!pd.axis&&pd.moved)pd.axis=pd.onHs&&Math.abs(dx)>Math.abs(dy)?'h':'v';
+  if(pd.axis==='h'){let n=pd.hx0+dx/pd.sc;if(n>0)n*=.35;else if(n<HMIN)n=HMIN+(n-HMIN)*.35;hx=n;render();return}
+  let n=pd.k0-dy/pd.sc/PG;if(n<0)n*=.35;else if(n>N)n=N+(n-N)*.35;k=n;render();
+  const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
+function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');ctaDown(false);
+  if(d.axis==='h'){const t=clamp(hx,HMIN,0);if(t!==hx){const hA=anim(()=>hx,v=>{hx=v;render()});hA.to(t,{ms:400})}return}
+  if(ev.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(ev);if(ctaAt(px,py-pageY(Math.round(k)))&&openCta())return}   // a tap on Learn more
+  const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, the next ad)
+  let t=Math.round(k+v*.18);const from=Math.round(d.k0);
+  if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);
+  step(t)}
+pager.addEventListener('pointerup',pagerUp);pager.addEventListener('pointercancel',pagerUp);
+const NAMES=['Oakley','LensCrafters','Ray-Ban'];
+function step(t){const was=Math.round(k);if(t!==was)restart(t);kA.to(t,{onDone:()=>say(NAMES[t]+' reel')})}
+function restart(j){const v=j===1?lcv:j===2?rbv:null;if(v){try{v.currentTime=0}catch(_){}}if(j===1){hx=0}}
+let wT=0,wAcc=0;
+pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev.preventDefault();
+  const now=performance.now();if(now-wT<480)return;wAcc+=ev.deltaY;
+  if(Math.abs(wAcc)>40){const t=clamp(Math.round(k)+(wAcc>0?1:-1),0,N);wAcc=0;wT=now;if(t!==Math.round(k))step(t)}},{passive:false});
+
+/* ---------- back: the pop (Reels slides off right, the grid in from −120), then the clean grid. The seed's current frame is held in
+   tile 1 while it pops (the video rides away with Reels) ---------- */
+function snapTile(){const c=els.snap,x=c.getContext('2d');
+  try{if(vid.readyState>=2){const vw=vid.videoWidth,vh=vid.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(vid,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
+function startPop(){kA.stop();k=Math.round(k);
+  if(k>=1){const c=els.snap;c.getContext('2d').clearRect(0,0,c.width,c.height);try{vid.currentTime=0}catch(_){}}else snapTile();
+  mode='pop';setReels(false);b=0;render()}
+function back(){if(mode!=='reels'||cta!==null)return;startPop();bA.to(1,{onDone:()=>{toGrid();homeTell(true);say('Grid')}})}
+$('back').addEventListener('click',back);
+/* the edge swipe back: the shared FMSS gesture (../shared/edge-back), the finger drives the pop (b); read in the capture phase so it
+   can take the press from the pager once it is a horizontal drag off the left edge */
+let eg=null,edging=false;
+const EB=FMSSEdgeBack.create({width:375,
+  onMove:p=>{bA.stop();b=p;render()},
+  onEnd:done=>{edging=false;if(done){toGrid();homeTell(true);say('Grid')}else{b=0;mode='reels';setReels(true);render()}}});
+phone.addEventListener('pointerdown',ev=>{eg=null;if(ev.button>0||cta!==null||edging||EB.settling||mode!=='reels')return;
+  const [x]=ptOf(ev);if(!EB.zone(x))return;
+  eg={id:ev.pointerId,x0:ev.clientX,y0:ev.clientY,s:phone.getBoundingClientRect().width/375,t0:performance.now(),on:false}},true);
+phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
+  const dx=(ev.clientX-eg.x0)/eg.s,dy=(ev.clientY-eg.y0)/eg.s;
+  if(!eg.on){
+    if(!EB.claims(dx,dy)){if(Math.abs(dy)>6)eg=null;return}
+    eg.on=true;edging=true;
+    if(pd){k=pd.k0;pd=null;pager.classList.remove('drag')}
+    try{phone.setPointerCapture(ev.pointerId)}catch(_){}
+    startPop();EB.begin(eg.t0)}
+  ev.stopPropagation();EB.move(dx)},true);
+function edgeUp(ev){if(!eg||ev.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;ev.stopPropagation();EB.end((ev.clientX-d.x0)/d.s)}
+phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
+function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;render();freeRot()}
+document.addEventListener('keydown',ev=>{if(INL())return;
+  if(ev.key==='Escape'){userActed();if(cta!==null){if(act.state!==1)act.go(1)}else if(mode==='reels')back()}
+  else if(mode==='reels'&&cta===null&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')){ev.preventDefault();step(clamp(Math.round(k)+(ev.key==='ArrowDown'?1:-1),0,N))}});
+
+/* ---------- the videos: each plays only while it is on screen (and the demo is: in view, the one playing, js/case.js) ---------- */
+const lcv=$('lcv'),rbv=$('rbv'),tv=els.t.map(t=>t.querySelector('video'));
+let seen=false,visible=false,held=false;
+const gridOn=()=>mode!=='reels'||e<1;
+/* the grid's turns: one tile plays at a time, in reading order (Oakley, Galaxy Z Flip7, lululemon, Starbucks), each for one equal
+   slice (SLICE); the others hold their poster, the frame each clip starts on. A tile that hands over seeks back to that frame */
+const TV=[vid,...tv],SLICE=1600;
+let gAct=-1,rotT=0;
+function setActive(i,keep){if(i===gAct)return;const o=gAct;gAct=i;
+  if(o>=0&&!(keep&&o===0)){const v=TV[o];v.pause();try{v.currentTime=0}catch(_){}}vidSync()}
+function rotate(i,keep){clearTimeout(rotT);rotT=0;setActive(i,keep);if(i>=0&&!autoOn)rotT=setTimeout(()=>rotate((i+1)%4),SLICE)}
+/* full screen (and inline without autoplay): the turns run on their own while the grid is up; the inline loop drives them itself */
+function freeRot(){if(autoOn)return;if(ready&&mode==='grid'&&visible&&!document.hidden){if(!rotT)rotate(gAct>=0?gAct:0)}else if(rotT){clearTimeout(rotT);rotT=0}}
+VIDS=[
+  [vid,()=>mode==='grid'?gAct===0:mode!=='pop'&&!(mode==='reels'&&k>=.999)],
+  [lcv,()=>(mode==='reels'||mode==='pop')&&Math.abs(k-1)<1],
+  [rbv,()=>(mode==='reels'||mode==='pop')&&Math.abs(k-2)<1],
+  ...tv.map((v,n)=>[v,()=>gridOn()&&g>0&&gAct===n+1])];
+const pend=new WeakSet();
+function vidSync(){const on=visible&&!document.hidden;
+  for(const [v,f] of VIDS){const sh=on&&f();
+    if(sh&&v.paused&&!pend.has(v)){pend.add(v);const p=v.play();if(p&&p.then)p.then(()=>pend.delete(v),()=>{pend.delete(v);armGesture()});else pend.delete(v)}
+    else if(!sh&&!v.paused)v.pause()}}
+function armGesture(){const f=()=>{removeEventListener('pointerdown',f,true);vidSync()};addEventListener('pointerdown',f,true)}
+VIDS.forEach(([v])=>v.addEventListener('canplay',vidSync));addEventListener('pageshow',vidSync);
+addEventListener('demo:host',()=>setVis());addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{VIDS.forEach(([v])=>v.pause());stopAuto()}freeRot()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){VIDS.forEach(([v])=>v.pause());stopAuto()}else{vidSync();sched()}freeRot()});
+
+/* ---------- first load: hold until the grid can paint whole (posters + nav decoded, each grid video's first frame), max 3.2s ---------- */
+let ready=false;
+(function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley.webp?v=210','vac-mac-samsung.webp?v=210','vac-mac-lululemon.webp?v=209','vac-mac-starbucks.webp?v=209'].map(n=>'../../assets/vac/'+n));
+  const dec=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
+  const vf=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true})});
+  const all=Promise.all(imgs.map(dec).concat([vid,...tv].map(vf)));
+  let done=false;const go=()=>{if(done)return;done=true;ready=true;const c=$('ldc');
+    if(RM.matches||!c.animate)c.remove();else c.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out',fill:'forwards'}).onfinish=()=>c.remove();
+    sched();freeRot()};
+  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+
+/* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
+function say(t){$('live').textContent=t}
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
+
+/* ---------- theme toggle + follow the site theme ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+
+/* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only, no input; full screen moves only on real input.
+   One loop, 25.536s (every time a multiple of 8ms; the app's own moves on the Slow spring, 664): the grid 6664 (264 for the pop to
+   settle, then the four turns, 1600 each: Oakley, Galaxy Z Flip7, lululemon, Starbucks; one tile plays at a time, the rest hold their
+   posters) · tap Oakley (1032; the grow starts at 632 and the Oakley video plays from it) · seed 3600 · swipe up (1080; the push
+   starts at 632) · LensCrafters 2800 · swipe up · Ray-Ban 1600 · tap
+   Learn more (1032; press feedback, the ray-ban.com IAB opens at 632 on the shared sheet's own spring and plays its page load) ·
+   the page 1440 · scroll the page 240 (1544; a press, then the page rides the finger on the Slow spring) · 640 · tap × (1032; the
+   sheet closes at 632 back onto the Ray-Ban reel) · the reel 960 · tap Back (1032; the pop to the grid starts at 632) · round again
+   from the grid: no cut anywhere in the loop. The touch shows 480 before every press and stays 160 after the release, then fades
+   (248), so it is on screen ~880 around each press ---------- */
+const finger=$('finger');
+let autoOn=false,token=0,stepI=0,inStep=false,broken=false,userDirty=false;
+const wait=(ms,tk)=>new Promise((res,rej)=>{const t0=performance.now();const f=()=>{if(tk!==token)return rej('x');const left=ms-(performance.now()-t0);left<=0?res():setTimeout(f,Math.min(48,left))};f()});
+const easeIn=q=>q*q;
+const frames=(ms,tk,fn)=>new Promise((res,rej)=>{const t0=performance.now();const f=now=>{if(tk!==token)return rej('x');const q=clamp((now-t0)/ms);fn(q);q<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+function fingerAt(x,y){finger.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function fingerOff(){finger.classList.remove('on','down');ctaDown(false)}
+const LEAD=480,PRESS=152,HOLD=160,FADE=240;
+async function tap(x,y,tk,fn,btn){   // 1032: appear 480 before the press, press 152, release = the action, hold 160, fade
+  fingerAt(x,y);finger.classList.add('on');await wait(LEAD,tk);
+  finger.classList.add('down');if(btn)ctaDown(true);await wait(PRESS,tk);
+  finger.classList.remove('down');if(btn)ctaDown(false);fn();await wait(HOLD,tk);
+  finger.classList.remove('on');await wait(FADE,tk)}
+async function swipeUp(tk){   // 1080: one ad up the chain
+  const k0=Math.round(k),y0=560;fingerAt(187.5,y0);finger.classList.add('on');await wait(LEAD,tk);finger.classList.add('down');kA.stop();
+  try{await frames(200,tk,q=>{const d=96*easeIn(q);fingerAt(187.5,y0-d);k=k0+d/PG;render()})}catch(err){k=k0;render();throw err}
+  finger.classList.remove('down');step(Math.min(N,k0+1));await wait(HOLD,tk);finger.classList.remove('on');await wait(FADE,tk)}
+async function pageScroll(dist,tk){   // 1544: the open page scrolls a little, the finger pressed on it and riding it (Slow, 664)
+  const I=act,x=250,y0=600,s0=I.scroll;fingerAt(x,y0);finger.classList.add('on');await wait(LEAD,tk);finger.classList.add('down');
+  try{await frames(DUR,tk,q=>{const d=dist*SLOW(q);I.setScroll(s0+d);fingerAt(x,y0-d)})}catch(err){I.setScroll(s0);throw err}
+  finger.classList.remove('down');await wait(HOLD,tk);finger.classList.remove('on');await wait(FADE,tk)}
+const STEPS=[
+  gridTurns,tk=>tap(98,306,tk,openSeed),             // the grid's four turns; tap the Oakley ad → it grows into the seed reel (664, from 632)
+  3600,tk=>swipeUp(tk),                               // Oakley → LensCrafters (664 push, from 632)
+  2800,tk=>swipeUp(tk),                               // LensCrafters → Ray-Ban
+  1600,tk=>tap(163.5,663,tk,openCta,true),            // Learn more (pressed) → ray-ban.com opens full screen on the IAB
+  1440,tk=>pageScroll(240,tk),                        // read, then scroll the page a little
+  640,tk=>tap(347,68,tk,()=>act.go(1)),               // × → the sheet closes back onto the Ray-Ban reel
+  960,tk=>tap(24,70,tk,back)];                        // Back → the pop to the grid (664, from 632), and round again
+const SETTLE=264;
+async function gridTurns(tk){   // 6664: the pop settles (264), then each tile's turn (4 × 1600); stopped mid-way, it restarts clean
+  rotate(-1);await wait(SETTLE,tk);for(let i=0;i<4;i++){rotate(i);await wait(SLICE,tk)}rotate(-1)}
+gridTurns.soft=true;
+async function loop(tk){while(tk===token){const s=STEPS[stepI];if(typeof s==='number')await wait(s,tk);else if(s.soft)await s(tk);else{inStep=true;await s(tk);inStep=false}stepI=(stepI+1)%STEPS.length}}
+const xf=document.createElement('div');xf.className='L xf';xf.setAttribute('aria-hidden','true');phone.appendChild(xf);
+function reset(gv=1){gA.stop();rotate(-1);TV.forEach(v=>{try{if(v.currentTime)v.currentTime=0}catch(_){}});toGrid();g=gv;render();fingerOff();homeS=null;homeTell(true)}
+function xfade(tk,gv=1){if(RM.matches||!xf.animate){reset(gv);return Promise.resolve()}
+  return new Promise((res,rej)=>{const an=xf.animate([{opacity:0},{opacity:1}],{duration:120,easing:'ease-in',fill:'forwards'});
+    an.onfinish=()=>{reset(gv);try{vid.currentTime=0}catch(_){}xf.animate([{opacity:1},{opacity:0}],{duration:128,easing:'ease-out'}).onfinish=()=>{tk===token?res():rej('x')};an.cancel()}})}
+const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
+  if(!i){stopAuto();reset();stepI=0;broken=userDirty=false;return}   // into full screen: the clean start (the grid), no demo
+  if(stepI||userDirty)broken=true;sched()}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+function canRun(){return ready&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
+function startAuto(){if(autoOn||!canRun())return;autoOn=true;clearTimeout(rotT);rotT=0;const tk=++token;frame.dataset.autoplay='on';
+  const run=()=>loop(tk).catch(()=>{});
+  if(broken||userDirty||mode!=='grid'){broken=userDirty=false;stepI=0;xfade(tk).then(run,()=>{})}else run()}
+function stopAuto(){if(!autoOn)return;autoOn=false;token++;frame.dataset.autoplay='off';fingerOff();if(inStep){inStep=false;broken=true}freeRot()}
+function sched(){if(!autoOn&&canRun())startAuto()}
+function userActed(){if(INL())return;userDirty=true}
+frame.addEventListener('pointerdown',ev=>{if(ev.isTrusted)userActed()},{capture:true,passive:true});
+
+/* ---------- real pointer → touch-indicator circle (same as the FMSS prototypes) ---------- */
+const uf=$('ufinger');let uShow=false,uTouch=null;
+const FINE=matchMedia('(hover:hover) and (pointer:fine)'),isFine=ev=>ev.pointerType!=='touch'&&FINE.matches;
+function ptOf(ev){const r=phone.getBoundingClientRect(),s=r.width/375;return [(ev.clientX-r.left)/s,(ev.clientY-r.top)/s]}
+function uPos(ev){const [x,y]=ptOf(ev);uf.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
+phone.addEventListener('pointerdown',ev=>{if(!ev.isTrusted)return;if(!isFine(ev))uTouch=ev.pointerId;uPos(ev);uShow=true;uf.classList.add('on','down');phone.classList.add('u-on')},true);
+phone.addEventListener('pointermove',ev=>{if(ev.isTrusted&&uShow&&(ev.pointerId===uTouch||isFine(ev)))uPos(ev)},true);
+function uUp(ev){if(!ev.isTrusted)return;uf.classList.remove('down');if(ev.pointerId===uTouch){uTouch=null;uOff()}else if(isFine(ev))uOff()}
+addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
+phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
+
+window.__mac={get mode(){return mode},get e(){return e},get k(){return k},get b(){return b},get g(){return g},iab,vid,
+  get cta(){return cta===null?null:cta===0?'reels':'rb'},iabRB,get act(){return act===iabRB?'rb':'oakley'},openCta,openSeed,back,step,reset,get auto(){return autoOn},get stepI(){return stepI},
+  get gAct(){return gAct},get playing(){return VIDS.filter(([v])=>!v.paused).map(([v])=>v.id||v.src.split('/').pop().split('?')[0])}};
+render();homeTell(true);
+})();
+</script>
+</body>
+</html>
