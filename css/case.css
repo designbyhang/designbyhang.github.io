@@ -406,6 +406,8 @@ body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo 
 @media (max-width:640px){
  body.cs .cs-head{--cs-gap:21.9px;--cs-gap-text:calc(var(--cs-gap) + 4.1px)}
  body.cs .cs-head:has(.hero .sum){--cs-gap-text:calc(var(--cs-gap) - 2px)}
+ /* title -> subtitle 8px tighter on mobile (Hang 2026-10-28); the other head gaps keep --cs-gap */
+ body.cs .hero .sum{margin-top:16px}
 }
 @media (max-width:640px) and (not (orientation:portrait)){
  body.cs .cs-head>.hero{padding-bottom:0}
