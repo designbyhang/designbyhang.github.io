@@ -59,7 +59,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mv{z-index:5;overflow:hidden;background:#000;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;will-change:left,top,width,height}
 /* the portrait (670x1060) seed, cover-cropped and centred (object-position 50% 50%): Feed/Split keep the middle of its height, Reels
    (375x734) the middle of its width. Same as the hero's (css/card.css .cv-scr.vac .vc-mv video.vc-v) */
-.mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;pointer-events:none}
+.mv video,.pgv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;pointer-events:none}
 .ufi{left:330px;top:488px;width:42px;height:67px;z-index:6;opacity:0}
 /* tap the reel to pause (full screen only): the shared FMSS play glyph (../shared/pause, as Caption & Browse), centred on the Reels
    video (375x734); its holder rides the seed's page by transform */
@@ -90,6 +90,11 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .iab .web>img{position:absolute;left:0;top:0;width:375px;height:1002px}
 /* Reels: chained pages (one 734px pitch), its chrome and comment bar */
 .pg{width:375px;height:734px;z-index:30;opacity:0;will-change:transform}
+/* a chained reel that is a video (On: Hang's On Cloudboom Max ad, assets/vac-anim/v4/on.mp4 + on.webp; Away: the tall clip of FMSS Solution 2's Away ad,
+   preview/fmss-sol2/assets/v3.mp4 + its poster p3.webp): full bleed, cover-cropped as the seed's (.mv video), under its Reels UI overlay
+   (assets/reel-on.webp / reel-away.webp: the scrim + UI, as reel-porsche.webp) */
+.pgv{background:#000;overflow:hidden;pointer-events:none}
+.pgv>img{position:absolute;left:0;top:0;width:100%;height:100%}
 .pager{width:375px;height:734px;z-index:32;display:none;touch-action:none;cursor:grab}
 .pager.on{display:block}
 .pager.drag{cursor:grabbing}
@@ -139,8 +144,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="L btn cta" id="ctaFeed" type="button" style="left:0;top:591px;width:375px;height:54px" aria-label="porsche.com, The Porsche Taycan, Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
-        <img class="L pg" id="p1" alt="" src="assets/reel-on.webp?v=229">
-        <img class="L pg" id="p2" alt="" src="assets/reel-away.webp?v=229">
+        <div class="L pg pgv" id="p1"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/on.webp?v=261" src="../../assets/vac-anim/v4/on.mp4?v=261"></video><img alt="" src="assets/reel-on.webp?v=261"></div>
+        <div class="L pg pgv" id="p2"><video muted playsinline loop preload="auto" disableremoteplayback poster="../fmss-sol2/assets/p3.webp?v=261" src="../fmss-sol2/assets/v3.mp4?v=261"></video><img alt="" src="assets/reel-away.webp?v=261"></div>
         <img class="L pg" id="p3" alt="" src="assets/reel-perrier.webp?v=229">
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
         <img class="L chrome" id="chrome" alt="" src="assets/chrome.webp?v=229">
@@ -155,7 +160,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap the video ad in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; drag the scrubber to seek while they show. Tap the video, or swipe the sheet or the video down, to go into Reels, then swipe up through the chain. Back (or × in Split Screen) returns to Feed. The ad's call to action (the porsche.com footer in Feed, Learn more in Reels) opens porsche.com in the in-app browser full screen; ×, Escape or a swipe down returns to where you were.</p>
+  <p class="below">Tap the ad video in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; drag the scrubber to seek while they show. Tap the video, or swipe the sheet or the video down, to go into Reels, then swipe up through the chain. Back (or × in Split Screen) returns to Feed. The ad's call to action (the porsche.com footer in Feed, Learn more in Reels) opens porsche.com in the in-app browser full screen; ×, Escape or a swipe down returns to where you were.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -396,7 +401,9 @@ document.addEventListener('keydown',e=>{if(INL())return;
   if(e.key==='Escape'){userActed();if(cta){if(iab.state!==1)iab.go(1)}else if(iab.state===3)iab.go(2);else if(mode==='split')closeSplit();else if(mode==='reels')back()}
   else if(mode==='reels'&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();step(clamp(Math.round(k)+(e.key==='ArrowDown'?1:-1),0,N))}});
 
-/* ---------- the video: plays while it is on screen (paused only by the scrubber's drag) ---------- */
+/* ---------- the video: plays while it is on screen (paused only by the scrubber's drag) ----------
+   the chained reels that are videos (.pgv) play only while their page shows in Reels (|k - j| < 1, so one video moves at a time:
+   the seed stops at k >= .999), and pause with the seed's video everywhere else (hidden, held, off screen, Feed, the pop) */
 let seen=false,visible=false,held=false;
 function vidShould(){
   if(!visible||document.hidden||userPaused)return false;
@@ -405,15 +412,18 @@ function vidShould(){
   return true;
 }
 let vT=0;
-function vidSync(){const sh=vidShould();
+const RV=[...phone.querySelectorAll('.pgv video')].map(v=>({v,j:+v.parentNode.id.slice(1)}));
+function rvSync(){RV.forEach(r=>{const sh=visible&&!document.hidden&&mode==='reels'&&Math.abs(k-r.j)<1;
+  if(sh&&r.v.paused){const p=r.v.play();p&&p.catch&&p.catch(()=>{})}else if(!sh&&!r.v.paused)r.v.pause()})}
+function vidSync(){rvSync();const sh=vidShould();
   if(sh&&vid.paused&&!vT){vT=1;const p=vid.play();if(p&&p.then)p.then(()=>{vT=0},()=>{vT=0;armGesture()});else vT=0}
   else if(!sh&&!vid.paused&&!(vs&&vs.dragging())&&!(mode==='split'))vid.pause()}
 function armGesture(){const f=()=>{removeEventListener('pointerdown',f,true);vidSync()};addEventListener('pointerdown',f,true)}
 vid.addEventListener('canplay',vidSync);addEventListener('pageshow',vidSync);
 addEventListener('demo:host',()=>setVis());addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
 new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
-function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{vid.pause();stopAuto()}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();stopAuto()}else{vidSync();sched()}});
+function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{vid.pause();rvSync();stopAuto()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){vid.pause();rvSync();stopAuto()}else{vidSync();sched()}});
 
 /* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
 function say(t){$('live').textContent=t}
