@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAC · Multi-Ad Chaining: grid → Reels chain — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=239"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=240"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=239"><link rel="stylesheet" href="../../css/theme.css?v=239">
+<link rel="stylesheet" href="../../css/type.css?v=240"><link rel="stylesheet" href="../../css/theme.css?v=240">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=239"><link rel="stylesheet" href="../shared/caption/caption.css?v=239"><script src="../../js/vac-caption.js?v=239"></script><script src="../shared/caption/caption.js?v=239"></script><script src="../../js/squircle.js?v=239"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=239"></script><script src="../shared/edge-back/edge-back.js?v=239"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=240"><link rel="stylesheet" href="../shared/caption/caption.css?v=240"><script src="../../js/vac-caption.js?v=240"></script><script src="../shared/caption/caption.js?v=240"></script><script src="../../js/squircle.js?v=240"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=240"></script><script src="../shared/edge-back/edge-back.js?v=240"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=239">
+<link rel="stylesheet" href="../shared/device/device.css?v=240">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -130,29 +130,29 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="phone" id="phone">
         <div class="L grid" id="grid">
           <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=223);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
-          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=223);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=239" src="../../assets/vac/vac-mac-samsung.mp4?v=239"></video></div>
-          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=223);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=239" src="../../assets/vac/vac-mac-lululemon.mp4?v=239"></video></div>
-          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=223);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=239" src="../../assets/vac/vac-mac-starbucks.mp4?v=239"></video></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=223);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=240" src="../../assets/vac/vac-mac-samsung.mp4?v=240"></video></div>
+          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=223);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=240" src="../../assets/vac/vac-mac-lululemon.mp4?v=240"></video></div>
+          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=223);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=240" src="../../assets/vac/vac-mac-starbucks.mp4?v=240"></video></div>
         </div>
         <i class="L rbg" id="rbg" aria-hidden="true"></i>
-        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=223)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=239" src="../../assets/vac/vac-mac-oakley.mp4?v=239"></video></div>
+        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=223)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=240" src="../../assets/vac/vac-mac-oakley.mp4?v=240"></video></div>
         <div class="L gtop" id="gtop" aria-hidden="true">
-          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=239" style="left:12px;top:170px">
-          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=239" style="left:191.5px;top:170px;width:171px">
-          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=239" style="left:12px;top:450px">
-          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=239" style="left:192px;top:450px">
-          <img class="L" alt="" src="assets/grid-title.webp?v=239" style="left:116px;top:116px;width:144px;height:39.5px">
-          <img class="L" alt="" src="assets/grid-nav.webp?v=239" style="left:0;top:44px;width:375px;height:52px">
+          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=240" style="left:12px;top:170px">
+          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=240" style="left:191.5px;top:170px;width:171px">
+          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=240" style="left:12px;top:450px">
+          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=240" style="left:192px;top:450px">
+          <img class="L" alt="" src="assets/grid-title.webp?v=240" style="left:116px;top:116px;width:144px;height:39.5px">
+          <img class="L" alt="" src="assets/grid-nav.webp?v=240" style="left:0;top:44px;width:375px;height:52px">
         </div>
         <div class="L reels" id="reels" aria-hidden="true">
-          <div class="L pg" id="p0"><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/s-det.webp?v=239"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=239" style="left:101.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Pre-order the Limited Edition Oakley Meta HSTN, performance AI glasses with a built-in camera and open-ear audio.</p></div><img class="ufi" alt="" src="assets/s-ufi.webp?v=239"></div>
-          <div class="L pg lc" id="p1"><video id="lcv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lenscrafters.webp?v=239" src="../../assets/vac/vac-mac-lenscrafters.mp4?v=239"></video>
-            <div class="c-stack c-hs"><img class="c-det" alt="" src="assets/lc-det.webp?v=239"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=239" style="left:144px"><p class="c-sp">Sponsored</p><p class="c-cap">High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.</p>
-              <div class="hs c-act"><i id="hsr"><span style="left:0px"><img alt="" src="assets/lc-p1.webp?v=239"></span><span style="left:80px"><img alt="" src="assets/lc-p2.webp?v=239"></span><span style="left:160px"><img alt="" src="assets/lc-p3.webp?v=239"></span><span style="left:240px"><img alt="" src="assets/lc-p4.webp?v=239"></span><span style="left:320px"><img alt="" src="assets/lc-p5.webp?v=239"></span><span style="left:400px"><img alt="" src="assets/lc-p6.webp?v=239"></span></i></div></div>
-            <img class="ufi" alt="" src="assets/s-ufi.webp?v=239"></div>
-          <div class="L pg" id="p2"><video id="rbv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-rayban.webp?v=239" src="../../assets/vac/vac-mac-rayban.mp4?v=239" style="left:0;top:0;width:375px;height:734px"></video><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/rb-det.webp?v=239"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=239" style="left:112.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.</p></div><img class="ufi" alt="" src="assets/s-ufi.webp?v=239"></div>
-          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=239" style="top:44px;height:52px">
-          <img class="L bar" alt="" src="assets/reels-bar.webp?v=239">
+          <div class="L pg" id="p0"><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/s-det.webp?v=240"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=240" style="left:101.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Pre-order the Limited Edition Oakley Meta HSTN, performance AI glasses with a built-in camera and open-ear audio.</p></div><img class="ufi" alt="" src="assets/s-ufi.webp?v=240"></div>
+          <div class="L pg lc" id="p1"><video id="lcv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lenscrafters.webp?v=240" src="../../assets/vac/vac-mac-lenscrafters.mp4?v=240"></video>
+            <div class="c-stack c-hs"><img class="c-det" alt="" src="assets/lc-det.webp?v=240"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=240" style="left:144px"><p class="c-sp">Sponsored</p><p class="c-cap">High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.</p>
+              <div class="hs c-act"><i id="hsr"><span style="left:0px"><img alt="" src="assets/lc-p1.webp?v=240"></span><span style="left:80px"><img alt="" src="assets/lc-p2.webp?v=240"></span><span style="left:160px"><img alt="" src="assets/lc-p3.webp?v=240"></span><span style="left:240px"><img alt="" src="assets/lc-p4.webp?v=240"></span><span style="left:320px"><img alt="" src="assets/lc-p5.webp?v=240"></span><span style="left:400px"><img alt="" src="assets/lc-p6.webp?v=240"></span></i></div></div>
+            <img class="ufi" alt="" src="assets/s-ufi.webp?v=240"></div>
+          <div class="L pg" id="p2"><video id="rbv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-rayban.webp?v=240" src="../../assets/vac/vac-mac-rayban.mp4?v=240" style="left:0;top:0;width:375px;height:734px"></video><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/rb-det.webp?v=240"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=240" style="left:112.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.</p></div><img class="ufi" alt="" src="assets/s-ufi.webp?v=240"></div>
+          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=240" style="top:44px;height:52px">
+          <img class="L bar" alt="" src="assets/reels-bar.webp?v=240">
         </div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
         <i class="L ctap" id="ctap" aria-hidden="true"></i>
