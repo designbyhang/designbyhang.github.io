@@ -107,14 +107,15 @@ video{display:block;object-fit:cover}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
 .ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
 .tab{font:600 17px/22px var(--sf);letter-spacing:-.41px;color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
-/* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742) + the pill (303×40 at 60,742): its icon at +10, the query at +34 (15, white 72%), the
-   circled up-arrow at +273; the query is the reel's own, crossfaded as reels move */
+/* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742: FMSS's feed-tab home outline,
+   preview/fmss-cb/assets/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (15, white 70%);
+   the query is the reel's own, crossfaded as reels move */
 .navh{left:12px;top:742px;width:40px;height:40px;border-radius:20px;z-index:12}
 .navp{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12}
-.navh svg,.navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px}
-.navp .up{position:absolute;left:273px;top:10px;width:20px;height:20px}
+.navh svg{position:absolute;left:12px;top:12px;width:16px;height:16px}
+.navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px;opacity:.85}
 .navp .lb{position:absolute;inset:0;opacity:0}
-.navp .q{position:absolute;left:34px;top:10px;font:400 15px/20px var(--sf);letter-spacing:-.24px;color:rgba(255,255,255,.72);white-space:nowrap}
+.navp .q{position:absolute;left:34px;top:10px;font:400 15px/20px var(--sf);letter-spacing:-.24px;color:rgba(255,255,255,.7);white-space:nowrap}
 .touch{width:375px;height:812px;z-index:14;touch-action:none;display:none}
 .touch.on{display:block}
 #pillb{left:60px;top:742px;width:303px;height:40px;z-index:15}
@@ -184,9 +185,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <i class="srch"></i>
         </div>
         <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=272"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
-        <div class="L navh mat" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3.5 8.6 10 3.4l6.5 5.2V16a1 1 0 0 1-1 1h-3.3v-4.4H7.8V17H4.5a1 1 0 0 1-1-1V8.6Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><i class="press" id="homePress"></i></div>
-        <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div>
-          <svg class="up" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.6" stroke="#fff" stroke-width="1.5"/><path d="M10 13.6V6.6M6.9 9.6 10 6.5l3.1 3.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="press" id="pillPress"></i></div>
+        <div class="L navh mat" aria-hidden="true"><svg viewBox="25.918 9.75 24 24"><path d="M34.9077 33.0002H33.8476C32.4935 33.0002 31.3768 33.0003 30.4931 32.8814C29.5652 32.7567 28.7458 32.4847 28.0897 31.8286C27.4336 31.1725 27.1616 30.3531 27.0369 29.4253C26.9181 28.5415 26.9181 27.4249 26.9181 26.0708L26.9181 21.77C26.9171 20.032 26.9164 18.8231 27.446 17.7639C27.9756 16.7047 28.9431 15.98 30.3341 14.938L32.5666 13.2636C33.681 12.4278 34.5867 11.7486 35.3817 11.2858C36.2111 10.803 37.01 10.5 37.9181 10.5C38.8263 10.5 39.6252 10.803 40.4545 11.2858C41.2496 11.7486 42.1553 12.4278 43.2696 13.2636L45.5022 14.938C46.8932 15.98 47.8607 16.7047 48.3903 17.7639C48.9199 18.8231 48.9192 20.032 48.9182 21.77L48.9181 26.0707C48.9182 27.4249 48.9182 28.5415 48.7994 29.4253C48.6746 30.3531 48.4027 31.1725 47.7466 31.8286C47.0905 32.4847 46.271 32.7567 45.3432 32.8814C44.4594 33.0003 43.3428 33.0002 41.9887 33.0002H40.9282C40.9248 33.0002 40.9214 33.0002 40.918 33.0002H34.918C34.9145 33.0002 34.9111 33.0002 34.9077 33.0002ZM33.7181 14.9C34.8926 14.0191 35.7056 13.4114 36.3879 13.0142C37.0474 12.6303 37.4929 12.5 37.9181 12.5C38.3433 12.5 38.7888 12.6303 39.4484 13.0142C40.1307 13.4114 40.9436 14.0191 42.1181 14.9L44.1181 16.4C45.7687 17.6379 46.3095 18.0745 46.6014 18.6584C46.8933 19.2422 46.9181 19.9368 46.9181 22V26.0002C46.9181 27.4427 46.916 28.4239 46.8172 29.1588C46.7223 29.8648 46.5549 30.1918 46.3323 30.4144C46.1098 30.637 45.7828 30.8043 45.0767 30.8993C44.3419 30.9981 43.3606 31.0002 41.9181 31.0002L41.918 24.5002C41.918 23.1195 40.7987 22.0002 39.418 22.0002H36.418C35.0373 22.0002 33.918 23.1195 33.918 24.5002V31.0002C32.4756 31.0002 31.4944 30.9981 30.7596 30.8993C30.0535 30.8043 29.7265 30.637 29.5039 30.4144C29.2814 30.1918 29.114 29.8648 29.0191 29.1588C28.9203 28.4239 28.9181 27.4427 28.9181 26.0002V22C28.9181 19.9368 28.9429 19.2422 29.2349 18.6584C29.5268 18.0745 30.0676 17.6379 31.7181 16.4L33.7181 14.9ZM39.918 31.0002H35.918V24.5002C35.918 24.2241 36.1418 24.0002 36.418 24.0002H39.418C39.6941 24.0002 39.918 24.2241 39.918 24.5002V31.0002Z" fill="#fff" fill-rule="evenodd"/></svg><i class="press" id="homePress"></i></div>
+        <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div><i class="press" id="pillPress"></i></div>
         <div class="L pz" id="pz"></div>
         <div class="L touch" id="touch" aria-hidden="true"></div>
         <button class="L btn" id="pillb" type="button" aria-label="Explore more like this: open Commerce Chaining's category row"></button>
@@ -242,7 +242,7 @@ const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc']
 const FIRST=[0,0,1,1,1];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, the rest 1: Home leads, Beauty ends
                             // inside the fade; FIRST 2 would ask for 139 of a ribbon that only scrolls 90 and leave Home cut under the chevron)
 const ICO={
-  search:'<svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M10.2 3.3A6.3 6.3 0 1 0 15.2 13.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="m13.8 13.8 3.4 3.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M14.6 2.2c.3 1.6 1 2.3 2.6 2.6-1.6.3-2.3 1-2.6 2.6-.3-1.6-1-2.3-2.6-2.6 1.6-.3 2.3-1 2.6-2.6Z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/></svg>',
+  search:'<svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M9.36 4.93A5.25 5.25 0 1 0 13.24 9.73M11.7 13.7l2.9 2.9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M13.25 3.5Q13.7 5.05 15.25 5.5Q13.7 5.95 13.25 7.5Q12.8 5.95 11.25 5.5Q12.8 5.05 13.25 3.5Z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/></svg>',
   explore:'<svg class="ico" viewBox="0 0 32 32" fill="none"><g fill="#fff"><path d="M4 6.6v8.8c0 2 2.2 3.2 3.9 2.1l7-4.4c1.6-1 1.6-3.2 0-4.2l-7-4.4C6.2 3.4 4 4.6 4 6.6z"/><rect x="18" y="4" width="10" height="4" rx="2"/><rect x="18" y="14" width="10" height="4" rx="2"/><rect x="4" y="24" width="24" height="4" rx="2"/></g></svg>'};
 const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=272">';
 const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
