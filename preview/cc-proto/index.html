@@ -402,7 +402,7 @@ touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
     else if(pd.kind==='store'||pd.kind==='x')pd.axis='none';
     else if(mode==='feed')pd.axis='f';
     else if(pd.kind==='tabs'||pd.kind.startsWith('tab'))pd.axis=Math.abs(dx)>=Math.abs(dy)?'ro':'none';
-    else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':Math.round(c)<LAST?'v':'none')}   // a single-reel category: up goes to the next tab (Beauty, the last, has none)
+    else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':'v')}   // a single-reel category: up goes to the next tab (Beauty, the last, has none), down to the previous tab's last reel
   let v=0;
   if(pd.axis==='f'){f=rub(pd.f0-dy/812,0,1);v=f}
   else if(pd.axis==='k'){pd.u=pd.k0-dy/812;k=rub(pd.u,0,2);v=pd.u}   // the flick speed: the finger's, not the rubber band's
@@ -423,7 +423,7 @@ function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setP
   const v0=vel(d);
   if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0))}
   else if(d.axis==='k'){const t=snap(Math.round(d.k0)===2?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,3,812);if(t===3){kA.to(2,{ms:400});nextCat()}else stepK(t,Math.round(d.k0))}
-  else if(d.axis==='v'){if(snap(d.u||0,v0,0,0,1,812)===1)nextCat()}
+  else if(d.axis==='v'){const t=snap(d.u||0,v0,0,-1,1,812);if(t===1)nextCat();else if(t===-1)prevCat()}
   else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,LAST,375);goCat(t,Math.round(d.c0))}
   else if(d.axis==='ro'){const base=scrollOf(c),t=clamp(ro+v0*.25,-base,RMAX-base);roA.to(t,{ms:400})}
   else if(d.axis==='cm'){if(cm<.75||v0<-1)closeComments();else cmA.to(1,{ms:400})}}
@@ -433,7 +433,8 @@ function arrive(id){say(R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?'
 function stepF(t,from=Math.round(f)){if(t!==from)restart(t?'nesp':'nike');fA.to(t,{ms:664,onDone:()=>arrive(t?'nesp':'nike')})}
 function stepK(t,from=Math.round(k)){if(t!==from)restart(CATS[0][t]);kA.to(t,{ms:664,onDone:()=>arrive(CATS[0][t])})}
 function nextCat(){const t=Math.round(c)+1;if(t<=LAST)goCat(t)}   // swipe up on a tab's last reel: the next tab, with the tab change (Beauty, the last tab: nothing)
-function vStep(s){if(Math.round(c)===0&&Math.round(k)+s>=0&&Math.round(k)+s<=2)stepK(Math.round(k)+s);else if(s>0)nextCat()}   // up/down in CC: Coffee's reels, then on to the next tab
+function prevCat(){const t=Math.round(c)-1;if(t<0)return;if(t===0){kA.stop();k=CATS[0].length-1}goCat(t)}   // swipe down on a tab's first reel: the previous tab, landing on its last reel (mirrors nextCat; Coffee, the first tab: nothing)
+function vStep(s){if(Math.round(c)===0&&Math.round(k)+s>=0&&Math.round(k)+s<=2)stepK(Math.round(k)+s);else if(s>0)nextCat();else prevCat()}   // up/down in CC: Coffee's reels, then on to the next or previous tab
 function goCat(t,from=Math.round(c)){t=clamp(t,0,LAST);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
   roA.to(0,{ms:664});cA.to(t,{ms:t===c?400:664,onDone:()=>arrive(id)})}
 function togglePause(){const id=curId();if(!id)return;const v=VID[id];
