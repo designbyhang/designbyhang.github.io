@@ -1,4 +1,4 @@
-/* Citi intro (js/citi-intro.js on js/state-seq.js): the Citigold splash -> home, Figma citi_11 -> citi_12. The container is the site's
+/* Citi intro (js/citi-intro.js on js/state-seq.js): Citi Blue splash -> home, sweeps up to Priority and Gold, splits into citi_13's row. The container is the site's
    state-seq frame (theme ground --frame + 1px --line, follows light/dark); the phone is the app itself, so its colours are the tier's
    tokens (--ci-*, set per theme by citi-intro.js) and do not follow the site theme. Design px (Figma 375x812 phone on a 1920x1080 slide).
    Corners: 60%-smoothed squircle clip-paths (js). No hover zoom, no glow, no focus ring. */
@@ -48,7 +48,7 @@ body.cs .media.mframe.sseq.ci-intro .ci-chart img{width:120px;height:120px}
 /* tab bar: 94/94/94/93, labels 10/12 at 35px, the selected icon's disc in the tier accent */
 .ci-intro .ci-tabs{width:375px;height:85px;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.25)}
 .ci-intro .ss-stage .ci-tabr{display:flex;width:375px}
-.ci-intro .ss-stage [data-l=acc],.ci-intro .ss-stage [data-l=pfc],.ci-intro .ss-stage [data-l=txc]{width:100%}
+.ci-intro .ss-stage .ci-in{width:100%}
 .ci-intro .ci-tab{position:relative;width:94px;height:51px;flex:none}.ci-intro .ci-tab:last-child{width:93px}
 .ci-intro .ci-tab span{position:absolute;left:50%;top:35px;transform:translateX(calc(-50% - .5px));font-size:10px;line-height:12px;color:#929292;white-space:nowrap}
 .ci-intro .ci-on span{color:var(--ci-acc)}
@@ -65,3 +65,12 @@ body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-pro{left:33.5px;top:5.5px;wid
 body.cs .media.mframe.sseq.ci-intro .ci-sb img{width:66.662px;height:11.335px}
 /* the phone's 8px black OUTSIDE stroke (Figma strokeAlign OUTSIDE): a 391x828 R56 squircle behind the 375x812 R48 screen */
 .ci-intro .ci-bz{position:absolute;left:-8px;top:-8px;width:391px;height:828px;background:#000}
+/* the tier phones of the row (Blue, Priority): no shell shadow while hidden behind the live phone; their shadow is its own layer pair
+   (outer fades in as the row opens, inner fades out as it folds back), a bezel-shaped drop-shadow under the bezel */
+.ci-intro .ss-stage .ci-sh.ci-tier{filter:none}
+.ci-intro .ss-stage .ci-shd{width:375px;height:812px}
+.ci-intro .ss-stage .ci-tier>.ci-shd{filter:drop-shadow(40px 48px 20px rgba(0,0,0,.16))}
+/* upgrade sweeps: a left-anchored wipe (width 0 -> 375, js) over the live screen holding the next tier's still home screen */
+.ci-intro .ss-stage .ci-wp{width:0;height:812px;overflow:hidden}
+.ci-intro .ss-stage .ci-wp>.ci-ph{right:auto;bottom:auto;width:375px;height:812px}
+.ci-intro .ss-stage .ci-rim{position:absolute;left:0;top:0;width:375px;height:812px;overflow:visible;fill:none;stroke:#000;stroke-width:4}
