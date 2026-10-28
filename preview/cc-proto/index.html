@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=261"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=264"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=261"><link rel="stylesheet" href="../../css/theme.css?v=261">
+<link rel="stylesheet" href="../../css/type.css?v=264"><link rel="stylesheet" href="../../css/theme.css?v=264">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=261"><script src="../../js/vac-caption.js?v=261"></script><script src="../shared/caption/caption.js?v=261"></script><script src="../../js/squircle.js?v=261"></script><script src="../shared/pause/pause.js?v=261"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=264"><script src="../../js/vac-caption.js?v=264"></script><script src="../shared/caption/caption.js?v=264"></script><script src="../../js/squircle.js?v=264"></script><script src="../shared/pause/pause.js?v=264"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=261">
+<link rel="stylesheet" href="../shared/device/device.css?v=264">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -177,7 +177,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <svg style="left:300px;top:68px" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="10.6" cy="10.6" r="8.1" stroke="#fff" stroke-width="2.1"/><path d="m16.6 16.6 5.4 5.4" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg>
           <svg style="left:342px;top:66px" width="28" height="28" viewBox="0 0 28 28"><path fill="#fff" d="M14 1.5C7 1.5 1.6 6.6 1.6 13.5c0 3.6 1.5 6.7 3.9 8.9.2.2.3.5.3.8l.1 2.2c0 .7.8 1.2 1.4.9l2.5-1.1c.2-.1.5-.1.7-.1 1.1.3 2.3.5 3.5.5 7 0 12.4-5.1 12.4-12S21 1.5 14 1.5Z"/><path fill="#000" fill-opacity=".9" d="m6.6 17.1 3.6-5.8c.6-.9 1.8-1.1 2.7-.5l2.9 2.2c.3.2.6.2.9 0l3.9-3c.5-.4 1.2.2.8.8l-3.6 5.8c-.6.9-1.8 1.1-2.7.5l-2.9-2.2c-.3-.2-.6-.2-.9 0l-3.9 3c-.5.4-1.2-.2-.8-.8Z"/></svg>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=261"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=264"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3.5 8.6 10 3.4l6.5 5.2V16a1 1 0 0 1-1 1h-3.3v-4.4H7.8V17H4.5a1 1 0 0 1-1-1V8.6Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div>
           <svg class="up" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.6" stroke="#fff" stroke-width="1.5"/><path d="M10 13.6V6.6M6.9 9.6 10 6.5l3.1 3.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="press" id="pillPress"></i></div>
@@ -190,7 +190,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L store" id="store" aria-hidden="true"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=261" aria-hidden="true">
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=264" aria-hidden="true">
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
@@ -226,13 +226,13 @@ const R={
   nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
   nesp:{kind:'ad',name:'Nespresso',cap:'Sip through spring with our indulgent iced coffee recipes.',cta:'#5f3d8f',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
   bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
-  sbux:{kind:'ad',name:'Starbucks',cap:'This summer\u2019s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
+  sbux:{kind:'ad',name:'Starbucks',cap:'This summer\'s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
   lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
   cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
   univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',store:1,pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
-  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\u2019t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
+  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
   serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']},
-  aden:{kind:'org',name:'Aden Wang',ago:'2 hours ago',cap:'Guess who I\u2019m featuring in my prototype! Tidy desk, happy aloe.',ct:'Aden’s Tidy Home',cu:'View Storefront',pill:'Studio Display XDR',ufi:['3.4K','129','44','508']}};
+  aden:{kind:'org',name:'Aden Wang',ago:'2 hours ago',cap:'Guess who I\'m featuring in my prototype! Tidy desk, happy aloe.',ct:'Aden\'s Tidy Home',cu:'View Storefront',pill:'Studio Display XDR',ufi:['3.4K','129','44','508']}};
 const TABS=['Coffee','Home','Movie','Fashion','Beauty','Tech'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena'],['aden']];
 const FIRST=[0,0,1,2,2,2];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, Movie 1, the rest 2)
 const ICO={

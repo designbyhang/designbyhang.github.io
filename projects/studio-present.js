@@ -30,6 +30,9 @@ const deck=StudioDeck.create({inner,stage,onSlide:n=>{cntA.textContent=num(n);if
  /* any step (gesture or AUTO SCROLL) restarts the AUTO SCROLL wait, which then waits for the landing */
  onStep:()=>{if(apOn){clearTimeout(apT);apT=setTimeout(apWait,0);}}});
 const N=deck.N;cntA.textContent=num(deck.cur);cntB.textContent=pad(CN);
+/* the region's screen-reader label names the slides a viewer can reach (CN: 40 of the 43 deck frames; the two grid build frames before
+   the counter starts and the closing logo frame are not counted), matching the visible counter */
+host.setAttribute('aria-label',(host.getAttribute('aria-label')||'').replace(/\b\d+ slides\b/,CN+' slides'));
 const FS=window.dbhFS,ease=FS.ease,DUR=FS.DUR; /* the shared full-screen motion (js/fs-motion.js): 648ms on the deck's steep ease (= deck.ease) */
 const W=1920,H=1080,lerp=(a,b,t)=>a+(b-a)*t;
 function fitBox(x,y,w,h,k){stage.style.left=x+'px';stage.style.top=y+'px';stage.style.width=w+'px';stage.style.height=h+'px';deck.layout(w,h,null,k);}

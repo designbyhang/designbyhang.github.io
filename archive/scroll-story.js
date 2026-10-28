@@ -4,7 +4,7 @@
 const host=document.getElementById('story');const src=host.dataset.src;const base=src.replace(/[^/]+$/,'');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const FONT={'SF Pro':'-apple-system,"SF Pro Text","SF Pro Display",Inter,system-ui,sans-serif','Instrument Sans':'"Instrument Sans",system-ui,sans-serif','Bitcount Grid Single':'"Bitcount Grid Single","Bitcount Prop Single",monospace'};
-let doc;try{doc=await (await fetch(src,{cache:'no-cache'})).json();}catch(e){host.innerHTML='<p class="ss-err">Couldn’t load the story. Serve the site over http (see README).</p>';return;}
+let doc;try{doc=await (await fetch(src,{cache:'no-cache'})).json();}catch(e){host.innerHTML='<p class="ss-err">Couldn\'t load the story. Serve the site over http (see README).</p>';return;}
 const [AW,AH]=doc.artboard;const imgBase=base+(doc.imagesBase||'images/');
 const view=document.createElement('div');view.className='ss-view';host.appendChild(view);
 const panel=document.createElement('div');panel.className='ss-panel';panel.setAttribute('aria-live','polite');host.appendChild(panel);

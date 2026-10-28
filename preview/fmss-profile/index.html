@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Profile → IAB — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=261"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=264"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -19,12 +19,12 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=261"><link rel="stylesheet" href="../../css/theme.css?v=261">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=261"><script src="../../js/squircle.js?v=261"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=261"></script><script src="../shared/edge-back/edge-back.js?v=261"></script><script src="../shared/pause/pause.js?v=261"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=261"><script src="../shared/appbar/appbar.js?v=261"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=261"><script src="../shared/tabbar/tabbar.js?v=261"></script>
+<link rel="stylesheet" href="../../css/type.css?v=264"><link rel="stylesheet" href="../../css/theme.css?v=264">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=264"><script src="../../js/squircle.js?v=264"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=264"></script><script src="../shared/edge-back/edge-back.js?v=264"></script><script src="../shared/pause/pause.js?v=264"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=264"><script src="../shared/appbar/appbar.js?v=264"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=264"><script src="../shared/tabbar/tabbar.js?v=264"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=261">
+<link rel="stylesheet" href="../shared/device/device.css?v=264">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -230,7 +230,7 @@ html.hosted .phone{background:transparent;border-radius:0}
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the card, and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB as Caption &amp; Browse: drag it down to a half sheet or away. The card’s × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
+  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the card, and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB as Caption &amp; Browse: drag it down to a half sheet or away. The card's × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
