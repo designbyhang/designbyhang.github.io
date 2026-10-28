@@ -45,10 +45,6 @@ body.cs .media.mframe.sseq.ss-cards{background:var(--sheet);border:0!important;m
  .sseq.ss-tall .cv-b br.fl{display:none}
  .sseq.ss-tall .cv-h{font-size:56px;line-height:var(--lh,56px);letter-spacing:-2.24px} /* --lh: tabs open up to 72 (1.29) */
 }
-/* page headline above a Solution container: the case-page h3 (.sub h3 type) whose last words roll with the state (js binds them) */
-.ss-roll{display:inline-grid;vertical-align:top}
-.ss-roll>span{grid-area:1/1;white-space:nowrap;justify-self:start;text-align:left}
-.ss-roll>span+span{opacity:0}
 @media (prefers-reduced-motion:reduce){.sseq .ss-stage *{transition:none}}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe.sseq .car-pp{display:none}} /* nothing to pause: the key frame is static */
 /* before/after segmented control (cfg.toggle), iOS style, in the .car-ctrl spot (32px inset, 16px on phones): a pill track of two equal

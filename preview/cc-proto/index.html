@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=251"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=252"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=251"><link rel="stylesheet" href="../../css/theme.css?v=251">
+<link rel="stylesheet" href="../../css/type.css?v=252"><link rel="stylesheet" href="../../css/theme.css?v=252">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=251"><script src="../../js/vac-caption.js?v=251"></script><script src="../shared/caption/caption.js?v=251"></script><script src="../../js/squircle.js?v=251"></script><script src="../shared/pause/pause.js?v=251"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=252"><script src="../../js/vac-caption.js?v=252"></script><script src="../shared/caption/caption.js?v=252"></script><script src="../../js/squircle.js?v=252"></script><script src="../shared/pause/pause.js?v=252"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=251">
+<link rel="stylesheet" href="../shared/device/device.css?v=252">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -177,7 +177,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <svg style="left:300px;top:68px" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="10.6" cy="10.6" r="8.1" stroke="#fff" stroke-width="2.1"/><path d="m16.6 16.6 5.4 5.4" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg>
           <svg style="left:342px;top:66px" width="28" height="28" viewBox="0 0 28 28"><path fill="#fff" d="M14 1.5C7 1.5 1.6 6.6 1.6 13.5c0 3.6 1.5 6.7 3.9 8.9.2.2.3.5.3.8l.1 2.2c0 .7.8 1.2 1.4.9l2.5-1.1c.2-.1.5-.1.7-.1 1.1.3 2.3.5 3.5.5 7 0 12.4-5.1 12.4-12S21 1.5 14 1.5Z"/><path fill="#000" fill-opacity=".9" d="m6.6 17.1 3.6-5.8c.6-.9 1.8-1.1 2.7-.5l2.9 2.2c.3.2.6.2.9 0l3.9-3c.5-.4 1.2.2.8.8l-3.6 5.8c-.6.9-1.8 1.1-2.7.5l-2.9-2.2c-.3-.2-.6-.2-.9 0l-3.9 3c-.5.4-1.2-.2-.8-.8Z"/></svg>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=251"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=252"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3.5 8.6 10 3.4l6.5 5.2V16a1 1 0 0 1-1 1h-3.3v-4.4H7.8V17H4.5a1 1 0 0 1-1-1V8.6Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div>
           <svg class="up" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.6" stroke="#fff" stroke-width="1.5"/><path d="M10 13.6V6.6M6.9 9.6 10 6.5l3.1 3.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="press" id="pillPress"></i></div>
@@ -190,7 +190,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L store" id="store" aria-hidden="true"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=251" aria-hidden="true">
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=252" aria-hidden="true">
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>

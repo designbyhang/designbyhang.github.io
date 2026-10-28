@@ -103,11 +103,12 @@ document.querySelectorAll('[data-alternate]').forEach(function(row){var vs=[].sl
    (easeInOutQuad = cubic-bezier(.455,.03,.515,.955)): the active bar drops its fill and shrinks to a dot while the next dot grows
    into an empty track, on one shared progress, so the pill keeps its width. The fill starts once the handoff lands. Loops forever.
    Runs while >= 35% in view; pause freezes the fill; a dot click or a swipe (window.dbhSwipe) runs the handoff and restarts the fill;
-   arrow keys when focused.
+   arrow keys when focused. Caption: the slide's alt text; a figcaption holding a rotation caption (.ss-roll, one span per slide, the
+   same build as the VAC §05 funnel captions, css/case.css) rolls its words to the slide instead.
    Reduced motion: no autoplay, no animation */
 (function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
 document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr)return;var imgs=[].slice.call(tr.children),n=imgs.length;if(n<2)return;
- var i=0,playing=!RM.matches,vis=false,on=!window.dbhDemos,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),caps=imgs.map(function(img){return img.getAttribute('alt')||((img.querySelector('img[alt]')||{}).alt)||''});
+ var i=0,playing=!RM.matches,vis=false,on=!window.dbhDemos,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),roll=cap&&cap.querySelector('.ss-roll'),rolls=roll?[].slice.call(roll.children):[],caps=imgs.map(function(img){return img.getAttribute('alt')||((img.querySelector('img[alt]')||{}).alt)||''});
  var ctrl=document.createElement('div'),row=document.createElement('div'),pp=document.createElement('button'),sr=document.createElement('span'),bars=[],fills=[];
  ctrl.className='car-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose slide');
  var dots=imgs.map(function(img,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
@@ -126,7 +127,7 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  function go(k,first){k=(k%n+n)%n;elapsed=0;if(k!==i){e0=e.slice();h=RM.matches?1:0;ht=performance.now()}i=k;
   imgs.forEach(function(img,j){img.classList.toggle('is-active',j===i)});
   dots.forEach(function(d,j){d.setAttribute('aria-current',j===i?'true':'false');d.tabIndex=j===i?0:-1});
-  c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(cap&&!cap.hasAttribute('data-static'))cap.textContent=caps[i];if(!first)sr.textContent='Slide '+(i+1)+' of '+n;draw();kick()}
+  c.setAttribute('aria-label','Slide '+(i+1)+' of '+n);if(roll)rolls.forEach(function(r,j){r.classList.toggle('is-on',j===i);r.classList.toggle('is-up',j<i);if(j===i)r.removeAttribute('aria-hidden');else r.setAttribute('aria-hidden','true')});else if(cap&&!cap.hasAttribute('data-static'))cap.textContent=caps[i];if(!first)sr.textContent='Slide '+(i+1)+' of '+n;draw();kick()}
  function draw(){var q=ease(h);for(var k=0;k<n;k++){var t=k===i?1:0;e[k]=h>=1?t:e0[k]+(t-e0[k])*q;
   dots[k].style.width=(24+16*e[k]).toFixed(3)+'px';bars[k].style.width=(5+19*e[k]).toFixed(3)+'px';
   fills[k].style.setProperty('--p',k===i&&h>=1?Math.min(1,RM.matches?1:elapsed/DUR).toFixed(4):0)}}

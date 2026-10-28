@@ -1,15 +1,11 @@
 /* Project card media shared by the homepage strip (index.html, css/home.css) and the case pages' NEXT CASE STUDY card (css/case.css .next):
    one component, one set of rules. */
-/* USPS card: the cover keeps the project name on the left; the hero GIF's still (first frame, no loop on cards) sits over the cover's right panel (x 1280–2880 of 2880, full height, #1A237E) (at 1440 the GIF is 560x448) */
-.media-wrap.usps-card{position:relative}
-.usps-card .usps-anim{position:absolute;top:0;bottom:0;left:44.4444%;right:0;background:#1A237E;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
-.media-wrap .usps-anim img{width:96.959%;height:auto;aspect-ratio:600/480;object-fit:contain}
 /* FMSS cover animation (js/fmss-split.js [data-fmss-anim]): the case-page hero only (homepage and NEXT CASE STUDY cards show the still
    cover art, no demo). The layer paints the FMSS art
    itself (light-mode file in both themes: black phone on the orange gradient, identical in light and dark) and plays the Solution 1 loop
    on the phone screen baked into it. Static (reduced motion, before the screens decode): just the art = the current cover.
    content-visibility:auto, as .cover-anim: off screen the phone's layers and their animations leave the rendering. */
-.fmss-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#f9552a url(../assets/cover-fmss-hero.webp?v=127) 50% 50%/cover no-repeat;content-visibility:auto}
+.fmss-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#f9552a url(../assets/cover-fmss-hero.webp?v=252) 50% 50%/cover no-repeat;content-visibility:auto}
 .hero-slot.fmss-wrap{position:relative}
 .fsp-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .fmss-anim.on .fsp-ph{opacity:1}
@@ -29,7 +25,7 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
    plus skipped while far off screen): off screen the phone's layers and their animations leave the rendering, so WebKit stops re-processing
    the paused loop's keyframes on every scrolled frame. */
 .cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;content-visibility:auto}
-.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=251)}
+.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=252)}
 .hero-slot.cover-wrap{position:relative}
 .cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .cover-anim.on .cv-ph{opacity:1}
