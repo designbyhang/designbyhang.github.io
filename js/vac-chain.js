@@ -26,13 +26,13 @@
    while Feed comes in from -120px (the iOS pop), ω16 640ms. Every keyframe sits on the 8ms grid; holds are multiples of 8ms.
    Screens, drawn live (the Figma's Reels component, "Card 6" Screen 140796:11916, for every Reels measure):
    - Feed: Hang's Figma Feed (vac_21) with the advertiser's parts cleared (feed.webp: status bar, Facebook header, "Sponsored", the post's
-     menu, the link bar and CTA shapes, reactions, UFI, tab bar) under the post's own DOM: avatar, name + verified badge, caption, link
+     menu, the link bar and CTA shapes, reactions, UFI, tab bar) under the post's own DOM: avatar, name (no verified badge), caption, link
      bar domain + headline, CTA label, and the seed video in the media rect
    - Split Screen: FMSS's parts and recipe (js/fmss-split.js), shared: status bar + close X overlay (preview/fmss-sol1/assets/bo1.webp),
      the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp, faded on the scrubber's HOLD/FADE), the
      shared IAB sheet header (preview/shared/iab/header.js, url/porsche.com.svg) on a white sheet (r16, 60% smoothing) with the advertiser's
      page (porsche-site.webp: the top of the prototype's porsche.com page, preview/vac-proto/assets/page.webp); the backdrop is the video itself, live: drawn small every frame and blurred
-   - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, verified, globe, Sponsored), one-line
+   - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, globe, Sponsored; no verified badge), one-line
      caption with "more", the advertiser's CTA (303x36 r8, the ad's own colour as Reels does; LensCrafters takes its logo navy #182b50, per Hang), the vertical UFI and fixed chrome (status
      bar, back, protective gradient, comment composer, home indicator)
    Videos are locked to the loop clock (VideoScrubber lock), so every loop shows the same frames: the seed 0:00 at loop 0, 1:1 while it is
@@ -89,7 +89,7 @@ const vid=(cls,k)=>`<video class="${cls}" muted playsinline loop preload="none" 
 const reelsUI=d=>`<i class="vc-gb"></i><div class="vc-ufi">`+
   ['like','comment','share'].map((n,i)=>`<span style="top:${495+65*i}px">${im('vc-ic','i-'+n+'.webp',48,48)}<b>${d.ufi[i]}</b></span>`).join('')+
   `<span style="top:690px">${im('vc-ic','i-dots.webp',48,48)}</span></div>`+
-  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${im('vc-bd','i-badge.webp',24,24)}${im('vc-bd','i-globe.webp',24,24)}</p>`+
+  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${im('vc-bd','i-globe.webp',24,24)}</p>`+
   `<p class="vc-sp">Sponsored</p>${CAP(d.cap)}<p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;
 // the caption + "… more ⌄": the shared VAC caption (js/vac-caption.js, with the prototype), cut to fit by VACCaption.watch in build()
 const CAP=cap=>window.VACCaption?VACCaption.html({cap,chev:CA+'chevron-down.svg?v=1',cls:'vc-cp'}):`<p class="vc-cp"><span>${esc(cap)}</span><em>more</em></p>`;
@@ -99,7 +99,7 @@ DC.register('vac',{T,rest:REST,
     scr.innerHTML=
       // Feed: the cleared Figma Feed + the post's own parts
       `<div class="vc-l vc-feed">${im('vc-fb','feed.webp',750,1624)}${im('vc-fav','a-'+S.k+'.webp',80,80)}`+
-        `<p class="vc-fn"><span>${esc(S.name)}</span>${im('vc-fbd','feed-badge.webp',24,24)}</p><p class="vc-fc">${esc(S.cap)}</p>`+
+        `<p class="vc-fn"><span>${esc(S.name)}</span></p><p class="vc-fc">${esc(S.cap)}</p>`+
         `<p class="vc-fu">${S.url}</p><p class="vc-fh">${esc(S.head)}</p><p class="vc-fcta">${esc(S.cta)}</p></div>`+
       // Split backdrop: the seed video, live, small and blurred (drawn by frame() below), under a 24% dim
       `<div class="vc-l vc-amb"><canvas width="30" height="34"></canvas></div>`+
@@ -148,8 +148,9 @@ DC.register('vac',{T,rest:REST,
     // (dissolves in with Split, then fades out in place as the sheet is swiped down into Reels: opacity only, it never moves)
     An('.vc-bos',p=>({opacity:p.c<1&&!p.pop?p.a*(1-p.c):0}));
     An('.vc-box',p=>({opacity:p.pop?0:p.a*clamp(1-2*p.c)}));
-    // player controls: ride up with the media and fade in (FMSS: 185px), then ride with it into Reels and fade out
-    An('.vc-ctl',p=>{const y=p.c>0?lerp(R.split[1],R.reels[1],p.c)-44:185*(1-p.a);
+    // player controls: ride up with the media and fade in (FMSS: 185px), then into Reels fade out sliding down 88px (twice the media's
+    // rise, mirrored; as the prototype's .ctl, preview/vac-proto)
+    An('.vc-ctl',p=>{const y=p.c>0?2*(R.split[1]-R.reels[1])*p.c:185*(1-p.a);
       return {opacity:p.pop?0:p.a*clamp(1-2*p.c),transform:tr(0,y)}});
     // the sheet (the advertiser's site under the shared header) rises to 406 for Split, then is swiped down off the screen
     An('.vc-sh',p=>({transform:tr(0,SH+SH*(1-p.a)+SH*p.c)}));

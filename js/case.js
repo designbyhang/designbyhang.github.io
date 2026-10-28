@@ -20,8 +20,19 @@ let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;up
    window.dbhPlayPause(box, watch, player, noun): adds the button to box and drives player {paused(), play(), pause()} from watch's visibility; returns its state sync */
 /* the one play/pause icon pair (.mbtn): pause = two strokes, play = filled triangle */
 window.dbhPP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.087 4L5.087 12A0.8 0.8 0 0 0 6.311 12.678L12.711 8.678A0.8 0.8 0 0 0 12.711 7.322L6.311 3.322A0.8 0.8 0 0 0 5.087 4Z"/></svg>';
+/* window.dbhTapPP(box, btn): the whole media box is its play/pause button's tap target (Hang, 2026-10-28: "make these container tappable,
+   not just the play/pause button"). A click anywhere on the box = one press of btn (btn.click(): the same toggle, icon and aria in sync).
+   Not: a click on the button itself or on any other control/link (they keep their own action, no double toggle), a click that ends a
+   swipe/drag (window.dbhSwipe swallows those before they get here), a double click's second click, or one inside a nested box with
+   its own button. Only boxes holding a play/pause (.vid-btn, .car-pp) are registered: prototypes (.proto-x), step/toggle players and
+   other media keep ignoring taps. The listener sits on the box (iOS fires click only on an element with a handler); no tap flash
+   (css/case.css [data-pp-tap]) */
+window.dbhTapPP=function(box,b){if(!box||!b||box.__pp)return;box.__pp=b;box.setAttribute('data-pp-tap','');
+ box.addEventListener('click',function(e){var t=e.target;if(e.defaultPrevented||e.button>0||e.detail>1||!t||!t.closest||b.disabled)return;
+  if(t.closest('[data-pp-tap]')!==box||t.closest('button,a[href],input,select,textarea,label,summary,iframe,[role=button],[data-go],.car-ctrl,.ss-ctrl,.proto-open,.fsx-open'))return;
+  b.click()})};
 window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play'),D=window.dbhDemos,on=!D,ask=null,want=false,go=function(w){want=!!w;if(want!==p.paused())return;w?p.play():p.pause()};b.type='button';b.className='mbtn vid-btn';
- b.innerHTML=window.dbhPP;box.appendChild(b);
+ b.innerHTML=window.dbhPP;box.appendChild(b);dbhTapPP(box,b);
  var sync=function(){if(!want&&!p.paused())p.pause();var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};
  b.addEventListener('click',function(){if(p.paused()){held=false;go(1)}else{held=true;go(0)}sync();if(ask)ask()});sync();
  /* only while it has the page's one demo turn (js/demos.js); a manual pause hands the turn on. want = this controller's last call:
@@ -85,7 +96,7 @@ document.querySelectorAll('[data-alternate]').forEach(function(row){var vs=[].sl
   turn=function(j){if(j===k)return;var o=vs[k];o.pause();rewind(o);k=j},
   run=function(){if(on&&!held)turn(next());vs.forEach(function(v,j){if(j!==k&&!v.paused)v.pause()});var v=vs[k];if(on&&!held&&can(k)){if(v.paused)play(v)}else if(!v.paused)v.pause();sync()};
  vs.forEach(function(v,j){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=false;v.autoplay=false;v.removeAttribute('autoplay');v.removeAttribute('loop');v.pause();
-  var b=document.createElement('button');b.type='button';b.className='mbtn vid-btn';b.innerHTML=window.dbhPP;(v.closest('.media')||v.parentNode).appendChild(b);bs.push(b);
+  var b=document.createElement('button');b.type='button';b.className='mbtn vid-btn';b.innerHTML=window.dbhPP;(v.closest('.media')||v.parentNode).appendChild(b);dbhTapPP(b.parentNode,b);bs.push(b);
   b.addEventListener('click',function(){if(v.paused){held=false;turn(j);pin=j;play(v)}else{held=true;v.pause()}sync();if(ask)ask()});
   v.addEventListener('play',function(){if(j!==k||!on||held||!can(j))v.pause();sync()});v.addEventListener('pause',sync);
   /* one loop done: the next video's turn, from its start (only while the row runs; a held row stays where it is) */
@@ -114,7 +125,7 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  var dots=imgs.map(function(img,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
   b.setAttribute('aria-label','Slide '+(k+1)+' of '+n+(caps[k]?': '+caps[k]:''));b.addEventListener('click',function(){go(k)});row.appendChild(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild);return b});
  pp.type='button';pp.className='mbtn car-pp';pp.innerHTML=window.dbhPP;pp.addEventListener('click',function(){playing=!playing;sync();kick();if(ask)ask()});
- sr.className='car-sr';ctrl.appendChild(row);ctrl.appendChild(pp);c.appendChild(ctrl);c.appendChild(sr);
+ sr.className='car-sr';ctrl.appendChild(row);ctrl.appendChild(pp);c.appendChild(ctrl);c.appendChild(sr);dbhTapPP(c,pp);
  row.addEventListener('keydown',function(e){var k=dots.indexOf(document.activeElement),t=null;if(k<0)return;
   if(e.key==='ArrowRight')t=k+1;else if(e.key==='ArrowLeft')t=k-1;else if(e.key==='Home')t=0;else if(e.key==='End')t=n-1;
   if(t===null)return;e.preventDefault();e.stopPropagation();go(t);dots[i].focus()});

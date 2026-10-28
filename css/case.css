@@ -102,7 +102,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .next .k .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease} /* same underline as BACK / nav links, driven by hovering anywhere on the card */
 .next-hit:hover .k .t::after,.next-hit:focus-visible .k .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.next .k .t::after{transition:none}}
-@media (max-width:640px){.next .k .t{width:min-content}} /* phone: min-content width puts NEXT / CASE / STUDY on one line each (no markup change, every case page); the arrow stays centred by .next .k align-items:center, i.e. on the CASE line */
+@media (max-width:640px){.next .k{align-items:flex-end}.next .k .t2{display:block;white-space:nowrap}.next .k .arr{margin-bottom:.18em}} /* phone: two lines, NEXT / CASE STUDY (.t2, every case page); the arrow sits on the CASE STUDY line, centred on it (.64em arrow in a 1em line: .18em up from the bottom) */
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.next-hit{gap:20px;padding:19px 19px 19px 20px}.next .media-wrap{border-radius:round(calc(100cqi / 20), 2px)}}
 .foot{max-width:1152px;margin:-64px auto 48px;padding:0 24px;display:flex;justify-content:center}
 .foot a{text-decoration:none;line-height:1!important;transition:color .2s}
@@ -219,9 +219,8 @@ body.cs .wrap .fig .media.draw{box-sizing:content-box;max-width:calc(100% - 2px)
 .inc2 .inc-col .media.mframe{aspect-ratio:1920/2052;width:100%;height:auto;max-width:none;box-sizing:border-box}
 .inc2 .inc-col figcaption{margin:14px 0 0}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.inc2 .inc-row{grid-template-columns:1fr;gap:32px}}
-/* stacked media: portrait tablets keep the wide frame; phones get a 4:5 portrait frame (cover crops only the dark side margins:
-   the art is 8:9 with the phones/ad inside its middle 76%, so both phone screens and the ad text stay whole) */
-@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){.inc2 .inc-col .media.mframe{aspect-ratio:3840/2052}}
+/* stacked media: phones get a 4:5 portrait frame (cover crops only the dark side margins: the art is 8:9 with the phones/ad inside
+   its middle 76%, so both phone screens and the ad text stay whole); portrait tablets take the .pd-baked geometry (.pd-label, below) */
 @media (max-width:640px){.inc2 .inc-col .media.mframe{aspect-ratio:4/5}}
 
 /* section label replaces the logo once past the eyebrow (all widths) */
@@ -315,6 +314,8 @@ html{background:var(--page)}
 video.demo-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
 video.demo-video::-webkit-media-controls-overlay-play-button{display:none!important}
 video.demo-video::-webkit-media-controls{display:none!important}
+/* a media box that is its play/pause's tap target (window.dbhTapPP, js/case.js): no tap flash, no hover, focus or cursor change */
+[data-pp-tap]{-webkit-tap-highlight-color:transparent}
 /* live prototypes (FMSS Evolution): a same-origin iframe (?embed=1) in a case media frame; the whole device fits inside, nothing scrolls in the frame */
 .proto-fig{margin-top:24px}
 body.cs .media.proto{aspect-ratio:3840/2052;background:var(--frame)}
@@ -377,7 +378,7 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
 .t-red{color:var(--red-text)}
 /* VAC 02 Problem + 05 Current State: rows of text cell + phone module (02: module | text; 05 row 1 text | module, row 2 module | text),
    05 stacked with no gap so the modules meet corner to corner. Layout = the FMSS Inconsistencies pair (.inc2 .inc-row / .inc-col: two
-   equal columns, 24px gap, 1920/2052 frames; 3840/2052 portrait tablets; 4:5 phones), so each module is exactly the FMSS column width.
+   equal columns, 24px gap, 1920/2052 frames; .pd-baked boxes on portrait tablets; 4:5 phones), so each module is exactly the FMSS column width.
    Module (.media.mframe.phone-demo, VAC 05 rows and VAC 09 .pd-solo): follows the theme, #f1f1f1 ground + 12% black bezel in light,
    #1d1d1d + 20% white in dark, one 375x812 phone recording. Geometry = the shared phone-container rule (Hang, Oct 27; the same tokens
    and values as the phone-spacing branch's .dev): the module is --mbox-h tall inside its 1px border (8px grid), the device (screen
@@ -398,11 +399,18 @@ html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-
    dark capture edge (cols 0-1/748-749, rows 0-3/1620-1623) is cropped out of the files themselves (746x1616, the screen's 375:812
    within 0.04%), so no edge row is left for the downscaler to bleed in as a dark line */
 body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;border-radius:0;transform:none;transition:none}
-/* VAC 02 Problem (.pd-baked): 1624x1824 recordings with the phone screen baked in (1376 tall at y 180, the FMSS Inconsistencies
-   template, whose label row below the phone VAC leaves empty) on the template's #1d1d1d ground. The module takes the shared container
-   height and the video is sized so the baked screen is --dev-h tall at --dev-pad from the top: 24px top and bottom, centred across */
-body.cs .media.mframe.pd-baked{box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto;background:#1d1d1d}
-body.cs .media.mframe.pd-baked video{position:absolute;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);margin:0;transform:translateX(-50%);object-fit:fill}
+/* Baked phone template (.pd-baked): 1624x1824 recordings with the phone screen baked in (1376 tall at y 180) on the template's #1d1d1d
+   ground. The module takes the shared container height plus --pd-label and the video is sized so the baked screen is --dev-h tall at
+   --dev-pad from the top: 24px above the phone, 24px + --pd-label below it, centred across. VAC 02 Problem (all widths) leaves the
+   template's label row empty (no --pd-label: 0). FMSS 02 Inconsistencies (.pd-label) shows it (label bottom 144/1376 of --dev-h under the
+   screen, 41-46px on tablets) and is .pd-baked only stacked on portrait tablets, where the wide 3840/2052 frame cropped the phone:
+   --pd-label 48px, so 24px above the phone and 72px below it, the label clearing the bottom by 26-32px. Its carousel (1440x1620
+   slides of the same template: phones 1219 tall at y 162, on #1f1f1f) takes the same box and places each slide the same way, so the
+   pair's phones and labels match and nothing is cropped. The video drops the .mframe video #f1f1f1 fill, which showed as a 1px light
+   line at its fractional right edge on the dark ground */
+body.cs .media.mframe.pd-baked{box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + var(--pd-label,0px) + 2px);aspect-ratio:auto;background:#1d1d1d}
+body.cs .media.mframe.pd-baked video{position:absolute;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);margin:0;transform:translateX(-50%);object-fit:fill;background:none}
+@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){body.cs .media.mframe.pd-label{--pd-label:48px;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + var(--pd-label,0px) + 2px);aspect-ratio:auto;background:#1d1d1d}body.cs .media.mframe.pd-label video{position:absolute;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);margin:0;transform:translateX(-50%);object-fit:fill;background:none}body.cs .media.mframe.carousel.pd-label{background:#1f1f1f}body.cs .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*162/1219);width:auto;height:calc(var(--dev-h)*1620/1219);transform:translateX(-50%)}}
 .pd-rows{margin-top:64px}
 .inc2 .pd-row{align-items:stretch}
 .pd-touch .pd-row{column-gap:0} /* Hang, Oct 26: Current State modules widen to meet, no column gap */
@@ -432,3 +440,7 @@ body.cs .media.mframe.pd-baked video{position:absolute;left:50%;top:calc(var(--d
  body.cs .cs-head .meta{margin-top:var(--cs-gap-text)}
  body.cs .cs-head>.hero-media{margin-top:var(--cs-gap)}
 }
+
+/* placeholder container: Bitcount 16/24, white, centred in the media frame on the Citi carousel blue #002154 (Citi 04, until the prototype lands) */
+body.cs .media.mframe.ph-soon{background:#002154}
+body.cs .media.mframe.ph-soon p{margin:0;font:400 16px/24px "Bitcount Grid Single",var(--mono,monospace);letter-spacing:.32px;color:#fff;text-align:center}

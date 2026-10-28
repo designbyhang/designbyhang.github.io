@@ -132,9 +132,9 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
-        <img class="L feed" id="feed" alt="" src="assets/feed.webp?v=229">
+        <img class="L feed" id="feed" alt="" src="assets/feed.webp?v=269">
         <div class="L bu" id="bu"><canvas width="30" height="34"></canvas></div>
-        <img class="L pp" id="pp" alt="" src="assets/reel-porsche.webp?v=229">
+        <img class="L pp" id="pp" alt="" src="assets/reel-porsche.webp?v=269">
         <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/porsche.webp?v=229" src="../../assets/vac-anim/v4/porsche.mp4?v=229"></video></div>
         <img class="L ufi" id="ufi" alt="" src="../../assets/vac-anim/ufi.webp?v=229">
         <div class="L pzw" id="pzw"><div id="pz" aria-hidden="true"></div></div>
@@ -144,9 +144,9 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="L btn cta" id="ctaFeed" type="button" style="left:0;top:591px;width:375px;height:54px" aria-label="porsche.com, The Porsche Taycan, Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
-        <div class="L pg pgv" id="p1"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/on.webp?v=268" src="../../assets/vac-anim/v4/on.mp4?v=268"></video><img alt="" src="assets/reel-on.webp?v=268"></div>
-        <div class="L pg pgv" id="p2"><video muted playsinline loop preload="auto" disableremoteplayback poster="../fmss-sol2/assets/p3.webp?v=268" src="../fmss-sol2/assets/v3.mp4?v=268"></video><img alt="" src="assets/reel-away.webp?v=268"></div>
-        <img class="L pg" id="p3" alt="" src="assets/reel-perrier.webp?v=229">
+        <div class="L pg pgv" id="p1"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/on.webp?v=269" src="../../assets/vac-anim/v4/on.mp4?v=269"></video><img alt="" src="assets/reel-on.webp?v=269"></div>
+        <div class="L pg pgv" id="p2"><video muted playsinline loop preload="auto" disableremoteplayback poster="../fmss-sol2/assets/p3.webp?v=269" src="../fmss-sol2/assets/v3.mp4?v=269"></video><img alt="" src="assets/reel-away.webp?v=269"></div>
+        <img class="L pg" id="p3" alt="" src="assets/reel-perrier.webp?v=269">
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
         <img class="L chrome" id="chrome" alt="" src="assets/chrome.webp?v=229">
         <img class="L bar" id="bar" alt="" src="assets/bar.webp?v=229">
@@ -241,7 +241,9 @@ function render(){
   els.pzw.style.transform=tr(rx,pageY(0));
   if(els.cap[0]){op(els.cap[0],k<1?c:0);els.cap[0].style.transform=tr(rx,pageY(0))}
   const xo=pop?0:a*clamp(1-2*c);op(els.box,xo);   // the close X fades in and out in place, never moves (as the hero's .vc-box)
-  if(ctl){ctl.style.transform=c>0?tr(0,y-44):tr(0,185*(1-a));op(ctl,xo);const hv=xo>.01?'':'hidden';if(ctl.style.visibility!==hv)ctl.style.visibility=hv}
+  // the controls: up from 185px below with Feed → Split; into Reels they fade out sliding down, 88px over c (twice the split video's top
+  // inset, the media's own rise, mirrored), so a sheet released back to Split brings them back up from below (the hero's .vc-ctl, js/vac-chain.js)
+  if(ctl){ctl.style.transform=c>0?tr(0,2*(R.split[1]-R.reels[1])*c):tr(0,185*(1-a));op(ctl,xo);const hv=xo>.01?'':'hidden';if(ctl.style.visibility!==hv)ctl.style.visibility=hv}
   for(let j=1;j<=N;j++){const e=els.p[j],o=c>=1||pop?(Math.abs(j-k)<1?1:0):0;op(e,o);e.style.transform=tr(rx,pageY(j));
     const cp=els.cap[j];if(cp){op(cp,o);cp.style.transform=tr(rx,pageY(j))}}
   op(els.chrome,c);els.chrome.style.transform=tr(rx,0);

@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=268">
+<link rel="stylesheet" href="../shared/device/device.css?v=269">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -33,12 +33,14 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
-/* split-line seam underlay: the B sheet image's own first row (1 of its 812, stretched over the strip's height: background-size 100% 81200%),
-   full width, under every layer at the split line. Only that row: the strip starts 2px above the sheet, so with the image's top rows laid
-   1:1 its narrower lower corner rows poked out past the sheet's own corner curve in the shared row (a light spike off each rounded corner). The backdrop's last row and
-   the sheet's first meet in one anti-aliased device row; this fills it with the colours both sides carry (the backdrop's in the sheet's
-   rounded corners, the sheet's white between), never the bezel's black (dark hairline) or a white underlay (light one) */
-.sw{position:absolute;left:0;width:375px;background-position:0 0;background-size:100% 81200%;background-repeat:no-repeat}
+/* B sheet top, live (no baked corners or handle): the sheet image (.bs) is clipped to the sheet's own shape, a 16px squircle top corner each
+   side (60% smoothing, at drawn size, set in fit()), and its first 18 rows (the lossy-compressed corners and grab handle baked into it, which
+   read pixelated, most of all at 3x and over a light backdrop) are drawn live by .bk: the sheet colour under the same clip, with the
+   handle (40x4 #C9CCD1 r2 at 168,8, as preview/shared/iab/header.js draws it for the IAB sheets). Under the sheet's corners .sk, riding
+   with the sheet, carries the B backdrop's last row (bu's, stretched over the strip: background-size 100% top x 100%, bottom row), so the
+   corners and the split-line seam show the backdrop's own colours, never the screen white or the bezel black */
+.sk{position:absolute;left:0;width:375px;background-position:0 100%;background-repeat:no-repeat}
+.bk{position:absolute;left:0;width:375px}.bk>i{position:absolute;background:#C9CCD1}
 .L{will-change:transform,opacity}
 /* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
    375×812 design size × the pixel ratio, ~11MB, some 40 per animation, which pushed iOS Safari past its memory limit), so every animated
@@ -53,7 +55,7 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
  /* the white under every layer stops 8px short of the screen's side edges: the layers' anti-aliased side columns meet the bezel there, not white (no light hairline down the sides) */
  .scr{background:none}.scr>.bg{position:absolute;left:8px;top:0;background:#fff;width:calc(359px * var(--s,.5));height:calc(812px * var(--s,.5))}
  .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
- .scr .sw{width:calc(375px * var(--s,.5))}
+ .scr .sk,.scr .bk{width:calc(375px * var(--s,.5))}
  .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
  .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}
  .scr .rl{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}}
@@ -86,7 +88,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=268"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=268"></script><script src="../../js/device-cover.js?v=268"></script>
+<script src="../../js/squircle.js?v=269"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=269"></script><script src="../../js/device-cover.js?v=269"></script>
 <script>
 (function(){
 const PH=[{"label": "Feed", "top": 406}, {"label": "Video (Reels)", "top": 548}, {"label": "Stories", "top": 680}, {"label": "In-Content Ads", "top": 406}];
@@ -164,18 +166,20 @@ const CHECK='<svg viewBox="0 0 12 12"><mask id="ck"><rect width="12" height="12"
 const HD=[null,null,'away.com','away.com'];   // phones whose B sheet is an IAB: its header is the shared one (../shared/iab/header.js) for this domain
 const CS=['#f1f2f6','#f1f2f6','#fff','#fff'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#f7f7f7','#f7f7f7','#fff','#fff'];   // bottom colour of each C screen (c1-c4 last row)
+const SC=['#f1f2f6','#f1f2f6','#fff','#fff'];   // B sheet colour (each bl image's own flat top rows): the live sheet top, .bk
 const anims=[],imgs=[],vids=[];let reel=null,thumb=null,clock=null,scrub4=null;
 const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]);
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i],n=i+1;
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
   const im=(c,f,st)=>`<img class="L ${c}" alt="" src="${AS}${f}.webp${V}"${st?` style="${st}"`:''}>`,cut=`height:${dp(top)}`;
-  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+`<i class="L sw" style="top:${top-2}px;height:${dp(4)};background-image:url(${AS}bl${n}.webp${V})"></i>`+
+  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+`<i class="L sk" style="top:${top-2}px;height:${dp(30)};background-image:url(${AS}bu${n}.webp${V});background-size:100% ${top*100}%"></i>`+
     im('au',`au${n}`)+(n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}r4.webp${V}" src="${AS}r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+im('bu',`bu${n}`,cut)+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${n}.webp${V}" src="${AS}v${n}.mp4${V}"></video></div>`+
     (n===3?im('sg','sg3'):'')+(n!==1?im('ao',`ao${n}`):'')+(m.cs?(VS?'<i class="vs-at"></i>':im('bc',`bc${n}`,cut)):'')+im('bo',`bo${n}`,cut)+
     (n===3?`<div class="hd"><i class="pb"></i><div class="meta"><img alt="" src="assets/av3.webp${V}"><div><div class="nm">Away${CHECK}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`:'')+
     im('bs',`bl${n}`,`top:${top}px;height:${dp(812-top)}`)+
+    `<i class="L bk" style="top:${top}px;height:${dp(18)};background:${SC[i]}">${HD[i]?'':`<i style="left:${dp(168)};top:${dp(8)};width:${dp(40)};height:${dp(4)};border-radius:${dp(2)}"></i>`}</i>`+
     `<i class="L cu" style="background:${CU[i]}"></i>`+
     `<i class="L cs" style="background:${CS[i]}"></i>`+
     im('cb',`c${n}`,`clip-path:inset(${43/8.12}% 0 0 0)`)+
@@ -183,8 +187,8 @@ PH.forEach((p,i)=>{
     `</div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
-  // IAB sheets: the sheet image's header strip is blank (the sheet's white, its rounded corners); the shared header draws on it
-  if(HD[i])dev.querySelector('.bs').after(FMSSIABHeader({url:HD[i],cls:'bhd',style:`top:${top}px;will-change:transform`}));
+  // IAB sheets: the sheet image's header strip is blank (the sheet's white); the shared header draws on it, over the live sheet top (.bk)
+  if(HD[i])dev.querySelector('.bk').after(FMSSIABHeader({url:HD[i],cls:'bhd',style:`top:${top}px;will-change:transform`}));
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('.mv video'));if(n===4){reel=q('.rl video');thumb=q('.mv video');clock=null}
   // live player controls (../../js/video-scrubber.js): timestamp + track (read only) where bc's were, icons as a crop (ci); they fade out
   // 2080–2400ms after split screen is reached (t1e, t3e)
@@ -211,7 +215,7 @@ PH.forEach((p,i)=>{
   // the B sheet is its own image (bl: b's rows from the split line down, first rows free of the backdrop's resampling bleed), laid at the
   // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
-  A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));
+  A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.bk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.sk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // live sheet top and corner underlay ride with it
   if(HD[i])A('.bhd',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // its header rides with it
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
@@ -232,6 +236,10 @@ function snap(k){stage.querySelectorAll('.scr .L,.scr .rl,.bezel').forEach(e=>{l
 function fit(){const s=scl(),k=+s.toFixed(4);stage.style.setProperty('--s',k);
   if(IT)snap(k);
   if(IT&&SQ)stage.querySelectorAll('.bezel').forEach(b=>{b.firstChild.style.clipPath=`path('${squircle(b._dw[0],b._dw[1],48*k,.6)}')`});
+  // the B sheet's shape (image and live top): 16px squircle top corners at drawn size; .bk's path runs the screen's height (its 18 rows sit
+  // inside the corners, which a path its own height would clamp)
+  if(SQ){const z=IT?k:1;stage.querySelectorAll('.bs,.bk').forEach(e=>{const w=IT?e._dw[0]:375,h=e.classList.contains('bk')?812*z:IT?e._dw[1]:812;
+    e.style.clipPath=`path('${Squircle.pathR(w,h,[16*z,16*z,0,0],.6)}')`})}
   if(half&&s*(devicePixelRatio||1)>1)upgrade()}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;

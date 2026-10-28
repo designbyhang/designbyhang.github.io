@@ -101,7 +101,7 @@ function mount(box){var pins=[];
   cfg.states.forEach(function(st,k){var b=mbtn('ss-sb',st.short||st.name||String(k+1),'',function(){userTap(k)});b.setAttribute('aria-label','Show '+(st.name||st.short));tg.push(b);seg.appendChild(b)});
   seg.style.setProperty('--n',n);ctrl.appendChild(seg);ctrl.setAttribute('role','group');ctrl.setAttribute('aria-label','Before and after')}
  else{pp=mbtn('car-pp',window.dbhPP||'','Pause',function(){playing=!playing;sync();kick()});ctrl.appendChild(row);ctrl.appendChild(pp)}
- sr.className='car-sr';sr.setAttribute('aria-live','polite');if(cfg.controls!==false)box.appendChild(ctrl);box.appendChild(sr);
+ sr.className='car-sr';sr.setAttribute('aria-live','polite');if(cfg.controls!==false)box.appendChild(ctrl);box.appendChild(sr);if(pp&&cfg.controls!==false&&window.dbhTapPP)dbhTapPP(box,pp);
  function sync(){if(tg){tg.forEach(function(b,k){b.setAttribute('aria-pressed',k===i?'true':'false')});tg[0].parentNode.style.setProperty('--k',i)}if(pp){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' animation')}}
  /* dots: slot openness e[k] eases with the transition, so the pill keeps one width */
  var e=cfg.states.map(function(){return 0}),e0=e.slice();

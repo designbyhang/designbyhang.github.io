@@ -20,8 +20,8 @@
      y2           half-sheet top (406)                           fullTop   full header's top inside the sheet (0); content top = fullTop + 46
      handle       a 20px drag strip at the sheet's top           halfZ     damping into half (.82)
      shift        'p' | 'hk': what moves the page top half → full ('p')
-     fullness(y)  0 half/closed → 1 full (default from half)     halfOK()  half reachable (true)
-     hold(from,to) hold the full header through a move (1→3 / 3→1)  holdOnDrag() hold it while dragging (false)
+     fullness(y)  0 half/closed → 1 full (default from half)
+     hold(from,to) hold the full header through a move (1→3 / 3→1)
      capOpacity(sd) status backing opacity (default sd = (84 - y) / 40)   xOn(s) when × shows (s === 3)
      spring {w, z, wClose}                                     scale()   host px → client px (host height / 812)
    Hooks: onRender(c) c = {y, t (closed→half), p (fullness), hk (header), sd (status), state} · onState(s) · onOpen(s, opts)
@@ -79,7 +79,6 @@ function create(cfg){
   const smax=()=>Math.max(0,(webH()||0)-visH);
   const scaleNow=cfg.scale||(()=>host.getBoundingClientRect().height/812);
   const fullness=cfg.fullness||(y=>clamp((Y2-y)/(Y2-Y3)));
-  const halfOK=cfg.halfOK||(()=>true);
   const holdRule=cfg.hold||((from,to)=>(from===1&&to===3)||(from===3&&to===1));
   const xOn=cfg.xOn||(s=>s===3);
   const el=(tag,cls,attrs)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);return e};
@@ -219,7 +218,7 @@ function create(cfg){
   let drag=null,sc=null;
   function dragStart(clientY,id,scale){
     if(entry==='cta')return;                       // a CTA open: the sheet never follows a press
-    ySpring.stop();hLock=!!(cfg.holdOnDrag&&cfg.holdOnDrag());
+    ySpring.stop();hLock=false;
     drag={id,startY:clientY,y0:y,from:state,moved:false,scale:scale||0,mouse:ptype.get(id)==='mouse',samples:[[performance.now(),y]]};
     sheet.classList.add('drag');
   }
@@ -235,7 +234,7 @@ function create(cfg){
        rest of the gesture is ignored), so nothing the cursor does afterwards can bring it back: a trackpad's drag-lock / three
        finger drag keeps the button "down" for a moment after the fingers lift, and a release the page never hears leaves the press
        live. Touch keeps the plain release decision. */
-    if(drag.mouse&&drag.moved&&y>prev&&y>=MOUSE_OUT&&(drag.from===2||!halfOK())&&!(drag.from===3&&collapseOn()))dragEnd({out:true});
+    if(drag.mouse&&drag.moved&&y>prev&&y>=MOUSE_OUT&&drag.from===2&&!(drag.from===3&&collapseOn()))dragEnd({out:true});
   }
   function dragEnd(o){
     if(!drag)return;
@@ -245,10 +244,10 @@ function create(cfg){
     const s=d.samples,a=s[0],b=s[s.length-1];
     const v=(b[0]-a[0])>0?(b[1]-a[1])/((b[0]-a[0])/1000):0;   // px/s (+ = down)
     if(d.from===3&&collapseOn())return (y-Y3>(cfg.collapse.min||120)||v>(cfg.collapse.flick||500))?collapse():go(3,{v});   // full ⇄ CTA only: a small drag snaps back
-    const proj=y+v*.18,half=halfOK();
-    const cands=!half?[[3,Y3],[1,Y1]]:d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
+    const proj=y+v*.18;
+    const cands=d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
     let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
-    if(half&&Math.abs(v)>600){                     // a flick always moves at least one step its way
+    if(Math.abs(v)>600){                     // a flick always moves at least one step its way
       const want=clamp(d.from+(v>0?-1:1),1,3);
       if(d.from===3&&want<2){}else if((v>0&&best[0]>want)||(v<0&&best[0]<want))best=cands.find(c=>c[0]===want)||best;
     }
