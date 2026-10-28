@@ -65,8 +65,9 @@ video{display:block;object-fit:cover}
 .ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 3px}
 /* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
    (--c-bottom 76: the CTA 692–736, the nav 752). Inside it, from the author row (612): avatar 36 + name ✓ · Follow (20px line) and
-   "Ad" under the name (the shared .c-sp line: 12/16, white 70%; never "Sponsored", no Ad pill), the VAC caption at +48 (660, "… more ⌄",
-   js/vac-caption.js), the CTA at +80 (303×44, r12). Creator posts: "· Following" and the post's age under the name, the caption, and the
+   "Sponsored" under the name (the shared .c-sp line: 12/16, white 70%, as MAC and SAP since v230; no Ad pill), the VAC caption at +48
+   (660; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
+   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (303×44, r12). Creator posts: "· Following" and the post's age under the name, the caption, and the
    commerce card (56) at +80 (680–736). The Nike seed: name / 4h and its caption only (author 672, caption 716) */
 .phone .c-stack{--c-bottom:76px}
 .c-stack.cc-org{height:136px}
@@ -74,14 +75,16 @@ video{display:block;object-fit:cover}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
 .c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.3);-webkit-font-smoothing:antialiased}
 .cn svg{flex:none;width:14px;height:14px;margin:0 4px}
-.c-stack>.ocap{left:0;top:48px;width:303px;font:400 15px/20px var(--sf);letter-spacing:-.24px;white-space:nowrap;overflow:hidden;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
-.cc-seed>.ocap{top:44px;text-overflow:ellipsis}
-.ocap span{color:rgba(255,255,255,.8)}
+.c-stack.cc-seed>.c-cap{top:44px}
 .c-stack>.cta{left:0;top:80px;width:303px;height:44px;border-radius:12px;font:600 15px/44px var(--sf);letter-spacing:-.24px;text-align:center;color:#fff;overflow:hidden}
 .c-stack>.card{left:0;top:80px;width:303px;height:56px;border-radius:12px}
-.card .th{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:8px;background:#333 50% 50%/cover no-repeat}
-.card .t{position:absolute;left:56px;top:8px;right:16px;font:600 15px/20px var(--sf);letter-spacing:-.24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .u{position:absolute;left:56px;top:28px;font:400 13px/20px var(--sf);letter-spacing:-.08px;color:rgba(255,255,255,.72);white-space:nowrap}
+/* the commerce cards (the reel's, 303×56, and the comments sheet's, 351×56): one recipe. An even 8pt inset on all four sides; the
+   thumbnail 40×40, square, its radius concentric with the card's (12 − 8 = 4, squircled by js/squircle.js); the text 12 after it (x 60)
+   and 8 from the right edge (ellipsis, never clipped mid-glyph); title 600 15/20 over the action line 400 13/20, a 40pt group centred in
+   the 56 (top 8, bottom 8: on the 8pt grid); a button inside a card shares the inset and the concentric radius (40 tall, r4) */
+.card .th,.pc .pth{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:4px;background:#333 50% 50%/cover no-repeat}
+.card .t,.pc .pt{position:absolute;margin:0;left:60px;top:8px;right:8px;font:600 15px/20px var(--sf);letter-spacing:-.24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .u,.pc .pu{position:absolute;margin:0;left:60px;top:28px;right:8px;font:400 13px/20px var(--sf);letter-spacing:-.08px;color:rgba(255,255,255,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* the material: a 25px backdrop blur under #252525 at 55% with a #9C9C9C overlay (SAP's For you pill, Figma) */
 .mat{background:rgba(37,37,37,.55);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
 .mat::before{content:'';position:absolute;inset:0;background:#9c9c9c;mix-blend-mode:overlay;opacity:.55;border-radius:inherit;pointer-events:none}
@@ -116,14 +119,14 @@ video{display:block;object-fit:cover}
 .csheet>*,.store>*{position:absolute}
 .csheet,.store{pointer-events:none}   /* the touch layer under them takes every gesture (hit rects in s3) */
 .csheet .grab{left:169.5px;top:8px;width:36px;height:4px;border-radius:2px;background:#ccd0d5}
-.csheet .ttl{left:0;top:20px;width:375px;text-align:center;font:600 17px/22px var(--sf)}
+.csheet .ttl{margin:0;left:0;top:20px;width:375px;text-align:center;font:600 17px/22px var(--sf)}
 .csheet .ttl span{color:#65676b;font-weight:400}
-.csheet .pc{left:12px;top:56px;width:351px;height:64px;border-radius:12px;background:#f0f2f5}
+.csheet .pc{left:12px;top:56px;width:351px;height:56px;border-radius:12px;background:#f0f2f5}
 .pc>*{position:absolute}
-.pc .pth{left:12px;top:12px;width:40px;height:40px;border-radius:8px;background:#fff 50% 50%/cover no-repeat}
-.pc .pt{left:64px;top:12px;font:600 15px/20px var(--sf)}
-.pc .pu{left:64px;top:32px;font:400 13px/20px var(--sf);color:#65676b}
-.pc .pb{right:12px;top:14px;height:36px;padding:0 16px;border-radius:10px;background:#5f3d8f;color:#fff;font:600 15px/36px var(--sf)}
+.pc .pth{background-color:#000}
+.pc .pt,.pc .pu{right:128px}
+.pc .pu{color:#65676b}
+.pc .pb{right:8px;margin:0;top:8px;height:40px;padding:0 16px;border-radius:4px;background:#5f3d8f;color:#fff;font:600 15px/40px var(--sf);letter-spacing:-.24px}
 .sk{border-radius:6px;background:#f0f2f5}
 .sk.a{border-radius:18px;background:#e4e6eb}
 .sk.n{background:#e4e6eb}
@@ -217,19 +220,19 @@ function fit(){
 new ResizeObserver(fit).observe(frame);fit();
 
 /* ---------- the reels (copy and metrics: the approved CC mock, /workspace/cc/mock; Figma XYE8LCJVe0rHhnEB5DA18A, flow 140796:4871) ----------
-   kind: seed (the Nike reel the chain starts from) · ad (avatar, name ✓ · Follow, "Ad", caption, CTA) · org (a creator post: · Following,
+   kind: seed (the Nike reel the chain starts from) · ad (avatar, name ✓ · Follow, "Sponsored", caption, CTA) · org (a creator post: · Following,
    its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this") */
 const R={
-  nike:{kind:'seed',name:'Nike',sub:'4h',cap:'The all-new Nike Vomero Premium. Plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
-  nesp:{kind:'ad',name:'Nespresso',cap:'Sip your way through spring with our indulgent iced coffee recipes.',cta:'#5f3d8f',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
-  bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, only from Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
-  sbux:{kind:'ad',name:'Starbucks',cap:'Your new summer drink just dropped. Order ahead in the app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
-  lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because draft is always the right choice. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
-  cb2:{kind:'ad',name:'CB2',cap:'Watch your home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
-  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on a cosmic adventure!',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',store:1,pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
-  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don’t know what to wear....',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
-  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves!',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']},
-  aden:{kind:'org',name:'Aden Wang',ago:'2 hours ago',cap:'Look who I’m featuring in my prototype.....',ct:'Aden’s Tidy Home',cu:'View Storefront',pill:'Studio Display XDR',ufi:['3.4K','129','44','508']}};
+  nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
+  nesp:{kind:'ad',name:'Nespresso',cap:'Sip through spring with our indulgent iced coffee recipes.',cta:'#5f3d8f',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
+  bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
+  sbux:{kind:'ad',name:'Starbucks',cap:'This summer\u2019s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
+  lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
+  cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
+  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',store:1,pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
+  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\u2019t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
+  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']},
+  aden:{kind:'org',name:'Aden Wang',ago:'2 hours ago',cap:'Guess who I\u2019m featuring in my prototype! Tidy desk, happy aloe.',ct:'Aden’s Tidy Home',cu:'View Storefront',pill:'Studio Display XDR',ufi:['3.4K','129','44','508']}};
 const TABS=['Coffee','Home','Movie','Fashion','Beauty','Tech'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena'],['aden']];
 const FIRST=[0,0,1,2,2,2];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, Movie 1, the rest 2)
 const ICO={
@@ -247,9 +250,9 @@ function page(id){
   d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${499+i*53}px">${ic[i]}${esc(n)}</div>`});
   h+=`<div class="ufi" style="top:705px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
   const row=(f,sub)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${BADGE}${f}</p><p class="c-sp">${esc(sub)}</p>`;
-  if(d.kind==='ad')h+=`<div class="c-stack">${row('· Follow','Ad')}<p class="c-cap">${esc(d.cap)}</p><div class="cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></div></div>`;
-  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row('· Following',d.ago)}<p class="ocap">${esc(d.cap)} <span>more</span></p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
-  else h+=`<div class="c-stack cc-seed">${row('· Follow',d.sub)}<p class="ocap">${esc(d.cap)}</p></div>`;
+  if(d.kind==='ad')h+=`<div class="c-stack">${row('· Follow','Sponsored')}<p class="c-cap">${esc(d.cap)}</p><div class="cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></div></div>`;
+  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row('· Following',d.ago)}<p class="c-cap">${esc(d.cap)}</p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
+  else h+=`<div class="c-stack cc-seed">${row('· Follow',d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
   p.innerHTML=h;return p}
 const PG={},VID={};
 ['nike','nesp'].forEach(id=>{const p=page(id);$('feed').appendChild(p);PG[id]=p});
@@ -259,7 +262,7 @@ $('ribbon').innerHTML=TABS.map(t=>`<span class="tab">${t}</span>`).join('');
 const TABEL=[...$('ribbon').children];
 /* comments: the dim, the sheet, the ad's product card, placeholder rows */
 (function(){let h='<i class="grab"></i><p class="ttl">Comments <span>20</span></p><div class="pc"><i class="pth" style="background-image:url(assets/av-nesp.webp'+V+')"></i><p class="pt">Firenze Arpeggio</p><p class="pu">nespresso.com</p><p class="pb">Learn more</p></div>';
-  for(let i=0;i<6;i++){const y=140+i*64;h+=`<i class="sk a" style="left:12px;top:${y}px;width:36px;height:36px"></i><i class="sk n" style="left:56px;top:${y+2}px;width:${90+((i*37)%60)}px;height:12px"></i><i class="sk" style="left:56px;top:${y+20}px;width:${180+((i*53)%110)}px;height:12px"></i>`}
+  for(let i=0;i<6;i++){const y=136+i*64;h+=`<i class="sk a" style="left:12px;top:${y}px;width:36px;height:36px"></i><i class="sk n" style="left:56px;top:${y+2}px;width:${90+((i*37)%60)}px;height:12px"></i><i class="sk" style="left:56px;top:${y+20}px;width:${180+((i*53)%110)}px;height:12px"></i>`}
   $('csheet').innerHTML=h})();
 /* the storefront: Universal's "View Storefront" (Figma 07b): the product slots are placeholders, as in Figma */
 (function(){const IMG='<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="#bcc0c4" stroke-width="1.6"/><circle cx="9" cy="9.5" r="1.8" fill="#bcc0c4"/><path d="m4 18 5-5 3.5 3.5L15 14l5 4.5" stroke="#bcc0c4" stroke-width="1.6" stroke-linejoin="round"/></svg>';
