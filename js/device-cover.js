@@ -86,10 +86,13 @@ function mount(host){
   // on: the site's one-demo-at-a-time pool (js/demos.js) gives this cover the turn (no pool on the page = always)
   let seen=false,near=false,ready=false,on=!window.dbhDemos;
   if(window.dbhDemos)window.dbhDemos.add(host,{play:()=>{on=true;upd()},pause:()=>{on=false;upd()}});
+  const can=()=>ready&&seen&&on&&!document.hidden&&!RM.matches;
+  // a play upd did not ask for (WebKit resumes a video paused while off screen once another plays or it is back in view) is undone
+  vids.forEach(v=>v.addEventListener('play',()=>{if(!can())v.pause()}));
   let fr=0;const paint=()=>{fr=requestAnimationFrame(paint);r.frame()};   // the player's per-frame painter, only while the demo runs
   const upd=()=>{
     if(near&&!RM.matches)vids.forEach(v=>{if(v.dataset.src){v.preload='auto';v.src=v.dataset.src;delete v.dataset.src}});
-    const go=ready&&seen&&on&&!document.hidden&&!RM.matches;
+    const go=can();
     host.classList.toggle('on',ready&&!RM.matches);
     if(RM.matches&&ready){r.anims.forEach(a=>{a.pause();a.currentTime=rest});vids.forEach(v=>{if(!v.paused)v.pause()});return}
     r.anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
@@ -97,7 +100,8 @@ function mount(host){
     if(r.frame){if(go&&!fr)fr=requestAnimationFrame(paint);else if(!go&&fr){cancelAnimationFrame(fr);fr=0}}
   };
   new IntersectionObserver(es=>{const e=es[es.length-1];near=e.isIntersecting;upd()},{rootMargin:'400px'}).observe(host);
-  new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.1}).observe(host);
+  // in view = below the sticky header (.bar): a cover scrolled up under it is hidden, so it stops there
+  new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.1,rootMargin:`-${(document.querySelector('.bar')||{}).offsetHeight||0}px 0px 0px 0px`}).observe(host);
   document.addEventListener('visibilitychange',upd);
   RM.addEventListener&&RM.addEventListener('change',upd);
   // first show only once every layer is decoded (no partial screen); video plays from its poster

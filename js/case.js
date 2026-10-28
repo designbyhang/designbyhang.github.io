@@ -20,19 +20,20 @@ let t=0;addEventListener('scroll',()=>{if(!t)t=requestAnimationFrame(()=>{t=0;up
    window.dbhPlayPause(box, watch, player, noun): adds the button to box and drives player {paused(), play(), pause()} from watch's visibility; returns its state sync */
 /* the one play/pause icon pair (.mbtn): pause = two strokes, play = filled triangle */
 window.dbhPP='<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><line x1="5.5" y1="3" x2="5.5" y2="13"/><line x1="10.5" y1="3" x2="10.5" y2="13"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.087 4L5.087 12A0.8 0.8 0 0 0 6.311 12.678L12.711 8.678A0.8 0.8 0 0 0 12.711 7.322L6.311 3.322A0.8 0.8 0 0 0 5.087 4Z"/></svg>';
-window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play'),D=window.dbhDemos,on=!D,ask=null;b.type='button';b.className='mbtn vid-btn';
+window.dbhPlayPause=function(box,watch,p,noun){var b=document.createElement('button'),held=false,always=document.body.hasAttribute('data-always-play'),D=window.dbhDemos,on=!D,ask=null,want=false,go=function(w){want=!!w;if(want!==p.paused())return;w?p.play():p.pause()};b.type='button';b.className='mbtn vid-btn';
  b.innerHTML=window.dbhPP;box.appendChild(b);
- var sync=function(){var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};
- b.addEventListener('click',function(){if(p.paused()){held=false;p.play()}else{held=true;p.pause()}sync();if(ask)ask()});sync();
- /* only while it has the page's one demo turn (js/demos.js); a manual pause hands the turn on */
- var seen=always;if(D)ask=D.add(watch,{play:function(){on=true;if(seen&&!held&&p.paused())p.play();sync()},pause:function(){on=false;if(!p.paused())p.pause();sync()},want:function(){return !held}});
+ var sync=function(){if(!want&&!p.paused())p.pause();var on=!p.paused();b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',(on?'Pause ':'Play ')+noun)};
+ b.addEventListener('click',function(){if(p.paused()){held=false;go(1)}else{held=true;go(0)}sync();if(ask)ask()});sync();
+ /* only while it has the page's one demo turn (js/demos.js); a manual pause hands the turn on. want = this controller's last call:
+    a play it did not ask for (WebKit resumes a muted video paused while off screen once it is back in view) is undone in sync */
+ var seen=always;if(D)ask=D.add(watch,{play:function(){on=true;if(seen&&!held)go(1);sync()},pause:function(){on=false;go(0);sync()},want:function(){return !held}});
  /* body[data-always-play] (USPS): plays whenever it has the page's one demo turn (no 35% threshold) and loops until the button pauses it.
     Retries on load, when scrolled into view and on the first tap/scroll/key, for browsers that refuse a muted start until then */
- if(always){var kick=function(){if(on&&!held&&p.paused())p.play();sync()};kick();watch.__kick=kick;
+ if(always){var kick=function(){if(on&&!held)go(1);sync()};kick();watch.__kick=kick;
   ['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})});
   if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)kick()})}).observe(watch);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});return sync;}
- if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){seen=e.intersectionRatio>=.35;if(seen){if(on&&!held&&p.paused())p.play()}else if(!p.paused())p.pause();sync()})},{threshold:[0,.35]}).observe(watch);
+ if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){seen=e.intersectionRatio>=.35;if(seen){if(on&&!held)go(1)}else go(0);sync()})},{threshold:[0,.35]}).observe(watch);
  return sync;};
 /* window.dbhSwipe(el, step[, opt]): the one horizontal-swipe gesture for every carousel-like media box (the .media.carousel slideshows
    below, every js/state-seq.js player). step(d): d = +1 next (swipe / drag LEFT, trackpad fingers left), -1 previous. Touch, pen,
