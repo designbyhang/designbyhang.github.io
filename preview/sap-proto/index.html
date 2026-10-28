@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SAP · Similar Ad Pivot: Explore more like this → a pivot of similar ads — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=229"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=230"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=229"><link rel="stylesheet" href="../../css/theme.css?v=229">
+<link rel="stylesheet" href="../../css/type.css?v=230"><link rel="stylesheet" href="../../css/theme.css?v=230">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=229"><script src="../../js/squircle.js?v=229"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=229"></script><script src="../shared/edge-back/edge-back.js?v=229"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=230"><link rel="stylesheet" href="../shared/caption/caption.css?v=230"><script src="../../js/vac-caption.js?v=230"></script><script src="../shared/caption/caption.js?v=230"></script><script src="../../js/squircle.js?v=230"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=230"></script><script src="../shared/edge-back/edge-back.js?v=230"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=229">
+<link rel="stylesheet" href="../shared/device/device.css?v=230">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -46,7 +46,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit;pointer-events:none}
 .btn:focus,.btn:focus-visible{outline:none}
 video{display:block;object-fit:cover}
-/* layers, bottom → top. The seed (Ray-Ban, its Ad pill + "Explore more like this" row); the pivot: a stack of similar ads (Warby
+/* layers, bottom → top. The seed (Ray-Ban, its "Explore more like this" row); the pivot: a stack of similar ads (Warby
    Parker → Zenni → Even Realities → LensCrafters; inline skips Even), one 734px pitch, that slides in from the right over the seed;
    the comment bar; the top bar (For you nav ↔ the pivot's back chevron, crossfaded) */
 .seed,.stack{width:375px;height:734px;will-change:transform;overflow:hidden}
@@ -57,11 +57,11 @@ video{display:block;object-fit:cover}
 .fv{left:0;top:0;width:375px;height:734px}
 .tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
 .grad{left:0;top:470px;width:375px;height:264px;background:linear-gradient(to top,rgba(0,0,0,.4) 0%,rgba(0,0,0,.36) 20%,rgba(0,0,0,.3) 39.65%,rgba(0,0,0,.2) 60.35%,rgba(0,0,0,.08) 80.13%,rgba(0,0,0,0) 100%)}
-.det{left:12px;top:565px;width:303px;height:120px}
-/* the caption's "... more" down arrow: the Caption & Browse arrow (preview/shared/caption/chevron-down.svg, 12×8 box, the 8×4 arrow 2px in),
-   5px after the ink of "more", centred on the caption's x-height (line top + 9); left per ad = 12 + the "more" ink end + 3.05, snapped down to 0.5.
-   Captions are fitted so the arrow's drawn right edge (left + 10.65) lands within 4px of, never past, the CTA's right edge x 315 */
-.cchev{width:12px;height:8px;pointer-events:none}
+/* the ad details: the shared layout (preview/shared/caption/caption.css .c-stack, as VAC's .vc-dt): author row, "Sponsored", the caption
+   line ("… more ⌄", the VAC caption js/vac-caption.js, ending at least 4px inside the CTA's right edge, x 311) 12px above the CTA, the CTA
+   12px above the reel's bottom. Low (no pill): author 598, Sponsored 618, caption 646–666, CTA 678–722 (LensCrafters: author 570, caption
+   618, carousel 650–722). The seed's "Explore more like this" (698–722) never overlays it: the block rises 37px (the chip's 24 + 13) on the
+   chip's own progress and ease (render(): ReelsCaption.lift), to author 561, caption 609, CTA 641–685 */
 .ufi{left:326px;top:486px;width:49px;height:237px}
 .row{left:12px;top:698px;width:303px;height:24px;overflow:hidden}
 .pill{position:absolute;top:0;height:24px;border-radius:24px;background:rgba(24,25,26,.6);overflow:hidden}
@@ -69,18 +69,15 @@ video{display:block;object-fit:cover}
 .pill i,.press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease)}
 .pill i{border-radius:24px}
 .pill i.on,.press.on{opacity:1;transition-duration:.12s}
-.sp{left:0;width:47.5px}
-/* the Ad label (Reels, 2025+; replaced "Sponsored"): the shared pill, preview/shared/caption/ad-pill.svg, drawn with its own fill; 12px above the reel's
-   bottom edge (top 698), left-aligned with the CTA. The brand row has the shared globe (preview/shared/caption/globe.svg) 7px after the name;
-   stack (bottom-anchored, from Hang's Reels references): author 565 · caption line 610 · CTA 641–685 · Ad 698–722 */
-.pill.sp{background:none}
+/* the brand row: the name's line at row top − 1 (baked in det-*.webp), the shared globe 7px after the name at row top + 3, "Sponsored" under
+   the name (as VAC: js/vac-chain.js .vc-sp). No Ad pill. "Explore more like this" 698–722 (seed only), left-aligned with the CTA */
 .cglobe{width:12px;height:12px;pointer-events:none}
-.chip{left:51.5px;width:153px;opacity:0;will-change:transform,opacity}
+.chip{left:0;width:153px;opacity:0;will-change:transform,opacity}
 .press{border-radius:12px}
 .zl{left:0;top:0;width:375px;height:734px;opacity:0}
 .lc{background:#101010}
 .lc .fv{top:126px;height:375px;background:#101010 0 0/375px 375px no-repeat}
-.hs{left:12px;top:613px;width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
+.hs{width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
 .hs>b{position:absolute;left:0;top:0;width:472px;height:72px;display:block;will-change:transform}
 .hs span{position:absolute;top:0;width:72px;height:72px;border-radius:8px;overflow:hidden;background:#fff}
 .hs span img{position:absolute;inset:0;width:100%;height:100%}
@@ -95,8 +92,8 @@ video{display:block;object-fit:cover}
 .chev{left:12px;top:58px;width:24px;height:24px;z-index:5;opacity:0;pointer-events:none;overflow:visible}
 .touch{width:375px;height:812px;z-index:8;touch-action:none;display:none}
 .touch.on{display:block}
-#chipb{left:63.5px;top:698px;width:153px;height:24px;z-index:9}
-#cta{left:12px;top:641px;width:303px;height:44px;z-index:9}
+#chipb{left:12px;top:698px;width:153px;height:24px;z-index:9}
+#cta{left:12px;width:303px;height:44px;z-index:9}   /* top: the seed's CTA, render() */
 #back{left:2px;top:48px;width:44px;height:44px;z-index:9}
 /* the shared IAB, in its own 375×812 host, over every surface with the FMSS dim under it (Learn more → full screen) */
 .dim{width:375px;height:812px;z-index:19;background:rgba(0,0,0,.4);opacity:0;pointer-events:none}
@@ -135,33 +132,32 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
         <div class="L seed" id="seed" aria-hidden="true">
-          <video class="fv" id="sv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-rayban.webp?v=229" src="../../assets/vac/vac-sap-rayban.mp4?v=229"></video>
+          <video class="fv" id="sv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-rayban.webp?v=230" src="../../assets/vac/vac-sap-rayban.mp4?v=230"></video>
           <i class="tgrad"></i><i class="grad"></i>
-          <img class="det" alt="" src="assets/det-rayban.webp?v=229"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=229" style="left:124.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=229" style="left:303.5px;top:617px">
-          <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=229"></span><span class="pill chip" id="chip"><img alt="" src="assets/chip.webp?v=229"><i id="chipPress"></i></span></div>
-          <i class="press" id="ctaPress" style="left:12px;top:641px;width:303px;height:44px"></i>
-          <img class="ufi" alt="" src="assets/ufi.webp?v=229">
+          <div class="c-stack" id="seedStack"><img class="c-det" alt="" src="assets/det-rayban.webp?v=230"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=230" style="left:112.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.</p><i class="press c-act" id="ctaPress"></i></div>
+          <div class="row"><span class="pill chip" id="chip"><img alt="" src="assets/chip.webp?v=230"><i id="chipPress"></i></span></div>
+                    <img class="ufi" alt="" src="assets/ufi.webp?v=230">
         </div>
         <div class="L stack" id="stack" aria-hidden="true">
-          <div class="L pg" id="pw" style="background-image:url(../../assets/vac/vac-sap-warby.webp?v=223)"><video class="fv" id="wv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-warby.webp?v=229" src="../../assets/vac/vac-sap-warby.mp4?v=229"></video>
-            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-warby.webp?v=229"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=229" style="left:161px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=229" style="left:303.5px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
-            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=229"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=229"></div>
-          <div class="L pg" id="pz" style="background-image:url(../../assets/vac/vac-sap-zenni.webp?v=223)"><video class="fv" id="zv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-zenni.webp?v=229" src="../../assets/vac/vac-sap-zenni.mp4?v=229"></video>
-            <img class="zl" id="zl" alt="" src="../../assets/vac/vac-sap-zenni-last.webp?v=229">
-            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-zenni.webp?v=229"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=229" style="left:159px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=229" style="left:301px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
-            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=229"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=229"></div>
-          <div class="L pg" id="pe" style="background-image:url(../../assets/vac/vac-sap-even.webp?v=223)"><video class="fv" id="ev" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-even.webp?v=229" src="../../assets/vac/vac-sap-even.mp4?v=229"></video>
-            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-even.webp?v=229"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=229" style="left:162.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=229" style="left:302.5px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
-            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=229"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=229"></div>
-          <div class="L pg lc" id="pl"><video class="fv" id="lv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-lc.webp?v=229" src="../../assets/vac/vac-sap-lc.mp4?v=229" style="background-image:url(../../assets/vac/vac-sap-lc.webp?v=223)"></video>
-            <img alt="" src="assets/det-lc.webp?v=229" style="left:12px;top:537px;width:303px;height:65px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=229" style="left:156px;top:549px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=229" style="left:304px;top:589px">
-            <div class="hs"><b id="hsr"><span style="left:0"><img alt="" src="assets/lc-1.webp?v=229"><i class="press"></i></span><span style="left:80px"><img alt="" src="assets/lc-2.webp?v=229"><i class="press"></i></span><span style="left:160px"><img alt="" src="assets/lc-3.webp?v=229"><i class="press"></i></span><span style="left:240px"><img alt="" src="assets/lc-4.webp?v=229"><i class="press"></i></span><span style="left:320px"><img alt="" src="assets/lc-5.webp?v=229"><i class="press"></i></span><span style="left:400px"><img alt="" src="assets/lc-6.webp?v=229"><i class="press"></i></span></b></div>
-            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=229"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=229"></div>
+          <div class="L pg" id="pw" style="background-image:url(../../assets/vac/vac-sap-warby.webp?v=223)"><video class="fv" id="wv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-warby.webp?v=230" src="../../assets/vac/vac-sap-warby.mp4?v=230"></video>
+            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-warby.webp?v=230"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=230" style="left:149px"><p class="c-sp">Sponsored</p><p class="c-cap">We’ve got your eyes covered. Find your new favorite frames, online or in store.</p><i class="press c-act"></i></div>
+            <img class="ufi" alt="" src="assets/ufi.webp?v=230"></div>
+          <div class="L pg" id="pz" style="background-image:url(../../assets/vac/vac-sap-zenni.webp?v=223)"><video class="fv" id="zv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-zenni.webp?v=230" src="../../assets/vac/vac-sap-zenni.mp4?v=230"></video>
+            <img class="zl" id="zl" alt="" src="../../assets/vac/vac-sap-zenni-last.webp?v=230">
+            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-zenni.webp?v=230"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=230" style="left:147px"><p class="c-sp">Sponsored</p><p class="c-cap">The Kittles Collection x Zenni Optical. Shop the full collection of frames at zenni.com.</p><i class="press c-act"></i></div>
+            <img class="ufi" alt="" src="assets/ufi.webp?v=230"></div>
+          <div class="L pg" id="pe" style="background-image:url(../../assets/vac/vac-sap-even.webp?v=223)"><video class="fv" id="ev" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-even.webp?v=230" src="../../assets/vac/vac-sap-even.mp4?v=230"></video>
+            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-even.webp?v=230"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=230" style="left:150.5px"><p class="c-sp">Sponsored</p><p class="c-cap">The everyday display smart glasses. Meet Even G2, with a discreet display built into prescription-ready lenses.</p><i class="press c-act"></i></div>
+            <img class="ufi" alt="" src="assets/ufi.webp?v=230"></div>
+          <div class="L pg lc" id="pl"><video class="fv" id="lv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-lc.webp?v=230" src="../../assets/vac/vac-sap-lc.mp4?v=230" style="background-image:url(../../assets/vac/vac-sap-lc.webp?v=223)"></video>
+            <div class="c-stack c-hs"><img class="c-det" alt="" src="assets/det-lc.webp?v=230"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=230" style="left:144px"><p class="c-sp">Sponsored</p><p class="c-cap">High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.</p>
+              <div class="hs c-act"><b id="hsr"><span style="left:0"><img alt="" src="assets/lc-1.webp?v=230"><i class="press"></i></span><span style="left:80px"><img alt="" src="assets/lc-2.webp?v=230"><i class="press"></i></span><span style="left:160px"><img alt="" src="assets/lc-3.webp?v=230"><i class="press"></i></span><span style="left:240px"><img alt="" src="assets/lc-4.webp?v=230"><i class="press"></i></span><span style="left:320px"><img alt="" src="assets/lc-5.webp?v=230"><i class="press"></i></span><span style="left:400px"><img alt="" src="assets/lc-6.webp?v=230"><i class="press"></i></span></b></div></div>
+            <img class="ufi" alt="" src="assets/ufi.webp?v=230"></div>
         </div>
-        <img class="L bar" alt="" src="assets/bar.webp?v=229" aria-hidden="true">
+        <img class="L bar" alt="" src="assets/bar.webp?v=230" aria-hidden="true">
         <i class="L navp" id="navp" aria-hidden="true"></i><i class="L navo" id="navo" aria-hidden="true"></i>
-        <img class="L nav" id="nav" alt="" src="assets/nav.webp?v=229" aria-hidden="true">
-        <img class="L chev" id="chev" alt="" src="assets/chevron.svg?v=229" aria-hidden="true">
+        <img class="L nav" id="nav" alt="" src="assets/nav.webp?v=230" aria-hidden="true">
+        <img class="L chev" id="chev" alt="" src="assets/chevron.svg?v=230" aria-hidden="true">
         <div class="L touch" id="touch" aria-hidden="true"></div>
         <button class="L btn" id="chipb" type="button" aria-label="Explore more like this: pivot to similar ads"></button>
         <button class="L btn" id="cta" type="button" aria-label="Learn more: open ray-ban.com in the in-app browser (IAB) full screen"></button>
@@ -170,14 +166,14 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L iab" id="iab"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-sap-poster.webp?v=229" aria-hidden="true">
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-sap-poster.webp?v=230" aria-hidden="true">
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">A Ray-Ban ad in Reels. A few seconds in, "Explore more like this" appears beside the Ad label; tap it to pivot sideways into a stack of similar ads, and swipe up through it (Warby Parker → Zenni → Even Realities → LensCrafters). Back (the chevron, Escape, or an edge swipe from the left) returns to the Ray-Ban reel. Learn more on the Ray-Ban ad opens ray-ban.com in the in-app browser full screen; ×, Escape or a swipe down returns to the reel.</p>
+  <p class="below">A Ray-Ban ad in Reels. A few seconds in, "Explore more like this" appears under Learn more; tap it to pivot sideways into a stack of similar ads, and swipe up through it (Warby Parker → Zenni → Even Realities → LensCrafters). Back (the chevron, Escape, or an edge swipe from the left) returns to the Ray-Ban reel. Learn more on the Ray-Ban ad opens ray-ban.com in the in-app browser full screen; ×, Escape or a swipe down returns to the reel.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -201,7 +197,7 @@ new ResizeObserver(fit).observe(frame);fit();
 /* ---------- Figma corner smoothing: the site's squircle (js/squircle.js, 60%); its auto mode also smooths the CTA press overlays (r6)
    and the LensCrafters thumbnails (r8) ---------- */
 const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
-document.querySelectorAll('.seed>.press,.pg>.press').forEach(e=>{if(window.Squircle)e.style.clipPath=`path('${Squircle.path(303,44,12,.6)}')`});   // the CTA press dim: the CTA's own 60% squircle
+document.querySelectorAll('.c-stack>.press').forEach(e=>{if(window.Squircle)e.style.clipPath=`path('${Squircle.path(303,44,12,.6)}')`});   // the CTA press dim: the CTA's own 60% squircle
 if(CLIP&&window.Squircle){phone.style.clipPath=`path('${Squircle.path(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${Squircle.path(391,828,48,.6)}')`}
 
 /* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move ----------
@@ -234,7 +230,7 @@ const pxA=anim(()=>px,v=>{px=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),bA=an
 const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
 const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
 const vis=(el,on)=>{const s=on?'visible':'hidden';if(el.style.visibility!==s)el.style.visibility=s};
-const els={seed:$('seed'),stack:$('stack'),chip:$('chip'),nav:$('nav'),navp:$('navp'),navo:$('navo'),chev:$('chev'),hsr:$('hsr'),dim:$('dim'),sb:$('sb'),home:$('home'),zl:$('zl')};
+const els={seedStack:$('seedStack'),seed:$('seed'),stack:$('stack'),chip:$('chip'),nav:$('nav'),navp:$('navp'),navo:$('navo'),chev:$('chev'),hsr:$('hsr'),dim:$('dim'),sb:$('sb'),home:$('home'),zl:$('zl')};
 let lastSb='',lastHome='',booted=false;
 const seedOn=()=>mode!=='pivot'||px<1;
 const stackOn=()=>mode!=='seed';
@@ -244,6 +240,7 @@ function render(){
   els.stack.style.transform=tr(pop?375*b:375*(1-px),0);vis(els.stack,stackOn());
   for(const id in PAGE){const j=ORDER.indexOf(id),on=stackOn()&&j>=0&&Math.abs(j-k)<1;vis(PAGE[id],on);if(on)PAGE[id].style.transform=tr(0,PG*clamp(j-k,-1,1))}
   els.chip.style.transform=tr(0,24*(1-chip));op(els.chip,chip);
+  ReelsCaption.lift(els.seedStack,chip);$('cta').style.top=seedCta()[1]+'px';   // the seed's details rise with the chip (same progress), never under it
   $('chipb').style.pointerEvents=!INL()&&mode==='seed'&&chip>=1&&!cta?'auto':'none';
   const pv=pop?1-b:mode==='seed'?0:px;   // the top bar: For you nav ↔ the back chevron
   op(els.nav,1-pv);op(els.navp,1-pv);op(els.navo,1-pv);op(els.chev,pv*chevDim);
@@ -258,14 +255,15 @@ function render(){
 let cta=null;
 const iab=FMSSIAB.create({host:$('iab'),label:'In-app browser (IAB): ray-ban.com',url:'ray-ban.com',
   headers:{full:'assets/iab-header-full.svg?v=223'},fullTop:2,handle:true,shift:'p',
-  web:'<div class="web"><img alt="ray-ban.com: Ray-Ban Meta glasses" src="assets/page.webp?v=229"></div>',webH:1679,
+  web:'<div class="web"><img alt="ray-ban.com: Ray-Ban Meta glasses" src="assets/page.webp?v=230"></div>',webH:1679,
   fullness:y=>clamp((iab.Y1-y)/(iab.Y1-iab.Y3)),halfOK:()=>false,hold:()=>true,holdOnDrag:()=>true,
   onRender:o=>{sheetP=o.p;sd=o.sd;render()},
   onState:s=>{if(cta)say(s===1?'Ray-Ban reel':'ray-ban.com open full screen')},
   onClosed:()=>{if(cta){cta=null;render()}},
   onX:()=>iab.go(1),
   wheelTo:(ev,d,apply)=>{if(apply(d)&&ev.cancelable)ev.preventDefault()}});
-const R={chip:[63.5,698,153,24],cta:[12,641,303,44],back:[2,48,44,44],hs:[12,613,303,72]};
+const R={chip:[12,698,153,24],cta:ReelsCaption.act(0),back:[2,48,44,44],hs:ReelsCaption.hs()};   // cta: a pivot reel's (no chip)
+const seedCta=()=>ReelsCaption.act(ReelsCaption.LIFT*clamp(chip));   // the seed's, lifted with the chip
 const inR=(r,x,y)=>x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];
 function openCta(){
   if(INL()||cta||mode!=='seed'||iab.state!==1||iab.busy)return false;
@@ -304,7 +302,7 @@ function pressAt(x,y){   // the element a press lands on: [overlay, kind]
 function setPress(el){if(pressEl===el)return;if(pressEl)pressEl.classList.remove('on');pressEl=el;if(el)el.classList.add('on')}
 touch.addEventListener('pointerdown',ev=>{if(ev.button>0||INL())return;
   const [x,y]=ptOf(ev);
-  if(mode==='seed'){if(!cta&&inR(R.cta,x,y)){pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,seed:true};setPress($('ctaPress'))}return}
+  if(mode==='seed'){if(!cta&&inR(seedCta(),x,y)){pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,seed:true};setPress($('ctaPress'))}return}
   if(mode!=='pivot')return;kA.stop();
   const [el,kind]=pressAt(x,y);if(kind==='back'){chevDim=.5;render()}setPress(el);
   const onHs=curId()==='lc'&&Math.abs(k-Math.round(k))<.01&&inR(R.hs,x,y);
@@ -473,7 +471,7 @@ const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():
 function fsStart(keep){
   stopAuto();ORDER=FS_ORDER;cta=null;iab.reset();sheetP=0;sd=0;[sv,ev].forEach(v=>v.loop=true);zv.loop=true;lv.loop=true;wv.loop=true;
   op(els.zl,0);op(finger,0);$('chipPress').classList.remove('on');
-  if(keep){const c=chip,t=tl;toSeed();chip=c;render();if(chip<1){if(t>=E.chip){cA.to(1,{ms:Math.round((1-c)*1000)})}else armChip(E.chip-t)}}
+  if(keep){const c=chip,t=tl;toSeed();chip=c;render();if(chip<1){if(t>=E.chip){cA.to(1,{ms:Math.max(8,Math.round((1-c)*125)*8)})}else armChip(E.chip-t)}}
   else{toSeed();chip=0;try{sv.currentTime=0}catch(_){}render();armChip(4000)}
   homeS=null;homeTell(true);vidSync();
 }
