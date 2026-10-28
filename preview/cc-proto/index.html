@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
+<script src="../shared/demo/demo-clock.js?v=238"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=238"><link rel="stylesheet" href="../../css/theme.css?v=238">
+<!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
+<link rel="stylesheet" href="../shared/caption/caption.css?v=238"><script src="../../js/vac-caption.js?v=238"></script><script src="../shared/caption/caption.js?v=238"></script><script src="../../js/squircle.js?v=238"></script><script src="../shared/pause/pause.js?v=238"></script>
+<!-- preview-only page: no gate.js / passcode -->
+<link rel="stylesheet" href="../shared/device/device.css?v=238">
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
+  --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.theme:focus,.theme:focus-visible{outline:none}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone: 375×812 screen + 8px theme-aware bezel (as preview/sap-proto) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#131013;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:var(--sf);color:#fff;letter-spacing:-.24px}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.phone img,.phone video{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.L{position:absolute;left:0;top:0;display:block;margin:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit;pointer-events:none}
+.btn:focus,.btn:focus-visible{outline:none}
+video{display:block;object-fit:cover}
+/* layers, bottom → top: the feed reels (Nike seed, Nespresso: one 812 pitch, vertical); CC (six categories side by side, 375 pitch;
+   Coffee is a vertical stack of three ads); the top bars (feed: menu / search / Messenger ↔ CC: back chevron + the category tab row,
+   crossfaded); the bottom nav (round home + the contextual pill); the comments and storefront sheets; status bar, home indicator */
+.feed,.cc{width:375px;height:812px;will-change:transform}
+.cc{visibility:hidden}
+.cat{width:375px;height:812px;visibility:hidden;will-change:transform}
+.pg{width:375px;height:812px;overflow:hidden;background:#131013 0 0/375px 812px no-repeat;visibility:hidden;will-change:transform}
+.pg>*{position:absolute}
+.fv{left:0;top:0;width:375px;height:812px}
+.tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
+.cc .tgrad{background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.18) 60%,rgba(0,0,0,0))}
+.grad{left:0;top:470px;width:375px;height:342px;background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.4) 22%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.2) 58%,rgba(0,0,0,.08) 78%,rgba(0,0,0,0) 100%)}
+/* UFI (Figma CC frame): like / comment / share / save on a 53pt pitch from 499, more at 705 */
+.ufi{left:326px;width:49px;text-align:center;font:500 12px/16px var(--sf);letter-spacing:0;text-shadow:0 0 2px rgba(0,0,0,.35)}
+.ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 3px}
+/* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
+   (--c-bottom 76: the CTA 692–736, the nav 752). Inside it, from the author row (612): avatar 36 + name ✓ · Follow (20px line) and
+   "Ad" under the name (the shared .c-sp line: 12/16, white 70%; never "Sponsored", no Ad pill), the VAC caption at +48 (660, "… more ⌄",
+   js/vac-caption.js), the CTA at +80 (303×44, r12). Creator posts: "· Following" and the post's age under the name, the caption, and the
+   commerce card (56) at +80 (680–736). The Nike seed: name / 4h and its caption only (author 672, caption 716) */
+.phone .c-stack{--c-bottom:76px}
+.c-stack.cc-org{height:136px}
+.c-stack.cc-seed{height:64px}
+.c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
+.c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.3);-webkit-font-smoothing:antialiased}
+.cn svg{flex:none;width:14px;height:14px;margin:0 4px}
+.c-stack>.ocap{left:0;top:48px;width:303px;font:400 15px/20px var(--sf);letter-spacing:-.24px;white-space:nowrap;overflow:hidden;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
+.cc-seed>.ocap{top:44px;text-overflow:ellipsis}
+.ocap span{color:rgba(255,255,255,.8)}
+.c-stack>.cta{left:0;top:80px;width:303px;height:44px;border-radius:12px;font:600 15px/44px var(--sf);letter-spacing:-.24px;text-align:center;color:#fff;overflow:hidden}
+.c-stack>.card{left:0;top:80px;width:303px;height:56px;border-radius:12px}
+.card .th{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:8px;background:#333 50% 50%/cover no-repeat}
+.card .t{position:absolute;left:56px;top:8px;right:16px;font:600 15px/20px var(--sf);letter-spacing:-.24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .u{position:absolute;left:56px;top:28px;font:400 13px/20px var(--sf);letter-spacing:-.08px;color:rgba(255,255,255,.72);white-space:nowrap}
+/* the material: a 25px backdrop blur under #252525 at 55% with a #9C9C9C overlay (SAP's For you pill, Figma) */
+.mat{background:rgba(37,37,37,.55);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
+.mat::before{content:'';position:absolute;inset:0;background:#9c9c9c;mix-blend-mode:overlay;opacity:.55;border-radius:inherit;pointer-events:none}
+.mat>*{z-index:1}
+.press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease);border-radius:inherit;pointer-events:none;z-index:2}
+.press.on{opacity:1;transition-duration:.12s}
+/* top bars: the feed's (Figma CC poster) and CC's: back chevron 24 at 12,58, the tabs from x 40 (SF Semibold 17, 20 apart; active white,
+   the rest 55%), scrolling under a 40px fade at the right */
+.fbar{width:375px;height:96px;z-index:10;pointer-events:none}
+.fbar>svg{position:absolute}
+.tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
+.tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
+.tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
+.ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
+.tab{font:600 17px/22px var(--sf);letter-spacing:-.41px;color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25)}
+/* the bottom nav: round home (40, at 12,752) + the pill (303×40 at 60,752): its icon at +10, the query at +34 (15, white 72%), the
+   circled up-arrow at +273; the query is the reel's own, crossfaded as reels move */
+.navh{left:12px;top:752px;width:40px;height:40px;border-radius:20px;z-index:12}
+.navp{left:60px;top:752px;width:303px;height:40px;border-radius:20px;z-index:12}
+.navh svg,.navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px}
+.navp .up{position:absolute;left:273px;top:10px;width:20px;height:20px}
+.navp .lb{position:absolute;inset:0;opacity:0}
+.navp .q{position:absolute;left:34px;top:10px;font:400 15px/20px var(--sf);letter-spacing:-.24px;color:rgba(255,255,255,.72);white-space:nowrap}
+.touch{width:375px;height:812px;z-index:14;touch-action:none;display:none}
+.touch.on{display:block}
+#pillb{left:60px;top:752px;width:303px;height:40px;z-index:15}
+#back{left:2px;top:48px;width:44px;height:44px;z-index:15}
+.pz{left:155.5px;top:374px;z-index:13}
+/* comments (Nespresso): the dim and a 562 sheet from 250, the ad's product card on top */
+.dim{width:375px;height:812px;z-index:19;background:rgba(0,0,0,.45);opacity:0;pointer-events:none}
+.csheet{top:250px;width:375px;height:562px;background:#fff;color:#050505;border-radius:16px 16px 0 0;z-index:20;visibility:hidden;will-change:transform;letter-spacing:-.24px}
+.csheet>*,.store>*{position:absolute}
+.csheet,.store{pointer-events:none}   /* the touch layer under them takes every gesture (hit rects in s3) */
+.csheet .grab{left:169.5px;top:8px;width:36px;height:4px;border-radius:2px;background:#ccd0d5}
+.csheet .ttl{left:0;top:20px;width:375px;text-align:center;font:600 17px/22px var(--sf)}
+.csheet .ttl span{color:#65676b;font-weight:400}
+.csheet .pc{left:12px;top:56px;width:351px;height:64px;border-radius:12px;background:#f0f2f5}
+.pc>*{position:absolute}
+.pc .pth{left:12px;top:12px;width:40px;height:40px;border-radius:8px;background:#fff 50% 50%/cover no-repeat}
+.pc .pt{left:64px;top:12px;font:600 15px/20px var(--sf)}
+.pc .pu{left:64px;top:32px;font:400 13px/20px var(--sf);color:#65676b}
+.pc .pb{right:12px;top:14px;height:36px;padding:0 16px;border-radius:10px;background:#5f3d8f;color:#fff;font:600 15px/36px var(--sf)}
+.sk{border-radius:6px;background:#f0f2f5}
+.sk.a{border-radius:18px;background:#e4e6eb}
+.sk.n{background:#e4e6eb}
+/* the Mario storefront: a white full-screen sheet over CC, × at 12,56, a 2-up grid of products */
+.store{width:375px;height:812px;background:#fff;color:#050505;z-index:22;visibility:hidden;will-change:transform;letter-spacing:-.24px}
+.store .x{left:12px;top:56px;width:24px;height:24px}
+.store .st{left:48px;top:52px;width:315px;font:600 17px/22px var(--sf);letter-spacing:-.41px}
+.store .grid{left:12px;top:108px;width:351px;display:grid;grid-template-columns:1fr 1fr;column-gap:8px;row-gap:16px}
+.store .tile{position:relative;height:172px;border-radius:12px;background:#f0f2f5;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.store .tile svg{width:28px;height:28px}
+.store .nm{margin-top:8px;font:400 15px/20px var(--sf)}
+.store .pr{font:600 15px/20px var(--sf)}
+.sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=238) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=238) 0 0/375px 44px no-repeat}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:40;pointer-events:none}
+/* the touch indicators: the scripted one (inline; drawn per frame from the timeline, so no CSS transitions) and the real pointer's */
+.finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0}
+.finger{background:rgba(120,120,120,.5);box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.2),0 2px 12px rgba(0,0,0,.45);will-change:transform,opacity}
+.ufinger{z-index:61;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .152s var(--ease),scale .12s var(--ease)}
+.ufinger.on{opacity:.9}
+.ufinger.down{scale:.85}
+.phone.u-on .finger{opacity:0!important}
+/* first load: the poster (the loop's first frame) holds the screen until the seed's frame and the UI have decoded */
+.ldc{left:0;top:0;width:375px;height:812px;z-index:45;pointer-events:none;object-fit:cover}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below,html.embed .spacer{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1>CC · Commerce Chaining</h1><p>Interactive prototype · "Explore more like this" on a Reels ad opens a category row of ads and creator posts · swipe up within a category, left and right across them</p></div>
+    <button class="theme" id="theme" type="button">Theme</button>
+  </header>
+  <div class="mframe" id="frame">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <div class="L feed" id="feed" aria-hidden="true"></div>
+        <div class="L cc" id="cc" aria-hidden="true"></div>
+        <div class="L fbar" id="fbar" aria-hidden="true">
+          <svg style="left:12px;top:68px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg style="left:300px;top:68px" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="10.6" cy="10.6" r="8.1" stroke="#fff" stroke-width="2.1"/><path d="m16.6 16.6 5.4 5.4" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg>
+          <svg style="left:342px;top:66px" width="28" height="28" viewBox="0 0 28 28"><path fill="#fff" d="M14 1.5C7 1.5 1.6 6.6 1.6 13.5c0 3.6 1.5 6.7 3.9 8.9.2.2.3.5.3.8l.1 2.2c0 .7.8 1.2 1.4.9l2.5-1.1c.2-.1.5-.1.7-.1 1.1.3 2.3.5 3.5.5 7 0 12.4-5.1 12.4-12S21 1.5 14 1.5Z"/><path fill="#000" fill-opacity=".9" d="m6.6 17.1 3.6-5.8c.6-.9 1.8-1.1 2.7-.5l2.9 2.2c.3.2.6.2.9 0l3.9-3c.5-.4 1.2.2.8.8l-3.6 5.8c-.6.9-1.8 1.1-2.7.5l-2.9-2.2c-.3-.2-.6-.2-.9 0l-3.9 3c-.5.4-1.2-.2-.8-.8Z"/></svg>
+        </div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=238"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L navh mat" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3.5 8.6 10 3.4l6.5 5.2V16a1 1 0 0 1-1 1h-3.3v-4.4H7.8V17H4.5a1 1 0 0 1-1-1V8.6Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><i class="press" id="homePress"></i></div>
+        <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div>
+          <svg class="up" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.6" stroke="#fff" stroke-width="1.5"/><path d="M10 13.6V6.6M6.9 9.6 10 6.5l3.1 3.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="press" id="pillPress"></i></div>
+        <div class="L pz" id="pz"></div>
+        <div class="L touch" id="touch" aria-hidden="true"></div>
+        <button class="L btn" id="pillb" type="button" aria-label="Explore more like this: open Commerce Chaining's category row"></button>
+        <button class="L btn" id="back" type="button" aria-label="Back to the Nespresso reel"></button>
+        <i class="L dim" id="dim" aria-hidden="true"></i>
+        <div class="L csheet" id="csheet" aria-hidden="true"></div>
+        <div class="L store" id="store" aria-hidden="true"></div>
+        <i class="L sb" id="sb" aria-hidden="true"></i>
+        <i class="L home" id="home" aria-hidden="true"></i>
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=238" aria-hidden="true">
+        <div class="L finger" id="finger" aria-hidden="true"></div>
+        <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">A Nike reel in Feed; swipe up to a Nespresso ad and tap "Explore more like this" in the bar at the bottom. Commerce Chaining opens on Coffee: swipe up through Blue Bottle, Starbucks and La Colombe, or swipe left (or tap a tab) across Home, Movie, Fashion, Beauty and Tech, where ads sit beside creator posts with their commerce cards. Universal's "View Storefront" opens its storefront; × closes it. The chevron (or Escape) returns to the Nespresso reel. Tap a reel to pause it; the comment icon on Nespresso opens its comments.</p>
+  <div class="spacer" style="height:120vh" aria-hidden="true"></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
+const V='?v=238',AV='../../assets/vac/vac-cc-';
+
+/* ---------- fit phone to container (as preview/sap-proto) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');
+  const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- the reels (copy and metrics: the approved CC mock, /workspace/cc/mock; Figma XYE8LCJVe0rHhnEB5DA18A, flow 140796:4871) ----------
+   kind: seed (the Nike reel the chain starts from) · ad (avatar, name ✓ · Follow, "Ad", caption, CTA) · org (a creator post: · Following,
+   its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this") */
+const R={
+  nike:{kind:'seed',name:'Nike',sub:'4h',cap:'The all-new Nike Vomero Premium. Plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
+  nesp:{kind:'ad',name:'Nespresso',cap:'Sip your way through spring with our indulgent iced coffee recipes.',cta:'#5f3d8f',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
+  bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, only from Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
+  sbux:{kind:'ad',name:'Starbucks',cap:'Your new summer drink just dropped. Order ahead in the app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
+  lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because draft is always the right choice. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
+  cb2:{kind:'ad',name:'CB2',cap:'Watch your home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
+  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on a cosmic adventure!',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',store:1,pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
+  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don’t know what to wear....',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
+  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves!',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']},
+  aden:{kind:'org',name:'Aden Wang',ago:'2 hours ago',cap:'Look who I’m featuring in my prototype.....',ct:'Aden’s Tidy Home',cu:'View Storefront',pill:'Studio Display XDR',ufi:['3.4K','129','44','508']}};
+const TABS=['Coffee','Home','Movie','Fashion','Beauty','Tech'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena'],['aden']];
+const FIRST=[0,0,1,2,2,2];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, Movie 1, the rest 2)
+const ICO={
+  search:'<svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M10.2 3.3A6.3 6.3 0 1 0 15.2 13.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="m13.8 13.8 3.4 3.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M14.6 2.2c.3 1.6 1 2.3 2.6 2.6-1.6.3-2.3 1-2.6 2.6-.3-1.6-1-2.3-2.6-2.6 1.6-.3 2.3-1 2.6-2.6Z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/></svg>',
+  explore:'<svg class="ico" viewBox="0 0 32 32" fill="none"><g fill="#fff"><path d="M4 6.6v8.8c0 2 2.2 3.2 3.9 2.1l7-4.4c1.6-1 1.6-3.2 0-4.2l-7-4.4C6.2 3.4 4 4.6 4 6.6z"/><rect x="18" y="4" width="10" height="4" rx="2"/><rect x="18" y="14" width="10" height="4" rx="2"/><rect x="4" y="24" width="24" height="4" rx="2"/></g></svg>'};
+const BADGE='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#fff" d="M8 .6l1.7 1.3 2.1-.2.7 2 1.9 1-.5 2.1L15 8.6l-1.3 1.7.2 2.1-2 .7-1 1.9-2.1-.5L7.4 15l-1.7-1.3-2.1.2-.7-2-1.9-1 .5-2.1L.4 7.4l1.3-1.7-.2-2.1 2-.7 1-1.9 2.1.5Z"/><path d="M5 8.2l2 2 4-4.1" fill="none" stroke="#1c1c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+function page(id){
+  const d=R[id],p=document.createElement('div');p.className='L pg';p.id='p-'+id;p.style.backgroundImage=`url(${AV}${id}.webp${V})`;
+  const lazy=id==='nike'||id==='nesp'?'auto':'metadata';
+  let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${V}" src="${AV}${id}.mp4${V}"></video><i class="tgrad"></i><i class="grad"></i>`;
+  const ic=['<img alt="" src="assets/u-like.webp'+V+'">','<img alt="" src="assets/u-comment.webp'+V+'">','<img alt="" src="assets/u-share.webp'+V+'">',SAVE];
+  d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${499+i*53}px">${ic[i]}${esc(n)}</div>`});
+  h+=`<div class="ufi" style="top:705px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
+  const row=(f,sub)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${BADGE}${f}</p><p class="c-sp">${esc(sub)}</p>`;
+  if(d.kind==='ad')h+=`<div class="c-stack">${row('· Follow','Ad')}<p class="c-cap">${esc(d.cap)}</p><div class="cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></div></div>`;
+  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row('· Following',d.ago)}<p class="ocap">${esc(d.cap)} <span>more</span></p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
+  else h+=`<div class="c-stack cc-seed">${row('· Follow',d.sub)}<p class="ocap">${esc(d.cap)}</p></div>`;
+  p.innerHTML=h;return p}
+const PG={},VID={};
+['nike','nesp'].forEach(id=>{const p=page(id);$('feed').appendChild(p);PG[id]=p});
+const CATEL=CATS.map((ids,i)=>{const c=document.createElement('div');c.className='L cat';ids.forEach(id=>{const p=page(id);c.appendChild(p);PG[id]=p});$('cc').appendChild(c);return c});
+for(const id in PG)VID[id]=PG[id].querySelector('video');
+$('ribbon').innerHTML=TABS.map(t=>`<span class="tab">${t}</span>`).join('');
+const TABEL=[...$('ribbon').children];
+/* comments: the dim, the sheet, the ad's product card, placeholder rows */
+(function(){let h='<i class="grab"></i><p class="ttl">Comments <span>20</span></p><div class="pc"><i class="pth" style="background-image:url(assets/av-nesp.webp'+V+')"></i><p class="pt">Firenze Arpeggio</p><p class="pu">nespresso.com</p><p class="pb">Learn more</p></div>';
+  for(let i=0;i<6;i++){const y=140+i*64;h+=`<i class="sk a" style="left:12px;top:${y}px;width:36px;height:36px"></i><i class="sk n" style="left:56px;top:${y+2}px;width:${90+((i*37)%60)}px;height:12px"></i><i class="sk" style="left:56px;top:${y+20}px;width:${180+((i*53)%110)}px;height:12px"></i>`}
+  $('csheet').innerHTML=h})();
+/* the storefront: Universal's "View Storefront" (Figma 07b): the product slots are placeholders, as in Figma */
+(function(){const IMG='<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="#bcc0c4" stroke-width="1.6"/><circle cx="9" cy="9.5" r="1.8" fill="#bcc0c4"/><path d="m4 18 5-5 3.5 3.5L15 14l5 4.5" stroke="#bcc0c4" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  $('store').innerHTML='<svg class="x" viewBox="0 0 24 24" fill="none"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke="#050505" stroke-width="2" stroke-linecap="round"/></svg><p class="st">The Super Mario Galaxy Movie Storefront</p><div class="grid">'+
+    ['Yoshi','Mario Hat','Mocchi','Goomba','Peach','Luigi'].map(n=>`<div><div class="tile">${IMG}<i class="press"></i></div><p class="nm">${n}</p><p class="pr">$29.99</p></div>`).join('')+'</div>'})();
+
+/* ---------- Figma corner smoothing: the site's squircle (js/squircle.js, 60%: its auto mode smooths every radius here); the phone and
+   bezel are shaped by path() directly, as the other prototypes ---------- */
+const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
+if(CLIP&&window.Squircle){phone.style.clipPath=`path('${Squircle.path(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${Squircle.path(391,828,48,.6)}')`}
+
+/* ---------- motion: the site's Slow spring (Figma [80, 20, 1], as preview/sap-proto), time-scaled to each move; springV: released with
+   the swipe's speed ---------- */
+const SK=80,SC=20,W0=Math.sqrt(SK),ZT=SC/(2*Math.sqrt(SK)),R1=-ZT*W0+W0*Math.sqrt(ZT*ZT-1),R2=-ZT*W0-W0*Math.sqrt(ZT*ZT-1);
+function springPos(y0p){const A=(y0p-R2)/(R1-R2),B=1-A;return s=>A*Math.exp(R1*s)+B*Math.exp(R2*s)}
+const ST=(()=>{const y=springPos(0);let T=0;for(let s=0;s<20;s+=.0005)if(Math.abs(y(s))>=.001)T=s;return T+.0005})();
+const SLOW=(()=>{const y=springPos(0),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e})();
+function springV(ms,vNorm){const y=springPos(-vNorm*(ms/1000)/ST),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e}
+function anim(get,set){let raf=0,busy=false;
+  return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
+    to(target,{ms=664,ease=SLOW,onDone}={}){cancelAnimationFrame(raf);const from=get();
+      if(RM.matches||ms<=0||from===target){set(target);busy=false;onDone&&onDone();return}
+      busy=true;const t0=performance.now();
+      const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,ease(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
+      raf=requestAnimationFrame(f)}}}
+const easeIn=q=>q*q,easeOut=q=>1-(1-q)*(1-q);
+
+/* ---------- the screen: one set of values, everything rendered from them ----------
+   mode  feed (Nike ↔ Nespresso) · in (Explore more like this: Nespresso off left, CC's Coffee in from the right, 664) · cc · out (the
+         chevron: CC off right fast, Nespresso back in from the left, 488)
+   f     the feed's reel (Nike 0 → Nespresso 1)      x  the in/out push (0 → 1)
+   c     CC's category (Coffee 0 … Tech 5; swipe left/right or tap a tab)      k  Coffee's ad (Blue Bottle 0 · Starbucks 1 · La Colombe 2)
+   ro    the tab row's own scroll on top of the category's (dragging the row)      cm  the comments sheet · sf  the storefront */
+let mode='feed',f=0,x=0,c=0,k=0,ro=0,cm=0,sf=0,chevDim=1;
+const fA=anim(()=>f,v=>{f=v;render()}),xA=anim(()=>x,v=>{x=v;render()}),cA=anim(()=>c,v=>{c=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),
+  roA=anim(()=>ro,v=>{ro=v;render()}),cmA=anim(()=>cm,v=>{cm=v;render()}),sfA=anim(()=>sf,v=>{sf=v;render()});
+const tr=(a,b)=>`translate3d(${a.toFixed(2)}px,${b.toFixed(2)}px,0)`;
+const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
+const vis=(el,on)=>{const s=on?'visible':'hidden';if(el.style.visibility!==s)el.style.visibility=s};
+const setT=(el,s)=>{if(el.style.transform!==s)el.style.transform=s};
+const els={feed:$('feed'),cc:$('cc'),fbar:$('fbar'),tabs:$('tabs'),chev:$('chev'),ribbon:$('ribbon'),dim:$('dim'),cs:$('csheet'),st:$('store'),sb:$('sb'),home:$('home'),lb:[$('lb0'),$('lb1')]};
+let TABX=[0,0,0,0,0,0],TABW=[0,0,0,0,0,0],RMAX=0;
+function measureTabs(){TABX=TABEL.map(e=>e.offsetLeft);TABW=TABEL.map(e=>e.offsetWidth);RMAX=Math.max(0,els.ribbon.scrollWidth-295);render()}
+const scrollOf=cv=>{const i=clamp(Math.floor(cv),0,5),j=Math.min(5,i+1),q=cv-i;return lerp(TABX[FIRST[i]],TABX[FIRST[j]],q)};
+const ribX=()=>clamp(scrollOf(c)+ro,0,RMAX+40);
+/* what is on screen: each page's offset from the screen (dx, dy); a page is drawn while it overlaps it */
+function offsets(){
+  const o={},fx=mode==='in'?-375*x:mode==='out'?-375*(1-x):mode==='cc'?-375:0,cx=mode==='in'?375*(1-x):mode==='out'?375*x:mode==='cc'?0:375;
+  o.nike=[fx,-812*f];o.nesp=[fx,812*(1-f)];
+  CATS.forEach((ids,i)=>ids.forEach((id,j)=>{o[id]=[cx+375*(i-c),i===0?812*(j-k):0]}));
+  return o}
+const onS=v=>Math.abs(v[0])<374.5&&Math.abs(v[1])<811.5;
+let lastSb='',lastHome='',booted=false,OFF={};
+function render(){
+  const o=OFF=offsets(),fx=o.nike[0],cx=mode==='feed'?375:o.bb[0]-375*(0-c);
+  const feedOn=mode!=='cc',ccOn=mode!=='feed';
+  setT(els.feed,tr(fx,0));vis(els.feed,feedOn);setT(els.cc,tr(cx,0));vis(els.cc,ccOn);
+  ['nike','nesp'].forEach(id=>{const on=feedOn&&onS(o[id]);vis(PG[id],on);if(on)setT(PG[id],tr(0,o[id][1]))});
+  CATS.forEach((ids,i)=>{const dx=375*(i-c),catOn=ccOn&&Math.abs(cx+dx)<374.5;vis(CATEL[i],catOn);if(catOn)setT(CATEL[i],tr(dx,0));
+    ids.forEach(id=>{const on=catOn&&onS(o[id]);vis(PG[id],on);if(on)setT(PG[id],tr(0,o[id][1]))})});
+  const pv=mode==='in'?x:mode==='out'?1-x:mode==='cc'?1:0;   // the top bar: feed ↔ CC's tab row
+  op(els.fbar,1-pv);op(els.tabs,pv);op(els.chev,chevDim);
+  setT(els.ribbon,tr(-ribX(),0));
+  TABEL.forEach((e,i)=>op(e,.55+.45*clamp(1-Math.abs(c-i))));
+  pill();
+  op(els.dim,cm);vis(els.cs,cm>0);setT(els.cs,tr(0,562*(1-cm)));
+  vis(els.st,sf>0);setT(els.st,tr(0,812*(1-sf)));
+  const gl=Math.round(255*clamp(1-sf)),sbc=`rgb(${gl},${gl},${gl})`;if(sbc!==lastSb){lastSb=sbc;els.sb.style.backgroundColor=sbc}
+  const hl=Math.round(255*clamp(1-Math.max(sf,cm))),hc=`rgb(${hl},${hl},${hl})`;if(hc!==lastHome){lastHome=hc;els.home.style.backgroundColor=hc}
+  $('pillb').style.pointerEvents=!INL()&&mode==='feed'&&f===1&&!cm?'auto':'none';
+  $('back').style.pointerEvents=!INL()&&mode==='cc'&&!sf?'auto':'none';
+  if(!INL()&&booted)vidSync();
+}
+/* the pill's query: the reel on screen's, crossfaded across the middle of a move (the two nearest reels, by how far each is from the screen) */
+const lbId=['',''];
+function pill(){
+  const o=OFF,fd=id=>id==='nike'||id==='nesp',ids=Object.keys(o).filter(id=>onS(o[id])&&(mode==='feed'?fd(id):mode==='cc'?!fd(id):true)).map(id=>[id,Math.max(Math.abs(o[id][0])/375,Math.abs(o[id][1])/812)]).sort((a,b)=>a[1]-b[1]);
+  if(!ids.length)return;
+  const a=ids[0][0],b=ids[1]?ids[1][0]:a,d=ids[1]?ids[1][1]:1,w=clamp((1-d-.3)/.4);   // the nearer reel's weight goes 1 → 0 between 30% and 70% of the move
+  const pair=[a,b],wt=[1-w,w];
+  // keep each reel on the layer it already has, so a crossfade never swaps mid-way
+  if(lbId[1]===a||lbId[0]===b){pair.reverse();wt.reverse()}
+  for(let i=0;i<2;i++){const id=pair[i];if(lbId[i]!==id){lbId[i]=id;const r=R[id];els.lb[i].innerHTML=ICO[r.icon||'search']+'<span class="q">'+esc(r.pill)+'</span>'}
+    op(els.lb[i],a===b?(i===0?1:0):wt[i])}
+}
+
+/* ---------- full screen: the gestures (one touch layer; hit rects in screen points) ----------
+   Feed: swipe up/down between Nike and Nespresso; on Nespresso the comment icon opens comments, "Explore more like this" (the pill) opens CC.
+   CC: swipe up/down within Coffee; swipe left/right across categories (or tap a tab; the tab row also drags sideways); Universal's card
+   opens the storefront; the chevron goes back. CTAs, cards and the nav: press feedback only (Figma has no destination for them).
+   A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
+const RC={pill:[60,752,303,40],home:[12,752,40,40],cmt:[326,548,49,48],cta:[12,692,303,44],card:[12,680,303,56],back:[2,48,44,44],tabs:[40,44,335,52],x:[2,44,44,44]};
+const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
+const pz=FMSSPause.mount($('pz'));let paused=null;   // the reel the viewer has paused (id)
+const settled=v=>Math.abs(v-Math.round(v))<.01;
+const curId=()=>mode==='feed'?(f<.5?'nike':'nesp'):mode==='cc'?CATS[Math.round(c)][Math.round(c)===0?Math.round(k):0]:null;
+function pressAt(a,b){   // [overlay, kind]
+  if(sf>=1)return inR(RC.x,a,b)?[null,'x']:[null,'store'];
+  if(cm>=1)return b<250?[null,'cdim']:[null,'sheet'];
+  if(mode==='feed'&&settled(f)){const id=curId();
+    if(inR(RC.home,a,b))return [$('homePress'),'nav'];
+    if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];   // Nespresso's pill is the #pillb button above this layer
+    if(id==='nesp'&&inR(RC.cmt,a,b))return [null,'cmt'];
+    if(id==='nesp'&&inR(RC.cta,a,b))return [PG.nesp.querySelector('.cta .press'),'cta'];
+    return [null,'reel']}
+  if(mode==='cc'&&settled(c)&&settled(k)){const id=curId(),d=R[id];
+    if(inR(RC.back,a,b))return [null,'back'];
+    if(inR(RC.tabs,a,b)){const rx=a-40+ribX();for(let i=0;i<6;i++)if(rx>=TABX[i]-10&&rx<=TABX[i]+TABW[i]+10)return [null,'tab'+i];return [null,'tabs']}
+    if(inR(RC.home,a,b))return [$('homePress'),'nav'];
+    if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];
+    if(d.kind==='ad'&&inR(RC.cta,a,b))return [PG[id].querySelector('.cta .press'),'cta'];
+    if(d.kind==='org'&&inR(RC.card,a,b))return [PG[id].querySelector('.card .press'),d.store?'store':'card'];
+    return [null,'reel']}
+  return [null,null]}
+let pd=null,pressEl=null;
+function setPress(el){if(pressEl===el)return;if(pressEl)pressEl.classList.remove('on');pressEl=el;if(el)el.classList.add('on')}
+const stopAll=()=>[fA,cA,kA,roA].forEach(a=>a.stop());
+touch.addEventListener('pointerdown',ev=>{if(ev.button>0||INL())return;
+  if(xA.busy||cmA.busy||sfA.busy)return;
+  const [a,b]=ptOf(ev),[el,kind]=pressAt(a,b);if(!kind)return;
+  stopAll();setPress(el);if(kind==='back'){chevDim=.5;render()}
+  pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,kind,f0:f,c0:c,k0:k,ro0:ro,cm0:cm,s:[[performance.now(),0]],sc:phone.getBoundingClientRect().height/812};
+  try{touch.setPointerCapture(ev.pointerId)}catch(_){}});
+const rub=(n,lo,hi)=>n<lo?lo+(n-lo)*.35:n>hi?hi+(n-hi)*.35:n;
+touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
+  const dx=(ev.clientX-pd.x)/pd.sc,dy=(ev.clientY-pd.y)/pd.sc;
+  if(!pd.moved&&Math.hypot(ev.clientX-pd.x,ev.clientY-pd.y)>10){pd.moved=true;setPress(null);if(chevDim!==1){chevDim=1;render()}}
+  if(!pd.moved)return;
+  if(!pd.axis){
+    if(pd.kind==='sheet'||pd.kind==='cdim')pd.axis=dy>0?'cm':'none';
+    else if(pd.kind==='store'||pd.kind==='x')pd.axis='none';
+    else if(mode==='feed')pd.axis='f';
+    else if(pd.kind==='tabs'||pd.kind.startsWith('tab'))pd.axis=Math.abs(dx)>=Math.abs(dy)?'ro':'none';
+    else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':'none')}   // a single-reel category has nothing to swipe to
+  let v=0;
+  if(pd.axis==='f'){f=rub(pd.f0-dy/812,0,1);v=f}
+  else if(pd.axis==='k'){k=rub(pd.k0-dy/812,0,2);v=k}
+  else if(pd.axis==='c'){c=rub(pd.c0-dx/375,0,5);v=c}
+  else if(pd.axis==='ro'){const base=scrollOf(c);ro=rub(pd.ro0-dx,-base,RMAX-base);v=ro}
+  else if(pd.axis==='cm'){cm=clamp(pd.cm0-dy/562);v=cm}
+  else return;
+  render();const now=performance.now();pd.s.push([now,v]);while(pd.s.length>2&&now-pd.s[0][0]>96)pd.s.shift()});
+function vel(d){const A=d.s[0],B=d.s[d.s.length-1];return B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0}
+function snap(cur,v0,from,lo,hi,pitch){let t=Math.round(cur+v0*.18);if(Math.abs(v0*pitch)>320)t=from+(v0>0?1:-1);return clamp(clamp(t,from-1,from+1),lo,hi)}
+function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setPress(null);if(chevDim!==1){chevDim=1;render()}
+  const up=ev.type==='pointerup';
+  if(!d.moved){if(!up)return;const kd=d.kind;
+    if(kd==='back')back();else if(kd==='cmt')openComments();else if(kd==='cdim')closeComments();else if(kd==='store')openStore();else if(kd==='x')closeStore();
+    else if(kd.startsWith('tab')&&kd!=='tabs')goCat(+kd.slice(3));else if(kd==='reel')togglePause();
+    return}
+  const v0=vel(d);
+  if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0))}
+  else if(d.axis==='k'){const t=snap(k,v0,Math.round(d.k0),0,2,812);stepK(t,Math.round(d.k0))}
+  else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,5,375);goCat(t,Math.round(d.c0))}
+  else if(d.axis==='ro'){const base=scrollOf(c),t=clamp(ro+v0*.25,-base,RMAX-base);roA.to(t,{ms:400})}
+  else if(d.axis==='cm'){if(cm<.75||v0<-1)closeComments();else cmA.to(1,{ms:400})}}
+touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
+function restart(id){const v=VID[id];if(v){try{v.currentTime=0}catch(_){}}if(paused){paused=null;pz.set(false)}}
+function arrive(id){say(R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?' post':' reel'))}
+function stepF(t,from=Math.round(f)){if(t!==from)restart(t?'nesp':'nike');fA.to(t,{ms:664,onDone:()=>arrive(t?'nesp':'nike')})}
+function stepK(t,from=Math.round(k)){if(t!==from)restart(CATS[0][t]);kA.to(t,{ms:664,onDone:()=>arrive(CATS[0][t])})}
+function goCat(t,from=Math.round(c)){t=clamp(t,0,5);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
+  roA.to(0,{ms:664});cA.to(t,{ms:t===c?400:664,onDone:()=>arrive(id)})}
+function togglePause(){const id=curId();if(!id)return;const v=VID[id];
+  if(paused===id){paused=null;pz.set(false);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
+function openComments(){if(INL()||mode!=='feed'||cm)return;cmA.to(1,{ms:664,onDone:()=>say('Comments')})}
+function closeComments(){cmA.to(0,{ms:664,onDone:()=>say('Nespresso ad')})}
+function openStore(){if(INL()||mode!=='cc'||sf)return;sfA.to(1,{ms:664,onDone:()=>say('The Super Mario Galaxy Movie storefront')})}
+function closeStore(){sfA.to(0,{ms:664,onDone:()=>say('Universal Studios post')})}
+
+/* ---------- Explore more like this → CC (push left, Slow 664); back → Nespresso (push right, fast: 488) ---------- */
+function explore(){
+  if(INL()||mode!=='feed'||f!==1||cm)return;
+  mode='in';x=0;c=0;k=0;ro=0;homeTell(false);restart('bb');touch.classList.remove('on');
+  xA.to(1,{ms:664,onDone:()=>{mode='cc';touch.classList.add('on');render();say('Commerce Chaining: Coffee, Blue Bottle Coffee ad')}});render()}
+function back(){
+  if(INL()||mode!=='cc'||sf)return;stopAll();c=Math.round(c);k=Math.round(k);ro=0;
+  mode='out';x=0;restart('nesp');touch.classList.remove('on');
+  xA.to(1,{ms:488,onDone:()=>{mode='feed';f=1;x=0;touch.classList.add('on');render();homeTell(true);say('Nespresso ad')}});render()}
+/* the chevron is a real button above the touch layer: it dims while pressed (as the pill's press), a tap goes back */
+let bp=null;const bk=$('back'),chevOn=on=>{chevDim=on?.5:1;render()};
+bk.addEventListener('click',ev=>{if(ev.detail===0)back()});
+bk.addEventListener('pointerdown',ev=>{if(ev.button>0)return;bp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false};chevOn(true);try{bk.setPointerCapture(ev.pointerId)}catch(_){}});
+bk.addEventListener('pointermove',ev=>{if(bp&&ev.pointerId===bp.id&&!bp.moved&&Math.hypot(ev.clientX-bp.x,ev.clientY-bp.y)>10){bp.moved=true;chevOn(false)}});
+function backUp(ev){if(!bp||ev.pointerId!==bp.id)return;const p=bp;bp=null;chevOn(false);if(ev.type==='pointerup'&&!p.moved)back()}
+bk.addEventListener('pointerup',backUp);bk.addEventListener('pointercancel',backUp);
+$('pillb').addEventListener('click',ev=>{if(ev.detail===0)explore()});   // keyboard; a pointer press is handled below (press feedback)
+let pp=null;const pillPress=$('pillPress');
+$('pillb').addEventListener('pointerdown',ev=>{if(ev.button>0)return;pp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false};pillPress.classList.add('on');try{$('pillb').setPointerCapture(ev.pointerId)}catch(_){}});
+$('pillb').addEventListener('pointermove',ev=>{if(pp&&ev.pointerId===pp.id&&Math.hypot(ev.clientX-pp.x,ev.clientY-pp.y)>10){pp.moved=true;pillPress.classList.remove('on')}});
+function pillUp(ev){if(!pp||ev.pointerId!==pp.id)return;const p=pp;pp=null;pillPress.classList.remove('on');if(ev.type==='pointerup'&&!p.moved)explore()}
+$('pillb').addEventListener('pointerup',pillUp);$('pillb').addEventListener('pointercancel',pillUp);
+let wT=0,wX=0,wY=0;
+touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventDefault();if(cm||sf||mode==='in'||mode==='out')return;
+  const now=performance.now();if(now-wT<480)return;wX+=ev.deltaX;wY+=ev.deltaY;
+  if(Math.abs(wX)>40&&mode==='cc'){const t=clamp(Math.round(c)+(wX>0?1:-1),0,5);wX=wY=0;wT=now;if(t!==Math.round(c))goCat(t);return}
+  if(Math.abs(wY)>40){const s=wY>0?1:-1;wX=wY=0;wT=now;
+    if(mode==='feed'){const t=clamp(Math.round(f)+s,0,1);if(t!==Math.round(f))stepF(t)}
+    else if(Math.round(c)===0){const t=clamp(Math.round(k)+s,0,2);if(t!==Math.round(k))stepK(t)}}},{passive:false});
+document.addEventListener('keydown',ev=>{if(INL())return;const K=ev.key;
+  if(K==='Escape'){if(sf)closeStore();else if(cm)closeComments();else if(mode==='cc')back();return}
+  if(cm||sf||xA.busy)return;
+  if(K==='ArrowDown'||K==='ArrowUp'){ev.preventDefault();const s=K==='ArrowDown'?1:-1;
+    if(mode==='feed')stepF(clamp(Math.round(f)+s,0,1));else if(mode==='cc'&&Math.round(c)===0)stepK(clamp(Math.round(k)+s,0,2))}
+  else if(mode==='cc'&&(K==='ArrowRight'||K==='ArrowLeft')){ev.preventDefault();goCat(Math.round(c)+(K==='ArrowRight'?1:-1))}});
+
+/* ---------- full-screen videos: each plays only while it is on screen (and the demo is in view), unless the viewer paused it ---------- */
+let seen=false,visible=false,held=false;
+const pend=new WeakSet(),ALLV=Object.keys(VID).map(id=>VID[id]);
+function playV(v){if(!v.paused||pend.has(v))return;pend.add(v);const p=v.play();if(p&&p.then)p.then(()=>pend.delete(v),()=>{pend.delete(v);armGesture()});else pend.delete(v)}
+function warm(v){if(v.preload!=='auto'){v.preload='auto';try{if(v.readyState<2)v.load()}catch(_){}}}
+function vidSync(){const on=visible&&!document.hidden,o=OFF;
+  for(const id in VID){const v=VID[id],shown=o[id]&&onS(o[id])&&(mode!=='feed'||id==='nike'||id==='nesp')&&(mode!=='cc'||!(id==='nike'||id==='nesp'));
+    if(shown||(o[id]&&Math.abs(o[id][0])<=375&&Math.abs(o[id][1])<=812))warm(v);
+    if(on&&shown&&paused!==id&&!(sf>=1&&id==='univ'))playV(v);else if(!v.paused)v.pause()}}
+function armGesture(){const g=()=>{removeEventListener('pointerdown',g,true);INL()?0:vidSync()};addEventListener('pointerdown',g,true)}
+function pauseAll(){ALLV.forEach(v=>{if(!v.paused)v.pause()})}
+ALLV.forEach(v=>v.addEventListener('canplay',()=>{if(!INL())vidSync()}));
+/* in view only: inline it runs only while at least 35% of it is on screen (and the host page gives it the turn, js/demos.js: one demo at
+   a time); full screen is always in view. The host's own word alone never counts as in view: two live prototypes on one page must not
+   both decode video while they scroll (WebKit) */
+addEventListener('demo:host',()=>setVis());addEventListener('demo:play',()=>{if(!visible||document.hidden)pauseAll()});   // demo-clock resumes the videos it paused; not if the demo has left the view since
+addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){visible=(seen||!INL())&&!held;if(visible){if(!INL())vidSync();sched()}else{pauseAll();stopAuto()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll();stopAuto()}else{if(!INL())vidSync();sched()}});
+
+/* ---------- inline: the scripted loop (Hang's flow, Figma 140796:4871), no interaction; every time on the 8ms grid ----------
+   Nike seed → swipe up to Nespresso → its comments open and close → "Explore more like this" → CC on Coffee (Blue Bottle) → swipe up:
+   Starbucks → La Colombe → swipe left: Home (CB2) → Movie (Universal) → its storefront opens and closes → Fashion (Laura Byrnes) →
+   Beauty (xzmserena) → Tech (Aden Wang) → back: Nespresso → swipe down to the Nike seed, where the loop began */
+const T=41504,E={f1:1504,d1:2000,r1:2160,e1:2840,f2:4000,d2:4248,u2:4496,f3:6904,d3:7152,u3:7400,f4:8504,d4:8752,u4:9000,
+  f5:11000,d5:11496,r5:11656,e5:12336,f6:13504,d6:14000,r6:14160,e6:14840,f7:16504,d7:17000,r7:17160,e7:17840,f8:19504,d8:20000,r8:20160,e8:20840,
+  f9:22000,d9:22248,u9:22496,f10:25000,d10:25248,u10:25496,f11:27000,d11:27496,r11:27656,e11:28336,f12:30000,d12:30496,r12:30656,e12:31336,
+  f13:33000,d13:33496,r13:33656,e13:34336,f14:36000,d14:36248,u14:36496,f15:38504,d15:39000,r15:39160,e15:39840},
+  DRAG=48,DRAGMS=160,SPRMS=680,SH=664,OUTMS=488,F_IN=248,F_DOWN=176,F_UP=120,
+  SVV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(812-DRAG)),SVH=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(375-DRAG)),
+  NIKE_IN=2.6,NIKE_PARK=NIKE_IN-(T-E.d15)/1000,UNIV_HOLD=(E.u9+SH-E.d8)/1000;
+const finger=$('finger');
+function swipeP(t,n,pitch){   // the progress (0 → 1) of scripted swipe n: an ease-in drag of 48pt, then the spring with its speed
+  const d=E['d'+n],r=E['r'+n],e=E['e'+n],a=DRAG/pitch,S=pitch===812?SVV:SVH;
+  if(t<d)return 0;if(t<r)return a*easeIn((t-d)/DRAGMS);if(t<e)return a+(1-a)*S((t-r)/SPRMS);return 1}
+const sheetP=(t,u1,u2)=>t<u1?0:t<u1+SH?SLOW((t-u1)/SH):t<u2?1:t<u2+SH?1-SLOW((t-u2)/SH):0;
+function touchF(t,on,down,up){
+  if(t<on||t>up+F_IN)return null;
+  const o=t<up?easeOut(clamp((t-on)/F_IN)):1-easeOut(clamp((t-up)/F_IN));
+  const s=t<down?1:t<up?1-.15*easeOut(clamp((t-down)/F_DOWN)):.85+.15*easeOut(clamp((t-up)/F_UP));
+  return {o,s}}
+const SW={1:'v',5:'v',6:'v',7:'h',8:'h',11:'h',12:'h',13:'h',15:'d'},TAP={2:[350.5,566],3:[187.5,160],4:[150,772],9:[100,708],10:[24,68],14:[24,70]};
+function fingerAt(t){
+  let fo=null,px=0,py=0;
+  for(const n in SW){const r=E['r'+n];if((fo=touchF(t,E['f'+n],E['d'+n],r))){const q=DRAG*easeIn(clamp((t-E['d'+n])/DRAGMS));
+    if(SW[n]==='v'){px=187.5;py=560-q}else if(SW[n]==='h'){px=300-q;py=420}else{px=187.5;py=400+q}break}}
+  if(!fo)for(const n in TAP){if((fo=touchF(t,E['f'+n],E['d'+n],E['u'+n]))){[px,py]=TAP[n];break}}
+  if(!fo){op(finger,0);return}
+  finger.style.transform=`translate3d(${px.toFixed(2)}px,${py.toFixed(2)}px,0) scale(${fo.s.toFixed(4)})`;op(finger,fo.o)}
+let tl=0;   // the loop clock (ms in [0, T))
+const cardPress=PG.univ.querySelector('.card .press');
+function applyT(t){
+  tl=t;ro=0;
+  if(t<E.u4){mode='feed';f=swipeP(t,1,812);x=0}
+  else if(t<E.u4+SH){mode='in';f=1;x=SLOW((t-E.u4)/SH);c=0;k=0}
+  else if(t<E.u14){mode='cc';x=0;
+    k=t<E.f6?swipeP(t,5,812):1+swipeP(t,6,812);
+    c=t<E.f8?swipeP(t,7,375):t<E.f11?1+swipeP(t,8,375):t<E.f12?2+swipeP(t,11,375):t<E.f13?3+swipeP(t,12,375):4+swipeP(t,13,375)}
+  else if(t<E.u14+OUTMS){mode='out';x=SLOW((t-E.u14)/OUTMS);c=5;k=2;f=1}
+  else{mode='feed';x=0;c=0;k=0;f=1-swipeP(t,15,812)}
+  cm=mode==='feed'?sheetP(t,E.u2,E.u3):0;sf=mode==='cc'?sheetP(t,E.u9,E.u10):0;
+  chevDim=t>=E.d14&&t<E.u14?.5:1;
+  pillPress.classList.toggle('on',t>=E.d4&&t<E.u4);cardPress.classList.toggle('on',t>=E.d9&&t<E.u9);
+  render();fingerAt(t);lockAll(t);
+}
+/* the video lock (as preview/sap-proto): d = where the video should be now (null: off screen, parked at its next in-point) */
+function lock(v,d,park,tin,t){
+  if(d==null&&tin!=null&&t>tin-3000&&t<tin)warm(v);
+  const ok=visible&&!document.hidden&&!(window.demoClock&&demoClock.paused);
+  if(d!=null){const end=(v.duration||99)-.04;if(d>end)d=end}
+  if(d==null||!ok){if(!v.paused)v.pause();const p=d==null?park:d;if(p!=null&&v.readyState>=1&&!v.seeking&&Math.abs(v.currentTime-p)>.04)v.currentTime=p;return}
+  warm(v);
+  if(v.paused){if(v.readyState>=1&&!v.seeking&&Math.abs(v.currentTime-d)>.04)v.currentTime=d;playV(v)}
+  else if(!v.seeking&&Math.abs(v.currentTime-d)>.25)v.currentTime=d}
+const win=(t,a,b)=>t>=a&&t<b?(t-a)/1000:null;
+function lockAll(t){
+  const n=VID;
+  lock(n.nike,t<E.e1?NIKE_IN+t/1000:t>=E.d15?NIKE_IN-(T-t)/1000:null,NIKE_PARK,null,t);
+  lock(n.nesp,t>=E.d1&&t<E.u4+SH?(t-E.d1)/1000:win(t,E.u14,E.e15),0,E.u14,t);
+  lock(n.bb,win(t,E.u4,E.e5),0,E.u4,t);lock(n.sbux,win(t,E.d5,E.e6),0,E.d5,t);lock(n.lc,win(t,E.d6,E.e7),0,E.d6,t);
+  lock(n.cb2,win(t,E.d7,E.e8),0,E.d7,t);
+  const ud=t>=E.d8&&t<E.u9+SH?(t-E.d8)/1000:t>=E.u10&&t<E.e11?UNIV_HOLD+(t-E.u10)/1000:null;
+  lock(n.univ,ud,t>=E.u9+SH&&t<E.u10?UNIV_HOLD:0,E.d8,t);
+  lock(n.laura,win(t,E.d11,E.e12),0,E.d11,t);lock(n.serena,win(t,E.d12,E.e13),0,E.d12,t);lock(n.aden,win(t,E.d13,E.u14+OUTMS),0,E.d13,t);
+}
+let autoOn=false,raf=0,t0=0;
+function frameT(){if(!autoOn)return;applyT(((performance.now()-t0)%T+T)%T);raf=requestAnimationFrame(frameT)}
+function canRun(){return ready&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
+function startAuto(){if(autoOn||!canRun())return;autoOn=true;frame.dataset.autoplay='on';t0=performance.now()-tl;ALLV.forEach(v=>v.loop=false);raf=requestAnimationFrame(frameT)}
+function stopAuto(){if(!autoOn)return;autoOn=false;cancelAnimationFrame(raf);frame.dataset.autoplay='off';pauseAll()}
+function sched(){if(!autoOn&&canRun())startAuto()}
+
+/* ---------- the poster cover (as preview/sap-proto): on first load it holds until the seed's frame and the UI have decoded (max 3.2s),
+   then fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248 ---------- */
+let ready=false;const ldc=$('ldc');
+const seekTo=(v,s)=>new Promise(r=>{if(v.readyState>=2&&Math.abs(v.currentTime-s)<.02)return r();const g=()=>{v.removeEventListener('seeked',g);r()};v.addEventListener('seeked',g);try{v.currentTime=s}catch(_){r()}setTimeout(r,1200)});
+const firstFrame=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true});setTimeout(r,3000)});
+function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate){ldc.style.opacity='0';return}
+  ldc.style.opacity='0';ldc.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out'})}
+function cover(then){
+  if(RM.matches||!ldc.animate){Promise.resolve(then()).then(()=>{ldc.style.opacity='0'});return}
+  ldc.getAnimations().forEach(a=>a.cancel());const o=+getComputedStyle(ldc).opacity;ldc.style.opacity='1';
+  const a=ldc.animate([{opacity:o},{opacity:1}],{duration:120,easing:'ease-in'});
+  a.onfinish=()=>{Promise.resolve(then()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(coverOut)))}}
+const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);addEventListener('load',measureTabs);
+(function(){
+  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+V,AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V]);
+  const nv=VID.nike,prep=INL()?firstFrame(nv).then(()=>seekTo(nv,NIKE_IN)):firstFrame(nv);
+  const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(VID.nesp),document.fonts?document.fonts.ready:0]));
+  let done=false;const go=()=>{if(done)return;done=true;ready=true;measureTabs();
+    if(INL()){applyT(tl);sched()}else{fsStart(false)}
+    coverOut()};
+  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+
+/* ---------- full screen: entering it (html.embed-full) on the Nike seed keeps going; from anywhere else the cover bridges to the seed's
+   start. Leaving it, the cover bridges back to the loop's start ---------- */
+function toSeed(){stopAll();xA.stop();cmA.stop();sfA.stop();mode='feed';f=0;x=0;c=0;k=0;ro=0;cm=0;sf=0;chevDim=1;paused=null;pz.set(false);
+  if(!INL())touch.classList.add('on');setPress(null);render()}
+function fsStart(keep){
+  stopAuto();ALLV.forEach(v=>v.loop=true);op(finger,0);pillPress.classList.remove('on');cardPress.classList.remove('on');
+  toSeed();if(!keep){try{VID.nike.currentTime=0}catch(_){}}
+  homeS=null;homeTell(true);vidSync();
+}
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;fit();
+  if(!i){const keep=ready&&mode==='feed'&&f===0&&cm===0;if(keep)fsStart(true);else cover(()=>{fsStart(false)});return}
+  stopAll();xA.stop();cmA.stop();sfA.stop();touch.classList.remove('on');paused=null;pz.set(false);setPress(null);
+  cover(()=>{tl=0;applyT(0);pauseAll();return seekTo(VID.nike,NIKE_IN).then(()=>{sched()})})}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+if(!INL())touch.classList.add('on');
+
+/* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone): home = the feed (Nike / Nespresso) ---------- */
+function say(t){$('live').textContent=t}
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
+
+/* ---------- theme toggle + follow the site theme ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+
+/* ---------- real pointer → touch-indicator circle (same as the FMSS prototypes) ---------- */
+const uf=$('ufinger');let uShow=false,uTouch=null;
+const FINE=matchMedia('(hover:hover) and (pointer:fine)'),isFine=ev=>ev.pointerType!=='touch'&&FINE.matches;
+function ptOf(ev){const r=phone.getBoundingClientRect(),s=r.width/375;return [(ev.clientX-r.left)/s,(ev.clientY-r.top)/s]}
+function uPos(ev){const [x,y]=ptOf(ev);uf.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
+phone.addEventListener('pointerdown',ev=>{if(!ev.isTrusted||INL())return;if(!isFine(ev))uTouch=ev.pointerId;uPos(ev);uShow=true;uf.classList.add('on','down');phone.classList.add('u-on')},true);
+phone.addEventListener('pointermove',ev=>{if(ev.isTrusted&&uShow&&(ev.pointerId===uTouch||isFine(ev)))uPos(ev)},true);
+function uUp(ev){if(!ev.isTrusted)return;uf.classList.remove('down');if(ev.pointerId===uTouch){uTouch=null;uOff()}else if(isFine(ev))uOff()}
+addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
+phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
+
+window.__cc={get mode(){return mode},get f(){return f},get c(){return c},get k(){return k},get ro(){return ro},get cm(){return cm},get sf(){return sf},
+  get t(){return tl},get auto(){return autoOn},get ready(){return ready},get visible(){return visible},T,E,VID,
+  seek(t){tl=((t%T)+T)%T;t0=performance.now()-tl;applyT(tl)},explore,back,goCat,stepF,stepK,openComments,openStore,measureTabs,
+  get playing(){return Object.keys(VID).filter(id=>!VID[id].paused)}};
+booted=true;render();
+})();
+</script>
+</body>
+</html>

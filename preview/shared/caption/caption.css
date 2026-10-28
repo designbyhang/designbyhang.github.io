@@ -8,8 +8,10 @@
      the action region .c-act at +80: the CTA (303×44) or LensCrafters' product row (72).
    So caption → CTA is VAC's 12px, Sponsored → caption 12px, author → CTA 80px. A pill under the CTA (SAP's "Explore more like this", 24px
    high, 13px under the CTA) does not overlay the block: the prototype sets --c-lift (0 → 37px = 24 + 13) with the pill's own progress, and the
-   whole block rises with it (caption.js ReelsCaption.lift). */
-.c-stack{position:absolute;left:12px;bottom:12px;width:303px;height:124px;margin:0;pointer-events:none;
+   whole block rises with it (caption.js ReelsCaption.lift).
+   --c-bottom (default 12px) moves the anchor: preview/cc-proto sets 76px, so its CTA and cards sit right above the Facebook bottom nav.
+   "Sponsored" is the markup's own text (.c-sp): cc-proto passes "Ad". */
+.c-stack{position:absolute;left:12px;bottom:var(--c-bottom,12px);width:303px;height:124px;margin:0;pointer-events:none;
   transform:translate3d(0,calc(-1px*var(--c-lift,0)),0)}
 .c-stack.c-hs{height:152px}
 .c-stack>*{position:absolute;margin:0}

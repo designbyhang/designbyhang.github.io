@@ -189,8 +189,8 @@ if(open||!document.documentElement.classList.contains('gated'))arm();else addEve
    make(get, pin): get() returns the caption's <p> (its span is kept once found: the phone layer is gone from dbhLayer.el while it closes);
    pin(), if given, runs as the entrance starts and ends (the phone view re-measures its layout) */
 window.dbhIns=(function(){var RM=matchMedia('(prefers-reduced-motion: reduce)'),STAG=40,WAIT=800,FADE={duration:400,easing:'cubic-bezier(.25,.1,.25,1)'},
- TEXT={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad','mac-proto':'Tap the Oakley ad','sap-proto':'Tap Explore more like this'},
- TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv','mac-proto':'#mv','sap-proto':'#chipb'}; /* the reel caption / a product image / the reel's profile picture / the video ad / the Oakley ad (MAC's grid) / SAP's chip */
+ TEXT={'fmss-cb':'Tap the Reel’s caption','fmss-hs':'Tap a product image','fmss-profile':'Tap the Reel’s profile picture','vac-proto':'Tap the video ad','mac-proto':'Tap the Oakley ad','sap-proto':'Tap Explore more like this','cc-proto':'Swipe up, then tap Explore more like this'},
+ TAP={'fmss-cb':'#more','fmss-hs':'.tile','fmss-profile':'#author','vac-proto':'#mv','mac-proto':'#mv','sap-proto':'#chipb','cc-proto':'#pillb'}; /* the reel caption / a product image / the reel's profile picture / the video ad / the Oakley ad (MAC's grid) / SAP's chip / CC's pill */
  return {TEXT:TEXT,
   key:function(u){u=u||'';return Object.keys(TEXT).filter(function(k){return u.indexOf('/'+k+'/')>=0})[0]||''},
   html:function(t){return '<p class="fs-ins"><span>'+(t||'')+'</span></p>'},
