@@ -377,14 +377,14 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:r
    media height (content width x 2052/3840) floored to 8px, 432..536px; --dev-h = the device (bezel box) = --mbox-h - 2 x --dev-pad */
 :root{--dev-pad:24px;--mbox-h:clamp(432px,round(down,calc((min(100vw,1152px) - 2*clamp(20px,5vw,72px))*.534375),8px),536px);--dev-h:calc(var(--mbox-h) - 2*var(--dev-pad))}
 @media (max-width:640px){:root{--mbox-h:432px}}
-body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start;box-sizing:border-box!important;width:100%!important;max-width:none!important;height:calc(var(--mbox-h) + 2px)!important;aspect-ratio:auto!important} /* + the 1px border top and bottom: the inner box is --mbox-h */
+body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
 html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
 .phone-demo .pd-phone{position:relative;flex:none;height:calc(var(--dev-h)*812/828);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812;border-radius:calc(var(--dev-h)*48/828);overflow:hidden;box-shadow:0 0 0 calc(var(--dev-h)*8/828) var(--pd-bezel);transform:translateZ(0)}
-/* the 750x1624 recordings (= the screen's 375:812) carry a 1-2px dark capture edge: the picture is scaled up by 1628/1624, centred, so
-   the screen clip trims 2 source px at the top and bottom (~1 at the sides) and nothing else. The box keeps 750:1624 exactly (% margins
-   resolve against the width: 2/1624 of the height = 2/750 of the width), so object-fit:cover adds no crop (the old fixed +4px box was
-   wider than 750:1624 and cover cut ~22 source px off the bottom: the iOS home indicator) */
-body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:calc(100%*1628/1624);max-width:none;height:calc(100%*1628/1624);margin:calc(-200%/750) calc(-200%/1624);object-fit:cover;object-position:50% 0;border-radius:0;transform:none;transition:none}
+/* the 750x1624 recordings (= the screen's 375:812) carry a dark capture edge (cols 0-1/748-749, rows 0/1623); downscaling filters
+   reach 2+ source px inward, so trimming it exactly left a 1-device-px dark line (390@2x: 1 px = 2.2 source px). The picture is scaled
+   up uniformly by 750/742 and centred: the screen clip trims 4 source px at the sides and 4*1624/750 = 8.7 at the top and bottom, and
+   nothing else. The box keeps 750:1624 exactly (% margins resolve against the width), so object-fit:cover adds no crop */
+body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:calc(100%*750/742);max-width:none;height:calc(100%*750/742);margin:calc(-400%*1624/750/742) calc(-400%/742);object-fit:cover;object-position:50% 0;border-radius:0;transform:none;transition:none}
 .pd-rows{margin-top:64px}
 .inc2 .pd-row{align-items:stretch}
 .pd-touch .pd-row{column-gap:0} /* Hang, Oct 26: Current State modules widen to meet, no column gap */
