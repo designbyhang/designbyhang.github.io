@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=264"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=265"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=264"><link rel="stylesheet" href="../../css/theme.css?v=264">
+<link rel="stylesheet" href="../../css/type.css?v=265"><link rel="stylesheet" href="../../css/theme.css?v=265">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=264"><script src="../../js/vac-caption.js?v=264"></script><script src="../shared/caption/caption.js?v=264"></script><script src="../../js/squircle.js?v=264"></script><script src="../shared/pause/pause.js?v=264"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=265"><link rel="stylesheet" href="../../css/ad-cta.css?v=265"><script src="../../js/vac-caption.js?v=265"></script><script src="../shared/caption/caption.js?v=265"></script><script src="../../js/squircle.js?v=265"></script><script src="../shared/pause/pause.js?v=265"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=264">
+<link rel="stylesheet" href="../shared/device/device.css?v=265">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -49,7 +49,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .btn:focus,.btn:focus-visible{outline:none}
 video{display:block;object-fit:cover}
 /* layers, bottom → top: the feed reels (Nike seed, Nespresso: one 812 pitch, vertical); CC (six categories side by side, 375 pitch;
-   Coffee is a vertical stack of three ads); the top bars (feed: menu / search / Messenger ↔ CC: back chevron + the category tab row,
+   Coffee is a vertical stack of three ads); the top bars (feed: menu / search ↔ CC: back chevron + the category tab row,
    crossfaded); the bottom nav (round home + the contextual pill); the comments and storefront sheets; status bar, home indicator */
 .feed,.cc{width:375px;height:812px;will-change:transform}
 .cc{visibility:hidden}
@@ -60,23 +60,29 @@ video{display:block;object-fit:cover}
 .tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
 .cc .tgrad{background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.18) 60%,rgba(0,0,0,0))}
 .grad{left:0;top:470px;width:375px;height:342px;background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.4) 22%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.2) 58%,rgba(0,0,0,.08) 78%,rgba(0,0,0,0) 100%)}
-/* UFI (Figma CC frame): like / comment / share / save on a 53pt pitch from 499, more at 705 */
+/* UFI, as VAC's Reels (preview/vac-proto, its rendered rasters): the items on VAC's 65pt pitch, its more (···) centred at 702, so with
+   CC's extra save the column is bottom-anchored: like / comment / share / save at 429 + 65i (glyph tops 430 / 495 / 560.5 / 626.5: VAC's
+   comment / share land on 495.5 / 560.5 / 626), more at 690; x 326–375 (the icons 24 at 338.5, 12 from the right edge); the count 6
+   under its icon (digits ~9.5 under the glyph, as VAC's) */
 .ufi{left:326px;width:49px;text-align:center;font:500 12px/16px var(--sf);letter-spacing:0;text-shadow:0 0 2px rgba(0,0,0,.35)}
-.ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 3px}
+.ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 6px}
 /* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
-   (--c-bottom 76: the CTA 692–736, the nav 752). Inside it, from the author row (612): avatar 36 + name ✓ · Follow (20px line) and
+   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name + globe (20px line; no badge and no "· Follow" on ads or the seed) and
    "Sponsored" under the name (the shared .c-sp line: 12/16, white 70%, as MAC and SAP since v230; no Ad pill), the VAC caption at +48
-   (660; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
-   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (303×44, r12). Creator posts: "· Following" and the post's age under the name, the caption, and the
-   commerce card (56) at +80 (680–736). The Nike seed: name / 4h and its caption only (author 672, caption 716) */
-.phone .c-stack{--c-bottom:76px}
+   (ads 668; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
+   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the verified badge (14), "· Following" and the post's age under the name, the caption, and the
+   commerce card (56) at +80 (666–722). The Nike seed: name / 4h and its caption only (author 658, caption 702) */
+.phone .c-stack{--c-bottom:90px}
 .c-stack.cc-org{height:136px}
 .c-stack.cc-seed{height:64px}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
 .c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.3);-webkit-font-smoothing:antialiased}
-.cn svg{flex:none;width:14px;height:14px;margin:0 4px}
+.cn svg{flex:none;width:14px;height:14px;margin-left:4px}
+.cn span{margin-left:4px}
+/* ads and the seed: the globe after the name, not the badge (VAC's: preview/shared/caption/globe.svg, 12×12 centred on the 20px name line, as
+   MAC/SAP's .cglobe; 6 after the name: its ink ~7.5 from the name's, as SAP's rasters) */
+.cn .cglobe{flex:none;width:12px;height:12px;margin-left:6px}
 .c-stack.cc-seed>.c-cap{top:44px}
-.c-stack>.cta{left:0;top:80px;width:303px;height:44px;border-radius:12px;font:600 15px/44px var(--sf);letter-spacing:-.24px;text-align:center;color:#fff;overflow:hidden}
 .c-stack>.card{left:0;top:80px;width:303px;height:56px;border-radius:12px}
 /* the commerce cards (the reel's, 303×56, and the comments sheet's, 351×56): one recipe. An even 8pt inset on all four sides; the
    thumbnail 40×40, square, its radius concentric with the card's (12 − 8 = 4, squircled by js/squircle.js); the text 12 after it (x 60)
@@ -92,25 +98,28 @@ video{display:block;object-fit:cover}
 .press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease);border-radius:inherit;pointer-events:none;z-index:2}
 .press.on{opacity:1;transition-duration:.12s}
 /* top bars: the feed's (Figma CC poster) and CC's: back chevron 24 at 12,58, the tabs from x 40 (SF Semibold 17, 20 apart; active white,
-   the rest 55%), scrolling under a 40px fade at the right */
+   the rest 55%; the names' weight and rendering: 600, antialiased, as .cn), scrolling under a 40px fade at the right */
 .fbar{width:375px;height:96px;z-index:10;pointer-events:none}
-.fbar>svg{position:absolute}
+.fbar>*{position:absolute}
+/* the feed bar: SAP's search icon (preview/sap-proto, its nav.webp at 0,44: the same raster, cut from it, not a copy) at SAP's rect, 24 at
+   339,58 (the glyph 340–362 × 59–81, 12 from the right edge); the menu 24 at 12,58: both centred on y 70, the chevron's and the tab row's */
+.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=265) -339px -14px/375px 52px no-repeat}
 .tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
 .tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
 .ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
-.tab{font:600 17px/22px var(--sf);letter-spacing:-.41px;color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25)}
-/* the bottom nav: round home (40, at 12,752) + the pill (303×40 at 60,752): its icon at +10, the query at +34 (15, white 72%), the
+.tab{font:600 17px/22px var(--sf);letter-spacing:-.41px;color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
+/* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742) + the pill (303×40 at 60,742): its icon at +10, the query at +34 (15, white 72%), the
    circled up-arrow at +273; the query is the reel's own, crossfaded as reels move */
-.navh{left:12px;top:752px;width:40px;height:40px;border-radius:20px;z-index:12}
-.navp{left:60px;top:752px;width:303px;height:40px;border-radius:20px;z-index:12}
+.navh{left:12px;top:742px;width:40px;height:40px;border-radius:20px;z-index:12}
+.navp{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12}
 .navh svg,.navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px}
 .navp .up{position:absolute;left:273px;top:10px;width:20px;height:20px}
 .navp .lb{position:absolute;inset:0;opacity:0}
 .navp .q{position:absolute;left:34px;top:10px;font:400 15px/20px var(--sf);letter-spacing:-.24px;color:rgba(255,255,255,.72);white-space:nowrap}
 .touch{width:375px;height:812px;z-index:14;touch-action:none;display:none}
 .touch.on{display:block}
-#pillb{left:60px;top:752px;width:303px;height:40px;z-index:15}
+#pillb{left:60px;top:742px;width:303px;height:40px;z-index:15}
 #back{left:2px;top:48px;width:44px;height:44px;z-index:15}
 .pz{left:155.5px;top:374px;z-index:13}
 /* comments (Nespresso): the dim and a 562 sheet from 250, the ad's product card on top */
@@ -173,11 +182,10 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L feed" id="feed" aria-hidden="true"></div>
         <div class="L cc" id="cc" aria-hidden="true"></div>
         <div class="L fbar" id="fbar" aria-hidden="true">
-          <svg style="left:12px;top:68px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-          <svg style="left:300px;top:68px" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="10.6" cy="10.6" r="8.1" stroke="#fff" stroke-width="2.1"/><path d="m16.6 16.6 5.4 5.4" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/></svg>
-          <svg style="left:342px;top:66px" width="28" height="28" viewBox="0 0 28 28"><path fill="#fff" d="M14 1.5C7 1.5 1.6 6.6 1.6 13.5c0 3.6 1.5 6.7 3.9 8.9.2.2.3.5.3.8l.1 2.2c0 .7.8 1.2 1.4.9l2.5-1.1c.2-.1.5-.1.7-.1 1.1.3 2.3.5 3.5.5 7 0 12.4-5.1 12.4-12S21 1.5 14 1.5Z"/><path fill="#000" fill-opacity=".9" d="m6.6 17.1 3.6-5.8c.6-.9 1.8-1.1 2.7-.5l2.9 2.2c.3.2.6.2.9 0l3.9-3c.5-.4 1.2.2.8.8l-3.6 5.8c-.6.9-1.8 1.1-2.7.5l-2.9-2.2c-.3-.2-.6-.2-.9 0l-3.9 3c-.5.4-1.2-.2-.8-.8Z"/></svg>
+          <svg style="left:12px;top:58px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <i class="srch"></i>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=264"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=265"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3.5 8.6 10 3.4l6.5 5.2V16a1 1 0 0 1-1 1h-3.3v-4.4H7.8V17H4.5a1 1 0 0 1-1-1V8.6Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div>
           <svg class="up" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.6" stroke="#fff" stroke-width="1.5"/><path d="M10 13.6V6.6M6.9 9.6 10 6.5l3.1 3.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="press" id="pillPress"></i></div>
@@ -190,14 +198,14 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L store" id="store" aria-hidden="true"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=264" aria-hidden="true">
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=265" aria-hidden="true">
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">A Nike reel in Feed; swipe up to a Nespresso ad and tap "Explore more like this" in the bar at the bottom. Commerce Chaining opens on Coffee: swipe up through Blue Bottle, Starbucks and La Colombe, or swipe left (or tap a tab) across Home, Movie, Fashion, Beauty and Tech, where ads sit beside creator posts with their commerce cards. Universal's "View Storefront" opens its storefront; × closes it. The chevron (or Escape) returns to the Nespresso reel. Tap a reel to pause it; the comment icon on Nespresso opens its comments.</p>
+  <p class="below">A Nike reel in Feed; swipe up to a Nespresso ad and tap "Explore more like this" in the bar at the bottom. Commerce Chaining opens on Coffee: swipe up through Blue Bottle, Starbucks and La Colombe, or swipe left (or tap a tab) across Home, Movie, Fashion and Beauty, where ads sit beside creator posts with their commerce cards. Universal's "View Storefront" opens its storefront; × closes it. The chevron (or Escape) returns to the Nespresso reel. Tap a reel to pause it; the comment icon on Nespresso opens its comments.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -208,7 +216,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=244',AV='../../assets/vac/vac-cc-';
+const V='?v=265',AV='../../assets/vac/vac-cc-';
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -220,7 +228,7 @@ function fit(){
 new ResizeObserver(fit).observe(frame);fit();
 
 /* ---------- the reels (copy and metrics: the approved CC mock, /workspace/cc/mock; Figma XYE8LCJVe0rHhnEB5DA18A, flow 140796:4871) ----------
-   kind: seed (the Nike reel the chain starts from) · ad (avatar, name ✓ · Follow, "Sponsored", caption, CTA) · org (a creator post: · Following,
+   kind: seed (the Nike reel the chain starts from) · ad (avatar, name + globe, "Sponsored", caption, CTA) · org (a creator post: · Following,
    its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this") */
 const R={
   nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
@@ -231,14 +239,14 @@ const R={
   cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
   univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',store:1,pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
   laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
-  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']},
-  aden:{kind:'org',name:'Aden Wang',ago:'2 hours ago',cap:'Guess who I\'m featuring in my prototype! Tidy desk, happy aloe.',ct:'Aden\'s Tidy Home',cu:'View Storefront',pill:'Studio Display XDR',ufi:['3.4K','129','44','508']}};
-const TABS=['Coffee','Home','Movie','Fashion','Beauty','Tech'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena'],['aden']];
-const FIRST=[0,0,1,2,2,2];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, Movie 1, the rest 2)
+  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
+const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena']],LAST=CATS.length-1;
+const FIRST=[0,0,1,1,1];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, the rest 1: Home leads, Beauty ends
+                            // inside the fade; FIRST 2 would ask for 139 of a ribbon that only scrolls 90 and leave Home cut under the chevron)
 const ICO={
   search:'<svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M10.2 3.3A6.3 6.3 0 1 0 15.2 13.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="m13.8 13.8 3.4 3.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M14.6 2.2c.3 1.6 1 2.3 2.6 2.6-1.6.3-2.3 1-2.6 2.6-.3-1.6-1-2.3-2.6-2.6 1.6-.3 2.3-1 2.6-2.6Z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/></svg>',
   explore:'<svg class="ico" viewBox="0 0 32 32" fill="none"><g fill="#fff"><path d="M4 6.6v8.8c0 2 2.2 3.2 3.9 2.1l7-4.4c1.6-1 1.6-3.2 0-4.2l-7-4.4C6.2 3.4 4 4.6 4 6.6z"/><rect x="18" y="4" width="10" height="4" rx="2"/><rect x="18" y="14" width="10" height="4" rx="2"/><rect x="4" y="24" width="24" height="4" rx="2"/></g></svg>'};
-const BADGE='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#fff" d="M8 .6l1.7 1.3 2.1-.2.7 2 1.9 1-.5 2.1L15 8.6l-1.3 1.7.2 2.1-2 .7-1 1.9-2.1-.5L7.4 15l-1.7-1.3-2.1.2-.7-2-1.9-1 .5-2.1L.4 7.4l1.3-1.7-.2-2.1 2-.7 1-1.9 2.1.5Z"/><path d="M5 8.2l2 2 4-4.1" fill="none" stroke="#1c1c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=265">',BADGE='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#fff" d="M8 .6l1.7 1.3 2.1-.2.7 2 1.9 1-.5 2.1L15 8.6l-1.3 1.7.2 2.1-2 .7-1 1.9-2.1-.5L7.4 15l-1.7-1.3-2.1.2-.7-2-1.9-1 .5-2.1L.4 7.4l1.3-1.7-.2-2.1 2-.7 1-1.9 2.1.5Z"/><path d="M5 8.2l2 2 4-4.1" fill="none" stroke="#1c1c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
@@ -247,12 +255,12 @@ function page(id){
   const lazy=id==='nike'||id==='nesp'?'auto':'metadata';
   let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${V}" src="${AV}${id}.mp4${V}"></video><i class="tgrad"></i><i class="grad"></i>`;
   const ic=['<img alt="" src="assets/u-like.webp'+V+'">','<img alt="" src="assets/u-comment.webp'+V+'">','<img alt="" src="assets/u-share.webp'+V+'">',SAVE];
-  d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${499+i*53}px">${ic[i]}${esc(n)}</div>`});
-  h+=`<div class="ufi" style="top:705px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
-  const row=(f,sub)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${BADGE}${f}</p><p class="c-sp">${esc(sub)}</p>`;
-  if(d.kind==='ad')h+=`<div class="c-stack">${row('· Follow','Sponsored')}<p class="c-cap">${esc(d.cap)}</p><div class="cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></div></div>`;
-  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row('· Following',d.ago)}<p class="c-cap">${esc(d.cap)}</p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
-  else h+=`<div class="c-stack cc-seed">${row('· Follow',d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
+  d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${429+i*65}px">${ic[i]}${esc(n)}</div>`});
+  h+=`<div class="ufi" style="top:690px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
+  const row=(f,sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${mark}${f?`<span>${f}</span>`:''}</p><p class="c-sp">${esc(sub)}</p>`;
+  if(d.kind==='ad')h+=`<div class="c-stack">${row('','Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
+  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row('· Following',d.ago,BADGE)}<p class="c-cap">${esc(d.cap)}</p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
+  else h+=`<div class="c-stack cc-seed">${row('',d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
   p.innerHTML=h;return p}
 const PG={},VID={};
 ['nike','nesp'].forEach(id=>{const p=page(id);$('feed').appendChild(p);PG[id]=p});
@@ -294,7 +302,7 @@ const easeIn=q=>q*q,easeOut=q=>1-(1-q)*(1-q);
    mode  feed (Nike ↔ Nespresso) · in (Explore more like this: Nespresso off left, CC's Coffee in from the right, 664) · cc · out (the
          chevron: CC off right fast, Nespresso back in from the left, 488)
    f     the feed's reel (Nike 0 → Nespresso 1)      x  the in/out push (0 → 1)
-   c     CC's category (Coffee 0 … Tech 5; swipe left/right or tap a tab)      k  Coffee's ad (Blue Bottle 0 · Starbucks 1 · La Colombe 2)
+   c     CC's category (Coffee 0 … Beauty 4; swipe left/right or tap a tab)      k  Coffee's ad (Blue Bottle 0 · Starbucks 1 · La Colombe 2)
    ro    the tab row's own scroll on top of the category's (dragging the row)      cm  the comments sheet · sf  the storefront */
 let mode='feed',f=0,x=0,c=0,k=0,ro=0,cm=0,sf=0,chevDim=1;
 const fA=anim(()=>f,v=>{f=v;render()}),xA=anim(()=>x,v=>{x=v;render()}),cA=anim(()=>c,v=>{c=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),
@@ -304,9 +312,9 @@ const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s
 const vis=(el,on)=>{const s=on?'visible':'hidden';if(el.style.visibility!==s)el.style.visibility=s};
 const setT=(el,s)=>{if(el.style.transform!==s)el.style.transform=s};
 const els={feed:$('feed'),cc:$('cc'),fbar:$('fbar'),tabs:$('tabs'),chev:$('chev'),ribbon:$('ribbon'),dim:$('dim'),cs:$('csheet'),st:$('store'),sb:$('sb'),home:$('home'),lb:[$('lb0'),$('lb1')]};
-let TABX=[0,0,0,0,0,0],TABW=[0,0,0,0,0,0],RMAX=0;
+let TABX=TABS.map(()=>0),TABW=TABS.map(()=>0),RMAX=0;
 function measureTabs(){TABX=TABEL.map(e=>e.offsetLeft);TABW=TABEL.map(e=>e.offsetWidth);RMAX=Math.max(0,els.ribbon.scrollWidth-295);render()}
-const scrollOf=cv=>{const i=clamp(Math.floor(cv),0,5),j=Math.min(5,i+1),q=cv-i;return lerp(TABX[FIRST[i]],TABX[FIRST[j]],q)};
+const scrollOf=cv=>{const i=clamp(Math.floor(cv),0,LAST),j=Math.min(LAST,i+1),q=cv-i;return lerp(TABX[FIRST[i]],TABX[FIRST[j]],q)};
 const ribX=()=>clamp(scrollOf(c)+ro,0,RMAX+40);
 /* what is on screen: each page's offset from the screen (dx, dy); a page is drawn while it overlaps it */
 function offsets(){
@@ -351,10 +359,10 @@ function pill(){
 
 /* ---------- full screen: the gestures (one touch layer; hit rects in screen points) ----------
    Feed: swipe up/down between Nike and Nespresso; on Nespresso the comment icon opens comments, "Explore more like this" (the pill) opens CC.
-   CC: swipe up/down within Coffee; swipe left/right across categories (or tap a tab; the tab row also drags sideways); Universal's card
+   CC: swipe up/down within Coffee (up on a tab's last reel: the next tab, the tab change; Beauty, the last: nothing); swipe left/right across categories (or tap a tab; the tab row also drags sideways); Universal's card
    opens the storefront; the chevron goes back. CTAs, cards and the nav: press feedback only (Figma has no destination for them).
    A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
-const RC={pill:[60,752,303,40],home:[12,752,40,40],cmt:[326,548,49,48],cta:[12,692,303,44],card:[12,680,303,56],back:[2,48,44,44],tabs:[40,44,335,52],x:[2,44,44,44]};
+const RC={pill:[60,742,303,40],home:[12,742,40,40],cmt:[326,490,49,48],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52],x:[2,44,44,44]};
 const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
 const pz=FMSSPause.mount($('pz'));let paused=null;   // the reel the viewer has paused (id)
 const settled=v=>Math.abs(v-Math.round(v))<.01;
@@ -366,14 +374,14 @@ function pressAt(a,b){   // [overlay, kind]
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];   // Nespresso's pill is the #pillb button above this layer
     if(id==='nesp'&&inR(RC.cmt,a,b))return [null,'cmt'];
-    if(id==='nesp'&&inR(RC.cta,a,b))return [PG.nesp.querySelector('.cta .press'),'cta'];
+    if(id==='nesp'&&inR(RC.cta,a,b))return [PG.nesp.querySelector('.ad-cta .press'),'cta'];
     return [null,'reel']}
   if(mode==='cc'&&settled(c)&&settled(k)){const id=curId(),d=R[id];
     if(inR(RC.back,a,b))return [null,'back'];
-    if(inR(RC.tabs,a,b)){const rx=a-40+ribX();for(let i=0;i<6;i++)if(rx>=TABX[i]-10&&rx<=TABX[i]+TABW[i]+10)return [null,'tab'+i];return [null,'tabs']}
+    if(inR(RC.tabs,a,b)){const rx=a-40+ribX();for(let i=0;i<TABS.length;i++)if(rx>=TABX[i]-10&&rx<=TABX[i]+TABW[i]+10)return [null,'tab'+i];return [null,'tabs']}
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];
-    if(d.kind==='ad'&&inR(RC.cta,a,b))return [PG[id].querySelector('.cta .press'),'cta'];
+    if(d.kind==='ad'&&inR(RC.cta,a,b))return [PG[id].querySelector('.ad-cta .press'),'cta'];
     if(d.kind==='org'&&inR(RC.card,a,b))return [PG[id].querySelector('.card .press'),d.store?'store':'card'];
     return [null,'reel']}
   return [null,null]}
@@ -396,11 +404,12 @@ touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
     else if(pd.kind==='store'||pd.kind==='x')pd.axis='none';
     else if(mode==='feed')pd.axis='f';
     else if(pd.kind==='tabs'||pd.kind.startsWith('tab'))pd.axis=Math.abs(dx)>=Math.abs(dy)?'ro':'none';
-    else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':'none')}   // a single-reel category has nothing to swipe to
+    else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':Math.round(c)<LAST?'v':'none')}   // a single-reel category: up goes to the next tab (Beauty, the last, has none)
   let v=0;
   if(pd.axis==='f'){f=rub(pd.f0-dy/812,0,1);v=f}
-  else if(pd.axis==='k'){k=rub(pd.k0-dy/812,0,2);v=k}
-  else if(pd.axis==='c'){c=rub(pd.c0-dx/375,0,5);v=c}
+  else if(pd.axis==='k'){pd.u=pd.k0-dy/812;k=rub(pd.u,0,2);v=pd.u}   // the flick speed: the finger's, not the rubber band's
+  else if(pd.axis==='c'){c=rub(pd.c0-dx/375,0,LAST);v=c}
+  else if(pd.axis==='v'){v=-dy/812;pd.u=v}
   else if(pd.axis==='ro'){const base=scrollOf(c);ro=rub(pd.ro0-dx,-base,RMAX-base);v=ro}
   else if(pd.axis==='cm'){cm=clamp(pd.cm0-dy/562);v=cm}
   else return;
@@ -415,8 +424,9 @@ function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setP
     return}
   const v0=vel(d);
   if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0))}
-  else if(d.axis==='k'){const t=snap(k,v0,Math.round(d.k0),0,2,812);stepK(t,Math.round(d.k0))}
-  else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,5,375);goCat(t,Math.round(d.c0))}
+  else if(d.axis==='k'){const t=snap(Math.round(d.k0)===2?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,3,812);if(t===3){kA.to(2,{ms:400});nextCat()}else stepK(t,Math.round(d.k0))}
+  else if(d.axis==='v'){if(snap(d.u||0,v0,0,0,1,812)===1)nextCat()}
+  else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,LAST,375);goCat(t,Math.round(d.c0))}
   else if(d.axis==='ro'){const base=scrollOf(c),t=clamp(ro+v0*.25,-base,RMAX-base);roA.to(t,{ms:400})}
   else if(d.axis==='cm'){if(cm<.75||v0<-1)closeComments();else cmA.to(1,{ms:400})}}
 touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
@@ -424,7 +434,9 @@ function restart(id){const v=VID[id];if(v){try{v.currentTime=0}catch(_){}}if(pau
 function arrive(id){say(R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?' post':' reel'))}
 function stepF(t,from=Math.round(f)){if(t!==from)restart(t?'nesp':'nike');fA.to(t,{ms:664,onDone:()=>arrive(t?'nesp':'nike')})}
 function stepK(t,from=Math.round(k)){if(t!==from)restart(CATS[0][t]);kA.to(t,{ms:664,onDone:()=>arrive(CATS[0][t])})}
-function goCat(t,from=Math.round(c)){t=clamp(t,0,5);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
+function nextCat(){const t=Math.round(c)+1;if(t<=LAST)goCat(t)}   // swipe up on a tab's last reel: the next tab, with the tab change (Beauty, the last tab: nothing)
+function vStep(s){if(Math.round(c)===0&&Math.round(k)+s>=0&&Math.round(k)+s<=2)stepK(Math.round(k)+s);else if(s>0)nextCat()}   // up/down in CC: Coffee's reels, then on to the next tab
+function goCat(t,from=Math.round(c)){t=clamp(t,0,LAST);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
   roA.to(0,{ms:664});cA.to(t,{ms:t===c?400:664,onDone:()=>arrive(id)})}
 function togglePause(){const id=curId();if(!id)return;const v=VID[id];
   if(paused===id){paused=null;pz.set(false);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
@@ -458,15 +470,15 @@ $('pillb').addEventListener('pointerup',pillUp);$('pillb').addEventListener('poi
 let wT=0,wX=0,wY=0;
 touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventDefault();if(cm||sf||mode==='in'||mode==='out')return;
   const now=performance.now();if(now-wT<480)return;wX+=ev.deltaX;wY+=ev.deltaY;
-  if(Math.abs(wX)>40&&mode==='cc'){const t=clamp(Math.round(c)+(wX>0?1:-1),0,5);wX=wY=0;wT=now;if(t!==Math.round(c))goCat(t);return}
+  if(Math.abs(wX)>40&&mode==='cc'){const t=clamp(Math.round(c)+(wX>0?1:-1),0,LAST);wX=wY=0;wT=now;if(t!==Math.round(c))goCat(t);return}
   if(Math.abs(wY)>40){const s=wY>0?1:-1;wX=wY=0;wT=now;
     if(mode==='feed'){const t=clamp(Math.round(f)+s,0,1);if(t!==Math.round(f))stepF(t)}
-    else if(Math.round(c)===0){const t=clamp(Math.round(k)+s,0,2);if(t!==Math.round(k))stepK(t)}}},{passive:false});
+    else vStep(s)}},{passive:false});
 document.addEventListener('keydown',ev=>{if(INL())return;const K=ev.key;
   if(K==='Escape'){if(sf)closeStore();else if(cm)closeComments();else if(mode==='cc')back();return}
   if(cm||sf||xA.busy)return;
   if(K==='ArrowDown'||K==='ArrowUp'){ev.preventDefault();const s=K==='ArrowDown'?1:-1;
-    if(mode==='feed')stepF(clamp(Math.round(f)+s,0,1));else if(mode==='cc'&&Math.round(c)===0)stepK(clamp(Math.round(k)+s,0,2))}
+    if(mode==='feed')stepF(clamp(Math.round(f)+s,0,1));else if(mode==='cc')vStep(s)}
   else if(mode==='cc'&&(K==='ArrowRight'||K==='ArrowLeft')){ev.preventDefault();goCat(Math.round(c)+(K==='ArrowRight'?1:-1))}});
 
 /* ---------- full-screen videos: each plays only while it is on screen (and the demo is in view), unless the viewer paused it ---------- */
@@ -493,11 +505,11 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll()
 /* ---------- inline: the scripted loop (Hang's flow, Figma 140796:4871), no interaction; every time on the 8ms grid ----------
    Nike seed → swipe up to Nespresso → its comments open and close → "Explore more like this" → CC on Coffee (Blue Bottle) → swipe up:
    Starbucks → La Colombe → swipe left: Home (CB2) → Movie (Universal) → its storefront opens and closes → Fashion (Laura Byrnes) →
-   Beauty (xzmserena) → Tech (Aden Wang) → back: Nespresso → swipe down to the Nike seed, where the loop began */
-const T=41504,E={f1:1504,d1:2000,r1:2160,e1:2840,f2:4000,d2:4248,u2:4496,f3:6904,d3:7152,u3:7400,f4:8504,d4:8752,u4:9000,
+   Beauty (xzmserena) → back: Nespresso → swipe down to the Nike seed, where the loop began */
+const T=38504,E={f1:1504,d1:2000,r1:2160,e1:2840,f2:4000,d2:4248,u2:4496,f3:6904,d3:7152,u3:7400,f4:8504,d4:8752,u4:9000,
   f5:11000,d5:11496,r5:11656,e5:12336,f6:13504,d6:14000,r6:14160,e6:14840,f7:16504,d7:17000,r7:17160,e7:17840,f8:19504,d8:20000,r8:20160,e8:20840,
   f9:22000,d9:22248,u9:22496,f10:25000,d10:25248,u10:25496,f11:27000,d11:27496,r11:27656,e11:28336,f12:30000,d12:30496,r12:30656,e12:31336,
-  f13:33000,d13:33496,r13:33656,e13:34336,f14:36000,d14:36248,u14:36496,f15:38504,d15:39000,r15:39160,e15:39840},
+  f14:33000,d14:33248,u14:33496,f15:35504,d15:36000,r15:36160,e15:36840},
   DRAG=48,DRAGMS=160,SPRMS=680,SH=664,OUTMS=488,F_IN=248,F_DOWN=176,F_UP=120,
   SVV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(812-DRAG)),SVH=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(375-DRAG)),
   NIKE_IN=2.6,NIKE_PARK=NIKE_IN-(T-E.d15)/1000,UNIV_HOLD=(E.u9+SH-E.d8)/1000;
@@ -511,7 +523,7 @@ function touchF(t,on,down,up){
   const o=t<up?easeOut(clamp((t-on)/F_IN)):1-easeOut(clamp((t-up)/F_IN));
   const s=t<down?1:t<up?1-.15*easeOut(clamp((t-down)/F_DOWN)):.85+.15*easeOut(clamp((t-up)/F_UP));
   return {o,s}}
-const SW={1:'v',5:'v',6:'v',7:'h',8:'h',11:'h',12:'h',13:'h',15:'d'},TAP={2:[350.5,566],3:[187.5,160],4:[150,772],9:[100,708],10:[24,68],14:[24,70]};
+const SW={1:'v',5:'v',6:'v',7:'h',8:'h',11:'h',12:'h',15:'d'},TAP={2:[350.5,506],3:[187.5,160],4:[150,762],9:[100,694],10:[24,68],14:[24,70]};   // centred on their targets: comment icon 494–518, pill 742–782, card 666–722
 function fingerAt(t){
   let fo=null,px=0,py=0;
   for(const n in SW){const r=E['r'+n];if((fo=touchF(t,E['f'+n],E['d'+n],r))){const q=DRAG*easeIn(clamp((t-E['d'+n])/DRAGMS));
@@ -527,8 +539,8 @@ function applyT(t){
   else if(t<E.u4+SH){mode='in';f=1;x=SLOW((t-E.u4)/SH);c=0;k=0}
   else if(t<E.u14){mode='cc';x=0;
     k=t<E.f6?swipeP(t,5,812):1+swipeP(t,6,812);
-    c=t<E.f8?swipeP(t,7,375):t<E.f11?1+swipeP(t,8,375):t<E.f12?2+swipeP(t,11,375):t<E.f13?3+swipeP(t,12,375):4+swipeP(t,13,375)}
-  else if(t<E.u14+OUTMS){mode='out';x=SLOW((t-E.u14)/OUTMS);c=5;k=2;f=1}
+    c=t<E.f8?swipeP(t,7,375):t<E.f11?1+swipeP(t,8,375):t<E.f12?2+swipeP(t,11,375):3+swipeP(t,12,375)}
+  else if(t<E.u14+OUTMS){mode='out';x=SLOW((t-E.u14)/OUTMS);c=LAST;k=2;f=1}
   else{mode='feed';x=0;c=0;k=0;f=1-swipeP(t,15,812)}
   cm=mode==='feed'?sheetP(t,E.u2,E.u3):0;sf=mode==='cc'?sheetP(t,E.u9,E.u10):0;
   chevDim=t>=E.d14&&t<E.u14?.5:1;
@@ -553,7 +565,7 @@ function lockAll(t){
   lock(n.cb2,win(t,E.d7,E.e8),0,E.d7,t);
   const ud=t>=E.d8&&t<E.u9+SH?(t-E.d8)/1000:t>=E.u10&&t<E.e11?UNIV_HOLD+(t-E.u10)/1000:null;
   lock(n.univ,ud,t>=E.u9+SH&&t<E.u10?UNIV_HOLD:0,E.d8,t);
-  lock(n.laura,win(t,E.d11,E.e12),0,E.d11,t);lock(n.serena,win(t,E.d12,E.e13),0,E.d12,t);lock(n.aden,win(t,E.d13,E.u14+OUTMS),0,E.d13,t);
+  lock(n.laura,win(t,E.d11,E.e12),0,E.d11,t);lock(n.serena,win(t,E.d12,E.u14+OUTMS),0,E.d12,t);
 }
 let autoOn=false,raf=0,t0=0;
 function frameT(){if(!autoOn)return;applyT(((performance.now()-t0)%T+T)%T);raf=requestAnimationFrame(frameT)}
@@ -577,7 +589,7 @@ function cover(then){
 const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);addEventListener('load',measureTabs);
 (function(){
-  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+V,AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V]);
+  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+V,AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V,'../sap-proto/assets/nav.webp?v=263']);
   const nv=VID.nike,prep=INL()?firstFrame(nv).then(()=>seekTo(nv,NIKE_IN)):firstFrame(nv);
   const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(VID.nesp),document.fonts?document.fonts.ready:0]));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;measureTabs();

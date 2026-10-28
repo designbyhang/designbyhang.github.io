@@ -5,23 +5,24 @@
      the avatar row 0–36 (avatar and name baked in the ad's .c-det raster, the name's 20px line at −1), the globe 12×12 at +3,
      "Sponsored" a 16px line at +20, left 44 (avatar 36 + 8): 400 12px/16px, white 70%, the 1px 62% black text shadow, no tracking,
      the caption line ("… more ⌄") at +48 (20px; js/vac-caption.js, the VAC caption itself: type, cut and arrow), 12px above
-     the action region .c-act at +80: the CTA (303×44) or LensCrafters' product row (72).
+     the action region .c-act at +80: the CTA, a live .ad-cta (css/ad-cta.css, the one video ad CTA: 303×36, r8; Figma 140796:12043), or
+   LensCrafters' product row (72). The block is 80 + 36 = 116 high, the CTA at 686–722 on the reel (VAC's Figma Tap Target 140796:12061).
    So caption → CTA is VAC's 12px, Sponsored → caption 12px, author → CTA 80px. A pill under the CTA (SAP's "Explore more like this", 24px
    high, 13px under the CTA) does not overlay the block: the prototype sets --c-lift (0 → 37px = 24 + 13) with the pill's own progress, and the
    whole block rises with it (caption.js ReelsCaption.lift).
-   --c-bottom (default 12px) moves the anchor: preview/cc-proto sets 76px, so its CTA and cards sit right above the Facebook bottom nav.
+   --c-bottom (default 12px) moves the anchor: preview/cc-proto sets 90px (its reel is the full 812: 812 − 722), so its CTA lands at VAC's
+   686–722 too, 20pt above the Facebook bottom nav (742, on VAC's comment bar line).
    "Sponsored" is the markup's own text (.c-sp): cc-proto passes "Ad". */
-.c-stack{position:absolute;left:12px;bottom:var(--c-bottom,12px);width:303px;height:124px;margin:0;pointer-events:none;
+.c-stack{position:absolute;left:12px;bottom:var(--c-bottom,12px);width:303px;height:116px;margin:0;pointer-events:none;
   transform:translate3d(0,calc(-1px*var(--c-lift,0)),0)}
 .c-stack.c-hs{height:152px}
 .c-stack>*{position:absolute;margin:0}
-.c-stack>.c-det{left:0;top:0;width:303px;height:124px}
-.c-stack.c-hs>.c-det{height:36px}
+.c-stack>.c-det{left:0;top:0;width:303px;height:36px}
 .c-stack>.cglobe{top:3px;width:12px;height:12px}
 .c-stack>.c-sp{left:44px;top:20px;padding:0;white-space:nowrap;
   font:400 12px/16px -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
   font-style:normal;letter-spacing:0;color:rgba(255,255,255,.7);text-shadow:0 0 1px rgba(0,0,0,.62);
   -webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
 .c-stack>.c-cap{left:0;top:48px;height:20px;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
-.c-stack>.c-act{left:0;right:auto;bottom:auto;top:80px;width:303px;height:44px}
+.c-stack>.c-act{left:0;right:auto;bottom:auto;top:80px;width:303px}
 .c-stack.c-hs>.c-act{height:72px}

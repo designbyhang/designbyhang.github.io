@@ -1,0 +1,10 @@
+/* The video ad CTA (Learn more / Shop now / Order now): ONE rule for every video ad on the site: the VAC cover (css/card.css, imported
+   there; js/vac-chain.js .vc-cta) and the Reels ad details in preview/mac-proto, sap-proto and cc-proto (preview/shared/caption .c-act).
+   Figma XYE8LCJVe0rHhnEB5DA18A, the FDS Button (Primary, Medium) on the Reels ad: FMSS Caption & Browse 140796:6731, VAC 140796:12043,
+   both 303×36: 8 + a 20px line + 8, 12px side padding, r8, SF Pro Semibold 15/20, −0.24 tracking, white text, centred. The same button
+   as FMSS Caption & Browse's (preview/fmss-cb/assets/cta-shop-now.svg, exported from that node: 303×36, r8), the reference.
+   The host places it (left, top, width) and gives the ad's colour as its background; js/squircle.js smooths the r8 (60%). A press dim
+   inside it (.press) is clipped to its corners. */
+.ad-cta,.cv-scr.vac .vc-cta{box-sizing:border-box;margin:0;height:36px;padding:8px 12px;border-radius:8px;overflow:hidden;white-space:nowrap;
+  text-align:center;font:600 15px/20px -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
+  font-style:normal;letter-spacing:-.24px;color:#fff;-webkit-font-smoothing:antialiased}
