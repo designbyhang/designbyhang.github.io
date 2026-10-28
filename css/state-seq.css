@@ -34,6 +34,7 @@ body.cs .media.mframe.sseq.ss-cards{background:var(--sheet);border:0!important;m
 .sseq .cv-b br.fl{display:none} /* Figma's hard breaks were set for 640px columns */
 .sseq .cv-b p+p{margin-top:40px}  /* one blank line */
 .sseq .cv-b em{font-style:italic}
+@media (min-width:1025px){.sseq .ss-stage .cv-box .cv-b{font-size:32px;line-height:42px}.sseq .cv-b p+p{margin-top:42px}} /* desktop only (per Hang): open-card body 30/40 -> 32/42 design px (+2; 42 = the nearest even line to the 4:3 rhythm), the blank line between paragraphs follows; 641-1024 and phones keep 30/40 and their own rule */
 @media (max-width:640px){
  body.cs .media.mframe.sseq.ss-tall{aspect-ratio:9/16}
  body.cs .media.mframe.sseq.ss-cards{aspect-ratio:900/1720} /* conviction phone stage 900 x 1720 (was 1600): cards 488 -> 528, peek tabs 200 -> 240 (title re-centred), so each box is 40 taller at the bottom; the open card takes the rest, 1296 -> 1376, so the open states keep 40 margins top and bottom (40 | card | 24 | tabs | 40; layout in the vac.html cfg) */
