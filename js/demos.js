@@ -1,4 +1,4 @@
-/* One demo at a time, site-wide (window.dbhDemos). Every autoplaying demo on a page joins one pool, and only ONE plays: the one in view
+/* One demo at a time, site-wide (window.dbhDemos). Every autoplaying demo on a page joins one pool, and only ONE plays (or one [data-together] group, below): the one in view
    whose centre is nearest the centre of the window (2D distance, so a horizontal strip such as the homepage rail works the same as a
    page that scrolls). Every other demo is paused where it is (clock, videos, rAF loops, timers, CSS/WAAPI animations) and resumes from
    there when it is the nearest again. Nothing plays off screen. Load it before every player script (it is plain, no dependencies).
@@ -8,6 +8,10 @@
        a stepped piece after its first touch): it never takes the turn. Returns ask(): call it when want() may have changed.
        box() (optional) returns the element to measure instead of el right now (it must sit inside el, which is what is observed):
        a [data-alternate] row of stacked videos is measured at the video that would play, not at the row's centre.
+     [data-together] (markup, on any ancestor of members, e.g. the FMSS 02 Problem .inc-row: its demo video + slide carousel): the
+       members inside it are ONE turn. When the pick lands on any of them, every one of them that is in view (and wants to play) plays
+       with it, and they all pause together when the turn goes to a demo outside it. Side by side both run; stacked, a partner that
+       is off screen waits paused and joins as soon as it is in view (each member's own 35% rule still applies on top).
      dbhDemos.ask()  re-pick on the next frame (after anything that moves members without a scroll, resize or intersection change).
    Each member keeps its own rules on top (reduced motion, its own in-view threshold, a hidden tab): the pool only ever narrows what plays.
    Members today: js/state-seq.js loops (VAC Solution, Citi intro), js/device-cover.js and js/fmss-split.js covers (case page heroes,
@@ -19,18 +23,21 @@
    - looping GIFs (img[data-loop]: src = the first-frame still, data-loop = the GIF): the GIF while it has the turn, else the still (a GIF
      cannot pause, so it restarts from its first frame), and always the still with reduced motion. */
 (function(){"use strict";if(window.dbhDemos)return;
-var ms=[],cur=null,vis=[],q=0,O=location.origin,io=null;
+var ms=[],cur=null,on=[],vis=[],q=0,O=location.origin,io=null;
 var lifted=function(){for(var i=0;i<ms.length;i++){var c=ms[i].el.classList;if(c.contains('proto-lift')||c.contains('fsx-lift'))return true}return false};
-var pick=function(){q=0;var cx=innerWidth/2,cy=innerHeight/2,best=null,bd=Infinity;
- if(!lifted())vis.forEach(function(m){if(m.want&&!m.want())return;var r=(m.box&&m.box()||m.el).getBoundingClientRect();
-  if(!r.width||!r.height||r.bottom<=0||r.top>=innerHeight||r.right<=0||r.left>=innerWidth)return;
+var seen=function(m){if(m.want&&!m.want())return null;var r=(m.box&&m.box()||m.el).getBoundingClientRect();
+ return !r.width||!r.height||r.bottom<=0||r.top>=innerHeight||r.right<=0||r.left>=innerWidth?null:r};
+var pick=function(){q=0;var cx=innerWidth/2,cy=innerHeight/2,best=null,bd=Infinity,live=[];
+ if(!lifted())vis.forEach(function(m){var r=seen(m);if(!r)return;live.push(m);
   var dx=r.left+r.width/2-cx,dy=r.top+r.height/2-cy,d=dx*dx+dy*dy;if(d<bd){bd=d;best=m}});
- if(best===cur)return;var was=cur;cur=best;if(was)was.pause();if(cur)cur.play()};
+ /* the turn goes to best; its [data-together] partners that are in view and want to play take it with it */
+ var nx=best?live.filter(function(m){return m===best||(best.g&&m.g===best.g)}):[];cur=best;
+ var was=on;on=nx;was.forEach(function(m){if(nx.indexOf(m)<0)m.pause()});nx.forEach(function(m){if(was.indexOf(m)<0)m.play()})};
 var ask=function(){if(!q)q=requestAnimationFrame(pick)};
 if('IntersectionObserver' in window)io=new IntersectionObserver(function(es){es.forEach(function(e){var m=null;
   for(var i=0;i<ms.length;i++)if(ms[i].el===e.target){m=ms[i];break}var k=vis.indexOf(m);
   if(e.isIntersecting){if(k<0)vis.push(m)}else if(k>=0)vis.splice(k,1)});ask()},{threshold:[0,.25,.5,.75,1]});
-function add(el,h){var m={el:el,play:h.play,pause:h.pause,want:h.want,box:h.box};ms.push(m);if(io)io.observe(el);else vis.push(m);ask();return ask}
+function add(el,h){var m={el:el,play:h.play,pause:h.pause,want:h.want,box:h.box,g:el.closest&&el.closest('[data-together]')};ms.push(m);if(io)io.observe(el);else vis.push(m);ask();return ask}
 var api=window.dbhDemos={add:add,ask:ask,current:function(){return cur&&cur.el}};
 addEventListener('scroll',function(){if(vis.length)ask()},{passive:true});addEventListener('resize',ask);
 addEventListener('strip:rest',ask);   // the homepage rail (js/home.js) moves its cards by transform, then says when it settles
@@ -41,7 +48,7 @@ function init(){
  fs.forEach(function(f){api.add(f,{play:function(){send(f,true)},pause:function(){send(f,false)},want:function(){return !!f.getAttribute('src')}})});
  if(fs.length&&'MutationObserver' in window){var mo=new MutationObserver(ask);fs.forEach(function(f){mo.observe(f,{attributes:true,attributeFilter:['class','src']})})}
  addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='demo-hello'||e.origin!==O)return;
-  for(var i=0;i<fs.length;i++)if(fs[i].contentWindow===e.source){var f=fs[i];pick();send(f,!!cur&&cur.el===f);return}});
+  for(var i=0;i<fs.length;i++)if(fs[i].contentWindow===e.source){var f=fs[i];pick();send(f,on.some(function(m){return m.el===f}));return}});
  /* looping GIFs */
  var RM=matchMedia('(prefers-reduced-motion: reduce)');
  [].forEach.call(document.querySelectorAll('img[data-loop]'),function(im){var still=im.getAttribute('src'),loop=im.getAttribute('data-loop'),on=false,
