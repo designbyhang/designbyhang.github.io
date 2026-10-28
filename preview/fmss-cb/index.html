@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Caption &amp; Browse — interactive IAB prototype (mock)</title>
-<script src="../shared/demo/demo-clock.js?v=228"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=227"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -17,10 +17,10 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=228"><link rel="stylesheet" href="../../css/gate.css?v=228"><link rel="stylesheet" href="../../css/theme.css?v=228">
-<script src="../../js/gate.js?v=228"></script>
-<link rel="stylesheet" href="../shared/iab/iab.css?v=228"><script src="../../js/squircle.js?v=228"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=228"></script>
-<link rel="stylesheet" href="../shared/device/device.css?v=228">
+<link rel="stylesheet" href="../../css/type.css?v=227"><link rel="stylesheet" href="../../css/gate.css?v=227"><link rel="stylesheet" href="../../css/theme.css?v=227">
+<script src="../../js/gate.js?v=227"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=227"><script src="../../js/squircle.js?v=227"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=227"></script><script src="../shared/pause/pause.js?v=227"></script>
+<link rel="stylesheet" href="../shared/device/device.css?v=227">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -51,10 +51,8 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .video{left:0;top:0;width:375px;height:734px;object-fit:cover;background:#1c2a33}
 /* no-tap fallback for a refused <video> (iOS Low Power Mode): an <img> in the exact same box/crop, shown only once it has loaded */
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
-/* tap the reel to pause: a quiet play glyph fades in at the centre of the video while paused */
-.pz{left:155.5px;top:335px;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.28);display:grid;place-items:center;opacity:0;transform:scale(.9);transition:opacity .2s ease,transform .2s ease;pointer-events:none}
-.pz.on{opacity:1;transform:none}
-.pz svg{width:30px;height:30px;margin-left:4px;opacity:.9}
+/* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre of the video while paused */
+#pz{left:155.5px;top:335px}
 /* protective scrims: soft eased transparent→dark gradients only (no blur / backdrop-filter, no edge) */
 .grad-top{left:0;top:0;width:375px;height:132px;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.443) 19%,rgba(0,0,0,0.325) 34%,rgba(0,0,0,0.229) 47%,rgba(0,0,0,0.167) 56.5%,rgba(0,0,0,0.116) 65%,rgba(0,0,0,0.076) 73%,rgba(0,0,0,0.045) 80.2%,rgba(0,0,0,0.025) 86.1%,rgba(0,0,0,0.013) 91%,rgba(0,0,0,0.005) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%);pointer-events:none}
 .grad-bot{left:0;top:369px;width:375px;height:365px;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.517) 19%,rgba(0,0,0,0.379) 34%,rgba(0,0,0,0.267) 47%,rgba(0,0,0,0.195) 56.5%,rgba(0,0,0,0.136) 65%,rgba(0,0,0,0.088) 73%,rgba(0,0,0,0.052) 80.2%,rgba(0,0,0,0.029) 86.1%,rgba(0,0,0,0.015) 91%,rgba(0,0,0,0.006) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%)}
@@ -117,7 +115,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="abs grad-top"></div>
         <div class="abs grad-bot"></div>
         <img class="abs" src="assets/ufi-rail.svg?v=2" alt="" style="left:326px;top:486px;width:50px;height:237px">
-        <div class="abs pz" id="pz" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg></div>
+        <div class="abs" id="pz" aria-hidden="true"></div>
         <div class="abs overlay" id="overlay"></div>
         <div class="abs details" id="details" aria-hidden="true">
           <img class="abs" src="assets/author.svg" alt="" style="left:0;top:0;width:303px;height:36px">
@@ -149,7 +147,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid');
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),pz=FMSSPause.mount($('pz'));
 const Y2=406;                                     // half-sheet top (Figma px; closed 812 / full 44 live in the shared IAB)
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
@@ -430,7 +428,7 @@ function altPause(){
   vid.muted=true;const p=vid.play();if(p&&p.then)p.then(ready,ready);else ready();
 }
 function setPaused(on){
-  if(userPaused===on)return;userPaused=on;$('pz').classList.toggle('on',on);
+  if(userPaused===on)return;userPaused=on;pz.set(on);
   if(vidMode==='video'){if(on)vid.pause();else playVid()}else if(on)altPause();
   $('live').textContent=on?'Reel paused':'Reel playing';
 }

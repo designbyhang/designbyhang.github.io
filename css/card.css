@@ -29,7 +29,7 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
    plus skipped while far off screen): off screen the phone's layers and their animations leave the rendering, so WebKit stops re-processing
    the paused loop's keyframes on every scrolled frame. */
 .cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;content-visibility:auto}
-.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=228)}
+.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=227)}
 .hero-slot.cover-wrap{position:relative}
 .cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .cover-anim.on .cv-ph{opacity:1}
@@ -75,9 +75,8 @@ html body .cover-anim .cv-scr.vac .vc-av{left:0;top:0;width:36px;height:36px;bor
 .cv-scr.vac .vc-nm{left:44px;top:-1px;display:flex;align-items:center;gap:4px;font:600 15px/20px var(--vc-f);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}
 html body .cover-anim .cv-scr.vac .vc-bd{width:12px;height:12px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.62))}
 .cv-scr.vac .vc-sp{left:44px;top:20px;font:400 12px/16px var(--vc-f);color:rgba(255,255,255,.7);text-shadow:0 0 1px rgba(0,0,0,.62)}
-.cv-scr.vac .vc-cp{left:0;top:48px;width:303px;display:flex;gap:4px;font:400 15px/20px var(--vc-f);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}
-.cv-scr.vac .vc-cp span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.cv-scr.vac .vc-cp em{flex:none;font-style:normal;color:rgba(255,255,255,.7)}
+/* the caption + "… more ⌄": size, type and the cut are the shared VAC caption's (js/vac-caption.js, p.vcap); placed here */
+.cv-scr.vac .vc-cp{left:0;top:48px}
 .cv-scr.vac .vc-cta{left:0;top:80px;width:303px;height:36px;border-radius:8px;text-align:center;font:600 15px/36px var(--vc-f);letter-spacing:-.24px;color:#fff}
 html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
 .cv-scr.vac .vc-bos{clip-path:inset(0 0 362px 0)}

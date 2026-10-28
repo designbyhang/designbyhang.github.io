@@ -81,7 +81,7 @@ const ADS=[
   {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K']},
   {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219']},
   {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148']}];
-const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5';
+const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5',CA=DC.base(document.currentScript,'../preview/shared/caption/');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const im=(cls,f,w,h)=>`<img class="${cls}" alt="" src="${A}${f}${V}" width="${w}" height="${h}" draggable="false">`;
 const vid=(cls,k)=>`<video class="${cls}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback data-src="${A}${k}.mp4${V}" poster="${A}${k}.webp${V}"></video>`;
@@ -90,7 +90,9 @@ const reelsUI=d=>`<i class="vc-gb"></i><div class="vc-ufi">`+
   ['like','comment','share'].map((n,i)=>`<span style="top:${495+65*i}px">${im('vc-ic','i-'+n+'.webp',48,48)}<b>${d.ufi[i]}</b></span>`).join('')+
   `<span style="top:690px">${im('vc-ic','i-dots.webp',48,48)}</span></div>`+
   `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${im('vc-bd','i-badge.webp',24,24)}${im('vc-bd','i-globe.webp',24,24)}</p>`+
-  `<p class="vc-sp">Sponsored</p><p class="vc-cp"><span>${esc(d.cap)}</span><em>more</em></p><p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;
+  `<p class="vc-sp">Sponsored</p>${CAP(d.cap)}<p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;
+// the caption + "… more ⌄": the shared VAC caption (js/vac-caption.js, with the prototype), cut to fit by VACCaption.watch in build()
+const CAP=cap=>window.VACCaption?VACCaption.html({cap,chev:CA+'chevron-down.svg?v=1',cls:'vc-cp'}):`<p class="vc-cp"><span>${esc(cap)}</span><em>more</em></p>`;
 DC.register('vac',{T,rest:REST,
   build(scr){scr.classList.add('vac');
     const VS=window.VideoScrubber,HD=window.FMSSIABHeader,S=ADS[0];
@@ -112,6 +114,7 @@ DC.register('vac',{T,rest:REST,
         `<img class="vc-bk" alt="" src="${A}back.svg${V}" width="24" height="24"></div>`+
       `<div class="vc-l vc-bar"><p class="vc-in">Add a comment${im('vc-em','i-emoji.webp',40,40)}</p><i class="vc-hi"></i></div>`;
     const q=s=>scr.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},An=(s,fn)=>q(s)&&anims.push(q(s).animate(kf(fn),o));
+    if(window.VACCaption)VACCaption.watch(scr);
     const sh=q('.vc-sh');if(SQ)sh.style.clipPath=`path('${DC.squircle(375,422,16,.6)}')`;
     // shared IAB sheet header at the sheet's top (FMSS .bhd), riding with it
     if(HD)sh.prepend(HD({url:S.url,cls:'vc-hd'}));
@@ -142,9 +145,9 @@ DC.register('vac',{T,rest:REST,
     // the seed's Reels UI over the media, with its page
     An('.vc-u0',p=>({opacity:p.k<1?clamp((p.c-.5)/.5):0,transform:tr(rx(p),pageY(p,0))}));
     // FMSS overlay bo1, in two clips: status bar (dissolves in with the backdrop, held until Reels' own status bar is up) and the close X
-    // (dissolves in with Split; rides the media's top-right corner into Reels while it fades)
+    // (dissolves in with Split, then fades out in place as the sheet is swiped down into Reels: opacity only, it never moves)
     An('.vc-bos',p=>({opacity:p.c<1&&!p.pop?p.a*(1-p.c):0}));
-    An('.vc-box',p=>{const [x,y,w]=mvR(p);return {opacity:p.pop?0:p.a*clamp(1-2*p.c),transform:tr(p.c>0?x+w-363:0,p.c>0?y-44:0)}});
+    An('.vc-box',p=>({opacity:p.pop?0:p.a*clamp(1-2*p.c)}));
     // player controls: ride up with the media and fade in (FMSS: 185px), then ride with it into Reels and fade out
     An('.vc-ctl',p=>{const y=p.c>0?lerp(R.split[1],R.reels[1],p.c)-44:185*(1-p.a);
       return {opacity:p.pop?0:p.a*clamp(1-2*p.c),transform:tr(0,y)}});

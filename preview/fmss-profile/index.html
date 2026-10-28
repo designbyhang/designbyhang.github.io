@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Profile → IAB — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=228"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=227"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -19,12 +19,12 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=228"><link rel="stylesheet" href="../../css/theme.css?v=228">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=228"><script src="../../js/squircle.js?v=228"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=228"></script><script src="../shared/edge-back/edge-back.js?v=228"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=228"><script src="../shared/appbar/appbar.js?v=228"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=228"><script src="../shared/tabbar/tabbar.js?v=228"></script>
+<link rel="stylesheet" href="../../css/type.css?v=227"><link rel="stylesheet" href="../../css/theme.css?v=227">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=227"><script src="../../js/squircle.js?v=227"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=227"></script><script src="../shared/edge-back/edge-back.js?v=227"></script><script src="../shared/pause/pause.js?v=227"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=227"><script src="../shared/appbar/appbar.js?v=227"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=227"><script src="../shared/tabbar/tabbar.js?v=227"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=228">
+<link rel="stylesheet" href="../shared/device/device.css?v=227">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -63,15 +63,13 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
 .hot{left:8px;top:600px;width:104px;height:44px;border-radius:22px;z-index:5}
 .hot:active{background:rgba(255,255,255,.08)}
-/* tap the reel to pause: a quiet play glyph fades in at the centre while paused */
-.pz{left:169px;top:405px;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.28);display:grid;place-items:center;opacity:0;transform:scale(.9);transition:opacity .2s ease,transform .2s ease;pointer-events:none;z-index:1}
-.pz.on{opacity:1;transform:none}
+/* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre while paused */
+#pz{left:169px;top:405px;z-index:1}   /* the shared play glyph (../shared/pause) */
 /* the label pill under Learn more reads "Promoted" (the footage has "Ad" baked in): a live pill drawn over it at the footage's own
    geometry (left 12.6, top 732.4, 23.4 tall, megaphone at 20.5, text from 36.7, 8.5 right padding), opaque so the baked one never
    shows through; its width follows the text */
 .promo{left:12.6px;top:732.4px;height:23.4px;border-radius:11.73px;background:#0e0f10;display:flex;align-items:center;padding:0 8.5px 0 24.1px;box-sizing:border-box;color:#fff;font-size:12px;line-height:16px;font-weight:400;white-space:nowrap;pointer-events:none;z-index:1}
 .promo svg{position:absolute;left:7.9px;top:5.6px;width:12.3px;height:11.2px}
-.pz svg{width:30px;height:30px;margin-left:4px;opacity:.9}
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
    .iab is a 375×812 layer in fmss-cb's own phone px: scale(402/375) undoes .root's 375/402, so the shared component's numbers hold. */
 .iab{left:0;top:0;width:375px;height:812px;transform-origin:0 0;transform:scale(1.072);z-index:20;pointer-events:none}
@@ -180,7 +178,7 @@ html.hosted .phone{background:transparent;border-radius:0}
           <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
           <i class="abs reel-stc" aria-hidden="true"></i>
           <div class="abs promo" id="promo" aria-hidden="true"><svg viewBox="0 1.7 24 20.3" preserveAspectRatio="none"><path d="M1.5 5.2H13L20.6 2.4C22.2 1.7 24 2.6 24 4.4V15.6C24 17.4 22.2 18.3 20.6 17.6L13 15.6H1.5C.7 15.6 0 14.9 0 14.1V6.7C0 5.9.7 5.2 1.5 5.2ZM4 16.6H11V20C11 21.1 10.1 22 9 22H6C4.9 22 4 21.1 4 20Z" fill="#fff"/></svg>Promoted</div>
-          <div class="abs pz" id="pz" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg></div>
+          <div class="abs" id="pz" aria-hidden="true"></div>
           <p class="sr" id="rsCapT">Nike. Engineered for greatness. Designed f…</p>
           <button class="abs btn hot" id="author" type="button" aria-label="Nike: open profile"></button>
           <button class="abs btn shop" id="shop" type="button" aria-label="Learn more: open the in-app browser (IAB) full screen" style="left:12px;top:676px;width:330px;height:42px;border-radius:8px;z-index:5"></button>
@@ -239,7 +237,7 @@ html.hosted .phone{background:transparent;border-radius:0}
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),root=$('root'),vid=$('vid');
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),root=$('root'),vid=$('vid'),pz=FMSSPause.mount($('pz'));
 const reel=$('reel'),profile=$('profile'),pcont=$('pcont'),cta=$('cta'),pk=$('pk'),cd=$('cd'),sbar=$('sbar');
 $('pkh').append(FMSSIAB.header({url:'nike.com'}));   // the peek's header: the shared IAB sheet header (same as the IAB's half sheet)
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
@@ -774,7 +772,7 @@ function altPause(){
   vid.muted=true;const p=vid.play();if(p&&p.then)p.then(ready,ready);else ready();
 }
 function setPaused(on){
-  if(userPaused===on)return;userPaused=on;$('pz').classList.toggle('on',on);
+  if(userPaused===on)return;userPaused=on;pz.set(on);
   if(vidMode==='video'){if(on)vid.pause();else playVid()}else if(on)altPause();
   setLive(on?'Reel paused':'Reel playing');
 }

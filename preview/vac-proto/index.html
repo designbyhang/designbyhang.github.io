@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VAC · Feed → Split Screen → Reels — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=228"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=227"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,12 +17,13 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=228"><link rel="stylesheet" href="../../css/theme.css?v=228">
+<link rel="stylesheet" href="../../css/type.css?v=227"><link rel="stylesheet" href="../../css/theme.css?v=227">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet), the live player controls (js/video-scrubber.js, as in FMSS Solution 1) -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=228"><script src="../../js/squircle.js?v=228"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=228"></script><script src="../shared/edge-back/edge-back.js?v=228"></script>
-<script src="../../js/video-scrubber.js?v=228"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=227"><script src="../../js/squircle.js?v=227"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=227"></script><script src="../shared/edge-back/edge-back.js?v=227"></script><script src="../shared/pause/pause.js?v=227"></script>
+<script src="../../js/video-scrubber.js?v=227"></script>
+<script src="../../js/vac-caption.js?v=227"></script>   <!-- the Reels caption + "… more ⌄", shared with the hero -->
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=228">
+<link rel="stylesheet" href="../shared/device/device.css?v=227">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -60,6 +61,15 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
    (375x734) the middle of its width. Same as the hero's (css/card.css .cv-scr.vac .vc-mv video.vc-v) */
 .mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;pointer-events:none}
 .ufi{left:330px;top:488px;width:42px;height:67px;z-index:6;opacity:0}
+/* tap the reel to pause (full screen only): the shared FMSS play glyph (../shared/pause, as Caption & Browse), centred on the Reels
+   video (375x734); its holder rides the seed's page by transform */
+.pzw{z-index:7}
+#pz{left:155.5px;top:335px}
+/* each reel's caption + "… more ⌄", live (the shared VAC caption, js/vac-caption.js, as the hero draws it): the line top 654, left 12, over
+   reels whose baked caption line is cleared (assets/reel-*.webp: assets/vac-anim/{porsche,on,away,perrier}.webp with that band filled
+   from the rows above and below); it rides its reel (render()) */
+.cap{left:12px;top:654px;z-index:6;opacity:0;pointer-events:none}
+.cap.cj{z-index:31}
 /* FMSS overlay bo1 (Solution 1's split screen): its close X (its status band is the screen's one status bar, .sb) */
 .bo{width:375px;height:406px;z-index:7;opacity:0}
 .box{clip-path:inset(44px 0 0 0)}
@@ -117,23 +127,24 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
-        <img class="L feed" id="feed" alt="" src="assets/feed.webp?v=228">
+        <img class="L feed" id="feed" alt="" src="assets/feed.webp?v=227">
         <div class="L bu" id="bu"><canvas width="30" height="34"></canvas></div>
-        <img class="L pp" id="pp" alt="" src="../../assets/vac-anim/porsche.webp?v=228">
-        <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/porsche.webp?v=228" src="../../assets/vac-anim/v4/porsche.mp4?v=228"></video></div>
-        <img class="L ufi" id="ufi" alt="" src="../../assets/vac-anim/ufi.webp?v=228">
+        <img class="L pp" id="pp" alt="" src="assets/reel-porsche.webp?v=227">
+        <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/porsche.webp?v=227" src="../../assets/vac-anim/v4/porsche.mp4?v=227"></video></div>
+        <img class="L ufi" id="ufi" alt="" src="../../assets/vac-anim/ufi.webp?v=227">
+        <div class="L pzw" id="pzw"><div id="pz" aria-hidden="true"></div></div>
         <img class="L bo box" id="box" alt="" src="../fmss-sol1/assets/bo1.webp?v=5">
         <i class="L" id="ctlAt"></i>
         <button class="L btn splx" id="splx" type="button" aria-label="Close split screen"></button>
         <button class="L btn cta" id="ctaFeed" type="button" style="left:0;top:591px;width:375px;height:54px" aria-label="porsche.com, The Porsche Taycan, Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
-        <img class="L pg" id="p1" alt="" src="../../assets/vac-anim/on.webp?v=228">
-        <img class="L pg" id="p2" alt="" src="../../assets/vac-anim/away.webp?v=228">
-        <img class="L pg" id="p3" alt="" src="../../assets/vac-anim/perrier.webp?v=228">
+        <img class="L pg" id="p1" alt="" src="assets/reel-on.webp?v=227">
+        <img class="L pg" id="p2" alt="" src="assets/reel-away.webp?v=227">
+        <img class="L pg" id="p3" alt="" src="assets/reel-perrier.webp?v=227">
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
-        <img class="L chrome" id="chrome" alt="" src="assets/chrome.webp?v=228">
-        <img class="L bar" id="bar" alt="" src="assets/bar.webp?v=228">
+        <img class="L chrome" id="chrome" alt="" src="assets/chrome.webp?v=227">
+        <img class="L bar" id="bar" alt="" src="assets/bar.webp?v=227">
         <button class="L btn cta ctar" id="ctaReels" type="button" style="left:12px;top:686px;width:303px;height:36px" aria-label="Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <button class="L btn back" id="back" type="button" aria-label="Back to Feed"></button>
         <i class="L sb" id="sb" aria-hidden="true"></i>
@@ -191,7 +202,14 @@ const aS=SP(()=>a,v=>{a=v;render()}),kS=SP(()=>k,v=>{k=v;render()}),bS=SP(()=>b,
 const pageY=j=>PG*clamp(j-k,-1,1);
 const L3=(A,B,e)=>A.map((v,i)=>lerp(v,B[i],e));
 const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
-const els={dim:$('dim'),feed:$('feed'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),box:$('box'),sb:$('sb'),chrome:$('chrome'),bar:$('bar'),home:$('home'),p:[null,$('p1'),$('p2'),$('p3')]};
+/* the captions: the seed's copy (the hero's ADS[0]); the chain reels' copy is the crop their art carried (data-cut: always "…") */
+{const CH='../shared/caption/chevron-down.svg?v=227',V=window.VACCaption,CAPS=[
+  {cap:'Exhilaration is a renewable resource. The all-electric Taycan. Starting at $90,900.'},
+  {cap:'Meet Cloudboom Max. Your marath',cut:1},{cap:'Find your perfect suitcase in our Fle',cut:1},{cap:'Explore the invigorating flavors of M',cut:1}];
+  if(V)CAPS.forEach((c,j)=>{const t=document.createElement('template');t.innerHTML=V.html({cap:c.cap,cut:c.cut,chev:CH,cls:'L cap'+(j?' cj':'')});
+    const el=t.content.firstChild;el.id='cap'+j;el.setAttribute('aria-hidden','true');(j?$('p3'):$('pp')).after(el)});
+  if(V)V.watch(phone)}
+const els={dim:$('dim'),feed:$('feed'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),box:$('box'),sb:$('sb'),chrome:$('chrome'),bar:$('bar'),home:$('home'),pzw:$('pzw'),pz:FMSSPause.mount($('pz')),cap:[0,1,2,3].map(j=>$('cap'+j)),p:[null,$('p1'),$('p2'),$('p3')]};
 let sheetT=0,sheetP=0,sd=0,lastR='',lastSb='';
 /* the Split backdrop painter (the cover's recipe): while the backdrop shows, the video's current frame drawn 30x34 (cover fit) every frame;
    the poster until the video has a frame. The video (assets/vac-anim/v4/porsche.mp4 + its poster) is the cover's seed, the same file */
@@ -215,10 +233,12 @@ function render(){
   op(els.bu,pop?0:a*(1-c));ambient(!pop&&a*(1-c)>0);
   op(els.pp,k<1?c:0);els.pp.style.transform=tr(rx,pageY(0));
   op(els.ufi,k<1?clamp((c-.5)/.5):0);els.ufi.style.transform=tr(rx,pageY(0));
-  const xo=pop?0:a*clamp(1-2*c);op(els.box,xo);
-  els.box.style.transform=c>0?tr(x+w-363,y-44):'';
+  els.pzw.style.transform=tr(rx,pageY(0));
+  if(els.cap[0]){op(els.cap[0],k<1?c:0);els.cap[0].style.transform=tr(rx,pageY(0))}
+  const xo=pop?0:a*clamp(1-2*c);op(els.box,xo);   // the close X fades in and out in place, never moves (as the hero's .vc-box)
   if(ctl){ctl.style.transform=c>0?tr(0,y-44):tr(0,185*(1-a));op(ctl,xo);const hv=xo>.01?'':'hidden';if(ctl.style.visibility!==hv)ctl.style.visibility=hv}
-  for(let j=1;j<=N;j++){const e=els.p[j];op(e,c>=1||pop?(Math.abs(j-k)<1?1:0):0);e.style.transform=tr(rx,pageY(j))}
+  for(let j=1;j<=N;j++){const e=els.p[j],o=c>=1||pop?(Math.abs(j-k)<1?1:0):0;op(e,o);e.style.transform=tr(rx,pageY(j));
+    const cp=els.cap[j];if(cp){op(cp,o);cp.style.transform=tr(rx,pageY(j))}}
   op(els.chrome,c);els.chrome.style.transform=tr(rx,0);
   op(els.bar,c);els.bar.style.transform=tr(rx,0);
   op(els.home,cta?sheetP:mode==='feed'?0:sheetT*(1-c));
@@ -246,7 +266,7 @@ else $('ctlAt').remove();
 let cta=null;
 const iab=FMSSIAB.create({host:$('iab'),y2:SH,label:'In-app browser (IAB): porsche.com',url:'porsche.com',
   headers:{full:'assets/iab-header-full.svg?v=163'},fullTop:2,handle:true,shift:'p',
-  web:'<div class="web"><img alt="porsche.com: Taycan 4 Cross Turismo, Build &amp; Price" src="assets/page.webp?v=228"></div>',webH:1002,
+  web:'<div class="web"><img alt="porsche.com: Taycan 4 Cross Turismo, Build &amp; Price" src="assets/page.webp?v=227"></div>',webH:1002,
   fullness:y=>cta?clamp((iab.Y1-y)/(iab.Y1-iab.Y3)):clamp((iab.Y2-y)/(iab.Y2-iab.Y3)),
   halfOK:()=>!cta,hold:(f,t)=>cta?true:(f===1&&t===3)||(f===3&&t===1),holdOnDrag:()=>!!cta,
   onRender:o=>{sheetT=o.t;sheetP=o.p;sd=o.sd;if(mode==='split'||mode==='toReels')c=1-o.t;render()},
@@ -317,17 +337,25 @@ pager.addEventListener('pointermove',e=>{if(!pd||e.pointerId!==pd.id)return;
   let n=pd.k0-(e.clientY-pd.y)/pd.sc/PG;if(n<0)n*=.35;else if(n>N)n=N+(n-N)*.35;k=n;render();
   const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
 function pagerUp(e){if(!pd||e.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');
-  if(e.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(e);if(ctaAt('reels',px,py-pageY(0))&&openCta('reels'))return}   // a tap on Learn more
+  if(e.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(e);if(ctaAt('reels',px,py-pageY(0))&&openCta('reels'))return   // a tap on Learn more
+    if(reelTap(px,py))setPaused(!userPaused)}   // a tap on the seed's video: pause / play
   const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, to the next reel)
   let t=Math.round(k+v*.18);const from=Math.round(d.k0);
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);   // a flick (320px/s) always moves one reel its way
   step(t,v)}
 pager.addEventListener('pointerup',pagerUp);pager.addEventListener('pointercancel',pagerUp);
-function step(t,v=0){kS.to(t,{v,w:16,onDone:()=>say(['Porsche','On','Away','Perrier'][t]+' reel')})}
+function step(t,v=0){if(t!==0)setPaused(false);kS.to(t,{v,w:16,onDone:()=>say(['Porsche','On','Away','Perrier'][t]+' reel')})}
 let wAcc=0,wT=0;
 pager.addEventListener('wheel',e=>{if(mode!=='reels')return;if(e.cancelable)e.preventDefault();
   const now=performance.now();if(now-wT<480){return}wAcc+=e.deltaY;
   if(Math.abs(wAcc)>40){const t=clamp(Math.round(k)+(wAcc>0?1:-1),0,N);wAcc=0;wT=now;if(t!==Math.round(k))step(t)}},{passive:false});
+
+/* tap the reel to pause / play (FMSS Caption & Browse's tap to pause): full screen only (inline the demo takes no input), on the seed's
+   page at rest (the chained reels are stills), anywhere on its video that is not the chrome / back (y < 96), the author + caption +
+   Learn more block (y >= 596) or the action rail (x >= 326 below 486). Leaving the reel (another reel, Feed) plays it again */
+let userPaused=false;
+const reelTap=(x,y)=>!INL()&&mode==='reels'&&Math.round(k)===0&&Math.abs(k)<.01&&y>=96&&y<596&&(x<326||y<486);
+function setPaused(on){if(userPaused===on)return;userPaused=on;els.pz.set(on);if(on)vid.pause();vidSync();say(on?'Reel paused':'Reel playing')}
 
 /* Back: the pop (Reels slides off right, Feed in from the left at −120), then the clean Feed */
 function back(){
@@ -345,7 +373,7 @@ const EB=FMSSEdgeBack.create({width:375,
     if(f==='reels'){if(done){toFeed();homeTell(true);say('Feed')}else{b=0;mode='reels';setReels(true);render()}}
     else if(done){iab.reset();mode='feed';a=c=0;render();homeTell(true);say('Feed')}
     else{mode='split';vs&&vs.enterSplit();$('splx').classList.toggle('on',iab.state===2);render()}}});
-phone.addEventListener('pointerdown',e=>{eg=null;if(e.button>0||cta||edgeFrom||EB.settling)return;
+phone.addEventListener('pointerdown',e=>{eg=null;if(e.button>0||cta||edgeFrom||EB.settling||INL())return;   // full screen only
   const [x,y]=ptOf(e);if(!EB.zone(x))return;
   const from=mode==='reels'?'reels':mode==='split'&&iab.state===2&&!iab.busy&&!iab.drag&&y<iab.Y2?'split':null;
   if(from)eg={id:e.pointerId,x0:e.clientX,y0:e.clientY,s:phone.getBoundingClientRect().width/375,t0:performance.now(),from,on:false}},true);
@@ -362,7 +390,7 @@ phone.addEventListener('pointermove',e=>{if(!eg||e.pointerId!==eg.id)return;
   e.stopPropagation();EB.move(dx)},true);
 function edgeUp(e){if(!eg||e.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;e.stopPropagation();EB.end((e.clientX-d.x0)/d.s)}
 phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
-function toFeed(){aS.stop();kS.stop();bS.stop();mode='feed';a=c=k=b=0;cta=null;phone.classList.remove('cta-open');iab.reset();vs&&vs.leaveSplit();setReels(false);$('splx').classList.remove('on');
+function toFeed(){setPaused(false);aS.stop();kS.stop();bS.stop();mode='feed';a=c=k=b=0;cta=null;phone.classList.remove('cta-open');iab.reset();vs&&vs.leaveSplit();setReels(false);$('splx').classList.remove('on');
   sheetT=0;sd=0;vid.currentTime=0;render()}
 document.addEventListener('keydown',e=>{if(INL())return;
   if(e.key==='Escape'){userActed();if(cta){if(iab.state!==1)iab.go(1)}else if(iab.state===3)iab.go(2);else if(mode==='split')closeSplit();else if(mode==='reels')back()}
@@ -371,7 +399,7 @@ document.addEventListener('keydown',e=>{if(INL())return;
 /* ---------- the video: plays while it is on screen (paused only by the scrubber's drag) ---------- */
 let seen=false,visible=false,held=false;
 function vidShould(){
-  if(!visible||document.hidden)return false;
+  if(!visible||document.hidden||userPaused)return false;
   if(vs&&vs.dragging())return false;
   if((mode==='reels'||mode==='toReels')&&k>=.999)return false;
   return true;
