@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAP · Similar Ad Pivot: Explore more like this → a pivot of similar ads — interactive prototype</title>
+<script src="../shared/demo/demo-clock.js?v=209"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=209"><link rel="stylesheet" href="../../css/theme.css?v=209">
+<!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
+<link rel="stylesheet" href="../shared/iab/iab.css?v=209"><script src="../../js/squircle.js?v=209"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=209"></script><script src="../shared/edge-back/edge-back.js?v=209"></script>
+<!-- preview-only page: no gate.js / passcode -->
+<link rel="stylesheet" href="../shared/device/device.css?v=209">
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone: 375×812 screen + 8px theme-aware bezel (as preview/mac-proto) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#131013;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.phone img,.phone video{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.L{position:absolute;left:0;top:0;display:block;margin:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit;pointer-events:none}
+.btn:focus,.btn:focus-visible{outline:none}
+video{display:block;object-fit:cover}
+/* layers, bottom → top. The seed (Ray-Ban, its Ad pill + "Explore more like this" row); the pivot: a stack of similar ads (Warby
+   Parker → Zenni → Even Realities → LensCrafters; inline skips Even), one 734px pitch, that slides in from the right over the seed;
+   the comment bar; the top bar (For you nav ↔ the pivot's back chevron, crossfaded) */
+.seed,.stack{width:375px;height:734px;will-change:transform;overflow:hidden}
+.seed{z-index:1;background:#131013 url(../../assets/vac/vac-sap-rayban.webp?v=209) 0 0/375px 734px no-repeat}
+.stack{z-index:2;visibility:hidden}
+.pg{width:375px;height:734px;background:#131013 0 0/375px 734px no-repeat;will-change:transform;visibility:hidden}
+.seed>*,.pg>*{position:absolute}
+.fv{left:0;top:0;width:375px;height:734px}
+.tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
+.grad{left:0;top:470px;width:375px;height:264px;background:linear-gradient(to top,rgba(0,0,0,.4) 0%,rgba(0,0,0,.36) 20%,rgba(0,0,0,.3) 39.65%,rgba(0,0,0,.2) 60.35%,rgba(0,0,0,.08) 80.13%,rgba(0,0,0,0) 100%)}
+.det{left:12px;top:565px;width:303px;height:120px}
+/* the caption's "... more" down arrow: the Caption & Browse arrow (preview/shared/caption/chevron-down.svg, 12×8 box, the 8×4 arrow 2px in),
+   5px after the ink of "more", centred on the caption's x-height (line top + 9); left per ad = 12 + the "more" ink end + 3.05, snapped down to 0.5.
+   Captions are fitted so the arrow's drawn right edge (left + 10.65) lands within 4px of, never past, the CTA's right edge x 315 */
+.cchev{width:12px;height:8px;pointer-events:none}
+.ufi{left:326px;top:486px;width:49px;height:237px}
+.row{left:12px;top:698px;width:303px;height:24px;overflow:hidden}
+.pill{position:absolute;top:0;height:24px;border-radius:24px;background:rgba(24,25,26,.6);overflow:hidden}
+.pill img{position:absolute;left:0;top:0;width:100%;height:100%}
+.pill i,.press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease)}
+.pill i{border-radius:24px}
+.pill i.on,.press.on{opacity:1;transition-duration:.12s}
+.sp{left:0;width:47.5px}
+/* the Ad label (Reels, 2025+; replaced "Sponsored"): the shared pill, preview/shared/caption/ad-pill.svg, drawn with its own fill; 12px above the reel's
+   bottom edge (top 698), left-aligned with the CTA. The brand row has the shared globe (preview/shared/caption/globe.svg) 7px after the name;
+   stack (bottom-anchored, from Hang's Reels references): author 565 · caption line 610 · CTA 641–685 · Ad 698–722 */
+.pill.sp{background:none}
+.cglobe{width:12px;height:12px;pointer-events:none}
+.chip{left:51.5px;width:153px;opacity:0;will-change:transform,opacity}
+.press{border-radius:12px}
+.zl{left:0;top:0;width:375px;height:734px;opacity:0}
+.lc{background:#101010}
+.lc .fv{top:126px;height:375px;background:#101010 0 0/375px 375px no-repeat}
+.hs{left:12px;top:613px;width:303px;height:72px;overflow:hidden;-webkit-mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px);mask:linear-gradient(to right,#000 285.4px,rgba(0,0,0,0) 306.6px)}
+.hs>b{position:absolute;left:0;top:0;width:472px;height:72px;display:block;will-change:transform}
+.hs span{position:absolute;top:0;width:72px;height:72px;border-radius:8px;overflow:hidden;background:#fff}
+.hs span img{position:absolute;inset:0;width:100%;height:100%}
+.hs span .press{border-radius:0}
+.bar{top:734px;width:375px;height:78px;z-index:3}
+/* the top bar: the For you nav (its pill live: a 25px backdrop blur under #252525 at 55% and #9C9C9C overlay, as Figma) and the
+   pivot's back chevron; each child fades on its own (a group opacity would isolate the overlay blend) */
+.navp,.navo{left:12px;top:52px;width:78px;height:36px;border-radius:24px;z-index:4;pointer-events:none}
+.navp{background:rgba(37,37,37,.55);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px)}
+.navo{background:#9c9c9c;mix-blend-mode:overlay}
+.nav{top:44px;width:375px;height:52px;z-index:5;pointer-events:none}
+.chev{left:12px;top:58px;width:24px;height:24px;z-index:5;opacity:0;pointer-events:none;overflow:visible}
+.touch{width:375px;height:812px;z-index:8;touch-action:none;display:none}
+.touch.on{display:block}
+#chipb{left:63.5px;top:698px;width:153px;height:24px;z-index:9}
+#cta{left:12px;top:641px;width:303px;height:44px;z-index:9}
+#back{left:2px;top:48px;width:44px;height:44px;z-index:9}
+/* the shared IAB, in its own 375×812 host, over every surface with the FMSS dim under it (Learn more → full screen) */
+.dim{width:375px;height:812px;z-index:19;background:rgba(0,0,0,.4);opacity:0;pointer-events:none}
+.iab{width:375px;height:812px;z-index:20;pointer-events:none}
+.iab .web{height:1679px;background:#fff}
+.iab .web>img{position:absolute;left:0;top:0;width:375px;height:1679px}
+.sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=209) 0 0/375px 44px no-repeat}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:40;pointer-events:none}
+/* touch indicators: the scripted one (inline; drawn per frame from the timeline, so no CSS transitions) and the real pointer's */
+.finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0}
+.finger{background:rgba(120,120,120,.5);box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.2),0 2px 12px rgba(0,0,0,.45);will-change:transform,opacity}
+.ufinger{z-index:61;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .152s var(--ease),scale .12s var(--ease)}
+.ufinger.on{opacity:.9}
+.ufinger.down{scale:.85}
+.phone.u-on .finger{opacity:0!important}
+/* first load: the poster (the loop's 5704ms frame, the chip showing) holds the screen until the seed's frame and the UI have decoded */
+.ldc{left:0;top:0;width:375px;height:812px;z-index:45;pointer-events:none;object-fit:cover}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below,html.embed .spacer{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1>SAP · Similar Ad Pivot</h1><p>Interactive prototype · "Explore more like this" on a Reels ad pivots to a stack of similar ads · the FMSS IAB sheet and edge swipe back, shared</p></div>
+    <button class="theme" id="theme" type="button">Theme</button>
+  </header>
+  <div class="mframe" id="frame">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <div class="L seed" id="seed" aria-hidden="true">
+          <video class="fv" id="sv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-rayban.webp?v=209" src="../../assets/vac/vac-sap-rayban.mp4?v=209"></video>
+          <i class="tgrad"></i><i class="grad"></i>
+          <img class="det" alt="" src="assets/det-rayban.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:124.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:303.5px;top:617px">
+          <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span><span class="pill chip" id="chip"><img alt="" src="assets/chip.webp?v=209"><i id="chipPress"></i></span></div>
+          <i class="press" id="ctaPress" style="left:12px;top:641px;width:303px;height:44px"></i>
+          <img class="ufi" alt="" src="assets/ufi.webp?v=209">
+        </div>
+        <div class="L stack" id="stack" aria-hidden="true">
+          <div class="L pg" id="pw" style="background-image:url(../../assets/vac/vac-sap-warby.webp?v=209)"><video class="fv" id="wv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-warby.webp?v=209" src="../../assets/vac/vac-sap-warby.mp4?v=209"></video>
+            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-warby.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:161px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:303.5px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+          <div class="L pg" id="pz" style="background-image:url(../../assets/vac/vac-sap-zenni.webp?v=209)"><video class="fv" id="zv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-zenni.webp?v=209" src="../../assets/vac/vac-sap-zenni.mp4?v=209"></video>
+            <img class="zl" id="zl" alt="" src="../../assets/vac/vac-sap-zenni-last.webp?v=209">
+            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-zenni.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:159px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:301px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+          <div class="L pg" id="pe" style="background-image:url(../../assets/vac/vac-sap-even.webp?v=209)"><video class="fv" id="ev" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-even.webp?v=209" src="../../assets/vac/vac-sap-even.mp4?v=209"></video>
+            <i class="tgrad"></i><i class="grad"></i><img class="det" alt="" src="assets/det-even.webp?v=209"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:162.5px;top:577px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:302.5px;top:617px"><i class="press" style="left:12px;top:641px;width:303px;height:44px"></i>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+          <div class="L pg lc" id="pl"><video class="fv" id="lv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-lc.webp?v=209" src="../../assets/vac/vac-sap-lc.mp4?v=209" style="background-image:url(../../assets/vac/vac-sap-lc.webp?v=209)"></video>
+            <img alt="" src="assets/det-lc.webp?v=209" style="left:12px;top:537px;width:303px;height:65px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=209" style="left:156px;top:549px"><img class="cchev" alt="" src="../shared/caption/chevron-down.svg?v=209" style="left:304px;top:589px">
+            <div class="hs"><b id="hsr"><span style="left:0"><img alt="" src="assets/lc-1.webp?v=209"><i class="press"></i></span><span style="left:80px"><img alt="" src="assets/lc-2.webp?v=209"><i class="press"></i></span><span style="left:160px"><img alt="" src="assets/lc-3.webp?v=209"><i class="press"></i></span><span style="left:240px"><img alt="" src="assets/lc-4.webp?v=209"><i class="press"></i></span><span style="left:320px"><img alt="" src="assets/lc-5.webp?v=209"><i class="press"></i></span><span style="left:400px"><img alt="" src="assets/lc-6.webp?v=209"><i class="press"></i></span></b></div>
+            <div class="row"><span class="pill sp"><img alt="" src="../shared/caption/ad-pill.svg?v=209"></span></div><img class="ufi" alt="" src="assets/ufi.webp?v=209"></div>
+        </div>
+        <img class="L bar" alt="" src="assets/bar.webp?v=209" aria-hidden="true">
+        <i class="L navp" id="navp" aria-hidden="true"></i><i class="L navo" id="navo" aria-hidden="true"></i>
+        <img class="L nav" id="nav" alt="" src="assets/nav.webp?v=209" aria-hidden="true">
+        <img class="L chev" id="chev" alt="" src="assets/chevron.svg?v=209" aria-hidden="true">
+        <div class="L touch" id="touch" aria-hidden="true"></div>
+        <button class="L btn" id="chipb" type="button" aria-label="Explore more like this: pivot to similar ads"></button>
+        <button class="L btn" id="cta" type="button" aria-label="Learn more: open ray-ban.com in the in-app browser (IAB) full screen"></button>
+        <button class="L btn" id="back" type="button" aria-label="Back to the Ray-Ban reel"></button>
+        <i class="L dim" id="dim" aria-hidden="true"></i>
+        <div class="L iab" id="iab"></div>
+        <i class="L sb" id="sb" aria-hidden="true"></i>
+        <i class="L home" id="home" aria-hidden="true"></i>
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-sap-poster.webp?v=209" aria-hidden="true">
+        <div class="L finger" id="finger" aria-hidden="true"></div>
+        <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">A Ray-Ban ad in Reels. A few seconds in, "Explore more like this" appears beside the Ad label; tap it to pivot sideways into a stack of similar ads, and swipe up through it (Warby Parker → Zenni → Even Realities → LensCrafters). Back (the chevron, Escape, or an edge swipe from the left) returns to the Ray-Ban reel. Learn more on the Ray-Ban ad opens ray-ban.com in the in-app browser full screen; ×, Escape or a swipe down returns to the reel.</p>
+  <div class="spacer" style="height:120vh" aria-hidden="true"></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
+
+/* ---------- fit phone to container (as preview/mac-proto) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');
+  const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- Figma corner smoothing: the site's squircle (js/squircle.js, 60%); its auto mode also smooths the CTA press overlays (r6)
+   and the LensCrafters thumbnails (r8) ---------- */
+const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
+document.querySelectorAll('.seed>.press,.pg>.press').forEach(e=>{if(window.Squircle)e.style.clipPath=`path('${Squircle.path(303,44,12,.6)}')`});   // the CTA press dim: the CTA's own 60% squircle
+if(CLIP&&window.Squircle){phone.style.clipPath=`path('${Squircle.path(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${Squircle.path(391,828,48,.6)}')`}
+
+/* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move ----------
+   springV: the same spring released with a velocity (the swipe's ease-in drag hands its speed to the spring, as js/vac-chain.js) */
+const SK=80,SC=20,W0=Math.sqrt(SK),ZT=SC/(2*Math.sqrt(SK)),R1=-ZT*W0+W0*Math.sqrt(ZT*ZT-1),R2=-ZT*W0-W0*Math.sqrt(ZT*ZT-1);   // overdamped
+function springPos(y0p){const A=(y0p-R2)/(R1-R2),B=1-A;return s=>A*Math.exp(R1*s)+B*Math.exp(R2*s)}   // y(0)=1, y'(0)=y0p → 0
+const ST=(()=>{const y=springPos(0);let T=0;for(let s=0;s<20;s+=.0005)if(Math.abs(y(s))>=.001)T=s;return T+.0005})();
+const SLOW=(()=>{const y=springPos(0),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e})();
+function springV(ms,vNorm){   // vNorm: release speed in (remaining distance)/s
+  const y=springPos(-vNorm*(ms/1000)/ST),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e}
+function anim(get,set){let raf=0,busy=false;
+  return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
+    to(target,{ms=664,ease=SLOW,onDone}={}){cancelAnimationFrame(raf);const from=get();
+      if(RM.matches||ms<=0||from===target){set(target);busy=false;onDone&&onDone();return}
+      busy=true;const t0=performance.now();
+      const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,ease(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
+      raf=requestAnimationFrame(f)}}}
+const easeIn=q=>q*q,easeOut=q=>1-(1-q)*(1-q);
+
+/* ---------- the screen: one set of values, everything rendered from them ----------
+   px  the pivot: the seed slides off left, the similar-ad stack in from the right (0 → 1, 664)
+   k   the stack's page (Warby Parker 0 · Zenni 1 · Even Realities 2 · LensCrafters 3; inline skips Even)
+   b   back: the pop (the stack off right, the seed in from −120; 0 → 1, 640)      chip  the "Explore more like this" chip's entry */
+const PG=734,FS_ORDER=['warby','zenni','even','lc'],IN_ORDER=['warby','zenni','lc'];
+const PAGE={warby:$('pw'),zenni:$('pz'),even:$('pe'),lc:$('pl')},sv=$('sv'),wv=$('wv'),zv=$('zv'),ev=$('ev'),lv=$('lv');
+const PV={warby:wv,zenni:zv,even:ev,lc:lv},NAMES={warby:'Warby Parker',zenni:'Zenni',even:'Even Realities',lc:'LensCrafters'};
+let ORDER=INL()?IN_ORDER:FS_ORDER;
+let mode='seed',px=0,k=0,b=0,chip=0,hx=0,chevDim=1,sheetP=0,sd=0;   // mode: seed · open · pivot · pop
+const pxA=anim(()=>px,v=>{px=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),bA=anim(()=>b,v=>{b=v;render()}),cA=anim(()=>chip,v=>{chip=v;render()});
+const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
+const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
+const vis=(el,on)=>{const s=on?'visible':'hidden';if(el.style.visibility!==s)el.style.visibility=s};
+const els={seed:$('seed'),stack:$('stack'),chip:$('chip'),nav:$('nav'),navp:$('navp'),navo:$('navo'),chev:$('chev'),hsr:$('hsr'),dim:$('dim'),sb:$('sb'),home:$('home'),zl:$('zl')};
+let lastSb='',lastHome='',booted=false;
+const seedOn=()=>mode!=='pivot'||px<1;
+const stackOn=()=>mode!=='seed';
+function render(){
+  const pop=mode==='pop';
+  els.seed.style.transform=tr(pop?-120*(1-b):-375*px,0);vis(els.seed,seedOn());
+  els.stack.style.transform=tr(pop?375*b:375*(1-px),0);vis(els.stack,stackOn());
+  for(const id in PAGE){const j=ORDER.indexOf(id),on=stackOn()&&j>=0&&Math.abs(j-k)<1;vis(PAGE[id],on);if(on)PAGE[id].style.transform=tr(0,PG*clamp(j-k,-1,1))}
+  els.chip.style.transform=tr(0,24*(1-chip));op(els.chip,chip);
+  $('chipb').style.pointerEvents=!INL()&&mode==='seed'&&chip>=1&&!cta?'auto':'none';
+  const pv=pop?1-b:mode==='seed'?0:px;   // the top bar: For you nav ↔ the back chevron
+  op(els.nav,1-pv);op(els.navp,1-pv);op(els.navo,1-pv);op(els.chev,pv*chevDim);
+  els.hsr.style.transform=tr(hx,0);
+  op(els.dim,cta?sheetP:0);
+  const gl=Math.round(255*clamp(1-sd)),sbc=`rgb(${gl},${gl},${gl})`;if(sbc!==lastSb){lastSb=sbc;els.sb.style.backgroundColor=sbc}
+  const hl=Math.round(255*clamp(1-(cta?sheetP:0))),hc=`rgb(${hl},${hl},${hl})`;if(hc!==lastHome){lastHome=hc;els.home.style.backgroundColor=hc}
+  if(!INL()&&booted)vidSync();
+}
+
+/* ---------- the IAB: the shared FMSS sheet, closed ↔ full only (Learn more on the seed, as mac-proto) ---------- */
+let cta=null;
+const iab=FMSSIAB.create({host:$('iab'),label:'In-app browser (IAB): ray-ban.com',url:'ray-ban.com',
+  headers:{full:'assets/iab-header-full.svg?v=209'},fullTop:2,handle:true,shift:'p',
+  web:'<div class="web"><img alt="ray-ban.com: Ray-Ban Meta glasses" src="assets/page.webp?v=209"></div>',webH:1679,
+  fullness:y=>clamp((iab.Y1-y)/(iab.Y1-iab.Y3)),halfOK:()=>false,hold:()=>true,holdOnDrag:()=>true,
+  onRender:o=>{sheetP=o.p;sd=o.sd;render()},
+  onState:s=>{if(cta)say(s===1?'Ray-Ban reel':'ray-ban.com open full screen')},
+  onClosed:()=>{if(cta){cta=null;render()}},
+  onX:()=>iab.go(1),
+  wheelTo:(ev,d,apply)=>{if(apply(d)&&ev.cancelable)ev.preventDefault()}});
+const R={chip:[63.5,698,153,24],cta:[12,641,303,44],back:[2,48,44,44],hs:[12,613,303,72]};
+const inR=(r,x,y)=>x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];
+function openCta(){
+  if(INL()||cta||mode!=='seed'||iab.state!==1||iab.busy)return false;
+  cta='seed';iab.go(3,{w:16,why:'learn-more'});return true;
+}
+$('cta').addEventListener('click',()=>openCta());
+
+/* ---------- the pivot: "Explore more like this" → the similar ads slide in from the right (Figma: push left, Slow) ---------- */
+function pivot(){
+  if(INL()||mode!=='seed'||cta||chip<1)return;
+  mode='open';homeTell(false);k=0;hx=0;restart('warby');
+  pxA.to(1,{ms:664,onDone:()=>{if(mode!=='open')return;mode='pivot';touch.classList.add('on');render();say('Warby Parker reel')}});
+  render();
+}
+$('chipb').addEventListener('click',ev=>{if(ev.detail===0)pivot()});   // keyboard; a pointer press is handled below (press feedback)
+let cp=null;
+const chipPress=$('chipPress');
+$('chipb').addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='seed')return;cp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false};chipPress.classList.add('on');try{$('chipb').setPointerCapture(ev.pointerId)}catch(_){}});
+$('chipb').addEventListener('pointermove',ev=>{if(cp&&ev.pointerId===cp.id&&Math.hypot(ev.clientX-cp.x,ev.clientY-cp.y)>10){cp.moved=true;chipPress.classList.remove('on')}});
+function chipUp(ev){if(!cp||ev.pointerId!==cp.id)return;const p=cp;cp=null;chipPress.classList.remove('on');if(ev.type==='pointerup'&&!p.moved)pivot()}
+$('chipb').addEventListener('pointerup',chipUp);$('chipb').addEventListener('pointercancel',chipUp);
+
+/* ---------- the stack: 1:1 drag, projected snap, a flick moves one (Figma: push up, Slow); LensCrafters' product row scrolls
+   sideways; Shop now / a product: press feedback only (Figma has no destination for them); the chevron → back ---------- */
+let pd=null,pressEl=null;
+const HMIN=-(5*80+72-303),N=()=>ORDER.length-1;
+const curId=()=>ORDER[Math.round(k)];
+function pressAt(x,y){   // the element a press lands on: [overlay, kind]
+  if(inR(R.back,x,y))return [null,'back'];
+  if(Math.abs(k-Math.round(k))>.01)return [null,null];
+  const id=curId();
+  if(id!=='lc'&&inR(R.cta,x,y))return [PAGE[id].querySelector('.press'),'shop'];
+  if(id==='lc'&&inR(R.hs,x,y)){const lx=x-R.hs[0]-hx,i=Math.floor(lx/80);if(i>=0&&i<6&&lx-i*80<=72)return [PAGE.lc.querySelectorAll('.hs .press')[i],'product']}
+  return [null,null];
+}
+function setPress(el){if(pressEl===el)return;if(pressEl)pressEl.classList.remove('on');pressEl=el;if(el)el.classList.add('on')}
+touch.addEventListener('pointerdown',ev=>{if(ev.button>0||INL())return;
+  const [x,y]=ptOf(ev);
+  if(mode==='seed'){if(!cta&&inR(R.cta,x,y)){pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,seed:true};setPress($('ctaPress'))}return}
+  if(mode!=='pivot')return;kA.stop();
+  const [el,kind]=pressAt(x,y);if(kind==='back'){chevDim=.5;render()}setPress(el);
+  const onHs=curId()==='lc'&&Math.abs(k-Math.round(k))<.01&&inR(R.hs,x,y);
+  pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,onHs,hx0:hx,k0:k,kind,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
+  try{touch.setPointerCapture(ev.pointerId)}catch(_){}});
+touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
+  const dx=ev.clientX-pd.x,dy=ev.clientY-pd.y;if(!pd.moved&&Math.hypot(dx,dy)>10){pd.moved=true;setPress(null);if(chevDim!==1){chevDim=1;render()}}
+  if(pd.seed||!pd.moved)return;
+  if(!pd.axis)pd.axis=pd.onHs&&Math.abs(dx)>Math.abs(dy)?'h':'v';
+  if(pd.axis==='h'){let n=pd.hx0+dx/pd.sc;if(n>0)n*=.35;else if(n<HMIN)n=HMIN+(n-HMIN)*.35;hx=n;render();return}
+  let n=pd.k0-dy/pd.sc/PG;if(n<0)n*=.35;else if(n>N())n=N()+(n-N())*.35;k=n;render();
+  const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
+function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setPress(null);
+  if(d.seed){if(ev.type==='pointerup'&&!d.moved)openCta();return}
+  if(chevDim!==1){chevDim=1;render()}
+  if(d.axis==='h'){const t=clamp(hx,HMIN,0);if(t!==hx){const hA=anim(()=>hx,v=>{hx=v;render()});hA.to(t,{ms:400})}return}
+  if(ev.type==='pointerup'&&!d.moved){k=d.k0;render();if(d.kind==='back')back();return}
+  const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;
+  let t=Math.round(k+v*.18);const from=Math.round(d.k0);
+  if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N());
+  step(t)}
+touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
+function step(t){const was=Math.round(k);if(t!==was)restart(ORDER[t]);kA.to(t,{ms:664,onDone:()=>say(NAMES[ORDER[t]]+' reel')})}
+function restart(id){const v=PV[id];if(v){try{v.currentTime=0}catch(_){}}if(id==='lc')hx=0}
+let wT=0,wAcc=0;
+touch.addEventListener('wheel',ev=>{if(mode!=='pivot'||INL())return;if(ev.cancelable)ev.preventDefault();
+  const now=performance.now();if(now-wT<480)return;wAcc+=ev.deltaY;
+  if(Math.abs(wAcc)>40){const t=clamp(Math.round(k)+(wAcc>0?1:-1),0,N());wAcc=0;wT=now;if(t!==Math.round(k))step(t)}},{passive:false});
+
+/* ---------- back: the pop (the stack off right, the seed in from −120, its chip still there), the edge swipe drives the same pop ---------- */
+function startPop(){kA.stop();pxA.stop();k=Math.round(k);px=1;mode='pop';touch.classList.remove('on');b=0;render()}
+function back(){if(INL()||mode!=='pivot'||cta)return;startPop();bA.to(1,{ms:640,onDone:()=>{toSeed();say('Ray-Ban reel')}})}
+$('back').addEventListener('click',()=>back());
+function toSeed(){pxA.stop();kA.stop();bA.stop();mode='seed';px=0;k=0;b=0;hx=0;chevDim=1;if(!INL())touch.classList.add('on');setPress(null);render();homeTell(true)}
+let eg=null,edging=false;
+const EB=FMSSEdgeBack.create({width:375,
+  onMove:p=>{bA.stop();b=p;render()},
+  onEnd:done=>{edging=false;if(done){toSeed();say('Ray-Ban reel')}else{b=0;mode='pivot';px=1;touch.classList.add('on');render()}}});
+phone.addEventListener('pointerdown',ev=>{eg=null;if(ev.button>0||INL()||cta||edging||EB.settling||mode!=='pivot')return;
+  const [x]=ptOf(ev);if(!EB.zone(x))return;
+  eg={id:ev.pointerId,x0:ev.clientX,y0:ev.clientY,s:phone.getBoundingClientRect().width/375,t0:performance.now(),on:false}},true);
+phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
+  const dx=(ev.clientX-eg.x0)/eg.s,dy=(ev.clientY-eg.y0)/eg.s;
+  if(!eg.on){
+    if(!EB.claims(dx,dy)){if(Math.abs(dy)>6)eg=null;return}
+    eg.on=true;edging=true;
+    if(pd){k=pd.k0;pd=null;setPress(null)}
+    try{phone.setPointerCapture(ev.pointerId)}catch(_){}
+    startPop();EB.begin(eg.t0)}
+  ev.stopPropagation();EB.move(dx)},true);
+function edgeUp(ev){if(!eg||ev.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;ev.stopPropagation();EB.end((ev.clientX-d.x0)/d.s)}
+phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
+document.addEventListener('keydown',ev=>{if(INL())return;
+  if(ev.key==='Escape'){if(cta){if(iab.state!==1)iab.go(1)}else if(mode==='pivot')back()}
+  else if(mode==='pivot'&&!cta&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')){ev.preventDefault();step(clamp(Math.round(k)+(ev.key==='ArrowDown'?1:-1),0,N()))}});
+
+/* ---------- full screen: the chip appears 4s into the seed (Figma: after delay, Slow over 1000ms) and stays ---------- */
+let chipT=0;
+function armChip(ms){clearTimeout(chipT);if(chip>=1)return;chipT=setTimeout(()=>{if(!INL()&&chip<1)cA.to(1,{ms:1000})},Math.max(0,ms))}
+
+/* ---------- full-screen videos: each plays only while it is on screen (and the demo is in view) ---------- */
+let seen=false,visible=false,held=false;
+const FSV=[[sv,()=>seedOn()],...Object.keys(PV).map(id=>[PV[id],()=>{const j=ORDER.indexOf(id);return stackOn()&&j>=0&&Math.abs(j-k)<1}])];
+const pend=new WeakSet();
+function playV(v){if(!v.paused||pend.has(v))return;pend.add(v);const p=v.play();if(p&&p.then)p.then(()=>pend.delete(v),()=>{pend.delete(v);armGesture()});else pend.delete(v)}
+function vidSync(){const on=visible&&!document.hidden;
+  for(const [v,f] of FSV){if(on&&f())playV(v);else if(!v.paused)v.pause()}}
+function armGesture(){const f=()=>{removeEventListener('pointerdown',f,true);INL()?0:vidSync()};addEventListener('pointerdown',f,true)}
+function pauseAll(){[sv,wv,zv,ev,lv].forEach(v=>{if(!v.paused)v.pause()})}
+[sv,wv,zv,ev,lv].forEach(v=>v.addEventListener('canplay',()=>{if(!INL())vidSync()}));
+addEventListener('demo:host',()=>setVis());addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){visible=(seen||(window.demoClock&&demoClock.hosted))&&!held;if(visible){if(!INL())vidSync();sched()}else{pauseAll();stopAuto()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll();stopAuto()}else{if(!INL())vidSync();sched()}});
+
+/* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only, no input. One deterministic loop, T = 17064ms
+   (every time a multiple of 8ms), drawn from the loop clock each frame; each video is locked to it (sought only on drift) and parked
+   at its next in-point while it is off screen:
+       0  Ray-Ban seed (video 2.326s →)                 4000–5000  the chip rises in (Slow, 1000)
+    5704  touch on the chip · 6200 press · 6440 release   6440–7104  the pivot (664): the seed off left, Warby Parker in from the right,
+                                                                   the For you nav → the back chevron
+    9024  touch · 9600–9760 drag up 48px (ease-in, 600px/s) · –10440 the spring with that speed (680): → Zenni (plays once, holds its
+          last frame)
+   11424  touch · 12000–12160 drag · –12840 spring: → LensCrafters (its square video, the product row)
+   15688  touch on the chevron · 16184 press · 16424 release   16424–17064  the pop (640): the stack off right, the seed (no chip) in
+          from −120, its video running 1.686 → 2.326s into the wrap, so 17064 ≡ 0 and the loop rounds without a cut.
+   Each touch fades in (248) and is fully shown for at least 488ms before it lifts, then fades out (248).
+   First reveal: the poster is the 5704 frame, so the loop starts there under it ---------- */
+const T=17064,E={chip:4000,f1:5704,d1:6200,u1:6440,p0:6440,p1:7104,f2:9024,d2:9600,r2:9760,e2:10440,f3:11424,d3:12000,r3:12160,e3:12840,f4:15688,d4:16184,u4:16424},
+  DRAG=48,DRAGMS=160,SPRMS=680,SV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(PG-DRAG)),
+  SEED_IN=2.326,LC_HOLD=4.4,SEED_PARK=SEED_IN-(T-E.u4)/1000,F_IN=248,F_DOWN=176,F_UP=120;
+const finger=$('finger');
+function swipeK(t,d,r,e,k0){   // the page index through one scripted swipe
+  if(t<d)return k0;if(t<r){const q=(t-d)/DRAGMS;return k0+DRAG*easeIn(q)/PG}
+  if(t<e){const k1=k0+DRAG/PG;return k1+(1-DRAG/PG)*SV((t-r)/SPRMS)}return k0+1}
+function touchF(t,on,down,up){   // a scripted touch: opacity (in 248 from on, out 248 from up) and press scale (.85 from down to up)
+  if(t<on||t>up+F_IN)return null;
+  const o=t<up?easeOut(clamp((t-on)/F_IN)):1-easeOut(clamp((t-up)/F_IN));
+  const s=t<down?1:t<up?1-.15*easeOut(clamp((t-down)/F_DOWN)):.85+.15*easeOut(clamp((t-up)/F_UP));
+  return {o,s}}
+function fingerAt(t){
+  let f=null,x=0,y=0;
+  if((f=touchF(t,E.f1,E.d1,E.u1))){x=140;y=710}
+  else if((f=touchF(t,E.f2,E.d2,E.r2))){x=187.5;y=560-DRAG*easeIn(clamp((t-E.d2)/DRAGMS))}
+  else if((f=touchF(t,E.f3,E.d3,E.r3))){x=187.5;y=560-DRAG*easeIn(clamp((t-E.d3)/DRAGMS))}
+  else if((f=touchF(t,E.f4,E.d4,E.u4))){x=24;y=70}
+  if(!f){op(finger,0);return}
+  finger.style.transform=`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) scale(${f.s.toFixed(4)})`;op(finger,f.o)}
+let tl=E.f1;   // the loop clock (ms in [0, T))
+function applyT(t){
+  tl=t;
+  if(t<E.p0){mode='seed';px=0;b=0;k=0;chip=t<E.chip?0:SLOW((t-E.chip)/1000)}
+  else if(t<E.p1){mode='open';px=SLOW((t-E.p0)/664);b=0;k=0;chip=1}
+  else if(t<E.u4){mode='pivot';px=1;b=0;chip=0;k=t<E.f3?swipeK(t,E.d2,E.r2,E.e2,0):swipeK(t,E.d3,E.r3,E.e3,1)}
+  else{mode='pop';px=1;k=2;chip=0;b=SLOW((t-E.u4)/(T-E.u4))}
+  hx=0;chevDim=t>=E.d4&&t<E.u4?.5:1;
+  $('chipPress').classList.toggle('on',t>=E.d1&&t<E.u1);
+  render();fingerAt(t);lockAll(t);
+}
+/* the video lock: d = where the video should be now (null: off screen, parked at its next in-point) */
+function lock(v,d,park){
+  const ok=visible&&!document.hidden&&!(window.demoClock&&demoClock.paused);
+  if(d==null||!ok){if(!v.paused)v.pause();const p=d==null?park:d;if(p!=null&&v.readyState>=1&&!v.seeking&&Math.abs(v.currentTime-p)>.04)v.currentTime=p;return}
+  if(v.paused){if(v.readyState>=1&&!v.seeking&&Math.abs(v.currentTime-d)>.04)v.currentTime=d;playV(v)}
+  else if(!v.seeking&&Math.abs(v.currentTime-d)>.25)v.currentTime=d}
+function lockAll(t){
+  lock(sv,t<E.p1?SEED_IN+t/1000:t>=E.u4?SEED_PARK+(t-E.u4)/1000:null,SEED_PARK);
+  lock(wv,t>=E.p0&&t<E.e2?(t-E.p0)/1000:null,0);
+  const zd=t>=E.d2&&t<E.e3?(t-E.d2)/1000:null,zend=(zv.duration||1.967)-.04,zh=zd!=null&&zd>=zend;
+  lock(zv,zh?null:zd,zh?zend:0);op(els.zl,zh?1:0);
+  const ld=t>=E.d3?(t-E.d3)/1000:null,lh=ld!=null&&ld>=LC_HOLD;   // LensCrafters holds 4.4s in (its next shot cuts in at 4.433, the pop's start)
+  lock(lv,lh?null:ld,lh?LC_HOLD:0);
+  lock(ev,null,0);
+}
+let autoOn=false,raf=0,t0=0;
+function frameT(){if(!autoOn)return;applyT(((performance.now()-t0)%T+T)%T);raf=requestAnimationFrame(frameT)}
+function canRun(){return ready&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
+function startAuto(){if(autoOn||!canRun())return;autoOn=true;frame.dataset.autoplay='on';t0=performance.now()-tl;[sv,zv,lv,wv].forEach(v=>v.loop=false);raf=requestAnimationFrame(frameT)}
+function stopAuto(){if(!autoOn)return;autoOn=false;cancelAnimationFrame(raf);frame.dataset.autoplay='off';pauseAll()}
+function sched(){if(!autoOn&&canRun())startAuto()}
+
+/* ---------- the poster cover: on first load it holds until the seed's frame, the posters and the UI have decoded (max 3.2s), then
+   fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248 ---------- */
+let ready=false;const ldc=$('ldc');
+const seekTo=(v,t)=>new Promise(r=>{if(v.readyState>=2&&Math.abs(v.currentTime-t)<.02)return r();const f=()=>{v.removeEventListener('seeked',f);r()};v.addEventListener('seeked',f);try{v.currentTime=t}catch(_){r()}setTimeout(r,1200)});
+const firstFrame=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true});setTimeout(r,3000)});
+function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate){ldc.style.opacity='0';return}
+  ldc.style.opacity='0';ldc.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out'})}
+function cover(then){   // in 120 → then() (returns a promise) → out 248
+  if(RM.matches||!ldc.animate){Promise.resolve(then()).then(()=>{ldc.style.opacity='0'});return}
+  ldc.getAnimations().forEach(a=>a.cancel());const o=+getComputedStyle(ldc).opacity;ldc.style.opacity='1';
+  const a=ldc.animate([{opacity:o},{opacity:1}],{duration:120,easing:'ease-in'});
+  a.onfinish=()=>{Promise.resolve(then()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(coverOut)))}}
+const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
+(function(){
+  const imgs=[...document.querySelectorAll('#seed img,#nav,#chev,.bar')].map(i=>i.src).concat(['vac-sap-rayban','vac-sap-warby'].map(n=>'../../assets/vac/'+n+'.webp?v=209'));
+  const prep=INL()?firstFrame(sv).then(()=>seekTo(sv,SEED_IN+E.f1/1000)):firstFrame(sv);
+  const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(wv)]));
+  let done=false;const go=()=>{if(done)return;done=true;ready=true;
+    if(INL()){applyT(tl);sched()}else{fsStart(false)}
+    coverOut()};
+  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+
+/* ---------- full screen: entering it (html.embed-full) from the seed keeps going (the same frame, the chip as it was, or on its way);
+   from mid-chain the cover bridges to the seed's start. Leaving it, the cover bridges back to the loop's 5704 frame ---------- */
+function fsStart(keep){
+  stopAuto();ORDER=FS_ORDER;cta=null;iab.reset();sheetP=0;sd=0;[sv,ev].forEach(v=>v.loop=true);zv.loop=true;lv.loop=true;wv.loop=true;
+  op(els.zl,0);op(finger,0);$('chipPress').classList.remove('on');
+  if(keep){const c=chip,t=tl;toSeed();chip=c;render();if(chip<1){if(t>=E.chip){cA.to(1,{ms:Math.round((1-c)*1000)})}else armChip(E.chip-t)}}
+  else{toSeed();chip=0;try{sv.currentTime=0}catch(_){}render();armChip(4000)}
+  homeS=null;homeTell(true);vidSync();
+}
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
+  if(!i){const keep=mode==='seed'&&ready;if(keep)fsStart(true);else cover(()=>{fsStart(false)});return}
+  clearTimeout(chipT);cA.stop();pxA.stop();kA.stop();bA.stop();cta=null;iab.reset();sheetP=0;sd=0;touch.classList.remove('on');ORDER=IN_ORDER;
+  cover(()=>{tl=E.f1;applyT(tl);pauseAll();return seekTo(sv,SEED_IN+E.f1/1000).then(()=>{sched()})})}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+if(!INL())touch.classList.add('on');
+
+/* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
+function say(t){$('live').textContent=t}
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
+
+/* ---------- theme toggle + follow the site theme ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+
+/* ---------- real pointer → touch-indicator circle (same as the FMSS prototypes) ---------- */
+const uf=$('ufinger');let uShow=false,uTouch=null;
+const FINE=matchMedia('(hover:hover) and (pointer:fine)'),isFine=ev=>ev.pointerType!=='touch'&&FINE.matches;
+function ptOf(ev){const r=phone.getBoundingClientRect(),s=r.width/375;return [(ev.clientX-r.left)/s,(ev.clientY-r.top)/s]}
+function uPos(ev){const [x,y]=ptOf(ev);uf.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
+phone.addEventListener('pointerdown',ev=>{if(!ev.isTrusted||INL())return;if(!isFine(ev))uTouch=ev.pointerId;uPos(ev);uShow=true;uf.classList.add('on','down');phone.classList.add('u-on')},true);
+phone.addEventListener('pointermove',ev=>{if(ev.isTrusted&&uShow&&(ev.pointerId===uTouch||isFine(ev)))uPos(ev)},true);
+function uUp(ev){if(!ev.isTrusted)return;uf.classList.remove('down');if(ev.pointerId===uTouch){uTouch=null;uOff()}else if(isFine(ev))uOff()}
+addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
+phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
+
+window.__sap={get mode(){return mode},get px(){return px},get k(){return k},get b(){return b},get chip(){return chip},get t(){return tl},
+  get order(){return ORDER.slice()},get cta(){return cta},get auto(){return autoOn},get ready(){return ready},iab,sv,T,E,
+  seek(t){tl=((t%T)+T)%T;t0=performance.now()-tl;applyT(tl)},pivot,back,step,openCta,
+  get playing(){return [sv,wv,zv,ev,lv].filter(v=>!v.paused).map(v=>v.id)}};
+booted=true;render();
+})();
+</script>
+</body>
+</html>
