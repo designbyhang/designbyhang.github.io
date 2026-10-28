@@ -380,11 +380,15 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:r
 body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
 html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
 .phone-demo .pd-phone{position:relative;flex:none;height:calc(var(--dev-h)*812/828);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812;border-radius:calc(var(--dev-h)*48/828);overflow:hidden;box-shadow:0 0 0 calc(var(--dev-h)*8/828) var(--pd-bezel);transform:translateZ(0)}
-/* the 750x1624 recordings (= the screen's 375:812) carry a dark capture edge (cols 0-1/748-749, rows 0/1623); downscaling filters
-   reach 2+ source px inward, so trimming it exactly left a 1-device-px dark line (390@2x: 1 px = 2.2 source px). The picture is scaled
-   up uniformly by 750/742 and centred: the screen clip trims 4 source px at the sides and 4*1624/750 = 8.7 at the top and bottom, and
-   nothing else. The box keeps 750:1624 exactly (% margins resolve against the width), so object-fit:cover adds no crop */
-body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:calc(100%*750/742);max-width:none;height:calc(100%*750/742);margin:calc(-400%*1624/750/742) calc(-400%/742);object-fit:cover;object-position:50% 0;border-radius:0;transform:none;transition:none}
+/* the recording fills the screen exactly (object-fit:cover, no zoom), so nothing of the recorded design is clipped: the 750x1624 captures'
+   dark capture edge (cols 0-1/748-749, rows 0-3/1620-1623) is cropped out of the files themselves (746x1616, the screen's 375:812
+   within 0.04%), so no edge row is left for the downscaler to bleed in as a dark line */
+body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;border-radius:0;transform:none;transition:none}
+/* VAC 02 Problem (.pd-baked): 1624x1824 recordings with the phone screen baked in (1376 tall at y 180, the FMSS Inconsistencies
+   template, whose label row below the phone VAC leaves empty) on the template's #1d1d1d ground. The module takes the shared container
+   height and the video is sized so the baked screen is --dev-h tall at --dev-pad from the top: 24px top and bottom, centred across */
+body.cs .media.mframe.pd-baked{box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto;background:#1d1d1d}
+body.cs .media.mframe.pd-baked video{position:absolute;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);margin:0;transform:translateX(-50%);object-fit:fill}
 .pd-rows{margin-top:64px}
 .inc2 .pd-row{align-items:stretch}
 .pd-touch .pd-row{column-gap:0} /* Hang, Oct 26: Current State modules widen to meet, no column gap */
