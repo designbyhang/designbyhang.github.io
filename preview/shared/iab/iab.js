@@ -4,6 +4,12 @@
    samples, projection y + v·0.18s, a flick > 600px/s moves at least one step, rubber-band ×0.25 above full; a tap on the half
    sheet → full. Full screen: a press below the header scrolls the page (rubber-band ×0.35, spring-back ω16, fling τ 325ms) and a
    pull past the page top hands over to the sheet. Every open from closed plays the page load (1140ms bar, page fades in after 1/3).
+   Entry point: how the sheet was opened from closed (go(s, {entry}), kept until it closes) decides what a drag on it may do:
+     (none)       a sheet open (caption, product tile, swipe): every drag above
+     'cta'        a CTA opened it full screen: the sheet never follows a press (no dismiss, no half, no sheet rubber-band); a press
+                  below the header only scrolls the page, which rubber-bands at its top (×0.35) and springs back, the sheet staying
+                  put; × / Escape / the host's controls close it
+     'collapse'   the host's floating CTA opened it: the only drag is the morph back into that CTA (collapse, below)
 
    const iab=FMSSIAB.create({host, y2, label, url, headers:{full}, fullTop, handle, web:'<img …>', webH, visH, …hooks});
    Per-prototype config (all optional unless noted):
@@ -22,8 +28,8 @@
      before a fresh open · onClose() a close starts · onClosed() a close lands (spring at rest, back home) · onOpened(s) an open
      or half↔full move lands · onSettled(s) any move lands at rest in state s (1 = home) · onLoad(why) · onPress(e) a real press on the sheet
      · onX() × tapped · wheelTo(e, d, apply) / wd(e) the page's wheel routing (wheel scrolls the page in full only via these).
-   collapse     opt-in: a swipe down on the full screen sheet morphs it into the host's floating CTA instead of dropping to half.
-                {to() target rect {x,y,w,h,r} in host px · content() the CTA's markup (node) cross-faded in · when() active now (true)
+   collapse     for entry 'collapse': a swipe down on the full screen sheet morphs it into the host's floating CTA.
+                {to() target rect {x,y,w,h,r} in host px · content() the CTA's markup (node) cross-faded in
                  · min 120 · flick 500 (px, px/s down: less snaps back to full) · w 20 (the host's peek → CTA spring, critically damped)
                  · onStart() · onDone() the morph lands: the host shows its real CTA in place, the sheet is already closed}
                 Same gesture as any sheet drag (header / handle, or a pull past the page top); the morph mirrors peek → CTA: geometry on
@@ -96,7 +102,7 @@ function create(cfg){
   host.append(sheet,tb,x);
 
   /* ---------- render everything from y ---------- */
-  let y=Y1,state=1,hLock=false,col=null;
+  let y=Y1,state=1,hLock=false,col=null,entry=null;   // entry: the open's entry point (see the top), null while closed
   function render(){
     if(col)return renderCol();
     const t=clamp((Y1-y)/(Y1-Y2)),p=fullness(y);
@@ -140,7 +146,7 @@ function create(cfg){
     const C=cfg.collapse,to=C.to();ySpring.stop();
     const n=C.content&&C.content();cc.textContent='';if(n)cc.append(n);cc.style.display='block';
     col={m:0,y0:y,to,r0:16*(1-fullness(y)),oh:+hHalf.style.opacity||0,of:+hFull.style.opacity||0,oa:handle?+handle.style.opacity||0:0,co:+cap.style.opacity||0};
-    hLock=false;setState(1);C.onStart&&C.onStart();render();
+    hLock=false;entry=null;setState(1);C.onStart&&C.onStart();render();
     /* the spring's last step lands within eps of m 1 and its exact m 1 render shares a task with the handoff, so it is never painted:
        the last painted morph frame sat ~1px short of the CTA. Paint m 1 exactly (to() re-read now, so the morph ends on the CTA's
        resting rect) and hand off on the next frame: pixel-exact, same spring */
@@ -152,7 +158,7 @@ function create(cfg){
       });
     }});
   }
-  const collapseOn=()=>!!(cfg.collapse&&(!cfg.collapse.when||cfg.collapse.when()));
+  const collapseOn=()=>entry==='collapse'&&!!cfg.collapse;
   function setState(s){
     state=s;
     x.classList.toggle('on',!!xOn(s));
@@ -185,7 +191,7 @@ function create(cfg){
     const f=now=>{const q=clamp((now-t0)/ms),e=1-Math.pow(1-q,3);setScroll(a+(to-a)*e);sraf=q<1?requestAnimationFrame(f):0};
     sraf=requestAnimationFrame(f);
   }
-  const rubber=v=>{const M=smax();return v<0?v*.35:v>M?M+(v-M)*.35:v};
+  const rubber=v=>{const M=smax();return v<0?v*.35:v>M?M+(v-M)*.35:v};   // every entry, a CTA open too: the page rubber-bands at its top and springs back
 
   /* ---------- page load: on every open from closed (never half ↔ full), reset once closed ---------- */
   let loadAnims=[],loads=0;
@@ -195,8 +201,8 @@ function create(cfg){
   /* ---------- go: 1 closed · 2 half · 3 full ---------- */
   function go(s,opts={}){
     const from=state,target=s===1?Y1:s===2?Y2:Y3;
-    if(from===1&&s>1){cfg.onOpen&&cfg.onOpen(s,opts);if(opts.load!==false)load(opts.why)}
-    if(from>1&&s===1)cfg.onClose&&cfg.onClose();
+    if(from===1&&s>1){entry=opts.entry||null;cfg.onOpen&&cfg.onOpen(s,opts);if(opts.load!==false)load(opts.why)}
+    if(from>1&&s===1){entry=null;cfg.onClose&&cfg.onClose()}
     hLock=opts.hold!=null?!!opts.hold:!!holdRule(from,s);
     setState(s);render();
     const o={v:opts.v||0,w:opts.w!=null?opts.w:s===1?SP.wClose:SP.w,z:opts.z!=null?opts.z:SP.z,onDone:opts.onDone};
@@ -212,6 +218,7 @@ function create(cfg){
   addEventListener('pointerdown',e=>{ptype.set(e.pointerId,e.pointerType)},true);
   let drag=null,sc=null;
   function dragStart(clientY,id,scale){
+    if(entry==='cta')return;                       // a CTA open: the sheet never follows a press
     ySpring.stop();hLock=!!(cfg.holdOnDrag&&cfg.holdOnDrag());
     drag={id,startY:clientY,y0:y,from:state,moved:false,scale:scale||0,mouse:ptype.get(id)==='mouse',samples:[[performance.now(),y]]};
     sheet.classList.add('drag');
@@ -253,7 +260,7 @@ function create(cfg){
   function scMove(clientY){
     const want=sc.s0-(clientY-sc.startY)/sc.scale;
     if(Math.abs(clientY-sc.startY)>4)sc.moved=true;
-    if(want<0&&sc.s0<=0){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id,scale);drag.moved=true;return}   // at the top: the sheet takes over
+    if(want<0&&sc.s0<=0&&entry!=='cta'){const {id,scale}=sc;sc=null;setScroll(0);dragStart(clientY,id,scale);drag.moved=true;return}   // at the top: the sheet takes over
     setScroll(rubber(want));
     const now=performance.now();sc.samples.push([now,sy]);
     while(sc.samples.length>2&&now-sc.samples[0][0]>100)sc.samples.shift();
@@ -298,11 +305,11 @@ function create(cfg){
   x.addEventListener('click',()=>{if(cfg.onX)cfg.onX();else go(1)});
 
   /* the clean start, instantly */
-  function reset(){if(col)clearCol();ySpring.stop();drag=null;sc=null;own=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
+  function reset(){if(col)clearCol();ySpring.stop();entry=null;drag=null;sc=null;own=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
   function setY(v){ySpring.stop();y=v;render()}
 
   const api={Y1,Y2,Y3,sheet,panel,cap,toolbar:tb,x,web,webv,
-    get y(){return y},get state(){return state},get busy(){return ySpring.busy},get target(){return ySpring.target},
+    get y(){return y},get state(){return state},get entry(){return entry},get busy(){return ySpring.busy},get target(){return ySpring.target},
     get drag(){return drag},get collapsing(){return !!col},get sc(){return sc},get scroll(){return sy},get loads(){return loads},
     get loading(){return loadAnims.some(a=>a.playState==='running')},
     render,setState,go,collapse,close:()=>go(1),stop:()=>ySpring.stop(),setY,reset,atFull,smax,

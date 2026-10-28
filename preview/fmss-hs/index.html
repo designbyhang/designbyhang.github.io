@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · H-Scroll &amp; Browse — interactive IAB prototype (mock)</title>
-<script src="../shared/demo/demo-clock.js?v=266"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=267"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=266"><link rel="stylesheet" href="../../css/theme.css?v=266">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=266"><script src="../../js/squircle.js?v=266"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=266"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=266"><script src="../shared/tabbar/tabbar.js?v=266"></script>
+<link rel="stylesheet" href="../../css/type.css?v=267"><link rel="stylesheet" href="../../css/theme.css?v=267">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=267"><script src="../../js/squircle.js?v=267"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=267"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=267"><script src="../shared/tabbar/tabbar.js?v=267"></script>
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
-<link rel="stylesheet" href="../shared/device/device.css?v=266">
+<link rel="stylesheet" href="../shared/device/device.css?v=267">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -144,7 +144,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap any product in the collection ad to open the split screen: the photo lifts into a swipeable carousel above the in-app browser (IAB). Swipe, drag or two-finger scroll the carousel — each product snaps into place and the page below follows. Drag the browser up for full screen and down to return or dismiss. Learn more opens the store full screen. X or Escape closes.</p>
+  <p class="below">Tap any product in the collection ad to open the split screen: the photo lifts into a swipeable carousel above the in-app browser (IAB). Swipe, drag or two-finger scroll the carousel — each product snaps into place and the page below follows. Drag the browser up for full screen and down to return or dismiss. Learn more opens the store full screen, where it stays put: scroll the page, and X or Escape closes.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 
@@ -211,7 +211,7 @@ function setPage(key){
   return true;
 }
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab), configured for H-Scroll. The product carousel (split)
-   takes the half sheet; Learn more ('cta') goes closed ↔ full only, with the full header held and the feed dimmed. ---------- */
+   takes the half sheet; Learn more ('cta') goes closed ↔ full only (entry 'cta': no drag), with the full header held and the feed dimmed. ---------- */
 const morph=y=>mode==='hs'?clamp((Y1-y)/(Y1-Y2)):0;   // feed → split morph, tied to the sheet
 const loadLog=[];                                  // load starts, read by the tests
 /* proto-state, to the host page (js/proto-fs.js desktop, js/case.js phone): postMessage {type:'proto-state',home} on each change;
@@ -223,7 +223,7 @@ const iab=FMSSIAB.create({
   fullTop:0,shift:'hk',halfZ:.9,
   web:'<img class="web" id="web" src="assets/page-desk.webp?v=3" alt="artifox.com product page">',webH:()=>WEB_H[pageKey]||768,visH:627,
   fullness:y=>mode==='hs'?clamp((Y2-y)/(Y2-Y3)):clamp((Y1-y)/(Y1-Y3)),
-  halfOK:()=>mode!=='cta',hold:()=>mode==='cta',holdOnDrag:()=>mode==='cta',
+  hold:()=>mode==='cta',
   xOn:s=>s!==1,
   capOpacity:(sd,y)=>mode==='cta'?1:Math.max(1-morph(y),sd),   // the white feed's status area stays white until the split morph darkens it
   onRender({y,p:pf,sd}){
@@ -260,7 +260,7 @@ const iab=FMSSIAB.create({
 const sheet=iab.sheet,go=iab.go,render=iab.render,setState=iab.setState;
 const pSpring=FMSSIAB.makeSpring(()=>p,v=>{p=v;render()});
 function openAt(i){if(iab.state!==1)return;pSpring.stop();mode='hs';p=i;pageIdx=-1;render();go(2,{w:16,why:'product'})}
-function openCta(){if(iab.state!==1)return;mode='cta';go(3,{w:16,why:'learn-more'})}
+function openCta(){if(iab.state!==1)return;mode='cta';go(3,{w:16,why:'learn-more',entry:'cta'})}   // a CTA open: no drag on the full screen sheet
 const close=()=>go(1);
 /* every carousel settle (swipe, drag, trackpad, arrow keys, autoplay) lands here: a different product loads its page; snapping back to the same one does not */
 function snapTo(i,v=0){i=clamp(Math.round(i),0,N-1);if(iab.state===2&&mode==='hs'&&setPage(PAGES[i]))iab.load('swipe');pSpring.to(i,{v,w:16,onDone:()=>{if(iab.state===2)setState(2)}})}

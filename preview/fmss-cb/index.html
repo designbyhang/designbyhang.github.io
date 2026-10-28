@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Caption &amp; Browse — interactive IAB prototype (mock)</title>
-<script src="../shared/demo/demo-clock.js?v=266"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=267"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -17,10 +17,10 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=266"><link rel="stylesheet" href="../../css/gate.css?v=266"><link rel="stylesheet" href="../../css/theme.css?v=266">
-<script src="../../js/gate.js?v=266"></script>
-<link rel="stylesheet" href="../shared/iab/iab.css?v=266"><script src="../../js/squircle.js?v=266"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=266"></script><script src="../shared/pause/pause.js?v=266"></script>
-<link rel="stylesheet" href="../shared/device/device.css?v=266">
+<link rel="stylesheet" href="../../css/type.css?v=267"><link rel="stylesheet" href="../../css/gate.css?v=267"><link rel="stylesheet" href="../../css/theme.css?v=267">
+<script src="../../js/gate.js?v=267"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=267"><script src="../../js/squircle.js?v=267"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=267"></script><script src="../shared/pause/pause.js?v=267"></script>
+<link rel="stylesheet" href="../shared/device/device.css?v=267">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -139,7 +139,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap the caption (“… more”) to open the in-app browser (IAB) as a half sheet; Shop now opens it full screen. Drag the sheet up to go full, down to return to half or dismiss; in full screen, swipe up on the page to scroll it. X or Escape closes.</p>
+  <p class="below">Tap the caption (“… more”) to open the in-app browser (IAB) as a half sheet; Shop now opens it full screen. Drag the half sheet up to go full, down to return to half or dismiss; in full screen, swipe up on the page to scroll it. Opened from Shop now, the full screen browser stays put: scroll the page, and X or Escape closes.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 
@@ -213,7 +213,7 @@ const iab=FMSSIAB.create({
   wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e)
 });
 const sheet=iab.sheet,go=iab.go,render=iab.render,setScroll=iab.setScroll,stopScroll=iab.stopScroll;
-const openHalf=()=>go(2), openFull=()=>go(3), close=()=>go(1);
+const openHalf=()=>go(2), openFull=()=>go(3,{entry:'cta'}), close=()=>go(1);   // Shop now: a CTA open, no drag on the full screen sheet
 
 /* ---------- controls ---------- */
 $('more').addEventListener('click',()=>{if(iab.state===1)openHalf()});

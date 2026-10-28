@@ -144,8 +144,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="L btn cta" id="ctaFeed" type="button" style="left:0;top:591px;width:375px;height:54px" aria-label="porsche.com, The Porsche Taycan, Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
         <div class="L iab" id="iab"></div>
-        <div class="L pg pgv" id="p1"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/on.webp?v=266" src="../../assets/vac-anim/v4/on.mp4?v=266"></video><img alt="" src="assets/reel-on.webp?v=266"></div>
-        <div class="L pg pgv" id="p2"><video muted playsinline loop preload="auto" disableremoteplayback poster="../fmss-sol2/assets/p3.webp?v=266" src="../fmss-sol2/assets/v3.mp4?v=266"></video><img alt="" src="assets/reel-away.webp?v=266"></div>
+        <div class="L pg pgv" id="p1"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/on.webp?v=267" src="../../assets/vac-anim/v4/on.mp4?v=267"></video><img alt="" src="assets/reel-on.webp?v=267"></div>
+        <div class="L pg pgv" id="p2"><video muted playsinline loop preload="auto" disableremoteplayback poster="../fmss-sol2/assets/p3.webp?v=267" src="../fmss-sol2/assets/v3.mp4?v=267"></video><img alt="" src="assets/reel-away.webp?v=267"></div>
         <img class="L pg" id="p3" alt="" src="assets/reel-perrier.webp?v=229">
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
         <img class="L chrome" id="chrome" alt="" src="assets/chrome.webp?v=229">
@@ -266,14 +266,14 @@ else $('ctlAt').remove();
 /* ---------- the IAB: the shared FMSS sheet. Two ways in, one sheet (porsche.com, the Taycan page):
    · Split Screen: the half sheet under the video, full screen on tap or swipe up, × back to half, swiped down into Reels
    · a CTA (cta = the surface it was tapped on, 'feed' | 'reels'): closed ↔ full only, as FMSS H-Scroll's Learn more
-     (openCta(): go(3) ω16, the full header held, the surface dimmed under it); ×, Escape or a swipe down closes it back onto
+     (openCta(): go(3) ω16, entry 'cta': no drag, the full header held, the surface dimmed under it); × or Escape closes it back onto
      that surface, untouched (mode, reel, video all as they were) ---------- */
 let cta=null;
 const iab=FMSSIAB.create({host:$('iab'),y2:SH,label:'In-app browser (IAB): porsche.com',url:'porsche.com',
   headers:{full:'assets/iab-header-full.svg?v=163'},fullTop:2,handle:true,shift:'p',
   web:'<div class="web"><img alt="porsche.com: Taycan 4 Cross Turismo, Build &amp; Price" src="assets/page.webp?v=229"></div>',webH:1002,
   fullness:y=>cta?clamp((iab.Y1-y)/(iab.Y1-iab.Y3)):clamp((iab.Y2-y)/(iab.Y2-iab.Y3)),
-  halfOK:()=>!cta,hold:(f,t)=>cta?true:(f===1&&t===3)||(f===3&&t===1),holdOnDrag:()=>!!cta,
+  hold:(f,t)=>cta?true:(f===1&&t===3)||(f===3&&t===1),
   onRender:o=>{sheetT=o.t;sheetP=o.p;sd=o.sd;if(mode==='split'||mode==='toReels')c=1-o.t;render()},
   onState:s=>{$('splx').classList.toggle('on',s===2&&mode==='split');if(cta)say(s===1?(cta==='reels'?'Reels':'Feed'):'porsche.com open full screen')},
   onClose:()=>{if(cta||mode!=='split')return;mode='toReels';vs&&vs.leaveSplit();$('splx').classList.remove('on');say('Reels')},
@@ -290,7 +290,7 @@ const ctaAt=(from,x,y)=>{const r=CTA[from].r;return x>=r[0]&&x<=r[0]+r[2]&&y>=r[
 function openCta(from){
   if(cta||!CTA[from].on()||iab.state!==1||iab.busy)return false;
   cta=from;phone.classList.add('cta-open');homeTell(false);
-  iab.go(3,{w:16,why:'learn-more'});return true;
+  iab.go(3,{w:16,why:'learn-more',entry:'cta'});return true;   // a CTA open: no drag on the full screen sheet
 }
 CTA.feed.el.addEventListener('click',()=>openCta('feed'));
 CTA.reels.el.addEventListener('click',()=>openCta('reels'));   // keyboard; a pointer tap comes through the pager (pagerUp)
