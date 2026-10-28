@@ -3,18 +3,19 @@
    The Solution end to end, "Lower Funnel Ads — with VAC" (Figma vac_21): the user meets a video ad in Feed, taps it into Split Screen
    (the video on top, the advertiser's site in a sheet below), swipes the sheet down into the Reels Player, swipes up through the chained
    ads, and Back returns to Feed. Every gesture is scripted and shown by the touch marker (DeviceCover.finger); the demo takes no input.
-   The ads are Hang's (Ad Video Assets), an eyewear chain: the seed, Oakley Meta HSTN (oakley.mp4, an edit of the spot: 2.6-9.64s,
-   10.1-10.45s + 11.6-14.38s at 0.647x, 1.96-2.6s, framed to its top: object-position 50% 0), then the chained ads VAC serves on the
-   intent that click signals: Ray-Ban Meta (rayban.mp4, 7.0-11.4s of the spot), Warby Parker (warby.mp4, 6.0-10.4s) and LensCrafters
+   The ads are Hang's (Ad Video Assets). The seed is Porsche (porsche.mp4, Hang's Porsche Taycan spot, portrait; the same file and poster
+   as the VAC prototype, preview/vac-proto: one shared seed, defined once in ADS[0] below), then the eyewear chain VAC serves on the intent
+   that click signals: Ray-Ban Meta (rayban.mp4, 7.0-11.4s of the spot), Warby Parker (warby.mp4, 6.0-10.4s) and LensCrafters
    (lenscrafters.mp4, 6.4-10.4s, cropped to the frame's top 80% so its burned-in subtitles never reach the Reels caption band), all in
-   assets/vac-anim/v4/. Burned-in text is kept clear of the UI and of the media's edges: the seed opens on the spot's top-of-frame title
-   (UP TO 8 HOURS..., whole in the top-anchored square; its lower titles stay out of the square and the split video), cuts from 9.64s
-   to 10.1s as the sheet is dragged (drops the 24K PRIZM title the growing media would reveal, and cut by its edge), runs 10.1-10.45s +
-   11.6-14.38s slowed to fill Split -> Reels through the first swipe (titles mid-frame, clear of the caption band and the UFI;
-   REMINDER:, which runs under the like button, and NOW, in the caption band, are left out) and ends on 1.96-2.6s (the pop, top only),
-   which runs on into its 2.6s opening at the wrap; Ray-Ban 7.0-11.4s and Warby 6.0-10.4s have no burned-in text.
+   assets/vac-anim/v4/. The seed is 670x1060 (the spot's own frame), cropped by object-fit:cover, centred (object-position 50% 50%,
+   css/card.css; the prototype's .mv video is the same): the middle 63% of its height in the Feed media 375x375 and the split video
+   351x350, the middle 81% of its width full bleed in Reels (R.reels, 375x734). Its edit is the spot as delivered, in order, 0-12.533s
+   (376 frames at 30fps): the Taycan wordmark drive (0:00, the poster and cover frame), the wheel close-up, the desert drive and drift,
+   the purple Taycan, the fade to black and the PORSCHE end card, which is in by the swipe out of the seed (11.04s) and holds under the
+   Back pop; only the spot's last 2.74s (the end card's static hold) is cut. The wrap is the spot's own end card -> opening cut. Ray-Ban
+   7.0-11.4s and Warby 6.0-10.4s have no burned-in text.
    One seamless loop of 21400ms:
-     Feed hold 3200 · tap: Feed -> Split 640 · Split hold 3200 · sheet swiped down: Split -> Reels 800 · Oakley Reels hold 3200 ·
+     Feed hold 3200 · tap: Feed -> Split 640 · Split hold 3200 · sheet swiped down: Split -> Reels 800 · Porsche Reels hold 3200 ·
      swipe 840 · Ray-Ban hold 2400 · swipe 840 · Warby Parker hold 2400 · swipe 840 · LensCrafters hold 2400 · Back: Reels -> Feed 640
    Motion is FMSS's vocabulary through the shared helpers: Feed -> Split is FMSS's feed -> split (DeviceCover.spring ω16 resampled to 640ms;
    one media layer travels the Feed rect 0,216 375x375 -> the split video rect 12,44 351x350 r16, the player controls ride up with it and
@@ -29,16 +30,17 @@
      bar domain + headline, CTA label, and the seed video in the media rect
    - Split Screen: FMSS's parts and recipe (js/fmss-split.js), shared: status bar + close X overlay (preview/fmss-sol1/assets/bo1.webp),
      the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp, faded on the scrubber's HOLD/FADE), the
-     shared IAB sheet header (preview/shared/iab/header.js, url/oakley.com.svg) on a white sheet (r16, 60% smoothing) with the advertiser's
-     page (oakley-site.webp, from Hang's Figma); the backdrop is the video itself, live: drawn small every frame and blurred
+     shared IAB sheet header (preview/shared/iab/header.js, url/porsche.com.svg) on a white sheet (r16, 60% smoothing) with the advertiser's
+     page (porsche-site.webp: the top of the prototype's porsche.com page, preview/vac-proto/assets/page.webp); the backdrop is the video itself, live: drawn small every frame and blurred
    - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, verified, globe, Sponsored), one-line
      caption with "more", the advertiser's CTA (303x36 r8, the ad's own colour as Reels does; LensCrafters takes its logo navy #182b50, per Hang), the vertical UFI and fixed chrome (status
      bar, back, protective gradient, comment composer, home indicator)
    Videos are locked to the loop clock (VideoScrubber lock), so every loop shows the same frames: the seed 0:00 at loop 0, 1:1 while it is
-   on screen, parked behind the chain (s1e -> tb) on the frame due at tb (11.89s) so the Back pop plays its last 0.64s into the wrap; each
+   on screen, parked behind the chain (s1e -> tb) on the frame due at tb (11.88s) so the Back pop plays its last 0.64s into the wrap; each
    chained ad starts at 0:00 as its page comes in and is parked while off screen (headless scrubbers: only their lock is
    used; their hidden roots sit in the screen so the in-view ticker runs them).
-   Rest (still, reduced motion, first frame) = 1400ms: Feed on the seed at 1.4s, its title whole: the cover art. Layers: .vc-* in css/card.css. */
+   Rest (still, reduced motion, first frame) = 0: Feed on the seed's 0:00 frame (the Taycan and its wordmark), which is also its poster
+   (porsche.webp) and the cover art. Layers: .vc-* in css/card.css. */
 (function(){"use strict";if(!window.DeviceCover)return;
 const DC=window.DeviceCover,STEP=DC.STEP,SQ=DC.SQ,PG=734,SH=406;
 const lerp=(a,b,e)=>a+(b-a)*e,clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
@@ -54,12 +56,12 @@ const dur=S=>(S.length-1)*STEP;
 const HF=3200,HS=3200,HP=3200,HC=2400;
 const t1=HF,t1e=t1+dur(FS),t2=t1e+HS,t2e=t2+dur(SR),s1=t2e+HP,s1e=s1+dur(SW),s2=s1e+HC,s2e=s2+dur(SW),s3=s2e+HC,s3e=s3+dur(SW),
   tb=s3e+HC,T=tb+dur(BK);                            // 3200 3840 7040 7840 11040 11880 14280 15120 17520 18360 20760 21400
-const REST=1400;
+const REST=0;
 const LOCK={zero:0,park:[s1e,tb]};                  // seed video lock (above)
 // chained ad j (1-3): 0:00 as its page starts to come in (s_j), shown until its page is gone (the next swipe's end; the last one: the
 // Back pop's end = the wrap), parked over the rest (to 8ms before s_j: that last frame is off screen, the clip's own loop wraps it to 0:00)
 const SJ=[s1,s2,s3],EJ=[s2e,s3e,T],CLOCK=SJ.map((s,i)=>({zero:s,park:[EJ[i]%T,s-STEP]}));
-/* the loop as poses: a = Feed -> Split, c = Split -> Reels, k = chain position (0 Oakley .. 3 LensCrafters), b = Back progress (pop = Back) */
+/* the loop as poses: a = Feed -> Split, c = Split -> Reels, k = chain position (0 Porsche .. 3 LensCrafters), b = Back progress (pop = Back) */
 const POSE=(()=>{const P=[{t:0,a:0,c:0,k:0,b:0,pop:0}],seg=(t0,S,f)=>S.forEach((e,i)=>P.push({t:t0+i*STEP,...f(e)}));
   seg(t1,FS,e=>({a:e,c:0,k:0,b:0,pop:0}));seg(t2,SR,e=>({a:1,c:e,k:0,b:0,pop:0}));
   [s1,s2,s3].forEach((s,j)=>seg(s,SW,e=>({a:1,c:1,k:j+e,b:0,pop:0})));
@@ -68,14 +70,14 @@ const POSE=(()=>{const P=[{t:0,a:0,c:0,k:0,b:0,pop:0}],seg=(t0,S,f)=>S.forEach((
 const kf=fn=>DC.track(POSE,T,fn);
 /* scripted touches (design px): tap the Feed video, drag the sheet down by its header, swipe each chained ad up, tap Back */
 const TOUCH=[{t:t1,x:188,y:404},{t:t2,x:188,y:432,dy:DD,move:DRAG},...SJ.map(s=>({t:s,x:232,y:520,dy:-DD,move:DRAG})),{t:tb,x:24,y:70}];
-const R={feed:[0,216,375,375],split:[12,44,351,350],reels:[0,0,375,PG]};
+const R={feed:[0,216,375,375],split:[12,44,351,350],reels:[0,0,375,PG]};   // reels: full bleed, the portrait seed cropped by cover (css/card.css)
 const px=v=>v.toFixed(2)+'px',tr=(x,y)=>`translate(${px(x)},${px(y)})`;
 const rx=p=>p.pop?375*p.b:0,fx=p=>p.pop?-120*(1-p.b):0;       // Reels group x, Feed x (Back)
 const pageY=(p,j)=>PG*clamp(j-p.k,-1,1),onPage=(p,j)=>p.k>j-1&&p.k<j+1?1:0;
 /* the ads: page 0 is the seed (its video is the shared media layer), 1-3 the chain; Reels counts are like / comment / share */
 const ADS=[
-  {k:'oakley',name:'Oakley',cap:'Oakley Meta HSTN. Up to 8 hours of typical use, open-ear speakers and Meta AI.',cta:'Shop now',c:'#9e463c',ufi:['4.8K','1.2K','642'],
-    url:'oakley.com',head:'Oakley Meta HSTN'},
+  {k:'porsche',name:'Porsche',cap:'Exhilaration is a renewable resource. The all-electric Taycan. Starting at $90,900.',cta:'Learn more',c:'#a67f53',
+    ufi:['3.1K','1.7K','563'],url:'porsche.com',head:'The Porsche Taycan'},   // the seed (the prototype's Porsche ad: copy, counts, CTA colour)
   {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K']},
   {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219']},
   {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148']}];
@@ -94,17 +96,17 @@ DC.register('vac',{T,rest:REST,
     const VS=window.VideoScrubber,HD=window.FMSSIABHeader,S=ADS[0];
     scr.innerHTML=
       // Feed: the cleared Figma Feed + the post's own parts
-      `<div class="vc-l vc-feed">${im('vc-fb','feed.webp',750,1624)}${im('vc-fav','a-oakley.webp',80,80)}`+
+      `<div class="vc-l vc-feed">${im('vc-fb','feed.webp',750,1624)}${im('vc-fav','a-'+S.k+'.webp',80,80)}`+
         `<p class="vc-fn"><span>${esc(S.name)}</span>${im('vc-fbd','feed-badge.webp',24,24)}</p><p class="vc-fc">${esc(S.cap)}</p>`+
         `<p class="vc-fu">${S.url}</p><p class="vc-fh">${esc(S.head)}</p><p class="vc-fcta">${esc(S.cta)}</p></div>`+
       // Split backdrop: the seed video, live, small and blurred (drawn by frame() below), under a 24% dim
       `<div class="vc-l vc-amb"><canvas width="30" height="34"></canvas></div>`+
       `<i class="vc-l vc-p0"></i>`+
-      `<div class="vc-l vc-mv">${vid('vc-v','oakley')}</div>`+
+      `<div class="vc-l vc-mv">${vid('vc-v',S.k)}</div>`+
       `<div class="vc-l vc-ui vc-u0">${reelsUI(S)}</div>`+
       `<img class="vc-l vc-bo vc-bos" alt="" src="${FA}bo1.webp${FV}"><img class="vc-l vc-bo vc-box" alt="" src="${FA}bo1.webp${FV}">`+
       `<i class="vc-l vc-at"></i>`+
-      `<div class="vc-l vc-sh">${im('vc-site','oakley-site.webp',750,1444)}</div>`+
+      `<div class="vc-l vc-sh">${im('vc-site',S.k+'-site.webp',750,1444)}</div>`+
       [1,2,3].map(j=>`<div class="vc-l vc-pg vc-p${j}">${vid('vc-v',ADS[j].k)}<div class="vc-ui">${reelsUI(ADS[j])}</div></div>`).join('')+
       `<div class="vc-l vc-chrome"><i class="vc-gt"></i><p class="vc-tm">2:04</p><img class="vc-st" alt="" src="${A}status.svg${V}" width="67" height="11">`+
         `<img class="vc-bk" alt="" src="${A}back.svg${V}" width="24" height="24"></div>`+
@@ -112,7 +114,7 @@ DC.register('vac',{T,rest:REST,
     const q=s=>scr.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},An=(s,fn)=>q(s)&&anims.push(q(s).animate(kf(fn),o));
     const sh=q('.vc-sh');if(SQ)sh.style.clipPath=`path('${DC.squircle(375,422,16,.6)}')`;
     // shared IAB sheet header at the sheet's top (FMSS .bhd), riding with it
-    if(HD)sh.prepend(HD({url:'oakley.com',cls:'vc-hd'}));
+    if(HD)sh.prepend(HD({url:S.url,cls:'vc-hd'}));
     const seed=q('.vc-mv video'),chain=[1,2,3].map(j=>q('.vc-p'+j+' video'));
     // live player controls (FMSS: js/video-scrubber.js with the FMSS icon crop): split screen from t1 (reached t1e) to t2; the scrubber
     // fades them out HOLD→GONE after t1e (gone at t1e+2400 = 6240, before the sheet is dragged at 7040): only the close X is left

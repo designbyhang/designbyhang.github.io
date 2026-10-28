@@ -29,7 +29,7 @@ html body .fmss-anim .fsp-scr video{position:absolute;inset:0;width:100%;height:
    plus skipped while far off screen): off screen the phone's layers and their animations leave the rendering, so WebKit stops re-processing
    the paused loop's keyframes on every scrolled frame. */
 .cover-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:50% 50%/cover no-repeat;content-visibility:auto}
-.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=216)}
+.cover-anim[data-cover-anim=vac]{background-color:#9e785a;background-image:url(../assets/cover-vac-hero.webp?v=222)}
 .hero-slot.cover-wrap{position:relative}
 .cv-ph{position:absolute;left:0;top:0;width:391px;height:828px;transform-origin:0 0;opacity:0;transition:opacity .32s cubic-bezier(.2,.7,.2,1)}
 .cover-anim.on .cv-ph{opacity:1}
@@ -59,9 +59,11 @@ html body .cover-anim .cv-scr.vac .vc-fbd{width:12px;height:12px}
 .cv-scr.vac .vc-amb canvas{position:absolute;left:-24px;top:-24px;width:423px;height:480px;filter:blur(24px)}
 .cv-scr.vac .vc-amb::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.24)}
 .cv-scr.vac .vc-p0,.cv-scr.vac .vc-pg{width:375px;height:734px;overflow:hidden;background:#000}
-.cv-scr.vac .vc-mv video.vc-v{object-position:50% 0}
 .cv-scr.vac .vc-mv{overflow:hidden;background:#000;will-change:left,top,width,height,clip-path}
 html body .cover-anim .cv-scr.vac video.vc-v{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block;margin:0;border-radius:0;background:none}
+/* the portrait (670x1060) Porsche seed, cover-cropped and centred in every rect: Feed/Split keep the middle of its height, Reels the middle
+   of its width. Same as preview/vac-proto's .mv video */
+.cv-scr.vac .vc-mv video.vc-v{object-position:50% 50%}
 .cv-scr.vac .vc-ui{position:absolute;left:0;top:0;width:375px;height:734px}
 .cv-scr.vac .vc-gb{position:absolute;left:0;bottom:0;width:375px;height:264px;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.675) 20%,rgba(0,0,0,.563) 39.65%,rgba(0,0,0,.375) 60.35%,rgba(0,0,0,.15) 80.13%,rgba(0,0,0,0) 100%)}
 .cv-scr.vac .vc-ufi{position:absolute;left:327px;top:0;width:48px;height:734px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.62))}
