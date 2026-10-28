@@ -351,13 +351,15 @@ html.proto-nosel,html.proto-nosel body{-webkit-user-select:none;user-select:none
 .mbtn.proto-x svg path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linecap:butt;stroke-linejoin:miter}
 .media.proto:has(iframe.fsx-lift,iframe.proto-lift) .proto-x,.media.proto .proto-x.is-hidden{visibility:hidden;pointer-events:none}
 /* 02 Problem, exit affordances: red rings (Figma fmss_04 "Marker" ellipses, 48px + 2px outside stroke #FF5151, 8% fill) are an SVG over the
-   ring-free base; the 1920x1080 viewBox + xMidYMid slice tracks the img's object-fit:cover crop at every width. js/case.js runs the
-   4800ms loop only while the frame is on screen: 1200 fade in, 1600 hold, 1200 fade out, 800 hold (ease-in-out). No JS / reduced motion: rings static */
+   ring-free base; the 1920x1080 viewBox + xMidYMid slice tracks the img's object-fit:cover crop at every width.
+   js/case.js adds .rings-on once the frame's vertical centre crosses the window's centre and removes it once the frame has fully left the
+   viewport. The 640ms opacity fade, cubic-bezier(.42,0,.58,1), is on .rings-on only, so it runs on the way in alone: going off (always fully
+   off screen) and html.rings-js landing after first paint are instant, as nothing animates off screen. Reduced motion: same on/off, no fade.
+   No JS: rings static */
 body.cs .media.exit-rings .rings{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;overflow:hidden}
-html.rings-js body.cs .media.exit-rings .rings g{opacity:0;animation:exit-rings 4800ms infinite paused;will-change:opacity}
-html.rings-js body.cs .media.exit-rings.rings-on .rings g{animation-play-state:running}
-@keyframes exit-rings{0%{opacity:0;animation-timing-function:cubic-bezier(.42,0,.58,1)}25%{opacity:1;animation-timing-function:linear}58.333%{opacity:1;animation-timing-function:cubic-bezier(.42,0,.58,1)}83.333%{opacity:0}100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){html.rings-js body.cs .media.exit-rings .rings g{animation:none;opacity:1}}
+html.rings-js body.cs .media.exit-rings .rings g{opacity:0}
+html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
+@media (prefers-reduced-motion:no-preference){html.rings-js body.cs .media.exit-rings.rings-on .rings g{transition:opacity 640ms cubic-bezier(.42,0,.58,1)}}
 /* phone portrait: hero media first, then the hero's stacked Role / Scope|Platforms / Timeline cells (.meta, every case page; styling unchanged).
    .cs-head wraps the hero text + hero media and is an unstyled block everywhere else, so desktop / tablet / landscape are unchanged.
    Here it is a flex column and the hero section passes its children through (display:contents) so .meta can follow the media.

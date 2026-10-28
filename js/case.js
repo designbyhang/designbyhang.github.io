@@ -316,8 +316,15 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  if('MutationObserver' in window)new MutationObserver(sync).observe(f,{attributes:true,attributeFilter:['class']});
  m.appendChild(x)})})();
 
-/* 02 Problem exit-affordance rings (css/case.css .exit-rings): a member of the one-at-a-time demo pool (js/demos.js), so the loop runs only while it holds the turn and resumes where it paused; reduced motion (or no pool) keeps them static */
-(function(){var m=document.querySelectorAll('.media.exit-rings');if(!m.length||!window.dbhDemos)return;
- if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
- document.documentElement.classList.add('rings-js');
- m.forEach(function(e){dbhDemos.add(e,{play:function(){e.classList.add('rings-on')},pause:function(){e.classList.remove('rings-on')}})});})();
+/* 02 Problem exit-affordance rings (css/case.css .exit-rings): .rings-on (fade in, then stay on) once the frame's vertical centre reaches the
+   window's centre line from either side (4px dead band, as js/state-seq.js); off (instant, no fade) once the frame has fully left the viewport, which
+   re-arms it. On load: on if in view with its centre already at or above the line. Scroll-driven only: no loop, not in the demo pool */
+(function(){var m=document.querySelectorAll('.media.exit-rings');if(!m.length)return;document.documentElement.classList.add('rings-js');
+ var HY=4,q=0,st=[].map.call(m,function(e){return{e:e,s:0}});   // s = side of the centre line last seen: -1 above, 1 below, 0 not yet
+ function tick(){q=0;var vh=innerHeight;st.forEach(function(o){var r=o.e.getBoundingClientRect(),c=o.e.classList;if(!r.height)return;
+  if(r.bottom<=0||r.top>=vh){c.remove('rings-on');o.s=r.bottom<=0?-1:1;return}
+  var d=r.top+r.height/2-vh/2,side=d<=-HY?-1:d>=HY?1:0;
+  if(!c.contains('rings-on')&&(o.s?side!==o.s:d<=0))c.add('rings-on');
+  if(side)o.s=side;else if(!o.s)o.s=1})}
+ var req=function(){if(!q)q=requestAnimationFrame(tick)};
+ addEventListener('scroll',req,{passive:true});addEventListener('resize',req);addEventListener('load',req);addEventListener('pageshow',req);tick()})();
