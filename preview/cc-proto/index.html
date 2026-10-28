@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=265"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=266"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=265"><link rel="stylesheet" href="../../css/theme.css?v=265">
+<link rel="stylesheet" href="../../css/type.css?v=266"><link rel="stylesheet" href="../../css/theme.css?v=266">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=265"><link rel="stylesheet" href="../../css/ad-cta.css?v=265"><script src="../../js/vac-caption.js?v=265"></script><script src="../shared/caption/caption.js?v=265"></script><script src="../../js/squircle.js?v=265"></script><script src="../shared/pause/pause.js?v=265"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=266"><link rel="stylesheet" href="../../css/ad-cta.css?v=266"><script src="../../js/vac-caption.js?v=266"></script><script src="../shared/caption/caption.js?v=266"></script><script src="../../js/squircle.js?v=266"></script><script src="../shared/pause/pause.js?v=266"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=265">
+<link rel="stylesheet" href="../shared/device/device.css?v=266">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -67,19 +67,17 @@ video{display:block;object-fit:cover}
 .ufi{left:326px;width:49px;text-align:center;font:500 12px/16px var(--sf);letter-spacing:0;text-shadow:0 0 2px rgba(0,0,0,.35)}
 .ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 6px}
 /* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
-   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name + globe (20px line; no badge and no "· Follow" on ads or the seed) and
+   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name (+ the globe on ads and the seed; 20px line; no verified badge, no "· Follow"/"· Following" anywhere) and
    "Sponsored" under the name (the shared .c-sp line: 12/16, white 70%, as MAC and SAP since v230; no Ad pill), the VAC caption at +48
    (ads 668; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
-   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the verified badge (14), "· Following" and the post's age under the name, the caption, and the
+   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the name alone (no badge, no "· Following"), the post's age under it, the caption, and the
    commerce card (56) at +80 (666–722). The Nike seed: name / 4h and its caption only (author 658, caption 702) */
 .phone .c-stack{--c-bottom:90px}
 .c-stack.cc-org{height:136px}
 .c-stack.cc-seed{height:64px}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
 .c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.3);-webkit-font-smoothing:antialiased}
-.cn svg{flex:none;width:14px;height:14px;margin-left:4px}
-.cn span{margin-left:4px}
-/* ads and the seed: the globe after the name, not the badge (VAC's: preview/shared/caption/globe.svg, 12×12 centred on the 20px name line, as
+/* ads and the seed: the globe after the name (VAC's: preview/shared/caption/globe.svg, 12×12 centred on the 20px name line, as
    MAC/SAP's .cglobe; 6 after the name: its ink ~7.5 from the name's, as SAP's rasters) */
 .cn .cglobe{flex:none;width:12px;height:12px;margin-left:6px}
 .c-stack.cc-seed>.c-cap{top:44px}
@@ -103,7 +101,7 @@ video{display:block;object-fit:cover}
 .fbar>*{position:absolute}
 /* the feed bar: SAP's search icon (preview/sap-proto, its nav.webp at 0,44: the same raster, cut from it, not a copy) at SAP's rect, 24 at
    339,58 (the glyph 340–362 × 59–81, 12 from the right edge); the menu 24 at 12,58: both centred on y 70, the chevron's and the tab row's */
-.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=265) -339px -14px/375px 52px no-repeat}
+.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=266) -339px -14px/375px 52px no-repeat}
 .tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
 .tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
@@ -185,7 +183,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <svg style="left:12px;top:58px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
           <i class="srch"></i>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=265"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=266"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3.5 8.6 10 3.4l6.5 5.2V16a1 1 0 0 1-1 1h-3.3v-4.4H7.8V17H4.5a1 1 0 0 1-1-1V8.6Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div>
           <svg class="up" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.6" stroke="#fff" stroke-width="1.5"/><path d="M10 13.6V6.6M6.9 9.6 10 6.5l3.1 3.1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="press" id="pillPress"></i></div>
@@ -198,7 +196,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L store" id="store" aria-hidden="true"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=265" aria-hidden="true">
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=266" aria-hidden="true">
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
@@ -216,7 +214,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=265',AV='../../assets/vac/vac-cc-';
+const V='?v=266',AV='../../assets/vac/vac-cc-';
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -228,7 +226,7 @@ function fit(){
 new ResizeObserver(fit).observe(frame);fit();
 
 /* ---------- the reels (copy and metrics: the approved CC mock, /workspace/cc/mock; Figma XYE8LCJVe0rHhnEB5DA18A, flow 140796:4871) ----------
-   kind: seed (the Nike reel the chain starts from) · ad (avatar, name + globe, "Sponsored", caption, CTA) · org (a creator post: · Following,
+   kind: seed (the Nike reel the chain starts from) · ad (avatar, name + globe, "Sponsored", caption, CTA) · org (a creator post: the name alone,
    its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this") */
 const R={
   nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
@@ -246,7 +244,7 @@ const FIRST=[0,0,1,1,1];   // the tab row's scroll per category: the first tab s
 const ICO={
   search:'<svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M10.2 3.3A6.3 6.3 0 1 0 15.2 13.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="m13.8 13.8 3.4 3.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M14.6 2.2c.3 1.6 1 2.3 2.6 2.6-1.6.3-2.3 1-2.6 2.6-.3-1.6-1-2.3-2.6-2.6 1.6-.3 2.3-1 2.6-2.6Z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/></svg>',
   explore:'<svg class="ico" viewBox="0 0 32 32" fill="none"><g fill="#fff"><path d="M4 6.6v8.8c0 2 2.2 3.2 3.9 2.1l7-4.4c1.6-1 1.6-3.2 0-4.2l-7-4.4C6.2 3.4 4 4.6 4 6.6z"/><rect x="18" y="4" width="10" height="4" rx="2"/><rect x="18" y="14" width="10" height="4" rx="2"/><rect x="4" y="24" width="24" height="4" rx="2"/></g></svg>'};
-const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=265">',BADGE='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#fff" d="M8 .6l1.7 1.3 2.1-.2.7 2 1.9 1-.5 2.1L15 8.6l-1.3 1.7.2 2.1-2 .7-1 1.9-2.1-.5L7.4 15l-1.7-1.3-2.1.2-.7-2-1.9-1 .5-2.1L.4 7.4l1.3-1.7-.2-2.1 2-.7 1-1.9 2.1.5Z"/><path d="M5 8.2l2 2 4-4.1" fill="none" stroke="#1c1c1c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=266">';
 const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
@@ -257,10 +255,10 @@ function page(id){
   const ic=['<img alt="" src="assets/u-like.webp'+V+'">','<img alt="" src="assets/u-comment.webp'+V+'">','<img alt="" src="assets/u-share.webp'+V+'">',SAVE];
   d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${429+i*65}px">${ic[i]}${esc(n)}</div>`});
   h+=`<div class="ufi" style="top:690px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
-  const row=(f,sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${mark}${f?`<span>${f}</span>`:''}</p><p class="c-sp">${esc(sub)}</p>`;
-  if(d.kind==='ad')h+=`<div class="c-stack">${row('','Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
-  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row('· Following',d.ago,BADGE)}<p class="c-cap">${esc(d.cap)}</p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
-  else h+=`<div class="c-stack cc-seed">${row('',d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
+  const row=(sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${mark}</p><p class="c-sp">${esc(sub)}</p>`;
+  if(d.kind==='ad')h+=`<div class="c-stack">${row('Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
+  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row(d.ago,'')}<p class="c-cap">${esc(d.cap)}</p><div class="card mat"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
+  else h+=`<div class="c-stack cc-seed">${row(d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
   p.innerHTML=h;return p}
 const PG={},VID={};
 ['nike','nesp'].forEach(id=>{const p=page(id);$('feed').appendChild(p);PG[id]=p});
