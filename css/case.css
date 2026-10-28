@@ -239,9 +239,9 @@ body.cs .media.mframe img{width:100%;height:100%;object-fit:cover;object-positio
 /* solution demo video in the shared media frame */
 /* video frames: the recording has a 1px darker border on every edge; overscan 2px each side (clipped by the frame) so it, and any subpixel gap against the old #000 ground, never shows */
 body.cs .media.mframe.video,body.cs .media.mframe.carousel{background:#f1f1f1}
-/* Citi 02 Tile Architecture: live SVG loop (js/citi-tile.js, [data-citi-tile]) in the shared frame. The frame keeps its 3840/2052 box; the 16:9
-   [data-ct-fit=slide] draws the Figma frame at 1:1 (x1.006, the carousel imgs scale) and cover-fits it (SVG slice) exactly like the .mframe imgs, so the tile is the old slides' size and
-   position; the composition sits well inside the band the cover crops (top/bottom ~1%), the ground is the animation's own (--ct-bg), no seam.
+/* Citi 02 Tile Architecture: live SVG loop (js/citi-tile.js v2, [data-citi-tile]) in the shared frame. The stage is drawn at the frame's own
+   3840/2052 ratio (1920x1026 viewBox) with the Figma frame at the old static slides' framing (citi-03..07.webp, cover + scale 1.006),
+   so it fills the box exactly; the ground is the animation's own --ct-bg (Figma #F4F4F4) in both themes.
    Autoplay, non-interactive: no button, tap, hover, focus ring or selection, in either theme */
 body.cs .media.mframe.ct-frame{--ct-bg:#F4F4F4;background:var(--ct-bg);cursor:default;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 body.cs .media.mframe.ct-frame .ct-stage{pointer-events:none}
