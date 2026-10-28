@@ -10,10 +10,11 @@
                                      its 0.1% settle and time-scaled to the transition duration (= the linear() curve, unsampled)
      dur: 1664, tr: {"0>1":832},     transition ms (default, and per "from>to" pair); edur: {key: ms} shortens one layer's tween
      hold: 2400,                     hold ms per state (state.hold overrides)
-     toggle: {resume:6400,tapFrame:true},  loop mode: one .mbtn pill per state (state.short = its label, e.g. Before / After) replaces
-                                     dots + play/pause; the active pill follows the state (autoplay too). A pill tap sets that state at
-                                     once and pauses autoplay, which resumes resume ms after the last tap (that flip is due then) or when
-                                     the box scrolls out and back in; tapFrame = tapping the frame flips too
+     toggle: {tapFrame:true},        before/after (2 states): one .mbtn pill per state (state.short = its label, e.g. Before / After)
+                                     replaces dots + play/pause. No autoplay: scroll drives it. State 0 (Before) while the box's vertical
+                                     centre is below the window's centre line, state 1 (After) once it meets it (4px hysteresis each way;
+                                     right on load too); reduced motion cuts instantly. A pill tap sets that state at once (the next
+                                     crossing re-syncs it to scroll); tapFrame = tapping the frame flips too
      rm: 1,                          reduced motion: the static key frame shown (no autoplay; steps cut instantly)
      enter: {set, dur},                (a layout may carry its own enter)              optional one-time entrance: layers start at state 0 merged with enter.set and animate into state 0
                                      the first time the piece is in view
@@ -58,10 +59,10 @@ function mount(box){var pins=[];
  [].forEach.call(box.querySelectorAll('.ss-pin'),function(e){var l=e.parentNode.closest('[data-l]');if(l)pins.push({e:e,k:l.getAttribute('data-l')})});
  if(cfg.bind)[].forEach.call(document.querySelectorAll(cfg.bind+' [data-l]'),function(e){els[e.getAttribute('data-l')]=e});
  var sc=1,ins=32,ease=springEase(cfg.spring||[80,20,1]),L=null,i=0,cur={},from={},to={},tr=null,hold=0,clock=0,last=0,raf=0,vis=false,started=false;
- var playing=step?(cfg.autoplay!==false):true,touched=false,entering=false;
+ var tog0=!step&&!!cfg.toggle,playing=step?(cfg.autoplay!==false):!tog0,touched=false,entering=false;
  /* the site's one-demo-at-a-time pool (js/demos.js): an autoplaying piece holds its autoplay while another demo is nearer the window's
     centre (user steps, toggles and the entrance still run) and resumes from the same frame when its turn comes back */
- var on=true,demoAsk=null;if(window.dbhDemos&&playing){on=false;demoAsk=dbhDemos.add(box,{play:function(){on=true;kick()},pause:function(){on=false},want:function(){return playing||userPaused}})}
+ var on=true,demoAsk=null;if(window.dbhDemos&&playing){on=false;demoAsk=dbhDemos.add(box,{play:function(){on=true;kick()},pause:function(){on=false},want:function(){return playing}})}
  var FL=/"(sf|hm)"/.test(box.querySelector('script.ss-cfg').textContent),SH=cfg.h||1080,FH=false;
  function layout(){var l=null;(cfg.layouts||[]).forEach(function(x){if(!l&&matchMedia(x.mq).matches)l=x});return l||{}}
  function vals(k,extra){var L2=layout(),v=merge(merge({},cfg.base),cfg.states[k].set);merge(v,L2.base);if(L2.states&&L2.states[k])merge(v,L2.states[k].set);if(extra)merge(v,extra);
@@ -87,7 +88,7 @@ function mount(box){var pins=[];
  function fit(){L=layout();var cs=getComputedStyle(box),pf=function(k){return parseFloat(cs[k])||0},bb=cs.boxSizing==='border-box',bw=pf('width')?pf('width')+(bb?-pf('borderLeftWidth')-pf('borderRightWidth'):pf('paddingLeft')+pf('paddingRight')):box.clientWidth,bh=pf('height')?pf('height')+(bb?-pf('borderTopWidth')-pf('borderBottomWidth'):pf('paddingTop')+pf('paddingBottom')):box.clientHeight,W=L.w||cfg.w||1920,s=bw/W;FH=L.fh!=null?!!L.fh:!!cfg.fh;var H=FH?bh/s:(L.h||cfg.h||1080);SH=H;var oy=(bh-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
   stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put();if(tg)segClip(tg[0].parentNode)}
  /* controls */
- var tog=!step&&cfg.toggle,tg=null,resumeT=0,userPaused=false,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
+ var tog=!step&&cfg.toggle,tg=null,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
  ctrl.className='car-ctrl ss-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose state');
  function mbtn(cls,html,label,fn){var b=document.createElement('button');b.type='button';b.className='mbtn '+cls;b.innerHTML=html;b.setAttribute('aria-label',label);
   b.addEventListener('click',function(ev){ev.stopPropagation();fn()});return b}
@@ -116,15 +117,13 @@ function mount(box){var pins=[];
   for(var key in to){var f=from[key]||to[key],t=to[key],ed=(cfg.edur||{})[key]||tr.d,u=ease(Math.min(1,el/Math.min(ed,tr.d)));cur[key]=cur[key]||{};
    for(var p in t){var fv=f[p]!=null?f[p]:t[p],tv=t[p];cur[key][p]=tv&&tv.map?tv.map(function(c,j){return lerp(fv[j],c,u)}):lerp(fv,tv,u)}}
   drawDots(ease(Math.min(1,el/tr.d)));put();if(done){tr=null;entering=false;drawDots(1)}}
- function running(){return vis&&!document.hidden&&(tr?(tr.manual||playing&&on&&!hov):(playing&&on&&!hov&&!RM.matches))}
+ function running(){return vis&&!document.hidden&&(tr?(tr.manual||playing&&on):(playing&&on&&!RM.matches))}
  function kick(){if(!raf&&running()){last=0;raf=requestAnimationFrame(frame)}}
  function frame(now){raf=0;var dt=last?Math.min(128,now-last):16;last=now;clock+=dt;
   if(tr)frameTr();else if(playing&&!RM.matches){hold+=dt;if(hold>=holdOf(i)){go(i+1,{quiet:true});return}drawDots(1)}
   if(running())raf=requestAnimationFrame(frame)}
- /* toggle (loop mode, cfg.toggle): a tap flips to the other state at once and pauses autoplay;
-    autoplay resumes toggle.resume ms after the last tap (the next flip is due then), or when the box scrolls out and back in */
- function resume(){clearTimeout(resumeT);if(!userPaused)return;userPaused=false;playing=true;hold=holdOf(i);kick()}
- function userTap(k){userPaused=true;playing=false;clearTimeout(resumeT);resumeT=setTimeout(resume,tog.resume||6400);go(k==null?i+1:k,{manual:true})}
+ /* toggle (cfg.toggle): a tap flips to the other state at once; scroll (below) re-syncs it at the next centre-line crossing */
+ function userTap(k){go(k==null?i+1:k,{manual:true})}
  function touch(){if(step&&!touched){touched=true;playing=false;if(demoAsk)demoAsk()}}
  /* step mode: tap/click the media to advance, arrow keys when focused (swipes: the shared dbhSwipe below) */
  if(step){var sx=0,sy=0,down=false;
@@ -145,20 +144,27 @@ function mount(box){var pins=[];
  if(n>1&&window.dbhSwipe)dbhSwipe(box,function(d){if(tog)userTap(i+d);else{touch();go(i+d,{manual:true})}if(demoAsk)demoAsk()},{skip:'.ss-ctrl'});
  box.addEventListener('keydown',function(ev){if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){ev.preventDefault();if(tog){userTap();return}touch();go(i+(ev.key==='ArrowRight'?1:-1))}});
  /* start */
- fit();var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
+ fit();var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null&&!tog?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
  fit();put();e[i]=1;drawDots(1);setCap();sync();
  if('ResizeObserver' in window)new ResizeObserver(fit).observe(box);else addEventListener('resize',fit);
  (cfg.layouts||[]).forEach(function(x){var q=matchMedia(x.mq);if(q.addEventListener)q.addEventListener('change',function(){fit();if(!tr){cur=vals(i);put()}})});
- function show(v){if(v&&!started&&cfg.autoOnce&&!RM.matches)setTimeout(function(){if(!touched&&i===0)go(cfg.autoOnce.to,{manual:true})},cfg.autoOnce.delay||0);if(!v&&vis&&userPaused){userPaused=false;clearTimeout(resumeT);playing=true;hold=0}vis=v;if(v&&!started){started=true;if(entering){from=clone(cur);to=vals(i);tr={t0:clock,d:EN.dur||1248,manual:true}}}kick()}
+ function show(v){if(v&&!started&&cfg.autoOnce&&!RM.matches)setTimeout(function(){if(!touched&&i===0)go(cfg.autoOnce.to,{manual:true})},cfg.autoOnce.delay||0);vis=v;if(v&&!started){started=true;if(entering){from=clone(cur);to=vals(i);tr={t0:clock,d:EN.dur||1248,manual:true}}}kick()}
  var gated=function(){return document.documentElement.classList.contains('gated')},ratio=0;
  if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(x){ratio=x.intersectionRatio;if(!gated())show(ratio>=.35)})},{threshold:[0,.35,1]}).observe(box);else show(true);
  addEventListener('gate:unlocked',function(){show(ratio>=.35)});
  document.addEventListener('visibilitychange',kick);
- if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){tr=null;if(cfg.rm!=null)i=cfg.rm;cur=vals(i);put();e=e.map(function(_,k){return k===i?1:0});drawDots(1);setCap()}kick()});
- /* hover pause (per Hang), before/after toggles only: on hover-capable pointers, autoplay (and any autoplay transition) freezes while the pointer is over the box and
-    resumes from the same frame on leave; taps and the demo host's play/pause are untouched (on/playing still gate it). Touch: unchanged */
- var hov=false;if(tog&&matchMedia('(hover: hover)').matches){box.addEventListener('pointerenter',function(e){if(e.pointerType!=='touch')hov=true});box.addEventListener('pointerleave',function(){if(hov){hov=false;kick()}})}
- box.__ss={go:go,state:function(){return{hov:hov,i:i,playing:playing,vis:vis,tr:!!tr,clock:clock,hold:hold,userPaused:userPaused}},tap:function(){userTap()}};
+ if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){tr=null;if(cfg.rm!=null&&!tog)i=cfg.rm;cur=vals(i);put();e=e.map(function(_,k){return k===i?1:0});drawDots(1);setCap()}kick()});
+ /* before/after toggles: scroll position drives the state. Container centre at or above the window's centre line (innerHeight/2: the
+    layout viewport, so iOS's dynamic toolbar moves the line with the visible window) = After, below it = Before, with a 4px dead band
+    either side so a centre resting on the line can't flicker (layout position via offsetTop: the .fx reveal's translate can't nudge it). rAF-throttled on scroll/resize (+ visualViewport, ResizeObserver);
+    the first check (load or reload already scrolled past) cuts straight to the right state with no transition */
+ if(tog){var sq=0,first=true,HY=4;
+  function sAt(){sq=0;var H=box.offsetHeight;if(!H)return;var y=0;for(var o=box;o;o=o.offsetParent)y+=o.offsetTop;var d=(y-(window.scrollY||pageYOffset)+H/2)-innerHeight/2,k=d<=-HY?1:d>HY?0:(first?(d<=0?1:0):i);
+   if(first){first=false;if(k!==i){var th=tg&&tg[0].parentNode.firstChild;if(th)th.style.transition='none';go(k,{dur:0,quiet:true});if(th){th.offsetWidth;th.style.transition=''}}return}if(k!==i)go(k,{manual:true})}
+  var sReq=function(){if(!sq)sq=requestAnimationFrame(sAt)};
+  addEventListener('scroll',sReq,{passive:true});addEventListener('resize',sReq);if(window.visualViewport)visualViewport.addEventListener('resize',sReq);
+  if('ResizeObserver' in window)new ResizeObserver(sReq).observe(box);addEventListener('load',sReq);addEventListener('pageshow',sReq);sAt()}
+ box.__ss={go:go,state:function(){return{i:i,playing:playing,vis:vis,tr:!!tr,clock:clock,hold:hold}},tap:function(){userTap()}};
 }
 function init(){[].forEach.call(document.querySelectorAll('.media.sseq'),function(b){try{mount(b)}catch(err){if(window.console)console.error('state-seq',err)}})}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
