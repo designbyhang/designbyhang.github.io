@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=287"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=289"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -17,11 +17,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=287"><link rel="stylesheet" href="../../css/theme.css?v=287">
+<link rel="stylesheet" href="../../css/type.css?v=289"><link rel="stylesheet" href="../../css/theme.css?v=289">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=287"><link rel="stylesheet" href="../../css/ad-cta.css?v=287"><script src="../../js/vac-caption.js?v=287"></script><script src="../shared/caption/caption.js?v=287"></script><script src="../../js/squircle.js?v=287"></script><script src="../shared/pause/pause.js?v=287"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=289"><link rel="stylesheet" href="../../css/ad-cta.css?v=289"><script src="../../js/vac-caption.js?v=289"></script><script src="../shared/caption/caption.js?v=289"></script><script src="../../js/squircle.js?v=289"></script><script src="../shared/pause/pause.js?v=289"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=287">
+<link rel="stylesheet" href="../shared/device/device.css?v=289">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -101,7 +101,7 @@ video{display:block;object-fit:cover}
 .fbar>*{position:absolute}
 /* the feed bar: SAP's search icon (preview/sap-proto, its nav.webp at 0,44: the same raster, cut from it, not a copy) at SAP's rect, 24 at
    339,58 (the glyph 340–362 × 59–81, 12 from the right edge); the menu 24 at 12,58: both centred on y 70, the chevron's and the tab row's */
-.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=287) -339px -14px/375px 52px no-repeat}
+.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=289) -339px -14px/375px 52px no-repeat}
 .tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
 .tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
@@ -111,7 +111,7 @@ video{display:block;object-fit:cover}
    preview/fmss-cb/assets/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (15, white 70%);
    the query is the reel's own, crossfaded as reels move. Nespresso's field has two states (.sw): the search sparkle + "Coffee" on
    arrival, then (2000 in) it slides up 8 and fades out as the playlist icon + "Explore more like this" slide up 8 and fade in (320, ease-out),
-   clipped by the pill; then the field glows (.navg) */
+   clipped by the pill; then the field's edge glows, two pulses (.navg) */
 .navh{left:12px;top:742px;width:40px;height:40px;border-radius:20px;z-index:12}
 .navp{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12}
 .navh svg{position:absolute;left:12px;top:12px;width:16px;height:16px}
@@ -124,16 +124,9 @@ video{display:block;object-fit:cover}
 #pillb{left:60px;top:742px;width:303px;height:40px;z-index:15}
 #back{left:2px;top:48px;width:44px;height:44px;z-index:15}
 .pz{left:155.5px;top:374px;z-index:13}
-/* Nespresso's glow, on the pill (303×40 at 60,742, r20; above it, never clipped by it): a white comet travelling clockwise around the
-   pill's edge, 3000 a lap (linear), fading in over 320 after the swap. One conic gradient (its stops set per frame from the pill's own
-   perimeter, so the head moves at an even speed and its tail is 27% of the perimeter, transparent at the end, on the straights and the
-   round ends alike) on two layers: the stroke (1.5, masked to a ring by the padding-box trick) and its halo (the same ring 4 wide, blurred 6,
-   at 80%: the blur sits on a wrapper, as a mask clips its own element's filter) */
-.navg{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12;pointer-events:none;opacity:0;visibility:hidden}
-.navg i{position:absolute;inset:0;border-radius:inherit}
-.navg .gr,.navg .gh>i{padding:1.5px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
-.navg .gh{filter:blur(6px);opacity:.8}
-.navg .gh>i{padding:4px}
+/* Nespresso's glow, on the pill (303×40 at 60,742, r20; above it, so the halo is never clipped by it): a soft, even edge, a 1px white
+   highlight at 36% (inset) and a 10px halo at 24%; after the swap it pulses twice (800 each, 0 → 1 → 0, ease-in-out, 96 apart), then it is gone */
+.navg{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12;pointer-events:none;opacity:0;visibility:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.36),0 0 10px rgba(255,255,255,.24)}
 /* the Mario storefront: a white full-screen sheet over CC, × at 12,56, a 2-up grid of products */
 .store{width:375px;height:812px;background:#fff;color:#050505;z-index:22;visibility:hidden;will-change:transform;letter-spacing:-.24px;pointer-events:none}   /* the touch layer under it takes every gesture (hit rects in RC) */
 .store>*{position:absolute}
@@ -181,10 +174,10 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <svg style="left:12px;top:58px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
           <i class="srch"></i>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=287"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=289"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="25.918 9.75 24 24"><path d="M34.9077 33.0002H33.8476C32.4935 33.0002 31.3768 33.0003 30.4931 32.8814C29.5652 32.7567 28.7458 32.4847 28.0897 31.8286C27.4336 31.1725 27.1616 30.3531 27.0369 29.4253C26.9181 28.5415 26.9181 27.4249 26.9181 26.0708L26.9181 21.77C26.9171 20.032 26.9164 18.8231 27.446 17.7639C27.9756 16.7047 28.9431 15.98 30.3341 14.938L32.5666 13.2636C33.681 12.4278 34.5867 11.7486 35.3817 11.2858C36.2111 10.803 37.01 10.5 37.9181 10.5C38.8263 10.5 39.6252 10.803 40.4545 11.2858C41.2496 11.7486 42.1553 12.4278 43.2696 13.2636L45.5022 14.938C46.8932 15.98 47.8607 16.7047 48.3903 17.7639C48.9199 18.8231 48.9192 20.032 48.9182 21.77L48.9181 26.0707C48.9182 27.4249 48.9182 28.5415 48.7994 29.4253C48.6746 30.3531 48.4027 31.1725 47.7466 31.8286C47.0905 32.4847 46.271 32.7567 45.3432 32.8814C44.4594 33.0003 43.3428 33.0002 41.9887 33.0002H40.9282C40.9248 33.0002 40.9214 33.0002 40.918 33.0002H34.918C34.9145 33.0002 34.9111 33.0002 34.9077 33.0002ZM33.7181 14.9C34.8926 14.0191 35.7056 13.4114 36.3879 13.0142C37.0474 12.6303 37.4929 12.5 37.9181 12.5C38.3433 12.5 38.7888 12.6303 39.4484 13.0142C40.1307 13.4114 40.9436 14.0191 42.1181 14.9L44.1181 16.4C45.7687 17.6379 46.3095 18.0745 46.6014 18.6584C46.8933 19.2422 46.9181 19.9368 46.9181 22V26.0002C46.9181 27.4427 46.916 28.4239 46.8172 29.1588C46.7223 29.8648 46.5549 30.1918 46.3323 30.4144C46.1098 30.637 45.7828 30.8043 45.0767 30.8993C44.3419 30.9981 43.3606 31.0002 41.9181 31.0002L41.918 24.5002C41.918 23.1195 40.7987 22.0002 39.418 22.0002H36.418C35.0373 22.0002 33.918 23.1195 33.918 24.5002V31.0002C32.4756 31.0002 31.4944 30.9981 30.7596 30.8993C30.0535 30.8043 29.7265 30.637 29.5039 30.4144C29.2814 30.1918 29.114 29.8648 29.0191 29.1588C28.9203 28.4239 28.9181 27.4427 28.9181 26.0002V22C28.9181 19.9368 28.9429 19.2422 29.2349 18.6584C29.5268 18.0745 30.0676 17.6379 31.7181 16.4L33.7181 14.9ZM39.918 31.0002H35.918V24.5002C35.918 24.2241 36.1418 24.0002 36.418 24.0002H39.418C39.6941 24.0002 39.918 24.2241 39.918 24.5002V31.0002Z" fill="#fff" fill-rule="evenodd"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div><i class="press" id="pillPress"></i></div>
-        <div class="L navg" id="navg" aria-hidden="true"><i class="gh"><i></i></i><i class="gr"></i></div>
+        <i class="L navg" id="navg" aria-hidden="true"></i>
         <div class="L pz" id="pz"></div>
         <div class="L touch" id="touch" aria-hidden="true"></div>
         <button class="L btn" id="pillb" type="button" aria-label="Explore more like this: open Commerce Chaining's category row"></button>
@@ -192,7 +185,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L store" id="store" aria-hidden="true"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=287" aria-hidden="true">
+        <img class="L ldc" id="ldc" alt="" src="../../assets/vac/vac-cc-poster.webp?v=289" aria-hidden="true">
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
@@ -210,7 +203,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=287',AV='../../assets/vac/vac-cc-';
+const V='?v=289',AV='../../assets/vac/vac-cc-';
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -243,7 +236,7 @@ const ICO={
   /* the playlist (queue): outline, as the search sparkle and the home: 1.4 strokes, round caps and joins, on the sparkle's 20 box and its
      optical centre (y 10): the play triangle top-left, two lines to its right, the long line under them */
   explore:'<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 4.5v6.4l5.4-3.2Z"/><path d="M12.4 5.3H16M12.4 10.1H16M4.4 15.5H16"/></svg>'};
-const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=287">';
+const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=289">';
 const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
@@ -352,32 +345,27 @@ function pill(){
     const w=a===b?(i===0?1:0):wt[i];op(els.lb[i],w);if(id==='nesp')nw+=w}
   fx();
 }
-/* Nespresso's field, from ns: "Coffee" for 2000 (the video plays), the swap (320, ease-out, 8 up), then the glow: in over 320, one lap
-   every 3000 from the pill's top-left, for as long as the reel is on screen. nw: Nespresso's share of the pill (its crossfade) */
-const HOLD=2000,SWAP=320,GIN=320,LAP=3000,TAIL=.27,GW=303,GH=40,GR=20,GL=GW-2*GR,PER=2*GL+2*Math.PI*GR,easeOut3=q=>1-Math.pow(1-q,3);
-let nw=0,swS=-1,gS='';
-const navg=$('navg'),gLay=[navg.querySelector('.gr'),navg.querySelector('.gh>i')];
-function edge(p){   // the point at p (0–1, clockwise from the pill's top-left, where its top straight begins) → its bearing from the centre (deg, as conic-gradient's)
-  let d=((p%1)+1)%1*PER,X,Y;const A=Math.PI*GR;
-  if(d<GL){X=GR+d;Y=0}else if((d-=GL)<A){const t=d/GR;X=GW-GR+GR*Math.sin(t);Y=GR-GR*Math.cos(t)}
-  else if((d-=A)<GL){X=GW-GR-d;Y=GH}else{d-=GL;const t=d/GR;X=GR-GR*Math.sin(t);Y=GR+GR*Math.cos(t)}
-  return (Math.atan2(X-GW/2,GH/2-Y)*180/Math.PI+360)%360}
+/* Nespresso's field, from ns: "Coffee" for 2000 (the video plays), the swap (320, ease-out, 8 up), then the edge glow's two pulses (800
+   each, 96 apart; sin²: 0 → 1 → 0, ease-in-out), then nothing until the next arrival. nw: Nespresso's share of the pill (its crossfade) */
+const HOLD=2000,SWAP=320,PULSE=800,PGAP=96,GEND=HOLD+SWAP+2*PULSE+PGAP,easeOut3=q=>1-Math.pow(1-q,3);
+let nw=0,swS=-1;
+const navg=$('navg');
+/* the swap's lift is a 2D translate (cleared at 0), never a 3D layer: a 3D layer inside the blurred, rounded material makes Safari drop the pill's radius
+   and paint the backdrop as a square-cornered box around its ends */
+const ty=y=>Math.abs(y)<.01?'':`translateY(${y.toFixed(2)}px)`;
 function fx(){
   const L=lbId[0]==='nesp'?els.lb[0]:lbId[1]==='nesp'?els.lb[1]:null;
   const s=easeOut3(clamp((ns-HOLD)/SWAP));
-  if(L&&L.children.length===2&&s!==swS){swS=s;const [a,b]=L.children;a.style.transform=tr(0,-8*s);op(a,1-s);b.style.transform=tr(0,8*(1-s));op(b,s)}
+  if(L&&L.children.length===2&&s!==swS){swS=s;const [a,b]=L.children;a.style.transform=ty(-8*s);op(a,1-s);b.style.transform=ty(8*(1-s));op(b,s)}
   else if(!L)swS=-1;
-  const gt=ns-HOLD-SWAP,go=nw*clamp(gt/GIN);
-  op(navg,go);vis(navg,go>0);if(go<=0)return;
-  const h=(gt%LAP)/LAP,a0=edge(h-TAIL),N=16;let st=[];   // the tail: N stops behind the head, alpha (head 1 → 0) to the power 1.5; then clear
-  for(let i=0;i<=N;i++){const q=i/N,ang=(edge(h-TAIL+TAIL*q)-a0+360)%360;st.push(`rgba(255,255,255,${Math.pow(q,1.5).toFixed(3)}) ${ang.toFixed(2)}deg`)}
-  const ah=(edge(h)-a0+360)%360;st.push(`rgba(255,255,255,0) ${Math.min(360,ah+.6).toFixed(2)}deg`);
-  const g=`conic-gradient(from ${a0.toFixed(2)}deg,${st.join(',')})`;if(g!==gS){gS=g;gLay.forEach(e=>e.style.background=g)}}
+  const gt=(ns-HOLD-SWAP)%(PULSE+PGAP),n=Math.floor((ns-HOLD-SWAP)/(PULSE+PGAP)),on=ns>HOLD+SWAP&&n<2&&gt<PULSE;
+  const go=on?nw*Math.pow(Math.sin(Math.PI*gt/PULSE),2):0;
+  op(navg,go);vis(navg,go>0)}
 /* full screen: the clock runs from the landing (arriving by swipe, or back from CC) and resets once Nespresso has left the screen; while the
    viewer has paused the reel before the swap, the hold waits (the video plays 2000 first) */
 let nsOn=false,nsRaf=0,nsLast=0;
 function nsTick(now){if(!nsOn)return;const dt=Math.min(64,now-nsLast);nsLast=now;
-  if(!(ns<HOLD&&paused==='nesp')&&!document.hidden)ns+=dt;fx();nsRaf=requestAnimationFrame(nsTick)}
+  if(!(ns<HOLD&&paused==='nesp')&&!document.hidden)ns+=dt;fx();if(ns<GEND)nsRaf=requestAnimationFrame(nsTick)}   // the second pulse done: the clock stops
 function nsStart(){if(nsOn||INL())return;nsOn=true;ns=0;nsLast=performance.now();fx();nsRaf=requestAnimationFrame(nsTick)}
 function nsReset(){nsOn=false;cancelAnimationFrame(nsRaf);ns=0;fx()}
 
@@ -526,10 +514,10 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll()
    Nike seed → swipe up to Nespresso (its field: "Coffee", the swap to "Explore more like this", the glow) → "Explore more like this" → CC on Coffee (Blue Bottle) → swipe up:
    Starbucks → La Colombe → swipe left: Home (CB2) → Movie (Universal) → its storefront opens and closes → Fashion (Laura Byrnes) →
    Beauty (xzmserena) → back: Nespresso (its field's sequence again, from "Coffee") → swipe down to the Nike seed, where the loop began */
-const T=41704,E={f1:1504,d1:2000,r1:2160,e1:2840,f4:8504,d4:8752,u4:9000,
+const T=40904,E={f1:1504,d1:2000,r1:2160,e1:2840,f4:8504,d4:8752,u4:9000,
   f5:11000,d5:11496,r5:11656,e5:12336,f6:13504,d6:14000,r6:14160,e6:14840,f7:16504,d7:17000,r7:17160,e7:17840,f8:19504,d8:20000,r8:20160,e8:20840,
   f9:22000,d9:22248,u9:22496,f10:25000,d10:25248,u10:25496,f11:27000,d11:27496,r11:27656,e11:28336,f12:30000,d12:30496,r12:30656,e12:31336,
-  f14:33000,d14:33248,u14:33496,f15:38704,d15:39200,r15:39360,e15:40040},
+  f14:33000,d14:33248,u14:33496,f15:37904,d15:38400,r15:38560,e15:39240},
   DRAG=48,DRAGMS=160,SPRMS=680,SH=664,OUTMS=488,F_IN=248,F_DOWN=176,F_UP=120,
   SVV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(812-DRAG)),SVH=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(375-DRAG)),
   NIKE_IN=2.6,NIKE_PARK=NIKE_IN-(T-E.d15)/1000,UNIV_HOLD=(E.u9+SH-E.d8)/1000;
