@@ -107,12 +107,12 @@ stage.innerHTML=phone('pb',screen(TIERS[0]),1)+phone('pp',screen(TIERS[1]),1)+
 
 /* ---- MOTION: the state-seq config (design px on the 1920x1080 Figma slide; single phone at 773,134 = citi_13's centre slot).
    One continuous chain, no dwelling (Hang): the opening (unchanged, 1248) -> sweep up to Priority -> sweep up to Gold -> the split into
-   citi_13's row (Blue 278 · Priority 773 · Gold 1268, scale 1; y134 -> 102, the row's settled position) -> short hold -> the row folds back into one Blue phone (the
+   citi_13's row (Blue 278 · Priority 773 · Gold 1268, scale 1; y134, citi_13's own position) -> short hold -> the row folds back into one Blue phone (the
    sweeps retract as it lands) -> the close (1248, the opening reversed) -> the Blue splash. 8ms holds = chained (state-seq needs a hold). */
 function mix(){var o={};[].forEach.call(arguments,function(s){for(var k in s){o[k]=o[k]||{};for(var p in s[k])o[k][p]=s[k][p]}});return o}
 var TL=THEMES[t0],SP=splash(TL),HM=home(TL),C={x:773,y:134,s:1},
  IN={wp:{w:375}},UP={wg:{w:375}},TIER={ppt:{o:1},pbt:{o:1}},SH={pps:{o:1},pbs:{o:1}},
- ROW={ph:{x:1268,y:102},pp:{x:773,y:102},pb:{x:278,y:102}}; /* citi_13's row (y134) lifted 32 */
+ ROW={ph:{x:1268,y:134},pp:{x:773,y:134},pb:{x:278,y:134}}; /* citi_13's row, at its Figma y134 */
 var MOTION={mode:'loop',ambient:true,spring:[80,20,1],dur:1440,
  tr:{'0>1':1248,'1>0':1248,'1>2':1440,'2>3':1440,'3>4':1600,'4>5':1440,'5>0':1248},edur:{pps:320,pbs:320},rm:4,w:1920,h:1080,
  base:mix({ph:C,pp:C,pb:C,pps:{o:0},ppt:{o:0},pbs:{o:0},pbt:{o:0},wp:{w:0},wg:{w:0}},SP),
