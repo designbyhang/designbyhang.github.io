@@ -6,5 +6,7 @@
    The host places it (left, top, width) and gives the ad's colour as its background; js/squircle.js smooths the r8 (60%). A press dim
    inside it (.press) is clipped to its corners. */
 .ad-cta,.cv-scr.vac .vc-cta{box-sizing:border-box;margin:0;height:36px;padding:8px 12px;border-radius:8px;overflow:hidden;white-space:nowrap;
-  text-align:center;font:600 15px/20px -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
+  text-align:center}
+/* the CTA type, shared: .cta-type gives any other CTA label (CC's commerce card title) exactly this styling, antialiased smoothing included */
+.ad-cta,.cv-scr.vac .vc-cta,.cta-type{font:600 15px/20px -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
   font-style:normal;letter-spacing:-.24px;color:#fff;-webkit-font-smoothing:antialiased}
