@@ -3,8 +3,9 @@
    Overview card, chart filled) is the no-JS fallback and the reduced-motion frame; one SVG covering it exactly (same 2880x1620 box,
    slice = the img's object-fit:cover) draws the phone screen from crops (assets/citi/mo/: strip = the dashboard, citi-16 screen +
    citi-18 screen, head = the dashboard header) and, for the expanded page, vector exports of Figma citi_19 "Citi Blue" 141388:14444
-   rendered at 4x pt (fhead = its header, feat = tabs, summary, 2K-6K labels, bills; rectangular, the screen clip rounds the corners;
-   lossless webp), the four tooltips (outlined Figma SVGs) and the live chart (verbatim Figma vectors, Graph 141388:14143).
+   rendered at 4x pt (fhead = its header, feat = tabs, summary, 2K-6K labels, bills; rectangular, lossless webp). Every screen layer,
+   headers included, sits inside the screen clip, and bezel.webp (the phone frame's inner edge and corners, alpha traced from citi-18,
+   lossless) lies over it all, so the screen meets the device frame exactly in every state, the four tooltips (outlined Figma SVGs) and the live chart (verbatim Figma vectors, Graph 141388:14143).
    Coordinates: slide px; the screen is x 1158.5..1721, y 201..1419 (375x812 pt at 1.5x).
    Loop (ms, all on the 8 ms grid), PERIOD 15328. Each beat eases in, lands, then a short breath before the next:
      0-320 rest on Spending Insights · 320-2240 scroll down 1073 px (easeInOutCubic) · 2480-4320 one continuous chart beat: a
@@ -20,7 +21,7 @@
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still image (t 3744). window.__citiMo: seek(t) / resume() / PERIOD for captures. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=305";
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=306";
 var D=1073,TOP=320,SCR=1920,C0=2480,CH=1840,PTD=320,E0=4640,EXP=960,
  TIP0=5840,TIPD=400,THOLD=864,TOD=240,TGAP=64,TSLOT=TIPD+THOLD+TOD+TGAP, /* each tooltip: in 400, read 864, out 240, breath 64 */
  TIPS=["17","22","24","27"],TEND=TIP0+(TIPS.length-1)*TSLOT+TIPD+THOLD+TOD,  /* 12048: the SEP 27 tooltip is gone */
@@ -45,7 +46,7 @@ function rr(x,y,w,h,r){if(window.Squircle&&Squircle.pathR&&r>.5)return Squircle.
 function win(src,y0,h,y,p,H){var s=el("svg",{x:0,y:y,width:564,height:h,viewBox:"0 "+y0+" 564 "+h,overflow:"hidden"},p);
  el("image",{href:src,width:564,height:H,preserveAspectRatio:"none"},s);return s}
 function build(host,id){
- var B="../assets/citi/mo/",SRC={strip:B+"strip.webp"+V,head:B+"head.webp"+V,fhead:B+"fhead.webp"+V,feat:B+"feat.webp"+V};
+ var B="../assets/citi/mo/",SRC={strip:B+"strip.webp"+V,head:B+"head.webp"+V,fhead:B+"fhead.webp"+V,feat:B+"feat.webp"+V,bezel:B+"bezel.webp"+V};
  TIPS.forEach(function(k){SRC["tip"+k]=B+"tip"+k+".svg"+V});
  var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
  svg.innerHTML='<defs><linearGradient id="@p" x1="39.3897" y1="-47.6107" x2="39.3897" y2="240" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
@@ -55,7 +56,7 @@ function build(host,id){
   +'<g clip-path="url(#@c)"><g class="ch"><g transform="translate(0.5 404) scale(1.5)"><g transform="translate(0 50)">'
   +'<path opacity="0.1" fill-rule="evenodd" fill="url(#@p)" d="M0.996094 194.289C96.8942 195.662 177.342 149.188 203.98 131.025C246.073 102.326 299.346 79.7437 374.999 79.7432V250H203.98H0.996094"/>'
   +'<path clip-path="url(#@w)" fill-rule="evenodd" fill="url(#@d)" d="M0 194.074C117.375 194.074 208 128 208 128V250H0"/></g><g class="d"></g><g class="pt"></g></g></g></g></g>'
-  +'<g class="feat"></g><g class="tp"></g><rect x="181.5" y="1196.5" width="200" height="7.5" rx="3.75" fill="#000"/></g><g class="hd"></g><g class="hf"></g></g>';
+  +'<g class="feat"></g><g class="tp"></g><rect x="181.5" y="1196.5" width="200" height="7.5" rx="3.75" fill="#000"/><g class="hd"></g><g class="hf"></g></g><g class="bz"></g></g>';
  svg.innerHTML=svg.innerHTML.replace(/@/g,id);
  var q=function(s){return svg.querySelector(s)},dash=q(".dash"),card=q(".card"),bg=q(".bg"),cc=q(".cc"),ch=q(".ch"),cp=q("#"+id+"c path"),
   wipe=q("#"+id+"w rect"),feat=q(".feat"),hf=q(".hf"),parts=[];
@@ -63,6 +64,7 @@ function build(host,id){
  win(SRC.strip,CARD.y+D-131,264,CARD.y,cc,2160);                             /* card title, amount, Income line */
  win(SRC.head,0,131,0,q(".hd"),262);win(SRC.fhead,0,131,0,hf,131);         /* fhead/feat: Figma vector exports at 4x pt */
  var band=function(y0,y1){var g=el("g",{},feat);win(SRC.feat,y0-131,y1-y0,y0,g,1065);return g};
+ el("image",{href:SRC.bezel,x:-2,y:-2,width:568,height:1222,preserveAspectRatio:"none"},q(".bz"));   /* the bezel inner edge, traced from citi-18 */
  var tabs=band(131,226),sum=band(226,330),cht=band(330,782),bills=band(782,1196);
  /* one edge sweeps 0..XW over CH (easeInOutCubic): the dark fill (path ends at XE) and then the projection trail.
     Each dot, the current point and each circle starts the moment the edge reaches it; times from C0, on the 8 ms grid */
