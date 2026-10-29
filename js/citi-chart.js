@@ -1,24 +1,30 @@
 /* Citi Monthly Overview (04 Banking Experiences): one looping phone-screen sequence over the slide image citi-18.webp. No dependencies.
    Markup: <div class="media mframe" data-citi-mo><img src="citi-18.webp" ...></div>. The image (the dashboard resting on the Monthly
    Overview card, chart filled) is the no-JS fallback and the reduced-motion frame; one SVG covering it exactly (same 2880x1620 box,
-   slice = the img's object-fit:cover) draws the phone screen from three crops of the slides (assets/citi/mo/: strip = the dashboard,
-   citi-16 screen + citi-18 screen, head = both headers, feat = the citi-19 feature page) plus the live chart (verbatim Figma vectors,
-   Graph 141388:14143). Coordinates: slide px; the screen is x 1158.5..1721, y 201..1419 (375x812 pt at 1.5x).
-   Loop (ms, all on the 8 ms grid), PERIOD 11264. Each beat eases in, lands, then a short breath before the next:
+   slice = the img's object-fit:cover) draws the phone screen from crops (assets/citi/mo/: strip = the dashboard, citi-16 screen +
+   citi-18 screen, head = the dashboard header) and, for the expanded page, vector exports of Figma citi_19 "Citi Blue" 141388:14444
+   rendered at 4x pt (fhead = its header, feat = tabs, summary, 2K-6K labels, bills; rectangular, the screen clip rounds the corners;
+   lossless webp), the four tooltips (outlined Figma SVGs) and the live chart (verbatim Figma vectors, Graph 141388:14143).
+   Coordinates: slide px; the screen is x 1158.5..1721, y 201..1419 (375x812 pt at 1.5x).
+   Loop (ms, all on the 8 ms grid), PERIOD 15328. Each beat eases in, lands, then a short breath before the next:
      0-320 rest on Spending Insights · 320-2240 scroll down 1073 px (easeInOutCubic) · 2480-4320 one continuous chart beat: a
      single easeInOutCubic edge sweeps the dark fill from the left (pale area already in place) straight through the current
      point (it lands as the fill arrives) and on as the projection trail; past and projection dots and the three circles pop
      as the edge reaches them (easeOutCubic) · 4640-5600 the card expands into the feature page (shared element,
      cubic-bezier(.45,0,.15,1); the live chart is the only chart and rides the same curve to its feature-page place; header,
-     tabs, summary, 2K-6K labels, bills chain in and land inside it) · 5840-6240 the SEP 17 tooltip fades in rising 12 px
-     (easeOutCubic) · hold to 7744 · 7744-7984 the tooltip leaves first (easeInCubic) · 8144-9104 collapse (same curve,
-     reversed geometry) · 9344-11264 scroll back up (easeInOutCubic) · the chart clears at the loop point, card off screen.
+     tabs, summary, 2K-6K labels, bills chain in and land inside it) · from 5840 the tooltips, one at a time over their points,
+     SEP 17 (current point) > SEP 22 > SEP 24 > SEP 27 (the circles): each fades in rising 12 px over 400 (easeOutCubic), reads
+     864, leaves over 240 (easeInCubic), 64 breath, next (slot 1568: in at 5840 / 7408 / 8976 / 10544; SEP 27 gone at 12048) ·
+     12208-13168 collapse (same curve, reversed geometry) · 13408-15328 scroll back up (easeInOutCubic) · the chart clears at
+     the loop point, card off screen.
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still image (t 3744). window.__citiMo: seek(t) / resume() / PERIOD for captures. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=288";
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=305";
 var D=1073,TOP=320,SCR=1920,C0=2480,CH=1840,PTD=320,E0=4640,EXP=960,
- TIP0=5840,TIPD=400,TOUT=7744,TOD=240,C1=8144,U0=9344,PERIOD=U0+SCR; /* 11264 */
+ TIP0=5840,TIPD=400,THOLD=864,TOD=240,TGAP=64,TSLOT=TIPD+THOLD+TOD+TGAP, /* each tooltip: in 400, read 864, out 240, breath 64 */
+ TIPS=["17","22","24","27"],TEND=TIP0+(TIPS.length-1)*TSLOT+TIPD+THOLD+TOD,  /* 12048: the SEP 27 tooltip is gone */
+ C1=TEND+160,U0=C1+EXP+240,PERIOD=U0+SCR; /* C1 12208, U0 13408, PERIOD 15328 */
 var CARD={x:18.5,y:285,w:527,h:570,r:24},FULL={x:0,y:131,w:564,h:1087},CHART_DY=-72; /* screen-crop px (origin 1158,201) */
 /* chart (Graph frame G, 375x300 pt; origin at crop (0.5,405), scale 1.5), times from C0 */
 var DOTS=[[10,244],[23,243],[35,242],[47,241],[60,239],[72,236],[85,233],[97,230],[110,226],[122,222],[134,217],[146,212],[159,206],[171,200],[184,193],[196,186],[208,178],[221,171],[233,164],[245,158],[258,152],[270,147],[283,143],[295,139],[307,136],[320,134],[332,132],[344,131],[357,130],[369,130]],
@@ -39,7 +45,8 @@ function rr(x,y,w,h,r){if(window.Squircle&&Squircle.pathR&&r>.5)return Squircle.
 function win(src,y0,h,y,p,H){var s=el("svg",{x:0,y:y,width:564,height:h,viewBox:"0 "+y0+" 564 "+h,overflow:"hidden"},p);
  el("image",{href:src,width:564,height:H,preserveAspectRatio:"none"},s);return s}
 function build(host,id){
- var B="../assets/citi/mo/",SRC={strip:B+"strip.webp"+V,head:B+"head.webp"+V,feat:B+"feat.webp"+V,tip:B+"tip.webp"+V};
+ var B="../assets/citi/mo/",SRC={strip:B+"strip.webp"+V,head:B+"head.webp"+V,fhead:B+"fhead.webp"+V,feat:B+"feat.webp"+V};
+ TIPS.forEach(function(k){SRC["tip"+k]=B+"tip"+k+".svg"+V});
  var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
  svg.innerHTML='<defs><linearGradient id="@p" x1="39.3897" y1="-47.6107" x2="39.3897" y2="240" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
   +'<linearGradient id="@d" x1="22.2199" y1="42.9996" x2="22.2199" y2="239.498" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
@@ -54,7 +61,7 @@ function build(host,id){
   wipe=q("#"+id+"w rect"),feat=q(".feat"),hf=q(".hf"),parts=[];
  var strip=win(SRC.strip,0,2160,131,dash,2160);                              /* page rows 131..2292 */
  win(SRC.strip,CARD.y+D-131,264,CARD.y,cc,2160);                             /* card title, amount, Income line */
- win(SRC.head,0,131,0,q(".hd"),262);win(SRC.head,131,131,0,hf,262);
+ win(SRC.head,0,131,0,q(".hd"),262);win(SRC.fhead,0,131,0,hf,131);         /* fhead/feat: Figma vector exports at 4x pt */
  var band=function(y0,y1){var g=el("g",{},feat);win(SRC.feat,y0-131,y1-y0,y0,g,1065);return g};
  var tabs=band(131,226),sum=band(226,330),cht=band(330,782),bills=band(782,1196);
  /* one edge sweeps 0..XW over CH (easeInOutCubic): the dark fill (path ends at XE) and then the projection trail.
@@ -63,7 +70,12 @@ function build(host,id){
  DOTS.forEach(function(d){parts.push({t:at(d[0]),dur:DOT,f:cub,x:d[0],y:d[1],e:el("circle",{cx:d[0],cy:d[1],r:1,fill:"#0055D8"},q(".d")),o:1})});
  parts.push({t:at(XE),dur:PTD,f:cub,x:SOLID[0],y:SOLID[1],e:el("circle",{cx:SOLID[0],cy:SOLID[1],r:5.75,fill:"#0055D8",stroke:"#fff","stroke-width":1.5},q(".pt")),o:.5});
  RINGS.forEach(function(r){parts.push({t:at(r[0]),dur:POP,f:cub,x:r[0],y:r[1],e:el("circle",{cx:r[0],cy:r[1],r:5.75,fill:"#fff",stroke:"#0055D8","stroke-width":1.5},q(".pt")),o:.4})});
- var tip=el("image",{href:SRC.tip,x:236,y:470,width:156,height:110},q(".tp"));   /* SEP 17 tooltip, above the page */
+ /* the four tooltips (Figma 143313:7074/7057/7082/7089, outlined vector SVGs, 92x65 pt each), above the page, one at a time:
+    the tooltip frame's centre sits over its point, its top 77 pt above the point centre (Figma Point 143312:7017). Expanded-page
+    chart pt (cx,cy) -> screen-crop px (0.5+1.5cx, 332+1.5cy). SEP 27's body is shifted 10 pt left (its arrow stays on the point)
+    so it clears the screen edge. */
+ var TIPAT=[SOLID].concat(RINGS),tips=TIPS.map(function(k,i){var c=TIPAT[i],vx=k==="27"?-10:0,y0=332+1.5*(c[1]-78);
+  return {y0:y0,e:el("image",{href:SRC["tip"+k],x:(0.5+1.5*(c[0]-46+vx)).toFixed(2),y:y0.toFixed(2),width:138,height:97.5,opacity:0},q(".tp"))}});
  var op=function(e,v){e.setAttribute("opacity",v>=1?1:v.toFixed(3))},tr=function(e,x,y){e.setAttribute("transform",x||y?"translate("+x.toFixed(2)+" "+y.toFixed(2)+")":"")};
  host.appendChild(svg);
  return [function(t){t=((t%PERIOD)+PERIOD)%PERIOD;
@@ -84,9 +96,10 @@ function build(host,id){
   var a=cub(seg(q,384,704));op(sum,a);tr(sum,0,12*(1-a));
   op(cht,t>=C1&&t<C1+EXP?1-cub(cl((t-C1)/160)):cub(seg(p,448,768)));         /* labels: first page part out, before the chart moves */
   a=cub(seg(q,512,896));op(bills,a);tr(bills,0,36*(1-a));
-  /* tooltip: last in once the page has settled, first out */
-  a=t<TIP0||t>=TOUT+TOD?0:t<TIP0+TIPD?cub((t-TIP0)/TIPD):t<TOUT?1:1-cin((t-TOUT)/TOD);
-  op(tip,a);tip.setAttribute("y",(470+12*(1-a)).toFixed(2));
+  /* tooltips: in once the page has settled, in sequence SEP 17 > 22 > 24 > 27, each one out before the next; the last out first of all */
+  for(var j=0;j<tips.length;j++){var t0=TIP0+j*TSLOT,to=t0+TIPD+THOLD;
+   a=t<t0||t>=to+TOD?0:t<t0+TIPD?cub((t-t0)/TIPD):t<to?1:1-cin((t-to)/TOD);
+   op(tips[j].e,a);tips[j].e.setAttribute("y",(tips[j].y0+12*(1-a)).toFixed(2));tips[j].e.setAttribute("display",a>0?"inline":"none")}
   var we=tc<0?0:XW*inout(cl(tc/CH));
   wipe.setAttribute("width",we.toFixed(2));
   for(var i=0;i<parts.length;i++){var o=parts[i],u=tc<0?0:cl((tc-o.t)/o.dur),k=u>=1?1:o.f(u);
