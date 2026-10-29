@@ -30,7 +30,7 @@ function fit(p){
   const m=cx.measureText('more'),rsb=m.width-m.actualBoundingBoxRight+ls;cv.style.marginLeft=(ARROW-INSET-rsb).toFixed(2)+'px';
   const full=p.dataset.cap||'',cut=p.hasAttribute('data-cut'),room=W-GAP-w(em);sp.style.flex='none';   // measured at its own width, then kept there
   sp.textContent=full+(cut?'…':'');if(!cut&&w(sp)<=room+.01)return;
-  const g=Array.from(full),txt=n=>g.slice(0,n).join('').replace(/\s+$/,'')+'…';let lo=0,hi=g.length;
+  const g=Array.from(full),txt=n=>g.slice(0,n).join('').replace(/[\s.,;:]+$/,'')+'…';let lo=0,hi=g.length;
   while(lo<hi){const mid=(lo+hi+1)>>1;sp.textContent=txt(mid);if(w(sp)<=room+.01)lo=mid;else hi=mid-1}
   sp.textContent=txt(lo)}
 function watch(root){const ps=[...root.querySelectorAll('p.vcap')];if(!ps.length)return;
