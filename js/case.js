@@ -301,13 +301,13 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
  var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;I.reset();
   f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
   fxIn(m); /* a figure not yet revealed (.fx: opacity 0 + transform, as after a refresh restore) would hide the lifted iframe and pin it to the page, not the screen */
-  f.addEventListener('load',load);
+  f.addEventListener('load',load);f.addEventListener('proto-doc',load); /* the prototype's head: its full-screen state before its first paint */
   var A0=inner(),g0=gut(),pd=A0.w<=640?24:40;gs={A:A0,g:g0,s0:sNow()||Math.min((A0.h-2*Math.abs(g0.y)-pd*2)/828,(A0.w-2*Math.abs(g0.x)-pd*2)/431)};
   L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:I.enter,exit:I.exit,grow:grow,stage:'<i class="proto-panel" aria-hidden="true"></i>'+DI.html(ins)+'<p class="deck-n hegg-ui"></p>',
    show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift','proto-on');full(true);hook();orient();lay();I.hide();pinOn(true);lqOn(true);land();void f.offsetWidth;
     f.style.transition=''}, /* opaque at once: it grows from the frame (grow), restored or not (the instruction's entrance follows via enter) */
    tabs:function(){return held?[]:[f]},
-   done:function(){nosel(false);I.done();f.removeEventListener('load',load);lqOn(false);pinOn(false);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
+   done:function(){nosel(false);I.done();f.removeEventListener('load',load);f.removeEventListener('proto-doc',load);lqOn(false);pinOn(false);pad(false);if(held){held=false;f.classList.remove('proto-hide');send('embed:release')}if(win)try{win.removeEventListener('keydown',esc,true);win.removeEventListener('click',onTap,true)}catch(_){}win=null;
     f.classList.remove('proto-lift','proto-on','proto-anim');f.removeAttribute('data-keep');f.style.transition=f.style.opacity=f.style.transform='';full(false);de.classList.remove('fs-stage')}})};
  b.addEventListener('click',function(){go(false)});
  /* refresh restore (phones): this prototype's ?fs= key; the page goes to the prototype first, then the layer is on at once */

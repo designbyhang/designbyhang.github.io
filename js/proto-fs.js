@@ -103,14 +103,16 @@ function open(m,now){if(state!=='closed'||phoneMq.matches)return;const f=m.query
  const k=keyOf(f);if(k&&window.dbhView)dbhView.set(k);I.reset();insS.textContent=k?DI.TEXT[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
- f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);measure();render(0,true);
+ f.classList.add('fsx-lift','fsx-anim');pad(f,true);full(f,true);hook(f);f.addEventListener('load',onLoad);f.addEventListener('proto-doc',onLoad);measure();render(0,true);
  I.hide();asideMeasure();aside(0);
  anim(0,1,()=>{state='open';snap=false;f.classList.remove('fsx-anim');I.settle(); /* no header BACK to trigger it: at the end */bg.classList.add('is-open');if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});},aside);}
+/* the prototype's document: from its first script ('proto-doc', its head) so a refresh restore paints the full-screen device at once
+   (padded, html.embed-full: no inline-sized first frame that snaps into place), and again on load */
 function onLoad(){if(!cur)return;const f=cur.f;if(G){G.g=gut(f);measure();}full(f,true);hook(f);}
 function close(){if(state!=='open'&&state!=='opening')return;const {m,f,b}=cur,p0=P;snap=false;if(window.dbhView)dbhView.set(null);
  state='closing';fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');f.classList.add('fsx-anim');asideMeasure();aside(p0);unlock();
  anim(p0,0,()=>{const hadFocus=fs.contains(document.activeElement)||document.activeElement===f;
-  f.removeEventListener('load',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.removeAttribute('data-keep');f.style.transform='';f.style.width='';full(f,false);{const d=doc(f);if(d)void d.offsetWidth;}pad(f,false);
+  f.removeEventListener('load',onLoad);f.removeEventListener('proto-doc',onLoad);hook(null);f.classList.remove('fsx-lift','fsx-anim');f.removeAttribute('data-keep');f.style.transform='';f.style.width='';full(f,false);{const d=doc(f);if(d)void d.offsetWidth;}pad(f,false);
   panel.style.transform='';releaseToggle();asideReset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
   state='closed';de.classList.remove('deck-open');cur=null;G=null;P=0;if(window.__dbhResample)__dbhResample();
   if(hadFocus&&b)b.focus({preventScroll:true,focusVisible:false});},aside);}
