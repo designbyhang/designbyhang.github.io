@@ -231,7 +231,7 @@ function anim(get,set){let raf=0,busy=false;
    e  grid → Reels: the Oakley tile grows into the seed reel (0 → 1)     k  the chain (0 Oakley · 1 LensCrafters · 2 Ray-Ban)
    b  back: the pop to the grid (0 → 1)                                  g  the grid's intro (tiles rise in, inline only) */
 const TILE=[12,170,172,272],FULL=[0,0,375,734],PG=734,N=2;
-let e=0,k=0,b=0,g=1,mode='grid';   // grid · open · reels · pop
+let e=0,k=0,b=0,g=1,mode='grid';   // grid · open · reels · close (the Back tap) · pop (the edge swipe)
 const eA=anim(()=>e,v=>{e=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),bA=anim(()=>b,v=>{b=v;render()}),gA=anim(()=>g,v=>{g=v;render()});
 const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
 const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
@@ -358,14 +358,19 @@ pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev
   const now=performance.now();if(now-wT<480)return;wAcc+=ev.deltaY;
   if(Math.abs(wAcc)>40){const t=clamp(Math.round(k)+(wAcc>0?1:-1),0,N);wAcc=0;wT=now;if(t!==Math.round(k))step(t)}},{passive:false});
 
-/* ---------- back: the pop (Reels slides off right, the grid in from −120), then the clean grid. The seed's current frame is held in
+/* ---------- the edge swipe back: the pop (Reels slides off right with the finger, the grid in from −120), then the clean grid. The seed's current frame is held in
    tile 1 while it pops (the video rides away with Reels) ---------- */
 function snapTile(){const c=els.snap,x=c.getContext('2d');
   try{if(vid.readyState>=2){const vw=vid.videoWidth,vh=vid.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(vid,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
 function startPop(){kA.stop();k=Math.round(k);
   if(k>=1){const c=els.snap;c.getContext('2d').clearRect(0,0,c.width,c.height);try{vid.currentTime=0}catch(_){}}else snapTile();
   mode='pop';setReels(false);b=0;render()}
-function back(){if(mode!=='reels'||cta!==null)return;startPop();bA.to(1,{onDone:()=>{toGrid();homeTell(true);say('Grid')}})}
+/* the Back tap (and Escape): the grow in reverse. Reels' UI fades out over the first half and the seed shrinks back into the Oakley
+   tile while the grid fades in under it (Slow, 664). From a later ad in the chain, that reel fades off the Oakley seed as it shrinks */
+function back(){if(mode!=='reels'||cta!==null)return;kA.stop();k=Math.round(k);
+  if(k>=1){try{vid.currentTime=0}catch(_){}}
+  mode='close';setReels(false);render();
+  eA.to(0,{onDone:()=>{if(mode!=='close')return;toGrid();homeTell(true);say('Grid')}})}
 $('back').addEventListener('click',back);
 /* the edge swipe back: the shared FMSS gesture (../shared/edge-back), the finger drives the pop (b); read in the capture phase so it
    can take the press from the pager once it is a horizontal drag off the left edge */
@@ -407,8 +412,8 @@ function rotate(i,keep){clearTimeout(rotT);rotT=0;setActive(i,keep);if(i>=0&&!au
 function freeRot(){if(autoOn)return;if(ready&&mode==='grid'&&visible&&!document.hidden){if(!rotT)rotate(gAct>=0?gAct:0)}else if(rotT){clearTimeout(rotT);rotT=0}}
 VIDS=[
   [vid,()=>mode==='grid'?gAct===0:mode!=='pop'&&!(mode==='reels'&&k>=.999)],
-  [lcv,()=>(mode==='reels'||mode==='pop')&&Math.abs(k-1)<1],
-  [rbv,()=>(mode==='reels'||mode==='pop')&&Math.abs(k-2)<1],
+  [lcv,()=>(mode==='reels'||mode==='pop'||mode==='close')&&Math.abs(k-1)<1],
+  [rbv,()=>(mode==='reels'||mode==='pop'||mode==='close')&&Math.abs(k-2)<1],
   ...tv.map((v,n)=>[v,()=>gridOn()&&g>0&&gAct===n+1])];
 const pend=new WeakSet();
 function vidSync(){const on=visible&&!document.hidden;
@@ -448,7 +453,7 @@ $('theme').addEventListener('click',()=>{const h=document.documentElement;const 
    starts at 632) · LensCrafters 2800 · swipe up · Ray-Ban 1600 · tap
    Learn more (1032; press feedback, the ray-ban.com IAB opens at 632 on the shared sheet's own spring and plays its page load) ·
    the page 1440 · scroll the page 240 (1544; a press, then the page rides the finger on the Slow spring) · 640 · tap × (1032; the
-   sheet closes at 632 back onto the Ray-Ban reel) · the reel 960 · tap Back (1032; the pop to the grid starts at 632) · round again
+   sheet closes at 632 back onto the Ray-Ban reel) · the reel 960 · tap Back (1032; the reverse grow to the grid starts at 632) · round again
    from the grid: no cut anywhere in the loop. The touch shows 480 before every press and stays 160 after the release, then fades
    (248), so it is on screen ~880 around each press ---------- */
 const finger=$('finger');
@@ -479,7 +484,7 @@ const STEPS=[
   1600,tk=>tap(163.5,CTA_R[1]-15,tk,openCta,true),    // Learn more (pressed; 15 over the CTA's top, as before) → ray-ban.com opens full screen on the IAB
   1440,tk=>pageScroll(240,tk),                        // read, then scroll the page a little
   640,tk=>tap(347,68,tk,()=>act.go(1)),               // × → the sheet closes back onto the Ray-Ban reel
-  960,tk=>tap(24,70,tk,back)];                        // Back → the pop to the grid (664, from 632), and round again
+  960,tk=>tap(24,70,tk,back)];                        // Back → the grow in reverse, into the Oakley tile (664, from 632), and round again
 const SETTLE=264;
 async function gridTurns(tk){   // 6664: the pop settles (264), then each tile's turn (4 × 1600); stopped mid-way, it restarts clean
   rotate(-1);await wait(SETTLE,tk);for(let i=0;i<4;i++){rotate(i);await wait(SLICE,tk)}rotate(-1)}
