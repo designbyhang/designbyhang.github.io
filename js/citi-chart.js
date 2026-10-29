@@ -4,25 +4,33 @@
    slice = the img's object-fit:cover) draws the phone screen from three crops of the slides (assets/citi/mo/: strip = the dashboard,
    citi-16 screen + citi-18 screen, head = both headers, feat = the citi-19 feature page) plus the live chart (verbatim Figma vectors,
    Graph 141388:14143). Coordinates: slide px; the screen is x 1158.5..1721, y 201..1419 (375x812 pt at 1.5x).
-   Loop (ms, all on the 8 ms grid), PERIOD 8840:
-     0-240 dashboard on Spending Insights · 240-2040 scroll down 1073 px (715 pt), easeInOutSine · 1960 the dark area starts to
-     fill from the left (pale area already in place), the dots trail the fill edge, 2712 the current-point dot lands, 3264/3360/3456
-     the three circles pop (288 each, flat overshoot) · 3744-4640 the card expands into the feature page (shared element: card rect
-     -> full screen, 16 pt corners -> 0, chart rides to its feature-page place; header, tabs, summary, chart labels + tooltip,
-     bills chain in) · 4640-6144 hold · 6144-7040 the exact reverse (collapse into the card, chart still full) · 7040-8840 scroll back
-     up · the chart clears at 0, when the card is off screen.
+   Loop (ms, all on the 8 ms grid), PERIOD 11984. Each beat eases in, lands, then a short breath before the next:
+     0-320 rest on Spending Insights · 320-2240 scroll down 1073 px (easeInOutCubic) · 2480-3520 the dark area fills from the
+     left to the current point (easeOutCubic; pale area already in place), past dots trail the edge · 3760-4080 current point
+     lands (easeOutCubic) · 4320-5040 the projection dots trail on and the three circles pop as the trail reaches them
+     (easeOutCubic) · 5360-6320 the card expands into the feature page (shared element, cubic-bezier(.45,0,.15,1) settle;
+     header, tabs, summary, chart labels, bills chain in and land inside it) · 6560-6960 the SEP 17 tooltip fades in rising
+     12 px (8 pt, easeOutCubic) · hold to 8464 · 8464-8704 the tooltip leaves first (easeInCubic) · 8864-9824 collapse
+     (same curve, reversed geometry) · 10064-11984 scroll back up (easeInOutCubic) · the chart clears at the loop point,
+     with the card off screen.
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still image (t 3744). window.__citiMo: seek(t) / resume() / PERIOD for captures. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=286";
-var D=1073,TOP=240,SCR=1800,C0=1960,E0=3744,EXP=896,HOLD=1504,C1=E0+EXP+HOLD,U0=C1+EXP,PERIOD=U0+SCR; /* 8840 */
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=287";
+var D=1073,TOP=320,SCR=1920,C0=2480,FILL=1040,PT0=3760,PTD=320,TR0=4320,TRD=720,E0=5360,EXP=960,
+ TIP0=6560,TIPD=400,TOUT=8464,TOD=240,C1=8864,U0=10064,PERIOD=U0+SCR; /* 11984 */
 var CARD={x:18.5,y:285,w:527,h:570,r:24},FULL={x:0,y:131,w:564,h:1087},CHART_DY=-73; /* screen-crop px (origin 1158,201) */
 /* chart (Graph frame G, 375x300 pt; origin at crop (0.5,405), scale 1.5), times from C0 */
-var DOTS=[[10,244,200],[23,243,264],[35,242,320],[47,241,360],[60,239,400],[72,236,432],[85,233,472],[97,230,496],[110,226,528],[122,222,560],[134,217,584],[146,212,616],[159,206,640],[171,200,672],[184,193,696],[196,186,720],[208,178,752],[221,171,776],[233,164,800],[245,158,832],[258,152,864],[270,147,888],[283,143,920],[295,139,952],[307,136,984],[320,134,1024],[332,132,1064],[344,131,1104],[357,130,1168],[369,130,1240]],
- SOLID=[208,178,752],RINGS=[[270,147,1304],[295,139,1400],[332,132,1496]],WIPE=1280,DOT=160,LAND=240,POP=288,CEND=1784;
+var DOTS=[[10,244],[23,243],[35,242],[47,241],[60,239],[72,236],[85,233],[97,230],[110,226],[122,222],[134,217],[146,212],[159,206],[171,200],[184,193],[196,186],[208,178],[221,171],[233,164],[245,158],[258,152],[270,147],[283,143],[295,139],[307,136],[320,134],[332,132],[344,131],[357,130],[369,130]],
+ SOLID=[208,178],RINGS=[[270,147],[295,139],[332,132]],DOT=160,POP=288,XE=208;
 var cl=function(v){return v<0?0:v>1?1:v},sine=function(t){return(1-Math.cos(Math.PI*t))/2},
- cub=function(t){return 1-Math.pow(1-t,3)},inout=function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2},
- back=function(t){var s=1.2;t-=1;return 1+(s+1)*t*t*t+s*t*t},          /* ~5% overshoot, flat 2D scale */
+ cub=function(t){return 1-Math.pow(1-t,3)},cin=function(t){return t*t*t},inout=function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2},
+ ucub=function(f){return 1-Math.pow(1-cl(f),1/3)},                          /* inverse of easeOutCubic: when the edge reaches f */
+ g8=function(v){return Math.round(v/8)*8},
+ bez=function(x1,y1,x2,y2){return function(x){if(x<=0)return 0;if(x>=1)return 1;var u=x,i,cx,dx;   /* cubic-bezier(), CSS-style */
+  for(i=0;i<8;i++){cx=3*x1*u*(1-u)*(1-u)+3*x2*u*u*(1-u)+u*u*u-x;dx=3*x1*(1-u)*(1-3*u)+3*x2*u*(2-3*u)+3*u*u;if(Math.abs(cx)<1e-5||!dx)break;u=cl(u-cx/dx)}
+  return 3*y1*u*(1-u)*(1-u)+3*y2*u*u*(1-u)+u*u*u}},
+ glide=bez(.45,0,.15,1),                                                    /* expand/collapse: soft lift-off, long settle */
  seg=function(p,a,b){return cl((p*EXP-a)/(b-a))};                         /* stage of the expand, a..b ms into it */
 function el(t,a,p){var e=doc.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 function rr(x,y,w,h,r){if(window.Squircle&&Squircle.pathR&&r>.5)return Squircle.pathR(w,h,[r,r,r,r],.6,x,y);
@@ -31,7 +39,7 @@ function rr(x,y,w,h,r){if(window.Squircle&&Squircle.pathR&&r>.5)return Squircle.
 function win(src,y0,h,y,p,H){var s=el("svg",{x:0,y:y,width:564,height:h,viewBox:"0 "+y0+" 564 "+h,overflow:"hidden"},p);
  el("image",{href:src,width:564,height:H,preserveAspectRatio:"none"},s);return s}
 function build(host,id){
- var B="../assets/citi/mo/",SRC={strip:B+"strip.webp"+V,head:B+"head.webp"+V,feat:B+"feat.webp"+V};
+ var B="../assets/citi/mo/",SRC={strip:B+"strip.webp"+V,head:B+"head.webp"+V,feat:B+"feat.webp"+V,tip:B+"tip.webp"+V};
  var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
  svg.innerHTML='<defs><linearGradient id="@p" x1="39.3897" y1="-47.6107" x2="39.3897" y2="240" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
   +'<linearGradient id="@d" x1="22.2199" y1="42.9996" x2="22.2199" y2="239.498" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
@@ -40,7 +48,7 @@ function build(host,id){
   +'<g clip-path="url(#@c)"><g class="ch"><g transform="translate(0.5 405) scale(1.5)"><g transform="translate(0 50)">'
   +'<path opacity="0.1" fill-rule="evenodd" fill="url(#@p)" d="M0.996094 194.289C96.8942 195.662 177.342 149.188 203.98 131.025C246.073 102.326 299.346 79.7437 374.999 79.7432V250H203.98H0.996094"/>'
   +'<path clip-path="url(#@w)" fill-rule="evenodd" fill="url(#@d)" d="M0 194.074C117.375 194.074 208 128 208 128V250H0"/></g><g class="d"></g><g class="pt"></g></g></g></g></g>'
-  +'<g class="feat"></g><rect x="181.5" y="1196.5" width="200" height="7.5" rx="3.75" fill="#000"/></g><g class="hd"></g><g class="hf"></g></g>';
+  +'<g class="feat"></g><g class="tp"></g><rect x="181.5" y="1196.5" width="200" height="7.5" rx="3.75" fill="#000"/></g><g class="hd"></g><g class="hf"></g></g>';
  svg.innerHTML=svg.innerHTML.replace(/@/g,id);
  var q=function(s){return svg.querySelector(s)},dash=q(".dash"),card=q(".card"),bg=q(".bg"),cc=q(".cc"),ch=q(".ch"),cp=q("#"+id+"c path"),
   wipe=q("#"+id+"w rect"),feat=q(".feat"),hf=q(".hf"),parts=[];
@@ -49,26 +57,37 @@ function build(host,id){
  win(SRC.head,0,131,0,q(".hd"),262);win(SRC.head,131,131,0,hf,262);
  var band=function(y0,y1){var g=el("g",{},feat);win(SRC.feat,y0-131,y1-y0,y0,g,1065);return g};
  var tabs=band(131,226),sum=band(226,330),cht=band(330,782),bills=band(782,1196);
- DOTS.forEach(function(d){parts.push({t:d[2],dur:DOT,f:cub,x:d[0],y:d[1],e:el("circle",{cx:d[0],cy:d[1],r:1,fill:"#0055D8"},q(".d")),o:1})});
- parts.push({t:SOLID[2],dur:LAND,f:back,x:SOLID[0],y:SOLID[1],e:el("circle",{cx:SOLID[0],cy:SOLID[1],r:5.75,fill:"#0055D8",stroke:"#fff","stroke-width":1.5},q(".pt")),o:.5});
- RINGS.forEach(function(r){parts.push({t:r[2],dur:POP,f:back,x:r[0],y:r[1],e:el("circle",{cx:r[0],cy:r[1],r:5.75,fill:"#fff",stroke:"#0055D8","stroke-width":1.5},q(".pt")),o:.4})});
+ /* when the fill edge (0..XE over FILL) or the projection trail (XE..375 over TRD) reaches x; times from C0, on the 8 ms grid */
+ var at=function(x){return x<XE?g8(FILL*ucub(x/XE)):TR0-C0+g8(TRD*ucub((x-XE)/(375-XE)))};
+ DOTS.forEach(function(d){parts.push({t:at(d[0]),dur:DOT,f:cub,x:d[0],y:d[1],e:el("circle",{cx:d[0],cy:d[1],r:1,fill:"#0055D8"},q(".d")),o:1})});
+ parts.push({t:PT0-C0,dur:PTD,f:cub,x:SOLID[0],y:SOLID[1],e:el("circle",{cx:SOLID[0],cy:SOLID[1],r:5.75,fill:"#0055D8",stroke:"#fff","stroke-width":1.5},q(".pt")),o:.5});
+ RINGS.forEach(function(r){parts.push({t:at(r[0]),dur:POP,f:cub,x:r[0],y:r[1],e:el("circle",{cx:r[0],cy:r[1],r:5.75,fill:"#fff",stroke:"#0055D8","stroke-width":1.5},q(".pt")),o:.4})});
+ var tip=el("image",{href:SRC.tip,x:236,y:470,width:156,height:110},q(".tp"));   /* SEP 17 tooltip, above the page */
  var op=function(e,v){e.setAttribute("opacity",v>=1?1:v.toFixed(3))},tr=function(e,x,y){e.setAttribute("transform",x||y?"translate("+x.toFixed(2)+" "+y.toFixed(2)+")":"")};
  host.appendChild(svg);
  return [function(t){t=((t%PERIOD)+PERIOD)%PERIOD;
   /* scroll position (px) and expand progress p (0 card .. 1 feature page) */
-  var s=t<TOP?0:t<TOP+SCR?D*sine((t-TOP)/SCR):t<U0?D:D*(1-sine((t-U0)/SCR));
-  var p=t<E0?0:t<E0+EXP?(t-E0)/EXP:t<C1?1:t<U0?1-(t-C1)/EXP:0,e=inout(p);
-  var tc=t>=C0&&t<PERIOD?t-C0:-1;                                            /* chart clock; clears at the loop point */
-  tr(strip,0,0);strip.setAttribute("y",131-s);tr(card,0,D-s);
+  var s=t<TOP?0:t<TOP+SCR?D*inout((t-TOP)/SCR):t<U0?D:t<PERIOD?D*(1-inout((t-U0)/SCR)):0;
+  /* p: linear expand progress (sub-stages hang off it, so the collapse replays them in reverse); e: the card geometry */
+  var p=t<E0?0:t<E0+EXP?(t-E0)/EXP:t<C1?1:t<C1+EXP?1-(t-C1)/EXP:0;
+  var e=t<C1?glide(p):1-glide(1-p);
+  var tc=t>=C0?t-C0:-1;                                                       /* chart clock; clears at the loop point */
+  strip.setAttribute("y",131-s);tr(card,0,D-s);
   op(dash,1-cub(seg(p,0,320)));
   var x=CARD.x+(FULL.x-CARD.x)*e,y=CARD.y+(FULL.y-CARD.y)*e,w=CARD.w+(FULL.w-CARD.w)*e,h=CARD.h+(FULL.h-CARD.h)*e,r=CARD.r*(1-e),d=rr(x,y,w,h,r);
   bg.setAttribute("d",d);cp.setAttribute("d",d);
-  op(cc,1-seg(p,0,320));tr(cc,0,(FULL.y-CARD.y)*e-24*e);tr(ch,0,CHART_DY*e);
-  op(hf,inout(seg(p,0,512)));op(tabs,inout(seg(p,384,704)));
-  var a=inout(seg(p,448,768));op(sum,a);tr(sum,0,12*(1-a));
-  op(cht,Math.pow(seg(p,640,896),2));
-  a=inout(seg(p,512,896));op(bills,a);tr(bills,0,36*(1-a));
-  wipe.setAttribute("width",tc<0?0:(375*sine(cl(tc/WIPE))).toFixed(2));
+  op(cc,1-cub(seg(p,0,320)));tr(cc,0,(FULL.y-CARD.y)*e-24*e);tr(ch,0,CHART_DY*e);
+  /* on the collapse the page contents leave in the first 600 ms (reverse order), before the card has moved far */
+  var q=t>=C1&&t<C1+EXP?cl(1-(t-C1)*1.6/EXP):p;
+  op(hf,inout(seg(p,0,480)));op(tabs,cub(seg(q,320,640)));
+  var a=cub(seg(q,384,704));op(sum,a);tr(sum,0,12*(1-a));
+  op(cht,t>=C1&&t<C1+EXP?1-cub(cl((t-C1)/160)):cub(seg(p,448,768)));         /* labels: first page part out, before the chart moves */
+  a=cub(seg(q,512,896));op(bills,a);tr(bills,0,36*(1-a));
+  /* tooltip: last in once the page has settled, first out */
+  a=t<TIP0||t>=TOUT+TOD?0:t<TIP0+TIPD?cub((t-TIP0)/TIPD):t<TOUT?1:1-cin((t-TOUT)/TOD);
+  op(tip,a);tip.setAttribute("y",(470+12*(1-a)).toFixed(2));
+  var we=tc<0?0:tc<FILL?XE*cub(tc/FILL):t<TR0?XE:XE+(375-XE)*cub(cl((t-TR0)/TRD));
+  wipe.setAttribute("width",we.toFixed(2));
   for(var i=0;i<parts.length;i++){var o=parts[i],u=tc<0?0:cl((tc-o.t)/o.dur),k=u>=1?1:o.f(u);
    op(o.e,cl(u/o.o));o.e.setAttribute("transform",k===1?"":"translate("+o.x+" "+o.y+") scale("+Math.max(0,k).toFixed(4)+") translate("+(-o.x)+" "+(-o.y)+")")}}
  ,SRC];
