@@ -53,13 +53,12 @@ const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
 /* Figma corner smoothing (60%) as an SVG path: the site-wide one (js/squircle.js) */
 const squircle=window.Squircle.path;
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")');
-const mvP=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 const PATH={scr:squircle(375,812,40,.6),bezel:squircle(391,828,48,.6)};
 /* cover art phone (assets/cover-fmss-*.webp, measured at 2 art px per design px): circular corners, outer 56, 8px bezel, so the screen is 48
    (sol1's own phone keeps its 48/40 at 60% smoothing above). Cover bezel: as the Evolution prototypes' .bezel-fill, a solid black shape UNDER
    the screen (from 4px inside the baked outer edge, r 52), so the screen's anti-aliased edge meets black and nothing is drawn over the screen */
 PATH.coverScr=`path('${squircle(375,812,48,0)}')`;
-PATH.coverBezel=`path('${mvP(squircle(383,820,52,0),4,4)}')`;
+PATH.coverBezel=`path('${squircle(383,820,52,0)}')`;   // in .fsp-bz's own box (inset 4px): 4px past the screen on every side;
 /* fill one 375x812 screen element with phone i (0-3). opt.base = URL of preview/fmss-sol1/assets/ (trailing slash); opt.sheetDy = extra px the B
    sheet sits lower at the split hold only (eased in with a, out with c; the B backdrop runs that much longer under it); opt.video = false to
    leave the <video> without src (caller attaches it lazily via the returned video's data-src). Layer CSS: see .fsp-* in css/card.css

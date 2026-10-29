@@ -34,12 +34,13 @@ function squircle(w,h,R,sm){
     `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${Dd} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-Dd} ${BC} ${-Dd} ${ABC} ${-Dd}Z`;
 }
 const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")');
-const mvP=(d,x,y)=>d.replace(/([ML])(-?[\d.]+) (-?[\d.]+)/g,(m,c,a,b)=>c+(+(+a+x).toFixed(3))+' '+(+(+b+y).toFixed(3)));
 /* cover art phone (assets/cover-*.webp, one template for every project, measured at 2 art px per design px): circular corners, outer 56,
    8px bezel, so the screen is 375x812 at 48. Bezel: as the Evolution prototypes' .bezel-fill, a solid black shape UNDER the screen (from
-   4px inside the baked outer edge, r 52), so the screen's anti-aliased edge meets black and nothing is drawn over the screen */
+   4px inside the baked outer edge, r 52), so the screen's anti-aliased edge meets black and nothing is drawn over the screen. The bezel path is
+   in .cv-bz's own box (already at inset 4px), so it reaches 4px past the screen on every side: shifted by another 4px it started on the
+   screen's own top/left edge, and that shared anti-aliased row let the art's baked screen show as a light hairline */
 const PATH={coverScr:`path('${squircle(375,812,48,0)}')`,
-  coverBezel:`path('${mvP(squircle(383,820,52,0),4,4)}')`};
+  coverBezel:`path('${squircle(383,820,52,0)}')`};
 /* WAAPI keyframes from timed samples [{t, ...props}] over a loop of T ms (linear between 8ms samples). A sample whose values equal both
    neighbours' is dropped (linear between equal values = the same frames): a layer keeps keyframes only where it moves. WebKit re-processes
    every keyframe of its accelerated (transform/opacity) animations, paused or not, on every scrolled frame */
@@ -114,5 +115,5 @@ function register(name,player){players[name]=player;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>scan(name));else scan(name)}
 /* asset base for a player script: call with document.currentScript while the script runs */
 const base=(script,rel)=>new URL(rel,(script&&script.src)||location.href).href;
-window.DeviceCover={STEP,spring,resample,squircle,SQ,mvP,PATH,track,touch,finger,register,mount,base};
+window.DeviceCover={STEP,spring,resample,squircle,SQ,PATH,track,touch,finger,register,mount,base};
 })();
