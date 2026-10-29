@@ -4,28 +4,28 @@
    slice = the img's object-fit:cover) draws the phone screen from three crops of the slides (assets/citi/mo/: strip = the dashboard,
    citi-16 screen + citi-18 screen, head = both headers, feat = the citi-19 feature page) plus the live chart (verbatim Figma vectors,
    Graph 141388:14143). Coordinates: slide px; the screen is x 1158.5..1721, y 201..1419 (375x812 pt at 1.5x).
-   Loop (ms, all on the 8 ms grid), PERIOD 11984. Each beat eases in, lands, then a short breath before the next:
-     0-320 rest on Spending Insights · 320-2240 scroll down 1073 px (easeInOutCubic) · 2480-3520 the dark area fills from the
-     left to the current point (easeOutCubic; pale area already in place), past dots trail the edge · 3760-4080 current point
-     lands (easeOutCubic) · 4320-5040 the projection dots trail on and the three circles pop as the trail reaches them
-     (easeOutCubic) · 5360-6320 the card expands into the feature page (shared element, cubic-bezier(.45,0,.15,1) settle;
-     header, tabs, summary, chart labels, bills chain in and land inside it) · 6560-6960 the SEP 17 tooltip fades in rising
-     12 px (8 pt, easeOutCubic) · hold to 8464 · 8464-8704 the tooltip leaves first (easeInCubic) · 8864-9824 collapse
-     (same curve, reversed geometry) · 10064-11984 scroll back up (easeInOutCubic) · the chart clears at the loop point,
-     with the card off screen.
+   Loop (ms, all on the 8 ms grid), PERIOD 11264. Each beat eases in, lands, then a short breath before the next:
+     0-320 rest on Spending Insights · 320-2240 scroll down 1073 px (easeInOutCubic) · 2480-4320 one continuous chart beat: a
+     single easeInOutCubic edge sweeps the dark fill from the left (pale area already in place) straight through the current
+     point (it lands as the fill arrives) and on as the projection trail; past and projection dots and the three circles pop
+     as the edge reaches them (easeOutCubic) · 4640-5600 the card expands into the feature page (shared element,
+     cubic-bezier(.45,0,.15,1); the live chart is the only chart and rides the same curve to its feature-page place; header,
+     tabs, summary, 2K-6K labels, bills chain in and land inside it) · 5840-6240 the SEP 17 tooltip fades in rising 12 px
+     (easeOutCubic) · hold to 7744 · 7744-7984 the tooltip leaves first (easeInCubic) · 8144-9104 collapse (same curve,
+     reversed geometry) · 9344-11264 scroll back up (easeInOutCubic) · the chart clears at the loop point, card off screen.
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still image (t 3744). window.__citiMo: seek(t) / resume() / PERIOD for captures. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=287";
-var D=1073,TOP=320,SCR=1920,C0=2480,FILL=1040,PT0=3760,PTD=320,TR0=4320,TRD=720,E0=5360,EXP=960,
- TIP0=6560,TIPD=400,TOUT=8464,TOD=240,C1=8864,U0=10064,PERIOD=U0+SCR; /* 11984 */
-var CARD={x:18.5,y:285,w:527,h:570,r:24},FULL={x:0,y:131,w:564,h:1087},CHART_DY=-73; /* screen-crop px (origin 1158,201) */
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=288";
+var D=1073,TOP=320,SCR=1920,C0=2480,CH=1840,PTD=320,E0=4640,EXP=960,
+ TIP0=5840,TIPD=400,TOUT=7744,TOD=240,C1=8144,U0=9344,PERIOD=U0+SCR; /* 11264 */
+var CARD={x:18.5,y:285,w:527,h:570,r:24},FULL={x:0,y:131,w:564,h:1087},CHART_DY=-72; /* screen-crop px (origin 1158,201) */
 /* chart (Graph frame G, 375x300 pt; origin at crop (0.5,405), scale 1.5), times from C0 */
 var DOTS=[[10,244],[23,243],[35,242],[47,241],[60,239],[72,236],[85,233],[97,230],[110,226],[122,222],[134,217],[146,212],[159,206],[171,200],[184,193],[196,186],[208,178],[221,171],[233,164],[245,158],[258,152],[270,147],[283,143],[295,139],[307,136],[320,134],[332,132],[344,131],[357,130],[369,130]],
- SOLID=[208,178],RINGS=[[270,147],[295,139],[332,132]],DOT=160,POP=288,XE=208;
+ SOLID=[208,178],RINGS=[[270,147],[295,139],[332,132]],DOT=160,POP=288,XE=208,XW=375;
 var cl=function(v){return v<0?0:v>1?1:v},sine=function(t){return(1-Math.cos(Math.PI*t))/2},
  cub=function(t){return 1-Math.pow(1-t,3)},cin=function(t){return t*t*t},inout=function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2},
- ucub=function(f){return 1-Math.pow(1-cl(f),1/3)},                          /* inverse of easeOutCubic: when the edge reaches f */
+ uinout=function(f){f=cl(f);return f<.5?Math.cbrt(f/4):1-Math.cbrt(2-2*f)/2},  /* inverse of easeInOutCubic: when the edge reaches f */
  g8=function(v){return Math.round(v/8)*8},
  bez=function(x1,y1,x2,y2){return function(x){if(x<=0)return 0;if(x>=1)return 1;var u=x,i,cx,dx;   /* cubic-bezier(), CSS-style */
   for(i=0;i<8;i++){cx=3*x1*u*(1-u)*(1-u)+3*x2*u*u*(1-u)+u*u*u-x;dx=3*x1*(1-u)*(1-3*u)+3*x2*u*(2-3*u)+3*u*u;if(Math.abs(cx)<1e-5||!dx)break;u=cl(u-cx/dx)}
@@ -45,7 +45,7 @@ function build(host,id){
   +'<linearGradient id="@d" x1="22.2199" y1="42.9996" x2="22.2199" y2="239.498" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
   +'<clipPath id="@s"><rect x="0.5" y="0" width="562.5" height="1218" rx="70"/></clipPath><clipPath id="@c"><path/></clipPath><clipPath id="@w"><rect x="0" y="0" width="0" height="300"/></clipPath></defs>'
   +'<g transform="translate(1158 201)"><g clip-path="url(#@s)"><rect width="564" height="1218" fill="#EFEFEF"/><g class="dash"></g><g class="card"><path class="bg" fill="#fff"/><g class="cc"></g>'
-  +'<g clip-path="url(#@c)"><g class="ch"><g transform="translate(0.5 405) scale(1.5)"><g transform="translate(0 50)">'
+  +'<g clip-path="url(#@c)"><g class="ch"><g transform="translate(0.5 404) scale(1.5)"><g transform="translate(0 50)">'
   +'<path opacity="0.1" fill-rule="evenodd" fill="url(#@p)" d="M0.996094 194.289C96.8942 195.662 177.342 149.188 203.98 131.025C246.073 102.326 299.346 79.7437 374.999 79.7432V250H203.98H0.996094"/>'
   +'<path clip-path="url(#@w)" fill-rule="evenodd" fill="url(#@d)" d="M0 194.074C117.375 194.074 208 128 208 128V250H0"/></g><g class="d"></g><g class="pt"></g></g></g></g></g>'
   +'<g class="feat"></g><g class="tp"></g><rect x="181.5" y="1196.5" width="200" height="7.5" rx="3.75" fill="#000"/></g><g class="hd"></g><g class="hf"></g></g>';
@@ -57,10 +57,11 @@ function build(host,id){
  win(SRC.head,0,131,0,q(".hd"),262);win(SRC.head,131,131,0,hf,262);
  var band=function(y0,y1){var g=el("g",{},feat);win(SRC.feat,y0-131,y1-y0,y0,g,1065);return g};
  var tabs=band(131,226),sum=band(226,330),cht=band(330,782),bills=band(782,1196);
- /* when the fill edge (0..XE over FILL) or the projection trail (XE..375 over TRD) reaches x; times from C0, on the 8 ms grid */
- var at=function(x){return x<XE?g8(FILL*ucub(x/XE)):TR0-C0+g8(TRD*ucub((x-XE)/(375-XE)))};
+ /* one edge sweeps 0..XW over CH (easeInOutCubic): the dark fill (path ends at XE) and then the projection trail.
+    Each dot, the current point and each circle starts the moment the edge reaches it; times from C0, on the 8 ms grid */
+ var at=function(x){return g8(CH*uinout(x/XW))};
  DOTS.forEach(function(d){parts.push({t:at(d[0]),dur:DOT,f:cub,x:d[0],y:d[1],e:el("circle",{cx:d[0],cy:d[1],r:1,fill:"#0055D8"},q(".d")),o:1})});
- parts.push({t:PT0-C0,dur:PTD,f:cub,x:SOLID[0],y:SOLID[1],e:el("circle",{cx:SOLID[0],cy:SOLID[1],r:5.75,fill:"#0055D8",stroke:"#fff","stroke-width":1.5},q(".pt")),o:.5});
+ parts.push({t:at(XE),dur:PTD,f:cub,x:SOLID[0],y:SOLID[1],e:el("circle",{cx:SOLID[0],cy:SOLID[1],r:5.75,fill:"#0055D8",stroke:"#fff","stroke-width":1.5},q(".pt")),o:.5});
  RINGS.forEach(function(r){parts.push({t:at(r[0]),dur:POP,f:cub,x:r[0],y:r[1],e:el("circle",{cx:r[0],cy:r[1],r:5.75,fill:"#fff",stroke:"#0055D8","stroke-width":1.5},q(".pt")),o:.4})});
  var tip=el("image",{href:SRC.tip,x:236,y:470,width:156,height:110},q(".tp"));   /* SEP 17 tooltip, above the page */
  var op=function(e,v){e.setAttribute("opacity",v>=1?1:v.toFixed(3))},tr=function(e,x,y){e.setAttribute("transform",x||y?"translate("+x.toFixed(2)+" "+y.toFixed(2)+")":"")};
@@ -86,7 +87,7 @@ function build(host,id){
   /* tooltip: last in once the page has settled, first out */
   a=t<TIP0||t>=TOUT+TOD?0:t<TIP0+TIPD?cub((t-TIP0)/TIPD):t<TOUT?1:1-cin((t-TOUT)/TOD);
   op(tip,a);tip.setAttribute("y",(470+12*(1-a)).toFixed(2));
-  var we=tc<0?0:tc<FILL?XE*cub(tc/FILL):t<TR0?XE:XE+(375-XE)*cub(cl((t-TR0)/TRD));
+  var we=tc<0?0:XW*inout(cl(tc/CH));
   wipe.setAttribute("width",we.toFixed(2));
   for(var i=0;i<parts.length;i++){var o=parts[i],u=tc<0?0:cl((tc-o.t)/o.dur),k=u>=1?1:o.f(u);
    op(o.e,cl(u/o.o));o.e.setAttribute("transform",k===1?"":"translate("+o.x+" "+o.y+") scale("+Math.max(0,k).toFixed(4)+") translate("+(-o.x)+" "+(-o.y)+")")}}
