@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=299"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=300"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -18,11 +18,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=299"><link rel="stylesheet" href="../../css/theme.css?v=299">
+<link rel="stylesheet" href="../../css/type.css?v=300"><link rel="stylesheet" href="../../css/theme.css?v=300">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=299"><link rel="stylesheet" href="../../css/ad-cta.css?v=299"><script src="../../js/vac-caption.js?v=299"></script><script src="../shared/caption/caption.js?v=299"></script><script src="../../js/squircle.js?v=299"></script><script src="../shared/pause/pause.js?v=299"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=300"><link rel="stylesheet" href="../../css/ad-cta.css?v=300"><script src="../../js/vac-caption.js?v=300"></script><script src="../shared/caption/caption.js?v=300"></script><script src="../../js/squircle.js?v=300"></script><script src="../shared/pause/pause.js?v=300"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=299">
+<link rel="stylesheet" href="../shared/device/device.css?v=300">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -105,7 +105,7 @@ video{display:block;object-fit:cover}
 .fbar>*{position:absolute}
 /* the feed bar: SAP's search icon (preview/sap-proto, its nav.webp at 0,44: the same raster, cut from it, not a copy) at SAP's rect, 24 at
    339,58 (the glyph 340–362 × 59–81, 12 from the right edge); the menu 24 at 12,58: both centred on y 70, the chevron's and the tab row's */
-.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=299) -339px -14px/375px 52px no-repeat}
+.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=300) -339px -14px/375px 52px no-repeat}
 .tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
 .tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
@@ -178,7 +178,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <svg style="left:12px;top:58px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
           <i class="srch"></i>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=299"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=300"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="25.918 9.75 24 24"><path d="M34.9077 33.0002H33.8476C32.4935 33.0002 31.3768 33.0003 30.4931 32.8814C29.5652 32.7567 28.7458 32.4847 28.0897 31.8286C27.4336 31.1725 27.1616 30.3531 27.0369 29.4253C26.9181 28.5415 26.9181 27.4249 26.9181 26.0708L26.9181 21.77C26.9171 20.032 26.9164 18.8231 27.446 17.7639C27.9756 16.7047 28.9431 15.98 30.3341 14.938L32.5666 13.2636C33.681 12.4278 34.5867 11.7486 35.3817 11.2858C36.2111 10.803 37.01 10.5 37.9181 10.5C38.8263 10.5 39.6252 10.803 40.4545 11.2858C41.2496 11.7486 42.1553 12.4278 43.2696 13.2636L45.5022 14.938C46.8932 15.98 47.8607 16.7047 48.3903 17.7639C48.9199 18.8231 48.9192 20.032 48.9182 21.77L48.9181 26.0707C48.9182 27.4249 48.9182 28.5415 48.7994 29.4253C48.6746 30.3531 48.4027 31.1725 47.7466 31.8286C47.0905 32.4847 46.271 32.7567 45.3432 32.8814C44.4594 33.0003 43.3428 33.0002 41.9887 33.0002H40.9282C40.9248 33.0002 40.9214 33.0002 40.918 33.0002H34.918C34.9145 33.0002 34.9111 33.0002 34.9077 33.0002ZM33.7181 14.9C34.8926 14.0191 35.7056 13.4114 36.3879 13.0142C37.0474 12.6303 37.4929 12.5 37.9181 12.5C38.3433 12.5 38.7888 12.6303 39.4484 13.0142C40.1307 13.4114 40.9436 14.0191 42.1181 14.9L44.1181 16.4C45.7687 17.6379 46.3095 18.0745 46.6014 18.6584C46.8933 19.2422 46.9181 19.9368 46.9181 22V26.0002C46.9181 27.4427 46.916 28.4239 46.8172 29.1588C46.7223 29.8648 46.5549 30.1918 46.3323 30.4144C46.1098 30.637 45.7828 30.8043 45.0767 30.8993C44.3419 30.9981 43.3606 31.0002 41.9181 31.0002L41.918 24.5002C41.918 23.1195 40.7987 22.0002 39.418 22.0002H36.418C35.0373 22.0002 33.918 23.1195 33.918 24.5002V31.0002C32.4756 31.0002 31.4944 30.9981 30.7596 30.8993C30.0535 30.8043 29.7265 30.637 29.5039 30.4144C29.2814 30.1918 29.114 29.8648 29.0191 29.1588C28.9203 28.4239 28.9181 27.4427 28.9181 26.0002V22C28.9181 19.9368 28.9429 19.2422 29.2349 18.6584C29.5268 18.0745 30.0676 17.6379 31.7181 16.4L33.7181 14.9ZM39.918 31.0002H35.918V24.5002C35.918 24.2241 36.1418 24.0002 36.418 24.0002H39.418C39.6941 24.0002 39.918 24.2241 39.918 24.5002V31.0002Z" fill="#fff" fill-rule="evenodd"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div><i class="press" id="pillPress"></i></div>
         <i class="L navg" id="navg" aria-hidden="true"></i>
@@ -207,7 +207,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=299',AV='../../assets/vac/vac-cc-';
+const V='?v=300',AV='../../assets/vac/vac-cc-';
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -240,7 +240,7 @@ const ICO={
   /* the playlist (queue): outline, as the search sparkle and the home: 1.4 strokes, round caps and joins, on the sparkle's 20 box and its
      optical centre (y 10): the play triangle top-left, two lines to its right, the long line under them */
   explore:'<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 4.5v6.4l5.4-3.2Z"/><path d="M12.4 5.3H16M12.4 10.1H16M4.4 15.5H16"/></svg>'};
-const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=299">';
+const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=300">';
 const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 

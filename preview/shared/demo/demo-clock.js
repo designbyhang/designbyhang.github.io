@@ -6,7 +6,8 @@
    A PAUSE truly stops the document and a PLAY resumes it where it was, so a prototype's demo needs no pause logic of its own:
    this file wraps the page's clock (performance.now, requestAnimationFrame, setTimeout and setInterval) in one virtual clock
    that stops while paused. Pending timers and frames wait, springs and the autoplay timeline hold mid-step, running CSS/WAAPI
-   animations and transitions are paused, and playing videos are paused (a video that starts while paused is paused at once).
+   animations and transitions are paused (CSS animations that start while paused too; transitions that start while paused run,
+   so the site's colour-mode toggle reaches every embed at once), and playing videos are paused (a video that starts while paused is paused at once).
    On play everything continues from the same instant.
    The pause only applies while demoClock.gate() is true. The default gate is "inline": ?inline=1 and not lifted into full
    screen (html.embed-full). Full screen is never paused, so it stays fully interactive. Reduced motion is never paused
@@ -54,9 +55,11 @@ function thaw(){if(!frozen)return;off+=N0()-at;frozen=false;
   vids.forEach(function(v){try{var p=v.play();p&&p.catch&&p.catch(function(){})}catch(_){}});vids=[];
   tm.forEach(function(t,id){if(!t.h)arm(id,t)});if(fr.size&&!pump)pump=nRAF(run);
   html.classList.remove('demo-paused');W.dispatchEvent(new Event('demo:play'))}
-/* anything that starts while paused is held too */
+/* anything that starts while paused is held too: videos and CSS animations (the demo's motion). Not transitions: while the clock is
+   stopped the demo itself changes nothing, so a transition that starts then is the page reacting to the outside, above all the site's
+   colour-mode toggle (data-theme mirrored from the host page): held, a paused embed kept the old colours until it played again */
 doc.addEventListener('play',function(e){var v=e.target;if(frozen&&v&&v.tagName==='VIDEO'){if(vids.indexOf(v)<0)vids.push(v);v.pause()}},true);
-['transitionrun','animationstart'].forEach(function(k){doc.addEventListener(k,function(){if(frozen)holdAnims()},true)});
+doc.addEventListener('animationstart',function(e){if(frozen&&e.target.getAnimations)e.target.getAnimations().forEach(function(a){if(a.animationName===e.animationName&&a.playState==='running'){try{a.pause();anims.push(a)}catch(_){}}})},true);
 
 /* the host */
 var RM=W.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
