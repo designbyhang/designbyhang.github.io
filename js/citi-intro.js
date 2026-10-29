@@ -16,6 +16,7 @@
    tier row's direction). Split: the live (now Gold) phone slides to the right slot; the Priority and Blue phones, hidden behind it,
    are revealed at the centre and drawn out to the left. Fold back: the row converges on the centre with the live phone on top, its two
    sweeps retracting as it lands, so it arrives in Blue over the Blue phone; the close then plays the opening in reverse.
+   Ambient (state-seq ambient:true): no pill, no play/pause, no tabindex, tap, swipe or keys; it just autoplays and loops.
    Reduced motion: the three-up row, still (rm 4). Offscreen / hidden tab: paused (state-seq). Phone: screen 375x812 R48 at 60% smoothing,
    8px black OUTSIDE stroke (bezel 391x828 R56), shadow 40/48 blur 20 black 16%. Styles: css/citi-intro.css. */
 (function(){"use strict";
@@ -106,13 +107,13 @@ stage.innerHTML=phone('pb',screen(TIERS[0]),1)+phone('pp',screen(TIERS[1]),1)+
 
 /* ---- MOTION: the state-seq config (design px on the 1920x1080 Figma slide; single phone at 773,134 = citi_13's centre slot).
    One continuous chain, no dwelling (Hang): the opening (unchanged, 1248) -> sweep up to Priority -> sweep up to Gold -> the split into
-   citi_13's row (Blue 278 · Priority 773 · Gold 1268, scale 1; y134 -> 102 so the Gold phone clears the controls pill) -> short hold -> the row folds back into one Blue phone (the
+   citi_13's row (Blue 278 · Priority 773 · Gold 1268, scale 1; y134 -> 102, the row's settled position) -> short hold -> the row folds back into one Blue phone (the
    sweeps retract as it lands) -> the close (1248, the opening reversed) -> the Blue splash. 8ms holds = chained (state-seq needs a hold). */
 function mix(){var o={};[].forEach.call(arguments,function(s){for(var k in s){o[k]=o[k]||{};for(var p in s[k])o[k][p]=s[k][p]}});return o}
 var TL=THEMES[t0],SP=splash(TL),HM=home(TL),C={x:773,y:134,s:1},
  IN={wp:{w:375}},UP={wg:{w:375}},TIER={ppt:{o:1},pbt:{o:1}},SH={pps:{o:1},pbs:{o:1}},
- ROW={ph:{x:1268,y:102},pp:{x:773,y:102},pb:{x:278,y:102}}; /* citi_13's row (y134) lifted 32 so Gold clears the 32px-inset controls */
-var MOTION={mode:'loop',spring:[80,20,1],dur:1440,
+ ROW={ph:{x:1268,y:102},pp:{x:773,y:102},pb:{x:278,y:102}}; /* citi_13's row (y134) lifted 32 */
+var MOTION={mode:'loop',ambient:true,spring:[80,20,1],dur:1440,
  tr:{'0>1':1248,'1>0':1248,'1>2':1440,'2>3':1440,'3>4':1600,'4>5':1440,'5>0':1248},edur:{pps:320,pbs:320},rm:4,w:1920,h:1080,
  base:mix({ph:C,pp:C,pb:C,pps:{o:0},ppt:{o:0},pbs:{o:0},pbt:{o:0},wp:{w:0},wg:{w:0}},SP),
  states:[{name:'Citi Blue, opening the app',hold:1600,set:{}},
@@ -121,7 +122,7 @@ var MOTION={mode:'loop',spring:[80,20,1],dur:1440,
   {name:'Citigold',hold:8,set:mix(HM,TIER,IN,UP)},
   {name:'Citi Blue, Citi Priority, Citigold',hold:1440,set:mix(HM,TIER,IN,UP,SH,ROW)},
   {name:'Back to Citi Blue',hold:8,set:mix(HM,SH)}],
- /* phones: a 4:5 frame (css), the stage 864x1080, raised 48 design px so the single phone clears the 16px-inset controls; the row is
+ /* phones: a 4:5 frame (css), the stage 864x1080, raised 48 design px; the row is
     citi_13's at 0.56 (pitch 495 -> 277.2, gap still 120/375 of a phone), centred in the box (the stage oy -48 undone: y 312.64 + 48) */
  layouts:[{mq:'(max-width:640px)',w:864,h:1080,oy:-48,base:{ph:{x:244.5},pp:{x:244.5},pb:{x:244.5}},
   states:[{},{},{},{},{set:{ph:{x:604.2,y:360.64,s:.56},pp:{x:327,y:360.64,s:.56},pb:{x:49.8,y:360.64,s:.56}}},{}]}]};
@@ -136,9 +137,5 @@ function sq(w,h,R){if(window.FMSSSplit&&FMSSSplit.squircle)return FMSSSplit.squi
 var clip=function(sel,p){[].forEach.call(stage.querySelectorAll(sel),function(e){e.style.clipPath="path('"+p+"')"})};
 clip('.ci-sh>.ci-ph',sq(375,812,48));clip('.ci-bz',sq(391,828,56));clip('.ci-pft',sq(351,238,16));clip('.ci-txt',sq(351,380,16));
 
-/* ---- replay API: CitiIntro.replay() cuts to the splash and opens again */
-var rt=0;
-function replay(){var ss=box.__ss;if(!ss)return;clearTimeout(rt);ss.go(0,{dur:0,force:true,quiet:true});
- if(!matchMedia('(prefers-reduced-motion: reduce)').matches)rt=setTimeout(function(){ss.go(1,{manual:true})},640)}
-window.CitiIntro={themes:THEMES,tiers:TIERS,motion:MOTION,theme:function(){return t0},replay:replay};
+window.CitiIntro={themes:THEMES,tiers:TIERS,motion:MOTION,theme:function(){return t0}};
 })();

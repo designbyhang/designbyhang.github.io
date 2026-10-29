@@ -15,6 +15,8 @@
                                      centre is below the window's centre line, state 1 (After) once it meets it (4px hysteresis each way;
                                      right on load too); reduced motion cuts instantly. A pill tap sets that state at once (the next
                                      crossing re-syncs it to scroll); tapFrame = tapping the frame flips too
+     ambient: true,                  loop mode, no interaction at all: no pill, play/pause, live region, swipe, keys or state
+                                     aria-label (the box keeps its authored one); it just autoplays and loops
      rm: 1,                          reduced motion: the static key frame shown (no autoplay; steps cut instantly)
      enter: {set, dur},                (a layout may carry its own enter)              optional one-time entrance: layers start at state 0 merged with enter.set and animate into state 0
                                      the first time the piece is in view
@@ -88,10 +90,12 @@ function mount(box){var pins=[];
  function fit(){L=layout();var cs=getComputedStyle(box),pf=function(k){return parseFloat(cs[k])||0},bb=cs.boxSizing==='border-box',bw=pf('width')?pf('width')+(bb?-pf('borderLeftWidth')-pf('borderRightWidth'):pf('paddingLeft')+pf('paddingRight')):box.clientWidth,bh=pf('height')?pf('height')+(bb?-pf('borderTopWidth')-pf('borderBottomWidth'):pf('paddingTop')+pf('paddingBottom')):box.clientHeight,W=L.w||cfg.w||1920,s=bw/W;FH=L.fh!=null?!!L.fh:!!cfg.fh;var H=FH?bh/s:(L.h||cfg.h||1080);SH=H;var oy=(bh-H*s)/2+(L.oy!=null?L.oy:(cfg.oy||0))*s;
   stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='translate(0px,'+oy.toFixed(2)+'px) scale('+s.toFixed(5)+')';sc=s;ins=parseFloat(getComputedStyle(box).getPropertyValue('--ins'))||32;stage.style.setProperty('--inv',(1/s).toFixed(5));if(FL&&started&&!tr)cur=vals(i);if(cur)put();if(tg)segClip(tg[0].parentNode)}
  /* controls */
- var tog=!step&&cfg.toggle,tg=null,ctrl=document.createElement('div'),row=document.createElement('div'),sr=document.createElement('span'),dots=[],bars=[],fills=[],pp=null,prev=null,next=null;
- ctrl.className='car-ctrl ss-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose state');
+ /* cfg.ambient: a plain autoplaying loop, nothing built or bound (no pill, buttons, live region, swipe, keys or state aria-label) */
+ var amb=!!cfg.ambient,tog=!step&&cfg.toggle,tg=null,dots=[],bars=[],fills=[],pp=null,prev=null,next=null,sr=null;
  function mbtn(cls,html,label,fn){var b=document.createElement('button');b.type='button';b.className='mbtn '+cls;b.innerHTML=html;b.setAttribute('aria-label',label);
   b.addEventListener('click',function(ev){ev.stopPropagation();fn()});return b}
+ if(!amb){var ctrl=document.createElement('div'),row=document.createElement('div');sr=document.createElement('span');
+ ctrl.className='car-ctrl ss-ctrl';row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose state');
  cfg.states.forEach(function(st,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
   b.setAttribute('aria-label',(st.name||('State '+(k+1)))+' ('+(k+1)+' of '+n+')');b.addEventListener('click',function(ev){ev.stopPropagation();touch();go(k,{manual:true})});
   row.appendChild(b);dots.push(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild)});
@@ -101,16 +105,16 @@ function mount(box){var pins=[];
   cfg.states.forEach(function(st,k){var b=mbtn('ss-sb',st.short||st.name||String(k+1),'',function(){userTap(k)});b.setAttribute('aria-label','Show '+(st.name||st.short));tg.push(b);seg.appendChild(b)});
   seg.style.setProperty('--n',n);ctrl.appendChild(seg);ctrl.setAttribute('role','group');ctrl.setAttribute('aria-label','Before and after')}
  else{pp=mbtn('car-pp',window.dbhPP||'','Pause',function(){playing=!playing;sync();kick()});ctrl.appendChild(row);ctrl.appendChild(pp)}
- sr.className='car-sr';sr.setAttribute('aria-live','polite');if(cfg.controls!==false)box.appendChild(ctrl);box.appendChild(sr);if(pp&&cfg.controls!==false&&window.dbhTapPP)dbhTapPP(box,pp);
+ sr.className='car-sr';sr.setAttribute('aria-live','polite');if(cfg.controls!==false)box.appendChild(ctrl);box.appendChild(sr);if(pp&&cfg.controls!==false&&window.dbhTapPP)dbhTapPP(box,pp)}
  function sync(){if(tg){tg.forEach(function(b,k){b.setAttribute('aria-pressed',k===i?'true':'false')});tg[0].parentNode.style.setProperty('--k',i)}if(pp){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' animation')}}
  /* dots: slot openness e[k] eases with the transition, so the pill keeps one width */
  var e=cfg.states.map(function(){return 0}),e0=e.slice();
- function drawDots(q){if(tg)return;for(var k=0;k<n;k++){var t=k===i?1:0,v=q>=1?t:e0[k]+(t-e0[k])*q;e[k]=v;
+ function drawDots(q){if(tg||amb)return;for(var k=0;k<n;k++){var t=k===i?1:0,v=q>=1?t:e0[k]+(t-e0[k])*q;e[k]=v;
   dots[k].style.width=(24+16*v).toFixed(3)+'px';bars[k].style.width=(5+19*v).toFixed(3)+'px';dots[k].setAttribute('aria-current',k===i?'true':'false');
   var p=0;if(k===i&&q>=1)p=(step&&!playing)||RM.matches?1:Math.min(1,hold/holdOf(i));fills[k].style.setProperty('--p',p.toFixed(4))}}
- function setCap(){var st=cfg.states[i];if(cap&&st.caption!=null&&!cap.hasAttribute('data-static'))cap.textContent=st.caption;box.setAttribute('aria-label',(st.name||'')+(n>1?' ('+(i+1)+' of '+n+')':''))}
+ function setCap(){var st=cfg.states[i];if(cap&&st.caption!=null&&!cap.hasAttribute('data-static'))cap.textContent=st.caption;if(!amb)box.setAttribute('aria-label',(st.name||'')+(n>1?' ('+(i+1)+' of '+n+')':''))}
  function go(k,opt){k=cfg.wrap===false?Math.max(0,Math.min(n-1,k)):(k%n+n)%n;opt=opt||{};var a=i,d=opt.dur!=null?opt.dur:durOf(a,k);if(k===a&&!opt.force)return;
-  from=clone(cur);to=vals(k);e0=e.slice();i=k;hold=0;tr={t0:clock,d:d,manual:!!opt.manual||step};setCap();sync();if(!opt.quiet)sr.textContent=cfg.states[k].name||'';
+  from=clone(cur);to=vals(k);e0=e.slice();i=k;hold=0;tr={t0:clock,d:d,manual:!!opt.manual||step};setCap();sync();if(!opt.quiet&&sr)sr.textContent=cfg.states[k].name||'';
   if(!d){cur=clone(to);tr=null;put();drawDots(1)}kick()}
  function lerp(a,b,u){return a+(b-a)*u}
  function frameTr(){var el=clock-tr.t0,done=el>=tr.d;
@@ -141,8 +145,8 @@ function mount(box){var pins=[];
   box.addEventListener('pointercancel',function(){tdn=false})}
  /* swipe / drag / trackpad, every mode: the shared gesture (js/case.js window.dbhSwipe); a step = a dot tap (toggle: a pill tap),
     then the demo pool (js/demos.js) re-picks */
- if(n>1&&window.dbhSwipe)dbhSwipe(box,function(d){if(tog)userTap(i+d);else{touch();go(i+d,{manual:true})}if(demoAsk)demoAsk()},{skip:'.ss-ctrl'});
- box.addEventListener('keydown',function(ev){if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){ev.preventDefault();if(tog){userTap();return}touch();go(i+(ev.key==='ArrowRight'?1:-1))}});
+ if(!amb&&n>1&&window.dbhSwipe)dbhSwipe(box,function(d){if(tog)userTap(i+d);else{touch();go(i+d,{manual:true})}if(demoAsk)demoAsk()},{skip:'.ss-ctrl'});
+ if(!amb)box.addEventListener('keydown',function(ev){if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){ev.preventDefault();if(tog){userTap();return}touch();go(i+(ev.key==='ArrowRight'?1:-1))}});
  /* start */
  fit();var EN=layout().enter||cfg.enter;i=RM.matches&&cfg.rm!=null&&!tog?cfg.rm:0;cur=vals(i,EN&&!RM.matches?EN.set:null);entering=!!(EN&&!RM.matches);
  fit();put();e[i]=1;drawDots(1);setCap();sync();

@@ -1,7 +1,7 @@
 /* Citi intro (js/citi-intro.js on js/state-seq.js): Citi Blue splash -> home, sweeps up to Priority and Gold, splits into citi_13's row. The container is the site's
    state-seq frame (theme ground --frame + 1px --line, follows light/dark); the phone is the app itself, so its colours are the tier's
    tokens (--ci-*, set per theme by citi-intro.js) and do not follow the site theme. Design px (Figma 375x812 phone on a 1920x1080 slide).
-   Corners: 60%-smoothed squircle clip-paths (js). No hover zoom, no glow, no focus ring. */
+   Corners: 60%-smoothed squircle clip-paths (js). Ambient: autoplay only, no controls, not focusable, no hover zoom, glow or focus ring. */
 body.cs .media.mframe.sseq.ci-intro{cursor:default}
 @media (max-width:640px){body.cs .media.mframe.sseq.ci-intro{aspect-ratio:4/5}}
 .ci-intro .ss-stage .ci-sh{width:375px;height:812px;filter:drop-shadow(40px 48px 20px rgba(0,0,0,.16))}
