@@ -344,23 +344,22 @@ function pill(){
   if(lbId[1]===a||lbId[0]===b){pair.reverse();wt.reverse()}
   const lb=(ic,q)=>ICO[ic]+'<span class="q">'+esc(q)+'</span>';
   nw=0;
-  for(let i=0;i<2;i++){const id=pair[i];if(lbId[i]!==id){lbId[i]=id;const r=R[id];if(r.pre)swS=-1;els.lb[i].innerHTML=r.pre?'<div class="sw">'+lb('search',r.pre)+'</div><div class="sw">'+lb(r.icon,r.pill)+'</div>':lb(r.icon||'search',r.pill)}
+  for(let i=0;i<2;i++){const id=pair[i];if(lbId[i]!==id){lbId[i]=id;const r=R[id];els.lb[i]._s=-1;els.lb[i].innerHTML=r.pre?'<div class="sw">'+lb('search',r.pre)+'</div><div class="sw">'+lb(r.icon,r.pill)+'</div>':lb(r.icon||'search',r.pill)}
     const w=a===b?(i===0?1:0):wt[i];op(els.lb[i],w);if(id==='nesp')nw+=w}
   fx();
 }
 /* Nespresso's field, from ns: "Coffee" for 2000 (the video plays), the swap (320, ease-out, 8 up), then the edge glow's two pulses (800
    each, 96 apart; sin²: 0 → 1 → 0, ease-in-out), then nothing until the next arrival. nw: Nespresso's share of the pill (its crossfade) */
 const HOLD=2000,SWAP=320,PULSE=800,PGAP=96,GEND=HOLD+SWAP+2*PULSE+PGAP,easeOut3=q=>1-Math.pow(1-q,3);
-let nw=0,swS=-1;
+let nw=0;
 const navg=$('navg');
 /* the swap's lift is a 2D translate (cleared at 0), never a 3D layer: a 3D layer inside the blurred, rounded material makes Safari drop the pill's radius
    and paint the backdrop as a square-cornered box around its ends */
 const ty=y=>Math.abs(y)<.01?'':`translateY(${y.toFixed(2)}px)`;
 function fx(){
-  const L=lbId[0]==='nesp'?els.lb[0]:lbId[1]==='nesp'?els.lb[1]:null;
+  // every layer holding Nespresso (both can, while it alone is on screen) shows the same swap state, so a stale layer never fades in with both labels
   const s=easeOut3(clamp((ns-HOLD)/SWAP));
-  if(L&&L.children.length===2&&s!==swS){swS=s;const [a,b]=L.children;a.style.transform=ty(-8*s);op(a,1-s);b.style.transform=ty(8*(1-s));op(b,s)}
-  else if(!L)swS=-1;
+  for(let i=0;i<2;i++){const L=els.lb[i];if(lbId[i]==='nesp'&&L.children.length===2&&L._s!==s){L._s=s;const [a,b]=L.children;a.style.transform=ty(-8*s);op(a,1-s);b.style.transform=ty(8*(1-s));op(b,s)}}
   const gt=(ns-HOLD-SWAP)%(PULSE+PGAP),n=Math.floor((ns-HOLD-SWAP)/(PULSE+PGAP)),on=ns>HOLD+SWAP&&n<2&&gt<PULSE;
   const go=on?nw*Math.pow(Math.sin(Math.PI*gt/PULSE),2):0;
   op(navg,go);vis(navg,go>0)}
