@@ -51,7 +51,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 video{display:block;object-fit:cover}
 /* layers, bottom → top: the feed reels (Nike seed, Nespresso: one 812 pitch, vertical); CC (six categories side by side, 375 pitch;
    Coffee is a vertical stack of three ads); the top bars (feed: menu / search ↔ CC: back chevron + the category tab row,
-   crossfaded); the bottom nav (round home + the contextual pill, Nespresso's glow); the storefront sheet; status bar, home indicator */
+   crossfaded); the bottom nav (round home + the contextual pill, Nespresso's glow); status bar, home indicator */
 .feed,.cc{width:375px;height:812px;will-change:transform}
 .cc{visibility:hidden}
 .cat{width:375px;height:812px;visibility:hidden;will-change:transform}
@@ -131,16 +131,6 @@ video{display:block;object-fit:cover}
 /* Nespresso's glow, on the pill (303×40 at 60,742, r20; above it, so the halo is never clipped by it): a soft, even edge, a 1px white
    highlight at 36% (inset) and a 10px halo at 24%; after the swap it pulses twice (800 each, 0 → 1 → 0, ease-in-out, 96 apart), then it is gone */
 .navg{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12;pointer-events:none;opacity:0;visibility:hidden;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.72),0 0 4px rgba(255,255,255,.56),0 0 16px rgba(255,255,255,.48)}
-/* the Mario storefront: a white full-screen sheet over CC, × at 12,56, a 2-up grid of products */
-.store{width:375px;height:812px;background:#fff;color:#050505;z-index:22;visibility:hidden;will-change:transform;letter-spacing:-.24px;pointer-events:none}   /* the touch layer under it takes every gesture (hit rects in RC) */
-.store>*{position:absolute}
-.store .x{left:12px;top:56px;width:24px;height:24px}
-.store .st{left:48px;top:52px;width:315px;font:600 17px/22px var(--sf);letter-spacing:-.41px}
-.store .grid{left:12px;top:108px;width:351px;display:grid;grid-template-columns:1fr 1fr;column-gap:8px;row-gap:16px}
-.store .tile{position:relative;height:172px;border-radius:12px;background:#f0f2f5;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.store .tile svg{width:28px;height:28px}
-.store .nm{margin-top:8px;font:400 15px/20px var(--sf)}
-.store .pr{font:600 15px/20px var(--sf)}
 .sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=244) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=244) 0 0/375px 44px no-repeat}
 .home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:40;pointer-events:none}
 /* the touch indicators: the scripted one (inline; drawn per frame from the timeline, so no CSS transitions) and the real pointer's */
@@ -186,7 +176,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L touch" id="touch" aria-hidden="true"></div>
         <button class="L btn" id="pillb" type="button" aria-label="Explore more like this: open Commerce Chaining's category row"></button>
         <button class="L btn" id="back" type="button" aria-label="Back to the Nespresso reel"></button>
-        <div class="L store" id="store" aria-hidden="true"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
         <i class="L ldc" id="ldc" aria-hidden="true"></i>
@@ -262,10 +251,6 @@ const CATEL=CATS.map((ids,i)=>{const c=document.createElement('div');c.className
 for(const id in PG)VID[id]=PG[id].querySelector('video');
 $('ribbon').innerHTML=TABS.map(t=>`<span class="tab">${t}</span>`).join('');
 const TABEL=[...$('ribbon').children];
-/* the storefront: Universal's "View Storefront" (Figma 07b): the product slots are placeholders, as in Figma */
-(function(){const IMG='<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="#bcc0c4" stroke-width="1.6"/><circle cx="9" cy="9.5" r="1.8" fill="#bcc0c4"/><path d="m4 18 5-5 3.5 3.5L15 14l5 4.5" stroke="#bcc0c4" stroke-width="1.6" stroke-linejoin="round"/></svg>';
-  $('store').innerHTML='<svg class="x" viewBox="0 0 24 24" fill="none"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" stroke="#050505" stroke-width="2" stroke-linecap="round"/></svg><p class="st">The Super Mario Galaxy Movie Storefront</p><div class="grid">'+
-    ['Yoshi','Mario Hat','Mocchi','Goomba','Peach','Luigi'].map(n=>`<div><div class="tile">${IMG}<i class="press"></i></div><p class="nm">${n}</p><p class="pr">$29.99</p></div>`).join('')+'</div>'})();
 
 /* ---------- Figma corner smoothing: the site's squircle (js/squircle.js, 60%: its auto mode smooths every radius here); the phone and
    bezel are shaped by path() directly, as the other prototypes ---------- */
@@ -293,16 +278,16 @@ const easeIn=q=>q*q,easeOut=q=>1-(1-q)*(1-q);
          chevron: CC off right fast, Nespresso back in from the left, 488)
    f     the feed's reel (Nike 0 → Nespresso 1)      x  the in/out push (0 → 1)
    c     CC's category (Coffee 0 … Beauty 4; swipe left/right or tap a tab)      k  Coffee's ad (Blue Bottle 0 · Starbucks 1 · La Colombe 2)
-   ro    the tab row's own scroll on top of the category's (dragging the row)      sf  the storefront
+   ro    the tab row's own scroll on top of the category's (dragging the row)
    ns    ms since landing on Nespresso (its field: "Coffee", the swap, the glow; 0 until it lands, reset once it has left) */
-let mode='feed',f=0,x=0,c=0,k=0,ro=0,sf=0,ns=0,chevDim=1;
+let mode='feed',f=0,x=0,c=0,k=0,ro=0,ns=0,chevDim=1;
 const fA=anim(()=>f,v=>{f=v;render()}),xA=anim(()=>x,v=>{x=v;render()}),cA=anim(()=>c,v=>{c=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),
-  roA=anim(()=>ro,v=>{ro=v;render()}),sfA=anim(()=>sf,v=>{sf=v;render()});
+  roA=anim(()=>ro,v=>{ro=v;render()});
 const tr=(a,b)=>`translate3d(${a.toFixed(2)}px,${b.toFixed(2)}px,0)`;
 const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
 const vis=(el,on)=>{const s=on?'visible':'hidden';if(el.style.visibility!==s)el.style.visibility=s};
 const setT=(el,s)=>{if(el.style.transform!==s)el.style.transform=s};
-const els={feed:$('feed'),cc:$('cc'),fbar:$('fbar'),tabs:$('tabs'),chev:$('chev'),ribbon:$('ribbon'),st:$('store'),sb:$('sb'),home:$('home'),lb:[$('lb0'),$('lb1')]};
+const els={feed:$('feed'),cc:$('cc'),fbar:$('fbar'),tabs:$('tabs'),chev:$('chev'),ribbon:$('ribbon'),sb:$('sb'),home:$('home'),lb:[$('lb0'),$('lb1')]};
 let TABX=TABS.map(()=>0),TABW=TABS.map(()=>0),RMAX=0;
 function measureTabs(){TABX=TABEL.map(e=>e.offsetLeft);TABW=TABEL.map(e=>e.offsetWidth);RMAX=Math.max(0,els.ribbon.scrollWidth-295);render()}
 const scrollOf=cv=>{const i=clamp(Math.floor(cv),0,LAST),j=Math.min(LAST,i+1),q=cv-i;return lerp(TABX[FIRST[i]],TABX[FIRST[j]],q)};
@@ -314,7 +299,7 @@ function offsets(){
   CATS.forEach((ids,i)=>ids.forEach((id,j)=>{o[id]=[cx+375*(i-c),i===0?812*(j-k):0]}));
   return o}
 const onS=v=>Math.abs(v[0])<374.5&&Math.abs(v[1])<811.5;
-let lastSb='',lastHome='',booted=false,OFF={};
+let booted=false,OFF={};
 function render(){
   const o=OFF=offsets(),fx=o.nike[0],cx=mode==='feed'?375:o.bb[0]-375*(0-c);
   const feedOn=mode!=='cc',ccOn=mode!=='feed';
@@ -327,11 +312,8 @@ function render(){
   setT(els.ribbon,tr(-ribX(),0));
   TABEL.forEach((e,i)=>op(e,.55+.45*clamp(1-Math.abs(c-i))));
   pill();
-  vis(els.st,sf>0);setT(els.st,tr(0,812*(1-sf)));
-  const gl=Math.round(255*clamp(1-sf)),sbc=`rgb(${gl},${gl},${gl})`;if(sbc!==lastSb){lastSb=sbc;els.sb.style.backgroundColor=sbc}
-  const hl=Math.round(255*clamp(1-sf)),hc=`rgb(${hl},${hl},${hl})`;if(hc!==lastHome){lastHome=hc;els.home.style.backgroundColor=hc}
   $('pillb').style.pointerEvents=!INL()&&mode==='feed'&&f===1?'auto':'none';
-  $('back').style.pointerEvents=!INL()&&mode==='cc'&&!sf?'auto':'none';
+  $('back').style.pointerEvents=!INL()&&mode==='cc'?'auto':'none';
   if(!INL()&&booted)vidSync();
 }
 /* the pill's query: the reel on screen's, crossfaded across the middle of a move (the two nearest reels, by how far each is from the screen) */
@@ -375,7 +357,7 @@ function nsReset(){nsOn=false;cancelAnimationFrame(nsRaf);ns=0;fx()}
 /* ---------- full screen: the gestures (one touch layer; hit rects in screen points) ----------
    Feed: swipe up/down between Nike and Nespresso; on Nespresso "Explore more like this" (the pill) opens CC.
    CC: swipe up/down within Coffee (up on a tab's last reel: the next tab, the tab change; Beauty, the last: nothing); swipe left/right across categories (or tap a tab; the tab row also drags sideways); the chevron goes back.
-   Universal's card: not tappable (the scripted demo still opens its storefront). Other CTAs, cards and the nav: press feedback only (Figma has no destination for them).
+   Universal's card: not tappable. Other CTAs, cards and the nav: press feedback only (Figma has no destination for them).
    A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
 const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52]};
 const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
@@ -401,7 +383,7 @@ let pd=null,pressEl=null;
 function setPress(el){if(pressEl===el)return;if(pressEl)pressEl.classList.remove('on');pressEl=el;if(el)el.classList.add('on')}
 const stopAll=()=>[fA,cA,kA,roA].forEach(a=>a.stop());
 touch.addEventListener('pointerdown',ev=>{if(ev.button>0||INL())return;
-  if(xA.busy||sfA.busy)return;
+  if(xA.busy)return;
   const [a,b]=ptOf(ev),[el,kind]=pressAt(a,b);if(!kind)return;
   stopAll();setPress(el);if(kind==='back'){chevDim=.5;render()}
   pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,kind,f0:f,c0:c,k0:k,ro0:ro,s:[[performance.now(),0]],sc:phone.getBoundingClientRect().height/812};
@@ -458,7 +440,7 @@ function explore(){
   mode='in';x=0;c=0;k=0;ro=0;homeTell(false);restart('bb');touch.classList.remove('on');
   xA.to(1,{ms:664,onDone:()=>{mode='cc';nsReset();touch.classList.add('on');render();say('Commerce Chaining: Coffee, Blue Bottle Coffee ad')}});render()}
 function back(){
-  if(INL()||mode!=='cc'||sf)return;stopAll();c=Math.round(c);k=Math.round(k);ro=0;
+  if(INL()||mode!=='cc')return;stopAll();c=Math.round(c);k=Math.round(k);ro=0;
   mode='out';x=0;restart('nesp');touch.classList.remove('on');
   xA.to(1,{ms:488,onDone:()=>{mode='feed';f=1;x=0;touch.classList.add('on');render();homeTell(true);nsStart();say('Nespresso ad')}});render()}
 /* the chevron is a real button above the touch layer: it dims while pressed (as the pill's press), a tap goes back */
@@ -475,7 +457,7 @@ $('pillb').addEventListener('pointermove',ev=>{if(pp&&ev.pointerId===pp.id&&Math
 function pillUp(ev){if(!pp||ev.pointerId!==pp.id)return;const p=pp;pp=null;pillPress.classList.remove('on');if(ev.type==='pointerup'&&!p.moved)explore()}
 $('pillb').addEventListener('pointerup',pillUp);$('pillb').addEventListener('pointercancel',pillUp);
 let wT=0,wX=0,wY=0;
-touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventDefault();if(sf||mode==='in'||mode==='out')return;
+touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventDefault();if(mode==='in'||mode==='out')return;
   const now=performance.now();if(now-wT<480)return;wX+=ev.deltaX;wY+=ev.deltaY;
   if(Math.abs(wX)>40&&mode==='cc'){const t=clamp(Math.round(c)+(wX>0?1:-1),0,LAST);wX=wY=0;wT=now;if(t!==Math.round(c))goCat(t);return}
   if(Math.abs(wY)>40){const s=wY>0?1:-1;wX=wY=0;wT=now;
@@ -483,7 +465,7 @@ touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventD
     else vStep(s)}},{passive:false});
 document.addEventListener('keydown',ev=>{if(INL())return;const K=ev.key;
   if(K==='Escape'){if(mode==='cc')back();return}
-  if(sf||xA.busy)return;
+  if(xA.busy)return;
   if(K==='ArrowDown'||K==='ArrowUp'){ev.preventDefault();const s=K==='ArrowDown'?1:-1;
     if(mode==='feed')stepF(clamp(Math.round(f)+s,0,1));else if(mode==='cc')vStep(s)}
   else if(mode==='cc'&&(K==='ArrowRight'||K==='ArrowLeft')){ev.preventDefault();goCat(Math.round(c)+(K==='ArrowRight'?1:-1))}});
@@ -496,7 +478,7 @@ function warm(v){if(v.preload!=='auto'){v.preload='auto';try{if(v.readyState<2)v
 function vidSync(){const on=visible&&!document.hidden,o=OFF;
   for(const id in VID){const v=VID[id],shown=o[id]&&onS(o[id])&&(mode!=='feed'||id==='nike'||id==='nesp')&&(mode!=='cc'||!(id==='nike'||id==='nesp'));
     if(shown||(o[id]&&Math.abs(o[id][0])<=375&&Math.abs(o[id][1])<=812))warm(v);
-    if(on&&shown&&paused!==id&&!(sf>=1&&id==='univ'))playV(v);else if(!v.paused)v.pause()}}
+    if(on&&shown&&paused!==id)playV(v);else if(!v.paused)v.pause()}}
 function armGesture(){const g=()=>{removeEventListener('pointerdown',g,true);INL()?0:vidSync()};addEventListener('pointerdown',g,true)}
 function pauseAll(){ALLV.forEach(v=>{if(!v.paused)v.pause()})}
 ALLV.forEach(v=>v.addEventListener('canplay',()=>{if(!INL())vidSync()}));
@@ -511,26 +493,25 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll()
 
 /* ---------- inline: the scripted loop (Hang's flow, Figma 140796:4871), no interaction; every time on the 8ms grid ----------
    Nike seed → swipe up to Nespresso (its field: "Coffee", the swap to "Explore more like this", the glow) → "Explore more like this" → CC on Coffee (Blue Bottle) → swipe up:
-   Starbucks → La Colombe → swipe left: Home (CB2) → Movie (Universal) → its storefront opens and closes → Fashion (Laura Byrnes) →
+   Starbucks → La Colombe → swipe left: Home (CB2) → Movie (Universal) → Fashion (Laura Byrnes) →
    Beauty (xzmserena) → back: Nespresso (its field's sequence again, from "Coffee") → swipe down to the Nike seed, where the loop began */
-const T=40904,E={f1:1504,d1:2000,r1:2160,e1:2840,f4:8504,d4:8752,u4:9000,
+const T=36408,E={f1:1504,d1:2000,r1:2160,e1:2840,f4:8504,d4:8752,u4:9000,
   f5:11000,d5:11496,r5:11656,e5:12336,f6:13504,d6:14000,r6:14160,e6:14840,f7:16504,d7:17000,r7:17160,e7:17840,f8:19504,d8:20000,r8:20160,e8:20840,
-  f9:22000,d9:22248,u9:22496,f10:25000,d10:25248,u10:25496,f11:27000,d11:27496,r11:27656,e11:28336,f12:30000,d12:30496,r12:30656,e12:31336,
-  f14:33000,d14:33248,u14:33496,f15:37904,d15:38400,r15:38560,e15:39240},
+  f11:22504,d11:23000,r11:23160,e11:23840,f12:25504,d12:26000,r12:26160,e12:26840,
+  f14:28504,d14:28752,u14:29000,f15:33408,d15:33904,r15:34064,e15:34744},
   DRAG=48,DRAGMS=160,SPRMS=680,SH=664,OUTMS=488,F_IN=248,F_DOWN=176,F_UP=120,
   SVV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(812-DRAG)),SVH=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(375-DRAG)),
-  NIKE_IN=2.6,NIKE_PARK=NIKE_IN-(T-E.d15)/1000,UNIV_HOLD=(E.u9+SH-E.d8)/1000;
+  NIKE_IN=2.6,NIKE_PARK=NIKE_IN-(T-E.d15)/1000;
 const finger=$('finger');
 function swipeP(t,n,pitch){   // the progress (0 → 1) of scripted swipe n: an ease-in drag of 48pt, then the spring with its speed
   const d=E['d'+n],r=E['r'+n],e=E['e'+n],a=DRAG/pitch,S=pitch===812?SVV:SVH;
   if(t<d)return 0;if(t<r)return a*easeIn((t-d)/DRAGMS);if(t<e)return a+(1-a)*S((t-r)/SPRMS);return 1}
-const sheetP=(t,u1,u2)=>t<u1?0:t<u1+SH?SLOW((t-u1)/SH):t<u2?1:t<u2+SH?1-SLOW((t-u2)/SH):0;
 function touchF(t,on,down,up){
   if(t<on||t>up+F_IN)return null;
   const o=t<up?easeOut(clamp((t-on)/F_IN)):1-easeOut(clamp((t-up)/F_IN));
   const s=t<down?1:t<up?1-.15*easeOut(clamp((t-down)/F_DOWN)):.85+.15*easeOut(clamp((t-up)/F_UP));
   return {o,s}}
-const SW={1:'v',5:'v',6:'v',7:'h',8:'h',11:'h',12:'h',15:'d'},TAP={4:[150,762],9:[100,694],10:[24,68],14:[24,70]};   // centred on their targets: pill 742–782, card 666–722
+const SW={1:'v',5:'v',6:'v',7:'h',8:'h',11:'h',12:'h',15:'d'},TAP={4:[150,762],14:[24,70]};   // centred on their targets: pill 742–782, the chevron
 function fingerAt(t){
   let fo=null,px=0,py=0;
   for(const n in SW){const r=E['r'+n];if((fo=touchF(t,E['f'+n],E['d'+n],r))){const q=DRAG*easeIn(clamp((t-E['d'+n])/DRAGMS));
@@ -539,7 +520,6 @@ function fingerAt(t){
   if(!fo){op(finger,0);return}
   finger.style.transform=`translate3d(${px.toFixed(2)}px,${py.toFixed(2)}px,0) scale(${fo.s.toFixed(4)})`;op(finger,fo.o)}
 let tl=0;   // the loop clock (ms in [0, T))
-const cardPress=PG.univ.querySelector('.card .press');
 function applyT(t){
   tl=t;ro=0;
   if(t<E.u4){mode='feed';f=swipeP(t,1,812);x=0}
@@ -549,10 +529,9 @@ function applyT(t){
     c=t<E.f8?swipeP(t,7,375):t<E.f11?1+swipeP(t,8,375):t<E.f12?2+swipeP(t,11,375):3+swipeP(t,12,375)}
   else if(t<E.u14+OUTMS){mode='out';x=SLOW((t-E.u14)/OUTMS);c=LAST;k=2;f=1}
   else{mode='feed';x=0;c=0;k=0;f=1-swipeP(t,15,812)}
-  sf=mode==='cc'?sheetP(t,E.u9,E.u10):0;
   ns=t>=E.e1&&t<E.u4+SH?t-E.e1:t>=E.u14+OUTMS?t-E.u14-OUTMS:0;   // Nespresso's field: from each landing (the swipe's, the way back's)
   chevDim=t>=E.d14&&t<E.u14?.5:1;
-  pillPress.classList.toggle('on',t>=E.d4&&t<E.u4);cardPress.classList.toggle('on',t>=E.d9&&t<E.u9);
+  pillPress.classList.toggle('on',t>=E.d4&&t<E.u4);
   render();fingerAt(t);lockAll(t);
 }
 /* the video lock (as preview/sap-proto): d = where the video should be now (null: off screen, parked at its next in-point) */
@@ -571,8 +550,7 @@ function lockAll(t){
   lock(n.nesp,t>=E.d1&&t<E.u4+SH?(t-E.d1)/1000:win(t,E.u14,E.e15),0,E.u14,t);
   lock(n.bb,win(t,E.u4,E.e5),0,E.u4,t);lock(n.sbux,win(t,E.d5,E.e6),0,E.d5,t);lock(n.lc,win(t,E.d6,E.e7),0,E.d6,t);
   lock(n.cb2,win(t,E.d7,E.e8),0,E.d7,t);
-  const ud=t>=E.d8&&t<E.u9+SH?(t-E.d8)/1000:t>=E.u10&&t<E.e11?UNIV_HOLD+(t-E.u10)/1000:null;
-  lock(n.univ,ud,t>=E.u9+SH&&t<E.u10?UNIV_HOLD:0,E.d8,t);
+  lock(n.univ,win(t,E.d8,E.e11),0,E.d8,t);
   lock(n.laura,win(t,E.d11,E.e12),0,E.d11,t);lock(n.serena,win(t,E.d12,E.u14+OUTMS),0,E.d12,t);
 }
 let autoOn=false,raf=0,t0=0;
@@ -607,17 +585,17 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);a
 
 /* ---------- full screen: entering it (html.embed-full) on the Nike seed keeps going; from anywhere else the cover bridges to the seed's
    start. Leaving it, the cover bridges back to the loop's start ---------- */
-function toSeed(){stopAll();xA.stop();sfA.stop();nsReset();mode='feed';f=0;x=0;c=0;k=0;ro=0;sf=0;chevDim=1;paused=null;pz.set(false);
+function toSeed(){stopAll();xA.stop();nsReset();mode='feed';f=0;x=0;c=0;k=0;ro=0;chevDim=1;paused=null;pz.set(false);
   if(!INL())touch.classList.add('on');setPress(null);render()}
 function fsStart(keep){
-  stopAuto();ALLV.forEach(v=>v.loop=true);op(finger,0);pillPress.classList.remove('on');cardPress.classList.remove('on');
+  stopAuto();ALLV.forEach(v=>v.loop=true);op(finger,0);pillPress.classList.remove('on');
   toSeed();if(!keep){try{VID.nike.currentTime=0}catch(_){}}
   homeS=null;homeTell(true);vidSync();
 }
 let wasInl=INL();
 if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;fit();
   if(!i){const keep=ready&&mode==='feed'&&f===0;if(keep)fsStart(true);else cover(()=>{fsStart(false)});return}
-  stopAll();xA.stop();sfA.stop();nsReset();touch.classList.remove('on');paused=null;pz.set(false);setPress(null);
+  stopAll();xA.stop();nsReset();touch.classList.remove('on');paused=null;pz.set(false);setPress(null);
   cover(()=>{tl=0;applyT(0);pauseAll();return seekTo(VID.nike,NIKE_IN).then(()=>{sched()})})}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 if(!INL())touch.classList.add('on');
 
@@ -641,7 +619,7 @@ function uUp(ev){if(!ev.isTrusted)return;uf.classList.remove('down');if(ev.point
 addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
 phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
 
-window.__cc={get mode(){return mode},get f(){return f},get c(){return c},get k(){return k},get ro(){return ro},get sf(){return sf},get ns(){return ns},
+window.__cc={get mode(){return mode},get f(){return f},get c(){return c},get k(){return k},get ro(){return ro},get ns(){return ns},
   get t(){return tl},get auto(){return autoOn},get ready(){return ready},get visible(){return visible},T,E,VID,
   seek(t){tl=((t%T)+T)%T;t0=performance.now()-tl;applyT(tl)},explore,back,goCat,stepF,stepK,measureTabs,
   get playing(){return Object.keys(VID).filter(id=>!VID[id].paused)}};
