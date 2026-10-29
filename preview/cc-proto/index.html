@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=300"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script src="../shared/demo/demo-clock.js?v=302"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -18,11 +18,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=300"><link rel="stylesheet" href="../../css/theme.css?v=300">
+<link rel="stylesheet" href="../../css/type.css?v=302"><link rel="stylesheet" href="../../css/theme.css?v=302">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=300"><link rel="stylesheet" href="../../css/ad-cta.css?v=300"><script src="../../js/vac-caption.js?v=300"></script><script src="../shared/caption/caption.js?v=300"></script><script src="../../js/squircle.js?v=300"></script><script src="../shared/pause/pause.js?v=300"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=302"><link rel="stylesheet" href="../../css/ad-cta.css?v=302"><script src="../../js/vac-caption.js?v=302"></script><script src="../shared/caption/caption.js?v=302"></script><script src="../../js/squircle.js?v=302"></script><script src="../shared/pause/pause.js?v=302"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=300">
+<link rel="stylesheet" href="../shared/device/device.css?v=302">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -105,7 +105,7 @@ video{display:block;object-fit:cover}
 .fbar>*{position:absolute}
 /* the feed bar: SAP's search icon (preview/sap-proto, its nav.webp at 0,44: the same raster, cut from it, not a copy) at SAP's rect, 24 at
    339,58 (the glyph 340–362 × 59–81, 12 from the right edge); the menu 24 at 12,58: both centred on y 70, the chevron's and the tab row's */
-.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=300) -339px -14px/375px 52px no-repeat}
+.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=302) -339px -14px/375px 52px no-repeat}
 .tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
 .tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
@@ -178,7 +178,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <svg style="left:12px;top:58px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
           <i class="srch"></i>
         </div>
-        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=300"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=302"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
         <div class="L navh mat" aria-hidden="true"><svg viewBox="25.918 9.75 24 24"><path d="M34.9077 33.0002H33.8476C32.4935 33.0002 31.3768 33.0003 30.4931 32.8814C29.5652 32.7567 28.7458 32.4847 28.0897 31.8286C27.4336 31.1725 27.1616 30.3531 27.0369 29.4253C26.9181 28.5415 26.9181 27.4249 26.9181 26.0708L26.9181 21.77C26.9171 20.032 26.9164 18.8231 27.446 17.7639C27.9756 16.7047 28.9431 15.98 30.3341 14.938L32.5666 13.2636C33.681 12.4278 34.5867 11.7486 35.3817 11.2858C36.2111 10.803 37.01 10.5 37.9181 10.5C38.8263 10.5 39.6252 10.803 40.4545 11.2858C41.2496 11.7486 42.1553 12.4278 43.2696 13.2636L45.5022 14.938C46.8932 15.98 47.8607 16.7047 48.3903 17.7639C48.9199 18.8231 48.9192 20.032 48.9182 21.77L48.9181 26.0707C48.9182 27.4249 48.9182 28.5415 48.7994 29.4253C48.6746 30.3531 48.4027 31.1725 47.7466 31.8286C47.0905 32.4847 46.271 32.7567 45.3432 32.8814C44.4594 33.0003 43.3428 33.0002 41.9887 33.0002H40.9282C40.9248 33.0002 40.9214 33.0002 40.918 33.0002H34.918C34.9145 33.0002 34.9111 33.0002 34.9077 33.0002ZM33.7181 14.9C34.8926 14.0191 35.7056 13.4114 36.3879 13.0142C37.0474 12.6303 37.4929 12.5 37.9181 12.5C38.3433 12.5 38.7888 12.6303 39.4484 13.0142C40.1307 13.4114 40.9436 14.0191 42.1181 14.9L44.1181 16.4C45.7687 17.6379 46.3095 18.0745 46.6014 18.6584C46.8933 19.2422 46.9181 19.9368 46.9181 22V26.0002C46.9181 27.4427 46.916 28.4239 46.8172 29.1588C46.7223 29.8648 46.5549 30.1918 46.3323 30.4144C46.1098 30.637 45.7828 30.8043 45.0767 30.8993C44.3419 30.9981 43.3606 31.0002 41.9181 31.0002L41.918 24.5002C41.918 23.1195 40.7987 22.0002 39.418 22.0002H36.418C35.0373 22.0002 33.918 23.1195 33.918 24.5002V31.0002C32.4756 31.0002 31.4944 30.9981 30.7596 30.8993C30.0535 30.8043 29.7265 30.637 29.5039 30.4144C29.2814 30.1918 29.114 29.8648 29.0191 29.1588C28.9203 28.4239 28.9181 27.4427 28.9181 26.0002V22C28.9181 19.9368 28.9429 19.2422 29.2349 18.6584C29.5268 18.0745 30.0676 17.6379 31.7181 16.4L33.7181 14.9ZM39.918 31.0002H35.918V24.5002C35.918 24.2241 36.1418 24.0002 36.418 24.0002H39.418C39.6941 24.0002 39.918 24.2241 39.918 24.5002V31.0002Z" fill="#fff" fill-rule="evenodd"/></svg><i class="press" id="homePress"></i></div>
         <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div><i class="press" id="pillPress"></i></div>
         <i class="L navg" id="navg" aria-hidden="true"></i>
@@ -196,7 +196,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">A Nike reel in Feed; swipe up to a Nespresso ad and tap "Explore more like this" in the bar at the bottom. Commerce Chaining opens on Coffee: swipe up through Blue Bottle, Starbucks and La Colombe, or swipe left (or tap a tab) across Home, Movie, Fashion and Beauty, where ads sit beside creator posts with their commerce cards. Universal's "View Storefront" opens its storefront; × closes it. The chevron (or Escape) returns to the Nespresso reel. Tap a reel to pause it.</p>
+  <p class="below">A Nike reel in Feed; swipe up to a Nespresso ad and tap "Explore more like this" in the bar at the bottom. Commerce Chaining opens on Coffee: swipe up through Blue Bottle, Starbucks and La Colombe, or swipe left (or tap a tab) across Home, Movie, Fashion and Beauty, where ads sit beside creator posts with their commerce cards. The chevron (or Escape) returns to the Nespresso reel. Tap a reel to pause it.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -207,7 +207,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=300',AV='../../assets/vac/vac-cc-';
+const V='?v=302',AV='../../assets/vac/vac-cc-';
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -229,7 +229,7 @@ const R={
   sbux:{kind:'ad',name:'Starbucks',cap:'This summer\'s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
   lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
   cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
-  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',store:1,pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
+  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
   laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
   serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
 const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena']],LAST=CATS.length-1;
@@ -240,7 +240,7 @@ const ICO={
   /* the playlist (queue): outline, as the search sparkle and the home: 1.4 strokes, round caps and joins, on the sparkle's 20 box and its
      optical centre (y 10): the play triangle top-left, two lines to its right, the long line under them */
   explore:'<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 4.5v6.4l5.4-3.2Z"/><path d="M12.4 5.3H16M12.4 10.1H16M4.4 15.5H16"/></svg>'};
-const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=300">';
+const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=302">';
 const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
@@ -374,16 +374,15 @@ function nsReset(){nsOn=false;cancelAnimationFrame(nsRaf);ns=0;fx()}
 
 /* ---------- full screen: the gestures (one touch layer; hit rects in screen points) ----------
    Feed: swipe up/down between Nike and Nespresso; on Nespresso "Explore more like this" (the pill) opens CC.
-   CC: swipe up/down within Coffee (up on a tab's last reel: the next tab, the tab change; Beauty, the last: nothing); swipe left/right across categories (or tap a tab; the tab row also drags sideways); Universal's card
-   opens the storefront; the chevron goes back. CTAs, cards and the nav: press feedback only (Figma has no destination for them).
+   CC: swipe up/down within Coffee (up on a tab's last reel: the next tab, the tab change; Beauty, the last: nothing); swipe left/right across categories (or tap a tab; the tab row also drags sideways); the chevron goes back.
+   Universal's card: not tappable (the scripted demo still opens its storefront). Other CTAs, cards and the nav: press feedback only (Figma has no destination for them).
    A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
-const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52],x:[2,44,44,44]};
+const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52]};
 const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
 const pz=FMSSPause.mount($('pz'));let paused=null;   // the reel the viewer has paused (id)
 const settled=v=>Math.abs(v-Math.round(v))<.01;
 const curId=()=>mode==='feed'?(f<.5?'nike':'nesp'):mode==='cc'?CATS[Math.round(c)][Math.round(c)===0?Math.round(k):0]:null;
 function pressAt(a,b){   // [overlay, kind]
-  if(sf>=1)return inR(RC.x,a,b)?[null,'x']:[null,'store'];
   if(mode==='feed'&&settled(f)){const id=curId();
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];   // Nespresso's pill is the #pillb button above this layer
@@ -395,7 +394,7 @@ function pressAt(a,b){   // [overlay, kind]
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];
     if(d.kind==='ad'&&inR(RC.cta,a,b))return [PG[id].querySelector('.ad-cta .press'),'cta'];
-    if(d.kind==='org'&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b))return [PG[id].querySelector('.card .press'),d.store?'store':'card'];
+    if(d.kind==='org'&&id!=='univ'&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b))return [PG[id].querySelector('.card .press'),'card'];
     return [null,'reel']}
   return [null,null]}
 let pd=null,pressEl=null;
@@ -414,8 +413,7 @@ touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
   if(!pd.moved&&Math.hypot(ev.clientX-pd.x,ev.clientY-pd.y)>10){pd.moved=true;setPress(null);if(chevDim!==1){chevDim=1;render()}}
   if(!pd.moved)return;
   if(!pd.axis){
-    if(pd.kind==='store'||pd.kind==='x')pd.axis='none';
-    else if(mode==='feed')pd.axis='f';
+    if(mode==='feed')pd.axis='f';
     else if(pd.kind==='tabs'||pd.kind.startsWith('tab'))pd.axis=Math.abs(dx)>=Math.abs(dy)?'ro':'none';
     else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':'v')}   // a single-reel category: up goes to the next tab (Beauty, the last, has none), down to the previous tab's last reel
   let v=0;
@@ -431,7 +429,7 @@ function snap(cur,v0,from,lo,hi,pitch){let t=Math.round(cur+v0*.18);if(Math.abs(
 function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setPress(null);if(chevDim!==1){chevDim=1;render()}
   const up=ev.type==='pointerup';
   if(!d.moved){if(!up)return;const kd=d.kind;
-    if(kd==='back')back();else if(kd==='store')openStore();else if(kd==='x')closeStore();
+    if(kd==='back')back();
     else if(kd.startsWith('tab')&&kd!=='tabs')goCat(+kd.slice(3));else if(kd==='reel')togglePause();
     return}
   const v0=vel(d);
@@ -453,8 +451,6 @@ function goCat(t,from=Math.round(c)){t=clamp(t,0,LAST);const id=CATS[t][t===0?Ma
   roA.to(0,{ms:664});cA.to(t,{ms:t===c?400:664,onDone:()=>arrive(id)})}
 function togglePause(){const id=curId();if(!id)return;const v=VID[id];
   if(paused===id){paused=null;pz.set(false);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
-function openStore(){if(INL()||mode!=='cc'||sf)return;sfA.to(1,{ms:664,onDone:()=>say('The Super Mario Galaxy Movie storefront')})}
-function closeStore(){sfA.to(0,{ms:664,onDone:()=>say('Universal Studios post')})}
 
 /* ---------- Explore more like this → CC (push left, Slow 664); back → Nespresso (push right, fast: 488) ---------- */
 function explore(){
@@ -486,7 +482,7 @@ touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventD
     if(mode==='feed'){const t=clamp(Math.round(f)+s,0,1);if(t!==Math.round(f))stepF(t)}
     else vStep(s)}},{passive:false});
 document.addEventListener('keydown',ev=>{if(INL())return;const K=ev.key;
-  if(K==='Escape'){if(sf)closeStore();else if(mode==='cc')back();return}
+  if(K==='Escape'){if(mode==='cc')back();return}
   if(sf||xA.busy)return;
   if(K==='ArrowDown'||K==='ArrowUp'){ev.preventDefault();const s=K==='ArrowDown'?1:-1;
     if(mode==='feed')stepF(clamp(Math.round(f)+s,0,1));else if(mode==='cc')vStep(s)}
@@ -647,7 +643,7 @@ phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{p
 
 window.__cc={get mode(){return mode},get f(){return f},get c(){return c},get k(){return k},get ro(){return ro},get sf(){return sf},get ns(){return ns},
   get t(){return tl},get auto(){return autoOn},get ready(){return ready},get visible(){return visible},T,E,VID,
-  seek(t){tl=((t%T)+T)%T;t0=performance.now()-tl;applyT(tl)},explore,back,goCat,stepF,stepK,openStore,measureTabs,
+  seek(t){tl=((t%T)+T)%T;t0=performance.now()-tl;applyT(tl)},explore,back,goCat,stepF,stepK,measureTabs,
   get playing(){return Object.keys(VID).filter(id=>!VID[id].paused)}};
 booted=true;render();
 })();
