@@ -1,5 +1,7 @@
 /* FMSS shared in-app browser (IAB) foundation (see iab.css for the structure).
    One value, y (the sheet top in the host's 375×812 px), drives everything: Y1 812 closed · Y2 half · Y3 44 full.
+   Full screen geometry is shared, never per prototype: the full header (46px tall) sits 2px under the sheet top (screen y 46),
+   its hairline on its last row (screen y 91), the page from 48 (screen y 92).
    Motion (one place for every prototype): critically damped spring ω18 (close ω16), 4 substeps; 1:1 drag with 100ms velocity
    samples, projection y + v·0.18s, a flick > 600px/s moves at least one step, rubber-band ×0.25 above full; a tap on the half
    sheet → full. Full screen: a press below the header scrolls the page (rubber-band ×0.35, spring-back ω16, fling τ 325ms) and a
@@ -11,13 +13,13 @@
                   put; × / Escape / the host's controls close it
      'collapse'   the host's floating CTA opened it: the only drag is the morph back into that CTA (collapse, below)
 
-   const iab=FMSSIAB.create({host, y2, label, url, headers:{full}, fullTop, handle, web:'<img …>', webH, visH, …hooks});
+   const iab=FMSSIAB.create({host, y2, label, url, headers:{full}, handle, web:'<img …>', webH, visH, …hooks});
    Per-prototype config (all optional unless noted):
      host*        375×812 layer the IAB is built into          label     dialog name, e.g. 'In-app browser (IAB): nike.com'
      url*         the site's domain: the half sheet's header is the shared one (header.js, loaded first), with url/<url>.svg
      headers*     {full} the full screen header vector (site specific)   web*      the page's markup (first element scrolls / fades)
      webH*        page height (number or function)               visH      visible page height in full (smax = webH - visH)
-     y2           half-sheet top (406)                           fullTop   full header's top inside the sheet (0); content top = fullTop + 46
+     y2           half-sheet top (406)
      handle       a 20px drag strip at the sheet's top           halfZ     damping into half (.82)
      shift        'p' | 'hk': what moves the page top half → full ('p')
      fullness(y)  0 half/closed → 1 full (default from half)
@@ -72,7 +74,7 @@ function makeSpring(get,set){
 /* the sheet header (half sheet): the shared FMSS IAB sheet header, header.js (load it before this file) */
 const header=o=>window.FMSSIABHeader(o);
 function create(cfg){
-  const host=cfg.host,Y1=812,Y2=cfg.y2||406,Y3=44,FT=cfg.fullTop||0,CT=FT+46;
+  const host=cfg.host,Y1=812,Y2=cfg.y2||406,Y3=44,FT=2,CT=FT+46;   // full: sheet top 44 (the status bar bottom), header 2px under it (46), content 48 (92); one value for every prototype
   const SP=Object.assign({w:18,z:1,wClose:16},cfg.spring||{});
   const halfZ=cfg.halfZ||.82,visH=cfg.visH||622;
   const webH=()=>typeof cfg.webH==='function'?cfg.webH():cfg.webH;
