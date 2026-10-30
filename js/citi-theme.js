@@ -13,9 +13,9 @@
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still Blue frame (t 0). window.__citiTheme: seek(t) / resume() / PERIOD. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=304";
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=314";
 var SW0=1600,SWD=640,SW1=3840,XF=640,STEPS=[[4800,0,1],[7040,1,2],[9280,2,0]],PERIOD=9280+XF; /* 9920 */
-var ROW={x:865.5,y:1260,w:526.5,h:120},SHIFT=180;
+var ROW={x:865.5,y:1188,w:526.5,h:120},SHIFT=180;
 var cl=function(v){return v<0?0:v>1?1:v},
  bez=function(x1,y1,x2,y2){return function(x){if(x<=0)return 0;if(x>=1)return 1;var u=x,i,cx,dx;   /* cubic-bezier(), CSS-style */
   for(i=0;i<8;i++){cx=3*x1*u*(1-u)*(1-u)+3*x2*u*u*(1-u)+u*u*u-x;dx=3*x1*(1-u)*(1-3*u)+3*x2*u*(2-3*u)+3*u*u;if(Math.abs(cx)<1e-5||!dx)break;u=cl(u-cx/dx)}
