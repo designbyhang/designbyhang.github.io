@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Profile → IAB — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=308"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=309"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -20,12 +20,12 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=308"><link rel="stylesheet" href="../../css/theme.css?v=308">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=308"><script src="../../js/squircle.js?v=308"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=308"></script><script src="../shared/edge-back/edge-back.js?v=308"></script><script src="../shared/pause/pause.js?v=308"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=308"><script src="../shared/appbar/appbar.js?v=308"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=308"><script src="../shared/tabbar/tabbar.js?v=308"></script>
+<link rel="stylesheet" href="../../css/type.css?v=309"><link rel="stylesheet" href="../../css/theme.css?v=309">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=309"><script src="../../js/squircle.js?v=309"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=309"></script><script src="../shared/edge-back/edge-back.js?v=309"></script><script src="../shared/pause/pause.js?v=309"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=309"><script src="../shared/appbar/appbar.js?v=309"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=309"><script src="../shared/tabbar/tabbar.js?v=309"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=308">
+<link rel="stylesheet" href="../shared/device/device.css?v=309">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -231,7 +231,7 @@ html.hosted .phone{background:transparent;border-radius:0}
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the card, and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB full screen, where it stays put: scroll the page, and × or Escape closes it. The card's × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
+  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the profile with the tab bar (the peek shows again the next time you open the profile from the reel), and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB full screen, where it stays put: scroll the page, and × or Escape closes it. The card's × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -334,7 +334,8 @@ function backToReel(){
    Learn more on the reel rises straight to full (full header held) as a CTA open (entry 'cta'): the sheet never follows a drag, a press
    on the page scrolls it; × or Escape close. Unlike fmss-cb the reel's overlay (Nike, caption, Learn more, Promoted) is baked into the footage, so nothing
    on the reel moves: only the dim and the sheet do. The profile's peek / floating card opens this same sheet (iabFrom 'profile', entry
-   'collapse'); closing it there brings the card back. */
+   'collapse'); × or Escape there brings the tab bar back and leaves the peek and card dismissed (they re-arm on the next push in);
+   only the swipe down morphs the sheet back into the card. */
 const Y1=812,Y2=406,Y3=44,stk=$('stk');
 let iabFrom='reel';
 /* proto-state, to the host page (js/proto-fs.js desktop, js/case.js phone): postMessage {type:'proto-state',home} on each change;
@@ -351,11 +352,11 @@ const iab=FMSSIAB.create({
     setTabs();
     setLive(s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen');
   },
-  onClose(){if(iabFrom==='reel')resumeReel()},     // back on the reel from the browser: playback resumes even if it was paused
-  onClosed:()=>iabClosed(),
+  onClose(){if(iabFrom==='reel')resumeReel();else iabClosing()},   // back on the reel from the browser: playback resumes even if it was paused
+  onClosed:()=>{iabFrom='reel'},
   onOpen:()=>homeTell(false),onSettled:s=>{if(s===1&&screen===1)homeTell(true)},
   onLoad(){loads++;bnT0=performance.now();setBanner()},
-  onX:()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})},
+  onX:()=>{close();if(kbd)(iabFrom==='profile'?$('back'):$('shop')).focus({preventScroll:true})},
   wheelTo:(e,d,apply)=>wheelTo(e,d,apply),wd:e=>wd(e),
   /* entry 'collapse' (opened from the profile's peek / card): a swipe down on the full screen IAB morphs it into the floating card, the
      same morph and spring as the peek → card on the first scroll (renderCta, toCard: ω20) */
@@ -372,11 +373,16 @@ const sheet=iab.sheet,go=iab.go,render=iab.render,setState=iab.setState,setScrol
 /* home indicator colour: black once the IAB covers the bottom (fmss-cb: t > .5) and over the white profile; white over the reel */
 function setHome(t=clamp((Y1-iab.y)/(Y1-Y2))){$('home').style.background=t>.5||screen===2?'#000':'#fff'}
 const openIabFull=()=>go(3,{entry:'cta'}), close=()=>go(1);   // Learn more: a CTA open, no drag on the full screen sheet
-/* closed from the profile: the card rises back in (the IAB came from the peek or the card) */
-function iabClosed(){if(iabFrom==='profile'&&screen===2&&ctaState==='full'){cardEnter();setLive('Nike profile, nike.com card');if(kbd)cta.focus({preventScroll:true})}iabFrom='reel'}
+/* × / Escape from the profile (the IAB came from the peek or the card): the peek and card stay dismissed and the tab bar comes back
+   as the sheet leaves, on the same spring as a dismissed peek's (ω20); the next push in (tap Nike on the reel) brings the peek again */
+function iabClosing(){
+  if(screen!==2||ctaState!=='full')return;ctaState='none';cta.hidden=true;setTabs();
+  let k=1;spring(()=>k,v=>{k=v;tabsWith(v)},0,{w:20,eps:.002,onDone:()=>tabsWith(0)});
+  setLive('Nike profile');
+}
 /* reel: Learn more → full; anywhere else on the media toggles pause */
 $('shop').addEventListener('click',()=>{if(iab.state===1&&screen===1){iabFrom='reel';openIabFull()}});
-$('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})});
+$('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?$('back'):$('shop')).focus({preventScroll:true})});
 reel.addEventListener('click',e=>{
   if(screen!==1||iab.state!==1||iab.busy||e.target.closest('button'))return;
   const [x,y]=ptOf(e);
@@ -433,10 +439,6 @@ function dismissCard(v0){
   if(v0!==undefined||cardDy){const c0=cardDy,c1=H-CARD.y+24;if(cardS)cardS.cancel();cardS=spring(()=>cardDy,q=>{cardDy=q;renderCta();tabsWith(1-prog(q,c0,c1))},c1,{v:v0||0,w:18,eps:.5,veps:20,onDone:()=>{cardS=null;cta.hidden=true;cardDy=0;renderCta();tabsWith(0)}})}
   else{const i0=cardIn;spring(()=>cardIn,v=>{cardIn=v;renderCta();tabsWith(1-prog(v,i0,0))},0,{w:22,eps:.004,onDone:()=>{cta.hidden=true;cardIn=1;tabsWith(0)}})}
   setLive('Card dismissed');
-}
-function cardEnter(){                                  // after closing the IAB: the card rises back in from below
-  setCta('card');cardIn=0;renderCta();
-  spring(()=>cardIn,v=>{cardIn=v;renderCta()},1,{w:20,eps:.002});
 }
 
 /* ---------- profile scroll: rubber band + fling + bounce (max scroll 829pt, measured from the recording) ---------- */
@@ -602,7 +604,7 @@ cta.addEventListener('click',e=>{if(e.target.closest('#cardX'))return;openFromPr
 cta.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
 cta.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===cta){e.preventDefault();openFromProfile()}});
 $('cardX').addEventListener('click',e=>{e.stopPropagation();dismissCard()});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;userActed();if(iab.state!==1){close();if(kbd)(iabFrom==='profile'?cta:$('shop')).focus({preventScroll:true})}else if(screen===2)backToReel()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;userActed();if(iab.state!==1){close();if(kbd)(iabFrom==='profile'?$('back'):$('shop')).focus({preventScroll:true})}else if(screen===2)backToReel()});
 
 /* ---------- theme toggle + follow site theme (same as fmss-cb) ---------- */
 $('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}} );
