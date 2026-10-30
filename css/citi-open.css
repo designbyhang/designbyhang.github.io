@@ -1,0 +1,16 @@
+/* Citi Color Theming opening (js/citi-open.js on js/citi-intro.js's phone + js/state-seq.js), the first figure of 03 Color Theming.
+   The site's media frame (3840/2052, 1px --line) at every width, like the section's other demos (the dormant intro's 4/5 phone crop
+   is not used); the 1920x1080 stage is scaled to its width and centred (27 design px cropped top and bottom, nothing of the guide's
+   content), and the ground layer is oversized so no edge ever shows. The ground, marks and titles are the tier's own colours (Figma),
+   in both site themes. Ambient: no controls, focus, hover or 3D. */
+body.cs .media.mframe.sseq.ci-open{background:#002f9b}
+@media (max-width:640px){body.cs .media.mframe.sseq.ci-intro.ci-open{aspect-ratio:3840/2052}}
+.ci-open .co-sky{left:-960px!important;top:-540px!important;width:3840px;height:2160px;background:#002f9b}
+/* the giant mark: the blur (raster, soft) knocked out by the exact vector shape (mask), the filter region 1740x1300 */
+.ci-open .co-mk{width:1740px;height:1300px;-webkit-mask:url(../assets/citi/open/mark-mask.svg) 0 0/100% 100% no-repeat;mask:url(../assets/citi/open/mark-mask.svg) 0 0/100% 100% no-repeat}
+body.cs .media.sseq.ci-open .ss-stage .co-mk img{display:block;width:1740px;height:1300px;max-width:none;object-fit:fill}
+/* titles: Inter Light 40/40, label, 20, dot, 12, dot (40px circles) */
+.ci-open .co-tt{display:flex;align-items:center;height:40px;font:300 40px/40px Inter,system-ui,sans-serif;white-space:nowrap;-webkit-font-smoothing:antialiased}
+.ci-open .co-tt i{display:block;flex:none;width:40px;height:40px;border-radius:50%;margin-left:12px}
+.ci-open .co-tt span+i{margin-left:20px}
+.ci-open .co-sw{width:375px;height:812px}

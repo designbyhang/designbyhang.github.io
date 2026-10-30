@@ -20,8 +20,6 @@
    Reduced motion: the three-up row, still (rm 4). Offscreen / hidden tab: paused (state-seq). Phone: screen 375x812 R48 at 60% smoothing,
    8px black OUTSIDE stroke (bezel 391x828 R56), shadow 40/48 blur 20 black 16%. Styles: css/citi-intro.css. */
 (function(){"use strict";
-var box=document.querySelector('[data-citi-intro]');if(!box)return;
-var stage=box.querySelector('.ss-stage');
 var A=(function(){var s=document.currentScript&&document.currentScript.src;return s?s.replace(/js\/citi-intro\.js.*$/,'assets/citi/intro/'):'../assets/citi/intro/'})();
 var V='?v=179';
 
@@ -81,17 +79,17 @@ var TABS='<div class="ci-tab ci-on"><svg class="ci-ico" viewBox="0 0 23 23"><cir
 function greeting(t){return '<small>'+esc(t.greeting[0])+'</small><b>'+esc(t.greeting[1])+'</b>'}
 function pose(v){if(!v)return '';var s='';if('x' in v||'y' in v||'s' in v)s+='transform:translate('+(v.x||0)+'px,'+(v.y||0)+'px)'+(v.s!=null?' scale('+v.s+')':'')+';';
  if('h' in v)s+='height:'+v.h+'px;';if(v.c)s+='background-color:'+v.c+';';return s}
-function screen(name,live,extra){var t=THEMES[name],H=home(t),tok='';for(var k in t.tokens)tok+=k+':'+t.tokens[k]+';';
- var L=function(k,cls,inner){return live?'<div class="'+cls+'" data-l="'+k+'">'+inner+'</div>':'<div class="'+cls+' ss-abs" style="'+pose(H[k])+'">'+inner+'</div>'},
-  I=function(k,inner){return '<div class="ci-in"'+(live?' data-l="'+k+'"':'')+'>'+inner+'</div>'},T=tiles(t);
+function screen(name,live,extra,p){var t=THEMES[name],H=home(t),tok='';p=p||'';for(var k in t.tokens)tok+=k+':'+t.tokens[k]+';';
+ var L=function(k,cls,inner){return live?'<div class="'+cls+'" data-l="'+p+k+'">'+inner+'</div>':'<div class="'+cls+' ss-abs" style="'+pose(H[k])+'">'+inner+'</div>'},
+  I=function(k,inner){return '<div class="ci-in"'+(live?' data-l="'+p+k+'"':'')+'>'+inner+'</div>'},T=tiles(t);
  return '<div class="ci-ph" data-tier="'+name+'" style="'+tok+'">'+
-  (live?'<img class="ci-logo" data-l="lg" src="'+A+'logo.svg'+V+'" width="115" height="74" alt="">':'')+
-  L('gr','ci-gr','<div class="ci-gw">'+greeting(t)+'</div>'+(live?'<div class="ci-gt" data-l="gt">'+greeting(t)+'</div>':''))+
+  (live?'<img class="ci-logo" data-l="'+p+'lg" src="'+A+'logo.svg'+V+'" width="115" height="74" alt="">':'')+
+  L('gr','ci-gr','<div class="ci-gw">'+greeting(t)+'</div>'+(live?'<div class="ci-gt" data-l="'+p+'gt">'+greeting(t)+'</div>':''))+
   L('bg','ci-bg','')+L('ac','ci-accs',I('acc',accounts(t)))+
   (T.pf?L('pf','ci-tile ci-pft',I('pfc',portfolio(t))):'')+L('tx','ci-tile ci-txt',I('txc',transactions(t)))+
-  L('tb','ci-tabs','<div class="ci-tabr'+(live?'':' ci-in')+'"'+(live?' data-l="tbc"':'')+'>'+TABS+'</div>')+
+  L('tb','ci-tabs','<div class="ci-tabr'+(live?'':' ci-in')+'"'+(live?' data-l="'+p+'tbc"':'')+'>'+TABS+'</div>')+
   L('so','ci-so','Sign Off')+
-  (live?'<div class="ci-home" data-l="ha"><i data-l="hh"></i></div>':'<div class="ci-home ss-abs" style="'+pose(H.ha)+'"><i class="ss-abs" style="'+pose(H.hh)+'"></i></div>')+
+  (live?'<div class="ci-home" data-l="'+p+'ha"><i data-l="'+p+'hh"></i></div>':'<div class="ci-home ss-abs" style="'+pose(H.ha)+'"><i class="ss-abs" style="'+pose(H.hh)+'"></i></div>')+
   '<div class="ci-sb"><span>2:04</span><img src="'+A+'status-right.svg'+V+'" width="67" height="11" alt=""></div>'+(extra||'')+'</div>'}
 /* a phone: bezel + screen. The tier phones of the row (k = pb / pp) have no shadow of their own while they sit hidden behind the live
    phone (a stacked shadow would darken); their shadow is its own layer, k+'s' (fades in fast as the row opens) x k+'t' (fades out as it closes) */
@@ -100,6 +98,13 @@ function phone(k,inner,tier){return '<div class="ci-sh'+(tier?' ci-tier':'')+'" 
  /* rim: a 4px black stroke on the screen edge (2px inside, joining the bezel). Chrome antialiases each clipped paint on its own, so the
     tier painted underneath (the live Blue screen under a sweep) would fringe the edge by a hairline; the rim covers it, like the bezel */
  '<svg class="ci-rim" viewBox="0 0 375 812" aria-hidden="true"><path d="'+sq(375,812,48)+'"/></svg></div>'}
+/* the shared builder (window.CitiPhone): the Color Theming opening (js/citi-open.js) builds its own stage from the same screens and phone; screen()'s
+   p prefixes a live screen's layer keys so several live screens can share one stage */
+function clip(stage,sel,p){[].forEach.call(stage.querySelectorAll(sel),function(e){e.style.clipPath="path('"+p+"')"})}
+function clips(stage){clip(stage,'.ci-sh .ci-ph',sq(375,812,48));clip(stage,'.ci-bz',sq(391,828,56));clip(stage,'.ci-pft',sq(351,238,16));clip(stage,'.ci-txt',sq(351,380,16))}
+window.CitiPhone={themes:THEMES,tiers:TIERS,tiles:tiles,home:home,splash:splash,screen:screen,phone:phone,sq:sq,clips:clips};
+var box=document.querySelector('[data-citi-intro]');if(!box)return;
+var stage=box.querySelector('.ss-stage');
 var t0=box.getAttribute('data-citi-intro')||TIERS[0];
 /* the live phone carries the two upgrade sweeps: still home screens of the next tiers in left-anchored wipes (layers wp, wg; w 0 -> 375) */
 stage.innerHTML=phone('pb',screen(TIERS[0]),1)+phone('pp',screen(TIERS[1]),1)+
@@ -134,8 +139,7 @@ function sq(w,h,R){if(window.FMSSSplit&&FMSSSplit.squircle)return FMSSSplit.squi
  c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be)),b=(p-arc-c-d)/3,a=2*b,f=function(v){return +v.toFixed(3)},A2=f(a),AB=f(a+b),X=f(a+b+c),BC=f(b+c),C=f(c),D=f(d),S=f(arc),r=f(R);
  return 'M'+f(w-p)+' 0c'+A2+' 0 '+AB+' 0 '+X+' '+D+'a'+r+' '+r+' 0 0 1 '+S+' '+S+'c'+D+' '+C+' '+D+' '+BC+' '+D+' '+X+'L'+w+' '+f(h-p)+'c0 '+A2+' 0 '+AB+' '+(-D)+' '+X+'a'+r+' '+r+' 0 0 1 '+(-S)+' '+S+'c'+(-C)+' '+D+' '+(-BC)+' '+D+' '+(-X)+' '+D+
   'L'+f(p)+' '+h+'c'+(-A2)+' 0 '+(-AB)+' 0 '+(-X)+' '+(-D)+'a'+r+' '+r+' 0 0 1 '+(-S)+' '+(-S)+'c'+(-D)+' '+(-C)+' '+(-D)+' '+(-BC)+' '+(-D)+' '+(-X)+'L0 '+f(p)+'c0 '+(-A2)+' 0 '+(-AB)+' '+D+' '+(-X)+'a'+r+' '+r+' 0 0 1 '+S+' '+(-S)+'c'+C+' '+(-D)+' '+BC+' '+(-D)+' '+X+' '+(-D)+'Z'}
-var clip=function(sel,p){[].forEach.call(stage.querySelectorAll(sel),function(e){e.style.clipPath="path('"+p+"')"})};
-clip('.ci-sh>.ci-ph',sq(375,812,48));clip('.ci-bz',sq(391,828,56));clip('.ci-pft',sq(351,238,16));clip('.ci-txt',sq(351,380,16));
+clips(stage);
 
 window.CitiIntro={themes:THEMES,tiers:TIERS,motion:MOTION,theme:function(){return t0}};
 })();

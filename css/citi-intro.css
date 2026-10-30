@@ -9,8 +9,8 @@ body.cs .media.mframe.sseq.ci-intro{cursor:default}
  font-family:Inter,system-ui,sans-serif;font-weight:400;color:#fff;-webkit-font-smoothing:antialiased;font-feature-settings:normal}
 .ci-intro .ci-ph small,.ci-intro .ci-ph b{display:block;font-weight:400}
 .ci-intro .ss-stage img.ci-logo{width:114.8px;height:74px}
-body.cs .media.mframe.sseq.ci-intro .ss-stage img{width:auto;height:auto;object-fit:fill;border-radius:0}
-body.cs .media.mframe.sseq.ci-intro .ss-stage img.ci-logo{width:114.8px;height:74px}
+body.cs .media.sseq.ci-intro .ss-stage img{width:auto;height:auto;object-fit:fill;border-radius:0}
+body.cs .media.sseq.ci-intro .ss-stage img.ci-logo{width:114.8px;height:74px}
 /* greeting: white copy + the splash tint copy on top (layer gt, fades out = Figma's #ffc37c -> white colour tween, theme-free motion) */
 .ci-intro .ci-gr{width:106px;height:62px;text-align:center}
 .ci-intro .ci-gw,.ci-intro .ss-stage .ci-gt{position:absolute;left:0;top:0;width:106px;height:62px}
@@ -42,7 +42,7 @@ body.cs .media.mframe.sseq.ci-intro .ss-stage img.ci-logo{width:114.8px;height:7
 .ci-intro .ci-chart li{display:flex;align-items:center;gap:12px;font-size:10px;line-height:16px;color:#333;white-space:nowrap}
 .ci-intro .ci-chart li i{width:6px;height:6px;border-radius:50%}
 .ci-intro .ci-chart li span+span{margin-left:-8px}
-body.cs .media.mframe.sseq.ci-intro .ci-chart img{width:120px;height:120px}
+body.cs .media.sseq.ci-intro .ci-chart img{width:120px;height:120px}
 .ci-intro .ci-txt .ci-row{height:80px}
 .ci-intro .ci-txt .ci-row b{color:#333}.ci-intro .ci-txt .ci-row small{color:#666}
 /* tab bar: 94/94/94/93, labels 10/12 at 35px, the selected icon's disc in the tier accent */
@@ -53,16 +53,16 @@ body.cs .media.mframe.sseq.ci-intro .ci-chart img{width:120px;height:120px}
 .ci-intro .ci-tab span{position:absolute;left:50%;top:35px;transform:translateX(calc(-50% - .5px));font-size:10px;line-height:12px;color:#929292;white-space:nowrap}
 .ci-intro .ci-on span{color:var(--ci-acc)}
 .ci-intro .ci-ico{position:absolute;left:35px;top:7px;width:23px;height:23px;color:var(--ci-acc)}
-body.cs .media.mframe.sseq.ci-intro .ci-tab img{position:absolute;top:6px}
-body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-pay{left:34px;width:33px;height:25px}
-body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-svc{left:34.05px;top:5.55px;width:25.9px;height:25.9px}
-body.cs .media.mframe.sseq.ci-intro .ci-tab img.ci-pro{left:33.5px;top:5.5px;width:26px;height:26px}
+body.cs .media.sseq.ci-intro .ci-tab img{position:absolute;top:6px}
+body.cs .media.sseq.ci-intro .ci-tab img.ci-pay{left:34px;width:33px;height:25px}
+body.cs .media.sseq.ci-intro .ci-tab img.ci-svc{left:34.05px;top:5.55px;width:25.9px;height:25.9px}
+body.cs .media.sseq.ci-intro .ci-tab img.ci-pro{left:33.5px;top:5.5px;width:26px;height:26px}
 .ci-intro .ci-so{font-size:12px;line-height:16px;color:#999;white-space:nowrap}
 .ci-intro .ci-home{width:375px;height:34px}
 .ci-intro .ci-home i{width:134px;height:5px;border-radius:3px}
 .ci-intro .ci-sb{position:absolute;left:29px;top:13px;height:20px;display:flex;align-items:center;gap:200px}
 .ci-intro .ci-sb span{width:54px;font:590 15px/20px "SF Pro Text",-apple-system,system-ui,Inter,sans-serif;letter-spacing:-.24px;color:#fff;text-align:center}
-body.cs .media.mframe.sseq.ci-intro .ci-sb img{width:66.662px;height:11.335px}
+body.cs .media.sseq.ci-intro .ci-sb img{width:66.662px;height:11.335px}
 /* the phone's 8px black OUTSIDE stroke (Figma strokeAlign OUTSIDE): a 391x828 R56 squircle behind the 375x812 R48 screen */
 .ci-intro .ci-bz{position:absolute;left:-8px;top:-8px;width:391px;height:828px;background:#000}
 /* the tier phones of the row (Blue, Priority): no shell shadow while hidden behind the live phone; their shadow is its own layer pair
