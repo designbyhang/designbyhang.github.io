@@ -41,7 +41,7 @@ function el(t,a,p){var e=doc.createElementNS(NS,t);for(var k in a)e.setAttribute
 /* the beat at t: page position p (0..3, fractional while sliding) */
 function pos(t){var p=0;for(var i=0;i<S.length;i++)if(t>=S[i])p=i+slide(cl((t-S[i])/SL));return p}
 function build(host,id){
- var B="../assets/citi/",SRC=[B+"citi-15.webp?v=302"];
+ var B="../assets/citi/",SRC=[B+"citi-15.webp?v=312"];
  var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
  el("image",{href:SRC[0],width:2880,height:1620,preserveAspectRatio:"none"},svg);
  el("rect",{x:1184,y:640,width:513,height:296,fill:"#fff"},svg);                   /* the slide's own insight + dots, whited out */
