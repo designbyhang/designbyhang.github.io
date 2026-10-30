@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · H-Scroll &amp; Browse — interactive IAB prototype (mock)</title>
-<script src="../shared/demo/demo-clock.js?v=309"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=310"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -18,11 +18,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=309"><link rel="stylesheet" href="../../css/theme.css?v=309">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=309"><script src="../../js/squircle.js?v=309"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=309"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=309"><script src="../shared/tabbar/tabbar.js?v=309"></script>
+<link rel="stylesheet" href="../../css/type.css?v=310"><link rel="stylesheet" href="../../css/theme.css?v=310">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=310"><script src="../../js/squircle.js?v=310"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=310"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=310"><script src="../shared/tabbar/tabbar.js?v=310"></script>
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
-<link rel="stylesheet" href="../shared/device/device.css?v=309">
+<link rel="stylesheet" href="../shared/device/device.css?v=310"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=310">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -78,9 +78,9 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 /* captured artifox.com page (Figma fmss_31–35 "Webpage" layer at full height, 375 css px wide @3x; product pages = Figma top + the real theartifox.com page continued below it, ~3 visible heights (max scroll ~2x the 627px full-screen view): Desk 1950, Side 1815, Lighting 1881, Seating 1980; Best Sellers 2032);
    scrolls inside the IAB page viewport via the `translate` property (opacity is animated by the page load) */
 .web{height:1950px}
-.status{left:0;top:0;width:375px;height:44px;z-index:30}
+/* the shared FMSS status bar (../shared/statusbar): white glyphs over the feed's media; the dark one rides a white band (the feed's status area) */
 .status-l{z-index:11}
-.status-d{opacity:0}
+.status-d{left:0;top:0;width:375px;height:44px;background:#fff;z-index:30;opacity:0;pointer-events:none}
 .home{left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;z-index:45;pointer-events:none}
 .finger,.ufinger{left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
@@ -128,7 +128,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="abs card" data-i="3"><img src="assets/p-chair.webp" alt="Form armchair, green"><i></i></div>
         <div class="abs dots" id="dots" aria-hidden="true"><img class="on" src="assets/dots-1.svg" alt=""><img src="assets/dots-2.svg" alt=""><img src="assets/dots-3.svg" alt=""><img src="assets/dots-4.svg" alt=""></div>
         <img class="abs mnav" id="mnav" src="assets/media-navbar.svg?v=3" alt="">
-        <img class="abs status status-l" src="assets/statusbar-light.svg" alt="">
+        <i class="abs sb status-l" aria-hidden="true"></i>
         <div class="abs hs" id="hs" aria-hidden="true"></div>
         <button class="abs btn tile" data-i="0" type="button" style="left:0;top:217px;width:256px;height:375px" aria-label="Desk: open the split screen"></button>
         <button class="abs btn tile" data-i="1" type="button" style="left:261px;top:217px;width:114px;height:122px" aria-label="Side table: open the split screen"></button>
@@ -137,7 +137,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button class="abs btn cta" id="cta" type="button" aria-label="Learn more: open artifox.com in the in-app browser (IAB) full screen"></button>
         <div class="abs overlay" id="overlay"></div>
 
-        <img class="abs status status-d" id="statusD" src="assets/statusbar-dark.svg" alt="">
+        <div class="abs status-d" id="statusD" aria-hidden="true"><i class="sb sb-dark"></i></div>
         <div class="abs home"></div>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>

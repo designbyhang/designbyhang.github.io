@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Profile → IAB — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=309"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=310"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -20,12 +20,12 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=309"><link rel="stylesheet" href="../../css/theme.css?v=309">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=309"><script src="../../js/squircle.js?v=309"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=309"></script><script src="../shared/edge-back/edge-back.js?v=309"></script><script src="../shared/pause/pause.js?v=309"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=309"><script src="../shared/appbar/appbar.js?v=309"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=309"><script src="../shared/tabbar/tabbar.js?v=309"></script>
+<link rel="stylesheet" href="../../css/type.css?v=310"><link rel="stylesheet" href="../../css/theme.css?v=310">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=310"><script src="../../js/squircle.js?v=310"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=310"></script><script src="../shared/edge-back/edge-back.js?v=310"></script><script src="../shared/pause/pause.js?v=310"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=310"><script src="../shared/appbar/appbar.js?v=310"></script>
+<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=310"><script src="../shared/tabbar/tabbar.js?v=310"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=309">
+<link rel="stylesheet" href="../shared/device/device.css?v=310"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=310">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -59,7 +59,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .reel{background:#000}
 .reel-dim{left:0;top:0;width:402px;height:874px;background:#000;opacity:0;pointer-events:none;z-index:9}
 /* the push reel ⇄ profile is one value on the shared IAB spring (pushRender below): no CSS transitions on the surfaces */
-.reel-stc{left:0;top:0;width:402px;height:54px;background:#000;z-index:4;pointer-events:none}   /* covers the footage's baked status band: the screen's one live status bar (.sbar) shows instead */
+.reel-stc{left:0;top:0;width:402px;height:54px;background:#000;z-index:4;pointer-events:none}   /* covers the footage's baked status band (12:34): the screen's one status bar (.sbar) shows instead */
 .video{left:0;top:0;width:402px;height:874px;object-fit:cover;background:#000}
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
 .hot{left:8px;top:600px;width:104px;height:44px;border-radius:22px;z-index:5}
@@ -88,7 +88,6 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .profile.drag,.profile.drag~*,.drag-reel .reel,.drag-reel .reel-dim{transition:none!important}
 .pcont{left:0;top:0;width:402px;height:1703px;will-change:transform;background:#fff}
 .pcont img{display:block;width:402px;height:1703px}
-.st{left:0;top:0;width:402px;height:54px;z-index:6;pointer-events:none;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat}   /* colour: the shared app bar (ab-st) */
 .ico{z-index:6;color:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.32))}   /* filled colour: the shared app bar (ab-ico) */
 .pback{left:0;top:64px;width:48px;height:48px;display:grid;place-items:center}
 .pdots{left:318px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
@@ -119,18 +118,19 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .cd .t2{left:69px;top:32.05px;font-size:13px;line-height:16px;font-weight:400;color:#5d5c5f;white-space:nowrap}
 .cx{z-index:9;width:44px;height:44px;display:grid;place-items:center;color:#000;border-radius:22px}
 
-/* the device status bar: one, owned by the screen (above both surfaces, under the IAB); white on the reel and on the profile's
-   clear header, black once the shared app bar fills (data-sb) */
-.sbar{z-index:15;background:#fff;transition:background-color .24s ease}
+/* the device status bar: the shared FMSS one (../shared/statusbar), as fmss-hs: 2:04, no Dynamic Island. In its own 375x44 px like
+   .iab: scale(402/375) undoes .root's 375/402, so it lands on fmss-hs's pixels. One, owned by the screen (above both surfaces, under
+   the IAB); white on the reel and on the profile's clear header, black once the shared app bar fills (data-sb). On the reel it always
+   shows over .reel-stc, which covers the footage's baked status band. .stk is the same bar in black over the IAB's white status band. */
+.root .sb{transform-origin:0 0;transform:scale(1.072)}
+.sbar{z-index:15;transition:background-color .24s ease}
 .root[data-sb=dark] .sbar{background:#000}
 html.hosted .root[data-scr="1"] .sbar{visibility:hidden}
-.root:not([data-live="1"]) .sbar,.root:not([data-live="1"]) .reel-stc{visibility:hidden}   /* at rest on the reel its footage's baked band is the status bar; off rest (sliding, or on the profile) the band is covered and the screen's one live bar shows */
 @media (prefers-reduced-motion:reduce){.sbar{transition:none}}
-.stk{left:0;top:0;width:402px;height:54px;background:#000;-webkit-mask:url(assets/status.svg) 0 0/402px 54px no-repeat;mask:url(assets/status.svg) 0 0/402px 54px no-repeat;pointer-events:none;z-index:21;opacity:0}
+.stk{z-index:21;opacity:0}
 .home{left:129.18px;top:856.53px;width:143.65px;height:5.36px;border-radius:3.22px;background:#fff;z-index:55;pointer-events:none;transition:background-color .24s}   /* iOS home indicator (fmss-cb's 134×5 at 120.5,799 px), always on, above the IAB: white over the reel, black over the profile and the IAB */
 /* the profile panel's top-right corner, drawn as a vector over the bitmap's (its baked corner has compression specks): r 20pt at y 140 */
 .pc-corner{left:382px;top:139px;width:20px;height:22px;pointer-events:none;background:radial-gradient(circle 20px at 0 21px,#fff 19.5px,#000 20.5px)}   /* one layer (no clip seam) */
-.island{left:138.33px;top:14px;width:125.33px;height:36.67px;border-radius:18.33px;background:#000;z-index:50;pointer-events:none}
 .finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .25s var(--ease),scale .18s var(--ease)}
 .finger.on,.ufinger.on{opacity:.9}
 .finger.down,.ufinger.down{scale:.85}
@@ -151,7 +151,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 /* hosted (?host=cb): the iframe is exactly the 375×812 screen inside fmss-cb's device; transparent so the host's reel shows during the push */
 html.hosted,html.hosted body{background:transparent;color-scheme:normal;overflow:hidden!important;scrollbar-width:none;height:100%;touch-action:none;overscroll-behavior:none}
 html.hosted .wrap{max-width:none;padding:0}
-html.hosted header.top,html.hosted .below,html.hosted .below~div,html.hosted .bezel,html.hosted #reel,html.hosted .island,html.hosted .home{display:none}
+html.hosted header.top,html.hosted .below,html.hosted .below~div,html.hosted .bezel,html.hosted #reel,html.hosted .home{display:none}
 html.hosted .mframe{position:fixed;inset:0;width:auto;aspect-ratio:auto;background:transparent;border:0}
 html.hosted .stage{left:0;top:0;transform:none}
 html.hosted .phone{background:transparent;border-radius:0}
@@ -173,7 +173,7 @@ html.hosted .phone{background:transparent;border-radius:0}
       <div class="phone" id="phone">
       <div class="root" id="root" data-bn="shop">
 
-        <!-- ===== screen 1: the recorded reel (status bar, captions, Learn more and rail are baked into the footage) ===== -->
+        <!-- ===== screen 1: the recorded reel (captions, Learn more and rail are baked into the footage; its baked status band is covered by .reel-stc) ===== -->
         <div class="abs scr reel" id="reel">
           <video class="abs video" id="vid" src="assets/reel.mp4?v=2" poster="assets/reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
           <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
@@ -221,9 +221,8 @@ html.hosted .phone{background:transparent;border-radius:0}
         </div>
         <div class="abs home" id="home" aria-hidden="true"></div>
 
-        <i class="abs st sbar" id="sbar" aria-hidden="true"></i>
-        <i class="abs stk" id="stk" aria-hidden="true"></i>
-        <i class="abs island" aria-hidden="true"></i>
+        <i class="abs sb sbar" id="sbar" aria-hidden="true"></i>
+        <i class="abs sb sb-dark stk" id="stk" aria-hidden="true"></i>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
@@ -239,7 +238,7 @@ html.hosted .phone{background:transparent;border-radius:0}
 'use strict';
 const $=id=>document.getElementById(id);
 const frame=$('frame'),stage=$('stage'),phone=$('phone'),root=$('root'),vid=$('vid'),pz=FMSSPause.mount($('pz'));
-const reel=$('reel'),profile=$('profile'),pcont=$('pcont'),cta=$('cta'),pk=$('pk'),cd=$('cd'),sbar=$('sbar');
+const reel=$('reel'),profile=$('profile'),pcont=$('pcont'),cta=$('cta'),pk=$('pk'),cd=$('cd');
 $('pkh').append(FMSSIAB.header({url:'nike.com'}));   // the peek's header: the shared IAB sheet header (same as the IAB's half sheet)
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
@@ -253,7 +252,7 @@ const tb=FMSSTabBar.mount($('tabbar'),{theme:'dark'});tb.setExit(1);   // the sh
    Transform/opacity only; the surface (tab bar theme, status bar colour) flips at the cut, when the push starts. */
 let pushX=W;
 const pushS=FMSSIAB.makeSpring(()=>pushX,x=>{pushX=x;pushRender()});
-function pushRender(){const q=1-pushX/W;const lv=q>1e-4||screen===2?'1':'';if(root.dataset.live!==lv)root.dataset.live=lv;   // live status bar only off the reel's rest: at rest the footage's own band shows, as before
+function pushRender(){const q=1-pushX/W;
   profile.style.transform=`translate3d(${pushX.toFixed(2)}px,0,0)`;
   reel.style.transform=q>0?`translate3d(${(-.3*W*q).toFixed(2)}px,0,0)`:'';$('reelDim').style.opacity=(.2*q).toFixed(3)}
 function pushTo(x,instant){if(instant||RM.matches){pushS.stop();pushX=x;pushRender()}else pushS.to(x,{w:18})}
@@ -537,7 +536,7 @@ function pUp(e){
   if(d.mode==='edge')EB.end((e.clientX-d.x0)/d.s);
 }
 /* peek → full screen by dragging (or wheel / trackpad swiping) it up: the sheet follows, then springs to the top and hands over to the IAB */
-const PEEK_TOP=54-PEEK.y;                              // peekDy with the peek's top edge under the status bar
+const PEEK_TOP=Y3*W/375-PEEK.y;                        // peekDy with the peek's top edge under the status bar: the IAB's full top (Y3 44px, fmss-hs's status bar height) in recording pt
 const peekLift=dy=>dy<PEEK_TOP?PEEK_TOP-(PEEK_TOP-dy)*.25:dy;   // rubber-band past the top
 let peekUpS=null;
 function peekBack(v=0){if(peekUpS)peekUpS.cancel();peekUpS=spring(()=>peekDy,q=>{peekDy=q;renderCta()},0,{v,w:20,eps:.3,veps:4,onDone:()=>{peekUpS=null}})}
