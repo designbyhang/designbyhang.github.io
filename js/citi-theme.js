@@ -13,9 +13,10 @@
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still Blue frame (t 0). window.__citiTheme: seek(t) / resume() / PERIOD. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=314";
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=316";
 var SW0=1600,SWD=640,SW1=3840,XF=640,STEPS=[[4800,0,1],[7040,1,2],[9280,2,0]],PERIOD=9280+XF; /* 9920 */
-var ROW={x:865.5,y:1188,w:526.5,h:120},SHIFT=180;
+var BG=[[0,47,155],[23,41,63],[44,31,16]], /* the layers' grounds #002F9B / #17293F / #2C1F10 */
+ ROW={x:865.5,y:1188,w:526.5,h:120},SHIFT=180;
 var cl=function(v){return v<0?0:v>1?1:v},
  bez=function(x1,y1,x2,y2){return function(x){if(x<=0)return 0;if(x>=1)return 1;var u=x,i,cx,dx;   /* cubic-bezier(), CSS-style */
   for(i=0;i<8;i++){cx=3*x1*u*(1-u)*(1-u)+3*x2*u*u*(1-u)+u*u*u-x;dx=3*x1*(1-u)*(1-3*u)+3*x2*u*(2-3*u)+3*u*u;if(Math.abs(cx)<1e-5||!dx)break;u=cl(u-cx/dx)}
@@ -26,11 +27,12 @@ function build(host,id){
  var B="../assets/citi/theme/",SRC=[];
  var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
  var img=function(p,n,a){var s=B+n+".webp"+V;if(SRC.indexOf(s)<0)SRC.push(s);a.href=s;a.preserveAspectRatio="none";return el("image",a,p)};
- var mv=null,L=["blue","priority","gold"].map(function(n,i){var g=el("g",{display:i?"none":"inline"},svg);img(g,n,{width:2880,height:1620});
+ var mv=null,L=["blue","priority","gold"].map(function(n,i){var g=el("g",{display:i?"none":"inline"},svg);el("rect",{x:-40,y:-40,width:2960,height:1700,fill:"rgb("+BG[i]+")"},g);img(g,n,{width:2880,height:1620});
   var w=el("svg",{x:ROW.x,y:ROW.y,width:ROW.w,height:ROW.h,viewBox:"0 0 "+ROW.w+" "+ROW.h,overflow:"hidden"},g),h=el("g",{},w);
   img(h,i===2?"row-gold":"row-blue",{width:ROW.w,height:ROW.h});
   if(!i){img(h,"zelle-blue",{x:ROW.w,width:SHIFT,height:ROW.h});mv=h}return g});
- var shown=-1,show=function(a,b,o){var k=a*4+(b<0?3:b);   /* a = solid layer, b = layer fading in on top at opacity o */
+ var gk="",ground=function(a,b,o){var c=BG[a].map(function(v,j){return Math.round(b<0?v:v+(BG[b][j]-v)*o)}),k=c.join();if(k!==gk){gk=k;host.style.backgroundColor="rgb("+k+")"}};
+ var shown=-1,show=function(a,b,o){ground(a,b,o);var k=a*4+(b<0?3:b);   /* a = solid layer, b = layer fading in on top at opacity o */
   if(k!==shown){shown=k;L.forEach(function(g,i){g.setAttribute("display",i===a||i===b?"inline":"none");g.removeAttribute("opacity")});
    svg.appendChild(L[a]);if(b>=0)svg.appendChild(L[b])}
   if(b>=0)L[b].setAttribute("opacity",o.toFixed(4))};
@@ -51,7 +53,7 @@ function control(host){
  /* load the layers first (only once the box is near the view); until then the Blue image alone shows */
  var start=function(){if(draw)return;start=function(){};var b=build(host,"cth"+Math.random().toString(36).slice(2,7)),f=b[0],svg=host.lastChild;
   svg.style.visibility="hidden";var srcs=b[1],n=0,done=function(){if(++n<srcs.length)return;
-   f(RM.matches?0:t);svg.style.visibility="";draw=f;upd()};
+   f(RM.matches?0:t);svg.style.visibility="";host.classList.add("cth-on");draw=f;upd()};
   srcs.forEach(function(s){var i=new Image();i.onload=i.onerror=function(){(i.decode?i.decode().catch(function(){}):Promise.resolve()).then(done)};i.src=s})};
  if("IntersectionObserver" in window){
   new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting}))start()},{rootMargin:"600px 0px"}).observe(host);
@@ -63,7 +65,7 @@ function control(host){
 }
 var insts=[];
 function mount(){if(!doc.getElementById("cth-css")){var s=doc.createElement("style");s.id="cth-css";
-  s.textContent="[data-citi-theme]{position:relative;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;pointer-events:none}[data-citi-theme]>svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;overflow:hidden}";doc.head.appendChild(s)}
+  s.textContent="[data-citi-theme]{position:relative;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;pointer-events:none}[data-citi-theme]>svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;overflow:hidden}[data-citi-theme].cth-on>img{visibility:hidden}";doc.head.appendChild(s)}
  [].forEach.call(doc.querySelectorAll("[data-citi-theme]"),function(h){if(h.__cth)return;h.__cth=1;try{insts.push(control(h))}catch(err){if(window.console)console.warn("citi-theme:",err)}})}
 window.__citiTheme={seek:function(t,i){var x=insts[i||0];x&&x.seek(t)},time:function(i){var x=insts[i||0];return x?x.time():-1},resume:function(i){var x=insts[i||0];x&&x.resume()},ready:function(i){var x=insts[i||0];return !!(x&&x.ready())},playing:function(i){var x=insts[i||0];return !!(x&&x.playing())},PERIOD:PERIOD};
 doc.readyState==="loading"?doc.addEventListener("DOMContentLoaded",mount,{once:true}):mount();
