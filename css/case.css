@@ -447,6 +447,3 @@ body.cs .media.mframe.pd-baked video{position:absolute;left:50%;top:calc(var(--d
  body.cs .cs-head>.hero-media{margin-top:var(--cs-gap)}
 }
 
-/* placeholder container: Bitcount 16/24, white, centred in the media frame on the Citi carousel blue #002154 (Citi 04, until the prototype lands) */
-body.cs .media.mframe.ph-soon{background:#002154}
-body.cs .media.mframe.ph-soon p{margin:0;font:400 var(--mono-size)/1 var(--mono);letter-spacing:var(--mono-ls);word-spacing:-.32em;color:#fff;text-align:center} /* same type as the Next Case Study label */
