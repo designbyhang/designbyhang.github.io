@@ -52,7 +52,7 @@ function gutter(){if(mPort.matches)return 16;
   return Math.max(L,...[btn,cnt,apRnd].map(e=>e.getBoundingClientRect().width?vw()-restLeft(e)+16:0));}
  return cnt.getBoundingClientRect().width?Math.max(0,vw()-restLeft(cnt)+12):0;}
 const kFs=()=>Math.min(Math.max(1,vw()-2*gutter())/W,vh()/H);
-function fitOpen(){if(state==='open')fitBox(0,0,vw(),vh(),kFs());}
+function fitOpen(){if(state==='open'){const b=fullBox();fitBox(b.x,b.y,b.w,b.h,b.k);}}
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
 addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();});
 /* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
@@ -125,7 +125,15 @@ function anim(from,to,done,side){cancelAnimationFrame(raf);const t0=performance.
   if(u<1)raf=requestAnimationFrame(tick);else{raf=0;done();}};
  raf=requestAnimationFrame(tick);}
 const hostBox=()=>{const r=host.getBoundingClientRect(),b=host.clientLeft||0,w=host.clientWidth,h=host.clientHeight;return{x:r.left+b,y:r.top+b,w,h,k:kCover(w,h)};};
-const fullBox=()=>({x:0,y:0,w:vw(),h:vh(),k:kFs()});
+/* fullscreen stage box: the screen, with its vertical centre (where layout() centres the art) on the middle of the band between
+   CLOSE's label and AUTO SCROLL's, so the slide clears both by the same amount (the bottom label sits further in than the top one,
+   so the slide rides up by half the difference). The box grows past the screen edge on the far side to keep the canvas colour
+   full-bleed; the slide's size (k) and horizontal place are untouched, and the centre is clamped so the art never leaves the screen.
+   Without both labels (phones: Play/Pause button instead) the band is the screen */
+const label=e=>{const r=e.querySelector('.t').getBoundingClientRect();return r.height?r:null;};
+const fullBox=()=>{const w=vw(),h=vh(),k=kFs(),c=label(btn),a=label(apBtn),t=fs.getBoundingClientRect().top,s=H*k;
+ const m=c&&a?Math.min(Math.max((c.bottom+a.top)/2-t,s/2),h-s/2):h/2,y=Math.min(0,2*m-h);
+ return{x:0,y,w,h:Math.max(h,2*m)-y,k};};
 function open(n,now){if(state!=='closed')return;snap=!!now;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}view(n);
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
