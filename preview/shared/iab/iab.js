@@ -3,13 +3,13 @@
    Full screen geometry is shared, never per prototype: the full header (46px tall) sits 2px under the sheet top (screen y 46),
    its hairline on its last row (screen y 91), the page from 48 (screen y 92).
    Motion (one place for every prototype): critically damped spring ω18 (close ω16), 4 substeps; 1:1 drag with 100ms velocity
-   samples, projection y + v·0.18s, a flick > 600px/s moves at least one step, rubber-band ×0.25 above full; a tap on the half
-   sheet → full. Full screen: a press below the header scrolls the page (rubber-band ×0.35, spring-back ω16, fling τ 325ms) and a
+   samples, projection y + v·0.18s, a flick > 600px/s moves at least one step, iOS rubber-band (c .55) above full; a tap on the half
+   sheet → full. Full screen: a press below the header scrolls the page (iOS rubber-band c .55, spring-back ω16, fling τ 325ms) and a
    pull past the page top hands over to the sheet. Every open from closed plays the page load (1140ms bar, page fades in after 1/3).
    Entry point: how the sheet was opened from closed (go(s, {entry}), kept until it closes) decides what a drag on it may do:
      (none)       a sheet open (caption, product tile, swipe): every drag above
      'cta'        a CTA opened it full screen: the sheet never follows a press (no dismiss, no half, no sheet rubber-band); a press
-                  below the header only scrolls the page, which rubber-bands at its top (×0.35) and springs back, the sheet staying
+                  below the header only scrolls the page, which rubber-bands at its top (c .55) and springs back, the sheet staying
                   put; × / Escape / the host's controls close it
      'collapse'   the host's floating CTA opened it: the only drag is the morph back into that CTA (collapse, below)
 
@@ -39,6 +39,9 @@
 (function(){
 'use strict';
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+/* Apple UIScrollView rubber-band: offset = (1 - 1 / (c * x / d + 1)) * d, c = .55 */
+const rb=(x,d,c=.55)=>d>0?(x<0?-rb(-x,d,c):(1-1/(c*x/d+1))*d):0;
+const rbRange=(v,lo,hi,d,c=.55)=>v<lo?lo-rb(lo-v,d,c):v>hi?hi+rb(v-hi,d,c):v;
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const BASE=(document.currentScript&&document.currentScript.src||'').replace(/[^/]*$/,'');
 const VER=((document.currentScript&&document.currentScript.src||'').match(/\?v=\d+/)||[''])[0];
@@ -172,9 +175,9 @@ function create(cfg){
   let sy=0,sraf=0;
   function setScroll(v){sy=v;web.style.translate=`0 ${(-v).toFixed(2)}px`}
   function stopScroll(){cancelAnimationFrame(sraf);sraf=0}
-  function scrollBack(){
-    const target=clamp(sy,0,smax());if(Math.abs(sy-target)<.5){setScroll(target);return}
-    let last=performance.now(),v=0;const w=16;
+  function scrollBack(v0=0){
+    const target=clamp(sy,0,smax());if(Math.abs(sy-target)<.5&&Math.abs(v0)<1){setScroll(target);return}
+    let last=performance.now(),v=v0;const w=16;
     const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(sy-target)-2*w*v)*h;sy+=v*h}
       if(Math.abs(sy-target)<.3&&Math.abs(v)<8){setScroll(target);sraf=0;return}setScroll(sy);sraf=requestAnimationFrame(f)};
     sraf=requestAnimationFrame(f);
@@ -183,7 +186,7 @@ function create(cfg){
     stopScroll();if(RM.matches||Math.abs(v)<60)return scrollBack();
     let last=performance.now();const M=smax();
     const f=now=>{const dt=Math.min(.032,(now-last)/1000);last=now;v*=Math.exp(-dt/.325);let n=sy+v*dt;
-      if(n<=0||n>=M){setScroll(clamp(n,0,M));sraf=0;return}
+      if(n<=0||n>=M){sraf=0;setScroll(n);scrollBack(v);return}
       setScroll(n);if(Math.abs(v)<12){sraf=0;return}sraf=requestAnimationFrame(f)};
     sraf=requestAnimationFrame(f);
   }
@@ -192,7 +195,7 @@ function create(cfg){
     const f=now=>{const q=clamp((now-t0)/ms),e=1-Math.pow(1-q,3);setScroll(a+(to-a)*e);sraf=q<1?requestAnimationFrame(f):0};
     sraf=requestAnimationFrame(f);
   }
-  const rubber=v=>{const M=smax();return v<0?v*.35:v>M?M+(v-M)*.35:v};   // every entry, a CTA open too: the page rubber-bands at its top and springs back
+  const rubber=v=>rbRange(v,0,smax(),visH);          // every entry, a CTA open too: the page rubber-bands at its top and springs back
 
   /* ---------- page load: on every open from closed (never half ↔ full), reset once closed ---------- */
   let loadAnims=[],loads=0;
@@ -228,7 +231,7 @@ function create(cfg){
     if(!drag)return;
     let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
     if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
-    if(ny<Y3)ny=Y3-(Y3-ny)*.25;
+    if(ny<Y3)ny=Y3-rb(Y3-ny,Y1-Y3);
     const prev=y;y=Math.min(Y1,ny);render();
     const now=performance.now();drag.samples.push([now,y]);
     while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
@@ -318,5 +321,5 @@ function create(cfg){
     holdHeader(v){hLock=!!v}};
   return api;
 }
-window.FMSSIAB={create,header:window.FMSSIABHeader,makeSpring,playLoad,LOAD_MS,LOAD_THIRD,LOAD_OUT,LOAD_KF};
+window.FMSSIAB={create,header:window.FMSSIABHeader,makeSpring,playLoad,rb,rbRange,LOAD_MS,LOAD_THIRD,LOAD_OUT,LOAD_KF};
 })();

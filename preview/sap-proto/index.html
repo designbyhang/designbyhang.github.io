@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=311"><link rel="stylesheet" href="../../css/theme.css?v=311">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><link rel="stylesheet" href="../shared/caption/caption.css?v=311"><link rel="stylesheet" href="../../css/ad-cta.css?v=311"><script src="../../js/vac-caption.js?v=311"></script><script src="../shared/caption/caption.js?v=311"></script><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=311"></script><script src="../shared/edge-back/edge-back.js?v=311"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><link rel="stylesheet" href="../shared/caption/caption.css?v=311"><link rel="stylesheet" href="../../css/ad-cta.css?v=311"><script src="../../js/vac-caption.js?v=311"></script><script src="../shared/caption/caption.js?v=311"></script><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=311"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=311">
 <style>
@@ -311,8 +311,8 @@ touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
   const dx=ev.clientX-pd.x,dy=ev.clientY-pd.y;if(!pd.moved&&Math.hypot(dx,dy)>10){pd.moved=true;setPress(null);if(chevDim!==1){chevDim=1;render()}}
   if(pd.seed||!pd.moved)return;
   if(!pd.axis)pd.axis=pd.onHs&&Math.abs(dx)>Math.abs(dy)?'h':'v';
-  if(pd.axis==='h'){let n=pd.hx0+dx/pd.sc;if(n>0)n*=.35;else if(n<HMIN)n=HMIN+(n-HMIN)*.35;hx=n;render();return}
-  let n=pd.k0-dy/pd.sc/PG;if(n<0)n*=.35;else if(n>N())n=N()+(n-N())*.35;k=n;render();
+  if(pd.axis==='h'){hx=FMSSIAB.rbRange(pd.hx0+dx/pd.sc,HMIN,0,R.hs[2]);render();return}
+  k=FMSSIAB.rbRange(pd.k0-dy/pd.sc/PG,0,N(),1);render();
   const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
 function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setPress(null);
   if(d.seed){if(ev.type==='pointerup'&&!d.moved)openCta();return}
@@ -322,9 +322,10 @@ function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setP
   const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;
   let t=Math.round(k+v*.18);const from=Math.round(d.k0);
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N());
-  step(t)}
+  step(t,v)}
 touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
-function step(t){const was=Math.round(k);if(t!==was)restart(ORDER[t]);kA.to(t,{ms:664,onDone:()=>say(NAMES[ORDER[t]]+' reel')})}
+function step(t,v=0){const was=Math.round(k);if(t!==was)restart(ORDER[t]);
+  const d=t-k;kA.to(t,{ms:664,ease:d&&v?springV(664,v/d):SLOW,onDone:()=>say(NAMES[ORDER[t]]+' reel')})}
 function restart(id){const v=PV[id];if(v){try{v.currentTime=0}catch(_){}}if(id==='lc')hx=0}
 let wT=0,wAcc=0;
 touch.addEventListener('wheel',ev=>{if(mode!=='pivot'||INL())return;if(ev.cancelable)ev.preventDefault();
