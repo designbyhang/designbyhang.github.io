@@ -400,7 +400,7 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
 @media (max-width:640px){:root{--mbox-h:432px}}
 /* big monitors only (>=1800; laptops up to 1728 keep 1152/536): sheet + foot up to 1440, never into the TOC rail.
    --toc-reserve = toc right inset 24 + toc width 200 + 32 gap + 8 for the classic-scrollbar half-offset = 264 per side */
-@media (min-width:1800px){:root{--toc-reserve:264px;--mbox-h:clamp(432px,round(down,calc((min(100vw - 2*var(--toc-reserve),1440px) - 2*clamp(20px,5vw,72px))*.534375),8px),664px)}.sheet,.foot{max-width:min(1440px,100vw - 2*var(--toc-reserve))}}
+@media (min-width:1800px){:root{--toc-reserve:264px;--mbox-h:clamp(432px,round(down,calc((min(100vw - 2*var(--toc-reserve),1440px) - 2*clamp(20px,5vw,72px))*.534375),8px),664px)}.sheet,.foot{max-width:min(1440px,100vw - 2*var(--toc-reserve))}.sec-grid>.prose{margin-left:max(0px,calc(50% - 380px))}}
 body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
 html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
 .phone-demo .pd-phone{position:relative;flex:none;height:calc(var(--dev-h)*812/828);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812;border-radius:calc(var(--dev-h)*48/828);overflow:hidden;box-shadow:0 0 0 calc(var(--dev-h)*8/828) var(--pd-bezel);transform:translateZ(0)}
