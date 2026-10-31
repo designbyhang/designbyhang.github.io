@@ -102,7 +102,76 @@ function phone(k,inner,tier){return '<div class="ci-sh'+(tier?' ci-tier':'')+'" 
    p prefixes a live screen's layer keys so several live screens can share one stage */
 function clip(stage,sel,p){[].forEach.call(stage.querySelectorAll(sel),function(e){e.style.clipPath="path('"+p+"')"})}
 function clips(stage){clip(stage,'.ci-sh .ci-ph',sq(375,812,48));clip(stage,'.ci-bz',sq(391,828,56));clip(stage,'.ci-pft',sq(351,238,16));clip(stage,'.ci-txt',sq(351,380,16))}
-window.CitiPhone={themes:THEMES,tiers:TIERS,tiles:tiles,home:home,splash:splash,screen:screen,phone:phone,sq:sq,clips:clips};
+/* ---- VEC: the same phone as one SVG, for the demos that draw a whole slide in a single SVG (Spending Insights js/citi-spending.js,
+   Monthly Overview js/citi-chart.js). All markup in design pt: the screen is 375x812 at (0,0); the caller scales it (x1.5 on the
+   2880x1620 slides). Vector throughout: Inter text (as the DOM screens), Figma icon SVGs (assets/citi/phone/), squircle clips. Parts:
+     defs(id)   screen clip (id+'vs'; all ids id+'v…'), tile clips, shadows;   back(id)  the phone shadow (40/48 blur 20, 16%) + the black bezel (391x828 R56);
+     ring()     the rim, a 4 pt black stroke on the screen edge laid over it (CitiPhone's .ci-rim);   chrome()  header (Sign Off) + status bar;
+     handle()   the home indicator;   tiles(id,o)  the Citi Blue dashboard tile stack (Figma citi_15/16 "Tiles", 141388:12936), top -110,
+                o.insight 'high' = the red insight (citi_16 141388:13407) + dots, else the Insights tile empty (its pages drawn by the caller);
+     moHead()   the Monthly Overview tile's header, summary and income line (citi_15 141401:10197), tile-local;
+     srcs       every asset file the markup references (preload them);   ready()  a promise for the Inter weights the text uses. */
+var P=A.replace(/intro\/$/,'phone/'),
+ VB=function(top,fs,L){return +(top+(L-1.2109375*fs)/2+.96875*fs).toFixed(3)},   /* CSS line box -> SVG baseline (Inter: asc .96875, desc .2421875) */
+ TX=function(x,top,fs,L,fill,str,o){o=o||{};return '<text x="'+x+'" y="'+VB(top,fs,L)+'" font-size="'+fs+'" font-weight="'+(o.w||400)+'" fill="'+fill+'"'+
+  (o.a?' text-anchor="'+o.a+'"':'')+(o.ls?' letter-spacing="'+o.ls+'"':'')+'>'+esc(str)+'</text>'},
+ IM=function(f,x,y,w,h,o){return '<image href="'+P+f+V2+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" preserveAspectRatio="none"'+(o||'')+'/>'},
+ RC=function(x,y,w,h,f){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+f+'"/>'},
+ FWD='<path d="M7 4L13 10L7 16" fill="none" stroke="#0055D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+ FONT='font-family="Inter,system-ui,sans-serif"',V2='?v=320';
+function vTile(id,y,h,inner,sh){return '<g transform="translate(12 '+y+')"><path d="'+sq(351,h,16)+'" fill="#fff"'+(sh?' filter="url(#'+id+'v'+sh+')"':'')+'/>'+
+ '<g clip-path="url(#'+id+'vc'+h+')">'+inner+'</g></g>'}
+function vHead(title,icon){return TX(16,20,18,20,'#0055d8',title)+(icon==='close'?IM('close.svg',315,20,20,20):'<g transform="translate(319 20)">'+FWD+'</g>')+RC(16,59,319,1,'#eee')}
+/* a number set like the app's amounts: $ (Regular, top-aligned) + whole part (ExtraLight) + cents (Regular), then an optional tail */
+function vAmt(x,top,col,s,whole,cents,big,tail,tcol){var b=VB(top,big,big===24?20:24),bs=VB(top,s,s),ls=big===24?' letter-spacing="-1.2"':'';
+ return '<text x="'+x+'" y="'+bs+'" text-anchor="middle" fill="'+col+'"><tspan font-size="'+s+'">$</tspan><tspan dx="'+(big===24?1.667:2)+'" dy="'+(b-bs)+'" font-size="'+big+'" font-weight="200"'+ls+'>'+whole+'</tspan>'+
+  '<tspan dx="'+(big===24?1.667:2)+'" dy="'+(bs-b)+'" font-size="'+s+'">'+cents+'</tspan>'+(tail?'<tspan dx="4" dy="'+(b-bs)+'" font-size="'+big+'" font-weight="200" fill="'+tcol+'"'+ls+'>'+tail+'</tspan>':'')+'</text>'}
+var VTX=[['Uber','$53.46','Pending'],['Walgreens','$21.32','Pending'],['Sant Ambroeus','$320.40'],['Lyft','$42.67'],['Walgreens','$21.32']],
+ VBILL=[['Solari Common Charge','$706.03','due','22','DUE','(Estimated)'],['Con Edison','$92.80','paid','17','PAID',0,'22% more than your last bill'],
+  ['Google','$15.99','paid','14','PAID'],['Verizon Wireless','$120.36','unpaid','1','UNPAID']],
+ VCOL={due:'#0055d8',paid:'#008a24',unpaid:'#fd4949'};
+var VEC={
+ srcs:['cal-due.svg','cal-paid.svg','cal-unpaid.svg','check.svg','trend.svg','insight-high.svg','close.svg','cash-back.svg','cash-front.svg'].map(function(f){return P+f+V2}).concat([A+'status-right.svg'+V]),
+ ready:function(){var f=document.fonts;if(!f||!f.load)return Promise.resolve();
+  return Promise.all(['200 24px Inter','300 12px Inter','400 12px Inter'].map(function(s){return f.load(s).catch(function(){})}))},
+ defs:function(id){var d='<clipPath id="'+id+'vs"><path d="'+sq(375,812,48)+'"/></clipPath><clipPath id="'+id+'vk"><rect width="44" height="56" rx="6"/></clipPath>';
+  [380,219].forEach(function(h){d+='<clipPath id="'+id+'vc'+h+'"><path d="'+sq(351,h,16)+'"/></clipPath>'});
+  return d+'<filter id="'+id+'vp" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter>'+
+   '<filter id="'+id+'vt20" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#000" flood-opacity=".05"/></filter>'+
+   '<filter id="'+id+'vt10" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#000" flood-opacity=".05"/></filter>'},
+ back:function(id){var b=sq(391,828,56);return '<path transform="translate(32 40)" d="'+b+'" fill="#000" fill-opacity=".16" filter="url(#'+id+'vp)"/><path transform="translate(-8 -8)" d="'+b+'" fill="#000"/>'},
+ ring:function(){return '<path d="'+sq(375,812,48)+'" fill="none" stroke="#000" stroke-width="4"/>'},   /* the rim (as CitiPhone's .ci-rim): covers the clip's antialiased edge */
+ chrome:function(){return '<g '+FONT+'>'+RC(0,0,375,88,'#0055d8')+TX(313,60,12,16,'#ccc','Sign Off')+
+  '<text x="29" y="'+VB(13,15,20)+'" font-family="\'SF Pro Text\',-apple-system,system-ui,Inter,sans-serif" font-size="15" font-weight="590" letter-spacing="-.24" fill="#fff">2:04</text>'+
+  '<image href="'+A+'status-right.svg'+V+'" x="283" y="17.332" width="66.662" height="11.335" preserveAspectRatio="none"/></g>'},
+ handle:function(){return '<rect x="121" y="798" width="134" height="5" rx="2.5" fill="#000"/>'},
+ tiles:function(id,o){o=o||{};var y=-110,s='';
+  /* Transactions (clipped at 380: header + Uber, Walgreens, Sant Ambroeus, Lyft) */
+  s+=vTile(id,y,380,vHead('Transactions')+VTX.map(function(r,i){var t=60+80*i;return TX(16,t+21,14,18,'#333',r[0])+TX(16,t+43,12,16,'#666',i===4?'Citi Double Cash - 9848':'Citi Double Cash® - 9848')+
+   (r[2]?TX(335,t+21,14,18,'#333',r[1],{a:'end'})+TX(335,t+43,12,16,'#666',r[2],{a:'end'}):TX(335,t+31,14,18,'#333',r[1],{a:'end'}))+(i<4?RC(16,t+79,319,1,'#eee'):'')}).join(''));
+  /* Insights: the shell; the red "high" state for the Monthly Overview dashboard */
+  var ins='';if(o.insight==='high')ins='<g transform="translate(12 20)">'+IM('insight-high.svg',146.535,8.93,33.929,32.143)+TX(163.5,54,12,16,'#333','You spent',{a:'middle'})+
+   vAmt(163.5,78,'#fd4949',12,'756','82',24,'so far this week','#333')+RC(15,110,297,1,'#eee')+TX(163.5,123,12,16,'#fd4949','That’s high for you.',{a:'middle'})+
+   TX(163.5,139,12,16,'#999','Your average spend is $865.30',{a:'middle'})+'</g><circle cx="159.5" cy="197" r="2" fill="#0055D8"/><circle cx="175.5" cy="197" r="2" fill="#DDDDDD"/><circle cx="191.5" cy="197" r="2" fill="#DDDDDD"/>';
+  s+=vTile(id,y+392,219,ins,'t20');
+  /* Bills */
+  s+=vTile(id,y+623,380,vHead('Bills')+VBILL.map(function(r,i){var t=60+80*i,c=VCOL[r[2]],l=r[6]?11:21;
+   return TX(16,t+l,12,16,'#666',r[0])+(r[5]?'<text x="16" y="'+VB(t+l+20,14,18)+'" fill="#333" font-size="14">'+esc(r[1])+'<tspan dx="4" dy="'+(VB(t+l+22,10,16)-VB(t+l+20,14,18))+'" font-size="10" fill="#999">'+r[5]+'</tspan></text>':TX(16,t+l+20,14,18,'#333',r[1]))+
+    (r[6]?IM('trend.svg',18.571,t+l+44.857,10.857,10.286)+TX(36,t+l+42,12,16,'#fd4949',r[6]):'')+
+    '<g transform="translate(291 '+(t+12)+')"><g clip-path="url(#'+id+'vk)">'+IM('cal-'+r[2]+'.svg',0,0,44,56)+RC(0,42,44,14,c)+'</g>'+
+    TX(22,6,12,12,c,'SEP',{a:'middle',w:300})+TX(22,20,20,20,c,r[3],{a:'middle',w:200})+TX(22,44,8,10,'#fff',r[4],{a:'middle'})+'</g>'+
+    (r[2]==='paid'?IM('check.svg',283,t+32,16,16):'')+(i<3?RC(4,t+79,343,1,'#eee'):'')}).join(''),'t20');
+  /* (Monthly Overview: its tile is the caller's card, see moHead) then Checking */
+  s+=vTile(id,y+1407,380,vHead('Citi® Access Checking','close')+'<circle cx="175.5" cy="155" r="75" fill="#f2f2f2"/>'+
+   '<g transform="rotate(-12 175.633 156.065)">'+IM('cash-back.svg',109.633,125.065,132,62)+'</g>'+IM('cash-front.svg',109.54,124.99,132,62)+
+   TX(175.5,250,14,20,'#333','Get $200 when you open a new',{a:'middle'})+TX(175.5,270,14,20,'#333','Citi checking account.',{a:'middle'})+
+   RC(64,306,223,40,'#0055d8')+'<text x="175.5" y="331.82" text-anchor="middle" font-size="16" fill="#fff">Get Started</text>','t10');
+  return '<g '+FONT+'>'+s+'</g>'},
+ moHead:function(){return '<g '+FONT+'>'+vHead('Monthly Overview')+vAmt(175.5,76,'#333',14,'2,103','26',28)+TX(175.5,108,12,12,'#666','remaining this month',{a:'middle',ls:.12})+
+  '<text x="40" y="'+VB(150,12,20)+'" font-size="12" letter-spacing=".12" fill="#666" class="cv-inc">Income: $6K</text>'+
+  '<path class="cv-bar" d="M0 .5C0 .224.224 0 .5 0H226.5C226.776 0 227 .224 227 .5S226.776 1 226.5 1H.5C.224 1 0 .776 0 .5Z" fill="#999" fill-opacity=".4" transform="translate(119.4 159.5)"/></g>'}
+};
+window.CitiPhone={themes:THEMES,tiers:TIERS,tiles:tiles,home:home,splash:splash,screen:screen,phone:phone,sq:sq,clips:clips,vec:VEC};
 var box=document.querySelector('[data-citi-intro]');if(!box)return;
 var stage=box.querySelector('.ss-stage');
 var t0=box.getAttribute('data-citi-intro')||TIERS[0];

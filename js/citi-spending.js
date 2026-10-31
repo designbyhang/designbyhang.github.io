@@ -1,11 +1,11 @@
-/* Citi Spending Insights (04 Banking Experiences): one looping phone-screen sequence over the slide image citi-15.webp, rebuilt from
+/* Citi Spending Insights (04 Banking Experiences): one looping phone-screen sequence, rebuilt from
    Hang's prototype recording. The dashboard stays still; only the Insights tile moves. Its three insights page right to left like the
    app's own pager: You spent $428.36 (normal, green flag) > You spent $756.82 (high, red trend) > highest at Crate & Barrel $867.40
-   (lightbulb) > a clone of the first page, so the loop always travels the same way and wraps without a jump. No dependencies.
-   Markup: <div class="media mframe" data-citi-spend><img src="citi-15.webp" ...></div>. The image is the no-JS fallback and the
-   reduced-motion frame (t 0: page 1 settled). One SVG covering it exactly (same 2880x1620 box, slice = the img's object-fit:cover)
-   lays the slide down, whites out the tile's insight area, and draws the pages on top, clipped to the tile, so nothing ever leaves the
-   tile (and the screen and device frame stay the slide's own). Each page is a vector export of Figma citi_15/16/17 Tile / Insights
+   (lightbulb) > a clone of the first page, so the loop always travels the same way and wraps without a jump. Needs CitiPhone (js/citi-intro.js, loaded first).
+   Markup: <div class="media mframe" data-citi-spend style="background:#002F9B"></div>. One SVG (2880x1620, slice) draws the slide:
+   the #002F9B ground and the phone built by CitiPhone.vec in vector (shadow, bezel, rim, header + status bar, dashboard tiles with
+   the Insights tile left empty, Inter text), then the pages on top, clipped to the tile, so nothing ever leaves the tile. The
+   reduced-motion frame is t 0 (page 1 settled).
    (assets/citi/spend/card1..3.svg: icon, copy outlined from Inter 3, divider; 327x155 pt). The amounts are odometer columns drawn here
    from the same outlined Inter digits (24 px ExtraLight, 12 px Regular): each column rolls up a full turn to its digit as the page lands,
    left to right 56 ms apart. Pagination dots are drawn here too, illustration only: a plain blue/grey colour switch.
@@ -23,7 +23,7 @@
    Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
    otherwise. Never interactive. Reduced motion: the still frame t 0. window.__citiSpend: seek(t) / resume() / PERIOD for captures. */
 (function(){"use strict";
-var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=307";
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=320";
 /* one curve, one duration for every motion; events chained with one breath */
 var DUR=768,BR=80,READ=1720,SL=DUR,S=[872,5280,8840],PERIOD=12376,ENT=DUR,RISE=10,ROLL0=DUR+BR,RST=56,RD=DUR,TINT=1920,TD=384,STAT0=TINT,PAGE=359,INK=[51,51,51],
  DOTP=[0,0,1,0],BLUE=[0,85,216],GREY=[221,221,221];   /* the dot each page sits on: green + red are two states of card 1 */
@@ -41,11 +41,13 @@ function el(t,a,p){var e=doc.createElementNS(NS,t);for(var k in a)e.setAttribute
 /* the beat at t: page position p (0..3, fractional while sliding) */
 function pos(t){var p=0;for(var i=0;i<S.length;i++)if(t>=S[i])p=i+slide(cl((t-S[i])/SL));return p}
 function build(host,id){
- var B="../assets/citi/",SRC=[B+"citi-15.webp?v=312"];
+ var B="../assets/citi/",CV=CitiPhone.vec,SRC=CV.srcs.slice();
  var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
- el("image",{href:SRC[0],width:2880,height:1620,preserveAspectRatio:"none"},svg);
- el("rect",{x:1184,y:640,width:513,height:296,fill:"#fff"},svg);                   /* the slide's own insight + dots, whited out */
- var defs=el("defs",{},svg),cp=el("clipPath",{id:id+"t"},defs);
+ /* the slide: #002F9B ground + the phone (Figma citi_15: 375x812 pt at 773,134 -> x1.5), all vector (CitiPhone.vec); its Insights tile
+    is left empty for the pages below */
+ svg.innerHTML='<defs>'+CV.defs(id)+'</defs><rect width="2880" height="1620" fill="#002F9B"/><g transform="translate(1159.5 201) scale(1.5)">'+CV.back(id)+
+  '<g clip-path="url(#'+id+'vs)"><rect width="375" height="812" fill="#EFEFEF"/>'+CV.tiles(id)+CV.chrome()+CV.handle()+'</g>'+CV.ring()+'</g>';
+ var defs=svg.firstChild,cp=el("clipPath",{id:id+"t"},defs);
  el("rect",{x:TILE.x,y:TILE.y,width:TILE.w,height:TILE.h},cp);
  ["L","S"].forEach(function(st){D[st].forEach(function(g,n){el("path",{id:id+st+n,d:g[1]},defs)})});
  var tr=el("g",{"clip-path":"url(#"+id+"t)"},svg),trk=el("g",{},el("g",{transform:"translate("+O.x+" "+O.y+") scale("+K+")"},tr));
@@ -97,7 +99,7 @@ function control(host){
  var start=function(){if(draw)return;start=function(){};var b=build(host,"csp"+Math.random().toString(36).slice(2,7)),f=b[0],svg=host.lastChild;
   svg.style.visibility="hidden";var srcs=b[1],n=0,done=function(){if(++n<srcs.length)return;
    f(RM.matches?0:t);svg.style.visibility="";draw=f;upd()};
-  srcs.forEach(function(s){var i=new Image();i.onload=i.onerror=function(){(i.decode?i.decode().catch(function(){}):Promise.resolve()).then(done)};i.src=s})};
+  srcs.forEach(function(s){var i=new Image();i.onload=i.onerror=function(){(i.decode?i.decode().catch(function(){}):Promise.resolve()).then(done)};i.src=s});n--;CitiPhone.vec.ready().then(done)};   /* + the Inter weights */
  if("IntersectionObserver" in window){
   new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting}))start()},{rootMargin:"600px 0px"}).observe(host);
   new IntersectionObserver(function(es){es.forEach(function(e){vis=e.intersectionRatio>=.35});upd()},{threshold:[0,.35]}).observe(host);
@@ -108,7 +110,7 @@ function control(host){
 }
 var insts=[];
 function mount(){if(!doc.getElementById("csp-css")){var s=doc.createElement("style");s.id="csp-css";
-  s.textContent="[data-citi-spend]{position:relative;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;pointer-events:none}[data-citi-spend]>svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;overflow:hidden}";doc.head.appendChild(s)}
+  s.textContent="[data-citi-spend]{position:relative;background:#002F9B;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;pointer-events:none}[data-citi-spend]>svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;overflow:hidden}";doc.head.appendChild(s)}
  [].forEach.call(doc.querySelectorAll("[data-citi-spend]"),function(h){if(h.__csp)return;h.__csp=1;try{insts.push(control(h))}catch(err){if(window.console)console.warn("citi-spending:",err)}})}
 window.__citiSpend={seek:function(t,i){var x=insts[i||0];x&&x.seek(t)},time:function(i){var x=insts[i||0];return x?x.time():-1},resume:function(i){var x=insts[i||0];x&&x.resume()},ready:function(i){var x=insts[i||0];return !!(x&&x.ready())},playing:function(i){var x=insts[i||0];return !!(x&&x.playing())},PERIOD:PERIOD};
 doc.readyState==="loading"?doc.addEventListener("DOMContentLoaded",mount,{once:true}):mount();
