@@ -388,7 +388,8 @@ touch.addEventListener('pointerdown',ev=>{if(ev.button>0||INL())return;
   stopAll();setPress(el);if(kind==='back'){chevDim=.5;render()}
   pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,kind,f0:f,c0:c,k0:k,ro0:ro,s:[[performance.now(),0]],sc:phone.getBoundingClientRect().height/812};
   try{touch.setPointerCapture(ev.pointerId)}catch(_){}});
-const rub=(n,lo,hi)=>n<lo?lo+(n-lo)*.35:n>hi?hi+(n-hi)*.35:n;
+const rb=(x,d,c=.55)=>d>0?(x<0?-rb(-x,d,c):(1-1/(c*x/d+1))*d):0;
+const rub=(n,lo,hi,d=1)=>n<lo?lo-rb(lo-n,d):n>hi?hi+rb(n-hi,d):n;
 touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
   if(ev.pointerType==='mouse'&&ev.buttons===0){touchUp({type:'pointerup',pointerId:ev.pointerId});return}   // the button came up where the release never reached us (outside the frame, capture lost): end the drag, never let it follow a free cursor
   const dx=(ev.clientX-pd.x)/pd.sc,dy=(ev.clientY-pd.y)/pd.sc;
@@ -403,7 +404,7 @@ touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
   else if(pd.axis==='k'){pd.u=pd.k0-dy/812;k=rub(pd.u,0,2);v=pd.u}   // the flick speed: the finger's, not the rubber band's
   else if(pd.axis==='c'){c=rub(pd.c0-dx/375,0,LAST);v=c}
   else if(pd.axis==='v'){v=-dy/812;pd.u=v}
-  else if(pd.axis==='ro'){const base=scrollOf(c);ro=rub(pd.ro0-dx,-base,RMAX-base);v=ro}
+  else if(pd.axis==='ro'){const base=scrollOf(c);ro=rub(pd.ro0-dx,-base,RMAX-base,375);v=ro}
   else return;
   render();const now=performance.now();pd.s.push([now,v]);while(pd.s.length>2&&now-pd.s[0][0]>96)pd.s.shift()});
 function vel(d){const A=d.s[0],B=d.s[d.s.length-1];return B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0}
@@ -415,22 +416,22 @@ function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setP
     else if(kd.startsWith('tab')&&kd!=='tabs')goCat(+kd.slice(3));else if(kd==='reel')togglePause();
     return}
   const v0=vel(d);
-  if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0))}
-  else if(d.axis==='k'){const t=snap(Math.round(d.k0)===2?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,3,812);if(t===3){kA.to(2,{ms:400});nextCat()}else stepK(t,Math.round(d.k0))}
+  if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0),v0)}
+  else if(d.axis==='k'){const t=snap(Math.round(d.k0)===2?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,3,812);if(t===3){kA.to(2,{ms:400});nextCat()}else stepK(t,Math.round(d.k0),v0)}
   else if(d.axis==='v'){const t=snap(d.u||0,v0,0,-1,1,812);if(t===1)nextCat();else if(t===-1)prevCat()}
-  else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,LAST,375);goCat(t,Math.round(d.c0))}
+  else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,LAST,375);goCat(t,Math.round(d.c0),v0)}
   else if(d.axis==='ro'){const base=scrollOf(c),t=clamp(ro+v0*.25,-base,RMAX-base);roA.to(t,{ms:400})}}
 touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
 addEventListener('pointerup',touchUp,true);touch.addEventListener('lostpointercapture',ev=>{if(pd&&ev.pointerId===pd.id)touchUp({type:'pointercancel',pointerId:ev.pointerId})});   // any release ends the drag, wherever it lands
 function restart(id){const v=VID[id];if(v){try{v.currentTime=0}catch(_){}}if(paused){paused=null;pz.set(false)}}
 function arrive(id){say(R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?' post':' reel'))}
-function stepF(t,from=Math.round(f)){if(t!==from)restart(t?'nesp':'nike');fA.to(t,{ms:664,onDone:()=>{arrive(t?'nesp':'nike');if(t)nsStart();else nsReset()}})}
-function stepK(t,from=Math.round(k)){if(t!==from)restart(CATS[0][t]);kA.to(t,{ms:664,onDone:()=>arrive(CATS[0][t])})}
+function stepF(t,from=Math.round(f),v=0){if(t!==from)restart(t?'nesp':'nike');const d=t-f;fA.to(t,{ms:664,ease:d&&v?springV(664,v/d):SLOW,onDone:()=>{arrive(t?'nesp':'nike');if(t)nsStart();else nsReset()}})}
+function stepK(t,from=Math.round(k),v=0){if(t!==from)restart(CATS[0][t]);const d=t-k;kA.to(t,{ms:664,ease:d&&v?springV(664,v/d):SLOW,onDone:()=>arrive(CATS[0][t])})}
 function nextCat(){const t=Math.round(c)+1;if(t<=LAST)goCat(t)}   // swipe up on a tab's last reel: the next tab, with the tab change (Beauty, the last tab: nothing)
 function prevCat(){const t=Math.round(c)-1;if(t<0)return;if(t===0){kA.stop();k=CATS[0].length-1}goCat(t)}   // swipe down on a tab's first reel: the previous tab, landing on its last reel (mirrors nextCat; Coffee, the first tab: nothing)
 function vStep(s){if(Math.round(c)===0&&Math.round(k)+s>=0&&Math.round(k)+s<=2)stepK(Math.round(k)+s);else if(s>0)nextCat();else prevCat()}   // up/down in CC: Coffee's reels, then on to the next or previous tab
-function goCat(t,from=Math.round(c)){t=clamp(t,0,LAST);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
-  roA.to(0,{ms:664});cA.to(t,{ms:t===c?400:664,onDone:()=>arrive(id)})}
+function goCat(t,from=Math.round(c),v=0){t=clamp(t,0,LAST);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
+  const ms=t===c?400:664,d=t-c;roA.to(0,{ms:664});cA.to(t,{ms,ease:d&&v?springV(ms,v/d):SLOW,onDone:()=>arrive(id)})}
 function togglePause(){const id=curId();if(!id)return;const v=VID[id];
   if(paused===id){paused=null;pz.set(false);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
 

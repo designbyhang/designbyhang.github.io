@@ -19,7 +19,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=311"><link rel="stylesheet" href="../../css/theme.css?v=311">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=311"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script>
 <link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=311"><script src="../shared/tabbar/tabbar.js?v=311"></script>
 <link rel="preload" as="image" href="assets/media-bg.jpg"><link rel="preload" as="image" href="assets/page-desk.webp?v=3">
 <link rel="stylesheet" href="../shared/device/device.css?v=311"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=311">
@@ -277,7 +277,7 @@ document.addEventListener('keydown',e=>{
 /* ---------- carousel h-scroll: pointer (touch / mouse drag) 1:1 + velocity snap; trackpad deltaX + idle snap ---------- */
 let hd=null;
 function scaleNow(){return phone.getBoundingClientRect().height/812}
-const rubberP=v=>v<0?v*.3:v>N-1?N-1+(v-(N-1))*.3:v;
+const rubberP=v=>FMSSIAB.rbRange(v,0,N-1,1);
 function hsStart(x,yv,id,scale){pSpring.stop();hd={id,x0:x,y0:yv,p0:p,from:Math.round(p),scale,dir:0,samples:[[performance.now(),x]]}}
 function hsMove(x,yv){
   if(!hd)return false;

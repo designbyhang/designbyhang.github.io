@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=311"><link rel="stylesheet" href="../../css/theme.css?v=311">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><link rel="stylesheet" href="../shared/caption/caption.css?v=311"><link rel="stylesheet" href="../../css/ad-cta.css?v=311"><script src="../../js/vac-caption.js?v=311"></script><script src="../shared/caption/caption.js?v=311"></script><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=311"></script><script src="../shared/edge-back/edge-back.js?v=311"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><link rel="stylesheet" href="../shared/caption/caption.css?v=311"><link rel="stylesheet" href="../../css/ad-cta.css?v=311"><script src="../../js/vac-caption.js?v=311"></script><script src="../shared/caption/caption.js?v=311"></script><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=311"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=311">
 <style>
@@ -212,20 +212,20 @@ if(CLIP){phone.style.clipPath=`path('${squircle(375,812,40,.6)}')`;$('bezelFill'
   document.querySelectorAll('.ad-cta').forEach(e=>{e.style.clipPath=`path('${squircle(...ReelsCaption.CTA,.6)}')`})}   // the CTAs and their press dim: the shared CTA's 60% squircle
 else ['t1','t2','t3','t4'].forEach(id=>{$(id).style.borderRadius='12px'});
 
-/* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move (664ms) ---------- */
-function springEase(p){var k=p[0],c=p[1],m=p[2]||1,w0=Math.sqrt(k/m),z=c/(2*Math.sqrt(k*m)),x;
-  if(z<1){var wd=w0*Math.sqrt(1-z*z);x=t=>1-Math.exp(-z*w0*t)*(Math.cos(wd*t)+z*w0/wd*Math.sin(wd*t))}
-  else if(z===1){x=t=>1-Math.exp(-w0*t)*(1+w0*t)}
-  else{var s=w0*Math.sqrt(z*z-1),r1=-z*w0+s,r2=-z*w0-s,A=r2/(r2-r1),B=1-A;x=t=>1-(A*Math.exp(r1*t)+B*Math.exp(r2*t))}
-  var T=0;for(var t=0;t<20;t+=.0005)if(Math.abs(1-x(t))>=.001)T=t;T+=.0005;var xe=x(T);
-  return u=>u<=0?0:u>=1?1:x(u*T)/xe}
-const SLOW=springEase([80,20,1]),DUR=664;
+/* ---------- motion: the site's Slow spring (Figma [80, 20, 1], js/state-seq.js springEase), time-scaled to each move (664ms);
+   springV: released with the finger's velocity ---------- */
+const SK=80,SC=20,W0=Math.sqrt(SK),ZT=SC/(2*Math.sqrt(SK)),R1=-ZT*W0+W0*Math.sqrt(ZT*ZT-1),R2=-ZT*W0-W0*Math.sqrt(ZT*ZT-1);
+function springPos(y0p){const A=(y0p-R2)/(R1-R2),B=1-A;return s=>A*Math.exp(R1*s)+B*Math.exp(R2*s)}
+const ST=(()=>{const y=springPos(0);let T=0;for(let s=0;s<20;s+=.0005)if(Math.abs(y(s))>=.001)T=s;return T+.0005})();
+const SLOW=(()=>{const y=springPos(0),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e})();
+function springV(ms,vNorm){const y=springPos(-vNorm*(ms/1000)/ST),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e}
+const DUR=664;
 function anim(get,set){let raf=0,busy=false;
   return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
-    to(target,{ms=DUR,onDone}={}){cancelAnimationFrame(raf);const from=get();
+    to(target,{ms=DUR,ease=SLOW,onDone}={}){cancelAnimationFrame(raf);const from=get();
       if(RM.matches||ms<=0||from===target){set(target);busy=false;onDone&&onDone();return}
       busy=true;const t0=performance.now();
-      const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,SLOW(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
+      const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,ease(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
       raf=requestAnimationFrame(f)}}}
 
 /* ---------- the screen: one set of values, everything rendered from them ----------
@@ -340,8 +340,8 @@ pager.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='reels')return;
 pager.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
   const dx=ev.clientX-pd.x,dy=ev.clientY-pd.y;if(Math.hypot(dx,dy)>10){pd.moved=true;ctaDown(false)}
   if(!pd.axis&&pd.moved)pd.axis=pd.onHs&&Math.abs(dx)>Math.abs(dy)?'h':'v';
-  if(pd.axis==='h'){let n=pd.hx0+dx/pd.sc;if(n>0)n*=.35;else if(n<HMIN)n=HMIN+(n-HMIN)*.35;hx=n;render();return}
-  let n=pd.k0-dy/pd.sc/PG;if(n<0)n*=.35;else if(n>N)n=N+(n-N)*.35;k=n;render();
+  if(pd.axis==='h'){hx=FMSSIAB.rbRange(pd.hx0+dx/pd.sc,HMIN,0,HS[2]);render();return}
+  k=FMSSIAB.rbRange(pd.k0-dy/pd.sc/PG,0,N,1);render();
   const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
 function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');ctaDown(false);
   if(d.axis==='h'){const t=clamp(hx,HMIN,0);if(t!==hx){const hA=anim(()=>hx,v=>{hx=v;render()});hA.to(t,{ms:400})}return}
@@ -349,10 +349,11 @@ function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;page
   const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, the next ad)
   let t=Math.round(k+v*.18);const from=Math.round(d.k0);
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);
-  step(t)}
+  step(t,v)}
 pager.addEventListener('pointerup',pagerUp);pager.addEventListener('pointercancel',pagerUp);
 const NAMES=['Oakley','LensCrafters','Ray-Ban'];
-function step(t){const was=Math.round(k);if(t!==was)restart(t);kA.to(t,{onDone:()=>say(NAMES[t]+' reel')})}
+function step(t,v=0){const was=Math.round(k);if(t!==was)restart(t);
+  const d=t-k;kA.to(t,{ease:d&&v?springV(DUR,v/d):SLOW,onDone:()=>say(NAMES[t]+' reel')})}
 function restart(j){const v=j===1?lcv:j===2?rbv:null;if(v){try{v.currentTime=0}catch(_){}}if(j===1){hx=0}}
 let wT=0,wAcc=0;
 pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev.preventDefault();
