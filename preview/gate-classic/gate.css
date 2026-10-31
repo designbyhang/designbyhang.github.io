@@ -1,0 +1,51 @@
+html.gated body>*:not(.gate){visibility:hidden}
+html.gated{overflow:hidden}
+/* iOS Safari bars, as the © Easter egg / Studio presentation (css/hang-egg.css html.hegg-flow): iOS 26 Safari does not re-tint its bars
+   from a full-screen fixed layer when the theme is toggled (Hang's iPhone: dark gate under light bars and vice versa). While gated the
+   gate is the document itself (in flow, one viewport tall, 2px of scroll range for js/theme.js's re-sample nudge), the page is collapsed
+   out of flow (and stays hidden), two solid fixed strips in --page sit at the top and bottom edges, and nothing cross-fades on a toggle,
+   so Safari never samples a half-way or stale colour. Removed with html.gated on unlock. */
+@media (hover:none) and (pointer:coarse){html.gated{overflow:auto}}
+html.gated,html.gated body{height:100%}
+html.gated body{display:block;min-height:0;overflow:visible;margin:0;padding:0 0 2px;box-sizing:content-box}
+html.gated body>:not(.gate):not(.theme-btn){position:absolute!important;top:0!important;left:0!important;right:0!important;width:auto!important;height:0!important;min-height:0!important;overflow:hidden!important;pointer-events:none!important}
+html.gated .gate{position:relative;inset:auto;width:100%;height:100%;box-sizing:border-box}
+.gate::before,.gate::after{content:"";position:fixed;left:0;right:0;z-index:0;background:var(--page)}
+.gate::before{top:0;height:calc(16px + env(safe-area-inset-top,0px))}
+.gate::after{bottom:0;height:calc(16px + env(safe-area-inset-bottom,0px))}
+.gate-in{position:relative;z-index:1}
+html.gated.theme-anim,html.gated.theme-anim body,html.gated.theme-anim .gate,html.gated.theme-anim .gate *,html.gated.theme-anim .gate::before,html.gated.theme-anim .gate::after{transition:none!important}
+/* hold page entrance animations (home poster draw-in, strip fade) at frame 0 while gated; they play from the start on unlock */
+html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:paused!important}
+.gate{position:fixed;inset:0;z-index:1000;background:var(--page);color:var(--c-strong);display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
+.gate-in{width:fit-content;max-width:min(512px,100%)} /* shrink-wrap so the centred block has no empty right side */
+.gate-logo{font:var(--t-gate-logo);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);margin-bottom:64px}
+/* headline = home intro card CTA (.poster-title): 400, 3.33cqi of the 1050.5px active card at 1440 (=2.43vw), lh 1, -.025em, --c-strong; mobile 6.67cqi of the 358px card (=100vw-32px) */
+.gate{--g-h:36px}
+.gate h1{font-family:var(--sans,"Instrument Sans",system-ui,sans-serif);font-weight:400;font-size:var(--g-h);line-height:1;letter-spacing:-.025em;color:var(--c-strong);margin:0 0 20px}
+/* body + input = project-page body copy (--t-body 18/28, 17/26 under 900px), fixed */
+.gate-sub,.gate-form input{font:var(--t-body);color:var(--c-strong)}
+@media (max-width:900px){.gate-sub,.gate-form input{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
+.gate-sub{margin:0 0 48px}
+/* .gate-fit shrink-wraps the body text (wrapped block width on mobile); the input fills it so the underline = text width; arrow sits inside at the right end */
+.gate-fit{width:fit-content;max-width:100%}
+.gate-form{position:relative}
+.gate-form input{display:block;box-sizing:border-box;width:0;min-width:100%;background:none;border:0;box-shadow:inset 0 -1.5px 0 var(--c-strong);border-radius:0;font-family:inherit;padding:12px calc(var(--g-aw,18px) + var(--g-gap,12px)) 12px 0}
+.gate-form input::placeholder{color:var(--faint,#9a9a9a)}
+.gate-form input:focus{outline:none}
+.gate-form button{position:absolute;right:0;top:0;bottom:1.5px;display:flex;align-items:center;background:none;border:0;cursor:pointer;padding:0;transition:opacity .2s ease}
+/* arrow hidden (not focusable/clickable) until something is typed; Enter still submits */
+.gate-form input:placeholder-shown+button{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility 0s .2s}
+@media (prefers-reduced-motion:reduce){.gate-form button,.gate-form input:placeholder-shown+button{transition:none}}
+/* arrow = intro card CTA arrow (.poster-title .arr svg: same path, .86em x .6em, 1.5px non-scaling miter stroke, --c-strong, static per arrows.css) at half size */
+.gate-form button svg{display:block;width:var(--g-aw,18px);height:calc(var(--g-aw,18px)*.6977);overflow:visible}.gate-form button path{stroke:var(--c-strong);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+@media (max-width:640px),(orientation:portrait) and (max-width:1024px){.gate{--g-aw:14px;--g-gap:8px}}
+.gate-err{min-height:20px;font-size:13px;color:#ff6848;margin-top:8px}
+.gate-help{font-size:var(--t-s13);color:var(--faint,#999)}.gate-help a{position:relative;color:var(--c-strong);text-decoration:none}
+/* hover underline = site nav (.home .top nav a::after / .bar-right a .t::after) */
+.gate-help a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.gate-help a:hover::after,.gate-help a:focus-visible::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.gate-help a::after{transition:none}}
+/* the site's own theme toggle (js/theme.js) stays visible and above the gate, in its normal position */
+html.gated body .theme-btn,html.gated .home .bot .theme-btn{visibility:visible;position:fixed;left:calc(var(--tb-x) + env(safe-area-inset-left,0px));bottom:calc(var(--tb-x) + env(safe-area-inset-bottom,0px));z-index:1001}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

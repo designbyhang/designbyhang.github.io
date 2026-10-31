@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Before/After toggle options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root{--strong:#f2f2f2;--paper:#1a1a1a;--ring:rgba(255,255,255,.12);--ring-h:rgba(255,255,255,.4);--glass:color-mix(in srgb,var(--paper) 44%,transparent);--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0}
+body{background:#111;color:var(--strong);font-family:"Instrument Sans",system-ui,sans-serif;padding:40px 32px 64px}
+h1{font:500 16px/24px inherit;margin-bottom:32px;opacity:.56;font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1440px;margin:0 auto}
+@media (max-width:900px){.grid{grid-template-columns:1fr;gap:40px}body{padding:24px 16px 48px}}
+.mod{position:relative;aspect-ratio:4/5;background:#1d1d1d;border-radius:24px;overflow:hidden;container-type:size}
+.ph{position:absolute;left:50%;top:9.87cqh;height:75.44cqh;aspect-ratio:375/812;transform:translateX(-50%);border-radius:4.44cqh;overflow:hidden;background:#000;box-shadow:0 0 0 .74cqh rgba(255,255,255,.2)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transition:opacity .48s var(--ease)}
+.mod[data-s=after] .ph .b,.mod[data-s=before] .ph .a{opacity:0}
+.cap{text-align:center;font:400 14px/18px "Instrument Sans";color:color-mix(in srgb,var(--strong) 56%,transparent);margin-top:14px}
+.ctl{position:absolute;right:32px;bottom:32px}
+@media (max-width:640px){.ctl{right:16px;bottom:16px}}
+.glass{border:1px solid var(--ring);background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 1px 4px rgba(0,0,0,.06);transition:border-color .24s ease}
+.glass:hover{border-color:var(--ring-h)}
+button{appearance:none;border:0;background:none;color:inherit;font:400 14px/18px "Instrument Sans",system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
+/* 1 segmented + sliding thumb */
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;height:32px;border-radius:16px;padding:2px}
+.seg .th{position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:14px;background:rgba(255,255,255,.14);transition:transform .48s var(--ease)}
+.mod[data-s=after] .seg .th{transform:translateX(100%)}
+.seg button{position:relative;padding:0 14px;color:color-mix(in srgb,var(--strong) 40%,transparent);transition:color .24s ease}
+.mod[data-s=before] .seg .bb,.mod[data-s=after] .seg .ab{color:var(--strong)}
+/* 2 single toggle */
+.one{position:relative;height:32px;border-radius:16px;padding:0 16px;display:grid;place-items:center;min-width:80px}
+.one span{grid-area:1/1;transition:opacity .24s ease,transform .24s var(--ease)}
+.mod[data-s=before] .one .ta,.mod[data-s=after] .one .tb{opacity:0;transform:translateY(4px)}
+/* 3 joined + divider */
+.join{display:flex;align-items:stretch;height:32px;border-radius:16px;overflow:hidden}
+.join button{padding:0 16px;color:color-mix(in srgb,var(--strong) 40%,transparent);transition:color .24s ease}
+.join i{width:1px;background:var(--ring);margin:8px 0}
+.mod[data-s=before] .join .bb,.mod[data-s=after] .join .ab{color:var(--strong)}
+.lbl{font:400 14px/18px "Instrument Sans";margin:16px 0 0;text-align:center}
+</style></head><body>
+<h1>Before/After toggle options (autoplays every 3.2s, tap to switch)</h1>
+<div class="grid">
+ <figure><div class="mod" data-s="before"><div class="ph"><img class="b" src="../../assets/vac/vac-sol-a1-feed-on.webp" alt=""><img class="a" src="../../assets/vac/vac-sol-a2-reels-on.webp" alt=""></div>
+  <div class="ctl"><div class="seg glass"><span class="th"></span><button class="bb" data-go="before">Before</button><button class="ab" data-go="after">After</button></div></div></div>
+  <p class="lbl">1. Segmented, sliding thumb</p></figure>
+ <figure><div class="mod" data-s="before"><div class="ph"><img class="b" src="../../assets/vac/vac-sol-a1-feed-on.webp" alt=""><img class="a" src="../../assets/vac/vac-sol-a2-reels-on.webp" alt=""></div>
+  <div class="ctl"><button class="one glass" data-go="flip"><span class="tb">Before</span><span class="ta">After</span></button></div></div>
+  <p class="lbl">2. Single toggle button</p></figure>
+ <figure><div class="mod" data-s="before"><div class="ph"><img class="b" src="../../assets/vac/vac-sol-a1-feed-on.webp" alt=""><img class="a" src="../../assets/vac/vac-sol-a2-reels-on.webp" alt=""></div>
+  <div class="ctl"><div class="join glass"><button class="bb" data-go="before">Before</button><i></i><button class="ab" data-go="after">After</button></div></div></div>
+  <p class="lbl">3. Joined pill, divider</p></figure>
+</div>
+<script>
+document.querySelectorAll('.mod').forEach(m=>{
+ let t;const arm=()=>{clearInterval(t);t=setInterval(()=>{m.dataset.s=m.dataset.s==='before'?'after':'before'},3200)};
+ m.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;m.dataset.s=g==='flip'?(m.dataset.s==='before'?'after':'before'):g;arm()});
+ arm();
+});
+</script>
+</body></html>

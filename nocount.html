@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Visit counting</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>body{font:16px/24px -apple-system,system-ui,sans-serif;margin:0;min-height:100vh;display:grid;place-items:center;text-align:center}a{color:inherit}</style></head>
+<body><p id="m"></p>
+<script>
+var on=location.search.indexOf('on')>-1;
+if(on)localStorage.removeItem('skipgc');else localStorage.setItem('skipgc','t');
+document.getElementById('m').innerHTML=on?'Visits from this browser are counted again.<br><a href="/nocount.html">Stop counting</a>':'Visits from this browser are no longer counted.<br><a href="/">Back to site</a>';
+</script></body></html>

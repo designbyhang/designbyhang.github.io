@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CC · Commerce Chaining: Explore more like this → a category row of ads and creator posts — interactive prototype</title>
+<script src="../shared/demo/demo-clock.js?v=311"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/demos.js) -->
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container. 'proto-doc' on the iframe
+   tells the host this document exists, so a full-screen host (js/proto-fs.js, js/case.js) sets its state before the first paint */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}try{frameElement&&frameElement.dispatchEvent(new Event('proto-doc'))}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=311"><link rel="stylesheet" href="../../css/theme.css?v=311">
+<!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
+<link rel="stylesheet" href="../shared/caption/caption.css?v=311"><link rel="stylesheet" href="../../css/ad-cta.css?v=311"><script src="../../js/vac-caption.js?v=311"></script><script src="../shared/caption/caption.js?v=311"></script><script src="../../js/squircle.js?v=311"></script><script src="../shared/pause/pause.js?v=311"></script>
+<!-- preview-only page: no gate.js / passcode -->
+<link rel="stylesheet" href="../shared/device/device.css?v=311">
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
+  --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.theme:focus,.theme:focus-visible{outline:none}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone: 375×812 screen + 8px theme-aware bezel (as preview/sap-proto) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#131013;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:var(--sf);color:#fff;letter-spacing:-.24px}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.phone img,.phone video{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.L{position:absolute;left:0;top:0;display:block;margin:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit;pointer-events:none}
+.btn:focus,.btn:focus-visible{outline:none}
+video{display:block;object-fit:cover}
+/* layers, bottom → top: the feed reels (Nike seed, Nespresso: one 812 pitch, vertical); CC (six categories side by side, 375 pitch;
+   Coffee is a vertical stack of three ads); the top bars (feed: menu / search ↔ CC: back chevron + the category tab row,
+   crossfaded); the bottom nav (round home + the contextual pill, Nespresso's glow); status bar, home indicator */
+.feed,.cc{width:375px;height:812px;will-change:transform}
+.cc{visibility:hidden}
+.cat{width:375px;height:812px;visibility:hidden;will-change:transform}
+.pg{width:375px;height:812px;overflow:hidden;background:#131013 0 0/375px 812px no-repeat;visibility:hidden;will-change:transform}
+.pg>*{position:absolute}
+.fv{left:0;top:0;width:375px;height:812px}
+.tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
+.cc .tgrad{background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.18) 60%,rgba(0,0,0,0))}
+.grad{left:0;top:470px;width:375px;height:342px;background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.4) 22%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.2) 58%,rgba(0,0,0,.08) 78%,rgba(0,0,0,0) 100%)}
+/* UFI, as VAC's Reels (preview/vac-proto, its rendered rasters): the items on VAC's 65pt pitch, its more (···) centred at 702, so with
+   CC's extra save the column is bottom-anchored: like / comment / share / save at 429 + 65i (glyph tops 430 / 495 / 560.5 / 626.5: VAC's
+   comment / share land on 495.5 / 560.5 / 626), more at 690; x 326–375 (the icons 24 at 338.5, 12 from the right edge); the count 6
+   under its icon (digits ~9.5 under the glyph, as VAC's) */
+.ufi{left:326px;width:49px;text-align:center;font:500 12px/16px var(--sf);letter-spacing:0;text-shadow:0 0 2px rgba(0,0,0,.35)}
+.ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 6px}
+/* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
+   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name (+ the globe on ads and the seed; 20px line; no verified badge, no "· Follow"/"· Following" anywhere) and
+   "Sponsored" under the name (the shared .c-sp line: 12/16, white 70%, as MAC and SAP since v230; no Ad pill), the VAC caption at +48
+   (ads 668; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
+   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the name alone (no badge, no "· Following"), the post's age under it, the caption, and the
+   commerce card (56) at +80 (666–722). The Nike seed: name / 4h and its caption only (author 658, caption 702) */
+.phone .c-stack{--c-bottom:90px}
+.c-stack.cc-org{height:136px}
+.c-stack.cc-seed{height:64px}
+.c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
+.c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.3);-webkit-font-smoothing:antialiased}
+/* ads and the seed: the globe after the name (VAC's: preview/shared/caption/globe.svg, 12×12 centred on the 20px name line, as
+   MAC/SAP's .cglobe; 6 after the name: its ink ~7.5 from the name's, as SAP's rasters) */
+.cn .cglobe{flex:none;width:12px;height:12px;margin-left:6px}
+.c-stack.cc-seed>.c-cap{top:44px}
+.c-stack>.card{left:0;top:80px;box-sizing:border-box;width:max-content;max-width:303px;height:56px;padding:10px 12px 0 56px;border-radius:16px;
+  background:rgba(156,156,156,.5);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
+/* the commerce card (Hang's design, measured from his mock at 2x; one rule for every shoppable card): 56 tall, hugging its text (12 after
+   the longer line; at most the stack's 303, then the text ellipsizes), r16; an even 10pt inset round the 36×36 thumbnail, r8 (rounder
+   than concentric, as the design; both squircled by js/squircle.js); the text 10 after it (x 56). The material: #9C9C9C at 50% over a
+   25px backdrop blur, a light frosted glass the video shows through. The title: the video ad CTA's type (css/ad-cta.css .cta-type:
+   600 15/20, -0.24, antialiased), its line 10 from the top; the action line 400 13/16 at 85% white, overlapping the title's line by 2
+   (baselines 25.3 / 40.6, as the design) */
+.card .th{position:absolute;left:10px;top:10px;width:36px;height:36px;border-radius:8px;background:#333 50% 50%/cover no-repeat}
+.card .t,.card .u{display:block;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .u{margin-top:-2px;font:400 13px/16px var(--sf);letter-spacing:-.08px;color:rgba(255,255,255,.85);-webkit-font-smoothing:antialiased}
+/* the nav's material (home button, query pill): a 25px backdrop blur under #252525 at 55% with a #9C9C9C overlay (SAP's For you pill, Figma) */
+.mat{background:rgba(37,37,37,.55);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
+.mat::before{content:'';position:absolute;inset:0;background:#9c9c9c;mix-blend-mode:overlay;opacity:.55;border-radius:inherit;pointer-events:none}
+.mat>*{z-index:1}
+.press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease);border-radius:inherit;pointer-events:none;z-index:2}
+.press.on{opacity:1;transition-duration:.12s}
+/* top bars: the feed's (Figma CC poster) and CC's: back chevron 24 at 12,58, the tabs from x 40 (SF Semibold 17, 20 apart; active white,
+   the rest 55%; the names' weight and rendering: 600, antialiased, as .cn), scrolling under a 40px fade at the right */
+.fbar{width:375px;height:96px;z-index:10;pointer-events:none}
+.fbar>*{position:absolute}
+/* the feed bar: SAP's search icon (preview/sap-proto, its nav.webp at 0,44: the same raster, cut from it, not a copy) at SAP's rect, 24 at
+   339,58 (the glyph 340–362 × 59–81, 12 from the right edge); the menu 24 at 12,58: both centred on y 70, the chevron's and the tab row's */
+.fbar>.srch{left:339px;top:58px;width:24px;height:24px;background:url(../sap-proto/assets/nav.webp?v=311) -339px -14px/375px 52px no-repeat}
+.tabs{top:44px;width:375px;height:52px;z-index:10;opacity:0;pointer-events:none}
+.tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
+.tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
+.ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
+.tab{font:600 17px/22px var(--sf);letter-spacing:-.41px;color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
+/* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742: FMSS's feed-tab home outline,
+   preview/fmss-cb/assets/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (15, white 70%);
+   the query is the reel's own, crossfaded as reels move. Nespresso's field has two states (.sw): the search sparkle + "Coffee" on
+   arrival, then (2000 in) it slides up 8 and fades out as the playlist icon + "Explore more like this" slide up 8 and fade in (320, ease-out),
+   clipped by the pill; then the field's edge glows, two pulses (.navg) */
+.navh{left:12px;top:742px;width:40px;height:40px;border-radius:20px;z-index:12}
+.navp{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12}
+.navh svg{position:absolute;left:12px;top:12px;width:16px;height:16px;opacity:.85}   /* white 85%, as the pill's icons */
+.navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px;opacity:.85}
+.navp .lb{position:absolute;inset:0;opacity:0}
+.navp .sw{position:absolute;inset:0}
+.navp .q{position:absolute;left:34px;top:10px;font:400 15px/20px var(--sf);letter-spacing:-.24px;color:rgba(255,255,255,.7);white-space:nowrap}
+.touch{width:375px;height:812px;z-index:14;touch-action:none;display:none}
+.touch.on{display:block}
+#pillb{left:60px;top:742px;width:303px;height:40px;z-index:15}
+#back{left:2px;top:48px;width:44px;height:44px;z-index:15}
+.pz{left:155.5px;top:374px;z-index:13}
+/* Nespresso's glow, on the pill (303×40 at 60,742, r20; above it, so the halo is never clipped by it): a soft, even edge, a 1px white
+   highlight at 36% (inset) and a 10px halo at 24%; after the swap it pulses twice (800 each, 0 → 1 → 0, ease-in-out, 96 apart), then it is gone */
+.navg{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12;pointer-events:none;opacity:0;visibility:hidden;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.72),0 0 4px rgba(255,255,255,.56),0 0 16px rgba(255,255,255,.48)}
+.sb{width:375px;height:44px;z-index:39;pointer-events:none;background:#fff;-webkit-mask:url(assets/status.webp?v=311) 0 0/375px 44px no-repeat;mask:url(assets/status.webp?v=311) 0 0/375px 44px no-repeat}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#fff;z-index:40;pointer-events:none}
+/* the touch indicators: the scripted one (inline; drawn per frame from the timeline, so no CSS transitions) and the real pointer's */
+.finger,.ufinger{left:0;top:0;width:47px;height:47px;margin:-23.5px 0 0 -23.5px;border-radius:50%;z-index:60;pointer-events:none;opacity:0}
+.finger{background:rgba(120,120,120,.5);box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.2),0 2px 12px rgba(0,0,0,.45);will-change:transform,opacity}
+.ufinger{z-index:61;background:rgba(140,140,140,.35);box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35);transition:opacity .152s var(--ease),scale .12s var(--ease)}
+.ufinger.on{opacity:.9}
+.ufinger.down{scale:.85}
+.phone.u-on .finger{opacity:0!important}
+/* first load: a black screen holds until the seed's frame and the UI have decoded (no baked image: it would go stale with the design) */
+.ldc{left:0;top:0;width:375px;height:812px;z-index:45;pointer-events:none;background:#000}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below,html.embed .spacer{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1>CC · Commerce Chaining</h1><p>Interactive prototype · "Explore more like this" on a Reels ad opens a category row of ads and creator posts · swipe up within a category, left and right across them</p></div>
+    <button class="theme" id="theme" type="button">Theme</button>
+  </header>
+  <div class="mframe" id="frame">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <div class="L feed" id="feed" aria-hidden="true"></div>
+        <div class="L cc" id="cc" aria-hidden="true"></div>
+        <div class="L fbar" id="fbar" aria-hidden="true">
+          <svg style="left:12px;top:58px" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 4.5h18M3 12h18M3 19.5h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <i class="srch"></i>
+        </div>
+        <div class="L tabs" id="tabs" aria-hidden="true"><img class="chev" id="chev" alt="" src="assets/chevron.svg?v=311"><div class="tabvp"><div class="ribbon" id="ribbon"></div></div></div>
+        <div class="L navh mat" aria-hidden="true"><svg viewBox="25.918 9.75 24 24"><path d="M34.9077 33.0002H33.8476C32.4935 33.0002 31.3768 33.0003 30.4931 32.8814C29.5652 32.7567 28.7458 32.4847 28.0897 31.8286C27.4336 31.1725 27.1616 30.3531 27.0369 29.4253C26.9181 28.5415 26.9181 27.4249 26.9181 26.0708L26.9181 21.77C26.9171 20.032 26.9164 18.8231 27.446 17.7639C27.9756 16.7047 28.9431 15.98 30.3341 14.938L32.5666 13.2636C33.681 12.4278 34.5867 11.7486 35.3817 11.2858C36.2111 10.803 37.01 10.5 37.9181 10.5C38.8263 10.5 39.6252 10.803 40.4545 11.2858C41.2496 11.7486 42.1553 12.4278 43.2696 13.2636L45.5022 14.938C46.8932 15.98 47.8607 16.7047 48.3903 17.7639C48.9199 18.8231 48.9192 20.032 48.9182 21.77L48.9181 26.0707C48.9182 27.4249 48.9182 28.5415 48.7994 29.4253C48.6746 30.3531 48.4027 31.1725 47.7466 31.8286C47.0905 32.4847 46.271 32.7567 45.3432 32.8814C44.4594 33.0003 43.3428 33.0002 41.9887 33.0002H40.9282C40.9248 33.0002 40.9214 33.0002 40.918 33.0002H34.918C34.9145 33.0002 34.9111 33.0002 34.9077 33.0002ZM33.7181 14.9C34.8926 14.0191 35.7056 13.4114 36.3879 13.0142C37.0474 12.6303 37.4929 12.5 37.9181 12.5C38.3433 12.5 38.7888 12.6303 39.4484 13.0142C40.1307 13.4114 40.9436 14.0191 42.1181 14.9L44.1181 16.4C45.7687 17.6379 46.3095 18.0745 46.6014 18.6584C46.8933 19.2422 46.9181 19.9368 46.9181 22V26.0002C46.9181 27.4427 46.916 28.4239 46.8172 29.1588C46.7223 29.8648 46.5549 30.1918 46.3323 30.4144C46.1098 30.637 45.7828 30.8043 45.0767 30.8993C44.3419 30.9981 43.3606 31.0002 41.9181 31.0002L41.918 24.5002C41.918 23.1195 40.7987 22.0002 39.418 22.0002H36.418C35.0373 22.0002 33.918 23.1195 33.918 24.5002V31.0002C32.4756 31.0002 31.4944 30.9981 30.7596 30.8993C30.0535 30.8043 29.7265 30.637 29.5039 30.4144C29.2814 30.1918 29.114 29.8648 29.0191 29.1588C28.9203 28.4239 28.9181 27.4427 28.9181 26.0002V22C28.9181 19.9368 28.9429 19.2422 29.2349 18.6584C29.5268 18.0745 30.0676 17.6379 31.7181 16.4L33.7181 14.9ZM39.918 31.0002H35.918V24.5002C35.918 24.2241 36.1418 24.0002 36.418 24.0002H39.418C39.6941 24.0002 39.918 24.2241 39.918 24.5002V31.0002Z" fill="#fff" fill-rule="evenodd"/></svg><i class="press" id="homePress"></i></div>
+        <div class="L navp mat" id="navp" aria-hidden="true"><div class="lb" id="lb0"></div><div class="lb" id="lb1"></div><i class="press" id="pillPress"></i></div>
+        <i class="L navg" id="navg" aria-hidden="true"></i>
+        <div class="L pz" id="pz"></div>
+        <div class="L touch" id="touch" aria-hidden="true"></div>
+        <button class="L btn" id="pillb" type="button" aria-label="Explore more like this: open Commerce Chaining's category row"></button>
+        <button class="L btn" id="back" type="button" aria-label="Back to the Nespresso reel"></button>
+        <i class="L sb" id="sb" aria-hidden="true"></i>
+        <i class="L home" id="home" aria-hidden="true"></i>
+        <i class="L ldc" id="ldc" aria-hidden="true"></i>
+        <div class="L finger" id="finger" aria-hidden="true"></div>
+        <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
+      </div>
+    </div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">A Nike reel in Feed; swipe up to a Nespresso ad and tap "Explore more like this" in the bar at the bottom. Commerce Chaining opens on Coffee: swipe up through Blue Bottle, Starbucks and La Colombe, or swipe left (or tap a tab) across Home, Movie, Fashion and Beauty, where ads sit beside creator posts with their commerce cards. The chevron (or Escape) returns to the Nespresso reel. Tap a reel to pause it.</p>
+  <div class="spacer" style="height:120vh" aria-hidden="true"></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
+const V='?v=311',AV='../../assets/vac/vac-cc-';
+
+/* ---------- fit phone to container (as preview/sap-proto) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');
+  const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));
+}
+new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- the reels (copy and metrics: the approved CC mock, /workspace/cc/mock; Figma XYE8LCJVe0rHhnEB5DA18A, flow 140796:4871) ----------
+   kind: seed (the Nike reel the chain starts from) · ad (avatar, name + globe, "Sponsored", caption, CTA) · org (a creator post: the name alone,
+   its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this", after
+   pre: "Coffee", its query on arrival, with the search sparkle) */
+const R={
+  nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
+  nesp:{kind:'ad',name:'Nespresso',cap:'Sip through spring with our indulgent iced coffee recipes.',cta:'#5f3d8f',pre:'Coffee',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
+  bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
+  sbux:{kind:'ad',name:'Starbucks',cap:'This summer\'s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
+  lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
+  cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
+  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
+  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
+  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
+const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena']],LAST=CATS.length-1;
+const FIRST=[0,0,1,1,1];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, the rest 1: Home leads, Beauty ends
+                            // inside the fade; FIRST 2 would ask for 139 of a ribbon that only scrolls 90 and leave Home cut under the chevron)
+const ICO={
+  search:'<svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M9.36 4.93A5.25 5.25 0 1 0 13.24 9.73M11.7 13.7l2.9 2.9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M13.25 3.5Q13.7 5.05 15.25 5.5Q13.7 5.95 13.25 7.5Q12.8 5.95 11.25 5.5Q12.8 5.05 13.25 3.5Z" fill="#fff" stroke="#fff" stroke-width=".8" stroke-linejoin="round"/></svg>',
+  /* the playlist (queue): outline, as the search sparkle and the home: 1.4 strokes, round caps and joins, on the sparkle's 20 box and its
+     optical centre (y 10): the play triangle top-left, two lines to its right, the long line under them */
+  explore:'<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 4.5v6.4l5.4-3.2Z"/><path d="M12.4 5.3H16M12.4 10.1H16M4.4 15.5H16"/></svg>'};
+const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=311">';
+const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+function page(id){
+  const d=R[id],p=document.createElement('div');p.className='L pg';p.id='p-'+id;p.style.backgroundImage=`url(${AV}${id}.webp${V})`;
+  const lazy=id==='nike'||id==='nesp'?'auto':'metadata';
+  let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${V}" src="${AV}${id}.mp4${V}"></video><i class="tgrad"></i><i class="grad"></i>`;
+  const ic=['<img alt="" src="assets/u-like.webp'+V+'">','<img alt="" src="assets/u-comment.webp'+V+'">','<img alt="" src="assets/u-share.webp'+V+'">',SAVE];
+  d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${429+i*65}px">${ic[i]}${esc(n)}</div>`});
+  h+=`<div class="ufi" style="top:690px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
+  const row=(sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${mark}</p><p class="c-sp">${esc(sub)}</p>`;
+  if(d.kind==='ad')h+=`<div class="c-stack">${row('Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
+  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row(d.ago,'')}<p class="c-cap">${esc(d.cap)}</p><div class="card"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t cta-type">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
+  else h+=`<div class="c-stack cc-seed">${row(d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
+  p.innerHTML=h;return p}
+const PG={},VID={};
+['nike','nesp'].forEach(id=>{const p=page(id);$('feed').appendChild(p);PG[id]=p});
+const CATEL=CATS.map((ids,i)=>{const c=document.createElement('div');c.className='L cat';ids.forEach(id=>{const p=page(id);c.appendChild(p);PG[id]=p});$('cc').appendChild(c);return c});
+for(const id in PG)VID[id]=PG[id].querySelector('video');
+$('ribbon').innerHTML=TABS.map(t=>`<span class="tab">${t}</span>`).join('');
+const TABEL=[...$('ribbon').children];
+
+/* ---------- Figma corner smoothing: the site's squircle (js/squircle.js, 60%: its auto mode smooths every radius here); the phone and
+   bezel are shaped by path() directly, as the other prototypes ---------- */
+const CLIP=CSS.supports('clip-path','path("M0 0H1V1Z")');
+if(CLIP&&window.Squircle){phone.style.clipPath=`path('${Squircle.path(375,812,40,.6)}')`;$('bezelFill').style.clipPath=`path('${Squircle.path(391,828,48,.6)}')`}
+
+/* ---------- motion: the site's Slow spring (Figma [80, 20, 1], as preview/sap-proto), time-scaled to each move; springV: released with
+   the swipe's speed ---------- */
+const SK=80,SC=20,W0=Math.sqrt(SK),ZT=SC/(2*Math.sqrt(SK)),R1=-ZT*W0+W0*Math.sqrt(ZT*ZT-1),R2=-ZT*W0-W0*Math.sqrt(ZT*ZT-1);
+function springPos(y0p){const A=(y0p-R2)/(R1-R2),B=1-A;return s=>A*Math.exp(R1*s)+B*Math.exp(R2*s)}
+const ST=(()=>{const y=springPos(0);let T=0;for(let s=0;s<20;s+=.0005)if(Math.abs(y(s))>=.001)T=s;return T+.0005})();
+const SLOW=(()=>{const y=springPos(0),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e})();
+function springV(ms,vNorm){const y=springPos(-vNorm*(ms/1000)/ST),e=1-y(ST);return u=>u<=0?0:u>=1?1:(1-y(u*ST))/e}
+function anim(get,set){let raf=0,busy=false;
+  return {get busy(){return busy},stop(){cancelAnimationFrame(raf);busy=false},
+    to(target,{ms=664,ease=SLOW,onDone}={}){cancelAnimationFrame(raf);const from=get();
+      if(RM.matches||ms<=0||from===target){set(target);busy=false;onDone&&onDone();return}
+      busy=true;const t0=performance.now();
+      const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,ease(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
+      raf=requestAnimationFrame(f)}}}
+const easeIn=q=>q*q,easeOut=q=>1-(1-q)*(1-q);
+
+/* ---------- the screen: one set of values, everything rendered from them ----------
+   mode  feed (Nike ↔ Nespresso) · in (Explore more like this: Nespresso off left, CC's Coffee in from the right, 664) · cc · out (the
+         chevron: CC off right fast, Nespresso back in from the left, 488)
+   f     the feed's reel (Nike 0 → Nespresso 1)      x  the in/out push (0 → 1)
+   c     CC's category (Coffee 0 … Beauty 4; swipe left/right or tap a tab)      k  Coffee's ad (Blue Bottle 0 · Starbucks 1 · La Colombe 2)
+   ro    the tab row's own scroll on top of the category's (dragging the row)
+   ns    ms since landing on Nespresso (its field: "Coffee", the swap, the glow; 0 until it lands, reset once it has left) */
+let mode='feed',f=0,x=0,c=0,k=0,ro=0,ns=0,chevDim=1;
+const fA=anim(()=>f,v=>{f=v;render()}),xA=anim(()=>x,v=>{x=v;render()}),cA=anim(()=>c,v=>{c=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),
+  roA=anim(()=>ro,v=>{ro=v;render()});
+const tr=(a,b)=>`translate3d(${a.toFixed(2)}px,${b.toFixed(2)}px,0)`;
+const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
+const vis=(el,on)=>{const s=on?'visible':'hidden';if(el.style.visibility!==s)el.style.visibility=s};
+const setT=(el,s)=>{if(el.style.transform!==s)el.style.transform=s};
+const els={feed:$('feed'),cc:$('cc'),fbar:$('fbar'),tabs:$('tabs'),chev:$('chev'),ribbon:$('ribbon'),sb:$('sb'),home:$('home'),lb:[$('lb0'),$('lb1')]};
+let TABX=TABS.map(()=>0),TABW=TABS.map(()=>0),RMAX=0;
+function measureTabs(){TABX=TABEL.map(e=>e.offsetLeft);TABW=TABEL.map(e=>e.offsetWidth);RMAX=Math.max(0,els.ribbon.scrollWidth-295);render()}
+const scrollOf=cv=>{const i=clamp(Math.floor(cv),0,LAST),j=Math.min(LAST,i+1),q=cv-i;return lerp(TABX[FIRST[i]],TABX[FIRST[j]],q)};
+const ribX=()=>clamp(scrollOf(c)+ro,0,RMAX+40);
+/* what is on screen: each page's offset from the screen (dx, dy); a page is drawn while it overlaps it */
+function offsets(){
+  const o={},fx=mode==='in'?-375*x:mode==='out'?-375*(1-x):mode==='cc'?-375:0,cx=mode==='in'?375*(1-x):mode==='out'?375*x:mode==='cc'?0:375;
+  o.nike=[fx,-812*f];o.nesp=[fx,812*(1-f)];
+  CATS.forEach((ids,i)=>ids.forEach((id,j)=>{o[id]=[cx+375*(i-c),i===0?812*(j-k):0]}));
+  return o}
+const onS=v=>Math.abs(v[0])<374.5&&Math.abs(v[1])<811.5;
+let booted=false,OFF={};
+function render(){
+  const o=OFF=offsets(),fx=o.nike[0],cx=mode==='feed'?375:o.bb[0]-375*(0-c);
+  const feedOn=mode!=='cc',ccOn=mode!=='feed';
+  setT(els.feed,tr(fx,0));vis(els.feed,feedOn);setT(els.cc,tr(cx,0));vis(els.cc,ccOn);
+  ['nike','nesp'].forEach(id=>{const on=feedOn&&onS(o[id]);vis(PG[id],on);if(on)setT(PG[id],tr(0,o[id][1]))});
+  CATS.forEach((ids,i)=>{const dx=375*(i-c),catOn=ccOn&&Math.abs(cx+dx)<374.5;vis(CATEL[i],catOn);if(catOn)setT(CATEL[i],tr(dx,0));
+    ids.forEach(id=>{const on=catOn&&onS(o[id]);vis(PG[id],on);if(on)setT(PG[id],tr(0,o[id][1]))})});
+  const pv=mode==='in'?x:mode==='out'?1-x:mode==='cc'?1:0;   // the top bar: feed ↔ CC's tab row
+  op(els.fbar,1-pv);op(els.tabs,pv);op(els.chev,chevDim);
+  setT(els.ribbon,tr(-ribX(),0));
+  TABEL.forEach((e,i)=>op(e,.55+.45*clamp(1-Math.abs(c-i))));
+  pill();
+  $('pillb').style.pointerEvents=!INL()&&mode==='feed'&&f===1?'auto':'none';
+  $('back').style.pointerEvents=!INL()&&mode==='cc'?'auto':'none';
+  if(!INL()&&booted)vidSync();
+}
+/* the pill's query: the reel on screen's, crossfaded across the middle of a move (the two nearest reels, by how far each is from the screen) */
+const lbId=['',''];
+function pill(){
+  const o=OFF,fd=id=>id==='nike'||id==='nesp',ids=Object.keys(o).filter(id=>onS(o[id])&&(mode==='feed'?fd(id):mode==='cc'?!fd(id):true)).map(id=>[id,Math.max(Math.abs(o[id][0])/375,Math.abs(o[id][1])/812)]).sort((a,b)=>a[1]-b[1]);
+  if(!ids.length)return;
+  const a=ids[0][0],b=ids[1]?ids[1][0]:a,d=ids[1]?ids[1][1]:1,w=clamp((1-d-.3)/.4);   // the nearer reel's weight goes 1 → 0 between 30% and 70% of the move
+  const pair=[a,b],wt=[1-w,w];
+  // keep each reel on the layer it already has, so a crossfade never swaps mid-way
+  if(lbId[1]===a||lbId[0]===b){pair.reverse();wt.reverse()}
+  const lb=(ic,q)=>ICO[ic]+'<span class="q">'+esc(q)+'</span>';
+  nw=0;
+  for(let i=0;i<2;i++){const id=pair[i];if(lbId[i]!==id){lbId[i]=id;const r=R[id];els.lb[i]._s=-1;els.lb[i].innerHTML=r.pre?'<div class="sw">'+lb('search',r.pre)+'</div><div class="sw">'+lb(r.icon,r.pill)+'</div>':lb(r.icon||'search',r.pill)}
+    const w=a===b?(i===0?1:0):wt[i];op(els.lb[i],w);if(id==='nesp')nw+=w}
+  fx();
+}
+/* Nespresso's field, from ns: "Coffee" for 2000 (the video plays), the swap (320, ease-out, 8 up), then the edge glow's two pulses (800
+   each, 96 apart; sin²: 0 → 1 → 0, ease-in-out), then nothing until the next arrival. nw: Nespresso's share of the pill (its crossfade) */
+const HOLD=2000,SWAP=320,PULSE=800,PGAP=96,GEND=HOLD+SWAP+2*PULSE+PGAP,easeOut3=q=>1-Math.pow(1-q,3);
+let nw=0;
+const navg=$('navg');
+/* the swap's lift is a 2D translate (cleared at 0), never a 3D layer: a 3D layer inside the blurred, rounded material makes Safari drop the pill's radius
+   and paint the backdrop as a square-cornered box around its ends */
+const ty=y=>Math.abs(y)<.01?'':`translateY(${y.toFixed(2)}px)`;
+function fx(){
+  // every layer holding Nespresso (both can, while it alone is on screen) shows the same swap state, so a stale layer never fades in with both labels
+  const s=easeOut3(clamp((ns-HOLD)/SWAP));
+  for(let i=0;i<2;i++){const L=els.lb[i];if(lbId[i]==='nesp'&&L.children.length===2&&L._s!==s){L._s=s;const [a,b]=L.children;a.style.transform=ty(-8*s);op(a,1-s);b.style.transform=ty(8*(1-s));op(b,s)}}
+  const gt=(ns-HOLD-SWAP)%(PULSE+PGAP),n=Math.floor((ns-HOLD-SWAP)/(PULSE+PGAP)),on=ns>HOLD+SWAP&&n<2&&gt<PULSE;
+  const go=on?nw*Math.pow(Math.sin(Math.PI*gt/PULSE),2):0;
+  op(navg,go);vis(navg,go>0)}
+/* full screen: the clock runs from the landing (arriving by swipe, or back from CC) and resets once Nespresso has left the screen; while the
+   viewer has paused the reel before the swap, the hold waits (the video plays 2000 first) */
+let nsOn=false,nsRaf=0,nsLast=0;
+function nsTick(now){if(!nsOn)return;const dt=Math.min(64,now-nsLast);nsLast=now;
+  if(!(ns<HOLD&&paused==='nesp')&&!document.hidden)ns+=dt;fx();if(ns<GEND)nsRaf=requestAnimationFrame(nsTick)}   // the second pulse done: the clock stops
+function nsStart(){if(nsOn||INL())return;nsOn=true;ns=0;nsLast=performance.now();fx();nsRaf=requestAnimationFrame(nsTick)}
+function nsReset(){nsOn=false;cancelAnimationFrame(nsRaf);ns=0;fx()}
+
+/* ---------- full screen: the gestures (one touch layer; hit rects in screen points) ----------
+   Feed: swipe up/down between Nike and Nespresso; on Nespresso "Explore more like this" (the pill) opens CC.
+   CC: swipe up/down within Coffee (up on a tab's last reel: the next tab, the tab change; Beauty, the last: nothing); swipe left/right across categories (or tap a tab; the tab row also drags sideways); the chevron goes back.
+   Universal's card: not tappable. Other CTAs, cards and the nav: press feedback only (Figma has no destination for them).
+   A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
+const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52]};
+const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
+const pz=FMSSPause.mount($('pz'));let paused=null;   // the reel the viewer has paused (id)
+const settled=v=>Math.abs(v-Math.round(v))<.01;
+const curId=()=>mode==='feed'?(f<.5?'nike':'nesp'):mode==='cc'?CATS[Math.round(c)][Math.round(c)===0?Math.round(k):0]:null;
+function pressAt(a,b){   // [overlay, kind]
+  if(mode==='feed'&&settled(f)){const id=curId();
+    if(inR(RC.home,a,b))return [$('homePress'),'nav'];
+    if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];   // Nespresso's pill is the #pillb button above this layer
+    if(id==='nesp'&&inR(RC.cta,a,b))return [PG.nesp.querySelector('.ad-cta .press'),'cta'];
+    return [null,'reel']}
+  if(mode==='cc'&&settled(c)&&settled(k)){const id=curId(),d=R[id];
+    if(inR(RC.back,a,b))return [null,'back'];
+    if(inR(RC.tabs,a,b)){const rx=a-40+ribX();for(let i=0;i<TABS.length;i++)if(rx>=TABX[i]-10&&rx<=TABX[i]+TABW[i]+10)return [null,'tab'+i];return [null,'tabs']}
+    if(inR(RC.home,a,b))return [$('homePress'),'nav'];
+    if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];
+    if(d.kind==='ad'&&inR(RC.cta,a,b))return [PG[id].querySelector('.ad-cta .press'),'cta'];
+    if(d.kind==='org'&&id!=='univ'&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b))return [PG[id].querySelector('.card .press'),'card'];
+    return [null,'reel']}
+  return [null,null]}
+let pd=null,pressEl=null;
+function setPress(el){if(pressEl===el)return;if(pressEl)pressEl.classList.remove('on');pressEl=el;if(el)el.classList.add('on')}
+const stopAll=()=>[fA,cA,kA,roA].forEach(a=>a.stop());
+touch.addEventListener('pointerdown',ev=>{if(ev.button>0||INL())return;
+  if(xA.busy)return;
+  const [a,b]=ptOf(ev),[el,kind]=pressAt(a,b);if(!kind)return;
+  stopAll();setPress(el);if(kind==='back'){chevDim=.5;render()}
+  pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,kind,f0:f,c0:c,k0:k,ro0:ro,s:[[performance.now(),0]],sc:phone.getBoundingClientRect().height/812};
+  try{touch.setPointerCapture(ev.pointerId)}catch(_){}});
+const rub=(n,lo,hi)=>n<lo?lo+(n-lo)*.35:n>hi?hi+(n-hi)*.35:n;
+touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
+  if(ev.pointerType==='mouse'&&ev.buttons===0){touchUp({type:'pointerup',pointerId:ev.pointerId});return}   // the button came up where the release never reached us (outside the frame, capture lost): end the drag, never let it follow a free cursor
+  const dx=(ev.clientX-pd.x)/pd.sc,dy=(ev.clientY-pd.y)/pd.sc;
+  if(!pd.moved&&Math.hypot(ev.clientX-pd.x,ev.clientY-pd.y)>10){pd.moved=true;setPress(null);if(chevDim!==1){chevDim=1;render()}}
+  if(!pd.moved)return;
+  if(!pd.axis){
+    if(mode==='feed')pd.axis='f';
+    else if(pd.kind==='tabs'||pd.kind.startsWith('tab'))pd.axis=Math.abs(dx)>=Math.abs(dy)?'ro':'none';
+    else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':'v')}   // a single-reel category: up goes to the next tab (Beauty, the last, has none), down to the previous tab's last reel
+  let v=0;
+  if(pd.axis==='f'){f=rub(pd.f0-dy/812,0,1);v=f}
+  else if(pd.axis==='k'){pd.u=pd.k0-dy/812;k=rub(pd.u,0,2);v=pd.u}   // the flick speed: the finger's, not the rubber band's
+  else if(pd.axis==='c'){c=rub(pd.c0-dx/375,0,LAST);v=c}
+  else if(pd.axis==='v'){v=-dy/812;pd.u=v}
+  else if(pd.axis==='ro'){const base=scrollOf(c);ro=rub(pd.ro0-dx,-base,RMAX-base);v=ro}
+  else return;
+  render();const now=performance.now();pd.s.push([now,v]);while(pd.s.length>2&&now-pd.s[0][0]>96)pd.s.shift()});
+function vel(d){const A=d.s[0],B=d.s[d.s.length-1];return B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0}
+function snap(cur,v0,from,lo,hi,pitch){let t=Math.round(cur+v0*.18);if(Math.abs(v0*pitch)>320)t=from+(v0>0?1:-1);return clamp(clamp(t,from-1,from+1),lo,hi)}
+function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setPress(null);if(chevDim!==1){chevDim=1;render()}
+  const up=ev.type==='pointerup';
+  if(!d.moved){if(!up)return;const kd=d.kind;
+    if(kd==='back')back();
+    else if(kd.startsWith('tab')&&kd!=='tabs')goCat(+kd.slice(3));else if(kd==='reel')togglePause();
+    return}
+  const v0=vel(d);
+  if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0))}
+  else if(d.axis==='k'){const t=snap(Math.round(d.k0)===2?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,3,812);if(t===3){kA.to(2,{ms:400});nextCat()}else stepK(t,Math.round(d.k0))}
+  else if(d.axis==='v'){const t=snap(d.u||0,v0,0,-1,1,812);if(t===1)nextCat();else if(t===-1)prevCat()}
+  else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,LAST,375);goCat(t,Math.round(d.c0))}
+  else if(d.axis==='ro'){const base=scrollOf(c),t=clamp(ro+v0*.25,-base,RMAX-base);roA.to(t,{ms:400})}}
+touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
+addEventListener('pointerup',touchUp,true);touch.addEventListener('lostpointercapture',ev=>{if(pd&&ev.pointerId===pd.id)touchUp({type:'pointercancel',pointerId:ev.pointerId})});   // any release ends the drag, wherever it lands
+function restart(id){const v=VID[id];if(v){try{v.currentTime=0}catch(_){}}if(paused){paused=null;pz.set(false)}}
+function arrive(id){say(R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?' post':' reel'))}
+function stepF(t,from=Math.round(f)){if(t!==from)restart(t?'nesp':'nike');fA.to(t,{ms:664,onDone:()=>{arrive(t?'nesp':'nike');if(t)nsStart();else nsReset()}})}
+function stepK(t,from=Math.round(k)){if(t!==from)restart(CATS[0][t]);kA.to(t,{ms:664,onDone:()=>arrive(CATS[0][t])})}
+function nextCat(){const t=Math.round(c)+1;if(t<=LAST)goCat(t)}   // swipe up on a tab's last reel: the next tab, with the tab change (Beauty, the last tab: nothing)
+function prevCat(){const t=Math.round(c)-1;if(t<0)return;if(t===0){kA.stop();k=CATS[0].length-1}goCat(t)}   // swipe down on a tab's first reel: the previous tab, landing on its last reel (mirrors nextCat; Coffee, the first tab: nothing)
+function vStep(s){if(Math.round(c)===0&&Math.round(k)+s>=0&&Math.round(k)+s<=2)stepK(Math.round(k)+s);else if(s>0)nextCat();else prevCat()}   // up/down in CC: Coffee's reels, then on to the next or previous tab
+function goCat(t,from=Math.round(c)){t=clamp(t,0,LAST);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
+  roA.to(0,{ms:664});cA.to(t,{ms:t===c?400:664,onDone:()=>arrive(id)})}
+function togglePause(){const id=curId();if(!id)return;const v=VID[id];
+  if(paused===id){paused=null;pz.set(false);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
+
+/* ---------- Explore more like this → CC (push left, Slow 664); back → Nespresso (push right, fast: 488) ---------- */
+function explore(){
+  if(INL()||mode!=='feed'||f!==1)return;
+  mode='in';x=0;c=0;k=0;ro=0;homeTell(false);restart('bb');touch.classList.remove('on');
+  xA.to(1,{ms:664,onDone:()=>{mode='cc';nsReset();touch.classList.add('on');render();say('Commerce Chaining: Coffee, Blue Bottle Coffee ad')}});render()}
+function back(){
+  if(INL()||mode!=='cc')return;stopAll();c=Math.round(c);k=Math.round(k);ro=0;
+  mode='out';x=0;restart('nesp');touch.classList.remove('on');
+  xA.to(1,{ms:488,onDone:()=>{mode='feed';f=1;x=0;touch.classList.add('on');render();homeTell(true);nsStart();say('Nespresso ad')}});render()}
+/* the chevron is a real button above the touch layer: it dims while pressed (as the pill's press), a tap goes back */
+let bp=null;const bk=$('back'),chevOn=on=>{chevDim=on?.5:1;render()};
+bk.addEventListener('click',ev=>{if(ev.detail===0)back()});
+bk.addEventListener('pointerdown',ev=>{if(ev.button>0)return;bp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false};chevOn(true);try{bk.setPointerCapture(ev.pointerId)}catch(_){}});
+bk.addEventListener('pointermove',ev=>{if(bp&&ev.pointerId===bp.id&&!bp.moved&&Math.hypot(ev.clientX-bp.x,ev.clientY-bp.y)>10){bp.moved=true;chevOn(false)}});
+function backUp(ev){if(!bp||ev.pointerId!==bp.id)return;const p=bp;bp=null;chevOn(false);if(ev.type==='pointerup'&&!p.moved)back()}
+bk.addEventListener('pointerup',backUp);bk.addEventListener('pointercancel',backUp);
+$('pillb').addEventListener('click',ev=>{if(ev.detail===0)explore()});   // keyboard; a pointer press is handled below (press feedback)
+let pp=null;const pillPress=$('pillPress');
+$('pillb').addEventListener('pointerdown',ev=>{if(ev.button>0)return;pp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false};pillPress.classList.add('on');try{$('pillb').setPointerCapture(ev.pointerId)}catch(_){}});
+$('pillb').addEventListener('pointermove',ev=>{if(pp&&ev.pointerId===pp.id&&Math.hypot(ev.clientX-pp.x,ev.clientY-pp.y)>10){pp.moved=true;pillPress.classList.remove('on')}});
+function pillUp(ev){if(!pp||ev.pointerId!==pp.id)return;const p=pp;pp=null;pillPress.classList.remove('on');if(ev.type==='pointerup'&&!p.moved)explore()}
+$('pillb').addEventListener('pointerup',pillUp);$('pillb').addEventListener('pointercancel',pillUp);
+let wT=0,wX=0,wY=0;
+touch.addEventListener('wheel',ev=>{if(INL())return;if(ev.cancelable)ev.preventDefault();if(mode==='in'||mode==='out')return;
+  const now=performance.now();if(now-wT<480)return;wX+=ev.deltaX;wY+=ev.deltaY;
+  if(Math.abs(wX)>40&&mode==='cc'){const t=clamp(Math.round(c)+(wX>0?1:-1),0,LAST);wX=wY=0;wT=now;if(t!==Math.round(c))goCat(t);return}
+  if(Math.abs(wY)>40){const s=wY>0?1:-1;wX=wY=0;wT=now;
+    if(mode==='feed'){const t=clamp(Math.round(f)+s,0,1);if(t!==Math.round(f))stepF(t)}
+    else vStep(s)}},{passive:false});
+document.addEventListener('keydown',ev=>{if(INL())return;const K=ev.key;
+  if(K==='Escape'){if(mode==='cc')back();return}
+  if(xA.busy)return;
+  if(K==='ArrowDown'||K==='ArrowUp'){ev.preventDefault();const s=K==='ArrowDown'?1:-1;
+    if(mode==='feed')stepF(clamp(Math.round(f)+s,0,1));else if(mode==='cc')vStep(s)}
+  else if(mode==='cc'&&(K==='ArrowRight'||K==='ArrowLeft')){ev.preventDefault();goCat(Math.round(c)+(K==='ArrowRight'?1:-1))}});
+
+/* ---------- full-screen videos: each plays only while it is on screen (and the demo is in view), unless the viewer paused it ---------- */
+let seen=false,visible=false,held=false;
+const pend=new WeakSet(),ALLV=Object.keys(VID).map(id=>VID[id]);
+function playV(v){if(!v.paused||pend.has(v))return;pend.add(v);const p=v.play();if(p&&p.then)p.then(()=>pend.delete(v),()=>{pend.delete(v);armGesture()});else pend.delete(v)}
+function warm(v){if(v.preload!=='auto'){v.preload='auto';try{if(v.readyState<2)v.load()}catch(_){}}}
+function vidSync(){const on=visible&&!document.hidden,o=OFF;
+  for(const id in VID){const v=VID[id],shown=o[id]&&onS(o[id])&&(mode!=='feed'||id==='nike'||id==='nesp')&&(mode!=='cc'||!(id==='nike'||id==='nesp'));
+    if(shown||(o[id]&&Math.abs(o[id][0])<=375&&Math.abs(o[id][1])<=812))warm(v);
+    if(on&&shown&&paused!==id)playV(v);else if(!v.paused)v.pause()}}
+function armGesture(){const g=()=>{removeEventListener('pointerdown',g,true);INL()?0:vidSync()};addEventListener('pointerdown',g,true)}
+function pauseAll(){ALLV.forEach(v=>{if(!v.paused)v.pause()})}
+ALLV.forEach(v=>v.addEventListener('canplay',()=>{if(!INL())vidSync()}));
+/* in view only: inline it runs only while at least 35% of it is on screen (and the host page gives it the turn, js/demos.js: one demo at
+   a time); full screen is always in view. The host's own word alone never counts as in view: two live prototypes on one page must not
+   both decode video while they scroll (WebKit) */
+addEventListener('demo:host',()=>setVis());addEventListener('demo:play',()=>{if(!visible||document.hidden)pauseAll()});   // demo-clock resumes the videos it paused; not if the demo has left the view since
+addEventListener('embed:hold',()=>{held=true;setVis()});addEventListener('embed:release',()=>{held=false;setVis()});
+new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;setVis()},{threshold:.35}).observe(frame);
+function setVis(){visible=(seen||!INL())&&!held;if(visible){if(!INL())vidSync();sched()}else{pauseAll();stopAuto()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll();stopAuto()}else{if(!INL())vidSync();sched()}});
+
+/* ---------- inline: the scripted loop (Hang's flow, Figma 140796:4871), no interaction; every time on the 8ms grid ----------
+   Nike seed → swipe up to Nespresso (its field: "Coffee", the swap to "Explore more like this", the glow) → "Explore more like this" → CC on Coffee (Blue Bottle) → swipe up:
+   Starbucks → La Colombe → swipe left: Home (CB2) → Movie (Universal) → Fashion (Laura Byrnes) →
+   Beauty (xzmserena) → back: Nespresso (its field's sequence again, from "Coffee") → swipe down to the Nike seed, where the loop began */
+const T=36408,E={f1:1504,d1:2000,r1:2160,e1:2840,f4:8504,d4:8752,u4:9000,
+  f5:11000,d5:11496,r5:11656,e5:12336,f6:13504,d6:14000,r6:14160,e6:14840,f7:16504,d7:17000,r7:17160,e7:17840,f8:19504,d8:20000,r8:20160,e8:20840,
+  f11:22504,d11:23000,r11:23160,e11:23840,f12:25504,d12:26000,r12:26160,e12:26840,
+  f14:28504,d14:28752,u14:29000,f15:33408,d15:33904,r15:34064,e15:34744},
+  DRAG=48,DRAGMS=160,SPRMS=680,SH=664,OUTMS=488,F_IN=248,F_DOWN=176,F_UP=120,
+  SVV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(812-DRAG)),SVH=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(375-DRAG)),
+  NIKE_IN=2.6,NIKE_PARK=NIKE_IN-(T-E.d15)/1000;
+const finger=$('finger');
+function swipeP(t,n,pitch){   // the progress (0 → 1) of scripted swipe n: an ease-in drag of 48pt, then the spring with its speed
+  const d=E['d'+n],r=E['r'+n],e=E['e'+n],a=DRAG/pitch,S=pitch===812?SVV:SVH;
+  if(t<d)return 0;if(t<r)return a*easeIn((t-d)/DRAGMS);if(t<e)return a+(1-a)*S((t-r)/SPRMS);return 1}
+function touchF(t,on,down,up){
+  if(t<on||t>up+F_IN)return null;
+  const o=t<up?easeOut(clamp((t-on)/F_IN)):1-easeOut(clamp((t-up)/F_IN));
+  const s=t<down?1:t<up?1-.15*easeOut(clamp((t-down)/F_DOWN)):.85+.15*easeOut(clamp((t-up)/F_UP));
+  return {o,s}}
+const SW={1:'v',5:'v',6:'v',7:'h',8:'h',11:'h',12:'h',15:'d'},TAP={4:[150,762],14:[24,70]};   // centred on their targets: pill 742–782, the chevron
+function fingerAt(t){
+  let fo=null,px=0,py=0;
+  for(const n in SW){const r=E['r'+n];if((fo=touchF(t,E['f'+n],E['d'+n],r))){const q=DRAG*easeIn(clamp((t-E['d'+n])/DRAGMS));
+    if(SW[n]==='v'){px=187.5;py=560-q}else if(SW[n]==='h'){px=300-q;py=420}else{px=187.5;py=400+q}break}}
+  if(!fo)for(const n in TAP){if((fo=touchF(t,E['f'+n],E['d'+n],E['u'+n]))){[px,py]=TAP[n];break}}
+  if(!fo){op(finger,0);return}
+  finger.style.transform=`translate3d(${px.toFixed(2)}px,${py.toFixed(2)}px,0) scale(${fo.s.toFixed(4)})`;op(finger,fo.o)}
+let tl=0;   // the loop clock (ms in [0, T))
+function applyT(t){
+  tl=t;ro=0;
+  if(t<E.u4){mode='feed';f=swipeP(t,1,812);x=0}
+  else if(t<E.u4+SH){mode='in';f=1;x=SLOW((t-E.u4)/SH);c=0;k=0}
+  else if(t<E.u14){mode='cc';x=0;
+    k=t<E.f6?swipeP(t,5,812):1+swipeP(t,6,812);
+    c=t<E.f8?swipeP(t,7,375):t<E.f11?1+swipeP(t,8,375):t<E.f12?2+swipeP(t,11,375):3+swipeP(t,12,375)}
+  else if(t<E.u14+OUTMS){mode='out';x=SLOW((t-E.u14)/OUTMS);c=LAST;k=2;f=1}
+  else{mode='feed';x=0;c=0;k=0;f=1-swipeP(t,15,812)}
+  ns=t>=E.e1&&t<E.u4+SH?t-E.e1:t>=E.u14+OUTMS?t-E.u14-OUTMS:0;   // Nespresso's field: from each landing (the swipe's, the way back's)
+  chevDim=t>=E.d14&&t<E.u14?.5:1;
+  pillPress.classList.toggle('on',t>=E.d4&&t<E.u4);
+  render();fingerAt(t);lockAll(t);
+}
+/* the video lock (as preview/sap-proto): d = where the video should be now (null: off screen, parked at its next in-point) */
+function lock(v,d,park,tin,t){
+  if(d==null&&tin!=null&&t>tin-3000&&t<tin)warm(v);
+  const ok=visible&&!document.hidden&&!(window.demoClock&&demoClock.paused);
+  if(d!=null){const end=(v.duration||99)-.04;if(d>end)d=end}
+  if(d==null||!ok){if(!v.paused)v.pause();const p=d==null?park:d;if(p!=null&&v.readyState>=1&&!v.seeking&&Math.abs(v.currentTime-p)>.04)v.currentTime=p;return}
+  warm(v);
+  if(v.paused){if(v.readyState>=1&&!v.seeking&&Math.abs(v.currentTime-d)>.04)v.currentTime=d;playV(v)}
+  else if(!v.seeking&&Math.abs(v.currentTime-d)>.25)v.currentTime=d}
+const win=(t,a,b)=>t>=a&&t<b?(t-a)/1000:null;
+function lockAll(t){
+  const n=VID;
+  lock(n.nike,t<E.e1?NIKE_IN+t/1000:t>=E.d15?NIKE_IN-(T-t)/1000:null,NIKE_PARK,null,t);
+  lock(n.nesp,t>=E.d1&&t<E.u4+SH?(t-E.d1)/1000:win(t,E.u14,E.e15),0,E.u14,t);
+  lock(n.bb,win(t,E.u4,E.e5),0,E.u4,t);lock(n.sbux,win(t,E.d5,E.e6),0,E.d5,t);lock(n.lc,win(t,E.d6,E.e7),0,E.d6,t);
+  lock(n.cb2,win(t,E.d7,E.e8),0,E.d7,t);
+  lock(n.univ,win(t,E.d8,E.e11),0,E.d8,t);
+  lock(n.laura,win(t,E.d11,E.e12),0,E.d11,t);lock(n.serena,win(t,E.d12,E.u14+OUTMS),0,E.d12,t);
+}
+let autoOn=false,raf=0,t0=0;
+function frameT(){if(!autoOn)return;applyT(((performance.now()-t0)%T+T)%T);raf=requestAnimationFrame(frameT)}
+function canRun(){return ready&&!(/[?&]auto=0\b/.test(location.search))&&!RM.matches&&visible&&!document.hidden&&INL()}
+function startAuto(){if(autoOn||!canRun())return;autoOn=true;frame.dataset.autoplay='on';t0=performance.now()-tl;ALLV.forEach(v=>v.loop=false);raf=requestAnimationFrame(frameT)}
+function stopAuto(){if(!autoOn)return;autoOn=false;cancelAnimationFrame(raf);frame.dataset.autoplay='off';pauseAll()}
+function sched(){if(!autoOn&&canRun())startAuto()}
+
+/* ---------- the black cover (as preview/sap-proto): on first load it holds until the seed's frame and the UI have decoded (max 3.2s),
+   then fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248 ---------- */
+let ready=false;const ldc=$('ldc');
+const seekTo=(v,s)=>new Promise(r=>{if(v.readyState>=2&&Math.abs(v.currentTime-s)<.02)return r();const g=()=>{v.removeEventListener('seeked',g);r()};v.addEventListener('seeked',g);try{v.currentTime=s}catch(_){r()}setTimeout(r,1200)});
+const firstFrame=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true});setTimeout(r,3000)});
+function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate){ldc.style.opacity='0';return}
+  ldc.style.opacity='0';ldc.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out'})}
+function cover(then){
+  if(RM.matches||!ldc.animate){Promise.resolve(then()).then(()=>{ldc.style.opacity='0'});return}
+  ldc.getAnimations().forEach(a=>a.cancel());const o=+getComputedStyle(ldc).opacity;ldc.style.opacity='1';
+  const a=ldc.animate([{opacity:o},{opacity:1}],{duration:120,easing:'ease-in'});
+  a.onfinish=()=>{Promise.resolve(then()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(coverOut)))}}
+const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);addEventListener('load',measureTabs);
+(function(){
+  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+V,AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V,'../sap-proto/assets/nav.webp?v=263']);
+  const nv=VID.nike,prep=INL()?firstFrame(nv).then(()=>seekTo(nv,NIKE_IN)):firstFrame(nv);
+  const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(VID.nesp),document.fonts?document.fonts.ready:0]));
+  let done=false;const go=()=>{if(done)return;done=true;ready=true;measureTabs();
+    if(INL()){applyT(tl);sched()}else{fsStart(false)}
+    coverOut()};
+  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+
+/* ---------- full screen: entering it (html.embed-full) on the Nike seed keeps going; from anywhere else the cover bridges to the seed's
+   start. Leaving it, the cover bridges back to the loop's start ---------- */
+function toSeed(){stopAll();xA.stop();nsReset();mode='feed';f=0;x=0;c=0;k=0;ro=0;chevDim=1;paused=null;pz.set(false);
+  if(!INL())touch.classList.add('on');setPress(null);render()}
+function fsStart(keep){
+  stopAuto();ALLV.forEach(v=>v.loop=true);op(finger,0);pillPress.classList.remove('on');
+  toSeed();if(!keep){try{VID.nike.currentTime=0}catch(_){}}
+  homeS=null;homeTell(true);vidSync();
+}
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;fit();
+  if(!i){const keep=ready&&mode==='feed'&&f===0;if(keep)fsStart(true);else cover(()=>{fsStart(false)});return}
+  stopAll();xA.stop();nsReset();touch.classList.remove('on');paused=null;pz.set(false);setPress(null);
+  cover(()=>{tl=0;applyT(0);pauseAll();return seekTo(VID.nike,NIKE_IN).then(()=>{sched()})})}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+if(!INL())touch.classList.add('on');
+
+/* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone): home = the feed (Nike / Nespresso) ---------- */
+function say(t){$('live').textContent=t}
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
+
+/* ---------- theme toggle + follow the site theme ---------- */
+$('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',ev=>{if(ev.key===null||ev.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+
+/* ---------- real pointer → touch-indicator circle (same as the FMSS prototypes) ---------- */
+const uf=$('ufinger');let uShow=false,uTouch=null;
+const FINE=matchMedia('(hover:hover) and (pointer:fine)'),isFine=ev=>ev.pointerType!=='touch'&&FINE.matches;
+function ptOf(ev){const r=phone.getBoundingClientRect(),s=r.width/375;return [(ev.clientX-r.left)/s,(ev.clientY-r.top)/s]}
+function uPos(ev){const [x,y]=ptOf(ev);uf.style.translate=`${x.toFixed(2)}px ${y.toFixed(2)}px`}
+function uOff(){if(!uShow)return;uShow=false;uf.classList.remove('on','down');phone.classList.remove('u-on')}
+phone.addEventListener('pointerdown',ev=>{if(!ev.isTrusted||INL())return;if(!isFine(ev))uTouch=ev.pointerId;uPos(ev);uShow=true;uf.classList.add('on','down');phone.classList.add('u-on')},true);
+phone.addEventListener('pointermove',ev=>{if(ev.isTrusted&&uShow&&(ev.pointerId===uTouch||isFine(ev)))uPos(ev)},true);
+function uUp(ev){if(!ev.isTrusted)return;uf.classList.remove('down');if(ev.pointerId===uTouch){uTouch=null;uOff()}else if(isFine(ev))uOff()}
+addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
+phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
+
+window.__cc={get mode(){return mode},get f(){return f},get c(){return c},get k(){return k},get ro(){return ro},get ns(){return ns},
+  get t(){return tl},get auto(){return autoOn},get ready(){return ready},get visible(){return visible},T,E,VID,
+  seek(t){tl=((t%T)+T)%T;t0=performance.now()-tl;applyT(tl)},explore,back,goCat,stepF,stepK,measureTabs,
+  get playing(){return Object.keys(VID).filter(id=>!VID[id].paused)}};
+booted=true;render();
+})();
+</script>
+</body>
+</html>

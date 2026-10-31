@@ -1,0 +1,68 @@
+{
+ "everyone-id-bridge-package": {
+  "w": 513,
+  "h": 427,
+  "screen_rel_bbox": [
+   118,
+   529,
+   631,
+   956
+  ],
+  "cut_at_screen_edge": false
+ },
+ "everyone-id-hand-ribbon": {
+  "w": 660,
+  "h": 492,
+  "screen_rel_bbox": [
+   0,
+   520,
+   660,
+   1012
+  ],
+  "cut_at_screen_edge": true
+ },
+ "business-ia-rocket-envelope": {
+  "w": 244,
+  "h": 530,
+  "screen_rel_bbox": [
+   253,
+   561,
+   497,
+   1091
+  ],
+  "cut_at_screen_edge": false
+ },
+ "share-mail-pizza": {
+  "w": 617,
+  "h": 612,
+  "screen_rel_bbox": [
+   133,
+   398,
+   750,
+   1010
+  ],
+  "cut_at_screen_edge": true
+ },
+ "business-iv-us-map": {
+  "w": 608,
+  "h": 412,
+  "screen_rel_bbox": [
+   52,
+   563,
+   660,
+   975
+  ],
+  "cut_at_screen_edge": false
+ },
+ "share-mail-mailbox-plane": {
+  "w": 453,
+  "h": 337,
+  "screen_rel_bbox": [
+   151,
+   602,
+   604,
+   939
+  ],
+  "cut_at_screen_edge": false
+ }
+}

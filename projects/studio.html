@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>(function(){try{var t=localStorage.getItem("dbh-theme");if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<meta name="theme-color" content="#ededed"><script>if(document.documentElement.dataset.theme==="dark")document.querySelector("meta[name=theme-color]").content="#111111"</script>
+
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio Model — Design by Hang</title>
+<meta name="description" content="Case study: Studio Model.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script data-goatcounter="https://designbyhang.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script defer src="../js/gc-depth.js?v=318"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/type.css?v=311"><link rel="stylesheet" href="../css/gate.css?v=311"><link rel="stylesheet" href="../css/case.css?v=323"><link rel="stylesheet" href="../css/arrows.css?v=311"><link rel="stylesheet" href="../css/theme.css?v=311"><link rel="stylesheet" href="../css/hang-egg.css?v=311"><link rel="stylesheet" href="../css/card.css?v=311">
+<style id="deck-css">
+@media (max-width:640px) and (orientation:portrait){.br-wide{display:none}}
+/* Studio Model presentation (02): deck in the media frame, expands to fullscreen (studio-present.js). Frame and stage use the
+   site's standard media box colour (--frame: #f4f4f4 light, #222 dark) */
+body.cs .media.mframe.deck{display:block;background:var(--frame);cursor:pointer}
+.deck-stage{position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;background:var(--frame);contain:layout paint;isolation:isolate}
+.deck-inner{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.deck-stage .ml{position:absolute;box-sizing:border-box}.deck-stage .ml.deck-cv{background:none!important}.deck-stage .ml.deck-cv::after{content:"";position:absolute;inset:0;background:currentColor;opacity:var(--cvfo,0);pointer-events:none}
+.deck-stage svg{position:absolute;left:0;top:0;display:block}
+body.cs .deck-stage img,.deck-stage img{position:absolute;display:block;max-width:none;object-fit:fill;transform:none;transition:none;border-radius:0;user-select:none;-webkit-user-drag:none}
+.deck-stage .mt{box-sizing:border-box;font-kerning:normal;-webkit-font-smoothing:antialiased}
+html.theme-anim .deck-stage,html.theme-anim .deck-stage *,html.theme-anim .deck-fs,html.theme-anim .deck-fs *{transition:none!important}
+.deck-fs{position:fixed;inset:0;z-index:2147483000;overflow:hidden;overscroll-behavior:none;touch-action:none;outline:none}
+/* the layer is focused on open: the site-wide :focus-visible radius (6px) rounded its corners and let the page show through at
+   the screen corners; it must be a solid full-bleed rectangle so iOS Safari samples a clean colour at the top/bottom edges */
+.deck-fs,.deck-fs:focus,.deck-fs:focus-visible{border-radius:0;outline:none}
+/* while the fullscreen layer collapses (648ms) it is transparent but still covered the whole page: it no longer takes
+   pointer events then and neither does CLOSE (it fades out), so the page's own BACK (same spot), the toggle and everything else are
+   clickable straight away */
+.deck-fs.is-closing{pointer-events:none}.deck-fs.is-closing .theme-btn{pointer-events:auto} /* CLOSE etc. fade out sliding left (studio-present.js) but take no clicks */
+.deck-fs[hidden]{display:none}
+/* CLOSE: the header bar itself (same height, padding and BACK styles at every breakpoint), transparent, right-aligned */
+.deck-fs .bar.deck-bar{position:absolute;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;justify-content:flex-end;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.deck-fs[data-tone=light] .deck-bar,.deck-fs[data-ntone=light] .deck-n{--mono-color:#333;--ink:#171717}
+.deck-fs[data-tone=dark] .deck-bar,.deck-fs[data-ntone=dark] .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}
+/* .deck-n base rule (position, Bitcount mono type, colour): css/hang-egg.css, shared with the FMSS phone full-screen prototype caption */
+@media (max-width:900px){.deck-n{right:calc(clamp(20px,5vw,72px) + env(safe-area-inset-right,0px))}}
+/* counter: vertically centred on the right, same right inset as CLOSE/BACK (= the header padding at each breakpoint) */
+.deck-n{display:flex;flex-direction:column;align-items:center;gap:10px}
+.deck-n .n{display:block;white-space:nowrap}
+/* counter arrows: the BACK TO TOP arrow exactly (same SVG, .64em x .8em box, 1px non-scaling stroke); down = same, turned 180deg */
+.deck-n .arr{display:inline-block;vertical-align:0;line-height:0}
+.deck-n .arr.arr-up{position:relative;width:.64em;height:.8em}
+.deck-n .arr svg{display:block;width:.8em;height:.64em;overflow:visible;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg)}
+.deck-n .arr.arr-dn svg{transform:translate(-50%,-50%) rotate(90deg)}
+.deck-n .arr path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+/* portrait: the number stacks (01 over 43) so the side gutters that keep the art clear stay narrow */
+@media (orientation:portrait){.deck-n .n{display:flex;flex-direction:column;align-items:center;gap:6px}.deck-n .s{display:block;width:1.1em;height:1px;background:currentColor;font-size:0;overflow:hidden}}
+/* phones in portrait: the counter (just "36 / 40", no arrows: swipe steps) sits centred 24px under the slide, so the slide can use
+   the full width less 16px each side (studio-present.js gutter()). Slide height = (100vw - 32px) x 1080/1920, centred */
+@media (orientation:portrait) and (max-width:640px){
+ .deck-n{right:auto;left:50%;top:calc(50% + (100vw - 32px) * .28125 + 24px);transform:translateX(-50%)}
+ .deck-n .arr{display:none}
+ .deck-n .n{display:block}
+ .deck-n .s{display:inline;width:auto;height:auto;background:none;font-size:inherit;overflow:visible;margin:0 .3em}
+}
+html.deck-open .theme-btn{z-index:2147483001}
+html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
+/* touch screens: once open, the root is a normal scrollable document like the project pages (2px range, user scrolling is consumed by
+   studio-present.js); desktop keeps overflow:hidden so no scrollbar shows for the 2px */
+@media (hover:none) and (pointer:coarse){html.deck-lock.deck-flow{overflow:auto}}
+/* html/body (= the bar colour) switch instantly with the toggle while presenting, like the deck itself: no 0.3s cross-fade that
+   Safari could sample half-way (old colour) */
+html.deck-lock.theme-anim,html.deck-lock.theme-anim body{transition:none!important}
+/* open (after the expand animation): true fullscreen like the homepage. The layer is the document itself in normal flow, the page
+   is display:none, nothing fixed/sticky spans the screen edges, so iOS Safari tints its bars from body (= stage colour, live) */
+html.deck-flow,html.deck-flow body{height:100%}
+/* body keeps 2px of (stage-coloured) scroll range below the layer, so the open document scrolls like a page and js/theme.js's
+   1px re-sample nudge is a real scroll. content-box: body = 100% + 2px (the layer stays exactly one viewport). */
+html.deck-flow body{margin:0;padding:0 0 2px;box-sizing:content-box}
+html.deck-flow body>:not(.deck-fs){display:none!important}
+html.deck-flow .deck-fs{position:relative;inset:auto;width:100%;height:100%}
+/* iOS 26 Safari bar tint (studio-present.js): solid full-width fixed strips at the top and bottom screen edges while open, like the
+   project pages' solid sticky header; background = the colour at that edge (inline, chrome()), so they are invisible. Top = the
+   header row (CLOSE), bottom = the band under AUTO SCROLL / the toggle; below the controls, above the stage. When the canvas fills
+   the letterbox (tight landscape, art can reach the edges) they shrink to 4px */
+.deck-edge{display:none;position:fixed;left:0;right:0;z-index:1} /* no pointer-events:none: WebKit's edge sampler hit-tests; the stage takes no pointer events anyway, controls sit above */
+html.deck-flow .deck-edge{display:block}
+.deck-edge-t{top:0;height:calc(58px + env(safe-area-inset-top,0px))}
+@media (max-width:640px){.deck-edge-t{height:calc(50px + env(safe-area-inset-top,0px))}}
+.deck-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
+.deck-fs[data-lb=canvas] .deck-edge{height:4px}
+/* fullscreen controls (CLOSE, theme toggle) sit above the stage; the stage never takes pointer events while fullscreen */
+/* AUTO SCROLL: CLOSE's bar, pinned bottom-right; 32px row centred on the 32px light/dark toggle (same bottom inset), safe areas respected */
+.deck-fs .bar.deck-bar.deck-auto-bar{top:auto;height:32px;bottom:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
+.deck-fs .ax.deck-auto .arr.arr-back svg{transform:none}
+.deck-fs .theme-btn{z-index:3} /* position comes from the shared .theme-btn rule (css/theme.css) */.deck-stage.is-fs{pointer-events:none}
+/* fullscreen: layers are clipped at the slide's left/right edges (the side gutters stay clear for the counter); top/bottom are not clipped */
+.deck-stage .deck-inner{clip-path:inset(0);overflow:hidden}
+/* phones in landscape: the controls move out of the art to the screen sides, 16px from the safe edges: CLOSE, the counter and
+   the Play/Pause button in the right gutter, the theme toggle at the left (studio-present.js sizes the art between them). The edge strips stay
+   4px (the art can come close to the top and bottom edges) */
+@media (orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse){
+ .deck-fs .bar.deck-bar{padding:0 16px}
+ .deck-n{right:calc(16px + env(safe-area-inset-right,0px))}
+ .deck-fs .theme-btn:not(.tb-home){left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+ .deck-edge,.deck-edge-t,.deck-edge-b{height:4px}
+}
+/* Play/Pause (studio-present.js .deck-apb): phones only (portrait, and landscape as above), in place of the AUTO SCROLL text; the shared
+   .mbtn play/pause (css/case.css, glass + hover ring in css/theme.css), bottom right, 16px from the right and bottom safe edges */
+.deck-apb{display:none}
+@media (orientation:portrait) and (max-width:640px),(orientation:landscape) and (max-height:500px) and (hover:none) and (pointer:coarse){
+ .deck-fs .deck-auto-bar{display:none}
+ .deck-apb{display:grid;position:absolute;z-index:3;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+<script src="../js/gate.js?v=311"></script>
+</head>
+<body class="cs" data-prj="Studio Model">
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="../index.html" aria-label="Design by Hang, home">DESIGN BY HANG</a>
+  <span class="bar-mid" id="bar-mid" aria-hidden="true"></span>
+  <nav class="bar-right" aria-label="Site"><a class="ax" href="../index.html" aria-label="Back to home"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span><span class="t">BACK</span></a></nav>
+  <div class="prog" aria-hidden="true"><i></i></div>
+</header>
+
+<nav class="toc" aria-label="On this page"><ol>
+  <li><a href="#overview">Overview</a></li><li><a href="#presentation">Presentation</a></li>
+</ol></nav>
+
+<main id="main" class="sheet">
+<div class="cs-head">
+<section id="top" class="wrap hero">
+  <p class="kicker fx">Case Study · Facebook</p>
+  <h1 class="fx">Studio Model</h1>
+  <p class="sum fx">Designing one identity to unite Facebook's design team.</p>
+  <dl class="meta fx">
+    <div><dt>Role</dt><dd>Design Owner</dd></div>
+    <div><dt>Scope</dt><dd>Brand Identity</dd></div>
+    <div><dt>Timeline</dt><dd>2024</dd></div>
+  </dl>
+</section>
+
+<figure class="bleed hero-media fx">
+  <div class="media cover hero-slot"><img src="../assets/cover-studio-hero.webp?v=311" width="2944" height="1640" alt="Studio Model project cover"></div>
+</figure>
+</div>
+
+<div class="wrap">
+  <section id="overview" data-title="Overview" class="sec sec-grid">
+    <p class="sec-label">01 — Overview</p>
+    <div class="prose fx">
+      <p>Studio Model emerged from Facebook Design's need to address a disjointed system where teams overlapped across experiences without a unified view of the app.<br class="br-wide"> Its mission was to design Facebook as one team,<br class="br-wide"> aligning app-wide priorities around a cohesive, user-centric approach.</p>
+      <p>Studio comprised 8 Pods, each focused on a specific facet of the app, with 50+ product designers across the team.</p>
+      <p>I led the development of Studio's brand, translating its philosophy into a visual identity that unified the Pods and rallied the broader design organization around a shared way of working.</p>
+    </div>
+  </section>
+  <section id="presentation" data-title="Presentation" class="sec sec-grid">
+    <p class="sec-label">02 — Presentation</p>
+  </section>
+</div>
+<figure class="bleed fig fx" style="margin-top:72px"><div class="media mframe deck" id="deck" tabindex="0" role="region" aria-roledescription="presentation" aria-label="Studio Model presentation, 40 slides. Scroll, swipe or use the arrow keys to step through it; Escape closes it"><div class="deck-stage"><div class="deck-inner"></div></div></div></figure>
+<div class="wrap">
+  <aside class="next fx" aria-label="Next project">
+    <a class="next-hit proj" href="usps.html" aria-label="Next project: USPS Innovations"><p class="k ax" aria-hidden="true"><span class="t">NEXT <span class="t2">CASE STUDY</span></span><span class="arr" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></p><span class="next-card"><span class="media-wrap"><img src="../assets/cover-usps-home.webp?v=311" width="2880" height="1640" loading="lazy" alt="" draggable="false"></span></span></a>
+  </aside>
+</div>
+</main>
+<footer class="foot"><a class="ax" href="#top"><span class="t">BACK TO TOP</span><span class="arr arr-up" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M0 8H19M11 0L19 8l-8 8"/></svg></span></a></footer>
+<footer class="bot"><span>© 2026 DESIGNBYHANG</span></footer>
+<script src="../js/demos.js?v=311"></script><script src="../js/squircle.js?v=311"></script><script src="../js/sfx.js?v=311"></script><script src="../js/theme.js?v=311"></script><script src="../js/fs-motion.js?v=311"></script><script src="../js/case.js?v=321"></script><script src="../js/hang-egg.js?v=311"></script><script src="studio-deck-data.js?v=311" defer></script><script src="studio-deck.js?v=311" defer></script><script src="studio-present.js?v=324" defer></script>
+</body></html>

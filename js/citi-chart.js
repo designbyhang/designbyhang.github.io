@@ -1,0 +1,133 @@
+/* Citi Monthly Overview (04 Banking Experiences): one looping phone-screen sequence. Needs CitiPhone (js/citi-intro.js, loaded first).
+   Markup: <div class="media mframe" data-citi-mo style="background:#002F9B"></div>. One SVG (2880x1620, slice) draws the slide: the
+   #002F9B ground, and the phone built by CitiPhone.vec in vector (shadow, bezel, rim, header + status bar, the dashboard tiles, the
+   Monthly Overview card head, Inter text), plus, for the expanded page, vector exports of Figma citi_19 "Citi Blue" 141388:14444 at
+   4x pt (assets/citi/mo/: fhead = its header, feat = tabs, summary, 2K-6K labels, bills; lossless webp), the four tooltips (outlined
+   Figma SVGs) and the live chart (verbatim Figma vectors, Graph 141388:14143). Every screen layer sits inside the squircle screen clip
+   and the rim lies over it, so the screen meets the frame exactly in every state; the frame's own background is the slide's #002F9B.
+   Coordinates: slide px in translate(1158 201); the screen (CitiPhone.vec, pt) at x1.5 = slide 1159.5..1722, y 201..1419 (375x812 pt at 1.5x).
+   Loop (ms, all on the 8 ms grid), PERIOD 15328. Each beat eases in, lands, then a short breath before the next:
+     0-320 rest on Spending Insights · 320-2240 scroll down 1073 px (easeInOutCubic) · 2480-4320 one continuous chart beat: a
+     single easeInOutCubic edge sweeps the dark fill from the left (pale area already in place) straight through the current
+     point (it lands as the fill arrives) and on as the projection trail; past and projection dots and the three circles pop
+     as the edge reaches them (easeOutCubic) · 4640-5600 the card expands into the feature page (shared element,
+     cubic-bezier(.45,0,.15,1); the live chart is the only chart and rides the same curve to its feature-page place; header,
+     tabs, summary, 2K-6K labels, bills chain in and land inside it) · from 5840 the tooltips, one at a time over their points,
+     SEP 17 (current point) > SEP 22 > SEP 24 > SEP 27 (the circles): each fades in rising 12 px over 400 (easeOutCubic), reads
+     864, leaves over 240 (easeInCubic), 64 breath, next (slot 1568: in at 5840 / 7408 / 8976 / 10544; SEP 27 gone at 12048) ·
+     12208-13168 collapse (same curve, reversed geometry) · 13408-15328 scroll back up (easeInOutCubic) · the chart clears at
+     the loop point, card off screen.
+   Plays while it has the page's demo turn (js/demos.js), the box is >= 35% in view and the tab is visible; paused where it is
+   otherwise. Never interactive. Reduced motion: the still image (t 3744). window.__citiMo: seek(t) / resume() / PERIOD for captures. */
+(function(){"use strict";
+var doc=document,NS="http://www.w3.org/2000/svg",RM=matchMedia("(prefers-reduced-motion: reduce)"),V="?v=320";
+var D=1073,TOP=320,SCR=1920,C0=2480,CH=1840,PTD=320,E0=4640,EXP=960,
+ TIP0=5840,TIPD=400,THOLD=864,TOD=240,TGAP=64,TSLOT=TIPD+THOLD+TOD+TGAP, /* each tooltip: in 400, read 864, out 240, breath 64 */
+ TIPS=["17","22","24","27"],TEND=TIP0+(TIPS.length-1)*TSLOT+TIPD+THOLD+TOD,  /* 12048: the SEP 27 tooltip is gone */
+ C1=TEND+160,U0=C1+EXP+240,PERIOD=U0+SCR; /* C1 12208, U0 13408, PERIOD 15328 */
+var CARD={x:18.5,y:285,w:527,h:570,r:24},FULL={x:0,y:131,w:564,h:1087},CHART_DY=-72; /* screen-crop px (origin 1158,201) */
+/* chart (Graph frame G, 375x300 pt; origin at crop (0.5,405), scale 1.5), times from C0 */
+var DOTS=[[10,244],[23,243],[35,242],[47,241],[60,239],[72,236],[85,233],[97,230],[110,226],[122,222],[134,217],[146,212],[159,206],[171,200],[184,193],[196,186],[208,178],[221,171],[233,164],[245,158],[258,152],[270,147],[283,143],[295,139],[307,136],[320,134],[332,132],[344,131],[357,130],[369,130]],
+ SOLID=[208,178],RINGS=[[270,147],[295,139],[332,132]],DOT=160,POP=288,XE=208,XW=375;
+var cl=function(v){return v<0?0:v>1?1:v},sine=function(t){return(1-Math.cos(Math.PI*t))/2},
+ cub=function(t){return 1-Math.pow(1-t,3)},cin=function(t){return t*t*t},inout=function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2},
+ uinout=function(f){f=cl(f);return f<.5?Math.cbrt(f/4):1-Math.cbrt(2-2*f)/2},  /* inverse of easeInOutCubic: when the edge reaches f */
+ g8=function(v){return Math.round(v/8)*8},
+ bez=function(x1,y1,x2,y2){return function(x){if(x<=0)return 0;if(x>=1)return 1;var u=x,i,cx,dx;   /* cubic-bezier(), CSS-style */
+  for(i=0;i<8;i++){cx=3*x1*u*(1-u)*(1-u)+3*x2*u*u*(1-u)+u*u*u-x;dx=3*x1*(1-u)*(1-3*u)+3*x2*u*(2-3*u)+3*u*u;if(Math.abs(cx)<1e-5||!dx)break;u=cl(u-cx/dx)}
+  return 3*y1*u*(1-u)*(1-u)+3*y2*u*u*(1-u)+u*u*u}},
+ glide=bez(.45,0,.15,1),                                                    /* expand/collapse: soft lift-off, long settle */
+ seg=function(p,a,b){return cl((p*EXP-a)/(b-a))};                         /* stage of the expand, a..b ms into it */
+function el(t,a,p){var e=doc.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function rr(x,y,w,h,r){if(window.Squircle&&Squircle.pathR&&r>.5)return Squircle.pathR(w,h,[r,r,r,r],.6,x,y);
+ return "M"+x+" "+y+"h"+w+"v"+h+"h"+(-w)+"Z"}
+/* a window onto rows y0..y0+h of a crop image, placed at crop y */
+function win(src,y0,h,y,p,H){var s=el("svg",{x:0,y:y,width:564,height:h,viewBox:"0 "+y0+" 564 "+h,overflow:"hidden"},p);
+ el("image",{href:src,width:564,height:H,preserveAspectRatio:"none"},s);return s}
+function build(host,id){
+ var B="../assets/citi/mo/",CV=CitiPhone.vec,SRC={fhead:B+"fhead.webp"+V,feat:B+"feat.webp"+V};CV.srcs.forEach(function(s,i){SRC["cv"+i]=s});
+ TIPS.forEach(function(k){SRC["tip"+k]=B+"tip"+k+".svg"+V});
+ var svg=el("svg",{viewBox:"0 0 2880 1620",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true",focusable:"false"});
+ svg.innerHTML='<defs><linearGradient id="@p" x1="39.3897" y1="-47.6107" x2="39.3897" y2="240" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
+  +'<linearGradient id="@d" x1="22.2199" y1="42.9996" x2="22.2199" y2="239.498" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#002BFF"/><stop offset="1" stop-color="#2F90FF"/></linearGradient>'
+  +'<clipPath id="@s"><path transform="translate(1.5 0) scale(1.5)" d="'+CitiPhone.sq(375,812,48)+'"/></clipPath>'+CV.defs('@')+'<clipPath id="@c"><path/></clipPath><clipPath id="@w"><rect x="0" y="0" width="0" height="300"/></clipPath></defs>'
+  +'<rect width="2880" height="1620" fill="#002F9B"/><g transform="translate(1159.5 201) scale(1.5)">'+CV.back('@')+'</g>'
+  +'<g transform="translate(1158 201)"><g clip-path="url(#@s)"><rect width="564" height="1218" fill="#EFEFEF"/><g class="dash"><g transform="translate(1.5 0) scale(1.5)"><g class="dsc">'+CV.tiles('@',{insight:'high'})+'</g></g></g><g class="card"><path class="bg" fill="#fff"/><g class="cc"><g transform="translate(19.5 284.5) scale(1.5)">'+CV.moHead()+'</g></g>'
+  +'<g clip-path="url(#@c)"><g class="ch"><g transform="translate(0.5 404) scale(1.5)"><g transform="translate(0 50)">'
+  +'<path opacity="0.1" fill-rule="evenodd" fill="url(#@p)" d="M0.996094 194.289C96.8942 195.662 177.342 149.188 203.98 131.025C246.073 102.326 299.346 79.7437 374.999 79.7432V250H203.98H0.996094"/>'
+  +'<path clip-path="url(#@w)" fill-rule="evenodd" fill="url(#@d)" d="M0 194.074C117.375 194.074 208 128 208 128V250H0"/></g><g class="d"></g><g class="pt"></g></g></g></g></g>'
+  +'<g class="feat"></g><g class="tp"></g><g transform="translate(1.5 0) scale(1.5)">'+CV.handle()+CV.chrome()+'</g><g class="hf"></g></g><g transform="translate(1.5 0) scale(1.5)">'+CV.ring()+'</g></g>';
+ svg.innerHTML=svg.innerHTML.replace(/@/g,id);
+ var q=function(s){return svg.querySelector(s)},dash=q(".dash"),card=q(".card"),bg=q(".bg"),cc=q(".cc"),ch=q(".ch"),cp=q("#"+id+"c path"),
+  wipe=q("#"+id+"w rect"),feat=q(".feat"),hf=q(".hf"),parts=[];
+ var dsc=q(".dsc");                                                          /* the dashboard (CitiPhone.vec, pt), scrolled */
+ win(SRC.fhead,0,131,0,hf,131);                                              /* fhead/feat: Figma vector exports at 4x pt */
+ var band=function(y0,y1){var g=el("g",{},feat);win(SRC.feat,y0-131,y1-y0,y0,g,1065);return g};
+ var tabs=band(131,226),sum=band(226,330),cht=band(330,782),bills=band(782,1196);
+ /* one edge sweeps 0..XW over CH (easeInOutCubic): the dark fill (path ends at XE) and then the projection trail.
+    Each dot, the current point and each circle starts the moment the edge reaches it; times from C0, on the 8 ms grid */
+ var at=function(x){return g8(CH*uinout(x/XW))};
+ DOTS.forEach(function(d){parts.push({t:at(d[0]),dur:DOT,f:cub,x:d[0],y:d[1],e:el("circle",{cx:d[0],cy:d[1],r:1,fill:"#0055D8"},q(".d")),o:1})});
+ parts.push({t:at(XE),dur:PTD,f:cub,x:SOLID[0],y:SOLID[1],e:el("circle",{cx:SOLID[0],cy:SOLID[1],r:5.75,fill:"#0055D8",stroke:"#fff","stroke-width":1.5},q(".pt")),o:.5});
+ RINGS.forEach(function(r){parts.push({t:at(r[0]),dur:POP,f:cub,x:r[0],y:r[1],e:el("circle",{cx:r[0],cy:r[1],r:5.75,fill:"#fff",stroke:"#0055D8","stroke-width":1.5},q(".pt")),o:.4})});
+ /* the four tooltips (Figma 143313:7074/7057/7082/7089, outlined vector SVGs, 92x65 pt each), above the page, one at a time:
+    the tooltip frame's centre sits over its point, its top 77 pt above the point centre (Figma Point 143312:7017). Expanded-page
+    chart pt (cx,cy) -> screen-crop px (0.5+1.5cx, 332+1.5cy). SEP 27's body is shifted 10 pt left (its arrow stays on the point)
+    so it clears the screen edge. */
+ var TIPAT=[SOLID].concat(RINGS),tips=TIPS.map(function(k,i){var c=TIPAT[i],vx=k==="27"?-10:0,y0=332+1.5*(c[1]-78);
+  return {y0:y0,e:el("image",{href:SRC["tip"+k],x:(0.5+1.5*(c[0]-46+vx)).toFixed(2),y:y0.toFixed(2),width:138,height:97.5,opacity:0},q(".tp"))}});
+ var op=function(e,v){e.setAttribute("opacity",v>=1?1:v.toFixed(3))},tr=function(e,x,y){e.setAttribute("transform",x||y?"translate("+x.toFixed(2)+" "+y.toFixed(2)+")":"")};
+ host.appendChild(svg);
+ return [function(t){t=((t%PERIOD)+PERIOD)%PERIOD;
+  /* scroll position (px) and expand progress p (0 card .. 1 feature page) */
+  var s=t<TOP?0:t<TOP+SCR?D*inout((t-TOP)/SCR):t<U0?D:t<PERIOD?D*(1-inout((t-U0)/SCR)):0;
+  /* p: linear expand progress (sub-stages hang off it, so the collapse replays them in reverse); e: the card geometry */
+  var p=t<E0?0:t<E0+EXP?(t-E0)/EXP:t<C1?1:t<C1+EXP?1-(t-C1)/EXP:0;
+  var e=t<C1?glide(p):1-glide(1-p);
+  var tc=t>=C0?t-C0:-1;                                                       /* chart clock; clears at the loop point */
+  dsc.setAttribute("transform",s?"translate(0 "+(-s/1.5).toFixed(3)+")":"");tr(card,0,D-s);
+  op(dash,1-cub(seg(p,0,320)));
+  var x=CARD.x+(FULL.x-CARD.x)*e,y=CARD.y+(FULL.y-CARD.y)*e,w=CARD.w+(FULL.w-CARD.w)*e,h=CARD.h+(FULL.h-CARD.h)*e,r=CARD.r*(1-e),d=rr(x,y,w,h,r);
+  bg.setAttribute("d",d);cp.setAttribute("d",d);
+  op(cc,1-cub(seg(p,0,320)));tr(cc,0,(FULL.y-CARD.y)*e-24*e);tr(ch,0,CHART_DY*e);
+  /* on the collapse the page contents leave in the first 600 ms (reverse order), before the card has moved far */
+  var q=t>=C1&&t<C1+EXP?cl(1-(t-C1)*1.6/EXP):p;
+  op(hf,inout(seg(p,0,480)));op(tabs,cub(seg(q,320,640)));
+  var a=cub(seg(q,384,704));op(sum,a);tr(sum,0,12*(1-a));
+  op(cht,t>=C1&&t<C1+EXP?1-cub(cl((t-C1)/160)):cub(seg(p,448,768)));         /* labels: first page part out, before the chart moves */
+  a=cub(seg(q,512,896));op(bills,a);tr(bills,0,36*(1-a));
+  /* tooltips: in once the page has settled, in sequence SEP 17 > 22 > 24 > 27, each one out before the next; the last out first of all */
+  for(var j=0;j<tips.length;j++){var t0=TIP0+j*TSLOT,to=t0+TIPD+THOLD;
+   a=t<t0||t>=to+TOD?0:t<t0+TIPD?cub((t-t0)/TIPD):t<to?1:1-cin((t-to)/TOD);
+   op(tips[j].e,a);tips[j].e.setAttribute("y",(tips[j].y0+12*(1-a)).toFixed(2));tips[j].e.setAttribute("display",a>0?"inline":"none")}
+  var we=tc<0?0:XW*inout(cl(tc/CH));
+  wipe.setAttribute("width",we.toFixed(2));
+  for(var i=0;i<parts.length;i++){var o=parts[i],u=tc<0?0:cl((tc-o.t)/o.dur),k=u>=1?1:o.f(u);
+   op(o.e,cl(u/o.o));o.e.setAttribute("transform",k===1?"":"translate("+o.x+" "+o.y+") scale("+Math.max(0,k).toFixed(4)+") translate("+(-o.x)+" "+(-o.y)+")")}}
+ ,SRC];
+}
+function control(host){
+ var t=0,raf=0,last=0,vis=false,on=!window.dbhDemos,frozen=false,draw=null,svg=null;
+ var go=function(){return draw&&!frozen&&!RM.matches&&vis&&on&&!doc.hidden};
+ var tick=function(now){raf=0;if(!go()){last=0;return}if(last)t=(t+Math.min(64,now-last))%PERIOD;last=now;draw(t);raf=requestAnimationFrame(tick)};
+ var upd=function(){if(!draw||frozen)return;if(RM.matches){draw(E0);return}if(go()&&!raf){last=0;raf=requestAnimationFrame(tick)}};
+ /* load the three crops first (only once the box is near the view); until then the slide image alone shows */
+ var start=function(){if(draw)return;start=function(){};var b=build(host,"cm"+Math.random().toString(36).slice(2,7)),f=b[0];svg=host.lastChild;
+  svg.style.visibility="hidden";var srcs=b[1],n=0,keys=Object.keys(srcs),done=function(){if(++n<keys.length)return;
+   f(RM.matches?E0:t);svg.style.visibility="";draw=f;upd()};
+  keys.forEach(function(k){var i=new Image();i.onload=i.onerror=function(){(i.decode?i.decode().catch(function(){}):Promise.resolve()).then(done)};i.src=srcs[k]});n--;CitiPhone.vec.ready().then(done)};   /* + the Inter weights */
+ if("IntersectionObserver" in window){
+  new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting}))start()},{rootMargin:"600px 0px"}).observe(host);
+  new IntersectionObserver(function(es){es.forEach(function(e){vis=e.intersectionRatio>=.35});upd()},{threshold:[0,.35]}).observe(host);
+ }else{vis=true;start()}
+ if(window.dbhDemos)dbhDemos.add(host,{play:function(){on=true;upd()},pause:function(){on=false}});
+ doc.addEventListener("visibilitychange",upd);if(RM.addEventListener)RM.addEventListener("change",upd);
+ return {seek:function(v){frozen=true;start();t=v;if(draw)draw(t)},resume:function(){frozen=false;upd()},time:function(){return t},ready:function(){return !!draw}};
+}
+var insts=[];
+function mount(){if(!doc.getElementById("cm-css")){var s=doc.createElement("style");s.id="cm-css";
+  s.textContent="[data-citi-mo]{position:relative;background:#002F9B;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}[data-citi-mo]>svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;overflow:hidden}";doc.head.appendChild(s)}
+ [].forEach.call(doc.querySelectorAll("[data-citi-mo]"),function(h){if(h.__cm)return;h.__cm=1;try{insts.push(control(h))}catch(err){if(window.console)console.warn("citi-chart:",err)}})}
+window.__citiMo={seek:function(t,i){var x=insts[i||0];x&&x.seek(t)},time:function(i){var x=insts[i||0];return x?x.time():-1},resume:function(i){var x=insts[i||0];x&&x.resume()},ready:function(i){var x=insts[i||0];return !!(x&&x.ready())},PERIOD:PERIOD,E0:E0};
+doc.readyState==="loading"?doc.addEventListener("DOMContentLoaded",mount,{once:true}):mount();
+})();

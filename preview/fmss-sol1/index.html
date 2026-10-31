@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMSS · Solution: across ad objectives (animation)</title>
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside projects/fmss.html; the parent page supplies the container and the theme */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/device/device.css?v=311">
+<style>
+/* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
+*,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
+:root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);transition:background-color .4s var(--ease),color .4s var(--ease)}
+body{pointer-events:none;user-select:none;-webkit-user-select:none}
+.wrap{max-width:1440px;margin:0 auto;padding:48px}
+/* container: same proportions as the case-study .media.mframe (3840/2052) */
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease)}
+/* stage = the Figma slide minus its title row: 1920×1026 design px, scaled to the frame */
+.stage{position:absolute;left:50%;top:50%;width:1920px;height:1026px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.5))}
+/* phone: Figma 375×812 screen at x 90/545/1000/1455 (80px apart); 8px code-drawn bezel outside it */
+.dev{position:absolute;top:96px;width:375px;height:812px}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2))}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
+.scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
+/* B sheet top, live (no baked corners or handle): the sheet image (.bs) is clipped to the sheet's own shape, a 16px squircle top corner each
+   side (60% smoothing, at drawn size, set in fit()), and its first 18 rows (the lossy-compressed corners and grab handle baked into it, which
+   read pixelated, most of all at 3x and over a light backdrop) are drawn live by .bk: the sheet colour under the same clip, with the
+   handle (40x4 #C9CCD1 r2 at 168,8, as preview/shared/iab/header.js draws it for the IAB sheets). Under the sheet's corners .sk, riding
+   with the sheet, carries the B backdrop's last row (bu's, stretched over the strip: background-size 100% top x 100%, bottom row), so the
+   corners and the split-line seam show the backdrop's own colours, never the screen white or the bezel black */
+.sk{position:absolute;left:0;width:375px;background-position:0 100%;background-repeat:no-repeat}
+.bk{position:absolute;left:0;width:375px}.bk>i{position:absolute;background:#C9CCD1}
+.L{will-change:transform,opacity}
+/* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
+   375×812 design size × the pixel ratio, ~11MB, some 40 per animation, which pushed iOS Safari past its memory limit), so every animated
+   layer is laid out at its drawn size (design px × s) and scaled back up by its own `scale` (1/s): it draws exactly where and how big it
+   did, with a backing store of its drawn size. Moves use `translate`, which applies before `scale`, so they stay in design px */
+@supports (scale:2){.scr .L{transform-origin:0 0;scale:calc(1 / var(--s,.5))}
+ /* the bezel too: its drop-shadow filter would otherwise be backed at design size (shadow and squircle clip at drawn size, set in fit()) */
+ .bezel{transform-origin:0 0;scale:calc(1 / var(--s,.5));right:auto;bottom:auto;width:calc(391px * var(--s,.5));height:calc(828px * var(--s,.5));filter:drop-shadow(calc(40px * var(--s,.5)) 0 calc(20px * var(--s,.5)) rgba(0,0,0,.2))}
+ .bezel-fill{border-radius:calc(48px * var(--s,.5))}
+ /* and the label: its own small layer, so the stage itself paints nothing and needs no design-size backing store */
+ .bezel,.lab{will-change:transform}
+ /* the white under every layer stops 8px short of the screen's side edges: the layers' anti-aliased side columns meet the bezel there, not white (no light hairline down the sides) */
+ .scr{background:none}.scr>.bg{position:absolute;left:8px;top:0;background:#fff;width:calc(359px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ .scr .sk,.scr .bk{width:calc(375px * var(--s,.5))}
+ .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
+ .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}}
+/* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge (clipped by the screen), so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
+.cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
+/* status bar / IAB header seam: a strip in the C header colour, under the C status bar and header, riding with the header for the last 1% of split -> full
+   (and while full), so the spring's sub-pixel tail never opens a hairline of the B media between the fixed status bar and the rising header */
+.cs{position:absolute;left:-4px;right:-4px;top:24px;height:28px}
+/* ad media: one playing <video> per phone, sized to its split-screen rect (Figma: 351 wide, 16px radius, 60% smoothing) and scaled/moved onto the full-bleed feed rect */
+.mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
+.mv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* label: Figma "Notes", Bitcount Grid Single 16/32, 40px under the screen */
+.lab{position:absolute;left:0;width:375px;top:852px;text-align:center;font:400 16px/32px "Bitcount Grid Single",ui-monospace,Menlo,monospace;letter-spacing:.32px;white-space:nowrap;color:var(--ink);transition:color .4s var(--ease)}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed .wrap{max-width:none;padding:0}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
+<script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=311"></script><script src="../../js/device-cover.js?v=311"></script>
+<script>
+(function(){
+const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
+/* media rects from the Figma frames: feed (A) full bleed x0 y216 375 wide; split screen (B) x12, 351 wide, radius 16 */
+const MED=[{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:240,by:107,bh:225}];
+const V='?v=5';
+/* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
+   a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
+   ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
+   closing back to it (hs openAt()/openCta() {w:16}, go(1) forces w=16), ω=18 for split ↔ full (hs/cb go(3)/go(2), default w=18).
+   Simulated here once with the prototype's own sheet stops (hs Y1 812, Y2 407, Y3 44) and pre-sampled, so every phone shares
+   one clock. As in the prototypes' render(), every layer is a pure function of the sheet progress: the media's x, y, width, height
+   and corner radius all lerp on that one value (straight path, size not scale, radius in step), backdrops and chrome fade on it. */
+function spr(x0,tg,w){let x=x0,v=0;const o=[0],dt=1/60;for(;;){for(let i=0;i<4;i++){const h=dt/4;v+=(-w*w*(x-tg)-2*w*v)*h;x+=v*h}
+  if(Math.abs(x-tg)<.3&&Math.abs(v)<7.5){o.push(1);return o}o.push((x-x0)/(tg-x0))}}
+const FR=1000/60,S1=spr(812,407,16),S2=spr(407,44,18),S3=spr(44,407,18),S4=spr(407,812,16);
+/* 8ms grid: each simulated curve is time-scaled (same shape, linearly resampled) to an exact length, feed <-> split 640ms (natural 650),
+   split <-> full 560ms (natural 567), and sampled every 8ms, so every keyframe lands on a multiple of 8ms */
+const STEP=8,rs=(S,ms)=>{const n=ms/STEP,L=S.length-1,o=[];for(let k=0;k<=n;k++){const u=k/n*L,i=Math.min(L-1,Math.floor(u)),f=u-i;o.push(k===n?1:S[i]+(S[i+1]-S[i])*f)}return o};
+const R1=rs(S1,640),R2=rs(S2,560),R3=rs(S3,560),R4=rs(S4,640);
+const dur=S=>(S.length-1)*STEP;
+/* v140: 20000ms loop, holds re-derived for phone 1's clip (v1.mp4, 15.733s, Nike 24.7): its red two-person close-up (video
+   7.467-8.333s, frames 224-249) must only ever play while full screen (C) covers the video. The clip is locked to the loop clock
+   (../../js/video-scrubber.js lock, LOCK below: 0:00 at t1e, where the cover enters on its still, the frame-0 poster, running 1:1 with the loop; parked,
+   paused, through the whole C hold t2e-t3 on the frame due at t3, so it always leaves C on that frame however far its decoder lagged; the
+   clip's slack over the loop, T - duration, is taken up there, behind C; a render guard hides any frame inside 7.40-8.37s). So it shows
+   0:00 -> 7.12 (t1e -> t2e) before C, and 8.485 -> its end after it, wrapping to 0:00 only at the next t1e. The frame at t3
+   is (t3 - t1e - (T - 15733))/1000 = 8.485s, just past the close-up, which makes the stretch from t3 round to the next t1e 15733 - 8485 = 7248ms however long the loop is: the feed, the second split and the tail cannot grow without the clip ending early,
+   freezing, wrapping or slowing, so they keep their v135 lengths (2096, 2904, 408) and the 4000ms goes to the first split hold
+   (+2016, 6560: video 7.12s at t2e, 280ms before the guard) and full screen (+1984, 5632). Transitions unchanged (640/560).
+   Marks: t1 2096, t1e 2736, t2 9296, t2e 9856, t3 15488, t3e 16048, t4 18952, t4e 19592, T 20000. sol1's other clips (v2-v4: 8.433, 15.233,
+   14.400s) keep running free on their own native loop as before (locking them too made WebKit stall on the seeks and the shared wrap) */
+const B1=6560,B2=2904,t1=2096,t1e=t1+dur(R1),t2=t1e+B1,t2e=t2+dur(R2),t3=t2e+5632,t3e=t3+dur(R3),t4=t3e+B2,t4e=t4+dur(R4),T=t4e+408;
+const LOCK={zero:t1e,park:[t2e,t3],avoid:[7.4,8.37]};   // phone 1's video lock (see above; js/fmss-split.js's hero cover locks its phone 1 the same way)
+/* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition */
+const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
+  seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
+/* WAAPI keyframes from POSE: the shared track (../../js/device-cover.js), linear between the 8ms samples, dropping a sample equal to both
+   neighbours (WebKit re-processes every keyframe of accelerated animations on every scrolled frame) */
+const track=fn=>DeviceCover.track(POSE,T,fn);
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,e)=>a+(b-a)*e;
+/* drawn-size layers (see .L in the style): lengths inside a layer are design px × s, its moves go on `translate` (design px) */
+const IT=CSS.supports('scale','2'),dp=v=>IT?`calc(${v}px * var(--s,.5))`:v+'px',ty=v=>IT?{translate:`0 ${v}px`}:{transform:`translateY(${v}px)`};
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const frame=document.getElementById('frame'),stage=document.getElementById('stage');
+/* asset set: every image and video is drawn at its design size × the stage scale × the screen's pixel ratio. At or under 1:1 the
+   half-size set (assets/h/: the same files at 375 design px wide) is used, a quarter of the decoded pixels and video decode surface;
+   above it the full 750px set. Chosen before the first request; if the frame later grows past 1:1 it is upgraded once (never back down) */
+const scl=()=>{const r=frame.getBoundingClientRect();return Math.min(r.width/1920,r.height/1026)};
+let half=scl()*(devicePixelRatio||1)<=1;const AS=half?'assets/h/':'assets/';
+function upgrade(){if(!half)return;half=false;const up=u=>u.replace('assets/h/','assets/');
+  stage.querySelectorAll('img').forEach(im=>{const u=im.getAttribute('src');if(u&&u.indexOf('assets/h/')===0)im.src=up(u)});
+  stage.querySelectorAll('video').forEach(v=>{const p=v.getAttribute('poster'),u=v.getAttribute('src');if(p)v.poster=up(p);if(!u||u.indexOf('assets/h/')!==0)return;
+    const t=v.currentTime,on=!v.paused;v.src=up(u);v.addEventListener('loadedmetadata',()=>{try{v.currentTime=t}catch(_){}},{once:true});if(on){const q=v.play();q&&q.catch(()=>{})}})}
+function squircle(w,h,R,sm){
+  const rad=x=>x*Math.PI/180,budget=Math.min(w,h)/2;R=Math.min(R,budget);
+  let p=(1+sm)*R;const arcM=90*(1-sm),arc=Math.sin(rad(arcM/2))*R*Math.SQRT2,al=(90-arcM)/2,p34=R*Math.tan(rad(al/2)),be=45*sm;
+  const c=p34*Math.cos(rad(be)),d=c*Math.tan(rad(be));let b=(p-arc-c-d)/3,a=2*b;
+  if(p>budget){const m=budget-d-arc-c,minA=m/6;b=Math.min(b,m-minA);a=m-b;p=budget}
+  const f=n=>+n.toFixed(3),A=f(a),AB=f(a+b),ABC=f(a+b+c),BC=f(b+c),C=f(c),Dd=f(d),S=f(arc),r=f(R);
+  return `M${f(w-p)} 0c${A} 0 ${AB} 0 ${ABC} ${Dd}a${r} ${r} 0 0 1 ${S} ${S}c${Dd} ${C} ${Dd} ${BC} ${Dd} ${ABC}`+
+    `L${w} ${f(h-p)}c0 ${A} 0 ${AB} ${-Dd} ${ABC}a${r} ${r} 0 0 1 ${-S} ${S}c${-C} ${Dd} ${-BC} ${Dd} ${-ABC} ${Dd}`+
+    `L${f(p)} ${h}c${-A} 0 ${-AB} 0 ${-ABC} ${-Dd}a${r} ${r} 0 0 1 ${-S} ${-S}c${-Dd} ${-C} ${-Dd} ${-BC} ${-Dd} ${-ABC}`+
+    `L0 ${f(p)}c0 ${-A} 0 ${-AB} ${Dd} ${-ABC}a${r} ${r} 0 0 1 ${S} ${-S}c${C} ${-Dd} ${BC} ${-Dd} ${ABC} ${-Dd}Z`;
+}
+const SQ=CSS.supports('clip-path','path(evenodd,"M0 0H1V1Z")'),scrP=squircle(375,812,40,.6),bzP=squircle(391,828,48,.6);
+const HD=['nike.com',null,null,null];   // phones whose B sheet is an IAB: its header is the shared one (../shared/iab/header.js) for this domain
+const CS=['#fff','#f1f2f6','#fff','#f1f2f6'];   // C status bar + IAB header colour (one continuous surface)
+const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (c1-c4 last row)
+const SC=['#fff','#f1f2f6','#fff','#f1f2f6'];   // B sheet colour (each bl image's own flat top rows): the live sheet top, .bk
+const anims=[],imgs=[],vids=[];
+const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]);
+PH.forEach((p,i)=>{
+  const top=p.top,up=top-44,dn=812-top,m=MED[i];
+  const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
+  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+`<i class="L sk" style="top:${top-2}px;height:${dp(30)};background-image:url(${AS}bu${i+1}.webp${V});background-size:100% ${top*100}%"></i>`+
+    `<img class="L a" alt="" src="${AS}a${i+1}.webp${V}">`+
+    `<img class="L bt" alt="" src="${AS}bu${i+1}.webp${V}" style="height:${dp(top)}">`+
+    `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${i+1}.webp${V}" src="${AS}v${i+1}.mp4${V}"></video></div>`+
+    (VS?'<i class="vs-at"></i>':`<img class="L bc" alt="" src="${AS}bc${i+1}.webp${V}" style="height:${dp(top)}">`)+
+    `<img class="L bo" alt="" src="${AS}bo${i+1}.webp${V}" style="height:${dp(top)}">`+
+    `<img class="L bs" alt="" src="${AS}bl${i+1}.webp${V}" style="top:${top}px;height:${dp(812-top)}">`+
+    `<i class="L bk" style="top:${top}px;height:${dp(18)};background:${SC[i]}">${HD[i]?'':`<i style="left:${dp(168)};top:${dp(8)};width:${dp(40)};height:${dp(4)};border-radius:${dp(2)}"></i>`}</i>`+
+    `<i class="L cu" style="background:${CU[i]}"></i>`+
+    `<i class="L cs" style="background:${CS[i]}"></i>`+
+    `<img class="L cb" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(${43/8.12}% 0 0 0)">`+
+    `<img class="L ct" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(0 0 ${768/8.12}% 0)">`+
+    `</div><div class="lab">${p.label}</div>`;
+  stage.appendChild(dev);
+  if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
+  // IAB sheets: the sheet image's header strip is blank (the sheet's white); the shared header draws on it, over the live sheet top (.bk)
+  if(HD[i])dev.querySelector('.bk').after(FMSSIABHeader({url:HD[i],cls:'bhd',style:`top:${top}px;will-change:transform`}));
+  const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
+  // live player controls (../../js/video-scrubber.js): timestamp + track (read only) where bc's were (design px, not a drawn-size .L layer:
+  // it is small), its icons as a crop (ci); they fade out 2080–2400ms after split screen is reached (t1e, t3e)
+  if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`assets/ci${i+1}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split,lock:i===0?LOCK:null,readOnly:true}).el);   // Solution demo: just plays (no seek, no tap, no scripted tap: every phone shows the same controls)
+  const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn)=>anims.push(q(el).animate(track(fn),o));
+  // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
+  A('.a',p=>({opacity:p.a<1?1:0}));
+  // B top (backdrop, nav bar) dissolves in over A (hs: mbg/mnav opacity = m); the B sheet rises from the bottom edge
+  A('.bt',p=>({opacity:p.a}));A('.bo',p=>({opacity:p.a}));
+  // shared element: the same playing video travels feed rect [0,216,375,ah] -> split-screen rect [12,by,351,bh]: x, y, width, height and
+  // corner radius 0 -> 16 (60% smoothing) on one value, sized not scaled (hs cards); pre-sampled per frame so path() animates everywhere
+  A('.mv',p=>{const e=p.a,x=lerp(0,12,e),y=lerp(216,m.by,e),w=lerp(375,351,e),h=lerp(m.ah,m.bh,e),r=16*e;
+    const k={left:x.toFixed(2)+'px',top:y.toFixed(2)+'px',width:w.toFixed(2)+'px',height:h.toFixed(2)+'px'};
+    if(SQ)k.clipPath=`path('${squircle(+w.toFixed(2),+h.toFixed(2),r,.6)}')`;else k.borderRadius=r.toFixed(2)+'px';
+    return k});
+  // player controls ride up with the media (Figma: 185px) while they fade in
+  A('.bc',p=>({...ty((185*(1-p.a)).toFixed(2)),opacity:p.a}));
+  // the B sheet is its own image (bl: b's rows from the split line down, first rows free of the backdrop's resampling bleed), laid at the
+  // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
+  // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
+  A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.bk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.sk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // live sheet top and corner underlay ride with it
+  if(HD[i])A('.bhd',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // its header rides with it
+  // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
+  A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
+  A('.cu',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
+  A('.cb',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:clamp(p.c/.6)}));
+  A('.ct',p=>({opacity:p.c}));
+});
+anims.forEach(a=>{a.pause();a.currentTime=0});
+/* drawn-size boxes in whole px: Chromium paints a box snapped to whole px of its own coordinate space, and a drawn-size layer's own space
+   is drawn px, so a fractional drawn size (812 x .524 = 425.49) painted as 425 and, scaled back up by 1/s, stopped up to half a drawn px
+   (~1 design px) short of the screen's bottom or right edge (the bezel showing through there and round the bottom corners), or ran past it,
+   depending on the frame width. Each one (screen layers, bezel) is laid out at its drawn size rounded to whole px and scaled back to its
+   exact design size per axis: same place, same size, nothing snapped away */
+function snap(k){stage.querySelectorAll('.scr .L,.scr .rl,.bezel').forEach(e=>{let d=e._dz;
+  if(!d){const c=getComputedStyle(e);d=e._dz=[Math.round(parseFloat(c.width)/k),Math.round(parseFloat(c.height)/k)]}
+  const w=Math.max(1,Math.round(d[0]*k)),h=Math.max(1,Math.round(d[1]*k));e._dw=[w,h];
+  e.style.width=w+'px';e.style.height=h+'px';e.style.scale=`${d[0]/w} ${d[1]/h}`})}
+function fit(){const s=scl(),k=+s.toFixed(4);stage.style.setProperty('--s',k);
+  if(IT)snap(k);
+  if(IT&&SQ)stage.querySelectorAll('.bezel').forEach(b=>{b.firstChild.style.clipPath=`path('${squircle(b._dw[0],b._dw[1],48*k,.6)}')`});
+  // the B sheet's shape (image and live top): 16px squircle top corners at drawn size; .bk's path runs the screen's height (its 18 rows sit
+  // inside the corners, which a path its own height would clamp)
+  if(SQ){const z=IT?k:1;stage.querySelectorAll('.bs,.bk').forEach(e=>{const w=IT?e._dw[0]:375,h=e.classList.contains('bk')?812*z:IT?e._dw[1]:812;
+    e.style.clipPath=`path('${Squircle.pathR(w,h,[16*z,16*z,0,0],.6)}')`})}
+  if(half&&s*(devicePixelRatio||1)>1)upgrade()}
+new ResizeObserver(fit).observe(frame);fit();
+let seen=false,ready=false;
+/* host control (js/case.js, iframe[data-autoplay]): framed, it plays only on the host's word ({type:'demo-play'} / {type:'demo-pause'}, sent
+   so that one demo on the page runs at a time); a pause freezes the clock, the videos and the sync loop where they are, and play resumes
+   from there. Standalone, or with no answer to its hello within 600ms (no controller on the page), it runs on its own visibility as before */
+let host=parent===window,heard=false;
+if(!host){addEventListener('message',e=>{const d=e.data;if(e.source!==parent||!d||(d.type!=='demo-play'&&d.type!=='demo-pause'))return;heard=true;host=d.type==='demo-play';upd()});
+  try{parent.postMessage({type:'demo-hello'},location.origin)}catch(_){}setTimeout(()=>{if(!heard){host=true;upd()}},600)}
+function still(){anims.forEach(a=>{a.pause();a.currentTime=6000});vids.forEach(v=>{v.pause()})}   // reduced motion: hold the split screen (B) with the poster frame
+function upd(){
+  if(!ready)return;
+  if(RM.matches){still();return}
+  const go=seen&&host&&!document.hidden;
+  anims.forEach(a=>{if(go){if(a.playState!=='running')a.play()}else if(a.playState==='running')a.pause()});
+  vids.forEach(v=>{if(go){if(v.paused){const p=v.play();p&&p.catch(()=>{})}}else if(!v.paused)v.pause()});
+}
+Promise.all(imgs.map(im=>im.decode?im.decode().catch(()=>{}):Promise.resolve())).then(()=>{ready=true;if(RM.matches)still();upd()});
+new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;upd()},{threshold:.35}).observe(frame);
+document.addEventListener('visibilitychange',upd);
+RM.addEventListener&&RM.addEventListener('change',()=>{if(!RM.matches)anims.forEach(a=>a.currentTime=0);upd()});
+})();
+/* theme follows the site live: storage (other tabs), system setting, and the parent page's data-theme when embedded */
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',e=>{if(e.key===null||e.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+</script>
+</body>
+</html>

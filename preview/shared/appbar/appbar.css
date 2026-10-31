@@ -1,0 +1,19 @@
+/* FMSS shared app bar (Facebook page / profile header): transparent over the cover with a dark scrim and white icons at rest; once
+   the cover's bottom edge passes up behind the bar it fills white, icons and status bar turn black, the page name fades into the
+   centre and a 1px divider fades in at its bottom edge (no shadow). Threshold-based, a 240ms crossfade each way.
+   The page owns its icons (class ab-ico) and status bar mask (class ab-st); the component adds the scrim, fill, divider and title
+   behind them and flips one attribute on the host: data-ab="filled". */
+.ab-scrim,.ab-fill,.ab-title{position:absolute;left:0;pointer-events:none;transition:opacity .24s ease}
+.ab-scrim{top:0;width:100%;background:linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.24) 64%,rgba(0,0,0,0))}
+.ab-fill{top:0;width:100%;background:#fff;opacity:0}
+.ab-fill::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#e4e6eb}
+.ab-title{width:100%;display:flex;align-items:center;justify-content:center;gap:4px;opacity:0;
+  font:700 17px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;color:#050505;letter-spacing:-.2px;white-space:nowrap}
+.ab-title svg{flex:none;width:16px;height:16px}
+.ab-ico{transition:color .24s ease,filter .24s ease}
+.ab-st{background:#fff;transition:background-color .24s ease}
+[data-ab=filled] .ab-scrim{opacity:0}
+[data-ab=filled] .ab-fill,[data-ab=filled] .ab-title{opacity:1}
+[data-ab=filled] .ab-ico{color:#050505;filter:drop-shadow(0 0 2px rgba(0,0,0,0))}
+[data-ab=filled] .ab-st{background:#000}
+@media (prefers-reduced-motion:reduce){.ab-scrim,.ab-fill,.ab-title,.ab-ico,.ab-st{transition:none}}
