@@ -134,7 +134,7 @@ const label=e=>{const r=e.querySelector('.t').getBoundingClientRect();return r.h
 const fullBox=()=>{const w=vw(),h=vh(),k=kFs(),c=label(btn),a=label(apBtn),t=fs.getBoundingClientRect().top,s=H*k;
  const m=c&&a?Math.min(Math.max((c.bottom+a.top)/2-t,s/2),h-s/2):h/2,y=Math.min(0,2*m-h);
  return{x:0,y,w,h:Math.max(h,2*m)-y,k};};
-function open(n,now){if(state!=='closed')return;snap=!!now;const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
+function open(n,now){if(state!=='closed')return;snap=!!now;snapFx();const from=hostBox();lock();state='opening';apSet(true);de.classList.add('deck-open');openQ=0;
  if(n!==deck.cur||deck.animating){deck.stop();deck.show(n);}view(n);
  fs.hidden=false;fs.appendChild(stage);adoptToggle();stage.classList.add('is-fs');fitBox(from.x,from.y,from.w,from.h,from.k);chrome();tStart=null;asideMeasure();aside(0);
  anim(from,fullBox,()=>{state='open';snap=false;flow(true);fitOpen();chrome();if(window.__dbhResample)__dbhResample();fs.focus({preventScroll:true});if(openQ){const d=openQ;openQ=0;act(d);}apWait();},aside);}
@@ -170,6 +170,7 @@ function close(how){if(state!=='open'&&state!=='opening')return;snap=false;view(
 /* trigger: only scrolling DOWN into the container (its centre crossing the viewport centre upwards) expands it, on the first
    slide or the remembered one. Coming from below it never expands: the page scrolls past and the container keeps showing its
    current slide; a click or Enter opens it. */
+function snapFx(){const g=host.closest('.fx');if(!g)return;clearTimeout(g.__fxT);g.style.removeProperty('--fx-d');g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition='';}
 function watch(){if(state!=='closed'||suppress||performance.now()-(window.__dbhNudge||-1e9)<400)return;const r=host.getBoundingClientRect(),c=r.top+r.height/2,m=innerHeight/2;
  if(!armed){if(Math.abs(c-m)>innerHeight*.12)armed=true;prevC=c;return;}
  if(prevC!==null&&r.bottom>0&&r.top<innerHeight&&prevC>m&&c<=m)open(resume??0);

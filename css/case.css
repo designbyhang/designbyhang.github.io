@@ -114,9 +114,10 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 .toc a:hover{color:var(--body)}
 .toc a[aria-current="true"]{color:var(--ink)}.toc a[aria-current="true"]::after{width:24px}
 @media (max-width:1649px){.toc{display:none}}
-/* motion */
-.fx{opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+/* motion: 896ms (112x8ms) on var(--ease), 32px rise; simultaneous entries stagger 80ms apart via --fx-d (js/case.js); no scale on .fx so media/prototype boxes never raster-scale */
+.fx{opacity:0;transform:translateY(32px);transition:opacity 896ms var(--ease) var(--fx-d,0ms),transform 896ms var(--ease) var(--fx-d,0ms)}
 .fx.in{opacity:1;transform:none}
+html.theme-anim .fx{transition:opacity 896ms var(--ease) var(--fx-d,0ms),transform 896ms var(--ease) var(--fx-d,0ms),background-color .3s ease,color .3s ease,border-color .3s ease!important}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fx{opacity:1;transform:none;transition:none}.media img,.phones img{transition:none}.media:hover img,.phones img:hover{transform:none}}
 /* responsive */
 @media (max-width:900px){
