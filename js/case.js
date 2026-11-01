@@ -1,7 +1,21 @@
 (()=>{const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fx=document.querySelectorAll('.fx');
+/* expand container .fx (.prose, .sub, .meta, .stats, .iter-grid) into per-child .fx items so headings, paragraphs, list items and cells cascade individually */
+document.querySelectorAll('.prose.fx,.sub.fx,.meta.fx,.stats.fx').forEach(box=>{
+ const kids=[...box.querySelectorAll(':scope>h2,:scope>h3,:scope>p,:scope>blockquote,:scope>div,:scope>.list>li,:scope>.iter-grid>li')];
+ if(kids.length){box.classList.remove('fx');kids.forEach(k=>k.classList.add('fx'));}
+});
+document.querySelectorAll('.sec-label').forEach(e=>e.classList.add('fx'));
+const fx=[...document.querySelectorAll('.fx')];
 if(rm||!('IntersectionObserver'in window))fx.forEach(e=>e.classList.add('in'));
-else{const go=()=>{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -10% 0px'});fx.forEach(e=>io.observe(e));};
+else{const go=()=>{const de=document.documentElement;let q=[],raf=0;
+ const fsLock=()=>de.classList.contains('hegg-open')||de.classList.contains('hegg-flow')||de.classList.contains('deck-lock')||de.classList.contains('deck-open');
+ const flush=()=>{raf=0;if(fsLock()){q.length=0;return;}const hit=q.splice(0).sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+  hit.forEach((el,i)=>{const d=Math.min(i*80,480);if(d)el.style.setProperty('--fx-d',d+'ms');else el.style.removeProperty('--fx-d');
+   clearTimeout(el.__fxT);el.__fxT=setTimeout(()=>el.style.removeProperty('--fx-d'),896+d+32);el.classList.add('in');});};
+ const io=new IntersectionObserver(es=>{if(fsLock())return;es.forEach(e=>{const el=e.target;
+  if(e.isIntersecting){if(!el.classList.contains('in')&&!q.includes(el)){q.push(el);if(!raf)raf=requestAnimationFrame(flush);}}
+  else if(e.boundingClientRect.top>innerHeight*.92){clearTimeout(el.__fxT);el.style.removeProperty('--fx-d');el.style.transition='none';el.classList.remove('in');void el.offsetWidth;el.style.transition='';}
+ });},{rootMargin:'0px 0px -15% 0px'});fx.forEach(e=>io.observe(e));};
 /* gated: reveal only after unlock (js/gate.js fires gate:unlocked), otherwise they finish unseen under the gate */
 document.documentElement.classList.contains('gated')?addEventListener('gate:unlocked',go,{once:true}):go();}
 const secs=[...document.querySelectorAll('section[data-title]')],links=[...document.querySelectorAll('.toc a')],mid=document.getElementById('bar-mid'),bar=document.querySelector('.prog i');
@@ -227,9 +241,9 @@ window.dbhIns=(function(){var RM=matchMedia('(prefers-reduced-motion: reduce)'),
     state:function(h){if(!h){if(home)out()}else{home=true;if(tapped){tapped=false;enter(WAIT)}}}, /* a home:false before the clean start is the inline demo's */
     reset:function(){stop();tapped=home=shut=false}, /* each open */
     done:function(){stop();shut=false;s=null}}}}})(); /* closed */
-/* reveal a scroll-in figure (.fx, above) at once: its opacity and transform would hide a lifted (position:fixed) iframe inside it and
-   make the figure its containing block (a refresh restore opens before the figure has been scrolled into view) */
-function fxIn(m){var g=m.closest('.fx');if(!g||g.classList.contains('in'))return;g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition=''}
+/* reveal a scroll-in figure (.fx, above) at once, even if it is mid-transition: its opacity and transform would hide a lifted
+   (position:fixed) iframe inside it and skew its measured inline rect */
+function fxIn(m){var g=m.closest('.fx');if(!g)return;clearTimeout(g.__fxT);g.style.removeProperty('--fx-d');g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition=''}
 (function(){var ms=document.querySelectorAll('.proto-fig .media.proto');   // the Evolution prototypes only (other embeds stay inline)
 if(!ms.length)return;var mq=matchMedia('(max-width:640px)'),
  lq=matchMedia('(orientation:landscape) and (pointer:coarse)'),LAND='This prototype works in portrait.<br>Rotate your phone to continue.',   // two lines, broken after the first sentence
@@ -300,8 +314,8 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
    end:function(o){f.classList.remove('proto-anim');f.style.transform='';if(o){opening=false;if(panel)panel.style.transform='';de.classList.add('fs-stage');}else{ch.reset();gs=null;panel=null}}}; /* stage colour bars once full (the page beside the growing panel keeps its own colour) */
  var go=function(now){var L=window.dbhLayer;if(!L||L.el||!mq.matches)return;I.reset();
   f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src')}
-  fxIn(m); /* a figure not yet revealed (.fx: opacity 0 + transform, as after a refresh restore) would hide the lifted iframe and pin it to the page, not the screen */
   f.addEventListener('load',load);f.addEventListener('proto-doc',load); /* the prototype's head: its full-screen state before its first paint */
+  fxIn(m); /* snap any in-flight or unrevealed .fx figure to its final rest rect BEFORE measuring A0 */
   var A0=inner(),g0=gut(),pd=A0.w<=640?24:40;gs={A:A0,g:g0,s0:sNow()||Math.min((A0.h-2*Math.abs(g0.y)-pd*2)/828,(A0.w-2*Math.abs(g0.x)-pd*2)/431)};
   L.open({label:name,cls:'proto-full',trg:b,view:ik,instant:!!now,enter:I.enter,exit:I.exit,grow:grow,stage:'<i class="proto-panel" aria-hidden="true"></i>'+DI.html(ins)+'<p class="deck-n hegg-ui"></p>',
    show:function(){nosel(true);f.style.transition='none';f.classList.add('proto-lift','proto-on');full(true);hook();orient();lay();I.hide();pinOn(true);lqOn(true);land();void f.offsetWidth;

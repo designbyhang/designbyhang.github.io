@@ -99,7 +99,7 @@ function measure(){const {m,f}=cur;G.W=vw();G.H=vh();panel.style.width=G.W+'px';
 function anim(p0,p1,done,side){if(tw)tw.cancel();tw=FS.tween(p0,p1,p=>{P=p;side(P);render(P);},()=>{tw=null;done();},snap);}
 function open(m,now){if(state!=='closed'||phoneMq.matches)return;const f=m.querySelector('iframe'),b=m.querySelector('.fsx-open');snap=!!now;
  f.setAttribute('data-keep','');if(f.hasAttribute('data-src')){f.src=f.getAttribute('data-src');f.removeAttribute('data-src');}
- {const g=m.closest('.fx');if(g&&!g.classList.contains('in')){g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition='';}} /* unrevealed .fx (opacity 0 + transform) would hide the lifted iframe and pin it to the page */
+ {const g=m.closest('.fx');if(g){clearTimeout(g.__fxT);g.style.removeProperty('--fx-d');g.style.transition='none';g.classList.add('in');void g.offsetWidth;g.style.transition='';}} /* snap any in-flight or unrevealed .fx figure before measuring hostBox(m) */
  const k=keyOf(f);if(k&&window.dbhView)dbhView.set(k);I.reset();insS.textContent=k?DI.TEXT[k]:'';cur={m,f,b};const A=hostBox(m),g0=gut(f);G={A,g:g0,s0:sNow(f)||sInline(A.w-2*Math.abs(g0.x),A.h-2*Math.abs(g0.y))};
  lock();state='opening';de.classList.add('deck-open');fs.setAttribute('aria-label',(f.getAttribute('title')||'Prototype').replace(/, interactive prototype$/,'')+', full screen');
  bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');adoptToggle();
