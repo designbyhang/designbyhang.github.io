@@ -31,6 +31,10 @@
 .rl-cap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:rgba(255,255,255,.8)}
 .rl-cap em img{display:block;width:12px;height:8px;margin:7px 0 0 3px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .rl-capx{opacity:0}
+/* the caption tap target (the collapsed caption line, 614–642): the host opens its IAB half sheet from it; FMSSReel's rise(t) moves the
+   details with that sheet */
+[data-reel=more]{left:12px;top:614px;width:303px;height:28px;border-radius:2px;margin:0;padding:0;appearance:none;border:0;background:transparent;
+  cursor:pointer;-webkit-tap-highlight-color:transparent}
 /* the CTA: the site's one video ad button (css/ad-cta.css .ad-cta, 303×36, r8, SF Pro Semibold 15/20), in the ad's colour */
 [data-reel=cta]{left:12px;top:650px;width:303px;appearance:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;background:var(--rl-cta,#2F4EBE)}
 [data-reel=cta]:active{filter:brightness(.92)}
