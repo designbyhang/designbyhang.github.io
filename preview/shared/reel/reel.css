@@ -20,16 +20,16 @@
 [data-reel=details]{left:12px;top:570px;width:352px;height:128px;pointer-events:none}
 .rl-av{position:absolute;left:0;top:0;width:36px;height:36px}
 .rl-who{position:absolute;left:44px;top:8px;display:flex;align-items:flex-start;gap:4px;white-space:nowrap}
-.rl-t{margin:0;font:400 15px/20px -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
-  letter-spacing:-.24px;color:#fff;-webkit-font-smoothing:antialiased;text-shadow:0 0 1px rgba(0,0,0,.62)}
-.rl-name{font-weight:600}
+/* type: the shared Reels text roles (css/type.css --t-r-*: caption, name, comment), the font's own SF tracking off (--t-sf-ft) */
+.rl-t{margin:0;font:var(--t-r-cap);letter-spacing:var(--t-r-cap-ls);font-feature-settings:var(--t-sf-ft);color:#fff;-webkit-font-smoothing:antialiased;text-shadow:0 0 1px rgba(0,0,0,.62)}
+.rl-name{font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft)}
 .rl-ico{flex:none;width:12px;height:12px;margin-top:4px;background:#fff;-webkit-mask:var(--m) 0 0/12px 12px no-repeat;mask:var(--m) 0 0/12px 12px no-repeat;
   filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .rl-cap,.rl-capx{position:absolute;left:0;top:48px;width:303px}
 .rl-capx{width:351px}   /* expanded (only shown raised over the IAB dim, the rail dimmed under it): the full content width, 12 to 363 */
 .rl-cap{display:flex;gap:4px;white-space:nowrap}
 .rl-cap span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.rl-cap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:rgba(255,255,255,.8)}
+.rl-cap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:var(--t-r-more-c)}
 .rl-cap em img{display:block;width:12px;height:8px;margin:7px 0 0 3px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .rl-capx{opacity:0}
 /* the caption tap target (the collapsed caption line, 614–642): the host opens its IAB half sheet from it; FMSSReel's rise(t) moves the
@@ -48,7 +48,7 @@
 [data-reel=comment]{left:0;top:734px;width:375px;height:82px;background:#000;pointer-events:none}
 .rl-in{position:absolute;left:12px;top:8px;width:351px;height:40px;box-sizing:border-box;padding:0 12px;border-radius:20px;
   background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between}
-.rl-in .rl-t{color:rgba(255,255,255,.9);text-shadow:none}
+.rl-in .rl-t{font:var(--t-r-input);letter-spacing:var(--t-r-input-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.9);text-shadow:none}
 .rl-em{flex:none;width:20px;height:20px;background:rgba(255,255,255,.9);-webkit-mask:var(--m) 0 0/20px 20px no-repeat;mask:var(--m) 0 0/20px 20px no-repeat}
 .r-ufi[data-reel=rail].rl-c{top:470px}
 [data-reel=details].rl-c{top:554px}
