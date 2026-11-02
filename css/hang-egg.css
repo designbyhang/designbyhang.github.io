@@ -6,9 +6,10 @@
    the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
 /* copyright hover = the home nav / footer links: 1px line grows from the left */
 footer.bot>span.hegg-trg{position:relative;width:fit-content;cursor:pointer}
-footer.bot>span.hegg-trg::after{content:"";position:absolute;left:0;right:0;bottom:5px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease;pointer-events:none}
-footer.bot>span.hegg-trg:hover::after,footer.bot>span.hegg-trg:focus-visible::after{transform:scaleX(1)}
-@media (prefers-reduced-motion:reduce){footer.bot>span.hegg-trg::after{transition:none}}
+footer.bot>span.hegg-trg .t{position:relative;display:inline-block}
+footer.bot>span.hegg-trg .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease;pointer-events:none}
+footer.bot>span.hegg-trg:hover .t::after,footer.bot>span.hegg-trg:focus-visible .t::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){footer.bot>span.hegg-trg .t::after{transition:none}}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
 /* iOS Safari bars, ported from the Studio presentation as it works on iPhone (projects/studio.html .deck-flow/.deck-edge, commits
    18ac7e0, a735500, f5acbcf): iOS 26 Safari does not take its bar tint from a full-screen fixed layer. Once the layer has faded in,
