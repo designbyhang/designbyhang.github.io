@@ -16,7 +16,7 @@
 /* the UFI rail: the shared Reels UFI (preview/shared/ufi .r-ufi: x 326, 50 wide, the shadow, the count type) with FMSS's three items, so
    it sits one pitch lower than the 4-item rail: like's icon at 495 − 9 = 486, more at 690 */
 .r-ufi[data-reel=rail]{top:486px;height:237px}
-/* details: author row 0–36, caption 48–68 (collapsed) / 48–128 (expanded, 4 lines at 303) */
+/* details: author row 0–36, caption 48–68 (collapsed) / 48 on (expanded at 351, its bottom 16px above the half sheet once raised: reel.js rise) */
 [data-reel=details]{left:12px;top:570px;width:352px;height:128px;pointer-events:none}
 .rl-av{position:absolute;left:0;top:0;width:36px;height:36px}
 .rl-who{position:absolute;left:44px;top:8px;display:flex;align-items:flex-start;gap:4px;white-space:nowrap}
@@ -26,6 +26,7 @@
 .rl-ico{flex:none;width:12px;height:12px;margin-top:4px;background:#fff;-webkit-mask:var(--m) 0 0/12px 12px no-repeat;mask:var(--m) 0 0/12px 12px no-repeat;
   filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .rl-cap,.rl-capx{position:absolute;left:0;top:48px;width:303px}
+.rl-capx{width:351px}   /* expanded (only shown raised over the IAB dim, the rail dimmed under it): the full content width, 12 to 363 */
 .rl-cap{display:flex;gap:4px;white-space:nowrap}
 .rl-cap span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .rl-cap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:rgba(255,255,255,.8)}
