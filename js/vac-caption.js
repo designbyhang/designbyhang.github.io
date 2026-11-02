@@ -13,9 +13,9 @@ const W=299,GAP=4,ARROW=5,INSET=2;
 const st=document.createElement('style');
 // specificity above the hosts' own type rules (css/card.css .cv-scr.vac p, .cover-anim .cv-scr img)
 st.textContent=
- 'html body p.vcap.vcap{display:flex;gap:'+GAP+'px;width:'+W+'px;margin:0;padding:0;white-space:nowrap;font:400 15px/20px -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}'+
+ 'html body p.vcap.vcap{display:flex;gap:'+GAP+'px;width:'+W+'px;margin:0;padding:0;white-space:nowrap;font:var(--t-r-cap);letter-spacing:var(--t-r-cap-ls);font-feature-settings:var(--t-sf-ft);color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}'+
  'html body p.vcap span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}'+
- 'html body p.vcap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:rgba(255,255,255,.7)}'+
+ 'html body p.vcap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:var(--t-r-more-c)}'+
  'html body p.vcap em img.vcap-cv{position:static;left:auto;top:auto;display:block;width:12px;height:8px;max-width:none;margin:7px 0 0 '+(ARROW-INSET)+'px;pointer-events:none}';
 document.head.appendChild(st);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');

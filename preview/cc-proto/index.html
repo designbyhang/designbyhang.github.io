@@ -18,9 +18,9 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=355"><link rel="stylesheet" href="../../css/theme.css?v=355">
+<link rel="stylesheet" href="../../css/type.css?v=358"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=355"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=355"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=355"><script src="../../js/vac-caption.js?v=355"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/pause/pause.js?v=355"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/pause/pause.js?v=355"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=355">
 <style>
@@ -41,7 +41,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
 
 /* ---------- phone: 375×812 screen + 8px theme-aware bezel (as preview/sap-proto) ---------- */
-.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#131013;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:var(--sf);color:#fff;letter-spacing:-.24px}
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#131013;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:var(--sf);color:#fff;letter-spacing:-.24px;font-feature-settings:var(--t-sf-ft)}
 .bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .phone img,.phone video{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
@@ -73,7 +73,7 @@ video{display:block;object-fit:cover}
 .c-stack.cc-org{height:136px}
 .c-stack.cc-seed{height:64px}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
-.c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
+.c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
 /* the name row, as FMSS's author row (preview/fmss-cb/assets/author.svg): the verified badge 4 after the name on every reel
    (preview/shared/caption/verified.svg, FMSS's own 12×12), then on ads and the seed the globe 4 after the badge (shared globe.svg, FMSS's);
    both 12×12 centred on the 20px name line, with the name's shadow (FMSS's 1px 62% black: stdDeviation .5) */
@@ -89,7 +89,7 @@ video{display:block;object-fit:cover}
    (baselines 25.3 / 40.6, as the design) */
 .card .th{position:absolute;left:10px;top:10px;width:36px;height:36px;border-radius:8px;background:#333 50% 50%/cover no-repeat}
 .card .t,.card .u{display:block;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .u{margin-top:-2px;font:400 13px/16px var(--sf);letter-spacing:-.08px;color:rgba(255,255,255,.85);-webkit-font-smoothing:antialiased}
+.card .u{margin-top:-2px;font:var(--t-r-body-s);letter-spacing:var(--t-r-body-s-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.85);-webkit-font-smoothing:antialiased}
 /* the nav's material (home button, query pill): a 25px backdrop blur under #252525 at 55% with a #9C9C9C overlay (SAP's For you pill, Figma) */
 .mat{background:rgba(37,37,37,.55);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
 .mat::before{content:'';position:absolute;inset:0;background:#9c9c9c;mix-blend-mode:overlay;opacity:.55;border-radius:inherit;pointer-events:none}
@@ -107,7 +107,7 @@ video{display:block;object-fit:cover}
 .tabs .chev{position:absolute;left:12px;top:14px;width:24px;height:24px}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
 .ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
-.tab{font:600 17px/22px var(--sf);letter-spacing:-.41px;color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
+.tab{font:var(--t-r-tab);letter-spacing:var(--t-r-tab-ls);font-feature-settings:var(--t-sf-ft);color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
 /* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742: FMSS's feed-tab home outline,
    preview/fmss-cb/assets/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (15, white 70%);
    the query is the reel's own, crossfaded as reels move. Nespresso's field has two states (.sw): the search sparkle + "Coffee" on
@@ -119,7 +119,7 @@ video{display:block;object-fit:cover}
 .navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px;opacity:.85}
 .navp .lb{position:absolute;inset:0;opacity:0}
 .navp .sw{position:absolute;inset:0}
-.navp .q{position:absolute;left:34px;top:10px;font:400 15px/20px var(--sf);letter-spacing:-.24px;color:rgba(255,255,255,.7);white-space:nowrap}
+.navp .q{position:absolute;left:34px;top:10px;font:var(--t-r-input);letter-spacing:var(--t-r-input-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.7);white-space:nowrap}
 .touch{width:375px;height:812px;z-index:14;touch-action:none;display:none}
 .touch.on{display:block}
 #pillb{left:60px;top:742px;width:303px;height:40px;z-index:15}

@@ -5,5 +5,5 @@
 .r-ufi>.r-u{position:absolute;left:0;width:50px;height:46px;margin:0;padding:0}
 .r-ufi>.r-u>svg{position:absolute;left:13px;top:0;width:24px;height:24px;display:block;overflow:visible}
 .r-ufi>.r-u>b{position:absolute;left:0;top:30px;width:50px;margin:0;padding:0;text-align:center;white-space:nowrap;
-  font:600 13px/16px "SF Pro Text",-apple-system,BlinkMacSystemFont,"SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
-  font-style:normal;letter-spacing:-.08px;color:#fff;text-shadow:none;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+  font:var(--t-r-count);letter-spacing:var(--t-r-count-ls);font-feature-settings:var(--t-sf-ft);  /* the counts role (css/type.css) */
+  font-style:normal;color:#fff;text-shadow:none;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}

@@ -18,6 +18,22 @@
   --t-label:400 14px/1 "Bitcount Grid Single",var(--mono); --t-label-ls:.04em; --t-label-ws:-.32em; /* chrome: logo, nav, footer, header label */
   --t-brand:400 15px/1 "Bitcount Grid Single",var(--mono);           /* base brand rule (overridden to 14px) */
   --t-gate-logo:400 18px/1 "Bitcount Grid Single",monospace;
+  /* SF Pro (the system face on Apple devices; Inter / Helvetica elsewhere): the Reels overlay text roles, ONE style per role for every
+     Reels prototype (VAC hero and proto, MAC, SAP, CC, FMSS). Figma XYE8LCJVe0rHhnEB5DA18A: FMSS 140796:6703/6730/6731, VAC 140796:12026-12043.
+     Tracking is the Figma (Apple HIG) value, applied ONCE: the system font also carries it in its own 'trak' table, which Safari and Chrome
+     on macOS / iOS add on top of letter-spacing (15px: −0.23px a glyph again), so live text came out about twice as tight as the Figma
+     raster beside it (VAC's baked name and CTA vs SAP's live CTA, Nov 2026). --t-sf-ft turns the font's own tracking off; set it AFTER
+     the font shorthand (which resets font-feature-settings): font:var(--t-r-cap);letter-spacing:var(--t-r-cap-ls);font-feature-settings:var(--t-sf-ft) */
+  --t-sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
+  --t-sf-ft:"trak" 0;
+  --t-r-name:600 15px/20px var(--t-sf);  --t-r-name-ls:-.24px;   /* author name (Figma 590 Semibold); the 2:04 timer */
+  --t-r-sp:400 12px/16px var(--t-sf);    --t-r-sp-ls:0;          --t-r-sp-c:rgba(255,255,255,.7);  /* "Sponsored" / "Ad" (VAC) */
+  --t-r-cap:400 15px/20px var(--t-sf);   --t-r-cap-ls:-.24px;    --t-r-more-c:rgba(255,255,255,.8); /* caption; "more" (FMSS 140796:6730) */
+  --t-r-cta:600 15px/20px var(--t-sf);   --t-r-cta-ls:-.24px;    /* the video ad CTA label (css/ad-cta.css) */
+  --t-r-count:600 13px/16px var(--t-sf); --t-r-count-ls:-.08px;  /* UFI counts (preview/shared/ufi) */
+  --t-r-input:400 15px/20px var(--t-sf); --t-r-input-ls:-.24px;  /* "Add a comment…" */
+  --t-r-body-s:400 13px/16px var(--t-sf);--t-r-body-s-ls:-.08px; /* 13/16 secondary text */
+  --t-r-tab:600 17px/22px var(--t-sf);   --t-r-tab-ls:-.41px;    /* 17/22 headline (CC tabs) */
 }
 .t-display{font:var(--t-display);letter-spacing:var(--t-display-ls)}
 .t-stat{font:var(--t-stat);letter-spacing:var(--t-stat-ls)}
