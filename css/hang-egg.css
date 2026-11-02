@@ -14,7 +14,7 @@ footer.bot>span.hegg-trg:hover .t::after,footer.bot>span.hegg-trg:focus-visible 
 footer.bot>span.hegg-trg .c-arc{transition:transform .32s cubic-bezier(.2,.7,.2,1) .064s,stroke-dasharray .32s cubic-bezier(.2,.7,.2,1) .064s}
 footer.bot>span.hegg-trg .c-eye{transition:transform .16s cubic-bezier(.2,.7,.2,1) .064s}
 footer.bot>span.hegg-trg .c-eye-r{transition-delay:0s}
-footer.bot>span.hegg-trg:hover .c-arc{transform:translateY(0) rotate(48.25deg) scale(1);stroke-dasharray:4.955 16.408;transition-delay:0s}
+footer.bot>span.hegg-trg:hover .c-arc{transform:translateY(0) rotate(43.6deg) scale(1);stroke-dasharray:5.506 15.857;transition-delay:0s}
 footer.bot>span.hegg-trg:hover .c-eye{transform:scale(1);transition-timing-function:cubic-bezier(.2,.7,.2,1.32);transition-delay:.16s}
 footer.bot>span.hegg-trg:hover .c-eye-r{transition-delay:.224s}
 }
