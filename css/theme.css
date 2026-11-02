@@ -21,7 +21,7 @@ html.theme-anim .poster-title,html.theme-anim .poster-hint{transition:color .3s 
 .home .bot{align-items:center}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.home .bot{flex-direction:row;justify-content:space-between}}
 /* project pages: floating bottom-left, same inset as the header corners */
-html[data-theme=dark] .bar{background-color:var(--page)}
+html[data-theme=dark] .bar{background:var(--page)}
 html[data-theme=dark] .badge{background:rgba(20,20,20,.75);color:#bbb;border-color:rgba(255,255,255,.08)}
 /* toggle must not change footer height (keeps stage/card position identical) */
 html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8f!important}
@@ -38,9 +38,6 @@ html[data-theme=dark] .toc a:not([aria-current="true"]):not(:hover){color:#8f8f8
 /* one position for the light/dark toggle everywhere (pages, gate, Studio presentation layer): fixed offsets + safe-area insets.
    html keeps a stable scrollbar gutter so locking scroll (presentation) never changes the viewport width, 3vw or the toggle's x */
 html{scrollbar-gutter:stable}
-/* paper grain on the page colour, the same tile and strength as the easter egg. The colour and the tile are blended inside this layer, once, so scrolling and the homepage swipe are not re-blended. Cards, photos and type paint above it. */
-body{position:relative;z-index:0}
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-color:var(--page);background-image:linear-gradient(color-mix(in srgb,var(--page) 28%,transparent),color-mix(in srgb,var(--page) 28%,transparent)),url("grain.png?v=338");background-size:auto,128px 128px;background-blend-mode:normal,overlay}
 /* embedded prototypes / demos (html.embed, ?embed=1): the document never scrolls, so no gutter (it narrowed the document by the scrollbar
    width on classic-scrollbar browsers, off-centring the device and clipping its drop shadow in a hard vertical edge) */
 html.embed{scrollbar-gutter:auto}

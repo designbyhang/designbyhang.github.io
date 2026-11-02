@@ -4,12 +4,12 @@
 --r:24px;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:88px}
-body.cs{background:transparent;color:var(--body);font:var(--t-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body.cs{background:var(--page);color:var(--body);font:var(--t-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:inherit}
 img{display:block;max-width:100%;height:auto}
 .skip{position:absolute;left:-999px;top:8px;z-index:99;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}.skip:focus{left:12px}
 /* top bar */
-.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background-color:var(--page);background-image:linear-gradient(color-mix(in srgb,var(--page) 28%,transparent),color-mix(in srgb,var(--page) 28%,transparent)),url("grain.png?v=338");background-size:auto,128px 128px;background-blend-mode:normal,overlay} /* page colour + the site grain (= html bg). Solid enough that iOS Safari tints the status bar from this sticky edge; translucent/blurred gave a black bar */
+.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 24px;background:var(--page)} /* solid page colour (= html/body bg = theme-color): iOS Safari tints the status bar from this sticky edge element; translucent/blurred gave a black bar */
 .brand{font:var(--t-brand);letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-decoration:none;color:var(--ink)}
 .bar-mid{font:400 13px/1 var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-right a{font-size:14px;color:var(--mute);text-decoration:none;transition:color .2s}.bar-right a:hover{color:var(--ink)}
@@ -31,6 +31,9 @@ img{display:block;max-width:100%;height:auto}
 /* figures */
 figure{margin:0}
 .media{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative}
+/* paper grain on the picture, the easter egg's tile. Above the image, under the play control. Not on the homepage strip: a blended layer there makes Safari rasterise the intro's 1px lines. */
+.media::after,.next .media-wrap::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background-image:url("grain.png?v=339");background-size:128px 128px;opacity:.72;mix-blend-mode:overlay}
+.next .media-wrap{position:relative}
 .media img{width:100%;transition:transform .7s var(--ease)}
 .media.dark{background:#0b0b0b;border-color:#1c1c1c}
 .media.pad{padding:clamp(16px,4vw,48px)}
