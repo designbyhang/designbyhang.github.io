@@ -1,6 +1,7 @@
-<svg width="303" height="24" viewBox="0 0 303 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<mask id="mask0_140796_6732" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="303" height="24">
-<rect width="303" height="24" fill="white"/>
+<svg width="94" height="24" viewBox="0 0 94 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- the FMSS ad label pill, "Sponsored" (Figma "Screen / Caption & Browse", exported from that node): 94x24, r12, #18191A at 60%; megaphone 12x12 at (8,6), white; "Sponsored" in white, outlined from Figma (one look on every platform). Shared by fmss-cb and fmss-profile. -->
+<mask id="mask0_140796_6732" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="94" height="24">
+<rect width="94" height="24" fill="white"/>
 </mask>
 <g mask="url(#mask0_140796_6732)">
 <path d="M0 12C0 5.37258 5.37258 0 12 0H82C88.6274 0 94 5.37258 94 12C94 18.6274 88.6274 24 82 24H12C5.37258 24 0 18.6274 0 12Z" fill="#18191A" fill-opacity="0.6"/>

@@ -66,11 +66,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .hot:active{background:rgba(255,255,255,.08)}
 /* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre while paused */
 #pz{left:169px;top:405px;z-index:1}   /* the shared play glyph (../shared/pause) */
-/* the label pill under Learn more reads "Promoted" (the footage has "Ad" baked in): a live pill drawn over it at the footage's own
-   geometry (left 12.6, top 732.4, 23.4 tall, megaphone at 20.5, text from 36.7, 8.5 right padding), opaque so the baked one never
-   shows through; its width follows the text */
-.promo{left:12.6px;top:732.4px;height:23.4px;border-radius:11.73px;background:#0e0f10;display:flex;align-items:center;padding:0 8.5px 0 24.1px;box-sizing:border-box;color:#fff;font-size:12px;line-height:16px;font-weight:400;white-space:nowrap;pointer-events:none;z-index:1}
-.promo svg{position:absolute;left:7.9px;top:5.6px;width:12.3px;height:11.2px}
+/* the label pill under Learn more: the shared FMSS "Sponsored" pill (../shared/sponsored, the one fmss-cb shows), in its own 375 px like
+   .iab: scale(402/375) undoes .root's 375/402, so it lands at fmss-cb's 94x24. As there, 12px under the CTA (the footage's Learn more
+   ends at 670 phone px, so 682 = 731.1 here) on the CTA's left edge (12 here, as #shop). Its black fill covers the footage's baked
+   "Ad" pill (as .reel-stc covers the baked status band); over it the shared pill reads as it does on fmss-cb's dark reel */
+.promo{left:12px;top:731.1px;width:94px;height:24px;border-radius:12px;background:#000;transform-origin:0 0;transform:scale(1.072);pointer-events:none;z-index:1}
+.promo img{display:block;width:94px;height:24px}
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
    .iab is a 375×812 layer in fmss-cb's own phone px: scale(402/375) undoes .root's 375/402, so the shared component's numbers hold. */
 .iab{left:0;top:0;width:375px;height:812px;transform-origin:0 0;transform:scale(1.072);z-index:20;pointer-events:none}
@@ -178,7 +179,7 @@ html.hosted .phone{background:transparent;border-radius:0}
           <video class="abs video" id="vid" src="assets/reel.mp4?v=2" poster="assets/reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
           <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
           <i class="abs reel-stc" aria-hidden="true"></i>
-          <div class="abs promo" id="promo" aria-hidden="true"><svg viewBox="0 1.7 24 20.3" preserveAspectRatio="none"><path d="M1.5 5.2H13L20.6 2.4C22.2 1.7 24 2.6 24 4.4V15.6C24 17.4 22.2 18.3 20.6 17.6L13 15.6H1.5C.7 15.6 0 14.9 0 14.1V6.7C0 5.9.7 5.2 1.5 5.2ZM4 16.6H11V20C11 21.1 10.1 22 9 22H6C4.9 22 4 21.1 4 20Z" fill="#fff"/></svg>Promoted</div>
+          <div class="abs promo" id="promo" aria-hidden="true"><img src="../shared/sponsored/sponsored-chip.svg?v=349" alt=""></div>
           <div class="abs" id="pz" aria-hidden="true"></div>
           <p class="sr" id="rsCapT">Nike. Engineered for greatness. Designed f…</p>
           <button class="abs btn hot" id="author" type="button" aria-label="Nike: open profile"></button>
@@ -331,7 +332,7 @@ function backToReel(){
 
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
    Learn more on the reel rises straight to full (full header held) as a CTA open (entry 'cta'): the sheet never follows a drag, a press
-   on the page scrolls it; × or Escape close. Unlike fmss-cb the reel's overlay (Nike, caption, Learn more, Promoted) is baked into the footage, so nothing
+   on the page scrolls it; × or Escape close. Unlike fmss-cb the reel's overlay (Nike, caption, Learn more) is baked into the footage, so nothing
    on the reel moves: only the dim and the sheet do. The profile's peek / floating card opens this same sheet (iabFrom 'profile', entry
    'collapse'); × or Escape there brings the tab bar back and leaves the peek and card dismissed (they re-arm on the next push in);
    only the swipe down morphs the sheet back into the card. */
@@ -385,7 +386,7 @@ $('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?
 reel.addEventListener('click',e=>{
   if(screen!==1||iab.state!==1||iab.busy||e.target.closest('button'))return;
   const [x,y]=ptOf(e);
-  if(y>=112&&y<600&&(x<350||y<480))mediaTap();                 // the footage, not its baked status/back row, author/caption/CTA/Promoted/comment rows or the action rail
+  if(y>=112&&y<600&&(x<350||y<480))mediaTap();                 // the footage, not its baked status/back row, author/caption/CTA/Sponsored/comment rows or the action rail
 });
 
 /* ---------- peek ⇄ card surface ---------- */
