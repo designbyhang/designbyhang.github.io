@@ -17,7 +17,7 @@ html.gated .gate{position:relative;inset:auto;width:100%;height:100%;box-sizing:
 html.gated.theme-anim,html.gated.theme-anim body,html.gated.theme-anim .gate,html.gated.theme-anim .gate *,html.gated.theme-anim .gate::before,html.gated.theme-anim .gate::after{transition:none!important}
 /* hold page entrance animations (home poster draw-in, strip fade) at frame 0 while gated; they play from the start on unlock */
 html.gated body>:not(.gate),html.gated body>:not(.gate) *{animation-play-state:paused!important}
-.gate{position:fixed;inset:0;z-index:1000;background:var(--page);color:var(--c-strong);display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
+.gate{position:fixed;inset:0;z-index:1000;background-color:var(--page);background-image:linear-gradient(color-mix(in srgb,var(--page) 28%,transparent),color-mix(in srgb,var(--page) 28%,transparent)),url("grain.png?v=338");background-size:auto,128px 128px;background-blend-mode:normal,overlay;color:var(--c-strong);display:grid;place-items:center;font-family:"Instrument Sans",system-ui,sans-serif;padding:24px}
 /* Oct 23 (Hang): HANG letters gate. The letter animation (js/hang-cube.js) in the middle; field and help centred below; the group centred both ways */
 .gate-in{display:flex;flex-direction:column;align-items:center;text-align:center;width:fit-content;max-width:100%;margin:0 auto}
 .gate-stage{width:min(320px,calc(100vw - 48px));aspect-ratio:1;margin:0}
