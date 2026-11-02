@@ -98,7 +98,7 @@ if(window.dbhView.get()&&'scrollRestoration' in history)history.scrollRestoratio
 if(!trg)return;
 trg.classList.add('hegg-trg');trg.tabIndex=0;trg.setAttribute('role','button');trg.setAttribute('aria-haspopup','dialog');trg.setAttribute('aria-label',trg.textContent.trim()+': play the HANG animation');
 /* full-viewport wire letters (js/hang-wire.js). The host fills the layer; H A N G is centred on the bottom row, level with the theme toggle. */
-const EGG={label:'HANG',trg,view:'egg',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
+const EGG={label:'HANG',trg,view:'hang',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
  tabs(){return inst&&inst.tabs?inst.tabs():[];},
  key(e){return !!(inst&&inst.key&&inst.key(e));},
  mount:o=>lib().then(()=>{if(ov!==o)return null;return window.HangWire.mount(o.querySelector('.hegg-wire'));})};
@@ -110,7 +110,7 @@ function armMotion(){if(!coarse.matches||reduce.matches)return;const D=window.De
   catch(_){window.__dbhMotion=Promise.resolve('denied');}}
 trg.addEventListener('click',()=>{armMotion();openEgg();});
 trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();armMotion();openEgg();}});
-/* restore after a refresh: the page at its footer (the copyright line), the layer already on */
-window.dbhView.when(()=>{if(window.dbhView.get()!=='egg'||ov)return;scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:'instant'});EGG.instant=true;open(EGG);EGG.instant=false;});
+/* restore after a refresh: the page at its footer, the layer already on. ?fs=hang; an old ?fs=egg still opens and is rewritten to hang. */
+window.dbhView.when(()=>{const v=window.dbhView.get();if((v!=='hang'&&v!=='egg')||ov)return;scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:'instant'});EGG.instant=true;open(EGG);EGG.instant=false;});
 window.dbhEgg={open:openEgg,close,get cube(){return cfg===EGG?inst:null;}};
 })();
