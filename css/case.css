@@ -30,11 +30,7 @@ img{display:block;max-width:100%;height:auto}
 .meta dd{font-size:var(--t-s15);line-height:1.5;color:var(--ink)}
 /* figures */
 figure{margin:0}
-.media{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative;isolation:isolate}
-/* grain sits on the container's own background, behind the picture, video and prototype. Heroes stay clear. */
-.media::before,.next .media-wrap::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:url("grain.png?v=343");background-size:128px 128px;opacity:.72;mix-blend-mode:overlay}
-.hero-slot::before{content:none}
-.next .media-wrap{position:relative;isolation:isolate}
+.media{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative}
 .media img{width:100%;transition:transform .7s var(--ease)}
 .media.dark{background:#0b0b0b;border-color:#1c1c1c}
 .media.pad{padding:clamp(16px,4vw,48px)}
