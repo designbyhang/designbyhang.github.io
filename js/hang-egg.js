@@ -103,8 +103,13 @@ const EGG={label:'HANG',trg,view:'egg',stage:'<div class="hegg-wire" role="img" 
  key(e){return !!(inst&&inst.key&&inst.key(e));},
  mount:o=>lib().then(()=>{if(ov!==o)return null;return window.HangWire.mount(o.querySelector('.hegg-wire'));})};
 const openEgg=()=>open(EGG);
-trg.addEventListener('click',openEgg);
-trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEgg();}});
+/* iOS only grants motion inside the tap that opens the egg. Android needs no prompt. HangWire listens if this resolves granted. */
+const coarse=matchMedia('(pointer: coarse)');
+function armMotion(){if(!coarse.matches||reduce.matches)return;const D=window.DeviceOrientationEvent;if(!D)return;
+  try{window.__dbhMotion=typeof D.requestPermission==='function'?D.requestPermission().catch(()=>'denied'):Promise.resolve('granted');}
+  catch(_){window.__dbhMotion=Promise.resolve('denied');}}
+trg.addEventListener('click',()=>{armMotion();openEgg();});
+trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();armMotion();openEgg();}});
 /* restore after a refresh: the page at its footer (the copyright line), the layer already on */
 window.dbhView.when(()=>{if(window.dbhView.get()!=='egg'||ov)return;scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:'instant'});EGG.instant=true;open(EGG);EGG.instant=false;});
 window.dbhEgg={open:openEgg,close,get cube(){return cfg===EGG?inst:null;}};
