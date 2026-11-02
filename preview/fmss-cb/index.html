@@ -21,7 +21,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../../css/type.css?v=355"><link rel="stylesheet" href="../../css/gate.css?v=355"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <script src="../../js/gate.js?v=355"></script>
 <link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/pause/pause.js?v=355"></script>
-<link rel="stylesheet" href="../shared/device/device.css?v=355">
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../../css/ad-cta.css?v=355"><link rel="stylesheet" href="../shared/reel/reel.css?v=356"><script src="../shared/reel/reel.js?v=356"></script><script src="../shared/device/snap.js?v=356"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -54,19 +54,10 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
 /* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre of the video while paused */
 #pz{left:155.5px;top:335px}
-/* protective scrims: soft eased transparent→dark gradients only (no blur / backdrop-filter, no edge) */
-.grad-top{left:0;top:0;width:375px;height:132px;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.443) 19%,rgba(0,0,0,0.325) 34%,rgba(0,0,0,0.229) 47%,rgba(0,0,0,0.167) 56.5%,rgba(0,0,0,0.116) 65%,rgba(0,0,0,0.076) 73%,rgba(0,0,0,0.045) 80.2%,rgba(0,0,0,0.025) 86.1%,rgba(0,0,0,0.013) 91%,rgba(0,0,0,0.005) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%);pointer-events:none}
-.grad-bot{left:0;top:369px;width:375px;height:365px;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.517) 19%,rgba(0,0,0,0.379) 34%,rgba(0,0,0,0.267) 47%,rgba(0,0,0,0.195) 56.5%,rgba(0,0,0,0.136) 65%,rgba(0,0,0,0.088) 73%,rgba(0,0,0,0.052) 80.2%,rgba(0,0,0,0.029) 86.1%,rgba(0,0,0,0.015) 91%,rgba(0,0,0,0.006) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%)}
 .overlay{left:0;top:0;width:375px;height:812px;background:rgba(0,0,0,.64);opacity:0;pointer-events:none}
-.details{left:12px;top:570px;width:352px;height:128px;will-change:transform}
-.cap-c,.cap-x{left:0;top:48px}
-.cap-x{opacity:0}
 .btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tap-cap{left:12px;top:614px;width:303px;height:28px;border-radius:2px;z-index:6}
-.shop{left:12px;top:650px;width:303px;height:36px;border-radius:8px;z-index:6}
-.shop img{display:block;width:303px;height:36px}
-.shop:active img{filter:brightness(.92)}
-.chip{left:12px;top:698px;width:94px;height:24px}   /* the shared FMSS "Sponsored" pill (../shared/sponsored), 12px under Shop now */
+#shop{z-index:6}   /* Shop now: the shared reel CTA (../shared/reel), over the IAB dim like the caption tap */
 .tabbar{left:0;top:734px;width:375px;height:78px}
 .navbar{left:0;top:44px;width:375px;height:52px}
 .status{left:0;top:0;width:375px;height:44px;z-index:30}
@@ -113,20 +104,15 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="phone" id="phone">
         <video class="abs video" id="vid" src="assets/ad-reel.mp4" poster="assets/ad-reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
         <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
-        <div class="abs grad-top"></div>
-        <div class="abs grad-bot"></div>
-        <img class="abs" src="assets/ufi-rail.svg?v=2" alt="" style="left:326px;top:486px;width:50px;height:237px">
+        <div data-reel="scrim"></div>
+        <img data-reel="rail" alt="">
         <div class="abs" id="pz" aria-hidden="true"></div>
         <div class="abs overlay" id="overlay"></div>
-        <div class="abs details" id="details" aria-hidden="true">
-          <img class="abs" src="assets/author.svg" alt="" style="left:0;top:0;width:303px;height:36px">
-          <img class="abs cap-c" id="capC" src="assets/caption-collapsed.svg" alt="" style="width:303px;height:20px">
-          <img class="abs cap-x" id="capX" src="assets/caption-expanded.svg" alt="" style="width:352px;height:80px">
-        </div>
+        <div data-reel="details" id="details" aria-hidden="true"></div>
         <p class="sr" id="captext">Nike, Sponsored. Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it's perfect for all your activities.</p>
         <button class="abs btn tap-cap" id="more" type="button" aria-describedby="captext" aria-label="More: expand caption and open the in-app browser (IAB) as a half sheet"></button>
-        <button class="abs btn shop" id="shop" type="button" aria-label="Shop now: open the in-app browser (IAB) full screen"><img src="assets/cta-shop-now.svg" alt=""></button>
-        <img class="abs chip" src="../shared/sponsored/sponsored-chip.svg?v=349" alt="">
+        <button data-reel="cta" id="shop" type="button" aria-label="Shop now: open the in-app browser (IAB) full screen"></button>
+        <img data-reel="pill" alt="">
         <img class="abs tabbar" src="assets/tabbar.svg" alt="">
         <img class="abs navbar" src="assets/navbar-video.svg" alt="">
         <button class="abs btn exit-area" id="exitArea" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
@@ -159,9 +145,13 @@ function fit(){
   const r=frame.getBoundingClientRect();
   const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');   // full screen: the parent sets the vertical margins, 16px each side here; width 511 = 391 bezel + 70 shadow room each side (drop-shadow 40px right + 20px blur), so it is never cut
   const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));   // screen + 8px bezel each side (+ shadow room)
-  stage.style.setProperty('--s',s.toFixed(4));
+  stage.style.setProperty('--s',s.toFixed(4));FMSSSnap(stage);
 }
 new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- the Reels ad overlay: the shared FMSS build (../shared/reel), as on Profile & Browse ---------- */
+const ad=FMSSReel.mount(phone,{cta:'Shop now',color:'#2F4EBE',cap:'Luxuriously soft and tailored for c',
+  capX:"Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it's perfect for all your activities."});
 
 /* ---------- Figma corner smoothing (port of figma-squircle by phamfoo, after Figma's 'Desperately seeking squircles'; preserveSmoothing) ----------
    The device scales via CSS transform, so the paths are built once at native px (375×812 screen, 391×828 bezel). */
@@ -194,9 +184,9 @@ const iab=FMSSIAB.create({
   web:'<img class="web" id="web" src="../shared/web/nike-247.webp?v=2" width="375" height="3052" alt="nike.com, Nike 24.7 (251): Members free shipping banner, Shoes, Tops and T-Shirts and Hoodies category pills, Pick Up Today toggle, filters, and a product grid of Nike 24.7 men\'s and women\'s shoes, ImpossiblySoft and PerfectStretch tops, pants, shorts, jackets and a skirt">',webH:3052,visH:622,
   onRender({t,sd}){
     $('overlay').style.opacity=t.toFixed(3);
-    $('details').style.transform=`translate3d(0,${(lerp(570,266,t)-570).toFixed(2)}px,0)`;
+    ad.details.style.transform=t>0?`translate(0,${(lerp(570,266,t)-570).toFixed(2)}px)`:'';   // 2D, painted: no layer of its own to resample
     const e=clamp((t-.15)/.6);
-    $('capC').style.opacity=(1-e).toFixed(3);$('capX').style.opacity=e.toFixed(3);
+    ad.capC.style.opacity=(1-e).toFixed(3);ad.capX.style.opacity=e.toFixed(3);
     $('statusD').style.opacity=sd.toFixed(3);
     $('home').style.background=t>.5?'#000':'#fff';
   },
