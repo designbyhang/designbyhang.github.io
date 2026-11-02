@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAC · Multi-Ad Chaining: grid → Reels chain — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=311"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=351"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -18,11 +18,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=311"><link rel="stylesheet" href="../../css/theme.css?v=311">
+<link rel="stylesheet" href="../../css/type.css?v=351"><link rel="stylesheet" href="../../css/theme.css?v=351">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><link rel="stylesheet" href="../shared/caption/caption.css?v=311"><link rel="stylesheet" href="../../css/ad-cta.css?v=311"><script src="../../js/vac-caption.js?v=311"></script><script src="../shared/caption/caption.js?v=311"></script><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=311"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=351"><link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=351"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=311">
+<link rel="stylesheet" href="../shared/device/device.css?v=351">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -47,14 +47,20 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit}
 .btn:focus,.btn:focus-visible,.mv:focus,.mv:focus-visible{outline:none}
 video{display:block;object-fit:cover}
-/* layers, bottom → top. Grid: "Suggested for you", four ad tiles (172×272, r12, the 60% squircle); tile 1 (Oakley) is the seed video
-   itself (.mv), which grows into Reels. Reels: the chain Oakley → LensCrafters → Ray-Ban, one 734px pitch, the comment bar under it */
+/* layers, bottom → top. Grid: "Suggested for you", four ad tiles (172×272, r12, the 60% squircle); tiles 1 (Oakley) and 4 (Starbucks)
+   are seeds: each is its seed video itself (.mv), which grows into Reels, its tile only a stand-in while another chain is open or the pop
+   runs. Reels: the tapped seed's chain (Oakley → LensCrafters → Ray-Ban, or Starbucks → Blue Bottle → La Colombe), one 734px pitch, the
+   comment bar under it. Seeds and reels are built from the chain data (CH, in the script) */
 .grid{width:375px;height:812px;z-index:1;will-change:transform}
 .tile{width:172px;height:272px;overflow:hidden;background:#131013 center/cover no-repeat;will-change:transform,opacity}
 .tile video,.tile canvas{position:absolute;inset:0;width:100%;height:100%}
 .rbg{width:375px;height:812px;z-index:2;background:#000;opacity:0;will-change:transform,opacity}
 .mv{z-index:5;width:375px;height:734px;overflow:hidden;background:#131013 center/cover no-repeat;cursor:pointer;-webkit-tap-highlight-color:transparent;transform-origin:0 0;will-change:transform,clip-path}
 .mv video{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* a seed whose grid footage is a wider cut than its reel's (Starbucks): the tile layer (.mt) sits in the box at its aligned rect, past the
+   box's sides, so the box does not clip (its clip-path does) */
+.mv.mx{overflow:visible}
+.mv .mt{inset:auto}
 .gtop{width:375px;height:812px;z-index:6;pointer-events:none;will-change:transform,opacity}
 .th{width:171.5px;height:60px}
 .reels{width:375px;height:812px;z-index:7;pointer-events:none;opacity:0;will-change:transform}
@@ -122,7 +128,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 <body>
 <div class="wrap">
   <header class="top">
-    <div><h1>MAC · Multi-Ad Chaining</h1><p>Interactive prototype · a grid of ads, each the seed of a Reels ad chain · the FMSS IAB sheet and edge swipe back, shared</p></div>
+    <div><h1>MAC · Multi-Ad Chaining</h1><p>Interactive prototype · a grid of ads; Oakley and Starbucks each seed their own Reels ad chain · the FMSS IAB sheet and edge swipe back, shared</p></div>
     <button class="theme" id="theme" type="button">Theme</button>
   </header>
   <div class="mframe" id="frame">
@@ -131,29 +137,24 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="phone" id="phone">
         <div class="L grid" id="grid">
           <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=223);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
-          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=223);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=311" src="../../assets/vac/vac-mac-samsung.mp4?v=311"></video></div>
-          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=223);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=311" src="../../assets/vac/vac-mac-lululemon.mp4?v=311"></video></div>
-          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=223);left:192px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-starbucks.webp?v=311" src="../../assets/vac/vac-mac-starbucks.mp4?v=311"></video></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=223);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=351" src="../../assets/vac/vac-mac-samsung.mp4?v=351"></video></div>
+          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=223);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=351" src="../../assets/vac/vac-mac-lululemon.mp4?v=351"></video></div>
+          <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=223);left:192px;top:450px"><canvas width="344" height="544"></canvas></div>
         </div>
         <i class="L rbg" id="rbg" aria-hidden="true"></i>
-        <div class="L mv" id="mv" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=223)" role="button" aria-label="Oakley video ad: open it in Reels"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-oakley.webp?v=311" src="../../assets/vac/vac-mac-oakley.mp4?v=311"></video></div>
+        <!-- the seed boxes (.mv), one per chain: built from CH -->
         <div class="L gtop" id="gtop" aria-hidden="true">
-          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=311" style="left:12px;top:170px">
-          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=311" style="left:191.5px;top:170px;width:171px">
-          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=311" style="left:12px;top:450px">
-          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=311" style="left:192px;top:450px">
-          <img class="L" alt="" src="assets/grid-title.webp?v=311" style="left:116px;top:116px;width:144px;height:39.5px">
-          <img class="L" alt="" src="assets/grid-nav.webp?v=311" style="left:0;top:44px;width:375px;height:52px">
+          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=351" style="left:12px;top:170px">
+          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=351" style="left:191.5px;top:170px;width:171px">
+          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=351" style="left:12px;top:450px">
+          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=351" style="left:192px;top:450px">
+          <img class="L" alt="" src="assets/grid-title.webp?v=351" style="left:116px;top:116px;width:144px;height:39.5px">
+          <img class="L" alt="" src="assets/grid-nav.webp?v=351" style="left:0;top:44px;width:375px;height:52px">
         </div>
         <div class="L reels" id="reels" aria-hidden="true">
-          <div class="L pg" id="p0"><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/s-det.webp?v=311"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=311" style="left:101.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Pre-order the Limited Edition Oakley Meta HSTN, performance AI glasses with a built-in camera and open-ear audio.</p><p class="c-act ad-cta" style="background:#750401">Learn more</p></div><img class="ufi" alt="" src="assets/s-ufi.webp?v=311"></div>
-          <div class="L pg lc" id="p1"><video id="lcv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lenscrafters.webp?v=311" src="../../assets/vac/vac-mac-lenscrafters.mp4?v=311"></video>
-            <div class="c-stack c-hs"><img class="c-det" alt="" src="assets/lc-det.webp?v=311"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=311" style="left:144px"><p class="c-sp">Sponsored</p><p class="c-cap">High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.</p>
-              <div class="hs c-act"><i id="hsr"><span style="left:0px"><img alt="" src="assets/lc-p1.webp?v=311"></span><span style="left:80px"><img alt="" src="assets/lc-p2.webp?v=311"></span><span style="left:160px"><img alt="" src="assets/lc-p3.webp?v=311"></span><span style="left:240px"><img alt="" src="assets/lc-p4.webp?v=311"></span><span style="left:320px"><img alt="" src="assets/lc-p5.webp?v=311"></span><span style="left:400px"><img alt="" src="assets/lc-p6.webp?v=311"></span></i></div></div>
-            <img class="ufi" alt="" src="assets/s-ufi.webp?v=311"></div>
-          <div class="L pg" id="p2"><video id="rbv" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-rayban.webp?v=311" src="../../assets/vac/vac-mac-rayban.mp4?v=311" style="left:0;top:0;width:375px;height:734px"></video><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/rb-det.webp?v=311"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=311" style="left:112.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.</p><p class="c-act ad-cta" style="background:#6f533c">Learn more</p></div><img class="ufi" alt="" src="assets/s-ufi.webp?v=311"></div>
-          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=311" style="top:44px;height:52px">
-          <img class="L bar" alt="" src="assets/reels-bar.webp?v=311">
+          <!-- the reels (.pg), every chain's: built from CH -->
+          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=351" style="top:44px;height:52px">
+          <img class="L bar" alt="" src="assets/reels-bar.webp?v=351">
         </div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
         <i class="L ctap ad-cta" id="ctap" aria-hidden="true"></i>
@@ -171,14 +172,62 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">A Suggested for you grid of ads. Tap the Oakley ad: it grows into Reels and seeds a chain of related ads; swipe up through it (Oakley → LensCrafters → Ray-Ban). Learn more on the Oakley ad opens oakley.com, and on the Ray-Ban ad ray-ban.com, in the in-app browser full screen; × or Escape returns to the reel. Back (or an edge swipe from the left) returns to the grid.</p>
+  <p class="below">A Suggested for you grid of ads. Tap the Oakley ad: it grows into Reels and seeds a chain of related ads; swipe up through it (Oakley → LensCrafters → Ray-Ban). The Starbucks ad seeds its own chain the same way (Starbucks → Blue Bottle → La Colombe). Learn more on the Oakley ad opens oakley.com, and on the Ray-Ban ad ray-ban.com, in the in-app browser full screen; × or Escape returns to the reel. Back (or an edge swipe from the left) returns to the grid, into the ad that seeded the chain.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),mv=$('mv'),pager=$('pager');
+
+/* ---------- the chains (data): each seed tile opens its own Reels chain; the one grow / reel / CTA / exit code below drives them all.
+   tile: the seed's grid tile (its stand-in while another chain is open, and the frame it holds while the pop runs) and T its rect.
+   seed: the box (.mv) that grows from the tile into the chain's first reel (the shared element), playing that reel's video. Oakley's
+   tile is that video's centre crop. Starbucks' grid footage (vac-mac-starbucks) is a wider cut of the same shot as its reel's (CC's
+   vac-cc-sbux; the clips are time-aligned), so its seed also carries the tile footage (tile.vid) laid over the reel video at TW, its rect
+   in the reel's 375×734 box (matched on features): the grow opens on the tile footage and, once the window is as tall as TW (aspect
+   375/720), carries on with the reel's while the tile layer fades out (no jump: both are the same frame there).
+   ads: the chain's reels, top to bottom. det: the author row (avatar + name, one raster as s-det; Starbucks, Blue Bottle and La Colombe
+   rendered from CC's avatars by the renderer that reproduces s-det), globe: its x (7 past the name), cap, cta: [label, colour], hs: the
+   product row (LensCrafters), src: the reel's own video (the seed reel has none: the seed box plays it), site: its Learn more opens the
+   IAB (SITE, Oakley's). Reused as is: CC's videos, names, captions, CTA labels and colours */
+const V='?v=351',VA='../../assets/vac/';
+const CH=[
+  {id:'oakley',tile:'t1',ti:0,T:[12,170,172,272],
+   seed:{id:'mv',vid:'vid',src:'vac-mac-oakley',bg:'vac-mac-oakley.webp?v=223'},
+   ads:[{id:'p0',name:'Oakley',det:'s-det',globe:101.5,site:1,cta:['Learn more','#750401'],
+         cap:'Pre-order the Limited Edition Oakley Meta HSTN, performance AI glasses with a built-in camera and open-ear audio.'},
+        {id:'p1',kind:'lc',vid:'lcv',src:'vac-mac-lenscrafters',name:'LensCrafters',det:'lc-det',globe:144,hs:6,
+         cap:'High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.'},
+        {id:'p2',vid:'rbv',src:'vac-mac-rayban',name:'Ray-Ban',det:'rb-det',globe:112.5,site:1,cta:['Learn more','#6f533c'],
+         cap:'Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.'}]},
+  {id:'sbux',tile:'t4',ti:3,T:[192,450,172,272],
+   seed:{id:'mv2',vid:'sv',src:'vac-cc-sbux',bg:'vac-cc-sbux.webp'+V,tile:{vid:'stv',src:'vac-mac-starbucks',TW:[-39.515,7.08,455.32,720.04]}},
+   ads:[{id:'q0',name:'Starbucks',det:'sbux-det',globe:125,cta:['Order now','#00573f'],
+         cap:"This summer's new drink just dropped. Order ahead in the Starbucks app."},
+        {id:'q1',vid:'bbv',src:'vac-cc-bb',name:'Blue Bottle Coffee',det:'bb-det',globe:180.5,cta:['Learn more','#1f6cb0'],
+         cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.'},
+        {id:'q2',vid:'lcolv',src:'vac-cc-lc',name:'La Colombe Coffee',det:'lcol-det',globe:189,cta:['Learn more','#d9475f'],
+         cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.'}]}];
+(function build(){   // the seeds (under the grid's top layer) and the reels (under Reels' chrome), the same markup for every chain
+  const vt=(id,src,cls,st)=>`<video${id?` id="${id}"`:''}${cls?` class="${cls}"`:''} muted playsinline loop preload="auto" disableremoteplayback poster="${VA}${src}.webp${V}" src="${VA}${src}.mp4${V}"${st?` style="${st}"`:''}></video>`;
+  const top=$('gtop'),chrome=document.querySelector('#reels .chrome');
+  for(const C of CH){const S=C.seed,t=S.tile;
+    top.insertAdjacentHTML('beforebegin',`<div class="L mv${t?' mx':''}" id="${S.id}" style="background-image:url(${VA}${S.bg})" role="button" aria-label="${C.ads[0].name} video ad: open it in Reels">`+
+      vt(S.vid,S.src)+(t?vt(t.vid,t.src,'mt',`left:${t.TW[0]}px;top:${t.TW[1]}px;width:${t.TW[2]}px;height:${t.TW[3]}px`):'')+'</div>');
+    for(const a of C.ads){
+      const stk=`<img class="c-det" alt="" src="assets/${a.det}.webp${V}"><img class="cglobe" alt="" src="../shared/caption/globe.svg${V}" style="left:${a.globe}px"><p class="c-sp">Sponsored</p><p class="c-cap">${a.cap}</p>`;
+      let h;
+      if(a.hs){let r='';for(let i=0;i<a.hs;i++)r+=`<span style="left:${i*80}px"><img alt="" src="assets/lc-p${i+1}.webp${V}"></span>`;
+        h=vt(a.vid,a.src)+`<div class="c-stack c-hs">${stk}<div class="hs c-act"><i id="hsr">${r}</i></div></div>`}
+      else h=(a.src?vt(a.vid,a.src,'','left:0;top:0;width:375px;height:734px'):'')+`<i class="grad"></i><div class="c-stack">${stk}<p class="c-act ad-cta" style="background:${a.cta[1]}">${a.cta[0]}</p></div>`;
+      chrome.insertAdjacentHTML('beforebegin',`<div class="L pg${a.kind?' '+a.kind:''}" id="${a.id}">${h}<img class="ufi" alt="" src="assets/s-ufi.webp${V}"></div>`)}}
+  for(const C of CH){const S=C.seed,t=S.tile;
+    C.box=$(S.id);C.sv=$(S.vid);C.mt=t?$(t.vid):null;C.TW=t?t.TW:null;C.place=$(C.tile);C.snap=C.place.querySelector('canvas');
+    C.pages=C.ads.map(a=>$(a.id));C.vids=C.ads.map(a=>a.vid?$(a.vid):null);C.last='';
+    if(t){const [Tx,Ty,Tw,Th]=C.T,A=375/t.TW[3];C.A=A;C.eS=(A*Th-Tw)/((375-Tw)-A*(734-Th))}}   // the handover: the window's aspect reaches A
+})();
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),pager=$('pager');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 
@@ -229,49 +278,61 @@ function anim(get,set){let raf=0,busy=false;
       raf=requestAnimationFrame(f)}}}
 
 /* ---------- the screen: one set of values, everything rendered from them ----------
-   e  grid → Reels: the Oakley tile grows into the seed reel (0 → 1)     k  the chain (0 Oakley · 1 LensCrafters · 2 Ray-Ban)
-   b  back: the pop to the grid (0 → 1)                                  g  the grid's intro (tiles rise in, inline only) */
-const TILE=[12,170,172,272],FULL=[0,0,375,734],PG=734,N=2;
-let e=0,k=0,b=0,g=1,mode='grid';   // grid · open · reels · close (the Back tap) · pop (the edge swipe)
+   e  grid → Reels: the seed tile grows into the chain's first reel (0 → 1)     k  the reel in the chain (0 the seed · 1 · 2)
+   b  back: the pop to the grid (0 → 1)                                        g  the grid's intro (tiles rise in, inline only)
+   ci the chain open (or last open, CH), N its last reel */
+const FULL=[0,0,375,734],BOX=[0,0,375,734],PG=734;
+let e=0,k=0,b=0,g=1,mode='grid',ci=0,N=CH[0].ads.length-1;   // grid · open · reels · close (the Back tap) · pop (the edge swipe)
 const eA=anim(()=>e,v=>{e=v;render()}),kA=anim(()=>k,v=>{k=v;render()}),bA=anim(()=>b,v=>{b=v;render()}),gA=anim(()=>g,v=>{g=v;render()});
 const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
 const op=(el,v)=>{const s=v<=0?'0':v>=1?'1':v.toFixed(3);if(el.style.opacity!==s)el.style.opacity=s};
-const els={t1:$('t1'),grid:$('grid'),rbg:$('rbg'),gtop:$('gtop'),reels:$('reels'),sb:$('sb'),home:$('home'),dim:$('dim'),snap:$('snap'),hsr:$('hsr'),
-  t:[$('t2'),$('t3'),$('t4')],h:[$('h1'),$('h2'),$('h3'),$('h4')],p:[$('p0'),$('p1'),$('p2')]};
-let VIDS=[],sheetP=0,sd=0,lastR='',lastSb='',lastHome='',hx=0,lastCj=-1;
+const els={grid:$('grid'),rbg:$('rbg'),gtop:$('gtop'),reels:$('reels'),sb:$('sb'),home:$('home'),dim:$('dim'),hsr:$('hsr'),
+  t:[$('t1'),$('t2'),$('t3'),$('t4')],h:[$('h1'),$('h2'),$('h3'),$('h4')]};
+let VIDS=[],sheetP=0,sd=0,lastSb='',lastHome='',hx=0,lastCj=-1;
 const pageY=j=>PG*clamp(j-k,-1,1);
-function render(){
-  const pop=mode==='pop',rx=pop?375*b:0,gx=pop?-120*(1-b):0,full=pop||e>=1;
-  /* the seed video: ONE full-size box (375×734, the reel's), scaled down onto the tile and clipped to it (shared element). The grow
-     is a transform + clip, so the video never resizes or re-lays out and keeps playing through it; tile and reel crop the same way
-     (cover, centred), so the frame is continuous. Then it rides page 0 */
+/* a seed: ONE full-size box (375×734, the reel's), scaled down onto its tile and clipped to it (shared element). The grow is a transform +
+   clip, so the video never resizes or re-lays out and keeps playing through it; tile and reel crop the same way (cover, centred on the
+   content: the box, or TW while the tile footage shows), so the frame is continuous. Then it rides page 0. In the grid every seed sits on
+   its tile; once one is tapped, only that chain's shows */
+function seedAt(C,c){
+  const S=C.box,on=c===ci&&mode!=='grid';
+  if(mode!=='grid'&&!on){if(S.style.visibility!=='hidden')S.style.visibility='hidden';return}
+  if(S.style.visibility)S.style.visibility='';
+  const pop=mode==='pop',ee=on?e:0,full=on&&(pop||e>=1),T=C.T;
   let x,y,w,h,r;
-  if(full){[x,y,w,h]=FULL;x+=rx;y+=pageY(0);r=0}
-  else{x=lerp(TILE[0],FULL[0],e);y=lerp(TILE[1],FULL[1],e)+24*(1-g);w=lerp(TILE[2],FULL[2],e);h=lerp(TILE[3],FULL[3],e);r=12*(1-e)}
-  const sc=Math.max(w/375,h/734),cw=(375*sc-w)/2/sc,ch=(734*sc-h)/2/sc;
-  mv.style.transform=`translate3d(${(x-cw*sc).toFixed(3)}px,${(y-ch*sc).toFixed(3)}px,0) scale(${sc.toFixed(5)})`;
-  op(mv,full?1:g);
-  const key=`${cw.toFixed(2)},${ch.toFixed(2)},${r.toFixed(2)},${sc.toFixed(4)}`;
-  if(key!==lastR){lastR=key;
-    if(cw<.01&&ch<.01&&r<.05)mv.style.clipPath='';
-    else if(CLIP&&r>.05)mv.style.clipPath=`path('${squircleAt(cw,ch,375-2*cw,734-2*ch,r/sc,.6)}')`;
-    else mv.style.clipPath=`inset(${ch.toFixed(2)}px ${cw.toFixed(2)}px round ${(r/sc).toFixed(2)}px)`}
+  if(full){[x,y,w,h]=FULL;x+=pop?375*b:0;y+=pageY(0);r=0}
+  else{x=lerp(T[0],FULL[0],ee);y=lerp(T[1],FULL[1],ee)+24*(1-g);w=lerp(T[2],FULL[2],ee);h=lerp(T[3],FULL[3],ee);r=12*(1-ee)}
+  const cb=C.TW&&!full&&w/h>C.A?C.TW:BOX;
+  const sc=Math.max(w/cb[2],h/cb[3]),ww=w/sc,wh=h/sc,wx=cb[0]+(cb[2]-ww)/2,wy=cb[1]+(cb[3]-wh)/2;   // the window, in box px
+  S.style.transform=`translate3d(${(x-wx*sc).toFixed(3)}px,${(y-wy*sc).toFixed(3)}px,0) scale(${sc.toFixed(5)})`;
+  op(S,full?1:g);
+  if(C.mt)op(C.mt,full?0:cb===C.TW?1:1-clamp((ee-C.eS)/(1-C.eS)));   // the tile footage, over the reel's until the handover, then fading
+  const key=`${wx.toFixed(2)},${wy.toFixed(2)},${ww.toFixed(2)},${wh.toFixed(2)},${r.toFixed(2)},${sc.toFixed(4)}`;
+  if(key!==C.last){C.last=key;
+    if(Math.abs(wx)<.01&&Math.abs(wy)<.01&&ww>374.98&&wh>733.98&&r<.05)S.style.clipPath='';
+    else if(CLIP&&r>.05)S.style.clipPath=`path('${squircleAt(wx,wy,ww,wh,r/sc,.6)}')`;
+    else S.style.clipPath=`inset(${wy.toFixed(2)}px ${(375-wx-ww).toFixed(2)}px ${(734-wy-wh).toFixed(2)}px ${wx.toFixed(2)}px round ${(r/sc).toFixed(2)}px)`}
+}
+function render(){
+  const pop=mode==='pop',rx=pop?375*b:0,gx=pop?-120*(1-b):0;
+  CH.forEach(seedAt);
   /* the grid: fades under the growing tile (Figma's smart animate), slides back in from −120 on the pop */
   const gv=pop?1:1-e;
   els.grid.style.transform=tr(gx,0);els.gtop.style.transform=tr(gx,0);
   els.grid.style.visibility=e>=1&&!pop?'hidden':'visible';
+  /* the tiles: a seed's is hidden under its seed in the grid, and holds the seed's frame for the pop; the rest fade with the grid */
   const ty=24*(1-g);
-  els.t.forEach(t=>{op(t,gv*g);t.style.transform=tr(0,ty)});
+  els.t.forEach((t,i)=>{const c=CH.findIndex(C=>C.ti===i);op(t,c<0?gv*g:mode==='grid'?0:c===ci?(pop?1:0):gv*g);t.style.transform=tr(0,ty)});
   els.h.forEach(t=>{op(t,g);t.style.transform=tr(0,ty)});
-  op(els.t1,pop?1:0);
   op(els.gtop,gv);
   /* Reels: black ground with the grow, its UI (gradient, details, UFI, back, comment bar) over its second half */
   op(els.rbg,pop?1:e);els.rbg.style.transform=tr(rx,0);
   op(els.reels,pop?1:clamp((e-.5)/.5));els.reels.style.transform=tr(rx,0);
-  for(let j=0;j<=N;j++){const p=els.p[j],vis=Math.abs(j-k)<1;p.style.visibility=vis?'visible':'hidden';p.style.transform=tr(0,pageY(j))}
+  CH.forEach((C,c)=>C.pages.forEach((p,j)=>{const vis=c===ci&&Math.abs(j-k)<1;p.style.visibility=vis?'visible':'hidden';p.style.transform=tr(0,pageY(j))}));
   els.hsr.style.transform=tr(hx,0);
-  const cj=ctaPage();$('cta').classList.toggle('on',mode==='reels'&&cta===null&&cj>=0);
-  if(cj>=0&&cj!==lastCj){lastCj=cj;$('cta').setAttribute('aria-label',`Learn more: open ${SITE[cj].url} in the in-app browser (IAB) full screen`)}
+  const cj=ctaPage(),ca=ctaAd();$('cta').classList.toggle('on',mode==='reels'&&cta===null&&!!ca);
+  const cl=ca?ca.cta[0]+(cj>=0?`: open ${SITE[cj].url} in the in-app browser (IAB) full screen`:`: ${ca.name}`):'';
+  if(ca&&cl!==lastCj){lastCj=cl;$('cta').setAttribute('aria-label',cl)}
   op(els.dim,cta!==null?sheetP:0);
   /* status bar and home indicator: light on the dark app, dark on the IAB's white page, on the sheet's own spring */
   const gl=Math.round(255*clamp(1-sd)),sbc=`rgb(${gl},${gl},${gl})`;if(sbc!==lastSb){lastSb=sbc;els.sb.style.backgroundColor=sbc}
@@ -302,7 +363,8 @@ const iab=SITE[0].iab,iabRB=SITE[2].iab;act=iab;
 const CTA_R=ReelsCaption.act(0);   // the Learn more on a reel at rest (the shared layout; no pill under it in MAC)
 ['ctap','cta'].forEach(id=>{const e=$(id).style;e.left=CTA_R[0]+'px';e.top=CTA_R[1]+'px';e.width=CTA_R[2]+'px';e.height=CTA_R[3]+'px'});
 const ctaAt=(x,y)=>x>=CTA_R[0]&&x<=CTA_R[0]+CTA_R[2]&&y>=CTA_R[1]&&y<=CTA_R[1]+CTA_R[3];
-function ctaPage(){const j=Math.round(k);return SITE[j]&&Math.abs(k-j)<.01?j:-1}   // the reel at rest has a Learn more that opens a site
+function ctaAd(){const j=Math.round(k),a=CH[ci].ads[j];return a&&a.cta&&Math.abs(k-j)<.01?a:null}   // the reel at rest has a CTA
+function ctaPage(){const a=ctaAd();return a&&a.site?Math.round(k):-1}   // … that opens a site (in the IAB)
 function ctaDown(on){$('ctap').classList.toggle('down',!!on)}   // press feedback on the Learn more button
 function openCta(){
   const j=ctaPage();
@@ -311,30 +373,33 @@ function openCta(){
   cta=j;act=I;phone.classList.add('cta-open');
   I.go(3,{w:16,why:'learn-more',entry:'cta'});return true;   // a CTA open: no drag on the full screen sheet
 }
-$('cta').addEventListener('click',()=>openCta());   // keyboard; a pointer tap comes through the pager (pagerUp)
+$('cta').addEventListener('click',()=>openCta());   // a CTA with no site (the Starbucks chain) only presses   // keyboard; a pointer tap comes through the pager (pagerUp)
 
-/* ---------- grid → the seed reel: the Oakley tile grows into Reels (Figma: smart animate, Slow) ---------- */
-function openSeed(){
-  if(mode!=='grid'||bA.busy||g<1)return;
+/* ---------- grid → the seed reel: the tapped seed's tile grows into Reels (Figma: smart animate, Slow); c: the chain (index or id) ---------- */
+function openSeed(c=0){
+  if(typeof c==='string')c=CH.findIndex(C=>C.id===c);
+  const C=CH[c];if(!C||mode!=='grid'||bA.busy||g<1)return;
+  ci=c;N=C.ads.length-1;
+  if(C.mt){const t=C.mt.currentTime,d=C.sv.duration||0;try{if(d&&t>=d-.05){C.mt.currentTime=0;C.sv.currentTime=0}else C.sv.currentTime=t}catch(_){}}   // the reel footage picks up the tile's frame
   rotate(-1,true);mode='open';homeTell(false);k=0;hx=0;
-  eA.to(1,{onDone:()=>{if(mode!=='open')return;mode='reels';setReels(true);render();say('Oakley reel')}});
+  eA.to(1,{onDone:()=>{if(mode!=='open')return;mode='reels';setReels(true);render();say(C.ads[0].name+' reel')}});
 }
-let mp=null;
-mv.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='grid')return;mp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false}});
-mv.addEventListener('pointermove',ev=>{if(mp&&ev.pointerId===mp.id&&Math.hypot(ev.clientX-mp.x,ev.clientY-mp.y)>10)mp.moved=true});
-function mvUp(ev){if(!mp||ev.pointerId!==mp.id)return;const p=mp;mp=null;if(ev.type==='pointerup'&&!p.moved)openSeed()}
-mv.addEventListener('pointerup',mvUp);mv.addEventListener('pointercancel',mvUp);
-mv.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&mode==='grid'){ev.preventDefault();openSeed()}});
-mv.tabIndex=0;
+CH.forEach((C,c)=>{const S=C.box;let mp=null;
+  S.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='grid')return;mp={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false}});
+  S.addEventListener('pointermove',ev=>{if(mp&&ev.pointerId===mp.id&&Math.hypot(ev.clientX-mp.x,ev.clientY-mp.y)>10)mp.moved=true});
+  const up=ev=>{if(!mp||ev.pointerId!==mp.id)return;const p=mp;mp=null;if(ev.type==='pointerup'&&!p.moved)openSeed(c)};
+  S.addEventListener('pointerup',up);S.addEventListener('pointercancel',up);
+  S.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&mode==='grid'){ev.preventDefault();openSeed(c)}});
+  S.tabIndex=0});
 
-/* ---------- Reels: the chain Oakley → LensCrafters → Ray-Ban (1:1 drag, projected snap, a flick moves one; Figma: push, Slow).
+/* ---------- Reels: the open chain (Oakley → LensCrafters → Ray-Ban, Starbucks → Blue Bottle → La Colombe; 1:1 drag, projected snap, a flick moves one; Figma: push, Slow).
    LensCrafters' product row scrolls sideways (a horizontal drag that starts on it) ---------- */
 function setReels(on){pager.classList.toggle('on',on);$('back').classList.toggle('on',on)}
 let pd=null;
 const HS=ReelsCaption.hs(),HMIN=-(5*80+72-303);
 pager.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='reels')return;kA.stop();
-  const [px,py]=ptOf(ev),onHs=Math.abs(k-1)<.01&&px>=HS[0]&&px<=HS[0]+HS[2]&&py>=HS[1]&&py<=HS[1]+HS[3];
-  if(ctaPage()>=0&&ctaAt(px,py))ctaDown(true);
+  const [px,py]=ptOf(ev),hi=CH[ci].ads.findIndex(a=>a.hs),onHs=hi>=0&&Math.abs(k-hi)<.01&&px>=HS[0]&&px<=HS[0]+HS[2]&&py>=HS[1]&&py<=HS[1]+HS[3];
+  if(ctaAd()&&ctaAt(px,py))ctaDown(true);
   pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,onHs,hx0:hx,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
   try{pager.setPointerCapture(ev.pointerId)}catch(_){}pager.classList.add('drag')});
 pager.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
@@ -351,26 +416,30 @@ function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;page
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);
   step(t,v)}
 pager.addEventListener('pointerup',pagerUp);pager.addEventListener('pointercancel',pagerUp);
-const NAMES=['Oakley','LensCrafters','Ray-Ban'];
 function step(t,v=0){const was=Math.round(k);if(t!==was)restart(t);
-  const d=t-k;kA.to(t,{ease:d&&v?springV(DUR,v/d):SLOW,onDone:()=>say(NAMES[t]+' reel')})}
-function restart(j){const v=j===1?lcv:j===2?rbv:null;if(v){try{v.currentTime=0}catch(_){}}if(j===1){hx=0}}
+  const d=t-k,C=CH[ci];kA.to(t,{ease:d&&v?springV(DUR,v/d):SLOW,onDone:()=>say(C.ads[t].name+' reel')})}
+function restart(j){const C=CH[ci],v=j>0?C.vids[j]:null;if(v){try{v.currentTime=0}catch(_){}}if(C.ads[j]&&C.ads[j].hs){hx=0}}
 let wT=0,wAcc=0;
 pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev.preventDefault();
   const now=performance.now();if(now-wT<480)return;wAcc+=ev.deltaY;
   if(Math.abs(wAcc)>40){const t=clamp(Math.round(k)+(wAcc>0?1:-1),0,N);wAcc=0;wT=now;if(t!==Math.round(k))step(t)}},{passive:false});
 
 /* ---------- the edge swipe back: the pop (Reels slides off right with the finger, the grid in from −120), then the clean grid. The seed's current frame is held in
-   tile 1 while it pops (the video rides away with Reels) ---------- */
-function snapTile(){const c=els.snap,x=c.getContext('2d');
-  try{if(vid.readyState>=2){const vw=vid.videoWidth,vh=vid.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(vid,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
-function startPop(){kA.stop();k=Math.round(k);
-  if(k>=1){const c=els.snap;c.getContext('2d').clearRect(0,0,c.width,c.height);try{vid.currentTime=0}catch(_){}}else snapTile();
+   its tile while it pops (the video rides away with Reels): the tile footage's own frame where the seed has one (seeked to the reel's) ---------- */
+function snapDraw(C,v){const c=C.snap,x=c.getContext('2d');
+  try{if(v.readyState>=2){const vw=v.videoWidth,vh=v.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(v,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
+function clearSnap(C){const c=C.snap;c.getContext('2d').clearRect(0,0,c.width,c.height)}
+function seedHome(C){[C.sv,C.mt].forEach(v=>{if(v)try{v.currentTime=0}catch(_){}})}   // the seed back on its first frame (left from a later reel)
+function startPop(){kA.stop();k=Math.round(k);const C=CH[ci];
+  if(k>=1){clearSnap(C);seedHome(C)}
+  else if(C.mt){const v=C.mt,f=()=>{v.removeEventListener('seeked',f);snapDraw(C,v)};snapDraw(C,v);v.addEventListener('seeked',f);try{v.currentTime=C.sv.currentTime}catch(_){f()}}
+  else snapDraw(C,C.sv);
   mode='pop';setReels(false);b=0;render()}
-/* the Back tap (and Escape): the grow in reverse. Reels' UI fades out over the first half and the seed shrinks back into the Oakley
-   tile while the grid fades in under it (Slow, 664). From a later ad in the chain, that reel fades off the Oakley seed as it shrinks */
-function back(){if(mode!=='reels'||cta!==null)return;kA.stop();k=Math.round(k);
-  if(k>=1){try{vid.currentTime=0}catch(_){}}
+/* the Back tap (and Escape): the grow in reverse, from any reel of the chain. Reels' UI fades out over the first half and the seed shrinks
+   back into the tile it grew from while the grid fades in under it (Slow, 664). From a later ad in the chain, that reel fades off the seed
+   as it shrinks */
+function back(){if(mode!=='reels'||cta!==null)return;kA.stop();k=Math.round(k);const C=CH[ci];
+  if(k>=1)seedHome(C);else if(C.mt){try{C.mt.currentTime=C.sv.currentTime}catch(_){}}   // the tile footage back in step with the reel's
   mode='close';setReels(false);render();
   eA.to(0,{onDone:()=>{if(mode!=='close')return;toGrid();homeTell(true);say('Grid')}})}
 $('back').addEventListener('click',back);
@@ -394,29 +463,32 @@ phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
   ev.stopPropagation();EB.move(dx)},true);
 function edgeUp(ev){if(!eg||ev.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;ev.stopPropagation();EB.end((ev.clientX-d.x0)/d.s)}
 phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
-function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;render();freeRot()}
+function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;
+  CH.forEach(clearSnap);rot0=CH[ci].ti;render();freeRot()}   // the turns pick up at the seed the chain grew from
 document.addEventListener('keydown',ev=>{if(INL())return;
   if(ev.key==='Escape'){userActed();if(cta!==null){if(act.state!==1)act.go(1)}else if(mode==='reels')back()}
   else if(mode==='reels'&&cta===null&&(ev.key==='ArrowDown'||ev.key==='ArrowUp')){ev.preventDefault();step(clamp(Math.round(k)+(ev.key==='ArrowDown'?1:-1),0,N))}});
 
 /* ---------- the videos: each plays only while it is on screen (and the demo is: in view, the one playing, js/case.js) ---------- */
-const lcv=$('lcv'),rbv=$('rbv'),tv=els.t.map(t=>t.querySelector('video'));
 let seen=false,visible=false,held=false;
 const gridOn=()=>mode!=='reels'||e<1;
 /* the grid's turns: one tile plays at a time, in reading order (Oakley, Galaxy Z Flip7, lululemon, Starbucks), each for one equal
    slice (SLICE); the others hold their poster, the frame each clip starts on. A tile that hands over seeks back to that frame */
-const TV=[vid,...tv],SLICE=1600;
-let gAct=-1,rotT=0;
+const TV=els.t.map((t,i)=>{const C=CH.find(C=>C.ti===i);return C?(C.mt||C.sv):t.querySelector('video')}),SLICE=1600;   // a seed's turn: its tile footage
+let gAct=-1,rotT=0,rot0=0;
 function setActive(i,keep){if(i===gAct)return;const o=gAct;gAct=i;
-  if(o>=0&&!(keep&&o===0)){const v=TV[o];v.pause();try{v.currentTime=0}catch(_){}}vidSync()}
+  if(o>=0&&!(keep&&o===CH[ci].ti)){const v=TV[o];v.pause();try{v.currentTime=0}catch(_){}}vidSync()}
 function rotate(i,keep){clearTimeout(rotT);rotT=0;setActive(i,keep);if(i>=0&&!autoOn)rotT=setTimeout(()=>rotate((i+1)%4),SLICE)}
 /* full screen (and inline without autoplay): the turns run on their own while the grid is up; the inline loop drives them itself */
-function freeRot(){if(autoOn)return;if(ready&&mode==='grid'&&visible&&!document.hidden){if(!rotT)rotate(gAct>=0?gAct:0)}else if(rotT){clearTimeout(rotT);rotT=0}}
-VIDS=[
-  [vid,()=>mode==='grid'?gAct===0:mode!=='pop'&&!(mode==='reels'&&k>=.999)],
-  [lcv,()=>(mode==='reels'||mode==='pop'||mode==='close')&&Math.abs(k-1)<1],
-  [rbv,()=>(mode==='reels'||mode==='pop'||mode==='close')&&Math.abs(k-2)<1],
-  ...tv.map((v,n)=>[v,()=>gridOn()&&g>0&&gAct===n+1])];
+function freeRot(){if(autoOn)return;if(ready&&mode==='grid'&&visible&&!document.hidden){if(!rotT)rotate(gAct>=0?gAct:rot0)}else if(rotT){clearTimeout(rotT);rotT=0}}
+/* per chain: the seed's reel video (in the grid only when it is the tile itself: Oakley's turn), its tile footage (its turn; the grow and
+   the shrink), each later reel's video while that reel is on screen; then the plain tiles */
+VIDS=[];
+CH.forEach((C,c)=>{
+  VIDS.push([C.sv,()=>mode==='grid'?!C.mt&&gAct===C.ti:c===ci&&mode!=='pop'&&!(mode==='reels'&&k>=.999)]);
+  if(C.mt)VIDS.push([C.mt,()=>mode==='grid'?g>0&&gAct===C.ti:c===ci&&(mode==='open'||mode==='close')]);
+  C.vids.forEach((v,j)=>{if(v)VIDS.push([v,()=>c===ci&&(mode==='reels'||mode==='pop'||mode==='close')&&Math.abs(k-j)<1])})});
+TV.forEach((v,i)=>{if(!CH.some(C=>C.ti===i))VIDS.push([v,()=>gridOn()&&g>0&&gAct===i])});
 const pend=new WeakSet();
 function vidSync(){const on=visible&&!document.hidden;
   for(const [v,f] of VIDS){const sh=on&&f();
@@ -436,7 +508,7 @@ let ready=false;
 (function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley.webp?v=223','vac-mac-samsung.webp?v=223','vac-mac-lululemon.webp?v=223','vac-mac-starbucks.webp?v=223'].map(n=>'../../assets/vac/'+n));
   const dec=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
   const vf=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true})});
-  const all=Promise.all(imgs.map(dec).concat([vid,...tv].map(vf)));
+  const all=Promise.all(imgs.map(dec).concat(TV.map(vf)));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;const c=$('ldc');
     if(RM.matches||!c.animate||demoClock.paused||!visible)c.remove();else c.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out',fill:'forwards'}).onfinish=()=>c.remove();
     sched();freeRot()};
@@ -525,7 +597,7 @@ function uUp(ev){if(!ev.isTrusted)return;uf.classList.remove('down');if(ev.point
 addEventListener('pointerup',uUp,true);addEventListener('pointercancel',uUp,true);
 phone.addEventListener('touchmove',ev=>{if(ev.cancelable)ev.preventDefault()},{passive:false});
 
-window.__mac={get mode(){return mode},get e(){return e},get k(){return k},get b(){return b},get g(){return g},iab,vid,
+window.__mac={get chain(){return CH[ci].id},openSbux:()=>openSeed('sbux'),sv:$('sv'),stv:$('stv'),get mode(){return mode},get e(){return e},get k(){return k},get b(){return b},get g(){return g},iab,vid,
   get cta(){return cta===null?null:cta===0?'reels':'rb'},iabRB,get act(){return act===iabRB?'rb':'oakley'},openCta,openSeed,back,step,reset,get auto(){return autoOn},get stepI(){return stepI},
   get gAct(){return gAct},get playing(){return VIDS.filter(([v])=>!v.paused).map(([v])=>v.id||v.src.split('/').pop().split('?')[0])}};
 render();homeTell(true);
