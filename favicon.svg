@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" shape-rendering="crispEdges">
-<rect x="0" y="0" width="4" height="4" fill="#666666"/>
-<rect x="4" y="0" width="4" height="4" fill="#b2b2b2"/>
-<rect x="8" y="0" width="4" height="4" fill="#999999"/>
-<rect x="0" y="4" width="4" height="4" fill="#808080"/>
-<rect x="4" y="4" width="4" height="4" fill="#999999"/>
-<rect x="8" y="4" width="4" height="4" fill="#808080"/>
-<rect x="0" y="8" width="4" height="4" fill="#999999"/>
-<rect x="4" y="8" width="4" height="4" fill="#b2b2b2"/>
-<rect x="8" y="8" width="4" height="4" fill="#666666"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#fff"/><circle cx="8" cy="8" r="7.5" fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1"/><g fill="none" stroke="#171717" stroke-width="1"><circle cx="8" cy="8" r="4.5"/><circle cx="8" cy="8" r="2" stroke-linecap="round" stroke-dasharray="3.1812 9.3852" transform="rotate(44.43 8 8)"/></g><g fill="#171717"><circle cx="6.5" cy="6.5" r="0.625"/><circle cx="9.5" cy="6.5" r="0.625"/></g></svg>
