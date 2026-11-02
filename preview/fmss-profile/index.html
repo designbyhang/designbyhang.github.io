@@ -64,7 +64,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* the push reel ⇄ profile is one value on the shared IAB spring (pushRender below): no CSS transitions on the surfaces */
 .video{left:0;top:0;width:402px;height:874px;object-fit:cover;background:#000}
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
-.hot{left:8px;top:566px;width:116px;height:44px;border-radius:22px}   /* Nike: avatar, name and badges of the shared author row (570–606) */
+.hot{left:8px;top:550px;width:116px;height:44px;border-radius:22px}   /* Nike: avatar, name and badges of the shared author row (554–590, over the comment bar) */
 .hot:active{background:rgba(255,255,255,.08)}
 /* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre while paused */
 #pz{left:169px;top:405px;z-index:1}   /* the shared play glyph (../shared/pause) */
@@ -177,6 +177,7 @@ html.hosted .phone{background:transparent;border-radius:0}
           <div class="abs" id="pz" aria-hidden="true"></div>
           <div class="abs rov" id="rov">
             <div data-reel="scrim"></div>
+            <div data-reel="comment" aria-hidden="true"></div>
             <div data-reel="rail"></div>
             <div data-reel="details" aria-hidden="true"></div>
             <button data-reel="more" id="more" type="button" aria-describedby="rsCapT" aria-label="More: open the in-app browser (IAB) as a half sheet" tabindex="-1"></button>
@@ -275,7 +276,7 @@ new ResizeObserver(fit).observe(frame);fit();
    recording's button showed (#F53C60 as Chrome and Safari drew it). The caption tap opens the IAB half sheet as fmss-cb's does (below:
    capOpen) ---------- */
 const ad=FMSSReel.mount($('rov'),{cta:'Learn more',color:'#F53C60',cap:'Engineered for greatness. Designed f',
-  capX:"Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.",counts:{like:'12.4K',comment:'842',share:'1.1K'}});
+  capX:"Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.",counts:{like:'12.4K',comment:'842',share:'1.1K'},comment:true});
 
 /* ---------- Figma corner smoothing (same squircle as fmss-cb) ---------- */
 function squircle(w,h,R,sm){
@@ -397,7 +398,7 @@ $('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?
 reel.addEventListener('click',e=>{
   if(screen!==1||iab.state!==1||iab.busy||e.target.closest('button'))return;
   const [x,y]=ptOf(e);
-  if(y>=112&&y<611&&(x<349||y<521))mediaTap();                 // the footage, not the status/back row, the author/caption/CTA/Sponsored rows (570 px on) or the action rail (326, 486 px)
+  if(y>=112&&y<594&&(x<349||y<504))mediaTap();                 // the footage, not the status/back row, the author/caption/CTA/Sponsored/comment rows (554 px on) or the action rail (326, 470 px)
 });
 
 /* ---------- peek ⇄ card surface ---------- */
@@ -649,7 +650,7 @@ async function swipe(dist,ms,tk,flingV=0){
 }
 /* the demo as steps: a number is a wait (a hover may hold during it), a function is one gesture (always finishes under a hover) */
 const STEPS=[
-  4700,tk=>tap('author',32,631,tk,openProfile),                 // reel plays, then tap Nike (the avatar, 30,588 px)
+  4700,tk=>tap('author',32,614,tk,openProfile),                 // reel plays, then tap Nike (the avatar, 30,572 px)
   2200,tk=>swipe(300,1100,tk),                                  // peek slides up and loads; scroll: peek collapses into the card
   2000,tk=>swipe(-300,520,tk,-1800),                            // back to the very top: peek springs back
   2000,tk=>swipe(420,900,tk,2200),                              // down again, all the way
