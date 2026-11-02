@@ -87,7 +87,7 @@ const im=(cls,f,w,h)=>`<img class="${cls}" alt="" src="${A}${f}${V}" width="${w}
 const vid=(cls,k)=>`<video class="${cls}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback data-src="${A}${k}.mp4${V}" poster="${A}${k}.webp${V}"></video>`;
 // Reels UI over one ad (page px): bottom gradient, the shared Reels UFI (preview/shared/ufi: FMSS's rail + the save item, like at 430, more
 // at 690), details (author: name, FMSS's verified badge and globe, 4 apart; caption, CTA: bottom 12, left 12, 303)
-const shi=(cls,f)=>`<img class="${cls}" alt="" src="${CA}${f}?v=351" width="12" height="12" draggable="false">`;
+const shi=(cls,f)=>`<img class="${cls}" alt="" src="${CA}${f}?v=355" width="12" height="12" draggable="false">`;
 const reelsUI=d=>`<i class="vc-gb"></i>`+(window.ReelsUFI?ReelsUFI.html(d.ufi):'')+
   `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${shi('vc-bd','verified.svg')}${shi('vc-bd','globe.svg')}</p>`+
   `<p class="vc-sp">Sponsored</p>${CAP(d.cap)}<p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;

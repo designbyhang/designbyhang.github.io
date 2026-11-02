@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAC · Multi-Ad Chaining: grid → Reels chain — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=351"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=355"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
@@ -18,11 +18,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=351"><link rel="stylesheet" href="../../css/theme.css?v=351">
+<link rel="stylesheet" href="../../css/type.css?v=355"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=351"><link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=351"><script src="../shared/ufi/ufi.js?v=351"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=351"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><link rel="stylesheet" href="../shared/caption/caption.css?v=355"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=355"><script src="../shared/ufi/ufi.js?v=355"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=355"><script src="../../js/vac-caption.js?v=355"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=351">
+<link rel="stylesheet" href="../shared/device/device.css?v=355">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -136,24 +136,24 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="phone" id="phone">
         <div class="L grid" id="grid">
           <div class="L tile" id="t1" style="background-image:url(../../assets/vac/vac-mac-oakley.webp?v=223);left:12px;top:170px"><canvas id="snap" width="344" height="544"></canvas></div>
-          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=223);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=351" src="../../assets/vac/vac-mac-samsung.mp4?v=351"></video></div>
-          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=223);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=351" src="../../assets/vac/vac-mac-lululemon.mp4?v=351"></video></div>
+          <div class="L tile" id="t2" style="background-image:url(../../assets/vac/vac-mac-samsung.webp?v=223);left:191.5px;top:170px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-samsung.webp?v=355" src="../../assets/vac/vac-mac-samsung.mp4?v=355"></video></div>
+          <div class="L tile" id="t3" style="background-image:url(../../assets/vac/vac-mac-lululemon.webp?v=223);left:12px;top:450px"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-mac-lululemon.webp?v=355" src="../../assets/vac/vac-mac-lululemon.mp4?v=355"></video></div>
           <div class="L tile" id="t4" style="background-image:url(../../assets/vac/vac-mac-starbucks.webp?v=223);left:192px;top:450px"><canvas width="344" height="544"></canvas></div>
         </div>
         <i class="L rbg" id="rbg" aria-hidden="true"></i>
         <!-- the seed boxes (.mv), one per chain: built from CH -->
         <div class="L gtop" id="gtop" aria-hidden="true">
-          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=351" style="left:12px;top:170px">
-          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=351" style="left:191.5px;top:170px;width:171px">
-          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=351" style="left:12px;top:450px">
-          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=351" style="left:192px;top:450px">
-          <img class="L" alt="" src="assets/grid-title.webp?v=351" style="left:116px;top:116px;width:144px;height:39.5px">
-          <img class="L" alt="" src="assets/grid-nav.webp?v=351" style="left:0;top:44px;width:375px;height:52px">
+          <img class="L th" id="h1" alt="" src="assets/tile-h1.webp?v=355" style="left:12px;top:170px">
+          <img class="L th" id="h2" alt="" src="assets/tile-h4-samsung.webp?v=355" style="left:191.5px;top:170px;width:171px">
+          <img class="L th" id="h3" alt="" src="assets/tile-h3.webp?v=355" style="left:12px;top:450px">
+          <img class="L th" id="h4" alt="" src="assets/tile-h2-starbucks.webp?v=355" style="left:192px;top:450px">
+          <img class="L" alt="" src="assets/grid-title.webp?v=355" style="left:116px;top:116px;width:144px;height:39.5px">
+          <img class="L" alt="" src="assets/grid-nav.webp?v=355" style="left:0;top:44px;width:375px;height:52px">
         </div>
         <div class="L reels" id="reels" aria-hidden="true">
           <!-- the reels (.pg), every chain's: built from CH -->
-          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=351" style="top:44px;height:52px">
-          <img class="L bar" alt="" src="assets/reels-bar.webp?v=351">
+          <img class="L chrome" alt="" src="assets/reels-nav.webp?v=355" style="top:44px;height:52px">
+          <img class="L bar" alt="" src="assets/reels-bar.webp?v=355">
         </div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
         <i class="L ctap ad-cta" id="ctap" aria-hidden="true"></i>
@@ -192,7 +192,7 @@ const $=id=>document.getElementById(id);
    brand, the VAC hero's for LensCrafters and Ray-Ban), cap, cta: [label, colour], hs: the
    product row (LensCrafters), src: the reel's own video (the seed reel has none: the seed box plays it), site: its Learn more opens the
    IAB (SITE, Oakley's). Reused as is: CC's videos, names, captions, CTA labels and colours */
-const V='?v=351',VA='../../assets/vac/';
+const V='?v=355',VA='../../assets/vac/';
 const CH=[
   {id:'oakley',tile:'t1',ti:0,T:[12,170,172,272],
    seed:{id:'mv',vid:'vid',src:'vac-mac-oakley',bg:'vac-mac-oakley.webp?v=223'},
