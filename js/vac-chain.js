@@ -32,7 +32,7 @@
      the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp, faded on the scrubber's HOLD/FADE), the
      shared IAB sheet header (preview/shared/iab/header.js, url/porsche.com.svg) on a white sheet (r16, 60% smoothing) with the advertiser's
      page (porsche-site.webp: the top of the prototype's porsche.com page, preview/vac-proto/assets/page.webp); the backdrop is the video itself, live: drawn small every frame and blurred
-   - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, globe, Sponsored; no verified badge), one-line
+   - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, FMSS's verified badge and globe, Sponsored), one-line
      caption with "more", the advertiser's CTA (303x36 r8, the ad's own colour as Reels does; LensCrafters takes its logo navy #182b50, per Hang), the vertical UFI and fixed chrome (status
      bar, back, protective gradient, comment composer, home indicator)
    Videos are locked to the loop clock (VideoScrubber lock), so every loop shows the same frames: the seed 0:00 at loop 0, 1:1 while it is
@@ -74,22 +74,22 @@ const R={feed:[0,216,375,375],split:[12,44,351,350],reels:[0,0,375,PG]};   // re
 const px=v=>v.toFixed(2)+'px',tr=(x,y)=>`translate(${px(x)},${px(y)})`;
 const rx=p=>p.pop?375*p.b:0,fx=p=>p.pop?-120*(1-p.b):0;       // Reels group x, Feed x (Back)
 const pageY=(p,j)=>PG*clamp(j-p.k,-1,1),onPage=(p,j)=>p.k>j-1&&p.k<j+1?1:0;
-/* the ads: page 0 is the seed (its video is the shared media layer), 1-3 the chain; Reels counts are like / comment / share */
+/* the ads: page 0 is the seed (its video is the shared media layer), 1-3 the chain; Reels counts are like / comment / share / save (the shared UFI) */
 const ADS=[
   {k:'porsche',name:'Porsche',cap:'Exhilaration is a renewable resource. The all-electric Taycan. Starting at $90,900.',cta:'Learn more',c:'#a67f53',
-    ufi:['3.1K','1.7K','563'],url:'porsche.com',head:'The Porsche Taycan'},   // the seed (the prototype's Porsche ad: copy, counts, CTA colour)
-  {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K']},
-  {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219']},
-  {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148']}];
+    ufi:['3.1K','1.7K','563','241'],url:'porsche.com',head:'The Porsche Taycan'},   // the seed (the prototype's Porsche ad: copy, counts, CTA colour)
+  {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K','860']},
+  {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219','174']},
+  {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148','124']}];
 const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5',CA=DC.base(document.currentScript,'../preview/shared/caption/');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const im=(cls,f,w,h)=>`<img class="${cls}" alt="" src="${A}${f}${V}" width="${w}" height="${h}" draggable="false">`;
 const vid=(cls,k)=>`<video class="${cls}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback data-src="${A}${k}.mp4${V}" poster="${A}${k}.webp${V}"></video>`;
-// Reels UI over one ad (page px): bottom gradient, vertical UFI (bottom 12, 48 wide), details (author, caption, CTA: bottom 12, left 12, 303)
-const reelsUI=d=>`<i class="vc-gb"></i><div class="vc-ufi">`+
-  ['like','comment','share'].map((n,i)=>`<span style="top:${495+65*i}px">${im('vc-ic','i-'+n+'.webp',48,48)}<b>${d.ufi[i]}</b></span>`).join('')+
-  `<span style="top:690px">${im('vc-ic','i-dots.webp',48,48)}</span></div>`+
-  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${im('vc-bd','i-globe.webp',24,24)}</p>`+
+// Reels UI over one ad (page px): bottom gradient, the shared Reels UFI (preview/shared/ufi: FMSS's rail + the save item, like at 430, more
+// at 690), details (author: name, FMSS's verified badge and globe, 4 apart; caption, CTA: bottom 12, left 12, 303)
+const shi=(cls,f)=>`<img class="${cls}" alt="" src="${CA}${f}?v=351" width="12" height="12" draggable="false">`;
+const reelsUI=d=>`<i class="vc-gb"></i>`+(window.ReelsUFI?ReelsUFI.html(d.ufi):'')+
+  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${shi('vc-bd','verified.svg')}${shi('vc-bd','globe.svg')}</p>`+
   `<p class="vc-sp">Sponsored</p>${CAP(d.cap)}<p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;
 // the caption + "… more ⌄": the shared VAC caption (js/vac-caption.js, with the prototype), cut to fit by VACCaption.watch in build()
 const CAP=cap=>window.VACCaption?VACCaption.html({cap,chev:CA+'chevron-down.svg?v=1',cls:'vc-cp'}):`<p class="vc-cp"><span>${esc(cap)}</span><em>more</em></p>`;

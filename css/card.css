@@ -62,14 +62,11 @@ html body .cover-anim .cv-scr.vac video.vc-v{position:absolute;left:0;top:0;widt
 .cv-scr.vac .vc-mv video.vc-v{object-position:50% 50%}
 .cv-scr.vac .vc-ui{position:absolute;left:0;top:0;width:375px;height:734px}
 .cv-scr.vac .vc-gb{position:absolute;left:0;bottom:0;width:375px;height:264px;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.675) 20%,rgba(0,0,0,.563) 39.65%,rgba(0,0,0,.375) 60.35%,rgba(0,0,0,.15) 80.13%,rgba(0,0,0,0) 100%)}
-.cv-scr.vac .vc-ufi{position:absolute;left:327px;top:0;width:48px;height:734px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.62))}
-.cv-scr.vac .vc-ufi span{position:absolute;left:0;width:48px;height:56px}
-html body .cover-anim .cv-scr.vac .vc-ic{left:12px;top:0;width:24px;height:24px}
-.cv-scr.vac .vc-ufi b{position:absolute;left:0;top:28px;width:48px;text-align:center;font:590 13px/16px var(--vc-f);font-weight:600;letter-spacing:-.08px;color:#fff}
+/* the UFI: the shared Reels UFI (preview/shared/ufi/ufi.css + ufi.js, loaded by projects/vac.html) */
 .cv-scr.vac .vc-dt{position:absolute;left:12px;top:606px;width:303px;height:116px}
 html body .cover-anim .cv-scr.vac .vc-av{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff}
 .cv-scr.vac .vc-nm{left:44px;top:-1px;display:flex;align-items:center;gap:4px;font:600 15px/20px var(--vc-f);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}
-html body .cover-anim .cv-scr.vac .vc-bd{width:12px;height:12px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.62))}
+html body .cover-anim .cv-scr.vac .vc-bd{width:12px;height:12px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .cv-scr.vac .vc-sp{left:44px;top:20px;font:400 12px/16px var(--vc-f);color:rgba(255,255,255,.7);text-shadow:0 0 1px rgba(0,0,0,.62)}
 /* the caption + "… more ⌄": size, type and the cut are the shared VAC caption's (js/vac-caption.js, p.vcap); placed here */
 .cv-scr.vac .vc-cp{left:0;top:48px}

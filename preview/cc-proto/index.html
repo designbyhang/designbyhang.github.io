@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=351"><link rel="stylesheet" href="../../css/theme.css?v=351">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/pause/pause.js?v=351"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=351"><script src="../shared/ufi/ufi.js?v=351"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/pause/pause.js?v=351"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=351">
 <style>
@@ -61,26 +61,23 @@ video{display:block;object-fit:cover}
 .tgrad{left:0;top:0;width:375px;height:178px;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,0))}
 .cc .tgrad{background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.18) 60%,rgba(0,0,0,0))}
 .grad{left:0;top:470px;width:375px;height:342px;background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.4) 22%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.2) 58%,rgba(0,0,0,.08) 78%,rgba(0,0,0,0) 100%)}
-/* UFI, as VAC's Reels (preview/vac-proto, its rendered rasters): the items on VAC's 65pt pitch, its more (···) centred at 702, so with
-   CC's extra save the column is bottom-anchored: like / comment / share / save at 429 + 65i (glyph tops 430 / 495 / 560.5 / 626.5: VAC's
-   comment / share land on 495.5 / 560.5 / 626), more at 690; x 326–375 (the icons 24 at 338.5, 12 from the right edge); the count 6
-   under its icon (digits ~9.5 under the glyph, as VAC's) */
-.ufi{left:326px;width:49px;text-align:center;font:500 12px/16px var(--sf);letter-spacing:0;text-shadow:0 0 2px rgba(0,0,0,.35)}
-.ufi>img,.ufi>svg{display:block;width:24px;height:24px;margin:0 auto 6px}
+/* UFI: the shared Reels UFI (preview/shared/ufi: ufi.js + ufi.css, FMSS's rail and icons, with the save item; like / comment / share / save
+   at 430 + 65i, more at 690, x 326–376), as every Reels player on the VAC page */
 /* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
-   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name (+ the globe on ads and the seed; 20px line; no verified badge, no "· Follow"/"· Following" anywhere) and
+   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name (+ the globe on ads and the seed; 20px line; the verified badge after every name (FMSS's), no "· Follow"/"· Following" anywhere) and
    "Sponsored" under the name (the shared .c-sp line: 12/16, white 70%, as MAC and SAP since v230; no Ad pill), the VAC caption at +48
    (ads 668; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
-   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the name alone (no badge, no "· Following"), the post's age under it, the caption, and the
+   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the name and its badge (no globe, no "· Following"), the post's age under it, the caption, and the
    commerce card (56) at +80 (666–722). The Nike seed: name / 4h and its caption only (author 658, caption 702) */
 .phone .c-stack{--c-bottom:90px}
 .c-stack.cc-org{height:136px}
 .c-stack.cc-seed{height:64px}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
-.c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.3);-webkit-font-smoothing:antialiased}
-/* ads and the seed: the globe after the name (VAC's: preview/shared/caption/globe.svg, 12×12 centred on the 20px name line, as
-   MAC/SAP's .cglobe; 6 after the name: its ink ~7.5 from the name's, as SAP's rasters) */
-.cn .cglobe{flex:none;width:12px;height:12px;margin-left:6px}
+.c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:600 15px/20px var(--sf);letter-spacing:-.24px;color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
+/* the name row, as FMSS's author row (preview/fmss-cb/assets/author.svg): the verified badge 4 after the name on every reel
+   (preview/shared/caption/verified.svg, FMSS's own 12×12), then on ads and the seed the globe 4 after the badge (shared globe.svg, FMSS's);
+   both 12×12 centred on the 20px name line, with the name's shadow (FMSS's 1px 62% black: stdDeviation .5) */
+.cn .cbadge,.cn .cglobe{flex:none;width:12px;height:12px;margin-left:4px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .c-stack.cc-seed>.c-cap{top:44px}
 .c-stack>.card{left:0;top:80px;box-sizing:border-box;width:max-content;max-width:303px;height:56px;padding:10px 12px 0 56px;border-radius:16px;
   background:rgba(156,156,156,.5);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
@@ -229,18 +226,15 @@ const ICO={
   /* the playlist (queue): outline, as the search sparkle and the home: 1.4 strokes, round caps and joins, on the sparkle's 20 box and its
      optical centre (y 10): the play triangle top-left, two lines to its right, the long line under them */
   explore:'<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 4.5v6.4l5.4-3.2Z"/><path d="M12.4 5.3H16M12.4 10.1H16M4.4 15.5H16"/></svg>'};
-const GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351">';
-const SAVE='<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h12c.6 0 1 .4 1 1v16.3c0 .5-.6.8-1 .5l-6-4.6-6 4.6c-.4.3-1 0-1-.5V4.4c0-.6.4-1 1-1Z" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/></svg>';
+const BADGE='<img class="cbadge" alt="" src="../shared/caption/verified.svg?v=351">',GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351">';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
 function page(id){
   const d=R[id],p=document.createElement('div');p.className='L pg';p.id='p-'+id;p.style.backgroundImage=`url(${AV}${id}.webp${V})`;
   const lazy=id==='nike'||id==='nesp'?'auto':'metadata';
   let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${V}" src="${AV}${id}.mp4${V}"></video><i class="tgrad"></i><i class="grad"></i>`;
-  const ic=['<img alt="" src="assets/u-like.webp'+V+'">','<img alt="" src="assets/u-comment.webp'+V+'">','<img alt="" src="assets/u-share.webp'+V+'">',SAVE];
-  d.ufi.forEach((n,i)=>{h+=`<div class="ufi" style="top:${429+i*65}px">${ic[i]}${esc(n)}</div>`});
-  h+=`<div class="ufi" style="top:690px"><img alt="" src="assets/u-dots.webp${V}"></div>`;
-  const row=(sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${mark}</p><p class="c-sp">${esc(sub)}</p>`;
+  h+=ReelsUFI.html(d.ufi);
+  const row=(sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${BADGE}${mark}</p><p class="c-sp">${esc(sub)}</p>`;
   if(d.kind==='ad')h+=`<div class="c-stack">${row('Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
   else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row(d.ago,'')}<p class="c-cap">${esc(d.cap)}</p><div class="card"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t cta-type">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
   else h+=`<div class="c-stack cc-seed">${row(d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;

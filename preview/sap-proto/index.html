@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=351"><link rel="stylesheet" href="../../css/theme.css?v=351">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=351"><link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=351"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=351"><link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=351"><script src="../shared/ufi/ufi.js?v=351"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=351"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=351">
 <style>
@@ -64,16 +64,15 @@ video{display:block;object-fit:cover}
    the one video ad CTA, 303×36, r8; its press dim .press inside it) (LensCrafters: author 570, caption 618, carousel 650–722). The seed's
    "Explore more like this" (698–722) never overlays it: the block rises 37px (the chip's 24 + 13) on the chip's own progress and ease
    (render(): ReelsCaption.lift), to author 569, caption 617, CTA 649–685 */
-.ufi{left:326px;top:486px;width:49px;height:237px}
 .row{left:12px;top:698px;width:303px;height:24px;overflow:hidden}
 .pill{position:absolute;top:0;height:24px;border-radius:24px;background:rgba(24,25,26,.6);overflow:hidden}
 .pill img{position:absolute;left:0;top:0;width:100%;height:100%}
 .pill i,.press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease)}
 .pill i{border-radius:24px}
 .pill i.on,.press.on{opacity:1;transition-duration:.12s}
-/* the brand row: the name's line at row top − 1 (baked in det-*.webp), the shared globe 7px after the name at row top + 3, "Sponsored" under
+/* the brand row: the name's line at row top − 1 (baked in det-*.webp), the verified badge 4px after the name's advance and the globe 4 after it (FMSS's author row) at row top + 3, "Sponsored" under
    the name (as VAC: js/vac-chain.js .vc-sp). No Ad pill. "Explore more like this" 698–722 (seed only), left-aligned with the CTA */
-.cglobe{width:12px;height:12px;pointer-events:none}
+.cbadge,.cglobe{width:12px;height:12px;pointer-events:none}
 .chip{left:0;width:153px;opacity:0;will-change:transform,opacity}
 .zl{left:0;top:0;width:375px;height:734px;opacity:0}
 .lc{background:#101010}
@@ -134,25 +133,25 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L seed" id="seed" aria-hidden="true">
           <video class="fv" id="sv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-rayban.webp?v=351" src="../../assets/vac/vac-sap-rayban.mp4?v=351"></video>
           <i class="tgrad"></i><i class="grad"></i>
-          <div class="c-stack" id="seedStack"><img class="c-det" alt="" src="assets/det-rayban.webp?v=351"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:112.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.</p><p class="c-act ad-cta" style="background:#6f533c">Learn more<i class="press" id="ctaPress"></i></p></div>
+          <div class="c-stack" id="seedStack"><img class="c-det" alt="" src="assets/det-rayban.webp?v=351"><img class="cbadge" alt="" src="../shared/caption/verified.svg?v=351" style="left:109.5px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:125.5px"><p class="c-sp">Sponsored</p><p class="c-cap">Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.</p><p class="c-act ad-cta" style="background:#6f533c">Learn more<i class="press" id="ctaPress"></i></p></div>
           <div class="row"><span class="pill chip" id="chip"><img alt="" src="assets/chip.webp?v=351"><i id="chipPress"></i></span></div>
-                    <img class="ufi" alt="" src="assets/ufi.webp?v=351">
+                    <i class="ufi" data-n="12K|3.4K|1.1K|860"></i>
         </div>
         <div class="L stack" id="stack" aria-hidden="true">
           <div class="L pg" id="pw" style="background-image:url(../../assets/vac/vac-sap-warby.webp?v=223)"><video class="fv" id="wv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-warby.webp?v=351" src="../../assets/vac/vac-sap-warby.mp4?v=351"></video>
-            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-warby.webp?v=351"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:149px"><p class="c-sp">Sponsored</p><p class="c-cap">We've got your eyes covered. Find your new favorite frames, online or in store.</p><p class="c-act ad-cta" style="background:#00a3e2">Shop now<i class="press"></i></p></div>
-            <img class="ufi" alt="" src="assets/ufi.webp?v=351"></div>
+            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-warby.webp?v=351"><img class="cbadge" alt="" src="../shared/caption/verified.svg?v=351" style="left:146px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:162px"><p class="c-sp">Sponsored</p><p class="c-cap">We've got your eyes covered. Find your new favorite frames, online or in store.</p><p class="c-act ad-cta" style="background:#00a3e2">Shop now<i class="press"></i></p></div>
+            <i class="ufi" data-n="2.3K|486|219|174"></i></div>
           <div class="L pg" id="pz" style="background-image:url(../../assets/vac/vac-sap-zenni.webp?v=223)"><video class="fv" id="zv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-zenni.webp?v=351" src="../../assets/vac/vac-sap-zenni.mp4?v=351"></video>
             <img class="zl" id="zl" alt="" src="../../assets/vac/vac-sap-zenni-last.webp?v=351">
-            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-zenni.webp?v=351"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:147px"><p class="c-sp">Sponsored</p><p class="c-cap">The Kittles Collection x Zenni Optical. Shop the full collection of frames at zenni.com.</p><p class="c-act ad-cta" style="background:#0199a8">Shop now<i class="press"></i></p></div>
-            <img class="ufi" alt="" src="assets/ufi.webp?v=351"></div>
+            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-zenni.webp?v=351"><img class="cbadge" alt="" src="../shared/caption/verified.svg?v=351" style="left:144px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:160px"><p class="c-sp">Sponsored</p><p class="c-cap">The Kittles Collection x Zenni Optical. Shop the full collection of frames at zenni.com.</p><p class="c-act ad-cta" style="background:#0199a8">Shop now<i class="press"></i></p></div>
+            <i class="ufi" data-n="1.1K|96|58|73"></i></div>
           <div class="L pg" id="pe" style="background-image:url(../../assets/vac/vac-sap-even.webp?v=223)"><video class="fv" id="ev" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-even.webp?v=351" src="../../assets/vac/vac-sap-even.mp4?v=351"></video>
-            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-even.webp?v=351"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:150.5px"><p class="c-sp">Sponsored</p><p class="c-cap">The everyday display smart glasses. Meet Even G2, with a discreet display built into prescription-ready lenses.</p><p class="c-act ad-cta" style="background:#705d56">Shop now<i class="press"></i></p></div>
-            <img class="ufi" alt="" src="assets/ufi.webp?v=351"></div>
+            <i class="tgrad"></i><i class="grad"></i><div class="c-stack"><img class="c-det" alt="" src="assets/det-even.webp?v=351"><img class="cbadge" alt="" src="../shared/caption/verified.svg?v=351" style="left:147.5px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:163.5px"><p class="c-sp">Sponsored</p><p class="c-cap">The everyday display smart glasses. Meet Even G2, with a discreet display built into prescription-ready lenses.</p><p class="c-act ad-cta" style="background:#705d56">Shop now<i class="press"></i></p></div>
+            <i class="ufi" data-n="3.6K|742|286|312"></i></div>
           <div class="L pg lc" id="pl"><video class="fv" id="lv" muted playsinline preload="auto" disableremoteplayback poster="../../assets/vac/vac-sap-lc.webp?v=351" src="../../assets/vac/vac-sap-lc.mp4?v=351" style="background-image:url(../../assets/vac/vac-sap-lc.webp?v=223)"></video>
-            <div class="c-stack c-hs"><img class="c-det" alt="" src="assets/det-lc.webp?v=351"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:144px"><p class="c-sp">Sponsored</p><p class="c-cap">High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.</p>
+            <div class="c-stack c-hs"><img class="c-det" alt="" src="assets/det-lc.webp?v=351"><img class="cbadge" alt="" src="../shared/caption/verified.svg?v=351" style="left:141px"><img class="cglobe" alt="" src="../shared/caption/globe.svg?v=351" style="left:157px"><p class="c-sp">Sponsored</p><p class="c-cap">High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.</p>
               <div class="hs c-act"><b id="hsr"><span style="left:0"><img alt="" src="assets/lc-1.webp?v=351"><i class="press"></i></span><span style="left:80px"><img alt="" src="assets/lc-2.webp?v=351"><i class="press"></i></span><span style="left:160px"><img alt="" src="assets/lc-3.webp?v=351"><i class="press"></i></span><span style="left:240px"><img alt="" src="assets/lc-4.webp?v=351"><i class="press"></i></span><span style="left:320px"><img alt="" src="assets/lc-5.webp?v=351"><i class="press"></i></span><span style="left:400px"><img alt="" src="assets/lc-6.webp?v=351"><i class="press"></i></span></b></div></div>
-            <img class="ufi" alt="" src="assets/ufi.webp?v=351"></div>
+            <i class="ufi" data-n="1.6K|312|148|124"></i></div>
         </div>
         <img class="L bar" alt="" src="assets/bar.webp?v=351" aria-hidden="true">
         <i class="L navp" id="navp" aria-hidden="true"></i><i class="L navo" id="navo" aria-hidden="true"></i>
@@ -177,6 +176,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
+/* the UFI: the shared Reels UFI (preview/shared/ufi), each reel's counts (like|comment|share|save) on its placeholder */
+document.querySelectorAll('i.ufi[data-n]').forEach(e=>{e.outerHTML=ReelsUFI.html(e.dataset.n.split('|'))});
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);

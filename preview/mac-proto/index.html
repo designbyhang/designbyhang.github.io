@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=351"><link rel="stylesheet" href="../../css/theme.css?v=351">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=351"><link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=351"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=351"><link rel="stylesheet" href="../shared/caption/caption.css?v=351"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=351"><script src="../shared/ufi/ufi.js?v=351"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=351"><script src="../../js/vac-caption.js?v=351"></script><script src="../shared/caption/caption.js?v=351"></script><script src="../../js/squircle.js?v=351"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=351"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=351">
 <style>
@@ -69,12 +69,11 @@ video{display:block;object-fit:cover}
 .pg img,.pg video,.pg .hs{position:absolute}
 /* the ad details: the shared layout (preview/shared/caption/caption.css .c-stack, as VAC's .vc-dt), bottom-anchored 12px above the
    reel's bottom (734), nothing under the CTA: author row 606–642 (avatar 36 and the name, its line at 605, baked in the .c-det rasters; the
-   shared globe 7px after the name's advance, top 609; "Sponsored" at 626, as VAC; no badge), caption line 654–674 ("… more ⌄", the VAC
+   verified badge 4px after the name's advance and the globe 4 after it, FMSS's, top 609; "Sponsored" at 626, as VAC), caption line 654–674 ("… more ⌄", the VAC
    caption), CTA 686–722 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8, its 60% squircle): caption → CTA 12px, as VAC. LensCrafters: author 570, caption 618, carousel 650–722 */
-.cglobe{width:12px;height:12px;pointer-events:none}
+.cbadge,.cglobe{width:12px;height:12px;pointer-events:none}
 /* the caption line ("<cut text>… more ⌄"): the VAC caption (js/vac-caption.js) in the shared layout, cut on whole glyphs so the whole
    line, arrow included, ends at least 4px inside the CTA's right edge (x 311); "more ⌄" follows the cut */
-.ufi{left:326px;top:486px;width:49px;height:237px}
 .lc{background:#101010;overflow:hidden}
 .lc video{left:0;top:126px;width:375px;height:375px}
 /* the LensCrafters carousel, as sap-demo: the shared layout's action region (650–722), the same thumbnails, the right-edge fade */
@@ -188,26 +187,28 @@ const $=id=>document.getElementById(id);
    in the reel's 375×734 box (matched on features): the grow opens on the tile footage and, once the window is as tall as TW (aspect
    375/720), carries on with the reel's while the tile layer fades out (no jump: both are the same frame there).
    ads: the chain's reels, top to bottom. det: the author row (avatar + name, one raster as s-det; Starbucks, Blue Bottle and La Colombe
-   rendered from CC's avatars by the renderer that reproduces s-det), globe: its x (7 past the name), cap, cta: [label, colour], hs: the
+   rendered from CC's avatars by the renderer that reproduces s-det), bx: the verified badge's x (FMSS's, 4 past the name's advance; the
+   globe 4 after it, bx + 16), ufi: the counts (like / comment / share / save; the shared UFI, preview/shared/ufi; CC's where CC has the
+   brand, the VAC hero's for LensCrafters and Ray-Ban), cap, cta: [label, colour], hs: the
    product row (LensCrafters), src: the reel's own video (the seed reel has none: the seed box plays it), site: its Learn more opens the
    IAB (SITE, Oakley's). Reused as is: CC's videos, names, captions, CTA labels and colours */
 const V='?v=351',VA='../../assets/vac/';
 const CH=[
   {id:'oakley',tile:'t1',ti:0,T:[12,170,172,272],
    seed:{id:'mv',vid:'vid',src:'vac-mac-oakley',bg:'vac-mac-oakley.webp?v=223'},
-   ads:[{id:'p0',name:'Oakley',det:'s-det',globe:101.5,site:1,cta:['Learn more','#750401'],
+   ads:[{id:'p0',name:'Oakley',det:'s-det',bx:98.5,ufi:['1.3K','1.5K','107','86'],site:1,cta:['Learn more','#750401'],
          cap:'Pre-order the Limited Edition Oakley Meta HSTN, performance AI glasses with a built-in camera and open-ear audio.'},
-        {id:'p1',kind:'lc',vid:'lcv',src:'vac-mac-lenscrafters',name:'LensCrafters',det:'lc-det',globe:144,hs:6,
+        {id:'p1',kind:'lc',vid:'lcv',src:'vac-mac-lenscrafters',name:'LensCrafters',det:'lc-det',bx:141,ufi:['1.6K','312','148','124'],hs:6,
          cap:'High-quality prescription glasses standard with every pair. Book an eye exam at a LensCrafters near you.'},
-        {id:'p2',vid:'rbv',src:'vac-mac-rayban',name:'Ray-Ban',det:'rb-det',globe:112.5,site:1,cta:['Learn more','#6f533c'],
+        {id:'p2',vid:'rbv',src:'vac-mac-rayban',name:'Ray-Ban',det:'rb-det',bx:109.5,ufi:['12K','3.4K','1.1K','860'],site:1,cta:['Learn more','#6f533c'],
          cap:'Hey Meta, Who Eats Art? With Chris Hemsworth and Chris Pratt.'}]},
   {id:'sbux',tile:'t4',ti:3,T:[192,450,172,272],
    seed:{id:'mv2',vid:'sv',src:'vac-cc-sbux',bg:'vac-cc-sbux.webp'+V,tile:{vid:'stv',src:'vac-mac-starbucks',TW:[-39.515,7.08,455.32,720.04]}},
-   ads:[{id:'q0',name:'Starbucks',det:'sbux-det',globe:125,cta:['Order now','#00573f'],
+   ads:[{id:'q0',name:'Starbucks',det:'sbux-det',bx:122,ufi:['8.9K','1.1K','402','615'],cta:['Order now','#00573f'],
          cap:"This summer's new drink just dropped. Order ahead in the Starbucks app."},
-        {id:'q1',vid:'bbv',src:'vac-cc-bb',name:'Blue Bottle Coffee',det:'bb-det',globe:180.5,cta:['Learn more','#1f6cb0'],
+        {id:'q1',vid:'bbv',src:'vac-cc-bb',name:'Blue Bottle Coffee',det:'bb-det',bx:177.5,ufi:['2.4K','312','96','140'],cta:['Learn more','#1f6cb0'],
          cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.'},
-        {id:'q2',vid:'lcolv',src:'vac-cc-lc',name:'La Colombe Coffee',det:'lcol-det',globe:189,cta:['Learn more','#d9475f'],
+        {id:'q2',vid:'lcolv',src:'vac-cc-lc',name:'La Colombe Coffee',det:'lcol-det',bx:186,ufi:['1.8K','204','77','131'],cta:['Learn more','#d9475f'],
          cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.'}]}];
 (function build(){   // the seeds (under the grid's top layer) and the reels (under Reels' chrome), the same markup for every chain
   const vt=(id,src,cls,st)=>`<video${id?` id="${id}"`:''}${cls?` class="${cls}"`:''} muted playsinline loop preload="auto" disableremoteplayback poster="${VA}${src}.webp${V}" src="${VA}${src}.mp4${V}"${st?` style="${st}"`:''}></video>`;
@@ -216,12 +217,12 @@ const CH=[
     top.insertAdjacentHTML('beforebegin',`<div class="L mv${t?' mx':''}" id="${S.id}" style="background-image:url(${VA}${S.bg})" role="button" aria-label="${C.ads[0].name} video ad: open it in Reels">`+
       vt(S.vid,S.src)+(t?vt(t.vid,t.src,'mt',`left:${t.TW[0]}px;top:${t.TW[1]}px;width:${t.TW[2]}px;height:${t.TW[3]}px`):'')+'</div>');
     for(const a of C.ads){
-      const stk=`<img class="c-det" alt="" src="assets/${a.det}.webp${V}"><img class="cglobe" alt="" src="../shared/caption/globe.svg${V}" style="left:${a.globe}px"><p class="c-sp">Sponsored</p><p class="c-cap">${a.cap}</p>`;
+      const stk=`<img class="c-det" alt="" src="assets/${a.det}.webp${V}"><img class="cbadge" alt="" src="../shared/caption/verified.svg${V}" style="left:${a.bx}px"><img class="cglobe" alt="" src="../shared/caption/globe.svg${V}" style="left:${a.bx+16}px"><p class="c-sp">Sponsored</p><p class="c-cap">${a.cap}</p>`;
       let h;
       if(a.hs){let r='';for(let i=0;i<a.hs;i++)r+=`<span style="left:${i*80}px"><img alt="" src="assets/lc-p${i+1}.webp${V}"></span>`;
         h=vt(a.vid,a.src)+`<div class="c-stack c-hs">${stk}<div class="hs c-act"><i id="hsr">${r}</i></div></div>`}
       else h=(a.src?vt(a.vid,a.src,'','left:0;top:0;width:375px;height:734px'):'')+`<i class="grad"></i><div class="c-stack">${stk}<p class="c-act ad-cta" style="background:${a.cta[1]}">${a.cta[0]}</p></div>`;
-      chrome.insertAdjacentHTML('beforebegin',`<div class="L pg${a.kind?' '+a.kind:''}" id="${a.id}">${h}<img class="ufi" alt="" src="assets/s-ufi.webp${V}"></div>`)}}
+      chrome.insertAdjacentHTML('beforebegin',`<div class="L pg${a.kind?' '+a.kind:''}" id="${a.id}">${h}${ReelsUFI.html(a.ufi)}</div>`)}}
   for(const C of CH){const S=C.seed,t=S.tile;
     C.box=$(S.id);C.sv=$(S.vid);C.mt=t?$(t.vid):null;C.TW=t?t.TW:null;C.place=$(C.tile);C.snap=C.place.querySelector('canvas');
     C.pages=C.ads.map(a=>$(a.id));C.vids=C.ads.map(a=>a.vid?$(a.vid):null);C.last='';

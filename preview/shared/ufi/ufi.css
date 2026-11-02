@@ -1,0 +1,9 @@
+/* The shared Reels UFI (shared/ufi/ufi.js: the markup and the reference). The rail is 50 wide at x 326, top 421 (the like icon's top 430 −
+   its 9px inset, FMSS's rail top 486 one 65px pitch higher for the save item), 302 high (more's icon 690–714 + 9); page px. */
+.r-ufi{position:absolute;left:326px;top:421px;width:50px;height:302px;margin:0;pointer-events:none;color:#fff;
+  filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
+.r-ufi>.r-u{position:absolute;left:0;width:50px;height:46px;margin:0;padding:0}
+.r-ufi>.r-u>svg{position:absolute;left:13px;top:0;width:24px;height:24px;display:block;overflow:visible}
+.r-ufi>.r-u>b{position:absolute;left:0;top:30px;width:50px;margin:0;padding:0;text-align:center;white-space:nowrap;
+  font:600 13px/16px "SF Pro Text",-apple-system,BlinkMacSystemFont,"SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif;
+  font-style:normal;letter-spacing:-.08px;color:#fff;text-shadow:none;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
