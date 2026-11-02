@@ -98,7 +98,7 @@ DC.register('vac',{T,rest:REST,
     const VS=window.VideoScrubber,HD=window.FMSSIABHeader,S=ADS[0];
     scr.innerHTML=
       // Feed: the cleared Figma Feed + the post's own parts
-      `<div class="vc-l vc-feed">${im('vc-fb','feed.webp',750,1624)}${im('vc-fav','a-'+S.k+'.webp',80,80)}`+
+      `<div class="vc-l vc-feed">${im('vc-fb','feed.webp',750,1624)}${im('vc-fav','a-'+S.k+'.webp',80,80)}<i class="fd-ic fd-gl" style="left:137px;top:141px"></i>`+   // the header globe, preview/shared/feed (Figma 3x) over the baked one
         `<p class="vc-fn"><span>${esc(S.name)}</span></p><p class="vc-fc">${esc(S.cap)}</p>`+
         `<p class="vc-fu">${S.url}</p><p class="vc-fh">${esc(S.head)}</p><p class="vc-fcta">${esc(S.cta)}</p></div>`+
       // Split backdrop: the seed video, live, small and blurred (drawn by frame() below), under a 24% dim

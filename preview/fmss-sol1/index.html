@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/device/device.css?v=355">
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/feed/feed.css?v=359">
 <style>
 /* no focus outline, focus ring or tap highlight (as css/theme.css on the main site) */
 *,*:focus,*:focus-visible,*:active{outline:none;-webkit-tap-highlight-color:transparent}
@@ -148,11 +148,13 @@ const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (
 const SC=['#fff','#f1f2f6','#fff','#f1f2f6'];   // B sheet colour (each bl image's own flat top rows): the live sheet top, .bk
 const anims=[],imgs=[],vids=[];
 const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]);
+const FDX=[96,164,112,140];   // A's verified badge x per phone (Nike, Meta for Work, Artifox, Chick-fil-A; Figma, at y 122), its globe 137,141
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i];
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
   dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+`<i class="L sk" style="top:${top-2}px;height:${dp(30)};background-image:url(${AS}bu${i+1}.webp${V});background-size:100% ${top*100}%"></i>`+
     `<img class="L a" alt="" src="${AS}a${i+1}.webp${V}">`+
+    `<i class="L fd-ic fd-bd" style="left:${FDX[i]}px;top:122px"></i><i class="L fd-ic fd-gl" style="left:137px;top:141px"></i>`+   // A's header icons, ../shared/feed (Figma 3x) over the baked ones
     `<img class="L bt" alt="" src="${AS}bu${i+1}.webp${V}" style="height:${dp(top)}">`+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${i+1}.webp${V}" src="${AS}v${i+1}.mp4${V}"></video></div>`+
     (VS?'<i class="vs-at"></i>':`<img class="L bc" alt="" src="${AS}bc${i+1}.webp${V}" style="height:${dp(top)}">`)+
@@ -175,6 +177,7 @@ PH.forEach((p,i)=>{
   const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn)=>anims.push(q(el).animate(track(fn),o));
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
+  A('.fd-bd',p=>({opacity:p.a<1?1:0}));A('.fd-gl',p=>({opacity:p.a<1?1:0}));   // A's header icons go with it
   // B top (backdrop, nav bar) dissolves in over A (hs: mbg/mnav opacity = m); the B sheet rises from the bottom edge
   A('.bt',p=>({opacity:p.a}));A('.bo',p=>({opacity:p.a}));
   // shared element: the same playing video travels feed rect [0,216,375,ah] -> split-screen rect [12,by,351,bh]: x, y, width, height and

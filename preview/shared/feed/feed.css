@@ -1,0 +1,13 @@
+/* Feed ad header icons, shared by every Feed ad post on the site: the verified badge after the advertiser name and the globe after
+   "Sponsored ·". Source of truth: Hang's Figma (XYE8LCJVe0rHhnEB5DA18A, fmss_26 Artifox post): badge-checkmark 12dp filled
+   (140796:6458, #1b74e4) and globe-americas 10dp filled (140796:6461, #65676b), exported read-only through the API at 3x: the FB icon
+   library draws both as image masks (no vector), so badge.png 36x36 and globe.png 30x30 are Figma's own 3x renders, shown at native
+   size 12x12 / 10x10, never scaled unevenly. Usage: <i class="fd-ic fd-bd" style="left:Xpx;top:Ypx"></i> at the icon's Figma
+   x,y (whole px) in the host's 375x812 design px. Over a baked Feed screenshot the icon sits on a 1px white surround that covers the
+   screenshot's own (softer) copy of it; on a live/vector post it is the only copy. */
+.fd-ic{position:absolute;display:block;box-sizing:content-box;width:var(--fd-w);height:var(--fd-w);padding:1px;margin:-1px 0 0 -1px;
+  pointer-events:none;background-repeat:no-repeat;background-size:100% 100%;background-origin:content-box,border-box;background-clip:content-box,border-box}
+.fd-bd{--fd-w:12px;background-image:url(badge.png?v=359),linear-gradient(#fff,#fff)}
+.fd-gl{--fd-w:10px;background-image:url(globe.png?v=359),linear-gradient(#fff,#fff)}
+/* inside a drawn-size layer stage (preview/fmss-sol1, fmss-sol2: .scr .L laid out at design px x --s, scaled back by 1/--s) */
+@supports (scale:2){.scr .fd-ic.L{width:calc(var(--fd-w) * var(--s,.5));height:calc(var(--fd-w) * var(--s,.5));padding:calc(1px * var(--s,.5))}}

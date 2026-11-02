@@ -63,6 +63,7 @@ PATH.coverBezel=`path('${squircle(383,820,52,0)}')`;   // in .fsp-bz's own box (
    sheet sits lower at the split hold only (eased in with a, out with c; the B backdrop runs that much longer under it); opt.video = false to
    leave the <video> without src (caller attaches it lazily via the returned video's data-src). Layer CSS: see .fsp-* in css/card.css
    (sol1 keeps the same rules inline under its own class names). */
+const FDX=[96,164,112,140];   // A's verified badge x per phone (Nike, Meta for Work, Artifox, Chick-fil-A; Figma, at y 122), its globe 137,141
 function screen(el,i,opt){
   const VS=window.VideoScrubber,p=PHONES[i],B=opt.base,V=opt.v||'?v=5',top=p.top,sd=opt.sheetDy||0,up=top-44,dn=812-top,n=i+1,lazy=opt.video===false;
   // bw: the seam underlay, under everything at the split line (shows only while A is hidden, through the anti-aliased device row where the
@@ -70,6 +71,7 @@ function screen(el,i,opt){
   // sides carry (the backdrop's in the sheet's rounded corners, white between), never the screen's black (dark hairline) or plain white
   el.innerHTML=`<i class="bw" style="position:absolute;left:0;width:375px;top:${top-2}px;height:${sd+4}px;background:url(${B}bl${n}.webp${V}) 0 0/375px 81200% no-repeat"></i>`+
     `<img class="L a" alt="" src="${B}a${n}.webp${V}">`+
+    `<i class="L fd-ic fd-bd" style="left:${FDX[i]}px;top:122px"></i><i class="L fd-ic fd-gl" style="left:137px;top:141px"></i>`+   // A's header icons (preview/shared/feed, its feed.css loaded by the page) over the baked ones
     `<img class="L bt" alt="" src="${B}bu${n}.webp${V}" style="height:${top+sd}px">`+
     `<div class="mv"><video muted playsinline loop ${lazy?'preload="none" data-src':'preload="auto" src'}="${B}v${n}.mp4${V}" disableremoteplayback poster="${B}p${n}.webp${V}"></video></div>`+
     (VS?'<i class="vs-at"></i>':`<img class="L bc" alt="" src="${B}bc${n}.webp${V}" style="height:${top}px">`)+
@@ -90,6 +92,7 @@ function screen(el,i,opt){
     sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null,demoTaps:i===0?TAPS:null}).el);
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
+  A('.fd-bd',p=>({opacity:p.a<1?1:0}));A('.fd-gl',p=>({opacity:p.a<1?1:0}));   // A's header icons go with it
   // B top (backdrop, nav bar) dissolves in over A; the B sheet rises from the bottom edge
   A('.bt',p=>({opacity:p.a}));A('.bo',p=>({opacity:p.a}));
   // shared element: the same playing video travels feed rect [0,216,375,ah] -> split-screen rect [12,by,351,bh]: x, y, width, height and

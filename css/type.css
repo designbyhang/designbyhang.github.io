@@ -34,6 +34,8 @@
   --t-r-input:400 15px/20px var(--t-sf); --t-r-input-ls:-.24px;  /* "Add a comment…" */
   --t-r-body-s:400 13px/16px var(--t-sf);--t-r-body-s-ls:-.08px; /* 13/16 secondary text */
   --t-r-tab:600 17px/22px var(--t-sf);   --t-r-tab-ls:-.41px;    /* 17/22 headline (CC tabs) */
+  --t-r-sp-st:600 13px/16px var(--t-sf); --t-r-sp-st-ls:-.08px; --t-r-sp-st-c:rgba(255,255,255,.8); /* "Sponsored" in the Stories header (FMSS Solution 2, Figma 590 13/16) */
+  --t-r-title:700 17px/17px var(--t-sf); --t-r-title-ls:-.2px;   /* the app bar title (preview/shared/appbar: Profile & Browse) */
 }
 .t-display{font:var(--t-display);letter-spacing:var(--t-display-ls)}
 .t-stat{font:var(--t-stat);letter-spacing:var(--t-stat-ls)}
