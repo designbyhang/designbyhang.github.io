@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FM Split Screen · every experience — interactive prototype</title>
+<script src="../shared/demo/demo-clock.js?v=355"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script>
+/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
+(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
+if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}try{frameElement&&frameElement.dispatchEvent(new Event('proto-doc'))}catch(_){}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/type.css?v=358"><link rel="stylesheet" href="../../css/theme.css?v=355">
+<!-- shared FMSS foundation, unchanged: the IAB (sheet + header + page + toolbar), the live player controls, the squircle, the device tokens -->
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355">
+<script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script>
+<script src="../../js/video-scrubber.js?v=355"></script>
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><script src="../shared/device/snap.js?v=356"></script>
+<!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
+<link rel="stylesheet" href="../shared/reel/reel.css?v=358">
+<!-- preview-only page: no gate.js / passcode -->
+<style>
+:root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+*{box-sizing:border-box}
+*:focus,*:focus-visible{outline:none}
+html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}
+header.top h1{font-size:20px;line-height:24px;font-weight:600;margin:0;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
+.theme{appearance:none;border:1px solid var(--line);background:var(--frame);color:var(--ink);font:inherit;font-size:14px;line-height:16px;padding:8px 16px;border-radius:999px;cursor:pointer}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+.stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
+.below{max-width:640px;color:var(--mute);font-size:14px;line-height:24px;margin-top:32px}
+
+/* ---------- phone: 375×812 screen + 8px theme-aware bezel (the FMSS Evolution prototypes) ---------- */
+.phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
+.bezel{position:absolute;inset:-8px;filter:drop-shadow(40px 0 20px rgba(0,0,0,.2));pointer-events:none}
+.bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
+.phone img{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.L{position:absolute;left:0;top:0;display:block;margin:0}
+.btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit}
+
+/* ---------- one experience: the Solution 1 / 2 split-screen recipe (surface A → split screen B → full screen C), live ---------- */
+.xp{position:absolute;inset:0;display:none;background:#000}
+.xp.on{display:block}
+.xp img.L{width:375px;height:812px}
+.sk{width:375px;height:30px;background-position:0 100%;background-repeat:no-repeat}   /* under the sheet's top corners: the backdrop's last row */
+.pt{position:absolute;left:24px;top:10px;width:60px;height:24px}                    /* the status-bar time's place, under the Menu pill */
+.mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
+.rl{width:375px;height:734px;overflow:hidden}
+.mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.hit{z-index:auto;touch-action:none;cursor:pointer}
+.hit.off{pointer-events:none}
+.ctl{will-change:transform,opacity}
+.splx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
+.splx.on{display:block}
+/* Stories header (Figma .Header: Stepper + Meta + Icon Button Group), live so it moves inward with the canvas (as Solution 2) */
+.hd{position:absolute;left:0;top:0;width:375px;height:120px;color:#fff;font-weight:590;pointer-events:none}
+.hd>*{position:absolute;will-change:transform}
+.hd .pb{left:12px;top:52px;width:351px;height:2px;border-radius:2px;background:rgba(255,255,255,.2);transform-origin:0 0}
+.hd .meta{left:12px;top:66px;height:36px;display:flex;align-items:center;white-space:nowrap}
+.hd .meta img{position:static;width:36px;height:36px;border-radius:50%;display:block;margin-right:8px}
+.hd .nm{display:flex;align-items:flex-start;gap:4px;white-space:nowrap}
+.hd .nm .rl-t{color:#fff}
+.hd .sp{font:var(--t-r-sp);letter-spacing:var(--t-r-sp-ls);font-feature-settings:var(--t-sf-ft);color:var(--t-r-sp-c);-webkit-font-smoothing:antialiased;text-shadow:0 0 1px rgba(0,0,0,.62)}
+.hd .ic{left:295px;top:72px;width:68px;height:24px}
+.hd .ic svg{position:absolute;top:0;width:24px;height:24px}
+/* native sheet (lead form, Messenger, App Store, product catalog): the Solution sheet image, its live top and handle, and C's layers */
+.ns{width:375px;height:1240px;touch-action:none;cursor:grab;will-change:transform}
+.ns.off{pointer-events:none}
+.ns img{position:absolute;left:0;top:0;width:375px}
+.ns .ext{position:absolute;left:0;width:375px;height:440px;background-repeat:no-repeat;background-position:0 100%}
+.ns .bk{position:absolute;left:0;top:0;width:375px;height:18px}
+.ns .bk i{position:absolute;left:168px;top:8px;width:40px;height:4px;border-radius:2px;background:#C9CCD1}
+.cu{left:-4px;top:780px;width:383px;height:36px}
+.cs{left:-4px;top:24px;width:383px;height:28px}
+.cu,.cs,.pt{pointer-events:none}
+.nx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
+.nx.on{display:block}
+.iabh{position:absolute;inset:0;pointer-events:none}
+.iabh>*{pointer-events:auto}
+.iabh .web img{position:absolute;left:0;top:0;width:375px;display:block}
+.sbl{width:375px;height:44px;pointer-events:none;background:#000;opacity:0;clip-path:inset(0 0 0 96px);
+  -webkit-mask:url(../shared/statusbar/status.svg?v=310) 0 0/375px 44px no-repeat;mask:url(../shared/statusbar/status.svg?v=310) 0 0/375px 44px no-repeat}
+.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#000;pointer-events:none;opacity:0}
+
+/* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
+.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:var(--t-r-name);line-height:24px;letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);-webkit-font-smoothing:antialiased;text-align:center}   /* the 2:04 timer's role */
+.mp i{position:absolute;inset:0;pointer-events:none}
+.mp .lt{background:#EDEEF3}
+.mp .dk{background:rgba(255,255,255,.24);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.mp span{position:relative;pointer-events:none}
+
+/* ---------- the menu: a card over the blurred app (Hang's Figma: FM Split Screen) ---------- */
+.mm{inset:0;width:375px;height:812px;z-index:100;display:none}
+.mm.on{display:block}
+.mm-bg{position:absolute;inset:0;background:rgba(214,223,235,.56);-webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2)}
+.mm-card{position:absolute;left:24px;top:64px;width:327px;height:684px;background:#F5F5F5;border-radius:24px;overflow:hidden;transform-origin:50% 50%;color:#000}
+.mm-t{position:absolute;left:32px;top:32px;margin:0;font-size:24px;line-height:32px;font-weight:700;letter-spacing:-.24px;white-space:nowrap}
+.mm-x{position:absolute;left:279px;top:16px;width:32px;height:32px}
+.mm-x i{position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:12px;background:#196DEE}
+.mm-x svg{position:absolute;left:8px;top:8px;width:16px;height:16px}
+.mm-tabs{position:absolute;left:32px;top:80px;height:24px;display:flex;gap:24px}
+.mm-tab{font-size:15px;line-height:24px;font-weight:400;letter-spacing:-.24px;color:#A0A0A0}
+.mm-vp{position:absolute;left:0;top:120px;width:327px;height:512px;overflow:hidden;touch-action:none}
+.mm-tr{position:absolute;left:0;top:0;height:512px;display:flex;will-change:transform}
+.mm-pg{width:327px;height:512px;padding:0 32px;flex:none}
+.mm-it{display:flex;justify-content:space-between;align-items:center;width:263px;height:36px;margin-bottom:8px;padding:0 16px;background:#fff;border-radius:8px;text-align:left;color:#196DEE}
+.mm-it.two{height:52px}
+.mm-it .nm{display:block;font-size:14px;line-height:20px;letter-spacing:-.16px;white-space:nowrap}
+.mm-it .nm b{font-weight:700}
+.mm-it .sb{display:block;font-size:12px;line-height:16px;letter-spacing:-.08px;white-space:nowrap}
+.mm-it .vr{font-size:11px;line-height:16px;color:#A0A0A0;white-space:nowrap;margin-left:8px}
+.mm-gap{height:32px;position:relative}
+.mm-gap::after{content:"";position:absolute;left:16px;right:16px;top:12px;height:1px;background:#E3E3E3}
+.mm-dots{position:absolute;left:0;top:650px;width:327px;height:6px;display:flex;justify-content:center;gap:8px}
+.mm-dots i{width:6px;height:6px;border-radius:3px;background:#D0D0D0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
+html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed .wrap{max-width:none;padding:0}
+html.embed header.top,html.embed .below{display:none}
+html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1>FM Split Screen · every experience</h1><p>Interactive prototype · Solution 1 and Solution 2, one phone, a Menu to switch</p></div>
+    <button class="theme" id="theme" type="button">Theme</button>
+  </header>
+  <div class="mframe" id="frame">
+    <div class="stage" id="stage">
+      <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
+      <div class="phone" id="phone">
+        <div class="L" id="xps" style="width:375px;height:812px"></div>
+        <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk"></i><span>Menu</span></button>
+        <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
+          <div class="mm-bg" id="mmBg"></div>
+          <div class="mm-card" id="mmCard">
+            <h2 class="mm-t">FM Split Screen</h2>
+            <button class="btn mm-x" id="mmX" type="button" aria-label="Close menu"><i></i><svg viewBox="0 0 16 16"><path d="M4.5 4.5L11.5 11.5M11.5 4.5L4.5 11.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+            <div class="mm-tabs" id="mmTabs" role="tablist"></div>
+            <div class="mm-vp" id="mmVp"><div class="mm-tr" id="mmTr"></div></div>
+            <div class="mm-dots" id="mmDots" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="sr" id="live" aria-live="polite"></p>
+  </div>
+  <p class="below">Tap Menu (top left, where the time sits) to pick any of the FMSS Solution 1 and Solution 2 experiences; swipe the menu's pages or tap its tabs. In each: tap the ad (its media or CTA; swipe up on the Story) to open split screen. In split screen drag the scrubber or tap the video to pause; tap or swipe up the sheet for full screen; swipe it, or the video, down to go back; × closes.</p>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),xps=$('xps');
+const RM=matchMedia('(prefers-reduced-motion: reduce)');
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const SP=FMSSIAB.makeSpring,VS=window.VideoScrubber,SQ=CSS.supports('clip-path','path("M0 0H1V1Z")');
+const sqP=(w,h,R,sm=.6)=>Array.isArray(R)?Squircle.pathR(w,h,R,sm):Squircle.path(w,h,R,sm);
+
+/* ---------- fit phone to container (same as the FMSS Evolution prototypes) ---------- */
+function fit(){
+  const r=frame.getBoundingClientRect();
+  const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');
+  const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
+  stage.style.setProperty('--s',s.toFixed(4));FMSSSnap(stage);   // whole-device-pixel origin: crisp text and badges
+}
+new ResizeObserver(fit).observe(frame);fit();
+if(SQ){phone.style.clipPath=`path('${sqP(375,812,40)}')`;$('bezelFill').style.clipPath=`path('${sqP(391,828,48)}')`}
+const scale=()=>phone.getBoundingClientRect().height/812;
+const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.clientX-r.left)/k,(e.clientY-r.top)/k]};
+
+/* ---------- the experiences: one entry each. The menu reads tab / name / variant / sub / group; build() makes the screen ----------
+   Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
+   by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
+   {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
+const S1={d:'../fmss-sol1/assets/',v:'?v=5'},S2={d:'../fmss-sol2/assets/',v:'?v=6'};
+const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
+const EXP=[
+  {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Default',from:'Solution 1 · Offsite Conversions',build:split,
+   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+      sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'}}},
+  {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Default',from:'Solution 1 · Lead Generation',build:split,
+   c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#fff'}}},
+  {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Default',from:'Solution 1 · Business Messages',build:split,
+   c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
+      sheet:{native:1,sc:'#fff',cs:'#fff',cu:'#ccd1d8'}}},
+  {tab:'Feed',group:'watch',name:'Watch & Install',variant:'w/ Screenshots',from:'Solution 1 · App Installs',build:split,
+   c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#fff'}}},
+  {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Feed',build:split,
+   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#f7f7f7'}}},
+  {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Video (Reels)',build:split,
+   c:{S:S2,n:2,top:548,tone:0,surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[12,560,303,128],
+      out:[{f:'ao2',hole:1}],sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#f7f7f7'}}},
+  {tab:'Reels',group:'watch',name:'Watch & Browse',variant:'w/ In-Content Ads',from:'Solution 2 · In-Content Ads',build:split,
+   c:{S:S2,n:4,top:406,tone:0,surf:[{f:'au4'},{reel:'r4'},{f:'ag4',hole:1}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
+      out:[{f:'ao4',hole:1}],sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
+  {tab:'Stories',group:'watch',name:'Watch & IAB Peek',variant:'on Dwell',from:'Solution 2 · Stories',build:split,
+   c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
+      stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}}
+];
+const TABS=['Feed','Reels','Stories','Others'];   // a tab with no entries is left out of the menu (it appears once an entry names it)
+
+/* ---------- the split-screen builder: Solution 1 / 2's layer recipe, every layer a function of the sheet's top edge y ----------
+   a = surface → split (the sheet from 812 to the split line), c = split → full (split line to 44): the same two values the Solution
+   loops pre-sample, here read live from the sheet (the shared IAB's spring and drag, or the native sheet's, same spring, ω16 / ω18). */
+const HOLE=h=>`path(evenodd,'M0 0H375V${h}H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z')`;   // the status bar's 2:04 is the Menu pill's place: cut out of overlays, the pill's own shape
+/* header badges: the one shared set (preview/shared/reel), Hang's Figma exports, referenced by URL so an update there is picked up here; never copied */
+const ICONS={base:new URL('../shared/reel/',location.href).href,v:'?v=357'}   /* absolute: a url() in a custom property resolves against the sheet that reads it (reel.css) */,ico=f=>`<i class="rl-ico" style="--m:url(${ICONS.base+f+ICONS.v})"></i>`;
+const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))"><g fill="#fff"><circle cx="4" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="20" cy="12" r="2.5"/></g></svg>';
+const CROSS='<svg viewBox="0 0 24 24" style="left:44px"><path d="M6 6L18 18M18 6L6 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>';
+function split(E,root){
+  const C=E.c,S=C.S,u=f=>S.d+f+(f.endsWith('.mp4')?'':'.webp')+S.v,n=C.n,top=C.top,up=top-44,m=C.m;
+  const X={E,root,y:812,state:1,sd:0,vids:[],els:{}};
+  const img=(f,cls,st)=>`<img class="L ${cls}" alt="" src="${u(f)}" style="${st||''}">`;
+  const layer=(o,cls)=>{const h=o.h||812;return o.reel?`<div class="L rl ${cls}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u(o.reel)}" src="${u(o.reel+'.mp4')}"></video></div>`
+    :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="pt ${cls}" style="background:${o.patch}"></i>`:'')};
+  let h=`<i class="L sk" style="background-image:url(${u('bu'+n)});background-size:100% ${top*100/30}%"></i>`;
+  h+=C.surf.map(o=>layer(o,'sf')).join('');
+  h+=img('bu'+n,'bu',`height:${top}px;opacity:0`);
+  h+=`<div class="mv" data-r="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
+  h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
+  h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
+  if(C.cs)h+=`<div class="L ctl" data-r="ctl" style="opacity:0"><i data-r="vsAt"></i></div>`;
+  if(!C.stories)h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`+(SQ?`clip-path:${HOLE(top)}`:''));
+  if(C.stories)h+=`<div class="hd" data-r="hd"><i class="pb"></i><div class="meta"><img alt="" src="${u('av3')}"><div><div class="nm"><p class="rl-t rl-name">Away</p>${ico('verified.png')}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`;
+  const xa=C.xAt||[325,46,44,44];
+  h+=`<button class="L btn splx" data-r="splx" type="button" aria-label="Close split screen" style="left:${xa[0]}px;top:${xa[1]}px;width:${xa[2]}px;height:${xa[3]}px"></button>`;
+  h+=`<div class="L iabh" data-r="sheetHost" style="width:375px;height:812px"></div>`;
+  if(C.sheet.iab)h+=`<i class="L sbl" data-r="sbl"></i><i class="L home" data-r="home"></i>`;
+  root.innerHTML=h;
+  const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
+  const els=X.els={sk:q('.sk'),sf:[...root.querySelectorAll('.sf')],bu:q('.bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
+    mv:r('mv'),hit:r('hit'),ctl:r('ctl'),hd:r('hd'),splx:r('splx'),host:r('sheetHost'),sbl:r('sbl'),home:r('home')};
+  X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
+  if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
+
+  /* the sheet */
+  const hooks={
+    render:o=>{X.y=o.y;X.sd=o.sd||0;render(X)},
+    state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
+      if(s===1){X.vs&&X.vs.leaveSplit()}},
+    opened:s=>{if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
+    closed:()=>{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}};
+  if(C.sheet.iab){
+    const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
+      :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
+    X.sheet=FMSSIAB.create({host:els.host,y2:top,label:'In-app browser (IAB): '+P.iab,url:P.iab,headers:{full:P.full||u(P.fullFrom)},handle:true,shift:'p',
+      web,webH:P.pageH,onRender:hooks.render,onState:hooks.state,onOpened:hooks.opened,onClosed:hooks.closed,onClose:()=>{X.vs&&X.vs.leaveSplit()},onX:()=>X.sheet.go(2),
+      wheelTo:(e,d,apply)=>{if(apply(d)&&e.cancelable)e.preventDefault()}});
+    if(P.fullFrom){const hf=X.sheet.panel.querySelector('.iab-hf');hf.style.objectFit='cover';hf.style.objectPosition='0 -46px'}   // the full header: c's own header rows (46-92)
+  }else X.sheet=nativeSheet({host:els.host,y2:top,u,n,P:C.sheet,label:E.name,hooks});
+
+  /* live player controls (the shared VideoScrubber, as Solution 1 / 2, here interactive: seek, tap to pause) */
+  if(C.cs&&VS){X.vs=VS.create({video:X.video,icons:u(C.ci),trackY:top-14,className:'vsx',tapToPause:true});r('vsAt').replaceWith(X.vs.el)}
+
+  /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
+  let hp=null;
+  els.hit.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;hp={id:e.pointerId,y:e.clientY,x:e.clientX,moved:false,drag:false};try{els.hit.setPointerCapture(e.pointerId)}catch(_){}});
+  els.hit.addEventListener('pointermove',e=>{if(!hp||e.pointerId!==hp.id)return;const dx=e.clientX-hp.x,dy=e.clientY-hp.y;if(Math.hypot(dx,dy)>10)hp.moved=true;
+    if(C.swipeUp&&!hp.drag&&dy<-8&&-dy>Math.abs(dx)){hp.drag=true;X.sheet.dragStart(hp.y,hp.id,scale())}
+    if(hp.drag)X.sheet.dragMove(e.clientY)});
+  const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
+    if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
+    if(e.type==='pointerup'&&!p.moved)open(X)};
+  els.hit.addEventListener('pointerup',hitUp);els.hit.addEventListener('pointercancel',hitUp);
+  els.hit.addEventListener('click',e=>{if(e.detail===0)open(X)});   // keyboard
+  /* split screen: a swipe down on the video takes the sheet down with it (to the surface); a tap is the controls' tap to pause */
+  let mp=null;
+  els.mv.addEventListener('pointerdown',e=>{if(e.button>0)return;mp={id:e.pointerId,x:e.clientX,y:e.clientY,sheet:false};try{els.mv.setPointerCapture(e.pointerId)}catch(_){}});
+  els.mv.addEventListener('pointermove',e=>{if(!mp||e.pointerId!==mp.id)return;const dx=e.clientX-mp.x,dy=e.clientY-mp.y;
+    if(!mp.sheet&&X.state===2&&!X.sheet.busy&&dy>8&&dy>Math.abs(dx)){mp.sheet=true;X.sheet.dragStart(mp.y,mp.id,scale())}
+    if(mp.sheet)X.sheet.dragMove(e.clientY)});
+  const mvUp=e=>{if(!mp||e.pointerId!==mp.id)return;const p=mp;mp=null;if(p.sheet){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd()}};
+  els.mv.addEventListener('pointerup',mvUp);els.mv.addEventListener('pointercancel',mvUp);
+  els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
+  /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
+  let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp)open(X)},C.dwell)};
+  X.reset=()=>{clearTimeout(dw);hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  render(X);
+  return X;
+}
+function open(X){if(X.state!==1||X.sheet.busy)return;X.sheet.go(2,{w:16})}
+function close(X){if(X.state!==2)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
+
+/* every layer from the sheet's y (the Solution loops' A / B / C recipe, the poses read live) */
+function render(X){
+  const C=X.E.c,e=X.els,top=C.top,m=C.m,y=X.y;
+  const a=clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
+  const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
+  e.bu.style.opacity=a.toFixed(3);if(e.bo)e.bo.style.opacity=a.toFixed(3);
+  e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
+  e.sk.style.transform=`translate3d(0,${(y-2).toFixed(2)}px,0)`;e.sk.style.opacity=a>0?'1':'0';
+  /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
+  const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
+  const R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);
+  const mv=e.mv.style;mv.left=x0.toFixed(2)+'px';mv.top=y0.toFixed(2)+'px';mv.width=w.toFixed(2)+'px';mv.height=h.toFixed(2)+'px';
+  const key=[w,h,...R].map(v=>v.toFixed(1)).join();
+  if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+w.toFixed(2),+h.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
+  if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=a.toFixed(3)}
+  if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
+  if(e.sbl)e.sbl.style.opacity=X.sd.toFixed(3);
+  if(e.home)e.home.style.opacity=a.toFixed(3);
+  /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
+  X.tone=lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c);
+  if(X===cur)pill(X.tone);
+}
+
+/* ---------- the native sheet: the Solution's sheet image (bl) and full screen (c), on the shared spring with the IAB's drag rules ----------
+   Same stops (812 · split line · 44), springs (ω16 open / close, ω18 split ↔ full, ζ .82 into split), 1:1 drag with a velocity +
+   position snap and a flick that always moves one stop, tap the sheet for full, × (full) back to split: FMSSIAB's behaviour, its look the Solution's. */
+function nativeSheet(o){
+  const Y1=812,Y2=o.y2,Y3=44,u=o.u,n=o.n,P=o.P,host=o.host,hk=o.hooks;
+  host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}"><div class="ext" style="top:${812-Y2-1}px;background-image:url(${u('bl'+n)});background-size:100% ${(812-Y2)*100/440}%"></div>`+
+    `<img alt="" src="${u('bl'+n)}" style="height:${812-Y2}px"><i class="bk" style="background:${P.sc}"><i></i></i></div>`+
+    `<i class="L cu" style="background:${P.cu};opacity:0"></i><i class="L cs" style="background:${P.cs};opacity:0"></i>`+
+    `<img class="L cb" alt="" src="${u('c'+n)}" style="clip-path:inset(43px 0 0 0);opacity:0">`+
+    `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0"><i class="pt ct2" style="background:${P.cs};opacity:0"></i>`+
+    `<button class="L btn nx" type="button" aria-label="Close full screen"></button>`;
+  const ns=host.querySelector('.ns'),bs=ns.querySelector('img'),bk=ns.querySelector('.bk'),cu=host.querySelector('.cu'),cs=host.querySelector('.cs'),
+    cb=host.querySelector('.cb'),ct=host.querySelector('.ct'),ct2=host.querySelector('.ct2'),nx=host.querySelector('.nx');
+  if(SQ){const p=`path('${Squircle.pathR(375,812,[16,16,0,0],.6)}')`;bs.style.clipPath=p;bk.style.clipPath=p}
+  let y=Y1,state=1;
+  function render(){
+    const c=clamp((Y2-y)/(Y2-Y3)),up=Y2-Y3;
+    ns.style.transform=`translate3d(0,${y.toFixed(2)}px,0)`;
+    const t=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;
+    cu.style.transform=cs.style.transform=cb.style.transform=t;
+    cs.style.opacity=c>=.99?'1':'0';cu.style.opacity=c>=.6?'1':'0';cb.style.opacity=clamp(c/.6).toFixed(3);ct.style.opacity=ct2.style.opacity=c.toFixed(3);
+    hk.render({y,sd:0});
+  }
+  function setState(s){state=s;ns.classList.toggle('off',s===1);nx.classList.toggle('on',s===3);ns.setAttribute('aria-hidden',s===1?'true':'false');hk.state(s)}
+  const yS=SP(()=>y,v=>{y=v;render()});
+  function go(s,op={}){
+    const from=state,target=s===1?Y1:s===2?Y2:Y3;setState(s);
+    yS.to(target,{v:op.v||0,w:op.w!=null?op.w:s===1?16:18,z:op.z||1,onDone:()=>{if(s===1)hk.closed();else hk.opened(s)}});
+    if(from===1&&s===1)hk.closed();
+  }
+  let drag=null;
+  function dragStart(cy,id,sc){yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:sc||scale(),s:[[performance.now(),y]]}}
+  function dragMove(cy){if(!drag)return;let v=drag.y0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
+    if(v<Y3)v=Y3-FMSSIAB.rb(Y3-v,Y1-Y3);y=Math.min(Y1,v);render();const now=performance.now();drag.s.push([now,y]);while(drag.s.length>2&&now-drag.s[0][0]>100)drag.s.shift()}
+  function dragEnd(){
+    if(!drag)return;const d=drag;drag=null;
+    if(!d.moved){if(d.from===2)return go(3);return yS.to(d.from===3?Y3:d.from===2?Y2:Y1,{w:18})}
+    const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0?(B[1]-A[1])/((B[0]-A[0])/1000):0,proj=y+v*.18;
+    const cands=d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
+    let best=cands[0];for(const c of cands)if(Math.abs(proj-c[1])<Math.abs(proj-best[1]))best=c;
+    if(Math.abs(v)>600){const want=clamp(d.from+(v>0?-1:1),1,3);if(!(d.from===3&&want<2)&&((v>0&&best[0]>want)||(v<0&&best[0]<want)))best=cands.find(c=>c[0]===want)||best}
+    go(best[0],{v,z:best[0]===2?.82:1,w:best[0]===1||d.from===1?16:18});
+  }
+  let own=null;
+  ns.addEventListener('pointerdown',e=>{if(e.button>0||state===1)return;own=e.pointerId;try{ns.setPointerCapture(e.pointerId)}catch(_){}dragStart(e.clientY,e.pointerId,scale())});
+  ns.addEventListener('pointermove',e=>{if(e.pointerId===own)dragMove(e.clientY)});
+  const upH=e=>{if(e.pointerId!==own)return;own=null;dragEnd()};
+  ns.addEventListener('pointerup',upH);ns.addEventListener('pointercancel',upH);
+  nx.addEventListener('click',()=>go(2));
+  function reset(){yS.stop();drag=null;own=null;y=Y1;setState(1);render()}
+  reset();
+  return {Y1,Y2,Y3,get y(){return y},get state(){return state},get busy(){return yS.busy},get drag(){return drag},go,dragStart,dragMove,dragEnd,reset,setY:v=>{yS.stop();y=v;render()}};
+}
+
+/* ---------- the Menu pill: light (#EDEEF3, black) over a light status bar, translucent (white) over a dark one ---------- */
+const mpEl=$('menuBtn'),mpLt=mpEl.querySelector('.lt'),mpDk=mpEl.querySelector('.dk');let lastTone=-1;
+function pill(t){const k=+clamp((t-.35)/.3).toFixed(3);if(k===lastTone)return;lastTone=k;mpLt.style.opacity=k;mpDk.style.opacity=1-k;const g=Math.round(255*(1-k));mpEl.style.color=`rgb(${g},${g},${g})`}
+
+/* ---------- switching: every experience is built once (on its first pick) and reset to its start state on every pick ---------- */
+const built=new Map();let cur=null,curI=-1;
+function show(i){
+  const E=EXP[i];let X=built.get(i);
+  if(!X){const root=document.createElement('div');root.className='xp';root.dataset.i=i;xps.appendChild(root);X=E.build(E,root);built.set(i,X)}
+  if(cur&&cur!==X){cur.root.classList.remove('on');cur.reset();cur.vids.forEach(v=>v.pause())}
+  X.reset();cur=X;curI=i;X.root.classList.add('on');render(X);vidSync();X.dwell();
+  phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
+}
+
+/* ---------- the menu: tabs, swipeable pages, dots, one row per entry (data-driven from EXP) ---------- */
+const mm=$('mm'),mmCard=$('mmCard'),mmBg=$('mmBg'),mmTr=$('mmTr'),mmVp=$('mmVp');
+const tabs=TABS.filter(t=>EXP.some(E=>E.tab===t));
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const nameHTML=s=>{const k=s.lastIndexOf('& ');return k<0?`<b>${esc(s)}</b>`:esc(s.slice(0,k+2))+'<b>'+esc(s.slice(k+2))+'</b>'};
+$('mmTabs').innerHTML=tabs.map((t,j)=>`<button class="btn mm-tab" type="button" role="tab" data-j="${j}">${t}</button>`).join('');
+mmTr.style.width=327*tabs.length+'px';
+mmTr.innerHTML=tabs.map(t=>{let g=null,h='';EXP.forEach((E,i)=>{if(E.tab!==t)return;if(g!==null&&E.group!==g)h+='<div class="mm-gap"></div>';g=E.group;
+  h+=`<button class="btn mm-it${E.sub?' two':''}" type="button" data-i="${i}" aria-label="${esc(E.name)}, ${esc(E.variant)}"><span><span class="nm">${nameHTML(E.name)}</span>${E.sub?`<span class="sb">${esc(E.sub)}</span>`:''}</span><span class="vr">${esc(E.variant)}</span></button>`});
+  return `<div class="mm-pg" role="tabpanel" aria-label="${t}">${h}</div>`}).join('');
+$('mmDots').innerHTML=tabs.map(()=>'<i></i>').join('');
+const tabEls=[...$('mmTabs').children],dotEls=[...$('mmDots').children];
+if(SQ){mmCard.style.clipPath=`path('${sqP(327,684,24)}')`;mmCard.style.borderRadius='0';
+  mmTr.querySelectorAll('.mm-it').forEach(b=>{b.style.clipPath=`path('${sqP(263,b.classList.contains('two')?52:36,8)}')`;b.style.borderRadius='0'})}
+let pg=0;const pgS=SP(()=>pg,v=>{pg=v;pgRender()});
+const mixC=(a,b,t)=>`rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],t))).join(',')})`;
+function pgRender(){mmTr.style.transform=`translate3d(${(-327*pg).toFixed(2)}px,0,0)`;
+  tabEls.forEach((el,j)=>{const k=clamp(1-Math.abs(pg-j));el.style.color=mixC([160,160,160],[25,109,238],k)});
+  dotEls.forEach((el,j)=>{const k=clamp(1-Math.abs(pg-j));el.style.background=mixC([208,208,208],[25,109,238],k)})}
+pgRender();
+tabEls.forEach(el=>el.addEventListener('click',()=>pgS.to(+el.dataset.j,{w:18})));
+let menuOpen=false,mAn=[];
+function openMenu(){if(menuOpen)return;menuOpen=true;mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
+  const j=Math.max(0,tabs.indexOf(EXP[curI].tab));pgS.stop();pg=j;pgRender();
+  mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:240,easing:'cubic-bezier(.2,.7,.2,1)',fill:'both'};
+  mAn=[mmCard.animate([{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
+function closeMenu(){if(!menuOpen)return;menuOpen=false;mpEl.setAttribute('aria-expanded','false');
+  mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:200,easing:'cubic-bezier(.4,0,.6,1)',fill:'both'};
+  mAn=[mmCard.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
+  mAn[0].onfinish=()=>{if(!menuOpen){mm.classList.remove('on');mAn.forEach(a=>a.cancel());mAn=[]}}}
+mpEl.addEventListener('click',e=>{e.stopPropagation();openMenu()});
+$('mmX').addEventListener('click',closeMenu);
+mmBg.addEventListener('click',closeMenu);
+/* pages: 1:1 horizontal drag (rubber band at the ends), projected snap, a flick moves one page; a press that does not move is a tap on its row */
+let pd=null;
+mmVp.addEventListener('pointerdown',e=>{if(e.button>0)return;pgS.stop();pd={id:e.pointerId,x:e.clientX,y:e.clientY,p0:pg,moved:false,h:false,s:[[performance.now(),pg]],sc:scale(),t:e.target.closest('.mm-it')};try{mmVp.setPointerCapture(e.pointerId)}catch(_){}});
+mmVp.addEventListener('pointermove',e=>{if(!pd||e.pointerId!==pd.id)return;const dx=(e.clientX-pd.x)/pd.sc,dy=(e.clientY-pd.y)/pd.sc;
+  if(!pd.moved&&Math.hypot(dx,dy)>8){pd.moved=true;pd.h=Math.abs(dx)>Math.abs(dy)}
+  if(!pd.h)return;pg=FMSSIAB.rbRange(pd.p0-dx/327,0,tabs.length-1,1);pgRender();
+  const now=performance.now();pd.s.push([now,pg]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
+function vpUp(e){if(!pd||e.pointerId!==pd.id)return;const d=pd;pd=null;
+  if(!d.moved){if(e.type==='pointerup'&&d.t)pick(+d.t.dataset.i);return}
+  if(!d.h){pgS.to(Math.round(pg),{w:18});return}
+  const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;
+  let t=Math.round(pg+v*.18);const from=Math.round(d.p0);if(Math.abs(v*327)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,tabs.length-1);
+  pgS.to(t,{v,w:18})}
+mmVp.addEventListener('pointerup',vpUp);mmVp.addEventListener('pointercancel',vpUp);
+mmTr.querySelectorAll('.mm-it').forEach(b=>b.addEventListener('click',e=>{if(e.detail===0)pick(+b.dataset.i)}));   // keyboard
+function pick(i){show(i);closeMenu()}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)return closeMenu();if(!cur)return;
+  if(cur.state===3)cur.sheet.go(2);else if(cur.state===2)close(cur)});
+
+/* ---------- video: the current experience's videos play while the phone is on screen ---------- */
+let seen=false;
+function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden;
+  cur.vids.forEach(v=>{const vsHeld=cur.vs&&v===cur.video&&(cur.vs.paused()||cur.vs.dragging());
+    if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
+new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
+document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('pageshow',vidSync);
+addEventListener('pointerdown',()=>setTimeout(vidSync,0),true);
+
+function say(t){$('live').textContent=t}
+const q0=+new URLSearchParams(location.search).get('x');
+show(q0>=1&&q0<=EXP.length?q0-1:0);
+window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen},get page(){return pg}};   // for checks
+})();
+/* ---------- theme toggle + follow the site theme ---------- */
+document.getElementById('theme').addEventListener('click',()=>{const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}});
+(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',e=>{if(e.key===null||e.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+</script>
+</body>
+</html>
