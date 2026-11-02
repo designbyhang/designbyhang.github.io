@@ -429,16 +429,18 @@ new IntersectionObserver(es=>{seen=es[0].isIntersecting;setVis()},{threshold:.35
 function setVis(){visible=(seen||demoClock.hosted)&&!held;if(visible){vidSync();sched()}else{VIDS.forEach(([v])=>v.pause());stopAuto()}freeRot()}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){VIDS.forEach(([v])=>v.pause());stopAuto()}else{vidSync();sched()}freeRot()});
 
-/* ---------- first load: hold until the grid can paint whole (posters + nav decoded, each grid video's first frame), max 3.2s ---------- */
+/* ---------- first load: hold until the grid can paint whole (posters + nav decoded, each grid video's first frame), max 3.2s ----------
+   on the real clock (demoClock.native): the frame loads 400px ahead, paused (js/demos.js), and the demo clock holds its frames and timers
+   until it has the turn, so a reveal on it kept the cover up on screen; paused or off screen the cover goes at once (nothing animates there) */
 let ready=false;
 (function(){const imgs=[...document.querySelectorAll('#gtop img')].map(i=>i.src).concat(['vac-mac-oakley.webp?v=223','vac-mac-samsung.webp?v=223','vac-mac-lululemon.webp?v=223','vac-mac-starbucks.webp?v=223'].map(n=>'../../assets/vac/'+n));
   const dec=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
   const vf=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true})});
   const all=Promise.all(imgs.map(dec).concat([vid,...tv].map(vf)));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;const c=$('ldc');
-    if(RM.matches||!c.animate)c.remove();else c.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out',fill:'forwards'}).onfinish=()=>c.remove();
+    if(RM.matches||!c.animate||demoClock.paused||!visible)c.remove();else c.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out',fill:'forwards'}).onfinish=()=>c.remove();
     sched();freeRot()};
-  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+  const N=demoClock.native;all.then(()=>N.raf(()=>N.raf(go)));N.setTimeout(go,3200)})();
 
 /* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
 function say(t){$('live').textContent=t}

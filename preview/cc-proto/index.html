@@ -562,11 +562,12 @@ function stopAuto(){if(!autoOn)return;autoOn=false;cancelAnimationFrame(raf);fra
 function sched(){if(!autoOn&&canRun())startAuto()}
 
 /* ---------- the black cover (as preview/sap-proto): on first load it holds until the seed's frame and the UI have decoded (max 3.2s),
-   then fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248 ---------- */
+   then fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248.
+   The first-load wait runs on the real clock (demoClock.native), and paused or off screen the cover goes at once (as preview/sap-proto) ---------- */
 let ready=false;const ldc=$('ldc');
 const seekTo=(v,s)=>new Promise(r=>{if(v.readyState>=2&&Math.abs(v.currentTime-s)<.02)return r();const g=()=>{v.removeEventListener('seeked',g);r()};v.addEventListener('seeked',g);try{v.currentTime=s}catch(_){r()}setTimeout(r,1200)});
 const firstFrame=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true});setTimeout(r,3000)});
-function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate){ldc.style.opacity='0';return}
+function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate||demoClock.paused||!visible){ldc.style.opacity='0';return}
   ldc.style.opacity='0';ldc.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out'})}
 function cover(then){
   if(RM.matches||!ldc.animate){Promise.resolve(then()).then(()=>{ldc.style.opacity='0'});return}
@@ -582,7 +583,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);a
   let done=false;const go=()=>{if(done)return;done=true;ready=true;measureTabs();
     if(INL()){applyT(tl);sched()}else{fsStart(false)}
     coverOut()};
-  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+  const N=demoClock.native;all.then(()=>N.raf(()=>N.raf(go)));N.setTimeout(go,3200)})();
 
 /* ---------- full screen: entering it (html.embed-full) on the Nike seed keeps going; from anywhere else the cover bridges to the seed's
    start. Leaving it, the cover bridges back to the loop's start ---------- */

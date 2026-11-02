@@ -445,11 +445,14 @@ function stopAuto(){if(!autoOn)return;autoOn=false;cancelAnimationFrame(raf);fra
 function sched(){if(!autoOn&&canRun())startAuto()}
 
 /* ---------- the black cover: on first load it holds until the seed's frame, the posters and the UI have decoded (max 3.2s), then
-   fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248 ---------- */
+   fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248.
+   The first-load wait runs on the real clock (demoClock.native): the frame loads 400px ahead, paused (js/demos.js), and the demo clock
+   holds its frames and timers until it has the turn, so a reveal on it kept the cover up on screen. Paused or off screen the cover goes
+   at once (nothing animates there) ---------- */
 let ready=false;const ldc=$('ldc');
 const seekTo=(v,t)=>new Promise(r=>{if(v.readyState>=2&&Math.abs(v.currentTime-t)<.02)return r();const f=()=>{v.removeEventListener('seeked',f);r()};v.addEventListener('seeked',f);try{v.currentTime=t}catch(_){r()}setTimeout(r,1200)});
 const firstFrame=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true});setTimeout(r,3000)});
-function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate){ldc.style.opacity='0';return}
+function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate||demoClock.paused||!visible){ldc.style.opacity='0';return}
   ldc.style.opacity='0';ldc.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out'})}
 function cover(then){   // in 120 → then() (returns a promise) → out 248
   if(RM.matches||!ldc.animate){Promise.resolve(then()).then(()=>{ldc.style.opacity='0'});return}
@@ -464,7 +467,7 @@ const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():
   let done=false;const go=()=>{if(done)return;done=true;ready=true;
     if(INL()){applyT(tl);sched()}else{fsStart(false)}
     coverOut()};
-  all.then(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));setTimeout(go,3200)})();
+  const N=demoClock.native;all.then(()=>N.raf(()=>N.raf(go)));N.setTimeout(go,3200)})();
 
 /* ---------- full screen: entering it (html.embed-full) from the seed keeps going (the same frame, the chip as it was, or on its way);
    from mid-chain the cover bridges to the seed's start. Leaving it, the cover bridges back to the loop's 5704 frame ---------- */
