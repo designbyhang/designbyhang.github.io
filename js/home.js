@@ -127,15 +127,6 @@ addEventListener('pageshow',e=>{if(e.persisted)try{sessionStorage.removeItem('db
 (document.fonts?document.fonts.ready:Promise.resolve()).then(measure);measure();})();
 // intro card: "HANG" construction poster (after Paul Rand) — letters cropped by solid hairline grid cells, mono words on grid lines
 (()=>{const root=document.getElementById('poster');if(!root)return;const svg=root.querySelector('svg'),wsv=document.createElementNS('http://www.w3.org/2000/svg','svg') /* letters + keywords (js above: ovSet) */,MP=matchMedia('(max-width:640px),(orientation:portrait) and (max-width:1024px)'),mqR=matchMedia('(prefers-reduced-motion: reduce)') /* portrait = the page's mobile-portrait query (the portrait card is wider than tall now) */;
-/* language loop (Hang, 2026-11-02): the card first plays as before (English labels + CTA); once all of it has settled and a 4000ms dwell has passed,
-   each label in reading order, then the CTA, crossfades in place to its Chinese word (240ms apart), holds, crossfades back to English the same way, holds,
-   and repeats. One mechanism for every word (css/home.css .sw): an infinite 9.6s cycle started at --s; the English shows --sk, the Chinese 1 - --sk.
-   Paused while the tab is hidden. Reduced motion: stays English, static (no Chinese is built) */
-const ZH={Strategy:'策略',Vision:'远见',Systems:'结构',Creativity:'创意',Craft:'匠心'},ZCTA='设计作品回顾',SWD=4000,SWS=240,SWF=800 /* dwell, stagger, fade (css) */;
-const swOn=()=>!mqR.matches;let swEnd=0 /* first crossfade to Chinese done (mobile auto-scroll waits for it) */;
-{const b=root.querySelector('.poster-cta');if(b&&swOn()){const en=document.createElement('span'),zh=document.createElement('span');en.className='sw cta-en';zh.className='sw cta-zh';zh.lang='zh-Hans';zh.setAttribute('aria-hidden','true');
-  while(b.firstChild)en.appendChild(b.firstChild);const ar=en.querySelector('.arr');zh.innerHTML=`<span class="cta-t">${ZCTA}</span>`;if(ar)zh.appendChild(ar.cloneNode(true));b.append(en,zh);}}
-document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('swp',document.hidden));
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],xe:[110,319.5,381.5,591,800.5,850.5,1060] /* v17: four letter columns equal (209.5) */,ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline
@@ -157,7 +148,7 @@ P={W:600,H:600,
   dims:[],
   title:[54,806,40]};
 {const g=P.letters.slice(1).map(l=>l[0]);for(let i=g.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g[i],g[j]]=[g[j],g[i]];}P.letters.slice(1).forEach((l,i)=>{l[0]=g[i];});} /* mobile: H stays top left; N, A, G take a random cell on each page load (Hang, 2026-10-24). Cells, keywords and draw order stay put */
-let zfit=()=>{};const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
+const inkC=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
 function inkL(ch,fs,top,bot,font,sc){const S=sc?Math.max(100,Math.round(fs*sc)):400,k=fs/S,pad=S*.3,base=S*1.2,cv=inkC.canvas;cv.width=S*2;cv.height=S*1.6;inkC.clearRect(0,0,cv.width,cv.height);inkC.font=font.replace('#',S+'px');inkC.fillStyle='#000';inkC.fillText(ch,pad,base);
   const y0=Math.max(0,Math.round(base+top/k)),y1=Math.min(cv.height,Math.round(base+bot/k));if(y1<=y0)return 0;const d=inkC.getImageData(0,y0,cv.width,y1-y0).data;let m=1e9;
   for(let y=0;y<y1-y0;y++)for(let x=0;x<m&&x<cv.width;x++)if(d[(y*cv.width+x)*4+3]>127){m=x;break;}return m===1e9?0:(m-pad)*k;}
@@ -239,50 +230,27 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
   G.letters.forEach((l,i)=>{body+=`<g clip-path="url(#pc${i})"><g class="w lt a" style="--d:${TL+i*SQ}"><text fill-opacity="0" x="${lx([0,0,0,l[8]]).toFixed(2)}" y="${l[10].toFixed(2)}" font-size="${l[9].toFixed(2)}" font-weight="500">${l[0]}</text><path fill-rule="evenodd" d="${window.HangLetters.path(l[0],l[3],l[4],l[2])}"/></g></g>`;});
   const bandB=y=>{const n=G.ys.find(v=>v>y+.01);return n-y;},inkVt=(str,fpx,font)=>{const S=8,F=fpx*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});const w=Math.ceil(F*str.length)+20,h=Math.ceil(F*2),b=Math.round(F*1.4);cv.width=w;cv.height=h;c2.font=font.replace('#',F+'px');c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}return[(b-t0)/S,(t1+1-b)/S];},
   wb=p=>{const v=inkVt(p[0].toUpperCase(),mono,'400 # '+mf);return (p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+(v[0]-v[1])/2-(port?0:.85*px);}; /* v18: centre the pixel-measured ink; desktop: -.85px measured rasterisation offset of the scaled intro card */
-  const wcx=p=>{const L=G.letters.find(l=>l[5]===p[0]);if(p.length>4)return(p[1]+p[3])/2;if(L)return L[6]+L[7]/2;const nx=G.xs.find(v=>v>p[1]+.01);return(p[1]+nx)/2;}; /* a label's ink centre (as wc) */
   const wc=p=>{inkC.font=mono+'px '+mf;inkC.letterSpacing=(.04*mono)+'px';const t=inkC.measureText(p[0].toUpperCase());inkC.letterSpacing='0px';const iw=t.actualBoundingBoxRight+t.actualBoundingBoxLeft;const L=G.letters.find(l=>l[5]===p[0]);let c;if(p.length>4)c=(p[1]+p[3])/2;else if(L)c=L[6]+L[7]/2;else{const nx=G.xs.find(v=>v>p[1]+.01);c=(p[1]+nx)/2;}return c-iw/2+t.actualBoundingBoxLeft;}; /* PREVIEW center-words: keyword ink centred on its letter's ink; CRAFT centred in its box */
-  /* loop clock: everything settled (desktop: the CTA's 1.1s rise from TC; mobile: the keyword fade; back from a case study: at once), + the dwell; labels in
-     reading order (top to bottom, left to right) */
-  const SW0=(document.documentElement.classList.contains('ret')?0:Math.ceil((port?TW+700:TC+1100)/8)*8)+SWD,zo=G.words.map(p=>p[0]).sort((a,b)=>{const A=G.words.find(w=>w[0]===a),B=G.words.find(w=>w[0]===b);return A[2]-B[2]||A[1]-B[1];});swEnd=SW0+(G.words.length-(port?1:0))*SWS+SWF;
-  G.words.forEach((p,j)=>{const en=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;
-    if(!swOn()){body+=en;return;}const st=`--s:${SW0+zo.indexOf(p[0])*SWS}`;
-    body+=`<g class="sl"><g class="sw sw-e" style="${st}">${en}</g><g class="sw sw-z" style="${st}"><text class="m zh" data-k="${p[0]}" lang="zh-Hans" font-size="${mono}">${ZH[p[0]]}</text></g></g>`;});
-  /* Chinese labels: Fusion Pixel 10px (css .m.zh): every glyph is a 10 x 10 grid of 0.1em pixels, ink 9 x 9 (0..0.9em wide, 0.8em above to 0.1em below the
-     baseline). Bitcount's dot grid is 0.1em too, so the Chinese is set at the Bitcount labels' on-screen size with one font pixel rounded to whole device
-     pixels (2 css px on the 1440 card, 1 css px on a 2x phone), the pen on the device pixel grid: every glyph pixel lands on whole device pixels, on
-     Bitcount's pitch. Where a pixel is 4+ device px, a dot mask turns each square into a round dot, Bitcount's texture (smaller: solid squares, as Bitcount
-     reads there). Desktop: the label SVG is resized to the card's on-screen size at rest (ovSet), so this runs again on every strip:rest */
-  zfit=()=>{if(!wsv.isConnected)return;const r=wsv.getBoundingClientRect();if(!r.width)return;const k=r.width/VW,kv=r.height/VH,zpx=Math.max(1,Math.round(mono*k/10*dpr))/dpr /* css px per font pixel */,zfs=10*zpx/k,dots=zpx*dpr>=4,NS='http://www.w3.org/2000/svg',df=wsv.querySelector('defs'),
-      zs=(v,o,k)=>(Math.round((o+v*k)*dpr)/dpr-o)/k;
-    wsv.querySelectorAll('text.zh').forEach(t=>{const p=G.words.find(w=>w[0]===t.dataset.k),str=t.textContent;t.setAttribute('font-size',zfs.toFixed(4));
-      t.setAttribute('x',zs(wcx(p)-(str.length-.1)*zfs/2,r.left,k).toFixed(4));t.setAttribute('y',zs((p.length>4?(p[2]+p[4])/2:p[2]+bandB(p[2])/2)+.35*zfs,r.top,kv).toFixed(4));
-      const id='mz'+t.dataset.k;df.querySelector('#'+id)?.remove();df.querySelector('#p'+id)?.remove();t.removeAttribute('mask');
-      if(dots){const q=zfs/10,pt=document.createElementNS(NS,'pattern'),mk=document.createElementNS(NS,'mask');pt.id='p'+id;mk.id=id;
-        Object.entries({patternUnits:'userSpaceOnUse',x:t.getAttribute('x'),y:t.getAttribute('y'),width:q,height:q}).forEach(([a,v])=>pt.setAttribute(a,v));
-        pt.innerHTML=`<circle cx="${q/2}" cy="${q/2}" r="${q*.4}" style="fill:#fff"/>`;mk.innerHTML=`<rect x="${-VW}" y="${-VH}" width="${3*VW}" height="${3*VH}" style="fill:url(#p${id})"/>`;df.append(pt,mk);t.setAttribute('mask',`url(#${id})`);}
-      if(kof)kof(t);});};
+  G.words.forEach(p=>{body+=`<text class="m a wf" style="--d:${TW}" x="${wc(p).toFixed(2)}" y="${wb(p).toFixed(2)}" font-size="${mono}">${p[0]}</text>`;});
   SD.forEach(d=>{gd+=`<circle class="a pd" style="--d:${PL+d[2]};--x:${PX(d[0])};--y:${PY(d[1])}" r="2.5"/>`;});
   svg.removeAttribute('viewBox');svg.removeAttribute('preserveAspectRatio');
   {const v={'--dp':1/dpr+'px','--lw':wd/dpr+'px','--lc':(odd?.5/dpr:0)+'px','--rm':odd?'down':'nearest','--ox':fr(R0.left)+'px','--oy':fr(R0.top)+'px'};for(const k in v)svg.style.setProperty(k,v[k]);}
   svg.innerHTML=`<defs></defs>${gl}${gd}`;wsv.setAttribute('viewBox',`0 0 ${VW} ${VH}`);wsv.innerHTML=out+body;
   // knockouts: card colour behind mono words so grid lines stop short of the type
   /* knockouts use the card token var(--c-paper) via CSS (no computed snapshot: it went stale/mid-fade on theme toggle) */const kp=3*px;
-  /* a label's two knockouts (English, Chinese) sit together under both texts (.sl) and never fade: the lines stop for the union of the two boxes */
-  const kof=t=>{const b=t.getBBox(),zh=t.classList.contains('zh'),sl=t.closest('.sl'),r=t._ko||(t._ko=document.createElementNS('http://www.w3.org/2000/svg','rect'));
-    if(!r.isConnected){r.setAttribute('class','ko a wf');r.setAttribute('style',(sl?sl.querySelector('text:not(.zh)'):t).getAttribute('style'));if(sl)sl.prepend(r);else t.before(r);} /* both fade in with the English labels */
-    const lx0=G.words.find(w=>w[0]===(t.dataset.k||t.textContent))[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);};
-  wsv.querySelectorAll('text.m:not(.zh)').forEach(kof);zfit();
+  wsv.querySelectorAll('text.m').forEach(t=>{const b=t.getBBox(),r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('class','ko a wf');r.setAttribute('style',t.getAttribute('style'));
+    const lx0=G.words.find(w=>w[0]===t.textContent)[1]+1.5*px,rx=Math.max(b.x-kp,lx0);r.setAttribute('x',rx);r.setAttribute('y',b.y);r.setAttribute('width',b.x+b.width+kp-rx);r.setAttribute('height',b.height);t.before(r);});
   // caption: same ink gap from the grid lines as the H/A/N letters
   const cap=port?null:root.querySelector('.poster-cap');if(cap){const H=G.letters.find(l=>l[5]),wH=G.words.find(p=>p[0]===H[5]),gp=(wH[1]+wo+inkL(wH[0][0].toUpperCase(),mono,-mono,0,'400 # '+mf)-H[1][0])/px,mp=m/px;
     const tt=cap.querySelector('.poster-title'),ts=getComputedStyle(tt),tf=parseFloat(ts.fontSize);
-    const te=tt.querySelector('.cta-en')||tt,tl=inkL(te.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),inkV=(()=>{const S=8,str=te.textContent.trim(),fpx=tf*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});c2.font='400 '+fpx+'px '+ts.fontFamily;c2.letterSpacing=ts.letterSpacing==='normal'?'0px':(parseFloat(ts.letterSpacing)*S)+'px';const w=Math.ceil(c2.measureText(str).width)+20,h=Math.ceil(fpx*2),b=Math.round(fpx*1.4);cv.width=w;cv.height=h;c2.font='400 '+fpx+'px '+ts.fontFamily;c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++){for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}}return[(b-t0)/S,(t1+1-b)/S];})(),capH=inkV[0]-inkV[1] /* v18: pixel-measured ink of the CTA text (ascenders..baseline incl. overshoot) */,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
+    const tl=inkL(tt.textContent.trim()[0],tf,-tf,0,'400 # '+sans,devicePixelRatio||1);inkC.font='400 '+ts.fontSize+' '+ts.fontFamily;const mt=inkC.measureText('S'),inkV=(()=>{const S=8,str=tt.textContent.trim(),fpx=tf*S,cv=document.createElement('canvas'),c2=cv.getContext('2d',{willReadFrequently:true});c2.font='400 '+fpx+'px '+ts.fontFamily;c2.letterSpacing=ts.letterSpacing==='normal'?'0px':(parseFloat(ts.letterSpacing)*S)+'px';const w=Math.ceil(c2.measureText(str).width)+20,h=Math.ceil(fpx*2),b=Math.round(fpx*1.4);cv.width=w;cv.height=h;c2.font='400 '+fpx+'px '+ts.fontFamily;c2.fillText(str,10,b);const d=c2.getImageData(0,0,w,h).data;let t0=-1,t1=-1;for(let y=0;y<h;y++){for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>127){if(t0<0)t0=y;t1=y;break;}}return[(b-t0)/S,(t1+1-b)/S];})(),capH=inkV[0]-inkV[1] /* v18: pixel-measured ink of the CTA text (ascenders..baseline incl. overshoot) */,below=(tf-(mt.fontBoundingBoxAscent+mt.fontBoundingBoxDescent))/2+mt.fontBoundingBoxDescent;
     // vertically centre the caption's cap height in the bottom grid row
     const rT=G.ys[G.ys.length-2],rB=G.ys[G.ys.length-1],baseY=((rT+rB)/2)/px+capH/2;
     const LC=G.letters.filter(l=>Math.abs(l[1][0]-G.xs[0])<.01).sort((a,b)=>b[1][1]-a[1][1])[0];{const ar=tt.querySelector('.arr'),inkW=ar.offsetLeft+ar.offsetWidth-tt.offsetLeft-tl /* layout offsets: unaffected by the nudge transform */,Gl=G.letters.find(l=>l[0]==='G'),sL=G.xs[0]/px,sR=Gl[1][0]/px;cap.style.left=((sL+sR)/2-inkW/2-tl).toFixed(2)+'px';} /* v19: CTA ink (text + arrow) centred horizontally in the boxes left of the G (CTA hidden on mobile portrait) */const pb=document.createElement('span');pb.style.cssText='display:inline-block;width:0;height:0;vertical-align:baseline';tt.appendChild(pb);const belowD=(tt.getBoundingClientRect().bottom-pb.getBoundingClientRect().top)/(tt.getBoundingClientRect().width/tt.offsetWidth||1);pb.remove(); /* v18: real baseline-to-box-bottom (the arrow svg grows the line box) */
     cap.style.bottom=(VH/px-baseY-belowD).toFixed(2)+'px';cap.style.translate='-.58px -.38px'; /* measured: text in the scaled desktop card rasterises ~.45px low */
     /* CTA rises from the bottom of its row: the cap (static) clips to the row band, the button slides (css/home.css) */
     const cT=ch-parseFloat(cap.style.bottom)-cap.offsetHeight,yT=rT/px-cT,yB=rB/px-cT;cap.style.clipPath=`polygon(-50% ${yT.toFixed(2)}px,150% ${yT.toFixed(2)}px,150% ${yB.toFixed(2)}px,-50% ${yB.toFixed(2)}px)`;
-    cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');{const zc=tt.querySelector('.cta-zh');if(zc){cap.style.setProperty('--s',SW0+G.words.length*SWS);const zf='400 # "Noto Sans SC Sub"',zl=()=>{const zs=parseFloat(getComputedStyle(zc).fontSize);zc.style.marginLeft=(tl-inkL(ZCTA[0],zs,-zs,0,zf,devicePixelRatio||1)).toFixed(2)+'px';};zl();document.fonts.load(zf.replace('#','1em'),ZCTA).then(zl);}} /* CTA loop: one stagger step after the last label; the Chinese ink starts at the English ink's left edge */cap.dataset.t=''; /* css/home.css: the CTA reveal exists only once timed */
+    cap.style.setProperty('--rise',(yB-tt.offsetTop).toFixed(2)+'px');cap.style.setProperty('--cd',TC+'ms');cap.dataset.t=''; /* css/home.css: the CTA reveal exists only once timed */
     /* the grid is drawn above the card now (overlay), so the CTA's knockout (.poster-cap::before: cap box +6px above/below, -2px/+7px sides, clipped to the
        row band, fading in at --cd) becomes a hole in a mask on the lines and dots: same box, same fade (.a, pIn .9s at TC) */
     {const NS='http://www.w3.org/2000/svg',mk=document.createElementNS(NS,'mask'),r=(a)=>{const e=document.createElementNS(NS,'rect');for(const k in a)e.setAttribute(k,a[k]);return mk.appendChild(e);},
@@ -294,15 +262,13 @@ function build(){{const host=MP.matches||!ovEl?root:ovEl;if(svg.parentNode!==hos
      const M=8*px,mx0=-M,my0=-M,mw=VW+2*M,mh=VH+2*M,hit=(a0,a1,b0,b1)=>a1>=hx0-M&&a0<=hx1+M&&b1>=hy0-M&&b0<=hy1+M;
      const bx=(x,y,w,h)=>({x:PX(x),y:PY(y),width:PX(w),height:PY(h)}) /* the lines' and dots' (outer) SVG is in css px of the box: the same rects as percentages */;
      mk.id='pcm';mk.setAttribute('maskUnits','userSpaceOnUse');{const a=bx(mx0,my0,mw,mh);for(const k in a)mk.setAttribute(k,a[k]);}
-     r({...bx(mx0,my0,mw,mh),fill:'#fff'});
-     /* the CTA's two texts share one grid cell: the cap's box, so this one hole, is the union of both */
-     if(hy1>hy0)r({class:'a',style:`--d:${TC}`,...bx(hx0,hy0,hx1-hx0,hy1-hy0),fill:'#000'});
+     r({...bx(mx0,my0,mw,mh),fill:'#fff'});if(hy1>hy0)r({class:'a',style:`--d:${TC}`,...bx(hx0,hy0,hx1-hx0,hy1-hy0),fill:'#000'});
      svg.querySelector('defs').appendChild(mk);const rd=2.5/kx;if(hy1>hy0)svg.querySelectorAll(':scope>.g,:scope>.pd').forEach((e,i)=>{const b=i<GB.length?GB[i]:(d=>[d[0]-rd,d[0]+rd,d[1]-rd,d[1]+rd])(SD[i-GB.length]);
        if(hit(...b))e.setAttribute('mask','url(#pcm)');});}}
   }
-addEventListener('strip:rest',()=>zfit());let lp=null,rt=0,bw=0,bh=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
+let lp=null,rt=0,bw=0,bh=0;const rb=()=>{const port=MP.matches;if(port!==lp){lp=port;build();bw=root.offsetWidth;bh=root.offsetHeight;}};
 /* one entrance clock (bt0) for the lines, letters and CTA: a rebuild keeps it (fonts: no restart blink); gate unlock restarts all of it together */
-let bt0=performance.now();const sync=()=>{[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:[...svg.getAnimations({subtree:true}),...wsv.getAnimations({subtree:true})])].forEach(a=>{try{a.startTime=bt0;}catch(e){}});}; /* startTime, not currentTime: currentTime lands against the frame's timeline time for a running animation but against the next frame for a pending one, so the CTA (running) and the labels (just rebuilt, pending) ended up ~70ms apart */
+let bt0=performance.now();const sync=()=>{const el=performance.now()-bt0;[...root.getAnimations({subtree:true}),...(root.contains(svg)?[]:[...svg.getAnimations({subtree:true}),...wsv.getAnimations({subtree:true})])].forEach(a=>{try{a.currentTime=el;}catch(e){}});};
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{lp=null;rb();sync();});rb();
 addEventListener('resize',()=>rbs());addEventListener('gate:unlocked',()=>{bt0=performance.now();if(capEl)delete capEl.dataset.set;lp=null;rb();sync();}); /* rebuild the poster at its real size (it was built hidden under the gate) */
 /* rotation: rebuild whenever the card's real size changes (iOS fires resize before layout settles, leaving a stretched viewBox) */
@@ -315,6 +281,6 @@ const go=()=>{if(done)return;const live=document.getAnimations().filter(a=>a.eff
     ev.forEach(e=>removeEventListener(e,stop,true));const de=document.documentElement,snap=de.style.scrollSnapType,hd=document.querySelector('.top'),fx=hd&&/fixed|sticky/.test(getComputedStyle(hd).position)?hd.offsetHeight:0,
       y1=Math.max(0,scrollY+k.getBoundingClientRect().top-fx-16),y0=scrollY,t0=performance.now(),D=900,e=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2,end=()=>{done=true;cancelAnimationFrame(raf);de.style.scrollSnapType=snap;['wheel','touchstart','pointerdown','keydown'].forEach(x=>removeEventListener(x,end,true));};
     ['wheel','touchstart','pointerdown','keydown'].forEach(x=>addEventListener(x,end,{capture:true,passive:true}));de.style.scrollSnapType='none';
-    const st=n=>{if(done)return;const p=Math.min(1,(n-t0)/D);scrollTo({top:y0+(y1-y0)*e(p),behavior:'instant'});if(p<1)raf=requestAnimationFrame(st);else end();};raf=requestAnimationFrame(st);},400+(swOn()?Math.max(0,swEnd-(performance.now()-bt0)):0));}; /* the language loop is infinite (not live): wait for its first crossfade to Chinese */
+    const st=n=>{if(done)return;const p=Math.min(1,(n-t0)/D);scrollTo({top:y0+(y1-y0)*e(p),behavior:'instant'});if(p<1)raf=requestAnimationFrame(st);else end();};raf=requestAnimationFrame(st);},400);};
 if(MP.matches&&!mqR.matches&&scrollY<3&&!window.__dbhRet){ev.forEach(e=>addEventListener(e,stop,{capture:true,passive:true}));root.addEventListener('animationend',go);}
 window.__posterAuto=()=>({done});})();
