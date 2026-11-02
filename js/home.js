@@ -75,12 +75,13 @@ function glide(i){const k=cards[i];if(!k)return;
   const st=now=>{const p=Math.min(1,(now-s0)/GLIDE);scrollTo(0,y0+(y1-y0)*ease(p));if(p<1)gRaf=requestAnimationFrame(st);else{de.style.scrollSnapType=snap;de.style.scrollBehavior=sb;}};gRaf=requestAnimationFrame(st);}
 ['touchstart','wheel'].forEach(ev=>addEventListener(ev,()=>cancelAnimationFrame(gRaf),{passive:true}));
 function to(v){if(!on)return;tw=null;t=clamp(v,0,max);if(mqR.matches){x=t;render();return;}if(!raf)raf=requestAnimationFrame(loop);}
-addEventListener('wheel',e=>{if(!on||e.ctrlKey)return;if(e.target.closest&&e.target.closest('.scroll')&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){const sc=e.target.closest('.scroll');if(sc.scrollHeight>sc.clientHeight+1)return;}
+const egg=()=>document.documentElement.classList.contains('hegg-open'); /* the HANG layer sits on top; its drag must not slide this rail */
+addEventListener('wheel',e=>{if(!on||egg()||e.ctrlKey)return;if(e.target.closest&&e.target.closest('.scroll')&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){const sc=e.target.closest('.scroll');if(sc.scrollHeight>sc.clientHeight+1)return;}
   e.preventDefault();const k=e.deltaMode===1?16:e.deltaMode===2?W:1;to(t+(e.deltaX+e.deltaY)*k);},{passive:false});
 // touch / pen drag
 let sx=null,sy,st,lock=null;
-rail.addEventListener('touchstart',e=>{if(!on)return;tw=null;const q=e.touches[0];sx=q.clientX;sy=q.clientY;st=t;lock=null;},{passive:true});
-rail.addEventListener('touchmove',e=>{if(!on||sx==null)return;const q=e.touches[0],dx=q.clientX-sx,dy=q.clientY-sy;
+rail.addEventListener('touchstart',e=>{if(!on||egg())return;tw=null;const q=e.touches[0];sx=q.clientX;sy=q.clientY;st=t;lock=null;},{passive:true});
+rail.addEventListener('touchmove',e=>{if(!on||egg()||sx==null)return;const q=e.touches[0],dx=q.clientX-sx,dy=q.clientY-sy;
   if(lock==null&&Math.hypot(dx,dy)>6)lock=Math.abs(dx)>Math.abs(dy)?'x':'y';
   if(lock){e.preventDefault();to(st-(lock==='x'?dx:dy)*1.4);}},{passive:false});
 rail.addEventListener('touchend',()=>{sx=null;},{passive:true});
@@ -88,8 +89,8 @@ rail.addEventListener('touchend',()=>{sx=null;},{passive:true});
 // while dragging; on release it carries on by the release velocity (240ms of it) and eases to rest like a trackpad swipe's inertia.
 // Under 8px it stays a click; after a real drag the card link's click is swallowed (once). No ghost drag of card images/links.
 let md=null,mEat=false;
-rail.addEventListener('pointerdown',e=>{mEat=false;md=null;if(!on||e.pointerType!=='mouse'||e.button>0)return;md={x:e.clientX,y:e.clientY,s:t,on:false,lx:e.clientX,lt:performance.now(),v:0};});
-addEventListener('pointermove',e=>{if(!md)return;const dx=e.clientX-md.x,dy=e.clientY-md.y;
+rail.addEventListener('pointerdown',e=>{mEat=false;md=null;if(!on||egg()||e.pointerType!=='mouse'||e.button>0)return;md={x:e.clientX,y:e.clientY,s:t,on:false,lx:e.clientX,lt:performance.now(),v:0};});
+addEventListener('pointermove',e=>{if(!md||egg())return;const dx=e.clientX-md.x,dy=e.clientY-md.y;
   if(!md.on){if(Math.hypot(dx,dy)<8)return;if(Math.abs(dx)<=Math.abs(dy)){md=null;return;}md.on=true;tw=null;rail.style.cursor='grabbing';}
   const n=performance.now(),dt=n-md.lt;if(dt>0){md.v=md.v*.5+.5*(e.clientX-md.lx)/dt;md.lx=e.clientX;md.lt=n;}to(md.s-dx*1.4);});
 addEventListener('pointerup',()=>{if(md&&md.on){mEat=true;rail.style.cursor='';if(performance.now()-md.lt<64)to(t-md.v*1.4*240);}md=null;});

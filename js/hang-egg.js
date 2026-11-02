@@ -41,7 +41,11 @@ function open(c){if(ov)return;cfg=c;ret=document.activeElement;
   const o=ov=document.createElement('div');o.className='hegg'+(c.cls?' '+c.cls:'');o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',c.label);
   o.innerHTML='<i class="hegg-edge hegg-edge-t" aria-hidden="true"></i><i class="hegg-edge hegg-edge-b" aria-hidden="true"></i>'+(c.stage||'')+'<div class="bar hegg-bar"><nav class="bar-right" aria-label="'+c.label+'"><a class="ax hegg-x" href="#" role="button" aria-label="Close"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
   o.querySelector('.hegg-x').addEventListener('click',e=>{e.preventDefault();close();});
-  o.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+  /* gestures stop here. The homepage rail listens on window, so a trackpad drag was sliding the cards
+     behind this layer and playing the dial. The letter's own listeners sit on the canvas and run first. */
+  o.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();},{passive:false});
+  o.addEventListener('pointermove',e=>e.stopPropagation());
+  o.addEventListener('touchmove',e=>e.stopPropagation());
   if(c.grow)o.classList.add('hegg-grow');
   document.body.appendChild(o);lock();adoptToggle(o);
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
