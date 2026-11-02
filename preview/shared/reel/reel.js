@@ -1,15 +1,17 @@
 /* FMSSReel: fills a host's Reels ad placeholders with the shared overlay (reel.css). One call per reel:
-     FMSSReel.mount(root, {cap, capX, cta, color})
+     FMSSReel.mount(root, {cap, capX, cta, color, counts})
        root   the element holding the placeholders: [data-reel=scrim] [data-reel=rail] [data-reel=details] [data-reel=cta] [data-reel=pill]
               (any may be left out; the host places them in its own z-order)
        cap    the collapsed caption as the design cuts it (an ellipsis is added), followed by "more ⌄"
        capX   optional: the expanded caption (4 lines at 303), cross-faded in by the host (returned .capX)
        cta    the CTA label; color its fill
-     -> {details, capC, capX, cta}
+       counts the ad's UFI counts {like, comment, share}, live text: the rail is the shared Reels UFI (preview/shared/ufi, ReelsUFI,
+              loaded first) with FMSS's three items (no save), its icons the Figma paths and its counts the type the outlines had
+     -> {rail, details, capC, capX, cta}
    The "more" arrow starts 5px after the ink of "more" (as Figma draws it, preview/fmss-cb caption 140796:6730). */
 (function(){'use strict';
 if(window.FMSSReel)return;
-const V='351',base=new URL('.',document.currentScript.src).href,u=f=>base+f+'?v='+V;
+const V='356',base=new URL('.',document.currentScript.src).href,u=f=>base+f+'?v='+V;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const cx=document.createElement('canvas').getContext('2d');
 function fitArrow(p){   // the arrow 5px after the ink of "more": its em box ends at the last glyph's advance plus the tracking
@@ -18,7 +20,10 @@ function fitArrow(p){   // the arrow 5px after the ink of "more": its em box end
   const m=cx.measureText('more'),rsb=m.width-m.actualBoundingBoxRight+ls;img.style.marginLeft=(5-2-rsb).toFixed(2)+'px'}
 function mount(root,o){
   const q=k=>root.querySelector('[data-reel='+k+']'),out={};
-  const rail=q('rail');if(rail)rail.src=u('ufi-rail.svg');
+  const rail=q('rail');
+  if(rail){const n=o.counts||{},t=document.createElement('div');
+    t.innerHTML=ReelsUFI.html([n.like,n.comment,n.share].map(v=>v==null?'':v),{keys:['like','comment','share']});
+    const r=t.firstElementChild;r.dataset.reel='rail';rail.replaceWith(r);out.rail=r}
   const pill=q('pill');if(pill)pill.src=new URL('../sponsored/sponsored-chip.svg',base).href+'?v='+V;
   const d=q('details');
   if(d){

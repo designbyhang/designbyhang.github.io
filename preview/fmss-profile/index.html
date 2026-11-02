@@ -25,7 +25,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../shared/appbar/appbar.css?v=355"><script src="../shared/appbar/appbar.js?v=355"></script>
 <link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=355"><script src="../shared/tabbar/tabbar.js?v=355"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../../css/ad-cta.css?v=355"><link rel="stylesheet" href="../shared/reel/reel.css?v=356"><script src="../shared/reel/reel.js?v=356"></script><script src="../shared/device/snap.js?v=356"></script><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=355">
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../../css/ad-cta.css?v=355"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=355"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=356"><script src="../shared/reel/reel.js?v=356"></script><script src="../shared/device/snap.js?v=356"></script><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=355">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -177,7 +177,7 @@ html.hosted .phone{background:transparent;border-radius:0}
           <div class="abs" id="pz" aria-hidden="true"></div>
           <div class="abs rov" id="rov">
             <div data-reel="scrim"></div>
-            <img data-reel="rail" alt="">
+            <div data-reel="rail"></div>
             <div data-reel="details" aria-hidden="true"></div>
             <button data-reel="cta" id="shop" type="button" aria-label="Learn more: open the in-app browser (IAB) full screen"></button>
             <img data-reel="pill" alt="">
@@ -272,7 +272,7 @@ new ResizeObserver(fit).observe(frame);fit();
 
 /* ---------- the Reels ad overlay: the shared FMSS build (../shared/reel), as on Caption & Browse; Learn more in the pink the
    recording's button showed (#F53C60 as Chrome and Safari drew it) ---------- */
-FMSSReel.mount($('rov'),{cta:'Learn more',color:'#F53C60',cap:'Engineered for greatness. Designed f'});
+FMSSReel.mount($('rov'),{cta:'Learn more',color:'#F53C60',cap:'Engineered for greatness. Designed f',counts:{like:'12.4K',comment:'842',share:'1.1K'}});
 
 /* ---------- Figma corner smoothing (same squircle as fmss-cb) ---------- */
 function squircle(w,h,R,sm){

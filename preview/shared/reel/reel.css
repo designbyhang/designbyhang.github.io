@@ -3,7 +3,7 @@
    375×812 px: scrims, UFI rail, the details (author row + caption), the CTA and the Sponsored pill. reel.js fills the host's placeholders
    ([data-reel=…]); the host keeps their ids, z-order and handlers and owns the footage, chrome and motion.
    Drawn, not baked: text is live (SF Pro on Apple, the system stack elsewhere), icons are Figma's own exports used as they are (avatar.svg,
-   verified.png / globe.png the 24×24 alpha masks author.svg carries for its 12×12 badges, ufi-rail.svg's paths, chevron.svg the caption's
+   verified.png / globe.png the 24×24 alpha masks author.svg carries for its 12×12 badges, the rail's paths (preview/shared/ufi), chevron.svg the caption's
    arrow, ../sponsored/sponsored-chip.svg); nothing is redrawn or rescaled. The design's shadow (Figma drop shadow 0/0, blur 1 = σ0.5, black
    62%, on the name, badges, caption and rail) is drawn by CSS (text-shadow / drop-shadow 0 0 1px .62) instead of the SVG filter Figma
    exported: an SVG filter inside an <img> is rasterised at 1x in WebKit and then scaled, which blurred everything it touched. */
@@ -13,7 +13,9 @@
 [data-reel=scrim]::before,[data-reel=scrim]::after{content:"";position:absolute;left:0;width:375px}
 [data-reel=scrim]::before{top:0;height:132px;background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.443) 19%,rgba(0,0,0,0.325) 34%,rgba(0,0,0,0.229) 47%,rgba(0,0,0,0.167) 56.5%,rgba(0,0,0,0.116) 65%,rgba(0,0,0,0.076) 73%,rgba(0,0,0,0.045) 80.2%,rgba(0,0,0,0.025) 86.1%,rgba(0,0,0,0.013) 91%,rgba(0,0,0,0.005) 95.2%,rgba(0,0,0,0.001) 98.2%,rgba(0,0,0,0) 100%)}
 [data-reel=scrim]::after{top:369px;height:365px;background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.517) 19%,rgba(0,0,0,0.379) 34%,rgba(0,0,0,0.267) 47%,rgba(0,0,0,0.195) 56.5%,rgba(0,0,0,0.136) 65%,rgba(0,0,0,0.088) 73%,rgba(0,0,0,0.052) 80.2%,rgba(0,0,0,0.029) 86.1%,rgba(0,0,0,0.015) 91%,rgba(0,0,0,0.006) 95.2%,rgba(0,0,0,0.002) 98.2%,rgba(0,0,0,0) 100%)}
-[data-reel=rail]{left:326px;top:486px;width:50px;height:237px;pointer-events:none;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
+/* the UFI rail: the shared Reels UFI (preview/shared/ufi .r-ufi: x 326, 50 wide, the shadow, the count type) with FMSS's three items, so
+   it sits one pitch lower than the 4-item rail: like's icon at 495 − 9 = 486, more at 690 */
+.r-ufi[data-reel=rail]{top:486px;height:237px}
 /* details: author row 0–36, caption 48–68 (collapsed) / 48–128 (expanded, 4 lines at 303) */
 [data-reel=details]{left:12px;top:570px;width:352px;height:128px;pointer-events:none}
 .rl-av{position:absolute;left:0;top:0;width:36px;height:36px}

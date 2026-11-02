@@ -1,11 +1,13 @@
 /* The Reels UFI (the vertical like / comment / share / save rail and its more), shared by every Reels player on the VAC page: the VAC hero
    (js/vac-chain.js), preview/vac-proto, preview/mac-proto, preview/sap-proto and preview/cc-proto. The FMSS Reels player's rail is the
-   reference (preview/fmss-cb/assets/ufi-rail.svg, Figma 140796:6699): its own icon vectors (24×24 at x 13 of a 50-wide rail, white, the
+   reference (Figma 140796:6699, the FMSS Reels ad rail, now drawn by this file: preview/shared/reel): its own icon vectors (24×24 at x 13 of a 50-wide rail, white, the
    1px 62% black shadow: stdDeviation .5), its 65px pitch and its counts (SF Pro Text Semibold 13/16, −0.08 tracking, centred, 6px under
    the icon). The save item (bookmark + count; FMSS's ad rail has none) takes the 4th slot, so the rail grows up by one pitch and "more"
    stays on FMSS's line: icons at 430 / 495 / 560 / 625 on a 734 or 812 reel (page px, from the reel's top), more at 690 (CC's layout).
    The bookmark is CC's glyph, its stroke at FMSS's icon weight (2px).
-   ReelsUFI.html([like, comment, share, save], {cls, id, style}) → the markup; shared/ufi/ufi.css lays it out. */
+   ReelsUFI.html([like, comment, share, save], {cls, id, style, keys}) → the markup; shared/ufi/ufi.css lays it out. keys (optional,
+   default ['like','comment','share','save']) picks the items, in order, one pitch apart, more one pitch under the last: the FMSS ad rail
+   (preview/shared/reel) is ['like','comment','share'], its counts per ad. */
 (function(){"use strict";
 const P={
   like:'<g transform="scale(1.875)"><path transform="translate(0.2667 0.2667)" d="M5.59948 0C4.8631 0 4.26615 0.596954 4.26615 1.33333L4.26615 1.76773C4.26615 2.45147 4.10695 3.12581 3.80118 3.73737L3.32695 4.68582C3.2649 4.80993 3.20997 4.93708 3.1623 5.06667L1.33333 5.06667C0.596954 5.06667 0 5.66362 0 6.4L0 10.6667C0 11.403 0.596954 12 1.33333 12L3.46615 12C3.4665 12 3.46737 12 3.46772 12L6.91105 12L6.93333 12.0001L9.2 12.0001C10.1486 12.0001 10.932 11.2925 11.051 10.3763C11.467 10.0344 11.7333 9.51528 11.7333 8.93346C11.7333 8.84069 11.7265 8.74932 11.7134 8.65986C12.0545 8.32198 12.2667 7.85261 12.2667 7.33346C12.2667 7.01223 12.1852 6.70926 12.0419 6.4449C12.1013 6.2625 12.1333 6.06801 12.1333 5.86667C12.1333 4.83574 11.2976 4 10.2667 4L7.73281 4L7.73281 2.13333C7.73281 0.955126 6.77769 0 5.59948 0ZM4 10.9333L6.92185 10.9333L6.93333 10.9335L9.2 10.9335C9.64183 10.9335 10 10.5753 10 10.1335C10 10.1244 9.99985 10.1154 9.99955 10.1064C9.99308 9.9097 10.0954 9.72544 10.2658 9.62702C10.5066 9.48795 10.6667 9.22909 10.6667 8.93346C10.6667 8.83245 10.6482 8.737 10.6149 8.64944C10.525 8.41273 10.6139 8.14542 10.8277 8.00973C11.0526 7.86698 11.2 7.61725 11.2 7.33346C11.2 7.14362 11.1345 6.97052 11.0245 6.83341C10.8903 6.66614 10.8693 6.43475 10.9713 6.24607C11.032 6.13371 11.0667 6.00503 11.0667 5.86667C11.0667 5.42484 10.7085 5.06667 10.2667 5.06667L7.46146 5.06667C7.02247 5.06667 6.66615 4.71079 6.66615 4.27179L6.66615 2.13333C6.66615 1.54423 6.18858 1.06667 5.59948 1.06667C5.4522 1.06667 5.33281 1.18606 5.33281 1.33333L5.33281 1.76773C5.33281 2.61706 5.13507 3.45473 4.75523 4.2144L4.28101 5.16285C4.10373 5.51741 4.00783 5.90682 4 6.30271L4 10.9333ZM2.93333 6.29305C2.93299 6.31383 2.93281 6.33462 2.93281 6.35542L2.93281 10.9333L1.33333 10.9333C1.18606 10.9333 1.06667 10.8139 1.06667 10.6667L1.06667 6.4C1.06667 6.25272 1.18606 6.13333 1.33333 6.13333L2.93333 6.13333L2.93333 6.29305Z" fill-rule="evenodd" fill="white"/></g>',
@@ -17,7 +19,8 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const ic=k=>`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${P[k]}</svg>`;
 function html(n,o){o=o||{};
   let h=`<div class="r-ufi${o.cls?' '+o.cls:''}"${o.id?` id="${o.id}"`:''}${o.style?` style="${o.style}"`:''} aria-hidden="true">`;
-  ['like','comment','share','save'].forEach((k,i)=>{h+=`<span class="r-u" style="top:${9+65*i}px">${ic(k)}<b>${esc(n[i])}</b></span>`});
-  return h+`<span class="r-u" style="top:269px">${ic('more')}</span></div>`}
+  const ks=o.keys||['like','comment','share','save'];
+  ks.forEach((k,i)=>{h+=`<span class="r-u" style="top:${9+65*i}px">${ic(k)}<b>${esc(n[i])}</b></span>`});
+  return h+`<span class="r-u" style="top:${9+65*ks.length}px">${ic('more')}</span></div>`}
 window.ReelsUFI={html,TOP:421};
 })();
