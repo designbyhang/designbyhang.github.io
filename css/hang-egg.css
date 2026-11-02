@@ -11,6 +11,8 @@ footer.bot>span.hegg-trg .t::after{content:"";position:absolute;left:0;right:0;b
 footer.bot>span.hegg-trg:hover .t::after,footer.bot>span.hegg-trg:focus-visible .t::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){footer.bot>span.hegg-trg .t::after{transition:none}}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
+/* paper grain, both themes: one gray tile, blended with overlay so it darkens the light page and lightens the dark page. Static image, not redrawn. */
+.hegg::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:url("grain.png?v=334");background-size:160px 160px;opacity:.5;mix-blend-mode:overlay}
 /* iOS Safari bars, ported from the Studio presentation as it works on iPhone (projects/studio.html .deck-flow/.deck-edge, commits
    18ac7e0, a735500, f5acbcf): iOS 26 Safari does not take its bar tint from a full-screen fixed layer. Once the layer has faded in,
    html.hegg-flow makes it the document itself (in normal flow, one viewport tall, 2px of scroll range for js/theme.js's re-sample
