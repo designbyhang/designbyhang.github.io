@@ -1,6 +1,6 @@
 /* HANG easter egg: opens from the copyright line on home and case pages (js/hang-egg.js). Full-viewport wireframe letters (js/hang-wire.js), ink strokes on --page.
    Full-viewport layer in the page colour, z 50, so the light/dark toggle (z 60) stays on top and switches the egg live.
-   H A N G sits on the bottom row, centred, level with the theme toggle. Bitcount label at 16px.
+   H A N G sits on the bottom row, centred, level with the theme toggle. Bitcount label at 20px.
    Close = the Studio presentation's "× CLOSE" (projects/studio-present.js: .bar.deck-bar > nav.bar-right > a.ax with .arr.arr-back + .t),
    same markup and classes, top right of the viewport inside the safe area. Its icon comes from css/arrows.css (shared with the homepage);
    the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
@@ -26,8 +26,9 @@ footer.bot>span.hegg-trg:hover::after,footer.bot>span.hegg-trg:focus-visible::af
 .hegg-wire canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;background:transparent;user-select:none}
 .hegg-wire canvas.is-dragging{cursor:grabbing}
 .hegg-letters{position:fixed;left:0;right:0;bottom:calc(var(--tb-x, clamp(16px, 3vw, 32px)) + env(safe-area-inset-bottom, 0px));z-index:3;height:32px;margin:0;padding:0;display:flex;justify-content:center;align-items:center;gap:8px;pointer-events:none}
-.hegg-letters button{appearance:none;position:relative;border:0;outline:none;background:transparent;color:var(--ink);font:var(--t-label);font-size:16px;letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-transform:uppercase;-webkit-font-smoothing:none;height:32px;padding:0 14px;cursor:pointer;pointer-events:auto}
-.hegg-letters button::after{content:"";position:absolute;left:13px;right:15px;bottom:5px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.hegg-letters button{appearance:none;position:relative;border:0;outline:none;background:transparent;color:var(--ink);font:var(--t-label);font-size:20px;letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-transform:uppercase;-webkit-font-smoothing:none;height:32px;padding:0 14px;cursor:pointer;pointer-events:auto}
+/* underline sits on the glyph: 1.5px left of the padding box, and the same gap under the dots the 16px size had */
+.hegg-letters button::after{content:"";position:absolute;left:12.5px;right:15.5px;bottom:3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
 .hegg-letters button:hover::after,.hegg-letters button[aria-pressed="true"]::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.hegg-letters button::after{transition:none}}
 html.hegg-open.theme-anim,html.hegg-open.theme-anim body,html.theme-anim .hegg,html.theme-anim .hegg *{transition:none!important}
