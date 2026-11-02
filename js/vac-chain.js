@@ -81,15 +81,15 @@ const ADS=[
   {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K','860']},
   {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219','174']},
   {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148','124']}];
-const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5',CA=DC.base(document.currentScript,'../preview/shared/caption/');
+const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5',CA=DC.base(document.currentScript,'../preview/shared/caption/'),RA=DC.base(document.currentScript,'../preview/shared/reel/');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const im=(cls,f,w,h)=>`<img class="${cls}" alt="" src="${A}${f}${V}" width="${w}" height="${h}" draggable="false">`;
 const vid=(cls,k)=>`<video class="${cls}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback data-src="${A}${k}.mp4${V}" poster="${A}${k}.webp${V}"></video>`;
 // Reels UI over one ad (page px): bottom gradient, the shared Reels UFI (preview/shared/ufi: FMSS's rail + the save item, like at 430, more
 // at 690), details (author: name, FMSS's verified badge and globe, 4 apart; caption, CTA: bottom 12, left 12, 303)
-const shi=(cls,f)=>`<img class="${cls}" alt="" src="${CA}${f}?v=355" width="12" height="12" draggable="false">`;
+const shi=(cls,f)=>`<img class="${cls}" alt="" src="${RA}${f}?v=359" width="12" height="12" draggable="false">`;
 const reelsUI=d=>`<i class="vc-gb"></i>`+(window.ReelsUFI?ReelsUFI.html(d.ufi):'')+
-  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${shi('vc-bd','verified.svg')}${shi('vc-bd','globe.svg')}</p>`+
+  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${shi('vc-bd','verified.png')}${shi('vc-bd','globe.png')}</p>`+
   `<p class="vc-sp">Sponsored</p>${CAP(d.cap)}<p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;
 // the caption + "… more ⌄": the shared VAC caption (js/vac-caption.js, with the prototype), cut to fit by VACCaption.watch in build()
 const CAP=cap=>window.VACCaption?VACCaption.html({cap,chev:CA+'chevron-down.svg?v=1',cls:'vc-cp'}):`<p class="vc-cp"><span>${esc(cap)}</span><em>more</em></p>`;
@@ -110,7 +110,7 @@ DC.register('vac',{T,rest:REST,
       `<i class="vc-l vc-at"></i>`+
       `<div class="vc-l vc-sh">${im('vc-site',S.k+'-site.webp',750,1444)}</div>`+
       [1,2,3].map(j=>`<div class="vc-l vc-pg vc-p${j}">${vid('vc-v',ADS[j].k)}<div class="vc-ui">${reelsUI(ADS[j])}</div></div>`).join('')+
-      `<div class="vc-l vc-chrome"><i class="vc-gt"></i><p class="vc-tm">2:04</p><img class="vc-st" alt="" src="${A}status.svg${V}" width="67" height="11">`+
+      `<div class="vc-l vc-chrome"><i class="vc-gt"></i><p class="vc-tm">2:04</p><img class="vc-st" alt="" src="${A}status.svg?v=359" width="67" height="11">`+
         `<img class="vc-bk" alt="" src="${A}back.svg${V}" width="24" height="24"></div>`+
       `<div class="vc-l vc-bar"><p class="vc-in">Add a comment${im('vc-em','i-emoji.webp',40,40)}</p><i class="vc-hi"></i></div>`;
     const q=s=>scr.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},An=(s,fn)=>q(s)&&anims.push(q(s).animate(kf(fn),o));

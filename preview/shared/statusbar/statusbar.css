@@ -1,7 +1,9 @@
 /* FMSS shared iOS status bar: 2:04, cellular, wifi and battery, 375x44 in the host's 375x812 px, docked to the screen top. Source of
    truth: the Figma "Status Bar · iPhone 16" instance every FMSS frame carries (fmss_26 140796:6535, C&B's 140796:6772: one component).
-   status.svg is Caption & Browse's own export of it (fmss-cb/assets/statusbar-light.svg, unchanged: the battery outline keeps Figma's
-   0.6 corner smoothing, the older H-Scroll export had dropped it to a plain rect). No Dynamic Island.
+   status.svg is Caption & Browse's own export of it (fmss-cb/assets/statusbar-light.svg, the same file: the battery outline keeps Figma's
+   0.6 corner smoothing, the older H-Scroll export had dropped it to a plain rect). Figma's inside-stroke <mask> on the battery outline is
+   written as the equivalent <clipPath> (same geometry, identical in Chrome): WebKit rasterises masks in an SVG used as an image at 1x,
+   so no SVG image here carries a mask or pattern. No Dynamic Island.
    The glyphs are a mask, so one asset draws both treatments: white content by default, black with .sb-dark (or any background the
    host sets, e.g. a colour transition). The host positions it (class abs) and drives its opacity.
    Stacking (.sb-iab): with the shared IAB (../iab) the light bar lives in the IAB's own host layer (the element FMSSIAB.create builds

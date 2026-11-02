@@ -17,7 +17,7 @@
    The "more" arrow starts 5px after the ink of "more" (as Figma draws it, preview/fmss-cb caption 140796:6730). */
 (function(){'use strict';
 if(window.FMSSReel)return;
-const V='357',base=new URL('.',document.currentScript.src).href,u=f=>base+f+'?v='+V;
+const V='359',base=new URL('.',document.currentScript.src).href,u=f=>base+f+'?v='+V;
 const SHEET=406,GAP=16;   // the shared IAB's half-sheet top (preview/shared/iab y2) and the caption's gap above it
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const cx=document.createElement('canvas').getContext('2d');

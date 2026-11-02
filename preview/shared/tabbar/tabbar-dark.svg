@@ -7,11 +7,9 @@
 <g clip-path="url(#clip1_4983_154659)">
 <rect y="1" width="375" height="78" fill="#242526" />
 <g id="Tab Bar_3">
-<mask id="path-5-inside-1_4983_154659" fill="white">
-<path d="M0 1H375V45H0V1Z" />
-</mask>
+<clipPath id="path-5-inside-1_4983_154659"><path d="M0 1H375V45H0V1Z" /></clipPath>
 <path d="M0 1H375V45H0V1Z" fill="#242526" />
-<path d="M0 1V1.5H375V1V0.5H0V1Z" fill="white" fill-opacity="0.1" mask="url(#path-5-inside-1_4983_154659)" />
+<path d="M0 1V1.5H375V1V0.5H0V1Z" fill="white" fill-opacity="0.1" clip-path="url(#path-5-inside-1_4983_154659)" />
 <g id="Tab BP">
 <g id="Tab1 Icon">
 <g id="news-feed-home">

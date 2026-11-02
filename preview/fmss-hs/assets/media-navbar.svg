@@ -5,12 +5,7 @@
 <g id="Overlay Header" opacity="0.4">
 <rect id="Text protection" width="375" height="55" fill="black" fill-opacity="0.2" />
 <g id="Easing Gradient">
-<mask id="mask0_4983_154659" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="55" width="375" height="108">
-<rect id="Easing Gradient_2" x="375" y="163" width="375" height="108" transform="rotate(-180 375 163)" fill="url(#paint0_linear_4983_154659)" />
-</mask>
-<g mask="url(#mask0_4983_154659)">
-<rect id="Color" x="375" y="230" width="375" height="175" transform="rotate(-180 375 230)" fill="black" fill-opacity="0.2" />
-</g>
+<rect id="Color" x="0" y="55" width="375" height="108" fill="url(#paint0_linear_4983_154659)" />
 </g>
 </g>
 <g id="Header Container">
@@ -38,23 +33,23 @@
 <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4983_154659" />
 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_4983_154659" result="shape" />
 </filter>
-<linearGradient id="paint0_linear_4983_154659" x1="562.5" y1="163" x2="562.5" y2="271" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_4983_154659" x1="0" y1="163" x2="0" y2="55" gradientUnits="userSpaceOnUse">
 <stop stop-opacity="0" />
-<stop offset="0.117896" stop-opacity="0.01" />
-<stop offset="0.213837" stop-opacity="0.0324148" />
-<stop offset="0.2912" stop-opacity="0.0704" />
-<stop offset="0.353363" stop-opacity="0.120652" />
-<stop offset="0.403704" stop-opacity="0.181481" />
-<stop offset="0.4456" stop-opacity="0.2512" />
-<stop offset="0.48243" stop-opacity="0.328119" />
-<stop offset="0.51757" stop-opacity="0.410548" />
-<stop offset="0.5544" stop-opacity="0.4968" />
-<stop offset="0.596296" stop-opacity="0.585185" />
-<stop offset="0.646637" stop-opacity="0.674015" />
-<stop offset="0.7088" stop-opacity="0.7616" />
-<stop offset="0.786163" stop-opacity="0.846252" />
-<stop offset="0.882104" stop-opacity="0.926281" />
-<stop offset="1" />
+<stop offset="0.117896" stop-opacity="0.002" />
+<stop offset="0.213837" stop-opacity="0.006483" />
+<stop offset="0.2912" stop-opacity="0.01408" />
+<stop offset="0.353363" stop-opacity="0.02413" />
+<stop offset="0.403704" stop-opacity="0.036296" />
+<stop offset="0.4456" stop-opacity="0.05024" />
+<stop offset="0.48243" stop-opacity="0.065624" />
+<stop offset="0.51757" stop-opacity="0.08211" />
+<stop offset="0.5544" stop-opacity="0.09936" />
+<stop offset="0.596296" stop-opacity="0.117037" />
+<stop offset="0.646637" stop-opacity="0.134803" />
+<stop offset="0.7088" stop-opacity="0.15232" />
+<stop offset="0.786163" stop-opacity="0.16925" />
+<stop offset="0.882104" stop-opacity="0.185256" />
+<stop offset="1" stop-opacity="0.2" />
 </linearGradient>
 </defs>
 </svg>

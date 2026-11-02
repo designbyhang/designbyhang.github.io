@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><link rel="stylesheet" href="../shared/caption/caption.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=355">
 <style>
@@ -217,7 +217,7 @@ const CH=[
     top.insertAdjacentHTML('beforebegin',`<div class="L mv${t?' mx':''}" id="${S.id}" style="background-image:url(${VA}${S.bg})" role="button" aria-label="${C.ads[0].name} video ad: open it in Reels">`+
       vt(S.vid,S.src)+(t?vt(t.vid,t.src,'mt',`left:${t.TW[0]}px;top:${t.TW[1]}px;width:${t.TW[2]}px;height:${t.TW[3]}px`):'')+'</div>');
     for(const a of C.ads){
-      const stk=`<img class="c-det" alt="" src="assets/${a.det}.webp${V}"><img class="cbadge" alt="" src="../shared/caption/verified.svg${V}" style="left:${a.bx}px"><img class="cglobe" alt="" src="../shared/caption/globe.svg${V}" style="left:${a.bx+16}px"><p class="c-sp">Sponsored</p><p class="c-cap">${a.cap}</p>`;
+      const stk=`<img class="c-det" alt="" src="assets/${a.det}.webp${V}"><img class="cbadge" alt="" src="../shared/reel/verified.png?v=359" style="left:${a.bx}px"><img class="cglobe" alt="" src="../shared/reel/globe.png?v=359" style="left:${a.bx+16}px"><p class="c-sp">Sponsored</p><p class="c-cap">${a.cap}</p>`;
       let h;
       if(a.hs){let r='';for(let i=0;i<a.hs;i++)r+=`<span style="left:${i*80}px"><img alt="" src="assets/lc-p${i+1}.webp${V}"></span>`;
         h=vt(a.vid,a.src)+`<div class="c-stack c-hs">${stk}<div class="hs c-act"><i id="hsr">${r}</i></div></div>`}

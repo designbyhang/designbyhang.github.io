@@ -228,9 +228,9 @@ const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
   {cap:'Meet Cloudboom Max. Your marath',cut:1},{cap:'Find your perfect suitcase in our Fle',cut:1},{cap:'Explore the invigorating flavors of M',cut:1}];
   if(V)CAPS.forEach((c,j)=>{const t=document.createElement('template');t.innerHTML=V.html({cap:c.cap,cut:c.cut,chev:CH,cls:'L cap'+(j?' cj':'')});
     const el=t.content.firstChild;el.id='cap'+j;el.setAttribute('aria-hidden','true');(j?$('p3'):$('pp')).after(el)});
-  const BD=f=>`<img alt="" src="../shared/caption/${f}?v=355" width="12" height="12" draggable="false">`;
+  const BD=f=>`<img alt="" src="../shared/reel/${f}?v=359" width="12" height="12" draggable="false">`;
   ['Porsche','On','Away','Maison Perrier USA'].forEach((n,j)=>{const w=document.createElement('div');w.className='L who'+(j?' cj':'');w.id='who'+j;
-    w.setAttribute('aria-hidden','true');w.innerHTML=`<p class="wn"><span>${n}</span>${BD('verified.svg')}${BD('globe.svg')}</p><p class="ws">Sponsored</p>`;
+    w.setAttribute('aria-hidden','true');w.innerHTML=`<p class="wn"><span>${n}</span>${BD('verified.png')}${BD('globe.png')}</p><p class="ws">Sponsored</p>`;
     const c=$('cap'+j);if(c)c.before(w);else (j?$('p3'):$('pp')).after(w)});
   if(V)V.watch(phone)}
 const els={dim:$('dim'),feed:$('feed'),fgl:$('feedGl'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),box:$('box'),sb:$('sb'),chrome:$('chrome'),bar:$('bar'),home:$('home'),pzw:$('pzw'),pz:FMSSPause.mount($('pz')),cap:[0,1,2,3].map(j=>$('cap'+j)),who:[0,1,2,3].map(j=>$('who'+j)),p:[null,$('p1'),$('p2'),$('p3')]};

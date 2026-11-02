@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/pause/pause.js?v=355"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/pause/pause.js?v=355"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=355">
 <style>
@@ -75,7 +75,7 @@ video{display:block;object-fit:cover}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
 .c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
 /* the name row, as FMSS's author row (preview/fmss-cb/assets/author.svg): the verified badge 4 after the name on every reel
-   (preview/shared/caption/verified.svg, FMSS's own 12×12), then on ads and the seed the globe 4 after the badge (shared globe.svg, FMSS's);
+   (preview/shared/reel/verified.png, FMSS's own 24px mask as a plain raster, 12×12), then on ads and the seed the globe 4 after the badge (preview/shared/reel/globe.png);
    both 12×12 centred on the 20px name line, with the name's shadow (FMSS's 1px 62% black: stdDeviation .5) */
 .cn .cbadge,.cn .cglobe{flex:none;width:12px;height:12px;margin-left:4px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .c-stack.cc-seed>.c-cap{top:44px}
@@ -226,7 +226,7 @@ const ICO={
   /* the playlist (queue): outline, as the search sparkle and the home: 1.4 strokes, round caps and joins, on the sparkle's 20 box and its
      optical centre (y 10): the play triangle top-left, two lines to its right, the long line under them */
   explore:'<svg class="ico" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 4.5v6.4l5.4-3.2Z"/><path d="M12.4 5.3H16M12.4 10.1H16M4.4 15.5H16"/></svg>'};
-const BADGE='<img class="cbadge" alt="" src="../shared/caption/verified.svg?v=355">',GLOBE='<img class="cglobe" alt="" src="../shared/caption/globe.svg?v=355">';
+const BADGE='<img class="cbadge" alt="" src="../shared/reel/verified.png?v=359">',GLOBE='<img class="cglobe" alt="" src="../shared/reel/globe.png?v=359">';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
 function page(id){
