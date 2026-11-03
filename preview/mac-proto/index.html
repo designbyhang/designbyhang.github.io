@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <!-- shared FMSS foundation: the IAB sheet (header + sheet) and the edge swipe back; no player controls here -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script><script src="../../js/video-scrubber.js?v=360"></script><script src="../shared/pause/pause.js?v=360"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=355">
 <style>
@@ -154,8 +154,10 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <!-- the reels (.pg), every chain's: built from CH -->
           <img class="L chrome" alt="" src="assets/reels-nav.webp?v=355" style="top:44px;height:52px">
           <img class="L bar" alt="" src="assets/reels-bar.webp?v=355">
+          <div class="L" id="pz" style="left:155.5px;top:374px;z-index:2"></div>   <!-- the shared play glyph while a reel is paused (../shared/pause) -->
         </div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next ad in the chain"></div>
+        <div class="L" id="rc" style="z-index:9"></div>   <!-- the Reels video controls (../shared/pause: the split screen's scrubber, above the comment bar), over the pager so the track takes its own presses -->
         <i class="L ctap ad-cta" id="ctap" aria-hidden="true"></i>
         <button class="L btn cta" id="cta" type="button" aria-label="Learn more: open oakley.com in the in-app browser (IAB) full screen"></button>
         <button class="L btn back" id="back" type="button" aria-label="Back to the grid"></button>
@@ -367,6 +369,15 @@ const ctaAt=(x,y)=>x>=CTA_R[0]&&x<=CTA_R[0]+CTA_R[2]&&y>=CTA_R[1]&&y<=CTA_R[1]+C
 function ctaAd(){const j=Math.round(k),a=CH[ci].ads[j];return a&&a.cta&&Math.abs(k-j)<.01?a:null}   // the reel at rest has a CTA
 function ctaPage(){const a=ctaAd();return a&&a.site?Math.round(k):-1}   // … that opens a site (in the IAB)
 function ctaDown(on){$('ctap').classList.toggle('down',!!on)}   // press feedback on the Learn more button
+/* tap the reel to pause / play (the shared FMSS tap to pause, ../shared/pause, as VAC and CC): full screen only, on a reel at rest with a
+   video, anywhere on it that is not the chrome / back (y < 96), the author + caption + CTA block (y >= 596) or the action rail (x >= 326
+   below 486). It also brings up the video controls above the comment bar (734), the reel's overlay raised over them. Moving to another
+   reel, back to the grid or a reset plays it again */
+const curV=()=>{const j=Math.round(k),C=CH[ci];return mode==='reels'&&Math.abs(k-j)<.01?(j?C.vids[j]:C.sv)||null:null};
+const pz=FMSSPause.mount($('pz'),{video:curV,at:$('rc'),bar:734,scope:()=>CH[ci].pages[Math.round(k)],also:()=>[$('ctap'),$('cta')]});
+const reelTap=(x,y)=>!INL()&&cta===null&&!!curV()&&y>=96&&y<596&&(x<326||y<486);
+function togglePause(){if(pz.paused){pz.set(false,true);vidSync()}else{const v=curV();if(!v)return;pz.set(true);v.pause()}}
+function unpause(){if(pz.on||pz.paused){pz.set(false);vidSync()}}
 function openCta(){
   const j=ctaPage();
   if(cta!==null||mode!=='reels'||kA.busy||j<0)return false;
@@ -400,7 +411,7 @@ let pd=null;
 const HS=ReelsCaption.hs(),HMIN=-(5*80+72-303);
 pager.addEventListener('pointerdown',ev=>{if(ev.button>0||mode!=='reels')return;kA.stop();
   const [px,py]=ptOf(ev),hi=CH[ci].ads.findIndex(a=>a.hs),onHs=hi>=0&&Math.abs(k-hi)<.01&&px>=HS[0]&&px<=HS[0]+HS[2]&&py>=HS[1]&&py<=HS[1]+HS[3];
-  if(ctaAd()&&ctaAt(px,py))ctaDown(true);
+  if(ctaAd()&&ctaAt(px,py+pz.lift))ctaDown(true);
   pd={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:false,axis:null,onHs,hx0:hx,k0:k,s:[[performance.now(),k]],sc:phone.getBoundingClientRect().height/812};
   try{pager.setPointerCapture(ev.pointerId)}catch(_){}pager.classList.add('drag')});
 pager.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
@@ -411,7 +422,7 @@ pager.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
   const now=performance.now();pd.s.push([now,k]);while(pd.s.length>2&&now-pd.s[0][0]>100)pd.s.shift()});
 function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;pager.classList.remove('drag');ctaDown(false);
   if(d.axis==='h'){const t=clamp(hx,HMIN,0);if(t!==hx){const hA=anim(()=>hx,v=>{hx=v;render()});hA.to(t,{ms:400})}return}
-  if(ev.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(ev);if(ctaAt(px,py-pageY(Math.round(k)))&&openCta())return}   // a tap on Learn more
+  if(ev.type==='pointerup'&&!d.moved){k=d.k0;render();const [px,py]=ptOf(ev);if(ctaAt(px,py-pageY(Math.round(k))+pz.lift)&&openCta())return;if(reelTap(px,py+pz.lift)){togglePause();return}}   // a tap on Learn more (raised while the video controls show), else on the video: pause / play
   const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0&&performance.now()-B[0]<80?(B[1]-A[1])/((B[0]-A[0])/1000):0;   // pages/s (+ = up, the next ad)
   let t=Math.round(k+v*.18);const from=Math.round(d.k0);
   if(Math.abs(v*PG)>320)t=from+(v>0?1:-1);t=clamp(clamp(t,from-1,from+1),0,N);
@@ -419,7 +430,7 @@ function pagerUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;page
 pager.addEventListener('pointerup',pagerUp);pager.addEventListener('pointercancel',pagerUp);
 function step(t,v=0){const was=Math.round(k);if(t!==was)restart(t);
   const d=t-k,C=CH[ci];kA.to(t,{ease:d&&v?springV(DUR,v/d):SLOW,onDone:()=>say(C.ads[t].name+' reel')})}
-function restart(j){const C=CH[ci],v=j>0?C.vids[j]:null;if(v){try{v.currentTime=0}catch(_){}}if(C.ads[j]&&C.ads[j].hs){hx=0}}
+function restart(j){unpause();const C=CH[ci],v=j>0?C.vids[j]:null;if(v){try{v.currentTime=0}catch(_){}}if(C.ads[j]&&C.ads[j].hs){hx=0}}
 let wT=0,wAcc=0;
 pager.addEventListener('wheel',ev=>{if(mode!=='reels')return;if(ev.cancelable)ev.preventDefault();
   const now=performance.now();if(now-wT<480)return;wAcc+=ev.deltaY;
@@ -431,7 +442,7 @@ function snapDraw(C,v){const c=C.snap,x=c.getContext('2d');
   try{if(v.readyState>=2){const vw=v.videoWidth,vh=v.videoHeight,s=Math.max(c.width/vw,c.height/vh),w=vw*s,h=vh*s;x.drawImage(v,(c.width-w)/2,(c.height-h)/2,w,h)}}catch(_){}}
 function clearSnap(C){const c=C.snap;c.getContext('2d').clearRect(0,0,c.width,c.height)}
 function seedHome(C){[C.sv,C.mt].forEach(v=>{if(v)try{v.currentTime=0}catch(_){}})}   // the seed back on its first frame (left from a later reel)
-function startPop(){kA.stop();k=Math.round(k);const C=CH[ci];
+function startPop(){unpause();kA.stop();k=Math.round(k);const C=CH[ci];
   if(k>=1){clearSnap(C);seedHome(C)}
   else if(C.mt){const v=C.mt,f=()=>{v.removeEventListener('seeked',f);snapDraw(C,v)};snapDraw(C,v);v.addEventListener('seeked',f);try{v.currentTime=C.sv.currentTime}catch(_){f()}}
   else snapDraw(C,C.sv);
@@ -439,7 +450,7 @@ function startPop(){kA.stop();k=Math.round(k);const C=CH[ci];
 /* the Back tap (and Escape): the grow in reverse, from any reel of the chain. Reels' UI fades out over the first half and the seed shrinks
    back into the tile it grew from while the grid fades in under it (Slow, 664). From a later ad in the chain, that reel fades off the seed
    as it shrinks */
-function back(){if(mode!=='reels'||cta!==null)return;kA.stop();k=Math.round(k);const C=CH[ci];
+function back(){if(mode!=='reels'||cta!==null)return;unpause();kA.stop();k=Math.round(k);const C=CH[ci];
   if(k>=1)seedHome(C);else if(C.mt){try{C.mt.currentTime=C.sv.currentTime}catch(_){}}   // the tile footage back in step with the reel's
   mode='close';setReels(false);render();
   eA.to(0,{onDone:()=>{if(mode!=='close')return;toGrid();homeTell(true);say('Grid')}})}
@@ -464,7 +475,7 @@ phone.addEventListener('pointermove',ev=>{if(!eg||ev.pointerId!==eg.id)return;
   ev.stopPropagation();EB.move(dx)},true);
 function edgeUp(ev){if(!eg||ev.pointerId!==eg.id)return;const d=eg;eg=null;if(!d.on)return;ev.stopPropagation();EB.end((ev.clientX-d.x0)/d.s)}
 phone.addEventListener('pointerup',edgeUp,true);phone.addEventListener('pointercancel',edgeUp,true);
-function toGrid(){eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;
+function toGrid(){unpause();eA.stop();kA.stop();bA.stop();mode='grid';e=k=b=0;hx=0;cta=null;phone.classList.remove('cta-open');ctaDown(false);iab.reset();iabRB.reset();act=iab;setReels(false);sheetP=0;sd=0;
   CH.forEach(clearSnap);rot0=CH[ci].ti;render();freeRot()}   // the turns pick up at the seed the chain grew from
 document.addEventListener('keydown',ev=>{if(INL())return;
   if(ev.key==='Escape'){userActed();if(cta!==null){if(act.state!==1)act.go(1)}else if(mode==='reels')back()}
@@ -492,7 +503,7 @@ CH.forEach((C,c)=>{
 TV.forEach((v,i)=>{if(!CH.some(C=>C.ti===i))VIDS.push([v,()=>gridOn()&&g>0&&gAct===i])});
 const pend=new WeakSet();
 function vidSync(){const on=visible&&!document.hidden;
-  for(const [v,f] of VIDS){const sh=on&&f();
+  for(const [v,f] of VIDS){const sh=on&&f()&&v!==pz.paused;   // a reel the viewer paused stays paused
     if(sh&&v.paused&&!pend.has(v)){pend.add(v);const p=v.play();if(p&&p.then)p.then(()=>pend.delete(v),()=>{pend.delete(v);armGesture()});else pend.delete(v)}
     else if(!sh&&!v.paused)v.pause()}}
 function armGesture(){const f=()=>{removeEventListener('pointerdown',f,true);vidSync()};addEventListener('pointerdown',f,true)}

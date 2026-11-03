@@ -43,12 +43,18 @@
      rate (±15%) and a start or stall more than 1s off seeks (at most every 1.5s). Render guard: while the frame on screen is inside
      `avoid` (s) the <video> is visibility:hidden and is seeked out of it. A scrub or tap pause frees it until the next park; it still
      skips avoid. Off under reduced motion (the hosts' stills keep their own frame). The clip has to cover both stretches it is shown
-     for (zero -> park start, park end -> zero; a console warning names a clip that does not, it would wrap mid-loop there) */
+     for (zero -> park start, park end -> zero; a console warning names a clip that does not, it would wrap mid-loop there)
+  - reel (opt-in, o.reel: the full-screen Reels players, through preview/shared/pause FMSSPause.mount(el, {video, at, bar})): the same
+    track, fill, thumb and seek strip, without the timestamp or the icon strip (the Reels overlay sits where they would). Hidden until
+    the host asks: reveal() brings it in (a 240ms ease-out fade), hold(true) keeps it up while the reel is paused, hold(false) (the
+    tap that resumes) reveals it and restarts the split screen's own fade (held 2080ms, then the 320ms ease-out: gone 2400ms after
+    the tap), hide() takes it away at once (the reel changed). A drag seeks without pausing (the host owns play / pause) and restarts
+    the fade from its release. o.onOpacity(op) is called with every opacity change (the host moves its overlay with it) */
 (function(){
 'use strict';
 if(window.VideoScrubber)return;
 var RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
-var HOLD=2080,FADE=320,GONE=HOLD+FADE;   // controls gone 2400ms after split screen is reached (the 320ms ease-out fade itself unchanged)
+var HOLD=2080,FADE=320,GONE=HOLD+FADE,ENTER=240;   // controls gone 2400ms after split screen is reached (the 320ms ease-out fade itself unchanged)
 // CSS ease-out = cubic-bezier(0,0,.58,1), solved for x
 function easeOut(x){if(x<=0)return 0;if(x>=1)return 1;var t=x;for(var i=0;i<8;i++){var cx=3*.58*t*t*(1-t)+t*t*t-x,d=6*.58*t*(1-t)-3*.58*t*t+3*t*t;if(Math.abs(cx)<1e-6||!d)break;t-=cx/d;t=Math.min(1,Math.max(0,t))}return 3*t*t*(1-t)+t*t*t}
 function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
@@ -74,6 +80,8 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  ':is(.vs,.vs *,.vs-tap):is(:focus,:focus-visible,:active){outline:none!important;-webkit-tap-highlight-color:transparent}'+
  // read only: nothing of the player takes the pointer (no hit strip, no cursor change)
  '.vs.vs-ro,.vs.vs-ro *{pointer-events:none!important;cursor:auto!important}'+
+ // reel: the track alone (no timestamp)
+ '.vs.vs-rl .vs-t{display:none}'+
  // demo tap marker (preview/fmss-cb .finger): drawn over the video, outside the fading controls, never takes the pointer
  '.vs-m{position:absolute;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;transform:translate(-50%,-50%);background:rgba(140,140,140,.35);'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
@@ -85,12 +93,12 @@ function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list
 function run(){if(!raf&&list.length)raf=requestAnimationFrame(tick)}
 var STOP=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
 /* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
-       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, demoTaps, tapAt} */
+       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, demoTaps, tapAt, reel, onOpacity} */
 function create(o){
   var v=o.video,doc=(o.document||document);style(doc);
   var x=o.x==null?12:o.x,w=o.w==null?351:o.w,ty=o.trackY==null?392:o.trackY,tb=o.timeY==null?ty-30:o.timeY;
-  var ro=!!o.readOnly,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
-  var tap=!ro&&!!o.tapToPause,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
+  var ro=!!o.readOnly,rl=!ro&&!!o.reel,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(rl?' vs-rl':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
+  var tap=!ro&&!rl&&!!o.tapToPause,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
   // icons: one crop; with tap to pause it is cut in three around the pause glyph's slot, so that slot alone can show the play icon
   function slice(a,b,g){return '<i class="vs-i vs-s'+(g?' vs-g':'')+'" style="left:'+(ix+a)+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
   root.innerHTML='<div class="vs-f">'+(o.icons?(tl?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
@@ -98,19 +106,28 @@ function create(o){
     '<p class="vs-t" style="left:'+x+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
-  var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=null,pend=null,up=false,base=0,prev=null,area=null;
+  var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=rl?-1e9:null,rIn=-1e9,pend=null,up=false,base=0,prev=null,area=null;
   var api={el:root,video:v,dragging:function(){return !!drag},
     since:o.sinceSplit||function(){return t0==null?null:performance.now()-t0},
     enterSplit:function(){t0=performance.now()},leaveSplit:function(){t0=null},
     fraction:function(){return last.fr},opacity:function(){return last.op},
     paused:function(){return up},togglePause:function(){toggle()},
+    reveal:function(){reveal()},hold:function(on){if(!rl)return;up=!!on;root.classList.toggle('vs-p',up);reveal()},
+    hide:function(){if(!rl)return;up=false;root.classList.remove('vs-p');t0=rIn=-1e9;fade()},
     destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);if(io)io.disconnect();root.remove()}};
+  if(rl){last.op=0;last.off=true;f.style.opacity='0';root.classList.add('vs-off')}   // reel: hidden until revealed
   function D(){var d=v.duration;return isFinite(d)&&d>0?d:0}
   function paint(t){var d=D(),fr=d?Math.min(1,Math.max(0,t/d)):0;
     if(fr!==last.fr){last.fr=fr;fill.style.transform='translateX('+((fr-1)*w).toFixed(2)+'px)';knob.style.transform='translateX('+(fr*w)+'px)'}
     var s=d?fmt(Math.min(t,d))+' / '+fmt(d):'';if(s!==last.txt){last.txt=s;tx.textContent=s;hit.setAttribute('aria-valuemax',Math.floor(d));hit.setAttribute('aria-valuenow',Math.floor(t))}}
-  function fade(){var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;var op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE),off=op===0;
-    if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4))}
+  // reel: in over ENTER from a reveal (from where a fade out had got to), then the split screen's hold and fade from the last reveal
+  function reveal(){if(!rl)return;var now=performance.now();if(last.op<=0)rIn=now;else if(now-rIn>=ENTER&&last.op<1)rIn=now-ENTER*last.op;t0=now;fade();run()}
+  function fade(){var op;
+    if(rl){var now=performance.now(),e=RM.matches?1:Math.min(1,(now-rIn)/ENTER),ms=drag||up?0:now-t0;
+      op=Math.min(easeOut(e),ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE))}
+    else{var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE)}
+    var off=op===0;
+    if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4));if(o.onOpacity)o.onOpacity(op)}
     if(off!==last.off){last.off=off;root.classList.toggle('vs-off',off)}}
   // hit strip: 24 design px round the track, taller where the phone is drawn small (at least 12 CSS px, at most 48 design px)
   var n=0,hh=24;function hitSize(){var r=hit.getBoundingClientRect(),k=r.width/w;if(!k)return;var h=Math.round(Math.min(48,Math.max(24,12/k)));
@@ -164,10 +181,11 @@ function create(o){
   // seek (not read only): the strip's events stop at it, a press captures the pointer and drags the playhead
   if(!ro){
   STOP.forEach(function(n){hit.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
-  hit.addEventListener('pointerdown',function(e){if(e.button>0||!D())return;e.preventDefault();drag={id:e.pointerId,play:!v.paused,t:0};
-    try{hit.setPointerCapture(e.pointerId)}catch(_){}if(!v.paused)v.pause();move(e)});
+  hit.addEventListener('pointerdown',function(e){if(e.button>0||!D())return;e.preventDefault();drag={id:e.pointerId,play:!rl&&!v.paused,t:0};
+    try{hit.setPointerCapture(e.pointerId)}catch(_){}if(!rl&&!v.paused)v.pause();move(e)});
   hit.addEventListener('pointermove',function(e){if(drag&&e.pointerId===drag.id)move(e)});
   function end(e){if(!drag||e.pointerId!==drag.id)return;var p=drag.play;drag=null;try{hit.releasePointerCapture(e.pointerId)}catch(_){}
+    if(rl)t0=performance.now();
     if(p){var q=v.play();q&&q.catch(function(){})}}
   hit.addEventListener('pointerup',end);hit.addEventListener('pointercancel',end);hit.addEventListener('lostpointercapture',end);}
   // tap to pause: split-screen clock seen through the last tap (base), new entries (clock back to null or jumping back) reset it

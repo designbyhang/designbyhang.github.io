@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/gate.css?v=355"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <script src="../../js/gate.js?v=355"></script>
-<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/pause/pause.js?v=355"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../../js/video-scrubber.js?v=360"></script><script src="../shared/pause/pause.js?v=360"></script>
 <link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=359"><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=358"><script src="../shared/reel/reel.js?v=359"></script><script src="../shared/device/snap.js?v=356"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
@@ -114,6 +114,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <button data-reel="more" id="more" type="button" aria-describedby="captext" aria-label="More: expand caption and open the in-app browser (IAB) as a half sheet"></button>
         <button data-reel="cta" id="shop" type="button" aria-label="Shop now: open the in-app browser (IAB) full screen"></button>
         <img data-reel="pill" alt="">
+        <div id="rc" style="z-index:8"></div>   <!-- the Reels video controls (../shared/pause: the split screen's scrubber, above the tab bar) -->
         <button class="abs btn exit-area" id="exitArea" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
 
         <i class="abs sb sb-iab" id="statusL" aria-hidden="true"></i>   <!-- the shared FMSS status bar (../shared/statusbar), light, above the dim and under the sheet (.sb-iab) -->
@@ -133,7 +134,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),pz=FMSSPause.mount($('pz'));
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),vid=$('vid'),pz=FMSSPause.mount($('pz'),{video:vid,at:$('rc'),bar:734,scope:phone});   // a media tap also brings up the video controls above the tab bar (734)
 const Y2=406;                                     // half-sheet top (Figma px; closed 812 / full 44 live in the shared IAB)
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
@@ -415,8 +416,8 @@ function altPause(){
   const ready=()=>{if(vid.readyState>=1)seek();else vid.addEventListener('loadedmetadata',seek,{once:true})};
   vid.muted=true;const p=vid.play();if(p&&p.then)p.then(ready,ready);else ready();
 }
-function setPaused(on){
-  if(userPaused===on)return;userPaused=on;pz.set(on);
+function setPaused(on,tap){
+  if(userPaused===on)return;userPaused=on;pz.set(on,tap);
   if(vidMode==='video'){if(on)vid.pause();else playVid()}else if(on)altPause();
   $('live').textContent=on?'Reel paused':'Reel playing';
 }
@@ -427,7 +428,7 @@ function mediaTap(){
     if(vid.paused){vid.muted=true;const p=vid.play();if(p&&p.then)p.then(vidDisarm,()=>{})}
     vidKick=0;return;                                           // this tap was the start; the next one pauses
   }
-  setPaused(!userPaused);
+  setPaused(!userPaused,true);
 }
 function vidRefused(e){return e&&(e.name==='NotAllowedError'||e.name==='NotSupportedError')}
 function playVid(){

@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../shared/pause/pause.js?v=355"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=355"></script><script src="../../js/video-scrubber.js?v=360"></script><script src="../shared/pause/pause.js?v=360"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=355">
 <style>
@@ -173,6 +173,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <i class="L navg" id="navg" aria-hidden="true"></i>
         <div class="L pz" id="pz"></div>
         <div class="L touch" id="touch" aria-hidden="true"></div>
+        <div class="L" id="rc" style="z-index:15"></div>   <!-- the Reels video controls (../shared/pause: the split screen's scrubber, above the nav), over the touch layer so the track takes its own presses -->
         <button class="L btn" id="pillb" type="button" aria-label="Explore more like this: open Commerce Chaining's category row"></button>
         <button class="L btn" id="back" type="button" aria-label="Back to the Nespresso reel"></button>
         <i class="L sb" id="sb" aria-hidden="true"></i>
@@ -357,22 +358,22 @@ function nsReset(){nsOn=false;cancelAnimationFrame(nsRaf);ns=0;fx()}
    A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
 const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52]};
 const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
-const pz=FMSSPause.mount($('pz'));let paused=null;   // the reel the viewer has paused (id)
+const pz=FMSSPause.mount($('pz'),{video:()=>VID[curId()]||null,at:$('rc'),bar:742,scope:()=>PG[curId()]||null});let paused=null;   // the reel the viewer has paused (id)
 const settled=v=>Math.abs(v-Math.round(v))<.01;
 const curId=()=>mode==='feed'?(f<.5?'nike':'nesp'):mode==='cc'?CATS[Math.round(c)][Math.round(c)===0?Math.round(k):0]:null;
 function pressAt(a,b){   // [overlay, kind]
   if(mode==='feed'&&settled(f)){const id=curId();
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];   // Nespresso's pill is the #pillb button above this layer
-    if(id==='nesp'&&inR(RC.cta,a,b))return [PG.nesp.querySelector('.ad-cta .press'),'cta'];
+    if(id==='nesp'&&inR(RC.cta,a,b+pz.lift))return [PG.nesp.querySelector('.ad-cta .press'),'cta'];
     return [null,'reel']}
   if(mode==='cc'&&settled(c)&&settled(k)){const id=curId(),d=R[id];
     if(inR(RC.back,a,b))return [null,'back'];
     if(inR(RC.tabs,a,b)){const rx=a-40+ribX();for(let i=0;i<TABS.length;i++)if(rx>=TABX[i]-10&&rx<=TABX[i]+TABW[i]+10)return [null,'tab'+i];return [null,'tabs']}
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];
-    if(d.kind==='ad'&&inR(RC.cta,a,b))return [PG[id].querySelector('.ad-cta .press'),'cta'];
-    if(d.kind==='org'&&id!=='univ'&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b))return [PG[id].querySelector('.card .press'),'card'];
+    if(d.kind==='ad'&&inR(RC.cta,a,b+pz.lift))return [PG[id].querySelector('.ad-cta .press'),'cta'];
+    if(d.kind==='org'&&id!=='univ'&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b+pz.lift))return [PG[id].querySelector('.card .press'),'card'];
     return [null,'reel']}
   return [null,null]}
 let pd=null,pressEl=null;
@@ -429,7 +430,7 @@ function vStep(s){if(Math.round(c)===0&&Math.round(k)+s>=0&&Math.round(k)+s<=2)s
 function goCat(t,from=Math.round(c),v=0){t=clamp(t,0,LAST);const id=CATS[t][t===0?Math.round(k):0];if(t!==from)restart(id);
   const ms=t===c?400:664,d=t-c;roA.to(0,{ms:664});cA.to(t,{ms,ease:d&&v?springV(ms,v/d):SLOW,onDone:()=>arrive(id)})}
 function togglePause(){const id=curId();if(!id)return;const v=VID[id];
-  if(paused===id){paused=null;pz.set(false);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
+  if(paused===id){paused=null;pz.set(false,true);vidSync()}else{paused=id;pz.set(true);if(!v.paused)v.pause()}}
 
 /* ---------- Explore more like this → CC (push left, Slow 664); back → Nespresso (push right, fast: 488) ---------- */
 function explore(){
