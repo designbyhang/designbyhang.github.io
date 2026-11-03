@@ -20,6 +20,9 @@ footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-eye-r{transition-delay:.224s}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
 /* paper grain, HANG egg only (.hegg-egg, js/hang-egg.js EGG cfg; the phone full-screen prototype .hegg.proto-full has none), both themes: a 256px fractal tile shown at 128px, so a speck is one device pixel on a 2x screen. Overlay darkens the light page and lightens the dark page. Static image, not redrawn. */
 .hegg.hegg-egg::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:url("grain.png?v=336");background-size:128px 128px;opacity:.72;mix-blend-mode:overlay}
+/* centre glow, HANG egg only (.hegg-egg; not .proto-full): a static radial gradient on the layer background, so it sits under the grain (::before). Fades to transparent before the .hegg-edge strips (60% x 43% of the layer). Per theme via --egg-glow: light 45% white, dark 4% white. .hegg-grow (later, same specificity) still clears it. */
+.hegg.hegg-egg{--egg-glow:rgba(255,255,255,.45);--egg-glow-mid:rgba(255,255,255,.225);background:radial-gradient(ellipse 60% 43% at 50% 50%,var(--egg-glow) 0,var(--egg-glow-mid) 45%,rgba(255,255,255,0) 100%),var(--page)}
+html[data-theme=dark] .hegg.hegg-egg{--egg-glow:rgba(255,255,255,.04);--egg-glow-mid:rgba(255,255,255,.02)}
 /* iOS Safari bars, ported from the Studio presentation as it works on iPhone (projects/studio.html .deck-flow/.deck-edge, commits
    18ac7e0, a735500, f5acbcf): iOS 26 Safari does not take its bar tint from a full-screen fixed layer. Once the layer has faded in,
    html.hegg-flow makes it the document itself (in normal flow, one viewport tall, 2px of scroll range for js/theme.js's re-sample
