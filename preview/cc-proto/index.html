@@ -109,7 +109,8 @@ video{display:block;object-fit:cover}
 .ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
 .tab{font:var(--t-r-tab);letter-spacing:var(--t-r-tab-ls);font-feature-settings:var(--t-sf-ft);color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
 /* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742: FMSS's feed-tab home outline,
-   preview/fmss-cb/assets/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (15, white 70%);
+   preview/fmss-cb/assets/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (white 70%;
+   otherwise the caption's type exactly: the --t-r-cap role and the caption's rendering, its 1px 62% shadow, antialiased, geometricPrecision, as .c-cap/.vcap);
    the query is the reel's own, crossfaded as reels move. Nespresso's field has two states (.sw): the search sparkle + "Coffee" on
    arrival, then (2000 in) it slides up 8 and fades out as the playlist icon + "Explore more like this" slide up 8 and fade in (320, ease-out),
    clipped by the pill; then the field's edge glows, two pulses (.navg) */
@@ -119,7 +120,8 @@ video{display:block;object-fit:cover}
 .navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px;opacity:.85}
 .navp .lb{position:absolute;inset:0;opacity:0}
 .navp .sw{position:absolute;inset:0}
-.navp .q{position:absolute;left:34px;top:10px;font:var(--t-r-input);letter-spacing:var(--t-r-input-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.7);white-space:nowrap}
+.navp .q{position:absolute;left:34px;top:10px;font:var(--t-r-cap);letter-spacing:var(--t-r-cap-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.7);white-space:nowrap;
+  text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
 .touch{width:375px;height:812px;z-index:14;touch-action:none;display:none}
 .touch.on{display:block}
 #pillb{left:60px;top:742px;width:303px;height:40px;z-index:15}
@@ -193,7 +195,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=355',AV='../../assets/vac/vac-cc-',VV=id=>id==='nike'?'?v=362':V;   // VV: the seed's Vomero Premium footage (v362)
+const V='?v=355',AV='../../assets/vac/vac-cc-',VV=id=>id==='nike'?'?v=362':id==='nesp'?'?v=364':V;   // VV: the seed's Vomero Premium footage (v362), Nespresso's sharper 564×1218 encode (v364)
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -571,7 +573,7 @@ function cover(then){
 const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);addEventListener('load',measureTabs);
 (function(){
-  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+VV('nike'),AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V,'../sap-proto/assets/nav.webp?v=263']);
+  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+VV('nike'),AV+'nesp.webp'+VV('nesp'),'assets/av-nike.webp'+V,'assets/chevron.svg'+V,'../sap-proto/assets/nav.webp?v=263']);
   const nv=VID.nike,prep=INL()?firstFrame(nv).then(()=>seekTo(nv,NIKE_IN)):firstFrame(nv);
   const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(VID.nesp),document.fonts?document.fonts.ready:0]));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;measureTabs();
