@@ -412,10 +412,13 @@ html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:var(--frame)}
    within 0.04%), so no edge row is left for the downscaler to bleed in as a dark line */
 body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;border-radius:0;transform:none;transition:none}
 /* Bare screen (.phone-demo.pd-bare, VAC 02 Problem + 05 Current State, Hang Nov 2): no device frame in either theme, the screen sits
-   straight on the phone-demo ground. Corners R 104/1376 of the screen height (Hang Nov 2), drawn by js/squircle.js at 60% smoothing
-   (corner-shape in Chromium, a path() clip in WebKit): every bare screen gets the same corner. No .mframe video #f1f1f1 fill: painted
-   under the video and clipped on its own, it fringed the screen's anti-aliased edge white on the dark ground (the 02 Ad screen's top) */
-body.cs .media.mframe.phone-demo.pd-bare .pd-phone{border-radius:calc(var(--pd-scr-h)*104/1376)}
+   straight on the phone-demo ground. Corners R --pd-r/1376 of the screen height, drawn by js/squircle.js at 60% smoothing (corner-shape in
+   Chromium, a path() clip in WebKit): 104 by default (02 Problem); 80 on 05 Current State (Hang Nov 2), the FMSS 02 template's baked
+   iPhone corner (60% at R ~80/1376). No .mframe video #f1f1f1 fill: painted under the video and clipped on its own, it fringed the
+   screen's anti-aliased edge white on the dark ground (the 02 Ad screen's top) */
+body.cs .media.mframe.phone-demo.pd-bare{--pd-r:104}
+body.cs .pd-rows .media.mframe.phone-demo.pd-bare{--pd-r:80}
+body.cs .media.mframe.phone-demo.pd-bare .pd-phone{border-radius:calc(var(--pd-scr-h)*var(--pd-r)/1376)}
 body.cs .media.mframe.phone-demo.pd-bare .pd-phone video{background:none}
 /* 02 Problem's recordings are the bare 636x1376 screen cut from the old 1624x1824 baked template (screen at 494,180), so the screen is the
    whole device box (--dev-h at --dev-pad); the R104 clip sits inside the template's own iPhone corner (60% smoothing at R ~80/1376) */
