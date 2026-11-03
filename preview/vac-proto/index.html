@@ -50,6 +50,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .btn:focus,.btn:focus-visible{outline:none}
 /* layers, bottom → top (the cover's VAC chain, js/vac-chain.js, as one interactive screen) */
 .feed{width:375px;height:812px;z-index:1;will-change:transform}
+.fic{z-index:1;will-change:transform}
 /* the Split backdrop: the video itself, live, as the cover's (js/vac-chain.js .vc-amb): its current frame drawn small (ambient() below),
    blurred, under a 24% dim; 432 tall so the half sheet's rounded corners show the backdrop, not the feed */
 .bu{width:375px;height:432px;z-index:3;opacity:0;pointer-events:none;overflow:hidden;background:#000}
@@ -152,7 +153,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
-        <img class="L feed" id="feed" alt="" src="assets/feed.webp?v=355"><i class="fd-ic fd-gl" id="feedGl" style="left:137px;top:141px;z-index:1;will-change:transform"></i>   <!-- the Feed header globe, ../shared/feed (Figma 3x) over the baked one; rides with #feed -->
+        <img class="L feed" id="feed" alt="" src="assets/feed.webp?v=355"><i class="fd-ic fd-bd fic" style="left:122px;top:122px"></i><i class="fd-ic fd-gl fic" style="left:137px;top:141px"></i>   <!-- the Feed header icons, ../shared/feed (Figma 3x): the verified badge after "Porsche" (as H-Scroll's Artifox header: 6px after the name's ink, on its baseline + 1), the globe over the baked one; they ride with #feed -->
         <div class="L bu" id="bu"><canvas width="30" height="34"></canvas></div>
         <div class="L pp" id="pp"><img data-media alt="" src="assets/reel-scrim.webp?v=365"><img class="rui" data-ui-bottom="722" alt="" src="assets/reel-porsche-ui.webp?v=365"></div>
         <div class="L mv" id="mv" role="button" aria-label="Porsche video ad"><video id="vid" muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/porsche.webp?v=229" src="../../assets/vac-anim/v4/porsche.mp4?v=229"></video></div>
@@ -242,7 +243,7 @@ const tr=(x,y)=>`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
     w.setAttribute('aria-hidden','true');w.innerHTML=`<p class="wn"><span>${n}</span>${BD('verified.png')}${BD('globe.png')}</p><p class="ws">Sponsored</p>`;
     const c=$('cap'+j);if(c)c.before(w);else (j?$('p3'):$('pp')).after(w)});
   if(V)V.watch(phone)}
-const els={dim:$('dim'),feed:$('feed'),fgl:$('feedGl'),bu:$('bu'),pp:$('pp'),ufi:$('ufi'),box:$('box'),sb:$('sb'),chrome:$('chrome'),bar:$('bar'),home:$('home'),pzw:$('pzw'),pz:FMSSPause.mount($('pz'),{video:()=>vAt(Math.round(k)),at:$('rc'),bar:734,lift:()=>{const j=Math.round(k),pg=j?$('p'+j):$('pp');return [pg.querySelector('.rui'),j?pg.querySelector('.r-ufi,.ufi'):$('ufi'),$('cap'+j),$('who'+j),j?null:$('ctaReels')]}}),cap:[0,1,2,3].map(j=>$('cap'+j)),who:[0,1,2,3].map(j=>$('who'+j)),p:[null,$('p1'),$('p2'),$('p3')]};
+const els={dim:$('dim'),feed:$('feed'),fic:[...phone.querySelectorAll('.fic')],bu:$('bu'),pp:$('pp'),ufi:$('ufi'),box:$('box'),sb:$('sb'),chrome:$('chrome'),bar:$('bar'),home:$('home'),pzw:$('pzw'),pz:FMSSPause.mount($('pz'),{video:()=>vAt(Math.round(k)),at:$('rc'),bar:734,lift:()=>{const j=Math.round(k),pg=j?$('p'+j):$('pp');return [pg.querySelector('.rui'),j?pg.querySelector('.r-ufi,.ufi'):$('ufi'),$('cap'+j),$('who'+j),j?null:$('ctaReels')]}}),cap:[0,1,2,3].map(j=>$('cap'+j)),who:[0,1,2,3].map(j=>$('who'+j)),p:[null,$('p1'),$('p2'),$('p3')]};
 let pzJ=0;   // the reel whose page carries the pause glyph
 let sheetT=0,sheetP=0,sd=0,lastR='',lastSb='';
 /* the Split backdrop painter (the cover's recipe): while the backdrop shows, the video's current frame drawn 30x34 (cover fit) every frame;
@@ -263,7 +264,7 @@ function render(){
   mv.style.zIndex=pop?'2':'';
   const r=pop?0:16*a*(1-c),key=`${w.toFixed(1)},${h.toFixed(1)},${r.toFixed(2)}`;
   if(key!==lastR){lastR=key;if(CLIP&&r>.05)mv.style.clipPath=`path('${squircle(w,h,r,.6)}')`;else{mv.style.clipPath='';mv.style.borderRadius=r>.05?r+'px':''}}
-  els.feed.style.visibility=a<1||pop?'visible':'hidden';els.feed.style.transform=pop?tr(fx,0):'';els.fgl.style.visibility=els.feed.style.visibility;els.fgl.style.transform=els.feed.style.transform;
+  els.feed.style.visibility=a<1||pop?'visible':'hidden';els.feed.style.transform=pop?tr(fx,0):'';els.fic.forEach(e=>{e.style.visibility=els.feed.style.visibility;e.style.transform=els.feed.style.transform});
   op(els.bu,pop?0:a*(1-c));ambient(!pop&&a*(1-c)>0);
   op(els.pp,k<1?c:0);els.pp.style.transform=tr(rx,pageY(0));
   op(els.ufi,k<1?clamp((c-.5)/.5):0);els.ufi.style.transform=tr(rx,pageY(0));

@@ -45,13 +45,7 @@ html body .cover-anim .cv-scr img{position:absolute;left:0;top:0;max-width:none;
 .cv-scr.vac .vc-l{position:absolute;left:0;top:0;will-change:transform,opacity}
 html body .cover-anim .cv-scr.vac .vc-feed{width:375px;height:812px;background:#fff}
 html body .cover-anim .cv-scr.vac .vc-fb{width:375px;height:812px}
-html body .cover-anim .cv-scr.vac .vc-fav{left:12px;top:116px;width:40px;height:40px;border-radius:50%}
-.cv-scr.vac .vc-fn{left:60px;top:118px;display:flex;align-items:center;gap:4px;font:600 17px/20px var(--vc-f);color:#050505}
 html body .cover-anim .cv-scr.vac .vc-nm img,html body .cover-anim .cv-scr.vac .vc-in img{position:static;flex:none}
-.cv-scr.vac .vc-fc{left:12px;top:168px;width:351px;white-space:normal;font:400 15px/20px var(--vc-f);color:#050505;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:40px}
-.cv-scr.vac .vc-fu{left:12px;top:597px;font:400 13px/16px var(--vc-f);color:#65676b}
-.cv-scr.vac .vc-fh{left:12px;top:617px;width:251px;overflow:hidden;text-overflow:ellipsis;font:500 15px/20px var(--vc-f);color:#050505}
-.cv-scr.vac .vc-fcta{left:271px;top:604px;width:92px;height:28px;text-align:center;font:600 14px/28px var(--vc-f);color:#050505}
 .cv-scr.vac .vc-amb{width:375px;height:432px;overflow:hidden;background:#000}
 .cv-scr.vac .vc-amb canvas{position:absolute;left:-24px;top:-24px;width:423px;height:480px;filter:blur(24px)}
 .cv-scr.vac .vc-amb::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.24)}
@@ -73,18 +67,19 @@ html body .cover-anim .cv-scr.vac .vc-bd{width:12px;height:12px;filter:drop-shad
 .cv-scr.vac .vc-cp{left:0;top:48px}
 .cv-scr.vac .vc-cta{position:absolute;left:0;top:80px;width:303px}   /* the rest (36 high, padding, type, r8): the shared video ad CTA, css/ad-cta.css (kept out of the p rule above) */
 html body .cover-anim .cv-scr.vac .vc-bo{width:375px;height:406px}
-.cv-scr.vac .vc-bos{clip-path:inset(0 0 362px 0)}
 .cv-scr.vac .vc-box{clip-path:inset(44px 0 0 0)}
 .cv-scr.vac .vc-sh{width:375px;height:422px;overflow:hidden;background:#fff;border-radius:16px 16px 0 0}
 html body .cover-anim .cv-scr.vac .vc-site{left:0;top:52px;width:375px;height:722px}
+.cv-scr.vac .vc-sh .iab-load{position:absolute}   /* the shared IAB page-load bar (preview/shared/iab/iab.css), under the sheet header */
+.cv-scr.vac .vc-hm{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#000}   /* the home indicator on the half sheet (vac-proto .home) */
 .cv-scr.vac .vc-chrome{width:375px;height:178px}
 .cv-scr.vac .vc-gt{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,0))}
-.cv-scr.vac .vc-tm{left:30px;top:13px;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#fff}
-html body .cover-anim .cv-scr.vac .vc-st{left:283px;top:17.33px;width:66.66px;height:11.34px}
 html body .cover-anim .cv-scr.vac .vc-bk{left:12px;top:58px;width:24px;height:24px}
 .cv-scr.vac .vc-bar{top:734px;width:375px;height:78px;background:#000}
 .cv-scr.vac .vc-in{box-sizing:content-box;left:12px;top:8px;width:327px;height:40px;padding:0 12px;border-radius:20px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;font:var(--t-r-input);letter-spacing:var(--t-r-input-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.9)}
 html body .cover-anim .cv-scr.vac .vc-em{width:20px;height:20px}
+/* the device status bar (vac-proto .sb): FMSS Solution 1's bo1 status band as a mask, its colour set by the player */
+.cv-scr.vac .vc-sb{width:375px;height:44px;background:#000;-webkit-mask:url(../preview/fmss-sol1/assets/bo1.webp?v=5) 0 0/375px 406px no-repeat;mask:url(../preview/fmss-sol1/assets/bo1.webp?v=5) 0 0/375px 406px no-repeat}
 .cv-scr.vac .vc-hi{position:absolute;left:120.5px;top:64px;width:134px;height:5px;border-radius:3px;background:#fff}
 /* scripted touch marker (DeviceCover.finger / .touch(): the Evolution prototypes' autoplay finger, as VideoScrubber's .vs-m), never takes input */
 .cv-touch{position:absolute;left:0;top:0;z-index:9;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;background:rgba(255,255,255,.5);box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 1px rgba(0,0,0,.28),0 2px 12px rgba(0,0,0,.4);will-change:transform,opacity}
