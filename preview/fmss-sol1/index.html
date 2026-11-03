@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/theme.css?v=378"><link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/feed/feed.css?v=359"><link rel="stylesheet" href="../shared/caret/caret.css?v=398">
+<link rel="stylesheet" href="../../css/theme.css?v=378"><link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/feed/feed.css?v=359"><link rel="stylesheet" href="../shared/backdrop/backdrop.css?v=402"><link rel="stylesheet" href="../shared/caret/caret.css?v=398">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--line:#2a2a2a;--ink:#f2f2f2}
@@ -34,10 +34,12 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 /* B sheet top, live (no baked corners or handle): the sheet image (.bs) is clipped to the sheet's own shape, a 16px squircle top corner each
    side (60% smoothing, at drawn size, set in fit()), and its first 18 rows (the lossy-compressed corners and grab handle baked into it, which
    read pixelated, most of all at 3x and over a light backdrop) are drawn live by .bk: the sheet colour under the same clip, with the
-   handle (40x4 #C9CCD1 r2 at 168,8, as preview/shared/iab/header.js draws it for the IAB sheets). Under the sheet's corners .sk, riding
-   with the sheet, carries the B backdrop's last row (bu's, stretched over the strip: background-size 100% top x 100%, bottom row), so the
-   corners and the split-line seam show the backdrop's own colours, never the screen white or the bezel black */
-.sk{position:absolute;left:0;width:375px;background-position:0 100%;background-repeat:no-repeat}
+   handle (40x4 #C9CCD1 r2 at 168,8, as preview/shared/iab/header.js draws it for the IAB sheets). Under the sheet's corners and round the
+   video's bottom corners is the B backdrop itself (.bu, ../shared/backdrop, as preview/fmss-all): 734 tall, so the corners and the split-line
+   seam show the backdrop's own image, never a flat band, the screen white or the bezel black */
+/* B backdrop (.bu): the whole 375 x 734 canvas, still; its clip-path (set in fit(), at drawn size) is the backdrop's box: the video's surface
+   rect growing to the canvas with the video, and back */
+.scr .bu{left:0;top:0;width:375px;height:734px}
 .bk{position:absolute;left:0;width:375px}.bk>i{position:absolute;background:#C9CCD1}
 .L{will-change:transform,opacity}
 /* layers at drawn size: the stage's scale(s) does not shrink a composited layer's backing store in WebKit (each is backed at its
@@ -53,7 +55,8 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
  /* the white under every layer stops 8px short of the screen's side edges: the layers' anti-aliased side columns meet the bezel there, not white (no light hairline down the sides) */
  .scr{background:none}.scr>.bg{position:absolute;left:8px;top:0;background:#fff;width:calc(359px * var(--s,.5));height:calc(812px * var(--s,.5))}
  .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
- .scr .sk,.scr .bk{width:calc(375px * var(--s,.5))}
+ .scr .bk{width:calc(375px * var(--s,.5))}
+ .scr .bu{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}.scr .bu>i{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}.scr .bu img,.scr .bu b{width:calc(375px * var(--s,.5))}
  .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
  .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}}
 /* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge (clipped by the screen), so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
@@ -74,7 +77,7 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=375"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../../js/device-cover.js?v=355"></script><script src="../shared/caret/caret.js?v=398"></script>
+<script src="../../js/squircle.js?v=375"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../../js/device-cover.js?v=355"></script><script src="../shared/caret/caret.js?v=398"></script>
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
@@ -127,6 +130,7 @@ const scl=()=>{const r=frame.getBoundingClientRect();return Math.min(r.width/192
 let half=scl()*(devicePixelRatio||1)<=1;const AS=half?'assets/h/':'assets/';
 function upgrade(){if(!half)return;half=false;const up=u=>u.replace('assets/h/','assets/');
   stage.querySelectorAll('img').forEach(im=>{const u=im.getAttribute('src');if(u&&u.indexOf('assets/h/')===0)im.src=up(u)});
+  stage.querySelectorAll('.bu b').forEach(b=>{b.style.backgroundImage=up(b.style.backgroundImage)});
   stage.querySelectorAll('video').forEach(v=>{const p=v.getAttribute('poster'),u=v.getAttribute('src');if(p)v.poster=up(p);if(!u||u.indexOf('assets/h/')!==0)return;
     const t=v.currentTime,on=!v.paused;v.src=up(u);v.addEventListener('loadedmetadata',()=>{try{v.currentTime=t}catch(_){}},{once:true});if(on){const q=v.play();q&&q.catch(()=>{})}})}
 function squircle(w,h,R,sm){
@@ -145,17 +149,17 @@ const HD=['nike.com',null,null,null];   // phones whose B sheet is an IAB: its h
 const CS=['#fff','#f1f2f6','#fff','#f1f2f6'];   // C status bar + IAB header colour (one continuous surface)
 const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (c1-c4 last row)
 const SC=['#fff','#f1f2f6','#fff','#f1f2f6'];   // B sheet colour (each bl image's own flat top rows): the live sheet top, .bk
-const anims=[],imgs=[],vids=[];
+const BU=[],anims=[],imgs=[],vids=[];
 const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]);
 const FDX=[96,164,112,140];
 const CK=[null,null,[30,485],null];   // C's composer caret (Business Messages: Messenger's "Write a message..."), the shared live one (../shared/caret)   // A's verified badge x per phone (Nike, Meta for Work, Artifox, Chick-fil-A; Figma, at y 122), its globe 137,141
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i];
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
-  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+`<i class="L sk" style="top:${top-2}px;height:${dp(30)};background-image:url(${AS}bu${i+1}.webp${V});background-size:100% ${top*100}%"></i>`+
+  dev.innerHTML=`<div class="bezel"><div class="bezel-fill"></div></div><div class="scr">`+(IT?'<i class="L bg"></i>':'')+
     `<img class="L a" alt="" src="${AS}a${i+1}.webp${V}">`+
     `<i class="L fd-ic fd-bd" style="left:${FDX[i]}px;top:122px"></i><i class="L fd-ic fd-gl" style="left:137px;top:141px"></i>`+   // A's header icons, ../shared/feed (Figma 3x) over the baked ones
-    `<img class="L bt" alt="" src="${AS}bu${i+1}.webp${V}" style="height:${dp(top)}">`+
+    FMSSBackdrop.html(`${AS}bu${i+1}.webp${V}`,top,{cls:'L',dp})+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${i+1}.webp${V}" src="${AS}v${i+1}.mp4${V}"></video></div>`+
     (VS?'<i class="vs-at"></i>':`<img class="L bc" alt="" src="${AS}bc${i+1}.webp${V}" style="height:${dp(top)}">`)+
     `<img class="L bo" alt="" src="${AS}bo${i+1}.webp${V}" style="height:${dp(top)}">`+
@@ -175,12 +179,13 @@ PH.forEach((p,i)=>{
   // live player controls (../../js/video-scrubber.js): timestamp + track (read only) where bc's were (design px, not a drawn-size .L layer:
   // it is small), its icons as a crop (ci); they fade out 2080–2400ms after split screen is reached (t1e, t3e)
   if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`assets/ci${i+1}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split,lock:i===0?LOCK:null,readOnly:true}).el);   // Solution demo: just plays (no seek, no tap, no scripted tap: every phone shows the same controls)
-  const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn)=>anims.push(q(el).animate(track(fn),o));
+  const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn)=>{const an=q(el).animate(track(fn),o);anims.push(an);return an};
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
   A('.fd-bd',p=>({opacity:p.a<1?1:0}));A('.fd-gl',p=>({opacity:p.a<1?1:0}));   // A's header icons go with it
-  // B top (backdrop, nav bar) dissolves in over A (hs: mbg/mnav opacity = m); the B sheet rises from the bottom edge
-  A('.bt',p=>({opacity:p.a}));A('.bo',p=>({opacity:p.a}));
+  // B's nav bar dissolves in over A (hs: mnav opacity = m); B's backdrop grows out of the feed video's box with it (buFit), the B sheet
+  // rises from the bottom edge
+  BU.push({an:A('.bu',p=>({opacity:p.a>0?1:0})),el:q('.bu'),rect:[0,216,375,m.ah],R:0,sm:()=>.6});A('.bo',p=>({opacity:p.a}));
   // shared element: the same playing video travels feed rect [0,216,375,ah] -> split-screen rect [12,by,351,bh]: x, y, width, height and
   // corner radius 0 -> 16 (60% smoothing) on one value, sized not scaled (hs cards); pre-sampled per frame so path() animates everywhere
   A('.mv',p=>{const e=p.a,x=lerp(0,12,e),y=lerp(216,m.by,e),w=lerp(375,351,e),h=lerp(m.ah,m.bh,e),r=16*e;
@@ -192,7 +197,7 @@ PH.forEach((p,i)=>{
   // the B sheet is its own image (bl: b's rows from the split line down, first rows free of the backdrop's resampling bleed), laid at the
   // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
-  A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.bk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.sk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // live sheet top and corner underlay ride with it
+  A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.bk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // live sheet top rides with it
   if(HD[i])A('.bhd',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // its header rides with it
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
@@ -203,6 +208,12 @@ PH.forEach((p,i)=>{
   if(CK[i]){A('.ck',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:clamp(p.c/.6)}));anims.push(q('.ios-caret').animate(FMSSCaret.loop(t2,t3,T),o))}
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
+/* B backdrop (../shared/backdrop): its box per 8ms pose, from the video's surface rect and corners to the 375 x 734 canvas on a (the video's
+   own progress, so it grows out of it and closes back into it frame for frame), as the clip-path of the still canvas. The clip is in the
+   layer's own px (drawn size: z design px -> px, per axis after snap()), so it is set again whenever the scale changes */
+let buZ=0;
+function buFit(z){const zs=IT?BU.map(o=>o.el._dw?[o.el._dw[0]/375,o.el._dw[1]/734]:[z,z]):BU.map(()=>[1,1]),key=zs.join();if(key===buZ)return;buZ=key;
+  BU.forEach((o,i)=>o.an.effect.setKeyframes(track(p=>({opacity:p.a>0?1:0,clipPath:FMSSBackdrop.clip(FMSSBackdrop.box(o.rect,o.R,p.a),o.sm(p),zs[i][0],zs[i][1])}))))}
 /* drawn-size boxes in whole px: Chromium paints a box snapped to whole px of its own coordinate space, and a drawn-size layer's own space
    is drawn px, so a fractional drawn size (812 x .524 = 425.49) painted as 425 and, scaled back up by 1/s, stopped up to half a drawn px
    (~1 design px) short of the screen's bottom or right edge (the bezel showing through there and round the bottom corners), or ran past it,
@@ -219,6 +230,7 @@ function fit(){const s=scl(),k=+s.toFixed(4);stage.style.setProperty('--s',k);
   // inside the corners, which a path its own height would clamp)
   if(SQ){const z=IT?k:1;stage.querySelectorAll('.bs,.bk').forEach(e=>{const w=IT?e._dw[0]:375,h=e.classList.contains('bk')?812*z:IT?e._dw[1]:812;
     e.style.clipPath=`path('${Squircle.pathR(w,h,[16*z,16*z,0,0],.6)}')`})}
+  buFit(IT?k:1);
   if(half&&s*(devicePixelRatio||1)>1)upgrade()}
 new ResizeObserver(fit).observe(frame);fit();
 let seen=false,ready=false;

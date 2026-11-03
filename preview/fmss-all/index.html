@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../../css/type.css?v=389"><link rel="stylesheet" href="../../css/theme.css?v=389">
 <!-- shared FMSS foundation, unchanged: the IAB (sheet + header + page + toolbar), the live player controls, the squircle, the device tokens -->
 <link rel="stylesheet" href="../shared/iab/iab.css?v=389">
-<script src="../../js/squircle.js?v=389"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=389"></script><script src="../shared/caret/caret.js?v=398"></script>
+<script src="../../js/squircle.js?v=389"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=389"></script><script src="../shared/caret/caret.js?v=398"></script>
 <script src="../../js/video-scrubber.js?v=369"></script>
 <link rel="stylesheet" href="../shared/device/device.css?v=389"><script src="../shared/device/snap.js?v=389"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
@@ -28,7 +28,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <!-- the shared Feed ad header icons (preview/shared/feed: badge.png 12×12, globe.png 10×10, Hang's Figma 3x renders) -->
 <link rel="stylesheet" href="../shared/feed/feed.css?v=389">
 <!-- the shared iOS status bar (preview/shared/statusbar: one status.svg mask, .sb / .sb-dark): the device chrome's right icons -->
-<link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=389"><link rel="stylesheet" href="../shared/caret/caret.css?v=398">
+<link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=389"><link rel="stylesheet" href="../shared/caret/caret.css?v=398"><link rel="stylesheet" href="../shared/backdrop/backdrop.css?v=402">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
@@ -59,11 +59,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .xp.on{display:block}
 .xp img.L{width:375px;height:812px}
 /* the split screen's backdrop (bu): a window that grows out of the feed video's box with the same a, and closes back behind it; its image is
-   screen-fixed inside, 734 tall (the Solution's bu rows, the last row carried down past the split line to the Reels canvas' 734) */
-.bu{position:absolute;overflow:hidden;pointer-events:none;will-change:left,top,width,height}
-.bu>i{position:absolute;left:0;top:0;width:375px;height:734px;will-change:transform}
-.bu img{position:absolute;left:0;top:0;width:375px}
-.bu b{position:absolute;left:0;width:375px;background-repeat:no-repeat;background-position:0 100%}
+   screen-fixed inside, 734 tall (the Solution's bu rows, the last row carried down past the split line to the Reels canvas' 734)
+   (markup, box and image: ../shared/backdrop, with the Solution 1 / 2 demos); here the window moves and its canvas is counter-moved */
+.bu{will-change:left,top,width,height}.bu>i{will-change:transform}
 .pt{position:absolute;left:24px;top:10px;width:60px;height:24px}                    /* the status-bar time's place, under the Menu pill */
 .mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
 .rl{width:375px;height:734px;overflow:hidden}
@@ -260,7 +258,7 @@ function split(E,root){
     :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="pt ${cls}" style="background:${o.patch}"></i>`:'')};
   let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
-  h+=`<div class="bu" data-r="bu" style="display:none"><i><img alt="" src="${u('bu'+n)}" style="height:${top}px"><b style="top:${top-1}px;height:${735-top}px;background-image:url(${u('bu'+n)});background-size:100% ${top*(735-top)}px"></b></i></div>`;
+  h+=FMSSBackdrop.html(u('bu'+n),top,{attrs:' data-r="bu" style="display:none"'});
   h+=`<div class="mv" data-r="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
@@ -345,7 +343,7 @@ function render(X){
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+w.toFixed(2),+h.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
   /* the backdrop: the same box from the video's surface rect (and its corners) to the whole 375 × 734 canvas, behind the video; at a = 0 it is
      all behind the video, so it grows out of it on the way in and closes back into it on the way out, frame for frame with it */
-  const bx=lerp(m.a[0],0,a),by=lerp(m.a[1],0,a),bw=lerp(m.a[2],375,a),bh=lerp(m.a[3],734,a),bR=ar.map(v=>+(v*(1-a)).toFixed(2)),bs=e.bu.style;
+  const B=FMSSBackdrop.box(m.a,ar,a),bx=B.x,by=B.y,bw=B.w,bh=B.h,bR=B.R,bs=e.bu.style;
   bs.display=a>0?'block':'none';
   if(a>0){bs.left=bx.toFixed(2)+'px';bs.top=by.toFixed(2)+'px';bs.width=bw.toFixed(2)+'px';bs.height=bh.toFixed(2)+'px';
     e.bui.style.transform=`translate3d(${(-bx).toFixed(2)}px,${(-by).toFixed(2)}px,0)`;

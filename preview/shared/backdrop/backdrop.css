@@ -1,0 +1,8 @@
+/* FMSS split-screen backdrop (bu), shared by preview/fmss-all and the FMSS Solution 1 / 2 demos (preview/fmss-sol1, preview/fmss-sol2);
+   the markup and the box come from backdrop.js. The image sits screen-fixed in a 375 x 734 canvas (<i>): the Solution's bu rows (<img>,
+   0..top) and, from the split line down to 734 (the Reels canvas height), bu's last row stretched over the rest (<b>). Each page sizes,
+   moves and clips the .bu box its own way (fmss-all: a window over a counter-moved canvas; Solution demos: the whole canvas, clipped) */
+.bu{position:absolute;overflow:hidden;pointer-events:none}
+.bu>i{position:absolute;left:0;top:0;width:375px;height:734px}
+.bu img{position:absolute;left:0;top:0;width:375px;display:block}
+.bu b{position:absolute;left:0;width:375px;background-repeat:no-repeat;background-position:0 100%}
