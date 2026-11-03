@@ -37,6 +37,12 @@
   --t-r-sp-st:600 13px/16px var(--t-sf); --t-r-sp-st-ls:-.08px; --t-r-sp-st-c:rgba(255,255,255,.8); /* "Sponsored" in the Stories header (FMSS Solution 2, Figma 590 13/16) */
   --t-r-title:700 17px/17px var(--t-sf); --t-r-title-ls:-.2px;   /* the app bar title (preview/shared/appbar: Profile & Browse) */
 }
+/* Device screens (the .phone of every prototype, FMSS Solution 2's .scr): text renders as iOS draws it, grayscale anti-aliasing with no
+   macOS font smoothing. Without it macOS (Safari and Chrome, -webkit-font-smoothing:auto) runs CoreText's stem darkening on live text,
+   heaviest on white-on-dark: VAC proto's live Reels name, Sponsored and caption came out about 20% heavier than the same roles in the
+   other prototypes and the Figma raster beside them (P stem 4.1px vs 3.4px at 2x, Nov 2026). Inherited by every Reels text role
+   (--t-r-*) on the screen; :where keeps it at zero specificity. The VAC hero sets the same on its screen (css/card.css .cv-scr.vac). */
+:where(.phone,.scr){-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .t-display{font:var(--t-display);letter-spacing:var(--t-display-ls)}
 .t-stat{font:var(--t-stat);letter-spacing:var(--t-stat-ls)}
 .t-h2{font:var(--t-h2);letter-spacing:var(--t-h2-ls)}
