@@ -17,16 +17,18 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=370"><link rel="stylesheet" href="../../css/theme.css?v=378">
+<link rel="stylesheet" href="../../css/type.css?v=389"><link rel="stylesheet" href="../../css/theme.css?v=389">
 <!-- shared FMSS foundation, unchanged: the IAB (sheet + header + page + toolbar), the live player controls, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/iab/iab.css?v=355">
-<script src="../../js/squircle.js?v=375"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=389">
+<script src="../../js/squircle.js?v=389"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=389"></script>
 <script src="../../js/video-scrubber.js?v=369"></script>
-<link rel="stylesheet" href="../shared/device/device.css?v=355"><script src="../shared/device/snap.js?v=356"></script>
+<link rel="stylesheet" href="../shared/device/device.css?v=389"><script src="../shared/device/snap.js?v=389"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
-<link rel="stylesheet" href="../shared/reel/reel.css?v=363">
+<link rel="stylesheet" href="../shared/reel/reel.css?v=389">
 <!-- the shared Feed ad header icons (preview/shared/feed: badge.png 12×12, globe.png 10×10, Hang's Figma 3x renders) -->
-<link rel="stylesheet" href="../shared/feed/feed.css?v=359">
+<link rel="stylesheet" href="../shared/feed/feed.css?v=389">
+<!-- the shared iOS status bar (preview/shared/statusbar: one status.svg mask, .sb / .sb-dark): the device chrome's right icons -->
+<link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=389">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
@@ -56,7 +58,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .xp{position:absolute;inset:0;display:none;background:#000}
 .xp.on{display:block}
 .xp img.L{width:375px;height:812px}
-.sk{width:375px;height:30px;background-position:0 100%;background-repeat:no-repeat}   /* under the sheet's top corners: the backdrop's last row */
+/* the split screen's backdrop (bu): a window that grows out of the feed video's box with the same a, and closes back behind it; its image is
+   screen-fixed inside, 734 tall (the Solution's bu rows, the last row carried down past the split line to the Reels canvas' 734) */
+.bu{position:absolute;overflow:hidden;pointer-events:none;will-change:left,top,width,height}
+.bu>i{position:absolute;left:0;top:0;width:375px;height:734px;will-change:transform}
+.bu img{position:absolute;left:0;top:0;width:375px}
+.bu b{position:absolute;left:0;width:375px;background-repeat:no-repeat;background-position:0 100%}
 .pt{position:absolute;left:24px;top:10px;width:60px;height:24px}                    /* the status-bar time's place, under the Menu pill */
 .mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
 .rl{width:375px;height:734px;overflow:hidden}
@@ -87,23 +94,30 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .fh .n{top:118px;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#050505}
 .fh .s{top:140px;font:var(--t-r-body-s);letter-spacing:var(--t-r-body-s-ls);font-feature-settings:var(--t-sf-ft);color:#65676B}
 /* native sheet (lead form, Messenger, App Store, product catalog): the Solution sheet image, its live top and handle, and C's layers */
+/* one layer owns the motion: the sheet's surface (.ns: its colour, squircle top, live handle, the drag) and one content group (.ng: c, with the
+   split pose bl registered on it and dissolving out) on one transform; the full screen's bottom chrome (.nf: a footer / composer / keyboard)
+   rises from the screen's bottom edge on its own; the home bar is the device chrome's, never an image's */
 .ns{width:375px;height:1240px;touch-action:none;cursor:grab;will-change:transform}
 .ns.off{pointer-events:none}
-.ns img{position:absolute;left:0;top:0;width:375px}
-.ns .ext{position:absolute;left:0;width:375px;height:440px;background-repeat:no-repeat;background-position:0 100%}
-.ns .bk{position:absolute;left:0;top:0;width:375px;height:18px}
-.ns .bk i{position:absolute;left:168px;top:8px;width:40px;height:4px;border-radius:2px;background:#C9CCD1}
-.cu{left:-4px;top:780px;width:383px;height:36px}
+.ns i{position:absolute;left:168px;top:8px;width:40px;height:4px;border-radius:2px;background:#C9CCD1}
+.iabh .ng,.iabh .nf{width:375px;height:812px;pointer-events:none;will-change:transform}
+.ng img,.nf img{position:absolute;left:0;top:0;width:375px;height:812px}
+.ng .ngh{position:absolute;left:0;width:375px;height:18px}
+.nf i{position:absolute;left:0;top:798px;width:375px;height:14px}
 .cs{left:-4px;top:24px;width:383px;height:28px}
-.cu,.cs,.pt{pointer-events:none}
+.cs,.pt{pointer-events:none}
 .nx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
 .nx.on{display:block}
 .iabh{position:absolute;inset:0;pointer-events:none}
 .iabh>*{pointer-events:auto}
 .iabh .web img{position:absolute;left:0;top:0;width:375px;display:block}
-.sbl{width:375px;height:44px;pointer-events:none;background:#000;opacity:0;clip-path:inset(0 0 0 96px);
-  -webkit-mask:url(../shared/statusbar/status.svg?v=359) 0 0/375px 44px no-repeat;mask:url(../shared/statusbar/status.svg?v=359) 0 0/375px 44px no-repeat}
-.home{left:120.5px;top:799px;width:134px;height:5px;border-radius:3px;background:#000;pointer-events:none;opacity:0}
+
+/* ---------- the device chrome: over every experience and its sheet (the IAB's z 20 / 25 / 40), under the Menu pill ----------
+   the status bar's right icons (the shared .sb mask; its time slot is the pill's) for a sheet that brings its own white status band (the IAB),
+   and the one home bar (Figma: 134×5 at 121,798), black over a light screen, white over a dark one */
+.dc{width:375px;height:812px;z-index:60;pointer-events:none}
+.dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0}
+.dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000}
 
 /* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:var(--t-r-name);line-height:24px;letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);-webkit-font-smoothing:antialiased;text-align:center}   /* the 2:04 timer's role */
@@ -113,7 +127,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mp span{position:relative;pointer-events:none}
 
 /* ---------- the menu: a card over the blurred app (Hang's Figma: FM Split Screen) ---------- */
-.mm{inset:0;width:375px;height:812px;z-index:100;display:none}
+.mm{inset:0;width:375px;height:812px;z-index:100;display:none;font-family:var(--t-sf);font-feature-settings:var(--t-sf-ft);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:block}
 .mm-bg{position:absolute;inset:0;background:rgba(214,223,235,.56);-webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2)}
 .mm-card{position:absolute;left:24px;top:64px;width:327px;height:684px;background:#F5F5F5;border-radius:24px;overflow:hidden;transform-origin:50% 50%;color:#000}
@@ -156,6 +170,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
       <div class="phone" id="phone">
         <div class="L" id="xps" style="width:375px;height:812px"></div>
+        <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk"></i><span>Menu</span></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
@@ -207,19 +222,19 @@ const EXP=[
       sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'}}},
   {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Default',from:'Solution 1 · Lead Generation',build:split,
    c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],fh:{name:'Meta for Work',bx:164},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#fff'}}},
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:60,be:390,foot:[722,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Default',from:'Solution 1 · Business Messages',build:split,
    c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],fh:{name:'Artifox',bx:112},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,sc:'#fff',cs:'#fff',cu:'#ccd1d8'}}},
+      sheet:{native:1,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8'}}}},
   {tab:'Feed',group:'watch',name:'Watch & Install',variant:'w/ Screenshots',from:'Solution 1 · App Installs',build:split,
    c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
-      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#fff'}}},
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:72,be:388,foot:[798,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Feed',build:split,
    c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#f7f7f7'}}},
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Video (Reels)',build:split,
    c:{S:S2,n:2,top:548,tone:0,surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[12,560,303,128],
-      out:[{f:'ao2',hole:1}],sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#f7f7f7'}}},
+      out:[{f:'ao2',hole:1}],sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',variant:'w/ In-Content Ads',from:'Solution 2 · In-Content Ads',build:split,
    c:{S:S2,n:4,top:406,tone:0,surf:[{f:'au4'},{reel:'r4'},{f:'ag4',hole:1}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       out:[{f:'ao4',hole:1}],sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
@@ -243,10 +258,9 @@ function split(E,root){
   const img=(f,cls,st)=>`<img class="L ${cls}" alt="" src="${u(f)}" style="${st||''}">`;
   const layer=(o,cls)=>{const h=o.h||812;return o.reel?`<div class="L rl ${cls}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u(o.reel)}" src="${u(o.reel+'.mp4')}"></video></div>`
     :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="pt ${cls}" style="background:${o.patch}"></i>`:'')};
-  let h=`<i class="L sk" style="background-image:url(${u('bu'+n)});background-size:100% ${top*100/30}%"></i>`;
-  h+=C.surf.map(o=>layer(o,'sf')).join('');
+  let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
-  h+=img('bu'+n,'bu',`height:${top}px;opacity:0`);
+  h+=`<div class="bu" data-r="bu" style="display:none"><i><img alt="" src="${u('bu'+n)}" style="height:${top}px"><b style="top:${top-1}px;height:${735-top}px;background-image:url(${u('bu'+n)});background-size:100% ${top*(735-top)}px"></b></i></div>`;
   h+=`<div class="mv" data-r="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
@@ -256,11 +270,10 @@ function split(E,root){
   const xa=C.xAt||[325,46,44,44];
   h+=`<button class="L btn splx" data-r="splx" type="button" aria-label="Close split screen" style="left:${xa[0]}px;top:${xa[1]}px;width:${xa[2]}px;height:${xa[3]}px"></button>`;
   h+=`<div class="L iabh" data-r="sheetHost" style="width:375px;height:812px"></div>`;
-  if(C.sheet.iab)h+=`<i class="L sbl" data-r="sbl"></i><i class="L home" data-r="home"></i>`;
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
-  const els=X.els={sk:q('.sk'),sf:[...root.querySelectorAll('.sf')],bu:q('.bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),splx:r('splx'),host:r('sheetHost'),sbl:r('sbl'),home:r('home')};
+  const els=X.els={sf:[...root.querySelectorAll('.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
+    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),splx:r('splx'),host:r('sheetHost')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
 
@@ -322,45 +335,71 @@ function render(X){
   const a=clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
   const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
   if(e.fh&&!X.fhOk)fhFit(X);
-  e.bu.style.opacity=a.toFixed(3);if(e.bo)e.bo.style.opacity=a.toFixed(3);
+  if(e.bo)e.bo.style.opacity=a.toFixed(3);
   e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
-  e.sk.style.transform=`translate3d(0,${(y-2).toFixed(2)}px,0)`;e.sk.style.opacity=a>0?'1':'0';
   /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
   const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
   const R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);
   const mv=e.mv.style;mv.left=x0.toFixed(2)+'px';mv.top=y0.toFixed(2)+'px';mv.width=w.toFixed(2)+'px';mv.height=h.toFixed(2)+'px';
   const key=[w,h,...R].map(v=>v.toFixed(1)).join();
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+w.toFixed(2),+h.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
+  /* the backdrop: the same box from the video's surface rect (and its corners) to the whole 375 × 734 canvas, behind the video; at a = 0 it is
+     all behind the video, so it grows out of it on the way in and closes back into it on the way out, frame for frame with it */
+  const bx=lerp(m.a[0],0,a),by=lerp(m.a[1],0,a),bw=lerp(m.a[2],375,a),bh=lerp(m.a[3],734,a),bR=ar.map(v=>+(v*(1-a)).toFixed(2)),bs=e.bu.style;
+  bs.display=a>0?'block':'none';
+  if(a>0){bs.left=bx.toFixed(2)+'px';bs.top=by.toFixed(2)+'px';bs.width=bw.toFixed(2)+'px';bs.height=bh.toFixed(2)+'px';
+    e.bui.style.transform=`translate3d(${(-bx).toFixed(2)}px,${(-by).toFixed(2)}px,0)`;
+    const bk=[bw,bh,...bR].map(v=>v.toFixed(1)).join();
+    if(bk!==X.bk){X.bk=bk;if(SQ&&bR.some(v=>v>.05)){bs.clipPath=`path('${sqP(+bw.toFixed(2),+bh.toFixed(2),bR,sm)}')`;bs.borderRadius=''}else{bs.clipPath='';bs.borderRadius=bR.map(v=>v+'px').join(' ')}}}
   if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=a.toFixed(3)}
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
-  if(e.sbl)e.sbl.style.opacity=X.sd.toFixed(3);
-  if(e.home)e.home.style.opacity=a.toFixed(3);
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c);
-  if(X===cur)pill(X.tone);
+  if(X===cur){pill(X.tone);chrome(X)}
 }
+/* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
+   light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
+const dcSb=$('dcSb'),dcHm=$('dcHm');
+function chrome(X){const C=X.E.c;dcSb.style.opacity=C.sheet.iab?X.sd.toFixed(3):'0';
+  const k=Math.max(C.tone,clamp((803-X.y)/5)),g=Math.round(255*(1-k));dcHm.style.background=`rgb(${g},${g},${g})`}
 
 /* ---------- the native sheet: the Solution's sheet image (bl) and full screen (c), on the shared spring with the IAB's drag rules ----------
    Same stops (812 · split line · 44), springs (ω16 open / close, ω18 split ↔ full, ζ .82 into split), 1:1 drag with a velocity +
    position snap and a flick that always moves one stop, tap the sheet for full, × (full) back to split: FMSSIAB's behaviour, its look the Solution's. */
 function nativeSheet(o){
-  const Y1=812,Y2=o.y2,Y3=44,u=o.u,n=o.n,P=o.P,host=o.host,hk=o.hooks;
-  host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}"><div class="ext" style="top:${812-Y2-1}px;background-image:url(${u('bl'+n)});background-size:100% ${(812-Y2)*100/440}%"></div>`+
-    `<img alt="" src="${u('bl'+n)}" style="height:${812-Y2}px"><i class="bk" style="background:${P.sc}"><i></i></i></div>`+
-    `<i class="L cu" style="background:${P.cu};opacity:0"></i><i class="L cs" style="background:${P.cs};opacity:0"></i>`+
-    `<img class="L cb" alt="" src="${u('c'+n)}" style="clip-path:inset(43px 0 0 0);opacity:0">`+
+  const Y1=812,Y2=o.y2,Y3=44,u=o.u,n=o.n,P=o.P,host=o.host,hk=o.hooks,d=P.d,H=812-Y2,K=P.kb;
+  const F=K?K.c0:P.foot[0];   // c's last row the group draws: its bottom chrome (footer / composer + keyboard) is .nf's
+  const c0=d>Y3?18/(18+d-Y3):0;   // c at which the group's top edge has uncovered c's row d (bl's top)
+  const cI=`<img alt="" src="${u('c'+n)}">`;
+  host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}" style="background:${P.sc}"><i></i></div>`+
+    `<div class="L ng" style="clip-path:inset(0 0 ${812-F}px 0)">${cI}<img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i></div>`+
+    (K?`<div class="L nf nfc" style="clip-path:inset(${K.c0}px 0 ${812-K.k0}px 0)">${cI}<img class="nfb" alt="" src="${u('bl'+n)}" style="top:${K.c0-K.b0}px;height:${H}px"></div>`+
+       `<div class="L nf nfk" style="clip-path:inset(${K.k0}px 0 0 0)">${cI}<i style="background:${K.bg}"></i></div>`
+      :`<div class="L nf" style="clip-path:inset(${F}px 0 0 0)">${cI}<i style="background:${P.foot[1]}"></i></div>`)+
+    `<i class="L cs" style="background:${P.cs};opacity:0"></i>`+
     `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0"><i class="pt ct2" style="background:${P.cs};opacity:0"></i>`+
     `<button class="L btn nx" type="button" aria-label="Close full screen"></button>`;
-  const ns=host.querySelector('.ns'),bs=ns.querySelector('img'),bk=ns.querySelector('.bk'),cu=host.querySelector('.cu'),cs=host.querySelector('.cs'),
-    cb=host.querySelector('.cb'),ct=host.querySelector('.ct'),ct2=host.querySelector('.ct2'),nx=host.querySelector('.nx');
-  if(SQ){const p=`path('${Squircle.pathR(375,812,[16,16,0,0],.6)}')`;bs.style.clipPath=p;bk.style.clipPath=p}
-  let y=Y1,state=1;
+  const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
+    cs=q('.cs'),ct=q('.ct'),ct2=q('.ct2'),nx=q('.nx');
+  let y=Y1,state=1,rk='';
   function render(){
     const c=clamp((Y2-y)/(Y2-Y3)),up=Y2-Y3;
-    ns.style.transform=`translate3d(0,${y.toFixed(2)}px,0)`;
-    const t=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;
-    cu.style.transform=cs.style.transform=cb.style.transform=t;
-    cs.style.opacity=c>=.99?'1':'0';cu.style.opacity=c>=.6?'1':'0';cb.style.opacity=clamp(c/.6).toFixed(3);ct.style.opacity=ct2.style.opacity=c.toFixed(3);
+    /* the sheet's surface: 1:1 with the finger, its top corners 16 → 0 into full screen (as the IAB's), the handle out with them */
+    ns.style.transform=`translate3d(0,${y.toFixed(2)}px,0)`;hb.style.opacity=(1-c).toFixed(3);
+    const R=+(16*(1-c)).toFixed(1);if(SQ&&R+''!==rk){rk=R+'';ns.style.clipPath=R>.05?`path('${Squircle.pathR(375,1240,[R,R,0,0],.6)}')`:''}
+    /* the content group: bl's rows sit on c's (bl[r] = c[r + d]); split → full it closes that offset (d → 0 at the top's 44) as the sheet rises,
+       so the split pose lands exactly on the full screen; clipped to the sheet, under its 18px handle strip */
+    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy);
+    ng.style.transform=`translate3d(0,${oy.toFixed(2)}px,0)`;ng.style.clipPath=`inset(${T.toFixed(2)}px 0 ${812-F}px 0)`;
+    /* bl and its 18px handle strip (the sheet colour, over c's own header and ×) dissolve out together, once the clip has uncovered that strip
+       (c0: where the top edge reaches c's row d; at once where bl sits above c's header, d <= 44), so c's × fades in whole, never cut */
+    ngb.style.opacity=ngh.style.opacity=(1-clamp((c-c0)/.4)).toFixed(3);
+    if(K){   /* Messenger: the keyboard rises from the bottom edge with c; the composer stays docked at the sheet's bottom until the keyboard meets it */
+      const kt=812-(812-K.k0)*c,ctp=Math.min(Math.max(y,Y2)+K.b0,kt-(K.k0-K.c0));
+      nf.style.transform=`translate3d(0,${(ctp-K.c0).toFixed(2)}px,0)`;nfb.style.opacity=(1-clamp(c/.3)).toFixed(3);
+      nfk.style.transform=`translate3d(0,${(kt-K.k0).toFixed(2)}px,0)`;
+    }else nf.style.transform=`translate3d(0,${((812-F)*(1-clamp((c-.2)/.8))).toFixed(2)}px,0)`;   // the footer: the IAB toolbar's rule
+    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ct2.style.opacity=c.toFixed(3);
     hk.render({y,sd:0});
   }
   function setState(s){state=s;ns.classList.toggle('off',s===1);nx.classList.toggle('on',s===3);ns.setAttribute('aria-hidden',s===1?'true':'false');hk.state(s)}
