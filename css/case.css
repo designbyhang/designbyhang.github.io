@@ -267,14 +267,17 @@ body.cs .media.mframe .car-slide img{display:block;width:100%;height:100%;object
 /* FMSS 02 Inconsistencies (.pd-label pair, Hang Nov 2): nothing baked, one file per asset for both themes; the frame supplies the ground,
    #f1f1f1 light / --frame dark. Video: the bare 636x1376 screen recording (1280 tier 502x1088), placed where the old 1624x1824 template
    showed its screen: .inc-tpl is that template's box (1624:1824, covering the frame as the old video did: +2px overscan each side), and
-   .inc-scr the screen inside it (375:812 at 494,180, 1376 tall); corners R48 at 375 wide (12.8% of the width), 60% smoothing by
+   .inc-scr the screen inside it (375:812 at 494,180, 1376 tall). The frame's vertical centre is the screen's (template y 868 = 180 + 1376/2;
+   the template's own centre, 912, left 180 above the screen and 268 below), so the phone has equal space above and below at every width; corners R48 at 375 wide (12.8% of the width), 60% smoothing by
    js/squircle.js. Carousel: 1440x1620 slides of the same template (two phone screens + markers on a transparent ground, no label); they
-   cross-fade (the outgoing one fades out too) so its markers never show through */
+   cross-fade (the outgoing one fades out too) so its markers never show through. Each slide covers the frame (cover size, 1.006 overscan)
+   and is centred on its phones (slide y 162..1380, centre 771), not on the slide, so the phones sit level with the video's, centred vertically */
 body.cs .inc-col .media.mframe.pd-label{background:#f1f1f1;container-type:size}html[data-theme=dark] body.cs .inc-col .media.mframe.pd-label{background:var(--frame)}
-body.cs .inc-col .media.mframe.pd-label .inc-tpl{position:absolute;left:50%;top:50%;width:max(100cqw + 4px,(100cqh + 4px)*1624/1824);aspect-ratio:1624/1824;transform:translate(-50%,-50%)}
+body.cs .inc-col .media.mframe.pd-label .inc-tpl{position:absolute;left:50%;top:50%;width:max(100cqw + 4px,(100cqh + 4px)*1624/1824);aspect-ratio:1624/1824;transform:translate(-50%,calc(-100%*868/1824))}
 body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;left:calc(100%*494/1624);top:calc(100%*180/1824);width:calc(100%*635.47/1624);height:calc(100%*1376/1824);overflow:hidden;border-radius:12.8%/5.911%;transform:translateZ(0)}
 body.cs .inc-col .media.mframe.pd-label .inc-scr video{display:block;width:100%;height:100%;margin:0;object-fit:cover;background:none;border-radius:0;transform:none}
 body.cs .inc-col .media.mframe .car-track>*{transition:opacity 704ms cubic-bezier(.4,0,.2,1)}
+body.cs .inc-col .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:50%;width:max(100cqw,100cqh*1440/1620);max-width:none;height:auto;aspect-ratio:1440/1620;transform:translate(-50%,calc(-100%*771/1620)) scale(var(--ov,1.006));transform-origin:50% calc(100%*771/1620)}
 @media (prefers-reduced-motion:reduce){body.cs .inc-col .media.mframe .car-track>*{transition:none}}
 /* carousel controls: a glass pill of 5px dots + the 32px .mbtn play/pause, 32px inset (16px on phones).
    Each dot holds a 5px-tall bar: 5px wide = a dot, 24px = the active track; the active slot is 40px, the rest 24px, so the pill
@@ -438,10 +441,10 @@ body.cs .fig.inc2 .media.mframe.phone-demo.pd-bare .pd-phone{--pd-scr-h:var(--de
 /* Phone template (.pd-label, FMSS 02 Inconsistencies): placed as the old 1624x1824 baked template (phone screen 1376 tall at y 180), now
    with nothing baked (see the .inc-tpl / .inc-scr rules above; ground #f1f1f1 light / --frame dark, the same grounds as .phone-demo).
    The label row stays reserved under the screen (label bottom 144/1376 of --dev-h, 41-46px on tablets); this box is used only stacked
-   on portrait tablets, where the wide 3840/2052 frame cropped the phone: --pd-label 48px, so 24px above the phone and 72px below it.
+   on portrait tablets, where the wide 3840/2052 frame cropped the phone: --pd-label 48px, the phone (--dev-h) centred in it, 48px above and below.
    Its carousel (1440x1620 slides of the same template: phones 1219 tall at y 162, transparent ground, one file for both themes) takes
    the same box and places each slide the same way, so the pair's phones line up and nothing is cropped */
-@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){body.cs .media.mframe.pd-label{--pd-ground:#f1f1f1;--pd-label:48px;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + var(--pd-label,0px) + 2px);aspect-ratio:auto;background:var(--pd-ground)}html[data-theme=dark] body.cs .media.mframe.pd-label{--pd-ground:var(--frame)}body.cs .inc-col .media.mframe.pd-label .inc-tpl{top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);transform:translateX(-50%)}body.cs .media.mframe.carousel.pd-label{background:var(--pd-ground)}body.cs .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*162/1219);width:auto;height:calc(var(--dev-h)*1620/1219);transform:translateX(-50%)}}
+@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){body.cs .media.mframe.pd-label{--pd-ground:#f1f1f1;--pd-label:48px;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + var(--pd-label,0px) + 2px);aspect-ratio:auto;background:var(--pd-ground)}html[data-theme=dark] body.cs .media.mframe.pd-label{--pd-ground:var(--frame)}body.cs .inc-col .media.mframe.pd-label .inc-tpl{width:auto;height:calc(var(--dev-h)*1824/1376)}body.cs .media.mframe.carousel.pd-label{background:var(--pd-ground)}body.cs .inc-col .media.mframe.pd-label .car-track>*{--ov:1;width:auto;height:calc(var(--dev-h)*1620/1219)}}
 .pd-rows{margin-top:64px}
 .inc2 .pd-row{align-items:stretch}
 .pd-touch .pd-row{column-gap:0} /* Hang, Oct 26: Current State modules widen to meet, no column gap */
