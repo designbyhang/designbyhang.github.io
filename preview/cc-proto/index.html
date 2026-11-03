@@ -22,7 +22,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
 <link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=375"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../shared/pause/pause.js?v=369"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=355">
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/material/material.css?v=380">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro","Segoe UI",Roboto,"Inter","Helvetica Neue",Arial,sans-serif}
@@ -90,10 +90,9 @@ video{display:block;object-fit:cover}
 .card .th{position:absolute;left:10px;top:10px;width:36px;height:36px;border-radius:8px;background:#333 50% 50%/cover no-repeat}
 .card .t,.card .u{display:block;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card .u{margin-top:-2px;font:var(--t-r-body-s);letter-spacing:var(--t-r-body-s-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.85);-webkit-font-smoothing:antialiased}
-/* the nav's material (home button, query pill): a 25px backdrop blur under #252525 at 55% with a #9C9C9C overlay (SAP's For you pill, Figma) */
-.mat{background:rgba(37,37,37,.55);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
-.mat::before{content:'';position:absolute;inset:0;background:#9c9c9c;mix-blend-mode:overlay;opacity:.55;border-radius:inherit;pointer-events:none}
-.mat>*{z-index:1}
+/* the nav's material (home button, query pill): the shared Reels nav glass (preview/shared/material: a 25px backdrop blur under #252525 at 55%
+   with a #9C9C9C overlay, SAP's For you pill, Figma). It must not be a stacking context, so the home button and the pill take no z-index:
+   they stack by DOM order, above the feed and CC layers, under the glow and everything after it */
 .press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease);border-radius:inherit;pointer-events:none;z-index:2}
 .press.on{opacity:1;transition-duration:.12s}
 /* top bars: the feed's (Figma CC poster) and CC's: back chevron 24 at 12,58, the tabs from x 40 (SF Semibold 17, 20 apart; active white,
@@ -114,8 +113,8 @@ video{display:block;object-fit:cover}
    the query is the reel's own, crossfaded as reels move. Nespresso's field has two states (.sw): the search sparkle + "Coffee" on
    arrival, then (2000 in) it slides up 8 and fades out as the playlist icon + "Explore more like this" slide up 8 and fade in (320, ease-out),
    clipped by the pill; then the field's edge glows, two pulses (.navg) */
-.navh{left:12px;top:742px;width:40px;height:40px;border-radius:20px;z-index:12}
-.navp{left:60px;top:742px;width:303px;height:40px;border-radius:20px;z-index:12}
+.navh{left:12px;top:742px;width:40px;height:40px;border-radius:20px}
+.navp{left:60px;top:742px;width:303px;height:40px;border-radius:20px}
 .navh svg{position:absolute;left:12px;top:12px;width:16px;height:16px;opacity:.85}   /* white 85%, as the pill's icons */
 .navp .ico{position:absolute;left:10px;top:10px;width:20px;height:20px;opacity:.85}
 .navp .lb{position:absolute;inset:0;opacity:0}
