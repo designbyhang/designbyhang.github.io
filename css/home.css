@@ -130,28 +130,36 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
 .poster-svg .m{font-family:var(--sans);font-weight:500;fill:var(--c-strong);letter-spacing:-.01em;word-spacing:0} /* keywords: Instrument Sans 500 (one weight above the CTA), title case (size + place: js/home.js wc/wb) */
-/* Second-language (Japanese) swap (js/home.js): labels and CTA in Noto Sans JP (OFL; labels 500, CTA 400), self-hosted subset, preloaded (index.html). The labels take the CTA's type
-   (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased smoothing; size and place set in js/home.js (wj) */
-@font-face{font-family:"Noto Sans JP Sub";src:url(../assets/fonts/noto-sans-jp-400-sub.woff2?v=385) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans JP Sub";src:url(../assets/fonts/noto-sans-jp-500-sub.woff2?v=385) format("woff2");font-weight:500;font-display:block}
-.poster-svg .m.zh{font-family:"Noto Sans JP Sub",var(--sans);font-weight:500;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
-/* language loop (js/home.js): every word runs the same infinite 8.96s cycle from its --s (ms). A swap: the old text slides up --ty (16 screen px) and fades
-   out, 320ms ease-in (.4,0,1,1); from 80ms the new text slides up from --ty below into place and fades in, 400ms ease-out (0,0,.2,1); done at 480ms.
-   EN->ZH at 0, 4000ms hold, ZH->EN at 4480, 4000ms hold. opacity and translateY (16px: --ty, js/home.js) are animated
-   in place, so no opacity or transform animation promotes a layer. Both keyframe sets state every step from and to explicitly (an exit with no start
-   frame never moved). Before --s (fill both) it is English, the Chinese waiting below, hidden. Labels clip to their band, the CTA to its row */
-@keyframes swE{0%{opacity:1;transform:none;visibility:visible;animation-timing-function:cubic-bezier(.4,0,1,1)}3.571429%{opacity:0;transform:translateY(calc(-1*var(--ty,16px)));visibility:hidden;animation-timing-function:step-end}
-  50.892857%{opacity:0;transform:translateY(var(--ty,16px));visibility:hidden;animation-timing-function:cubic-bezier(0,0,.2,1)}55.357143%{opacity:1;transform:none;visibility:visible}100%{opacity:1;transform:none;visibility:visible}}
-@keyframes swZ{0%{opacity:0;transform:translateY(var(--ty,16px));visibility:hidden}0.892857%{opacity:0;transform:translateY(var(--ty,16px));visibility:hidden;animation-timing-function:cubic-bezier(0,0,.2,1)}5.357143%{opacity:1;transform:none;visibility:visible}
-  50%{opacity:1;transform:none;visibility:visible;animation-timing-function:cubic-bezier(.4,0,1,1)}53.571429%{opacity:0;transform:translateY(calc(-1*var(--ty,16px)));visibility:hidden;animation-timing-function:step-end}100%{opacity:0;transform:translateY(calc(-1*var(--ty,16px)));visibility:hidden}}
-/* opacity/transform animated directly, and the hidden side is visibility:hidden, so the outgoing text can never be left painted at a near-zero opacity
-   (the faint English CTA residue Hang saw, 2026-11-02: the earlier registered --so/--sy numbers could leave the last sampled frame painted) */
-:is(.poster-svg,.poster-cta) .sw{animation:swE 8.96s linear calc(var(--s,0)*1ms) infinite both}
-:is(.poster-svg,.poster-cta) :is(.sw-z,.cta-zh){animation-name:swZ}
+/* Second-language (Traditional Chinese) swap (js/home.js): labels and CTA in Noto Sans TC (OFL; labels 500, CTA 400), self-hosted subsets of only the
+   used glyphs, preloaded (index.html). The labels take the CTA's type (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased
+   smoothing; size and place set in js/home.js (wj) */
+@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-400-sub.woff2?v=395) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-500-sub.woff2?v=395) format("woff2");font-weight:500;font-display:block}
+.poster-svg .m.zh{font-family:"Noto Sans TC Sub",var(--sans);font-weight:500;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
+/* language loop (js/home.js): every word runs the same infinite 8960ms cycle from its --s (ms; 160ms apart, CTA last). Every time below is a multiple of 8ms.
+   A swap, from its start t: the old text rises --ty (16 screen px) and leaves, transform 560ms ease-in (.32,0,.67,0), opacity a little ahead of it,
+   480ms (.33,0,.67,1); at t+400 the new text rises from --ty below, transform 720ms ease-out (.16,1,.3,1), opacity leading, 480ms (.25,1,.5,1); settled
+   at t+1120. The two overlap 160ms (80ms of shared opacity, so the box is never empty). EN->ZH at 0, ZH->EN at 4480 (half the cycle), each language
+   settled 3360ms. Opacity (with visibility) and transform are separate animations on the same clock, so each has its own curve; both state every step
+   from and to explicitly. visibility:hidden on the hidden side so the outgoing text can never stay painted at a near-zero opacity (the faint CTA residue
+   Hang saw, 2026-11-02). No blur: a filter would promote a layer and resample the 1px grid. Before --s (fill both) it is English, the Chinese waiting
+   below, hidden. Labels clip to their band, the CTA to its row.
+   keyframe % = ms / 8960: 400 4.464286, 480 5.357143, 560 6.25, 880 9.821429, 1120 12.5, 4480 50, 4880 54.464286, 4960 55.357143, 5040 56.25,
+   5360 59.821429, 5600 62.5 */
+@keyframes swEo{0%{opacity:1;visibility:visible;animation-timing-function:cubic-bezier(.33,0,.67,1)}5.357143%{opacity:0;visibility:hidden;animation-timing-function:step-end}
+  54.464286%{opacity:0;visibility:hidden;animation-timing-function:cubic-bezier(.25,1,.5,1)}59.821429%{opacity:1;visibility:visible}100%{opacity:1;visibility:visible}}
+@keyframes swEt{0%{transform:none;animation-timing-function:cubic-bezier(.32,0,.67,0)}6.25%{transform:translateY(calc(-1*var(--ty,16px)));animation-timing-function:step-end}
+  54.464286%{transform:translateY(var(--ty,16px));animation-timing-function:cubic-bezier(.16,1,.3,1)}62.5%{transform:none}100%{transform:none}}
+@keyframes swZo{0%{opacity:0;visibility:hidden}4.464286%{opacity:0;visibility:hidden;animation-timing-function:cubic-bezier(.25,1,.5,1)}9.821429%{opacity:1;visibility:visible}
+  50%{opacity:1;visibility:visible;animation-timing-function:cubic-bezier(.33,0,.67,1)}55.357143%{opacity:0;visibility:hidden;animation-timing-function:step-end}100%{opacity:0;visibility:hidden}}
+@keyframes swZt{0%{transform:translateY(var(--ty,16px))}4.464286%{transform:translateY(var(--ty,16px));animation-timing-function:cubic-bezier(.16,1,.3,1)}12.5%{transform:none}
+  50%{transform:none;animation-timing-function:cubic-bezier(.32,0,.67,0)}56.25%{transform:translateY(calc(-1*var(--ty,16px)));animation-timing-function:step-end}100%{transform:translateY(calc(-1*var(--ty,16px)))}}
+:is(.poster-svg,.poster-cta) .sw{animation:swEo 8960ms linear calc(var(--s,0)*1ms) infinite both,swEt 8960ms linear calc(var(--s,0)*1ms) infinite both}
+:is(.poster-svg,.poster-cta) :is(.sw-z,.cta-zh){animation-name:swZo,swZt}
 html.swp :is(.poster-svg,.poster-cta) .sw{animation-play-state:paused} /* tab hidden */
 /* CTA: both texts share one grid cell on the baseline (the cap's box is their union) */
 .poster-cta:has(.cta-zh){display:inline-grid;align-items:last baseline;justify-items:start}
 .poster-cta .cta-en,.poster-cta .cta-zh{grid-area:1/1;white-space:nowrap}
-.poster-cta .cta-zh{font-family:"Noto Sans JP Sub",var(--sans);letter-spacing:.02em}.poster-cta .cta-zh .cta-t{font-size:.92em} /* only the Japanese text is .92em: the arrow keeps the English size and baseline, so it sits at the same Y in both languages */
+.poster-cta .cta-zh{font-family:"Noto Sans TC Sub",var(--sans);letter-spacing:.02em}.poster-cta .cta-zh .cta-t{font-size:.912em} /* only the Chinese text is .912em (its ink .925em: 1.16x the English cap, as the labels): the arrow keeps the English size and baseline, so it sits at the same Y in both languages */
 @media (prefers-reduced-motion:reduce){:is(.poster-svg,.poster-cta) .sw{animation:none!important;opacity:1;transform:none;visibility:visible}.sw-z,.cta-zh{display:none!important}}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
