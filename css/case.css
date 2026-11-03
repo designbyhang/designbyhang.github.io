@@ -272,8 +272,8 @@ body.cs .media.mframe .car-slide img{display:block;width:100%;height:100%;object
    their markers never show through */
 body.cs .inc-col .media.mframe.pd-label{--pd-ground:#f1f1f1;background:var(--pd-ground);container-type:size;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto}
 html[data-theme=dark] body.cs .inc-col .media.mframe.pd-label{--pd-ground:var(--frame)}
-body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;inset:0;margin:auto;width:calc(var(--dev-h)*375/812);height:var(--dev-h);overflow:hidden;transform:translateZ(0)}
-body.cs .inc-col .media.mframe.pd-label .inc-scr video{display:block;width:100%;height:100%;margin:0;object-fit:cover;background:none;border-radius:0;transform:none}
+body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;inset:0;margin:auto;width:calc(var(--dev-h)*375/812);height:var(--dev-h)}
+body.cs .inc-col .media.mframe.pd-label .inc-scr video{display:block;width:100%;height:100%;margin:0;object-fit:cover;background:none;transform:none}
 body.cs .inc-col .media.mframe .car-track>*{transition:opacity 704ms cubic-bezier(.4,0,.2,1)}
 body.cs .inc-col .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:50%;width:min(var(--dev-h)*1440/1218,100cqw*1440/1225);max-width:none;height:auto;aspect-ratio:1440/1620;transform:translate(-50%,calc(-100%*771/1620))}
 @media (prefers-reduced-motion:reduce){body.cs .inc-col .media.mframe .car-track>*{transition:none}}
@@ -419,11 +419,11 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
 @media (min-width:1800px){:root{--toc-reserve:264px;--mbox-h:clamp(432px,round(down,calc((min(100vw - 2*var(--toc-reserve),1440px) - 2*clamp(20px,5vw,72px))*.534375),8px),664px)}.sheet,.foot{max-width:min(1440px,100vw - 2*var(--toc-reserve))}.sec-grid>.prose{margin-left:max(0px,calc(50% - 380px))}}
 body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
 html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:var(--frame)}
-.phone-demo .pd-phone{--pd-scr-h:calc(var(--dev-h)*812/828);position:relative;flex:none;height:var(--pd-scr-h);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812;overflow:hidden;transform:translateZ(0)}
+.phone-demo .pd-phone{--pd-scr-h:calc(var(--dev-h)*812/828);position:relative;flex:none;height:var(--pd-scr-h);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812}
 /* the recording fills the screen exactly (object-fit:cover, no zoom), so nothing of the recorded design is clipped: the 750x1624 captures'
    dark capture edge (cols 0-1/748-749, rows 0-3/1620-1623) is cropped out of the files themselves (746x1616, the screen's 375:812
    within 0.04%), so no edge row is left for the downscaler to bleed in as a dark line */
-body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;border-radius:0;transform:none;transition:none}
+body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;transform:none;transition:none}
 /* Bare screen (.phone-demo.pd-bare, VAC 02 Problem + 05 Current State, Hang Nov 2): no device frame in either theme, the screen sits
    straight on the phone-demo ground. No .mframe video #f1f1f1 fill: painted under the video and clipped on its own, it fringed the
    screen's anti-aliased edge white on the dark ground (the 02 Ad screen's top).
@@ -431,12 +431,15 @@ body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo 
    in units of the screen's 1376px source height (R64 of the 636x1376 screen recordings), drawn by js/squircle.js at 60% smoothing
    (corner-shape in Chromium, a path() clip in WebKit). Both boxes are 375:812, so the radius is a share of the box itself:
    --phone-r/1376 of its height and the same length across (x 812/375 of its width).
+   The corner is drawn on the <video> itself (the box whose pixels show), never on its wrapper: Safari (iOS) does not clip a playing
+   video by an ancestor's border-radius / clip-path (WebKit bug 251379; the video is its own hardware layer), so the wrapper-clipped,
+   square-cornered recordings showed flat, square corners on phones. A video's own radius and clip-path are always applied.
    One exception (Hang Nov 3): the FMSS 02 Inconsistencies video takes the corner of the phone mocks in the carousel beside it (their
    slides' screens: 60% squircle R72 on a 1218px-tall screen, measured from the PNG alpha), so the two phones of the pair match:
    --phone-r 72*1376/1218 (81.34) on that frame only */
 :root{--phone-r:64}
 body.cs .inc-col .media.mframe.pd-label{--phone-r:calc(72*1376/1218)}
-body.cs .media.mframe.phone-demo.pd-bare .pd-phone,body.cs .inc-col .media.mframe.pd-label .inc-scr{border-radius:calc(100%*var(--phone-r)*812/1376/375)/calc(100%*var(--phone-r)/1376)}
+body.cs .media.mframe.phone-demo.pd-bare .pd-phone video,body.cs .inc-col .media.mframe.pd-label .inc-scr video{border-radius:calc(100%*var(--phone-r)*812/1376/375)/calc(100%*var(--phone-r)/1376)}
 body.cs .media.mframe.phone-demo.pd-bare .pd-phone video{background:none}
 /* 02 Problem's recordings are bare 636x1376 screens scaled from Hang's square-cornered 750x1624 recordings (Nov 3; nothing baked, the page
    draws the corner), sized like the old 1624x1824 template's screen, so the screen is the whole device box (--dev-h at --dev-pad) */
