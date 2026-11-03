@@ -18,6 +18,9 @@
               opacity (in 240ms ease-out, out on the split screen's 320ms ease-out), so nothing overlaps; lift: a function returning
               the pieces instead, for an overlay that is not built from those; also: a function returning pieces outside the scope that
               belong to the overlay (a press highlight or a button laid over the CTA)
+              Only live UI rises, never the media: a <video>, a poster, or a still that belongs to the media (the scrim, the gradient over
+              the video: mark it data-media) is left out of the lift, and so is any piece holding one; the scrim stays where it is in every
+              state, paused or playing
      pz.set(on, tap)  on: glyph in, controls up and held while paused. Off with tap (the media tap that resumes): glyph out, the controls
                       stay for the split screen's dwell (2080ms) and fade (320ms). Off without tap (a reset: another reel, leaving Reels,
                       the IAB's close): both go at once
@@ -32,6 +35,7 @@ const CSS='.fmss-pz.fmss-pz{position:absolute;display:grid;place-items:center;wi
   '.fmss-rc.fmss-rc{position:absolute;left:0;top:0;width:375px;height:812px;margin:0;pointer-events:none}';
 const GLYPH='<svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg>';
 const GAP=8,BAND=12,LIFT=BAND+GAP;
+const MEDIA='video,[data-media]';   // never lifted (nor anything that holds one)
 const SEL='[data-reel=rail],[data-reel=details],[data-reel=more],[data-reel=cta],[data-reel=pill],.c-stack,.r-ufi';
 function css(){if(document.getElementById('fmss-pz-css'))return;const s=document.createElement('style');s.id='fmss-pz-css';s.textContent=CSS;document.head.appendChild(s)}
 const fn=x=>typeof x==='function'?x:()=>x;
@@ -40,7 +44,7 @@ function mount(el,o){
   o=o||{};const vf=o.video?fn(o.video):null,at=o.at||null,map=new Map();let cur=null,held=null,lifted=0;
   if(at)at.classList.add('fmss-rc');
   function pieces(){let a;if(o.lift)a=[...(fn(o.lift)()||[])];else{const s=o.scope?fn(o.scope)():null;a=s?[...s.querySelectorAll(SEL)]:[]}
-    if(o.also)a=a.concat([...(fn(o.also)()||[])]);a=a.filter(Boolean);
+    if(o.also)a=a.concat([...(fn(o.also)()||[])]);a=a.filter(e=>e&&!e.matches(MEDIA)&&!e.querySelector(MEDIA));
     return a.filter(e=>!a.some(p=>p!==e&&p.contains(e)))}   // a piece inside another moves with it
   function lift(r,op){const y=LIFT*op;if(r===cur)lifted=y;r.els.forEach(e=>{e.style.translate=op>0?'0 '+(-y).toFixed(2)+'px':''})}
   function ctl(v){if(!v||!at||!window.VideoScrubber||o.bar==null)return null;let r=map.get(v);if(r)return r;
