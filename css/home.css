@@ -129,7 +129,30 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
-.poster-svg .m{font-family:var(--mono);fill:var(--c-strong);letter-spacing:.04em;word-spacing:-.32em}
+.poster-svg .m{font-family:var(--sans);font-weight:400;fill:var(--c-strong);letter-spacing:-.01em;word-spacing:0} /* keywords: Instrument Sans 400, title case (size + place: js/home.js wc/wb) */
+/* Second-language (Japanese) swap (js/home.js): labels and CTA in Noto Serif JP 400 (OFL), self-hosted subset, preloaded (index.html). The labels take the CTA's type
+   (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased smoothing; size and place set in js/home.js (wj) */
+@font-face{font-family:"Noto Serif JP Sub";src:url(../assets/fonts/noto-serif-jp-400-sub.woff2?v=385) format("woff2");font-weight:400;font-display:block}
+.poster-svg .m.zh{font-family:"Noto Serif JP Sub",var(--sans);font-weight:400;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
+/* language loop (js/home.js): every word runs the same infinite 8.96s cycle from its --s (ms). A swap: the old text slides up --ty (8 screen px) and fades
+   out, 320ms ease-in (.4,0,1,1); from 80ms the new text slides up from --ty below into place and fades in, 400ms ease-out (0,0,.2,1); done at 480ms.
+   EN->ZH at 0, 4000ms hold, ZH->EN at 4480, 4000ms hold. --so (opacity) and --sy (-1 above .. 0 in place .. 1 below) are registered numbers animated
+   in place, so no opacity or transform animation promotes a layer. Both keyframe sets state every step from and to explicitly (an exit with no start
+   frame never moved). Before --s (fill both) it is English, the Chinese waiting below, hidden. Labels clip to their band, the CTA to its row */
+@property --so{syntax:"<number>";inherits:false;initial-value:1}
+@property --sy{syntax:"<number>";inherits:false;initial-value:0}
+@keyframes swE{0%{--so:1;--sy:0;animation-timing-function:cubic-bezier(.4,0,1,1)}3.571429%{--so:0;--sy:-1;animation-timing-function:step-end}
+  50.892857%{--so:0;--sy:1;animation-timing-function:cubic-bezier(0,0,.2,1)}55.357143%{--so:1;--sy:0}100%{--so:1;--sy:0}}
+@keyframes swZ{0%{--so:0;--sy:1}0.892857%{--so:0;--sy:1;animation-timing-function:cubic-bezier(0,0,.2,1)}5.357143%{--so:1;--sy:0}
+  50%{--so:1;--sy:0;animation-timing-function:cubic-bezier(.4,0,1,1)}53.571429%{--so:0;--sy:-1;animation-timing-function:step-end}100%{--so:0;--sy:-1}}
+:is(.poster-svg,.poster-cta) .sw{animation:swE 8.96s linear calc(var(--s,0)*1ms) infinite both;opacity:var(--so);transform:translateY(calc(var(--sy)*var(--ty,8px)))}
+:is(.poster-svg,.poster-cta) :is(.sw-z,.cta-zh){animation-name:swZ}
+html.swp :is(.poster-svg,.poster-cta) .sw{animation-play-state:paused} /* tab hidden */
+/* CTA: both texts share one grid cell on the baseline (the cap's box is their union) */
+.poster-cta:has(.cta-zh){display:inline-grid;align-items:last baseline;justify-items:start}
+.poster-cta .cta-en,.poster-cta .cta-zh{grid-area:1/1;white-space:nowrap}
+.poster-cta .cta-zh{font-family:"Noto Serif JP Sub",var(--sans);font-size:.92em;letter-spacing:.02em}
+@media (prefers-reduced-motion:reduce){:is(.poster-svg,.poster-cta) .sw{animation:none!important;--so:1;--sy:0}.sw-z,.cta-zh{display:none!important}}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
@@ -140,16 +163,15 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-title{box-shadow:-2px -6px 0 var(--ko,var(--c-paper)),-2px 0px 0 var(--ko,var(--c-paper)),-2px 6px 0 var(--ko,var(--c-paper)),0px -6px 0 var(--ko,var(--c-paper)),0px 6px 0 var(--ko,var(--c-paper)),7px -6px 0 var(--ko,var(--c-paper)),7px 0px 0 var(--ko,var(--c-paper)),7px 6px 0 var(--ko,var(--c-paper))} /* knockout: +6px above and below */
 .intro-in.poster{container-type:inline-size}
 .poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi}
-/* CTA rise (row clip band, --rise, --cd: js/home.js): the button slides up inside the static cap; its knockout moves to the
-   cap's ::before (static, fades in), so no gap is dragged through the grid lines while it moves */
+/* CTA entry (--cd: js/home.js): fades in with the keywords, the same .7s cubic-bezier(.4,0,.2,1) fade (.wf), its knockout (the cap's ::before) with it */
 .poster-cap{isolation:isolate}
 /* the reveal is declared only once build() has timed it after the lines ([data-t] with --cd, js/home.js): untimed, it ran at 0ms and could finish
    (and settle, [data-set]) before the poster was drawn */
 .poster-cap:not([data-t]){visibility:hidden}
 .poster-cap::before{content:"";position:absolute;inset:-6px -7px -6px -2px;z-index:-1;background:var(--ko,var(--c-paper));opacity:0}
-.poster-cap[data-t]::before{animation:pIn .9s cubic-bezier(.2,.7,.2,1) var(--cd) forwards}
+.poster-cap[data-t]::before{animation:pIn .7s cubic-bezier(.4,0,.2,1) var(--cd) forwards}
 .poster-cap .poster-title{background:none;box-shadow:none}
-.poster-cap[data-t] .poster-title{animation:pRiseT 1.1s cubic-bezier(.2,.7,.2,1) var(--cd) both}
+.poster-cap[data-t] .poster-title{animation:pCtaIn .7s cubic-bezier(.4,0,.2,1) var(--cd) both}
 .poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:var(--c-strong)}
 .poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
@@ -179,7 +201,7 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .tt{font-family:var(--sans);fill:#111;letter-spacing:-.025em;font-weight:400}
 .poster-svg .dk{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
-@keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
+@keyframes pCtaIn{from{opacity:0}to{opacity:1}}
 @keyframes pIn{to{opacity:1}}
 @keyframes pdIn{from{fill-opacity:0}to{fill-opacity:1}}
 @keyframes pDrawV{from{y:var(--g0);height:0}}@keyframes pDrawH{from{x:var(--g0);width:0}}
@@ -192,7 +214,7 @@ html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!i
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.intro .media-wrap{aspect-ratio:1;height:auto}.poster-cap{display:none}.intro-in.poster{height:100%}}
 
 /* intro card only: mono in all caps */
-.poster-svg .m,.poster-svg .mk{text-transform:uppercase} /* not .intro-scoped: on desktop the svg lives in .poster-ov */
+.poster-svg .mk{text-transform:uppercase} /* not .intro-scoped: on desktop the svg lives in .poster-ov */
 .intro .hint,.intro .hint *{text-transform:uppercase!important}
 .intro .hint.poster-hint{display:block}
 
