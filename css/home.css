@@ -129,11 +129,11 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
-.poster-svg .m{font-family:var(--sans);font-weight:400;fill:var(--c-strong);letter-spacing:-.01em;word-spacing:0} /* keywords: Instrument Sans 400, title case (size + place: js/home.js wc/wb) */
-/* Second-language (Japanese) swap (js/home.js): labels and CTA in Noto Serif JP 400 (OFL), self-hosted subset, preloaded (index.html). The labels take the CTA's type
+.poster-svg .m{font-family:var(--sans);font-weight:500;fill:var(--c-strong);letter-spacing:-.01em;word-spacing:0} /* keywords: Instrument Sans 500 (one weight above the CTA), title case (size + place: js/home.js wc/wb) */
+/* Second-language (Japanese) swap (js/home.js): labels and CTA in Noto Sans JP (OFL; labels 500, CTA 400), self-hosted subset, preloaded (index.html). The labels take the CTA's type
    (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased smoothing; size and place set in js/home.js (wj) */
-@font-face{font-family:"Noto Serif JP Sub";src:url(../assets/fonts/noto-serif-jp-400-sub.woff2?v=385) format("woff2");font-weight:400;font-display:block}
-.poster-svg .m.zh{font-family:"Noto Serif JP Sub",var(--sans);font-weight:400;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
+@font-face{font-family:"Noto Sans JP Sub";src:url(../assets/fonts/noto-sans-jp-400-sub.woff2?v=385) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans JP Sub";src:url(../assets/fonts/noto-sans-jp-500-sub.woff2?v=385) format("woff2");font-weight:500;font-display:block}
+.poster-svg .m.zh{font-family:"Noto Sans JP Sub",var(--sans);font-weight:500;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
 /* language loop (js/home.js): every word runs the same infinite 8.96s cycle from its --s (ms). A swap: the old text slides up --ty (8 screen px) and fades
    out, 320ms ease-in (.4,0,1,1); from 80ms the new text slides up from --ty below into place and fades in, 400ms ease-out (0,0,.2,1); done at 480ms.
    EN->ZH at 0, 4000ms hold, ZH->EN at 4480, 4000ms hold. --so (opacity) and --sy (-1 above .. 0 in place .. 1 below) are registered numbers animated
@@ -151,7 +151,7 @@ html.swp :is(.poster-svg,.poster-cta) .sw{animation-play-state:paused} /* tab hi
 /* CTA: both texts share one grid cell on the baseline (the cap's box is their union) */
 .poster-cta:has(.cta-zh){display:inline-grid;align-items:last baseline;justify-items:start}
 .poster-cta .cta-en,.poster-cta .cta-zh{grid-area:1/1;white-space:nowrap}
-.poster-cta .cta-zh{font-family:"Noto Serif JP Sub",var(--sans);font-size:.92em;letter-spacing:.02em}
+.poster-cta .cta-zh{font-family:"Noto Sans JP Sub",var(--sans);font-size:.92em;letter-spacing:.02em}
 @media (prefers-reduced-motion:reduce){:is(.poster-svg,.poster-cta) .sw{animation:none!important;--so:1;--sy:0}.sw-z,.cta-zh{display:none!important}}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
