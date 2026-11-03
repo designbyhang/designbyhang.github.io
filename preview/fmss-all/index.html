@@ -223,7 +223,7 @@ const TABS=['Feed','Reels','Stories','Others'];   // a tab with no entries is le
    loops pre-sample, here read live from the sheet (the shared IAB's spring and drag, or the native sheet's, same spring, ω16 / ω18). */
 const HOLE=h=>`path(evenodd,'M0 0H375V${h}H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z')`;   // the status bar's 2:04 is the Menu pill's place: cut out of overlays, the pill's own shape
 /* header badges: the one shared set (preview/shared/reel), Hang's Figma exports, referenced by URL so an update there is picked up here; never copied */
-const ICONS={base:new URL('../shared/reel/',location.href).href,v:'?v=357'}   /* absolute: a url() in a custom property resolves against the sheet that reads it (reel.css) */,ico=f=>`<i class="rl-ico" style="--m:url(${ICONS.base+f+ICONS.v})"></i>`;
+const ICONS={base:new URL('../shared/reel/',location.href).href,v:'?v=359'}   /* absolute: a url() in a custom property resolves against the sheet that reads it (reel.css) */,ico=f=>`<i class="rl-ico" style="--m:url(${ICONS.base+f+ICONS.v})"></i>`;
 const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))"><g fill="#fff"><circle cx="4" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="20" cy="12" r="2.5"/></g></svg>';
 const CROSS='<svg viewBox="0 0 24 24" style="left:44px"><path d="M6 6L18 18M18 6L6 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>';
 function split(E,root){
