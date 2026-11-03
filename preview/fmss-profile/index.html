@@ -173,7 +173,7 @@ html.hosted .phone{background:transparent;border-radius:0}
 
         <!-- ===== screen 1: the reel: clean ad footage under the shared FMSS Reels overlay (../shared/reel) ===== -->
         <div class="abs scr reel" id="reel">
-          <video class="abs video" id="vid" src="assets/reel.mp4?v=356" poster="assets/reel-poster.jpg?v=356" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <video class="abs video" id="vid" src="assets/reel.mp4?v=361" poster="assets/reel-poster.jpg?v=361" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
           <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
           <div class="abs" id="pz" aria-hidden="true"></div>
           <div class="abs rov" id="rov">
@@ -764,7 +764,7 @@ function vidDisarm(){if(!vidArmed)return;vidArmed=false;['touchend','click','key
 const vidAlt=$('vidAlt');
 let vidMode='video',vidSince=0,vidT0=-1,altT0=0;   // altT0: when the fallback image started animating
 function altShow(){if(userPaused){vidMode='video';return}vidAlt.classList.add('on');altT0=performance.now();vidDisarm();try{vid.pause()}catch(e){}vid.style.visibility='hidden'}   // paused meanwhile: the <video> keeps its paused frame
-function altUse(mode){vidMode=mode;vidAlt.onload=altShow;vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};vidAlt.src=mode==='img-mp4'?'assets/reel.mp4?v=356':'assets/reel.webp?v=356'}
+function altUse(mode){vidMode=mode;vidAlt.onload=altShow;vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};vidAlt.src=mode==='img-mp4'?'assets/reel.mp4?v=361':'assets/reel.webp?v=361'}
 function vidFallback(why){if(vidMode!=='video')return;vidAlt.dataset.why=why;altUse(/[?&]alt=mp4\b/.test(location.search)?'img-mp4':'img-webp')}
 setInterval(()=>{
   if(vidMode!=='video')return;

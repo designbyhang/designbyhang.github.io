@@ -11,7 +11,7 @@ Static portfolio site for Hang Zheng, served by GitHub Pages from `main`. Pushin
 
 ## Cache-busting (`?v=`)
 - CSS/JS are referenced with `?v=N`. Bump only the files you changed, in every page that loads them.
-- Next free number: **360** (update this line when you use one). Numbers are global; never reuse one.
+- Next free number: **362** (update this line when you use one). Numbers are global; never reuse one.
 - Don't touch pinned refs: `header.js?v=137`, the cc-proto `nav.webp?v=263`, and the Citi animation pins.
 - Other agents (Animation-Wiz for Citi animations) also push to `main`. Fetch and rebase right before pushing.
 
