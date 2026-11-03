@@ -134,25 +134,25 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
    (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased smoothing; size and place set in js/home.js (wj) */
 @font-face{font-family:"Noto Sans JP Sub";src:url(../assets/fonts/noto-sans-jp-400-sub.woff2?v=385) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans JP Sub";src:url(../assets/fonts/noto-sans-jp-500-sub.woff2?v=385) format("woff2");font-weight:500;font-display:block}
 .poster-svg .m.zh{font-family:"Noto Sans JP Sub",var(--sans);font-weight:500;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
-/* language loop (js/home.js): every word runs the same infinite 8.96s cycle from its --s (ms). A swap: the old text slides up --ty (8 screen px) and fades
+/* language loop (js/home.js): every word runs the same infinite 8.96s cycle from its --s (ms). A swap: the old text slides up --ty (16 screen px) and fades
    out, 320ms ease-in (.4,0,1,1); from 80ms the new text slides up from --ty below into place and fades in, 400ms ease-out (0,0,.2,1); done at 480ms.
-   EN->ZH at 0, 4000ms hold, ZH->EN at 4480, 4000ms hold. --so (opacity) and --sy (-1 above .. 0 in place .. 1 below) are registered numbers animated
+   EN->ZH at 0, 4000ms hold, ZH->EN at 4480, 4000ms hold. opacity and translateY (16px: --ty, js/home.js) are animated
    in place, so no opacity or transform animation promotes a layer. Both keyframe sets state every step from and to explicitly (an exit with no start
    frame never moved). Before --s (fill both) it is English, the Chinese waiting below, hidden. Labels clip to their band, the CTA to its row */
-@property --so{syntax:"<number>";inherits:false;initial-value:1}
-@property --sy{syntax:"<number>";inherits:false;initial-value:0}
-@keyframes swE{0%{--so:1;--sy:0;animation-timing-function:cubic-bezier(.4,0,1,1)}3.571429%{--so:0;--sy:-1;animation-timing-function:step-end}
-  50.892857%{--so:0;--sy:1;animation-timing-function:cubic-bezier(0,0,.2,1)}55.357143%{--so:1;--sy:0}100%{--so:1;--sy:0}}
-@keyframes swZ{0%{--so:0;--sy:1}0.892857%{--so:0;--sy:1;animation-timing-function:cubic-bezier(0,0,.2,1)}5.357143%{--so:1;--sy:0}
-  50%{--so:1;--sy:0;animation-timing-function:cubic-bezier(.4,0,1,1)}53.571429%{--so:0;--sy:-1;animation-timing-function:step-end}100%{--so:0;--sy:-1}}
-:is(.poster-svg,.poster-cta) .sw{animation:swE 8.96s linear calc(var(--s,0)*1ms) infinite both;opacity:var(--so);transform:translateY(calc(var(--sy)*var(--ty,8px)))}
+@keyframes swE{0%{opacity:1;transform:none;visibility:visible;animation-timing-function:cubic-bezier(.4,0,1,1)}3.571429%{opacity:0;transform:translateY(calc(-1*var(--ty,16px)));visibility:hidden;animation-timing-function:step-end}
+  50.892857%{opacity:0;transform:translateY(var(--ty,16px));visibility:hidden;animation-timing-function:cubic-bezier(0,0,.2,1)}55.357143%{opacity:1;transform:none;visibility:visible}100%{opacity:1;transform:none;visibility:visible}}
+@keyframes swZ{0%{opacity:0;transform:translateY(var(--ty,16px));visibility:hidden}0.892857%{opacity:0;transform:translateY(var(--ty,16px));visibility:hidden;animation-timing-function:cubic-bezier(0,0,.2,1)}5.357143%{opacity:1;transform:none;visibility:visible}
+  50%{opacity:1;transform:none;visibility:visible;animation-timing-function:cubic-bezier(.4,0,1,1)}53.571429%{opacity:0;transform:translateY(calc(-1*var(--ty,16px)));visibility:hidden;animation-timing-function:step-end}100%{opacity:0;transform:translateY(calc(-1*var(--ty,16px)));visibility:hidden}}
+/* opacity/transform animated directly, and the hidden side is visibility:hidden, so the outgoing text can never be left painted at a near-zero opacity
+   (the faint English CTA residue Hang saw, 2026-11-02: the earlier registered --so/--sy numbers could leave the last sampled frame painted) */
+:is(.poster-svg,.poster-cta) .sw{animation:swE 8.96s linear calc(var(--s,0)*1ms) infinite both}
 :is(.poster-svg,.poster-cta) :is(.sw-z,.cta-zh){animation-name:swZ}
 html.swp :is(.poster-svg,.poster-cta) .sw{animation-play-state:paused} /* tab hidden */
 /* CTA: both texts share one grid cell on the baseline (the cap's box is their union) */
 .poster-cta:has(.cta-zh){display:inline-grid;align-items:last baseline;justify-items:start}
 .poster-cta .cta-en,.poster-cta .cta-zh{grid-area:1/1;white-space:nowrap}
-.poster-cta .cta-zh{font-family:"Noto Sans JP Sub",var(--sans);font-size:.92em;letter-spacing:.02em}
-@media (prefers-reduced-motion:reduce){:is(.poster-svg,.poster-cta) .sw{animation:none!important;--so:1;--sy:0}.sw-z,.cta-zh{display:none!important}}
+.poster-cta .cta-zh{font-family:"Noto Sans JP Sub",var(--sans);letter-spacing:.02em}.poster-cta .cta-zh .cta-t{font-size:.92em} /* only the Japanese text is .92em: the arrow keeps the English size and baseline, so it sits at the same Y in both languages */
+@media (prefers-reduced-motion:reduce){:is(.poster-svg,.poster-cta) .sw{animation:none!important;opacity:1;transform:none;visibility:visible}.sw-z,.cta-zh{display:none!important}}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
