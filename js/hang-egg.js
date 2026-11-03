@@ -1,5 +1,5 @@
 /* HANG easter egg: click (or Enter/Space on) the copyright line, on the home page and case pages, to open a full-viewport layer in the page colour with the
-   wireframe HANG letters (js/hang-wire.js, loaded on the first open only, same ?v= as this file). Drag orbits a letter; it eases back along that drag. H A N G on the bottom row switches letters. Closes only on CLOSE (the Studio presentation's
+   wireframe HANG letters (js/hang-wire.js, loaded on the first open only, same ?v= as this file). Drag orbits a letter (a press on the letter itself; the empty page around it does nothing); it eases back along that drag. H A N G on the bottom row switches letters. Closes only on CLOSE (the Studio presentation's
    top-right "× CLOSE", same markup/classes; click/tap, Enter or Space) or Esc; clicks elsewhere on the layer do nothing; the animation loop and its observers are destroyed on close. Background --page; letters are ink strokes and follow the light/dark toggle live. The passcode gate still uses js/hang-cube.js; this egg does not. prefers-reduced-motion: no fades.
    The layer itself (lock, flow, toggle, keys, CLOSE entrance/exit) is shared as window.dbhLayer.open(cfg)/close(): the egg is one cfg;
    the FMSS case page's phone full-screen prototypes (js/case.js) are another. cfg: label, stage (inner HTML), cls, trg (focus fallback),

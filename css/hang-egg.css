@@ -35,7 +35,9 @@ footer.bot>span.hegg-trg:hover .c-eye-r{transition-delay:.224s}
    expanding panel, js/fs-motion.js timeline), no fade */
 .hegg.hegg-grow,.hegg.hegg-grow:focus,.hegg.hegg-grow:focus-visible{background:none;box-shadow:none;opacity:1;transition:none}
 .hegg-wire{position:absolute;inset:0;z-index:1;touch-action:none}
-.hegg-wire canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;background:transparent;user-select:none}
+.hegg-wire canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:default;touch-action:none;background:transparent;user-select:none}
+/* a drag starts only on the letter itself (js/hang-wire.js hit()): grab shows over the letter, not the whole page */
+.hegg-wire canvas.is-over{cursor:grab}
 .hegg-wire canvas.is-dragging{cursor:grabbing}
 .hegg-letters{position:fixed;left:0;right:0;bottom:calc(var(--tb-x, clamp(16px, 3vw, 32px)) + env(safe-area-inset-bottom, 0px));z-index:3;height:32px;margin:0;padding:0;display:flex;justify-content:center;align-items:center;gap:8px;pointer-events:none}
 .hegg-letters button{appearance:none;position:relative;border:0;outline:none;background:transparent;color:var(--ink);font:var(--t-label);font-size:20px;letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-transform:uppercase;-webkit-font-smoothing:none;height:32px;padding:0 14px;cursor:pointer;pointer-events:auto}
