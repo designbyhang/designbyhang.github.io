@@ -268,13 +268,13 @@ body.cs .media.mframe .car-slide img{display:block;width:100%;height:100%;object
    #f1f1f1 light / --frame dark. Video: the bare 636x1376 screen recording (1280 tier 502x1088), placed where the old 1624x1824 template
    showed its screen: .inc-tpl is that template's box (1624:1824, covering the frame as the old video did: +2px overscan each side), and
    .inc-scr the screen inside it (375:812 at 494,180, 1376 tall). The frame's vertical centre is the screen's (template y 868 = 180 + 1376/2;
-   the template's own centre, 912, left 180 above the screen and 268 below), so the phone has equal space above and below at every width; corners R48 at 375 wide (12.8% of the width), 60% smoothing by
-   js/squircle.js. Carousel: 1440x1620 slides of the same template (two phone screens + markers on a transparent ground, no label); they
+   the template's own centre, 912, left 180 above the screen and 268 below), so the phone has equal space above and below at every width; corners = the shared bare-screen corner (--phone-r, with the VAC
+   .pd-bare screens, below), 60% smoothing by js/squircle.js. Carousel: 1440x1620 slides of the same template (two phone screens + markers on a transparent ground, no label); they
    cross-fade (the outgoing one fades out too) so its markers never show through. Each slide covers the frame (cover size, 1.006 overscan)
    and is centred on its phones (slide y 162..1380, centre 771), not on the slide, so the phones sit level with the video's, centred vertically */
 body.cs .inc-col .media.mframe.pd-label{background:#f1f1f1;container-type:size}html[data-theme=dark] body.cs .inc-col .media.mframe.pd-label{background:var(--frame)}
 body.cs .inc-col .media.mframe.pd-label .inc-tpl{position:absolute;left:50%;top:50%;width:max(100cqw + 4px,(100cqh + 4px)*1624/1824);aspect-ratio:1624/1824;transform:translate(-50%,calc(-100%*868/1824))}
-body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;left:calc(100%*494/1624);top:calc(100%*180/1824);width:calc(100%*635.47/1624);height:calc(100%*1376/1824);overflow:hidden;border-radius:12.8%/5.911%;transform:translateZ(0)}
+body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;left:calc(100%*494/1624);top:calc(100%*180/1824);width:calc(100%*635.47/1624);height:calc(100%*1376/1824);overflow:hidden;transform:translateZ(0)}
 body.cs .inc-col .media.mframe.pd-label .inc-scr video{display:block;width:100%;height:100%;margin:0;object-fit:cover;background:none;border-radius:0;transform:none}
 body.cs .inc-col .media.mframe .car-track>*{transition:opacity 704ms cubic-bezier(.4,0,.2,1)}
 body.cs .inc-col .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:50%;width:max(100cqw,100cqh*1440/1620);max-width:none;height:auto;aspect-ratio:1440/1620;transform:translate(-50%,calc(-100%*771/1620)) scale(var(--ov,1.006));transform-origin:50% calc(100%*771/1620)}
@@ -427,16 +427,17 @@ html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:var(--frame)}
    within 0.04%), so no edge row is left for the downscaler to bleed in as a dark line */
 body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;border-radius:0;transform:none;transition:none}
 /* Bare screen (.phone-demo.pd-bare, VAC 02 Problem + 05 Current State, Hang Nov 2): no device frame in either theme, the screen sits
-   straight on the phone-demo ground. Corners R --pd-r/1376 of the screen height, drawn by js/squircle.js at 60% smoothing (corner-shape in
-   Chromium, a path() clip in WebKit): 104 by default (02 Problem); 80 on 05 Current State (Hang Nov 2), the FMSS 02 template's baked
-   iPhone corner (60% at R ~80/1376). No .mframe video #f1f1f1 fill: painted under the video and clipped on its own, it fringed the
-   screen's anti-aliased edge white on the dark ground (the 02 Ad screen's top) */
-body.cs .media.mframe.phone-demo.pd-bare{--pd-r:104}
-body.cs .pd-rows .media.mframe.phone-demo.pd-bare{--pd-r:80}
-body.cs .media.mframe.phone-demo.pd-bare .pd-phone{border-radius:calc(var(--pd-scr-h)*var(--pd-r)/1376)}
+   straight on the phone-demo ground. No .mframe video #f1f1f1 fill: painted under the video and clipped on its own, it fringed the
+   screen's anti-aliased edge white on the dark ground (the 02 Ad screen's top).
+   Bare-screen corner, one for every bare phone screen (VAC 02 + 05 .pd-bare, FMSS 02 Inconsistencies .inc-scr; Hang Nov 3): R --phone-r
+   in units of the screen's 1376px source height (R64 of the 636x1376 screen recordings), drawn by js/squircle.js at 60% smoothing
+   (corner-shape in Chromium, a path() clip in WebKit). Both boxes are 375:812, so the radius is a share of the box itself:
+   --phone-r/1376 of its height and the same length across (x 812/375 of its width) */
+:root{--phone-r:64}
+body.cs .media.mframe.phone-demo.pd-bare .pd-phone,body.cs .inc-col .media.mframe.pd-label .inc-scr{border-radius:calc(100%*var(--phone-r)*812/1376/375)/calc(100%*var(--phone-r)/1376)}
 body.cs .media.mframe.phone-demo.pd-bare .pd-phone video{background:none}
-/* 02 Problem's recordings are the bare 636x1376 screen cut from the old 1624x1824 baked template (screen at 494,180), so the screen is the
-   whole device box (--dev-h at --dev-pad); the R104 clip sits inside the template's own iPhone corner (60% smoothing at R ~80/1376) */
+/* 02 Problem's recordings are bare 636x1376 screens scaled from Hang's square-cornered 750x1624 recordings (Nov 3; nothing baked, the page
+   draws the corner), sized like the old 1624x1824 template's screen, so the screen is the whole device box (--dev-h at --dev-pad) */
 body.cs .fig.inc2 .media.mframe.phone-demo.pd-bare .pd-phone{--pd-scr-h:var(--dev-h);margin-top:var(--dev-pad)}
 /* Phone template (.pd-label, FMSS 02 Inconsistencies): placed as the old 1624x1824 baked template (phone screen 1376 tall at y 180), now
    with nothing baked (see the .inc-tpl / .inc-scr rules above; ground #f1f1f1 light / --frame dark, the same grounds as .phone-demo).
