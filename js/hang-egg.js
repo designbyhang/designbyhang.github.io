@@ -112,9 +112,16 @@ const coarse=matchMedia('(pointer: coarse)');
 function armMotion(){if(!coarse.matches||reduce.matches)return;const D=window.DeviceOrientationEvent;if(!D)return;
   try{window.__dbhMotion=typeof D.requestPermission==='function'?D.requestPermission().catch(()=>'denied'):Promise.resolve('granted');}
   catch(_){window.__dbhMotion=Promise.resolve('denied');}}
-/* touch has no hover: the © smiles 640ms after the copyright line is fully in view (css/hang-egg.css .is-smile), and again each time it comes back; leaving view cancels a pending smile and turns it back into the C at once */
-if(!matchMedia('(hover:hover) and (pointer:fine)').matches&&'IntersectionObserver' in window){let smileT=0;
-  new IntersectionObserver(([e])=>{clearTimeout(smileT);if(e.isIntersecting)smileT=setTimeout(()=>trg.classList.add('is-smile'),640);else trg.classList.remove('is-smile');},{threshold:1}).observe(trg);}
+/* touch has no hover: while the copyright line is fully in view the © loops C -> smile -> C (css/hang-egg.css .is-smile): each step
+   toggles the class, its transition plays (384ms either way), then it holds 2000ms (smile, then C), so a step every 2384ms. The loop
+   starts on the smile as the line comes into view and stops, back to the C at once, when it leaves view, when the page is hidden
+   (visibilitychange; it restarts on return if still in view) or under prefers-reduced-motion: reduce (static C). Desktop (fine
+   pointer with hover) never gets the class; it smiles on :hover only. */
+if(!matchMedia('(hover:hover) and (pointer:fine)').matches&&'IntersectionObserver' in window){let loopT=0,seen=false;
+  const STEP=2384,stop=()=>{clearInterval(loopT);loopT=0;trg.classList.remove('is-smile');},
+   run=()=>{stop();if(!seen||document.hidden||reduce.matches)return;trg.classList.add('is-smile');loopT=setInterval(()=>trg.classList.toggle('is-smile'),STEP);};
+  new IntersectionObserver(([e])=>{seen=e.isIntersecting;run();},{threshold:1}).observe(trg);
+  document.addEventListener('visibilitychange',run);if(reduce.addEventListener)reduce.addEventListener('change',run);}
 trg.addEventListener('click',()=>{armMotion();openEgg();});
 trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();armMotion();openEgg();}});
 /* restore after a refresh: the page at its footer, the layer already on. ?fs=hang; an old ?fs=egg still opens and is rewritten to hang. */
