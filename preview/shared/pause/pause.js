@@ -11,10 +11,11 @@
        video  the reel's <video>, or a function returning the one on screen now (null: none)
        at     an empty element the host places (its z-order: above the host's input layer, so the track takes its own presses); the
               controls are drawn in it, in the screen's 375×812 design px
-       bar    the top of the bottom bar (design px): the track's 12px band (the 10px thumb) ends 8px above it (track centre bar - 14,
-              as the split screen's 14 above its sheet)
+       bar    the top of the bottom bar (design px): the 4px track ends 12px above it (track centre bar - 14) and runs 12px in from
+              each side of the screen, the 10px thumb not counted
        scope  the element (or a function returning it) holding the reel's overlay: its pieces ([data-reel] rail / details / more / cta /
-              pill, the shared caption's .c-stack, the shared UFI's .r-ufi) move up LIFT = 12 + 8 = 20px, in step with the controls'
+              pill, the shared caption's .c-stack, the shared UFI's .r-ufi) move up (by what puts the lowest CTA / pill / caption 20px over the
+              track: measured per reel, see amount()), in step with the controls'
               opacity (in 240ms ease-out, out on the split screen's 320ms ease-out), so nothing overlaps; lift: a function returning
               the pieces instead, for an overlay that is not built from those; also: a function returning pieces outside the scope that
               belong to the overlay (a press highlight or a button laid over the CTA)
@@ -34,7 +35,9 @@ const CSS='.fmss-pz.fmss-pz{position:absolute;display:grid;place-items:center;wi
   '.fmss-pz.fmss-pz svg{width:30px;height:30px;margin-left:4px;opacity:.9}'+
   '.fmss-rc.fmss-rc{position:absolute;left:0;top:0;width:375px;height:812px;margin:0;pointer-events:none}';
 const GLYPH='<svg viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="#fff"/></svg>';
-const GAP=8,BAND=12,LIFT=BAND+GAP;
+const BELOW=12,TRACK=4,ABOVE=20,LIFT=20;   // the track (4px; its 10px thumb not counted): 12px above the bar, 12px in from each side
+                                          // (VideoScrubber's x 12, w 351), and 20px under the lowest lifted CTA / pill / caption
+const RAIL='.r-ufi,.ufi,[data-reel=rail]';   // the action rail sits beside the track's right end, not over the CTA: not measured
 const MEDIA='video,[data-media]';   // never lifted (nor anything that holds one)
 const SEL='[data-reel=rail],[data-reel=details],[data-reel=more],[data-reel=cta],[data-reel=pill],.c-stack,.r-ufi';
 function css(){if(document.getElementById('fmss-pz-css'))return;const s=document.createElement('style');s.id='fmss-pz-css';s.textContent=CSS;document.head.appendChild(s)}
@@ -46,11 +49,19 @@ function mount(el,o){
   function pieces(){let a;if(o.lift)a=[...(fn(o.lift)()||[])];else{const s=o.scope?fn(o.scope)():null;a=s?[...s.querySelectorAll(SEL)]:[]}
     if(o.also)a=a.concat([...(fn(o.also)()||[])]);a=a.filter(e=>e&&!e.matches(MEDIA)&&!e.querySelector(MEDIA));
     return a.filter(e=>!a.some(p=>p!==e&&p.contains(e)))}   // a piece inside another moves with it
-  function lift(r,op){const y=LIFT*op;if(r===cur)lifted=y;r.els.forEach(e=>{e.style.translate=op>0?'0 '+(-y).toFixed(2)+'px':''})}
+  /* how far this reel's overlay rises: so its lowest CTA / pill / caption (the rail aside) ends ABOVE px over the track's top edge,
+     measured on the pieces at rest (a piece whose box is larger than what it draws, e.g. a full-screen baked image, says where its
+     drawing ends: data-ui-bottom, design px from its top); never down, LIFT if there is nothing to measure */
+  function amount(els){if(!at)return LIFT;const a=at.getBoundingClientRect(),k=a.width/375;if(!k)return LIFT;let lo=-1;
+    els.forEach(e=>{if(e.matches(RAIL))return;const b=e.getBoundingClientRect();if(!b.height)return;
+      const ub=e.dataset&&e.dataset.uiBottom,sh=parseFloat((e.style.translate||'').split(' ')[1])||0;
+      const y=(ub!=null?(b.top-a.top)/k+parseFloat(ub):(b.bottom-a.top)/k)-sh;if(y>lo)lo=y});
+    return lo<0?LIFT:Math.max(0,Math.round(lo-(o.bar-BELOW-TRACK-ABOVE)))}
+  function lift(r,op){const y=r.lift*op;if(r===cur)lifted=y;r.els.forEach(e=>{e.style.translate=op>0?'0 '+(-y).toFixed(2)+'px':''})}
   function ctl(v){if(!v||!at||!window.VideoScrubber||o.bar==null)return null;let r=map.get(v);if(r)return r;
-    r={v,els:[]};r.s=VideoScrubber.create({video:v,reel:true,trackY:o.bar-GAP-BAND/2,height:812,document:el.ownerDocument,onOpacity:op=>lift(r,op)});
+    r={v,els:[],lift:LIFT};r.s=VideoScrubber.create({video:v,reel:true,trackY:o.bar-BELOW-TRACK/2,height:812,document:el.ownerDocument,onOpacity:op=>lift(r,op)});
     at.appendChild(r.s.el);map.set(v,r);return r}
-  function show(r){if(cur&&cur!==r){const c=cur;cur=null;c.s.hide();lift(c,0)}if(cur!==r){cur=r;r.els=pieces()}}
+  function show(r){if(cur&&cur!==r){const c=cur;cur=null;c.s.hide();lift(c,0)}if(cur!==r){cur=r;r.els=pieces();r.lift=amount(r.els)}}
   function drop(){if(!cur)return;const c=cur;c.s.hide();lift(c,0);cur=null;lifted=0}
   return {el,get on(){return el.classList.contains('on')},get paused(){return held},get lift(){return lifted},
     set(on,tap){on=!!on;el.classList.toggle('on',on);if(!vf)return;
