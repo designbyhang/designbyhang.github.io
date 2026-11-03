@@ -94,6 +94,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 @media (max-width:900px){.meta.results{grid-template-columns:1fr}.meta.results>div,.meta.results>div+div{padding:0;border-left:0}.meta.results>div+div{margin-top:28px;padding-top:28px}.meta.results>div+div{border-top:1px solid var(--line)}.meta.results p{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 /* next */
 .next{margin-top:clamp(80px,10vw,128px);padding:0;border:1px solid var(--line);background:var(--c-slot)} /* same ground as the case media containers (--c-slot: #f8f8f8 / #202020) */
+html[data-theme=dark] .next{background:var(--frame)} /* dark: the media container ground (--frame #161616, Hang Nov 2); light keeps --c-slot */
 .next-hit{display:grid;grid-template-columns:1fr 62%;align-items:center;gap:40px;padding:39px 39px 39px 40px;color:inherit;text-decoration:none} /* 39 + 1px border = 40px from the aside edge */
 .next-card{display:block;container-type:inline-size}
 .next .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:round(calc(100cqi / 30), 2px);overflow:hidden;isolation:isolate;transform:translateZ(0);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04)}
