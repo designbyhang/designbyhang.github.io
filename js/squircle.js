@@ -13,9 +13,15 @@
    - 'clip' (Safari, Firefox; any browser with clip-path:path()): a clip-path from path(), sized by a ResizeObserver. It never cuts a box-
      shadow or an outer ring: elements that cast a shadow only lose the thin slivers between their circular corner and the smoothed one
      (a pure spread ring, e.g. a phone bezel, is smoothed on its own outer edge instead). A ::before/::after border ring that inherits the
-     radius (VAC phone outlines) is redrawn as a smoothed ring ([data-sq-ring]). Page-size containers and anything holding an <iframe>
-     (live prototypes lift out of the sheet to full screen as position:fixed; a clip-path would clip and re-stack them) get no clip:
-     their four corner slivers are painted over in the backdrop colour instead (background tiles, [data-sq-bd]).
+     radius (VAC phone outlines) is redrawn as a smoothed ring ([data-sq-ring]); so is the element's own solid border (VAC conviction
+     cards): the clip runs inside the circular border near each corner and cut it thin there, so it is painted instead as a smoothed ring
+     (outer curve to the curve inset by the border widths) through an inline border-image: an SVG stretched 1:1 over the border box (no
+     layout change: the border widths and the author's background stay; no CSS border is drawn while a border-image is set). With a full
+     clip the ring's outer curve is grown 1px and cut back by the clip, so only one antialiased edge meets the backdrop (two coinciding
+     ones read as a thinner line). A tracked element first read while hidden (0 x 0) is read again once it has a size, and every re-read
+     drops [data-sq-ring] first, so the author's ::before/::after is what gets matched, not the ring drawn over it. Page-size containers
+     and anything holding an <iframe> (live prototypes lift out of the sheet to full screen as position:fixed; a clip-path would clip and
+     re-stack them) get no clip: their four corner slivers are painted over in the backdrop colour instead (background tiles, [data-sq-bd]).
    [data-sq-tile] opts any element into those tiles in every mode, drawn on its ::after over its content (homepage cards: a full-bleed
    cover under a plain circular overflow clip moves with the rail, no corner-shape or clip-path mask redrawn with it).
    Left alone everywhere: pills and circles (radius >= half the short side: smoothing is a no-op there), elements that already carry
@@ -69,6 +75,10 @@ function sliverList(w,h,Rs,sm,ox=0,oy=0){
     return s});
 }
 const slivers=(w,h,Rs,sm,ox,oy)=>sliverList(w,h,Rs,sm,ox,oy).join('');
+/* the smoothed ring between the outer curve and the curve inset by the border widths [t,r,b,l] (evenodd: two sub-paths) */
+const ADJ=[[0,3],[0,1],[2,1],[2,3]];   // tl tr br bl -> their two sides
+function ringPath(w,h,Rs,bw,sm,e=0){const [t,r,b,l]=bw;   // e: outer curve grown by e (cut back by the element's own clip, so only that edge is antialiased)
+  return (e?pathR(w+2*e,h+2*e,Rs.map(x=>x>.05?x+e:0),sm,-e,-e):pathR(w,h,Rs,sm))+pathR(Math.max(0,w-l-r),Math.max(0,h-t-b),Rs.map((x,i)=>Math.max(0,x-Math.max(bw[ADJ[i][0]],bw[ADJ[i][1]]))),sm,l,t)}
 
 const api={path,pathR,slivers,SMOOTH:SM,K,F,mode:'off',refresh:()=>{},scan:()=>{}};
 window.Squircle=api;
@@ -108,11 +118,15 @@ function read(r){
   if(ic&&ic!==r.myClip||!ic&&cs.clipPath!=='none')return r.skip='clip';   // shaped by its own clip-path already
   r.rad=LONG.map(k=>cs[k]);
   if(r.par&&T.get(r.par)){const pc=getComputedStyle(r.par);r.inh=LONG.every((k,i)=>r.rad[i]===pc[k])}else r.inh=false;   // radius: inherit
-  r.sh=shadows(cs.boxShadow).filter(s=>!s.inset);r.ov=cs.overflowX==='visible'&&cs.overflowY==='visible';r.skip=null;
+  r.r0=r.w<1||r.h<1;r.sh=shadows(cs.boxShadow).filter(s=>!s.inset);r.ov=cs.overflowX==='visible'&&cs.overflowY==='visible';r.skip=null;
   const big=r.h>2*innerHeight;r.tile=e.hasAttribute('data-sq-tile');
   r.bd=r.tile||(MODE==='clip'?e.tagName!=='IFRAME'&&(!!e.querySelector('iframe')||big):big)&&cs.backgroundImage==='none'||(r.bd&&r.bdOn);
   if(r.bd)r.bdc=backdrop(e);
   if(MODE==='clip'){
+    r.edge=null;const ib=e.style.borderImageSource;
+    if(ib?ib===r.myBI:cs.borderImageSource==='none'){   // a solid border of one visible colour (not the author's own border-image)
+      const S=['Top','Right','Bottom','Left'],bw=S.map(k=>parseFloat(cs['border'+k+'Width'])||0),c=cs.borderTopColor;
+      if(bw.some(x=>x>0)&&S.every((k,i)=>!bw[i]||cs['border'+k+'Style']==='solid'&&cs['border'+k+'Color']===c)&&!/rgba\(.*,\s*0\)$|transparent/.test(c))r.edge={bw,c}}
     r.ring=[];['::before','::after'].forEach((pe,i)=>{const c=getComputedStyle(e,pe);if(c.content==='none'||c.display==='none')return;
       const bw=parseFloat(c.borderTopWidth)||0;
       if(bw>0&&c.borderTopStyle!=='none'&&LONG.every((k,j)=>c[k]===r.rad[j])&&/rgba\(0, 0, 0, 0\)|transparent/.test(c.backgroundColor)&&c.backgroundImage==='none'&&
@@ -126,7 +140,7 @@ function read(r){
 function pill(r){const m=Math.min(r.w,r.h)/2-.5;return r.w<1||r.h<1||r.rad.every(zero)||r.rad.some(v=>rpx(v,r.w,r.h)>=m)}
 function clear(r){const s=r.el.style;
   if(r.on==='shape'){r.mine=null;LONG.forEach((k,i)=>s[k]=r.ai[i]);s.removeProperty('corner-shape');r.el.removeAttribute('data-sq-pe')}
-  if(r.on==='clip'){if(s.clipPath===r.myClip)s.clipPath='';r.myClip=null;
+  if(r.on==='clip'){if(s.clipPath===r.myClip)s.clipPath='';r.myClip=null;if(r.myBI&&s.borderImageSource===r.myBI)s.borderImage='';r.myBI=r.biv=null;
     ['b','a'].forEach(k=>{s.removeProperty('--sq-ring-'+k);s.removeProperty('--sq-ring-'+k+'-c')});r.el.removeAttribute('data-sq-ring')}
   if(r.bdOn){['backgroundImage','backgroundPosition','backgroundSize','backgroundRepeat','backgroundOrigin'].forEach(k=>s[k]='');['--sq-ti','--sq-tp','--sq-ts'].forEach(k=>s.removeProperty(k));r.bdOn=false;r.el.removeAttribute('data-sq-bd')}
   r.on=null;r.el.removeAttribute('data-sq');
@@ -150,15 +164,18 @@ function write(r){
     if(r.pe.length)e.setAttribute('data-sq-pe',r.pe.join(' '));else e.removeAttribute('data-sq-pe');
   }else{
     const w=r.w,h=r.h,R=r.rad.map(v=>rpx(v,w,h));
-    let v;
-    if(!r.sh.length&&!r.ov)v=`path('${pathR(w,h,R,SM)}')`;
+    let v;const full=!r.sh.length&&!r.ov;
+    if(full)v=`path('${pathR(w,h,R,SM)}')`;
     else{const rg=r.sh.filter(q=>!q.x&&!q.y&&!q.b&&q.s>0),ring=rg.length>0,sp=ring?Math.max(...rg.map(q=>q.s)):0;   // a hairline ring is the visible edge: smooth its outside
       const E=r.ov?4096:Math.ceil(Math.max(0,...r.sh.map(q=>Math.max(Math.abs(q.x),Math.abs(q.y))+q.b*1.5+Math.max(0,q.s))))+4;
       const cut=ring?slivers(w+2*sp,h+2*sp,R.map(x=>x>.05?x+sp:0),SM,-sp,-sp):slivers(w,h,R,SM);
       v=`path(evenodd,'M${-E} ${-E}H${w+E}V${h+E}H${-E}Z${cut}')`}
     if(s.clipPath!==v)s.clipPath=v;r.myClip=s.clipPath;
-    const rk=[];(r.ring||[]).forEach(q=>{const b=q.bw,o=pathR(w,h,R,SM),i=pathR(w-2*b,h-2*b,R.map(x=>Math.max(0,x-b)),SM,b,b);
-      s.setProperty('--sq-ring-'+q.k,`path(evenodd,'${o}${i}')`);s.setProperty('--sq-ring-'+q.k+'-c',q.c);rk.push(q.k)});
+    if(r.edge){const v=`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${f3(w)}' height='${f3(h)}' viewBox='0 0 ${f3(w)} ${f3(h)}' preserveAspectRatio='none'><path fill='${r.edge.c}' fill-rule='evenodd' d='${ringPath(w,h,R,r.edge.bw,SM,full?1:0)}'/></svg>`)}") 0 fill / 0 / 0 stretch`;
+      if(v!==r.biv){s.borderImage=v;r.biv=v;r.myBI=s.borderImageSource}}
+    else if(r.myBI){if(s.borderImageSource===r.myBI)s.borderImage='';r.myBI=r.biv=null}
+    const rk=[];(r.ring||[]).forEach(q=>{const b=q.bw;
+      s.setProperty('--sq-ring-'+q.k,`path(evenodd,'${ringPath(w,h,R,[b,b,b,b],SM,full?1:0)}')`);s.setProperty('--sq-ring-'+q.k+'-c',q.c);rk.push(q.k)});
     if(rk.length)e.setAttribute('data-sq-ring',rk.join(' '));else e.removeAttribute('data-sq-ring');
   }
   r.on=MODE;e.setAttribute('data-sq','');
@@ -169,7 +186,8 @@ let vp='';const ro=new ResizeObserver(es=>{const rs=[],V=innerWidth+'x'+innerHei
   es.forEach(en=>{const r=T.get(en.target);if(!r)return;const bs=en.borderBoxSize&&en.borderBoxSize[0];
     const w=bs?bs.inlineSize:en.target.offsetWidth,h=bs?bs.blockSize:en.target.offsetHeight;
     if(r.on&&Math.abs(w-r.w)<.01&&Math.abs(h-r.h)<.01)return;const big=h>2*innerHeight!==r.h>2*innerHeight;r.w=w;r.h=h;
-    if(!r.rad||r.skip||r.bd||big||vc||dirty.has(r))rs.push(r);   // a size-only change keeps the radius/shadow read last time: no getComputedStyle
+    if(!r.rad||r.r0||r.skip||r.bd||big||vc||dirty.has(r))rs.push(r);   // a size-only change keeps the radius/shadow read last time: no getComputedStyle
+                                                               // (unless that read was at 0 x 0, hidden: its ::before/::after rings couldn't be matched to the box)
     else if(MODE==='clip')rsz.push(r);                         // (a forced style recalc in the middle of every animated frame in WebKit/Safari):
     else if(pill(r)!==!r.on)rs.push(r)});                      // clip re-paths at the new size; shape scales by itself, only a pill flip re-derives
   update(rs);rsz.forEach(write);rsz=[]});
@@ -197,12 +215,13 @@ function update(rs){if(!rs.length)return;
     if(!r.mine){r.ai=now;return}
     if(now.some((v,i)=>v!==r.mine[i]))r.ai=now;   // the author's own inline radius (a script's write), else theirs from before
     LONG.forEach((k,i)=>s[k]=r.ai[i])});
+  if(MODE==='clip')rs.forEach(r=>r.el.removeAttribute('data-sq-ring'));   // read the author's ::before/::after, not the ring drawn over them (write puts it back)
   rs.forEach(r=>{read(r);if(MODE==='clip')r.lastInline=LONG.map(k=>r.el.style[k]).join()});
   rs.forEach(write);
   if(MODE==='shape')rs.forEach(r=>r.lastInline=LONG.map(k=>r.el.style[k]).join())}
 function track(e,par){
   if(T.has(e))return;
-  const r={el:e,par,w:0,h:0,on:null,ai:LONG.map(k=>e.style[k]),mine:null,myClip:null,lastInline:LONG.map(k=>e.style[k]).join()};
+  const r={el:e,par,w:0,h:0,on:null,ai:LONG.map(k=>e.style[k]),mine:null,myClip:null,myBI:null,lastInline:LONG.map(k=>e.style[k]).join()};
   T.set(e,r);live.add(r);ro.observe(e);
 }
 const SKIP=/^(HTML|BODY|HEAD|SCRIPT|STYLE|LINK|META|SOURCE|TRACK|BR|TEMPLATE|svg)$/i;
