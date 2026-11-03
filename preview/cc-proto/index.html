@@ -193,7 +193,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),touch=$('touch');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
-const V='?v=355',AV='../../assets/vac/vac-cc-';
+const V='?v=355',AV='../../assets/vac/vac-cc-',VV=id=>id==='nike'?'?v=362':V;   // VV: the seed's Vomero Premium footage (v362)
 
 /* ---------- fit phone to container (as preview/sap-proto) ---------- */
 function fit(){
@@ -230,9 +230,9 @@ const BADGE='<img class="cbadge" alt="" src="../shared/reel/verified.png?v=359">
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
 function page(id){
-  const d=R[id],p=document.createElement('div');p.className='L pg';p.id='p-'+id;p.style.backgroundImage=`url(${AV}${id}.webp${V})`;
+  const d=R[id],p=document.createElement('div');p.className='L pg';p.id='p-'+id;p.style.backgroundImage=`url(${AV}${id}.webp${VV(id)})`;
   const lazy=id==='nike'||id==='nesp'?'auto':'metadata';
-  let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${V}" src="${AV}${id}.mp4${V}"></video><i class="tgrad"></i><i class="grad"></i>`;
+  let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${VV(id)}" src="${AV}${id}.mp4${VV(id)}"></video><i class="tgrad"></i><i class="grad"></i>`;
   h+=ReelsUFI.html(d.ufi);
   const row=(sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${BADGE}${mark}</p><p class="c-sp">${esc(sub)}</p>`;
   if(d.kind==='ad')h+=`<div class="c-stack">${row('Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
@@ -571,7 +571,7 @@ function cover(then){
 const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);addEventListener('load',measureTabs);
 (function(){
-  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+V,AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V,'../sap-proto/assets/nav.webp?v=263']);
+  const imgs=[...PG.nike.querySelectorAll('img')].map(i=>i.src).concat([AV+'nike.webp'+VV('nike'),AV+'nesp.webp'+V,'assets/av-nike.webp'+V,'assets/chevron.svg'+V,'../sap-proto/assets/nav.webp?v=263']);
   const nv=VID.nike,prep=INL()?firstFrame(nv).then(()=>seekTo(nv,NIKE_IN)):firstFrame(nv);
   const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(VID.nesp),document.fonts?document.fonts.ready:0]));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;measureTabs();
