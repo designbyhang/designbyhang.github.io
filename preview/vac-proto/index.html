@@ -87,7 +87,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* FMSS overlay bo1 (Solution 1's split screen): its close X (its status band is the screen's one status bar, .sb) */
 .bo{width:375px;height:406px;z-index:7;opacity:0}
 .box{clip-path:inset(44px 0 0 0)}
-.ctl{z-index:8}
+.ctlw{z-index:8;pointer-events:none}
+/* the live player controls (the shared VideoScrubber, js/video-scrubber.js, laid out in the 375-wide screen's px from its 0-tall root) sit
+   inside .ctlw, a box with the video container's shape (render(): the split video's rect, then the container itself as it grows into
+   Reels), centred on it and bottom-anchored: the root sits the split video's bottom (394, --ctl-b) above the box's bottom, so at rest
+   everything is exactly where the scrubber draws it, and as the container grows the controls keep their inset from its bottom edge */
+.ctlw>.ctl{left:50%;top:auto;bottom:var(--ctl-b);margin-left:-187.5px}
 .splx{left:325px;top:46px;width:44px;height:44px;z-index:9;border-radius:22px;display:none}
 .splx.on{display:block}
 /* the ad's CTAs (Feed: the porsche.com footer under the video, Learn more included; Reels: Learn more): each opens the full IAB.
@@ -154,7 +159,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L ufi" id="ufi"><i class="ufi" data-n="3.1K|1.7K|563|241"></i></div>
         <div class="L pzw" id="pzw"><div id="pz" aria-hidden="true"></div></div>
         <img class="L bo box" id="box" alt="" src="../fmss-sol1/assets/bo1.webp?v=5">
-        <i class="L" id="ctlAt"></i>
+        <div class="L ctlw" id="ctlw"><i id="ctlAt"></i></div>
         <button class="L btn splx" id="splx" type="button" aria-label="Close split screen"></button>
         <button class="L btn cta" id="ctaFeed" type="button" style="left:0;top:591px;width:375px;height:54px" aria-label="porsche.com, The Porsche Taycan, Learn more: open porsche.com in the in-app browser (IAB) full screen"></button>
         <i class="L dim" id="dim" aria-hidden="true"></i>
@@ -266,9 +271,12 @@ function render(){
   if(els.cap[0]){op(els.cap[0],k<1?c:0);els.cap[0].style.transform=tr(rx,pageY(0))}
   op(els.who[0],k<1?c:0);els.who[0].style.transform=tr(rx,pageY(0));
   const xo=pop?0:a*clamp(1-2*c);op(els.box,xo);   // the close X fades in and out in place, never moves (as the hero's .vc-box)
-  // the controls: up from 185px below with Feed → Split; into Reels they fade out sliding down, 88px over c (twice the split video's top
-  // inset, the media's own rise, mirrored), so a sheet released back to Split brings them back up from below (the hero's .vc-ctl, js/vac-chain.js)
-  if(ctl){ctl.style.transform=c>0?tr(0,2*(R.split[1]-R.reels[1])*c):tr(0,185*(1-a));op(ctl,xo);const hv=xo>.01?'':'hidden';if(ctl.style.visibility!==hv)ctl.style.visibility=hv}
+  // the controls: up from 185px below with Feed → Split (a transform, in the split video's box); into Reels (the sheet dragged or
+  // swiped down, c) their box is the video container itself (x, y, w, h above), so they ride its bottom edge 1:1 as it grows, fading out,
+  // and come back up with it when a released sheet snaps back to Split (layout, .ctlw: no translate of their own)
+  if(ctl){const cb=c>0&&!pop?[x,y,w,h]:R.split;ctlw.style.left=cb[0].toFixed(2)+'px';ctlw.style.top=cb[1].toFixed(2)+'px';
+    ctlw.style.width=cb[2].toFixed(2)+'px';ctlw.style.height=cb[3].toFixed(2)+'px';
+    ctl.style.transform=c>0?'':tr(0,185*(1-a));op(ctl,xo);const hv=xo>.01?'':'hidden';if(ctl.style.visibility!==hv)ctl.style.visibility=hv}
   for(let j=1;j<=N;j++){const e=els.p[j],o=c>=1||pop?(Math.abs(j-k)<1?1:0):0;op(e,o);e.style.transform=tr(rx,pageY(j));
     const cp=els.cap[j];if(cp){op(cp,o);cp.style.transform=tr(rx,pageY(j))}
     op(els.who[j],o);els.who[j].style.transform=tr(rx,pageY(j))}
@@ -288,8 +296,9 @@ function render(){
 /* ---------- the live player controls: the shared FMSS VideoScrubber (timestamp + 16px pill track, drag to seek). Its tap to pause is off
    here: a tap on the video in Split Screen opens Reels (below) ---------- */
 const VS=window.VideoScrubber;let vs=null,ctl=null;
+const ctlw=$('ctlw');ctlw.style.setProperty('--ctl-b',(R.split[1]+R.split[3])+'px');
 if(VS){vs=VS.create({video:vid,icons:'../fmss-sol1/assets/ci1.webp?v=5',trackY:SH-14,className:'L ctl',onExpand:()=>toReels()});ctl=vs.el;$('ctlAt').replaceWith(ctl)}
-else $('ctlAt').remove();
+else ctlw.remove();
 
 /* ---------- the IAB: the shared FMSS sheet. Two ways in, one sheet (porsche.com, the Taycan page):
    · Split Screen: the half sheet under the video, full screen on tap or swipe up, × back to half, swiped down into Reels
