@@ -90,9 +90,8 @@ video{display:block;object-fit:cover}
 .card .th{position:absolute;left:10px;top:10px;width:36px;height:36px;border-radius:8px;background:#333 50% 50%/cover no-repeat}
 .card .t,.card .u{display:block;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card .u{margin-top:-2px;font:var(--t-r-body-s);letter-spacing:var(--t-r-body-s-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.85);-webkit-font-smoothing:antialiased}
-/* the nav's material (home button, query pill): the shared Reels nav glass (preview/shared/material: a 25px backdrop blur under #252525 at 55%
-   with a #9C9C9C overlay, SAP's For you pill, Figma). It must not be a stacking context, so the home button and the pill take no z-index:
-   they stack by DOM order, above the feed and CC layers, under the glow and everything after it */
+/* the nav's material (home button, query pill): the shared Reels nav glass (preview/shared/material: Apple's thin dark glass, a 20pt blur
+   with saturate 180% under a 22% tint). The home button and the pill stack by DOM order, above the feed and CC layers, under the glow */
 .press{position:absolute;inset:0;background:rgba(0,0,0,.24);opacity:0;transition:opacity .248s var(--ease);border-radius:inherit;pointer-events:none;z-index:2}
 .press.on{opacity:1;transition-duration:.12s}
 /* top bars: the feed's (Figma CC poster) and CC's: back chevron 24 at 12,58, the tabs from x 40 (SF Semibold 17, 20 apart; active white,
