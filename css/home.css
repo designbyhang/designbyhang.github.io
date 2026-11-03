@@ -250,8 +250,11 @@ button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;fo
 .home .top nav a:hover::after,.home .top nav a:focus-visible::after,.home .bot a:hover::after,.home .bot a:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.home .top nav a::after,.home .bot a::after{transition:none}}
 .poster-cta .cta-t{position:relative}
-.poster-cta .cta-t::after{content:"";position:absolute;left:0;right:0;bottom:-.12em;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.poster-cta:hover .cta-t::after,.poster-cta:focus-visible .cta-t::after{transform:scaleX(1)}
+/* underline thickness = the arrow's stroke (.poster-title .arr path: 1.5px, 1px on phone landscape), in the same local px, so the strip's scale() thickens both alike.
+   Drawn as a 1px box stretched by scaleY (from its bottom edge, so the offset is unchanged): a 1.5px box is pixel-snapped to 1 or 2px before the scale (Chrome), a transform is not */
+.poster-cta{--ul:1.5}@media (orientation:landscape) and (max-height:500px){.poster-cta{--ul:1}}
+.poster-cta .cta-t::after{content:"";position:absolute;left:0;right:0;bottom:-.12em;height:1px;background:currentColor;transform:scale(0,var(--ul));transform-origin:0 100%;transition:transform .25s ease}
+.poster-cta:hover .cta-t::after,.poster-cta:focus-visible .cta-t::after{transform:scale(1,var(--ul))}
 @media (prefers-reduced-motion:reduce){.poster-cta .cta-t::after{transition:none}}
 .home .brand{justify-self:start;width:fit-content}.home .brand:hover,.home .brand:focus-visible{color:var(--ink)!important;text-decoration:none}
 /* links: underline the text only, never the arrow */
