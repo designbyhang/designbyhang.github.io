@@ -56,10 +56,10 @@ function fitOpen(){if(state==='open'){const b=fullBox();fitBox(b.x,b.y,b.w,b.h,b
 if(window.ResizeObserver)new ResizeObserver(fitClosed).observe(host);
 addEventListener('resize',()=>{fitClosed();fitOpen();if(state==='open')chrome();});
 /* CLOSE/counter take the light or dark site colours to suit the slide's canvas. Status bar / toolbar / overscroll colour
-   (theme-color + html/body bg) is the standard stage colour, #f4f4f4 light / #222222 dark: js/theme.js applies it while
+   (theme-color + html/body bg) is the standard stage colour, the --frame token (#f4f4f4 light / #161616 dark): js/theme.js applies it while
    html.deck-lock is set and follows the toggle live; removing the class restores the page values. */
-function canvasColor(){return deck.canvas()||(deck.dark?'#222222':'#f4f4f4');}
-const stageColor=()=>deck.dark?'#222222':'#f4f4f4';
+const stageColor=()=>getComputedStyle(document.documentElement).getPropertyValue('--frame').trim();
+function canvasColor(){return deck.canvas()||stageColor();}
 const lumOf=c=>{const v=(c.match(/\d+/g)||[244,244,244]).slice(0,3).map(Number);return c[0]==='#'?parseInt(c.slice(1,3),16):(.3*v[0]+.59*v[1]+.11*v[2]);};
 /* TRUE fullscreen: once the open animation has finished, html.deck-flow hides the page (display:none) and puts the layer in
    normal flow as the document itself (one viewport + 2px, scroll 0; body = stage colour, js/theme.js). Closing restores the fixed
