@@ -388,7 +388,7 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
    05 stacked with no gap so the modules meet corner to corner. Layout = the FMSS Inconsistencies pair (.inc2 .inc-row / .inc-col: two
    equal columns, 24px gap, 1920/2052 frames; .pd-baked boxes on portrait tablets; 4:5 phones), so each module is exactly the FMSS column width.
    Module (.media.mframe.phone-demo, VAC 05 rows and VAC 09 .pd-solo): follows the theme, #f1f1f1 ground + 12% black bezel in light,
-   #1d1d1d + 20% white in dark, one 375x812 phone recording. Geometry = the shared phone-container rule (Hang, Oct 27; the same tokens
+   --frame (#161616) + 20% white in dark, one 375x812 phone recording. Geometry = the shared phone-container rule (Hang, Oct 27; the same tokens
    and values as the phone-spacing branch's .dev): the module is --mbox-h tall inside its 1px border (8px grid), the device (screen
    812/828 of it + an 8/828 bezel ring outside, corners 48/828) sits --dev-pad (24px) from the top and the bottom, centred across:
    device 384px tall on phones, 488px at 1440. Controls (.vid-btn, 32px / 16px corner insets) sit over it and never move the phone.
@@ -404,7 +404,7 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
    --toc-reserve = toc right inset 24 + toc width 200 + 32 gap + 8 for the classic-scrollbar half-offset = 264 per side */
 @media (min-width:1800px){:root{--toc-reserve:264px;--mbox-h:clamp(432px,round(down,calc((min(100vw - 2*var(--toc-reserve),1440px) - 2*clamp(20px,5vw,72px))*.534375),8px),664px)}.sheet,.foot{max-width:min(1440px,100vw - 2*var(--toc-reserve))}.sec-grid>.prose{margin-left:max(0px,calc(50% - 380px))}}
 body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
-html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
+html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:var(--frame);--pd-bezel:rgba(255,255,255,.2)}
 .phone-demo .pd-phone{position:relative;flex:none;height:calc(var(--dev-h)*812/828);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812;border-radius:calc(var(--dev-h)*48/828);overflow:hidden;box-shadow:0 0 0 calc(var(--dev-h)*8/828) var(--pd-bezel);transform:translateZ(0)}
 /* the recording fills the screen exactly (object-fit:cover, no zoom), so nothing of the recorded design is clipped: the 750x1624 captures'
    dark capture edge (cols 0-1/748-749, rows 0-3/1620-1623) is cropped out of the files themselves (746x1616, the screen's 375:812
