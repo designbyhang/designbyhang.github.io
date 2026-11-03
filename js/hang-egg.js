@@ -102,7 +102,7 @@ if(window.dbhView.get()&&'scrollRestoration' in history)history.scrollRestoratio
 if(!trg)return;
 trg.classList.add('hegg-trg');trg.tabIndex=0;trg.setAttribute('role','button');trg.setAttribute('aria-haspopup','dialog');trg.setAttribute('aria-label',trg.textContent.trim()+': play the HANG animation');
 /* full-viewport wire letters (js/hang-wire.js). The host fills the layer; H A N G is centred on the bottom row, level with the theme toggle. */
-const EGG={label:'HANG',trg,view:'hang',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
+const EGG={label:'HANG',cls:'hegg-egg',trg,view:'hang',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
  tabs(){return inst&&inst.tabs?inst.tabs():[];},
  key(e){return !!(inst&&inst.key&&inst.key(e));},
  mount:o=>lib().then(()=>{if(ov!==o)return null;return window.HangWire.mount(o.querySelector('.hegg-wire'));})};
