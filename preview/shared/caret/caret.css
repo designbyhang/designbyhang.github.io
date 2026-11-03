@@ -1,0 +1,4 @@
+/* the iOS text caret: one live element for the FMSS composer fields (Messenger's "Write a message..." on the Business Messages full
+   screen, fmss-sol1 phone 3 and fmss-all Watch & Message), over the screen image, whose own baked caret was taken out of it. Sampled
+   from that image (assets/c3.webp, 2x): 1.5 x 20 design px at 30,485, round ends, its core colour */
+.ios-caret{position:absolute;width:1.5px;height:20px;border-radius:.75px;background:#1065EA;pointer-events:none}

@@ -13,7 +13,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/theme.css?v=378"><link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/feed/feed.css?v=359">
+<link rel="stylesheet" href="../../css/theme.css?v=378"><link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/feed/feed.css?v=359"><link rel="stylesheet" href="../shared/caret/caret.css?v=398">
 <style>
 :root{--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--line:#2a2a2a;--ink:#f2f2f2}
@@ -58,6 +58,7 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
  .scr .cs{right:auto;width:calc(383px * var(--s,.5));height:calc(28px * var(--s,.5))}}
 /* full screen (C) bottom underlay: a solid strip in the C screen's own bottom colour (toolbar / keyboard / sheet), under C, riding with it and running 4px past the screen edge (clipped by the screen), so the resampled edge row of the C image never lets the B webpage show through at the rounded bottom */
 .cu{position:absolute;left:-4px;right:-4px;top:780px;bottom:-4px}
+.ck{position:absolute;left:0;top:0;width:0;height:0;will-change:transform,opacity}
 /* status bar / IAB header seam: a strip in the C header colour, under the C status bar and header, riding with the header for the last 1% of split -> full
    (and while full), so the spring's sub-pixel tail never opens a hairline of the B media between the fixed status bar and the rising header */
 .cs{position:absolute;left:-4px;right:-4px;top:24px;height:28px}
@@ -73,13 +74,13 @@ html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
 </head>
 <body>
 <div class="wrap"><div class="mframe" id="frame" aria-hidden="true"><div class="stage" id="stage"></div></div></div>
-<script src="../../js/squircle.js?v=375"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../../js/device-cover.js?v=355"></script>
+<script src="../../js/squircle.js?v=375"></script><script src="../shared/iab/header.js?v=137"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../../js/device-cover.js?v=355"></script><script src="../shared/caret/caret.js?v=398"></script>
 <script>
 (function(){
 const PH=[{"label": "Offsite Conversions", "top": 406}, {"label": "Lead Generation", "top": 406}, {"label": "Business Messages", "top": 406}, {"label": "App Installs", "top": 406}];
 /* media rects from the Figma frames: feed (A) full bleed x0 y216 375 wide; split screen (B) x12, 351 wide, radius 16 */
 const MED=[{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:375,by:44,bh:350},{ah:240,by:107,bh:225}];
-const V='?v=5';
+const V='?v=6';
 /* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
    a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
    ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
@@ -146,7 +147,8 @@ const CU=['#fff','#fff','#ccd1d8','#fff'];   // bottom colour of each C screen (
 const SC=['#fff','#f1f2f6','#fff','#f1f2f6'];   // B sheet colour (each bl image's own flat top rows): the live sheet top, .bk
 const anims=[],imgs=[],vids=[];
 const VS=window.VideoScrubber,split=VS&&VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]);
-const FDX=[96,164,112,140];   // A's verified badge x per phone (Nike, Meta for Work, Artifox, Chick-fil-A; Figma, at y 122), its globe 137,141
+const FDX=[96,164,112,140];
+const CK=[null,null,[30,485],null];   // C's composer caret (Business Messages: Messenger's "Write a message..."), the shared live one (../shared/caret)   // A's verified badge x per phone (Nike, Meta for Work, Artifox, Chick-fil-A; Figma, at y 122), its globe 137,141
 PH.forEach((p,i)=>{
   const top=p.top,up=top-44,dn=812-top,m=MED[i];
   const dev=document.createElement('div');dev.className='dev';dev.style.left=(90+i*455)+'px';
@@ -162,6 +164,7 @@ PH.forEach((p,i)=>{
     `<i class="L cu" style="background:${CU[i]}"></i>`+
     `<i class="L cs" style="background:${CS[i]}"></i>`+
     `<img class="L cb" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(${43/8.12}% 0 0 0)">`+
+    (CK[i]?`<i class="ck">${FMSSCaret.html(...CK[i])}</i>`:'')+
     `<img class="L ct" alt="" src="${AS}c${i+1}.webp${V}" style="clip-path:inset(0 0 ${768/8.12}% 0)">`+
     `</div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
@@ -196,6 +199,8 @@ PH.forEach((p,i)=>{
   A('.cu',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.6?1:0}));   // only while C is fully opaque over it, so it never brightens the dissolve
   A('.cb',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:clamp(p.c/.6)}));
   A('.ct',p=>({opacity:p.c}));
+  // the caret rides and dissolves with C (design px, not a drawn-size .L layer: it is small); its iOS blink runs on the loop clock while C is up (t2 -> t3)
+  if(CK[i]){A('.ck',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:clamp(p.c/.6)}));anims.push(q('.ios-caret').animate(FMSSCaret.loop(t2,t3,T),o))}
 });
 anims.forEach(a=>{a.pause();a.currentTime=0});
 /* drawn-size boxes in whole px: Chromium paints a box snapped to whole px of its own coordinate space, and a drawn-size layer's own space
