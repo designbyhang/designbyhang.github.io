@@ -46,9 +46,9 @@
      for (zero -> park start, park end -> zero; a console warning names a clip that does not, it would wrap mid-loop there)
   - reel (opt-in, o.reel: the full-screen Reels players, through preview/shared/pause FMSSPause.mount(el, {video, at, bar})): the same
     track, fill, thumb and seek strip, without the timestamp or the icon strip (the Reels overlay sits where they would). Hidden until
-    the host asks: reveal() brings it in (a 240ms ease-out fade), hold(true) keeps it up while the reel is paused, hold(false) (the
-    tap that resumes) reveals it and restarts the split screen's own fade (held 2080ms, then the 320ms ease-out: gone 2400ms after
-    the tap), hide() takes it away at once (the reel changed). A drag seeks without pausing (the host owns play / pause) and restarts
+    the host asks: reveal() brings it in (a 240ms ease-out fade), hold(true) keeps it up while the reel is paused, release() (the
+    tap that resumes) lets it go on the split screen's 320ms ease-out at once (no dwell: the Reels controls are up only while
+    paused), hold(false) reveals it and restarts the split screen's own fade (held 2080ms, then the 320ms ease-out), hide() takes it away at once (the reel changed). A drag seeks without pausing (the host owns play / pause) and restarts
     the fade from its release. o.onOpacity(op) is called with every opacity change (the host moves its overlay with it) */
 (function(){
 'use strict';
@@ -113,6 +113,7 @@ function create(o){
     fraction:function(){return last.fr},opacity:function(){return last.op},
     paused:function(){return up},togglePause:function(){toggle()},
     reveal:function(){reveal()},hold:function(on){if(!rl)return;up=!!on;root.classList.toggle('vs-p',up);reveal()},
+    release:function(){if(!rl)return;up=false;root.classList.remove('vs-p');if(last.op>0){t0=performance.now()-HOLD;fade();run()}},
     hide:function(){if(!rl)return;up=false;root.classList.remove('vs-p');t0=rIn=-1e9;fade()},
     destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);if(io)io.disconnect();root.remove()}};
   if(rl){last.op=0;last.off=true;f.style.opacity='0';root.classList.add('vs-off')}   // reel: hidden until revealed

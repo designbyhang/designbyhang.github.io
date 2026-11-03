@@ -21,7 +21,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/theme.css?v=355">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script><script src="../../js/video-scrubber.js?v=365"></script><script src="../shared/pause/pause.js?v=365"></script>
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../shared/pause/pause.js?v=369"></script>
 <link rel="stylesheet" href="../shared/appbar/appbar.css?v=359"><script src="../shared/appbar/appbar.js?v=355"></script>
 <link rel="stylesheet" href="../shared/videotab/videotab.css?v=363"><link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=363"><script src="../shared/tabbar/tabbar.js?v=363"></script>
 <!-- preview-only page: no gate.js / passcode -->
@@ -93,6 +93,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
    phone's bottom edge, under the peek / card (z 8). Light, Video active; exits under the rising peek */
 .tbw{left:0;top:785.78px;width:375px;height:79px;transform-origin:0 0;transform:scale(1.072);z-index:7;pointer-events:none}
 .tbw .tb{top:0}
+/* the tab bar never moves on the push: the profile lets it out (overflow visible; .root still clips) so .tbw can sit still at the
+   phone's bottom while the profile slides, and the reel's dark bar is held against the reel's parallax; the push only changes its colour */
+.profile{overflow:visible}
 
 /* peek ⇄ floating card: one surface, geometry driven by a spring (m: 0 peek → 1 card) */
 .cta{z-index:8;background:#fff;overflow:hidden;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;will-change:left,top,width,height}
@@ -179,7 +182,7 @@ html.hosted .phone{background:transparent;border-radius:0}
           <div class="abs rov" id="rov">
             <div data-reel="scrim"></div>
             <div data-reel="rail"></div>
-            <img class="abs vt-tab" src="../shared/videotab/tabbar.svg?v=363" alt="">   <!-- Caption & Browse's Facebook Video tab chrome (../shared/videotab): tab bar and "Video" title bar, under the IAB dim (#iab .overlay) -->
+            <img class="abs vt-tab" id="vtTab" src="../shared/videotab/tabbar.svg?v=363" alt="">   <!-- Caption & Browse's Facebook Video tab chrome (../shared/videotab): tab bar and "Video" title bar, under the IAB dim (#iab .overlay) -->
             <img class="abs vt-nav" src="../shared/videotab/navbar.svg?v=363" alt="">
             <div data-reel="details" aria-hidden="true"></div>
             <button data-reel="more" id="more" type="button" aria-describedby="rsCapT" aria-label="More: open the in-app browser (IAB) as a half sheet" tabindex="-1"></button>
@@ -252,15 +255,16 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const HOSTED=document.documentElement.classList.contains('hosted');
 const host=()=>{if(!HOSTED)return null;try{return parent.__cbHost||null}catch(_){return null}};   // fmss-cb's hooks: reel parallax, resume, idle demo
 const W=402,H=874;                                   // recording points (iPhone 402×874), scaled 375/402 into the 375×812 phone
-const tbw=$('tabbar').parentNode;const tb=FMSSTabBar.mount($('tabbar'),{theme:'light',tab:'video'});tb.setExit(1);   // the profile's shared FMSS tab bar: light, Video active (the tab the reel is on; the reel itself shows fmss-cb's dark Video tab bar, ../shared/videotab). It stays light through the push and the pop
+const tbw=$('tabbar').parentNode,vtTab=$('vtTab');const tb=FMSSTabBar.mount($('tabbar'),{theme:'light',tab:'video'});tb.setExit(1);   // the profile's shared FMSS tab bar: light, Video active (the tab the reel is on; the reel itself shows fmss-cb's dark Video tab bar, ../shared/videotab). It never moves on the push or the pop: only its colour changes, light over the reel's dark bar
 /* the push reel ⇄ profile: one value, x (the profile's left edge, W on the reel → 0 on the profile), on the shared IAB spring
    (FMSSIAB.makeSpring: critically damped ω18, 4 substeps). Everything rides it: profile slide, reel parallax −30%, reel dim .2.
-   Transform/opacity only; the profile's tab bar rides the profile; the surface (status bar colour) flips at the cut, when the push starts. */
+   Transform/opacity only; the tab bar stays still and only changes colour (dark → light); the surface (status bar colour) flips at the cut, when the push starts. */
 let pushX=W;
 const pushS=FMSSIAB.makeSpring(()=>pushX,x=>{pushX=x;pushRender()});
 function pushRender(){const q=1-pushX/W;
   profile.style.transform=`translate3d(${pushX.toFixed(2)}px,0,0)`;
-  tbw.style.transform=pushX?`translate3d(${pushX.toFixed(2)}px,0,0) scale(1.072)`:'';   // the profile's light tab bar rides the profile in and out over the reel's dark one: neither changes colour
+  tbw.style.transform=pushX?`translate3d(${(-pushX).toFixed(2)}px,0,0) scale(1.072)`:'';tbw.style.opacity=q<1?q.toFixed(3):'';   // the tab bar stays still: the profile's light bar is held in place against the push and fades in over the reel's dark one, so only its colour changes
+  vtTab.style.transform=q>0?`translate3d(${(.3*W*q/1.072).toFixed(2)}px,0,0)`:'';   // the reel's dark bar held against the reel's parallax (.rov's 375 px)
   reel.style.transform=q>0?`translate3d(${(-.3*W*q).toFixed(2)}px,0,0)`:'';$('reelDim').style.opacity=(.2*q).toFixed(3)}
 function pushTo(x,instant){if(instant||RM.matches){pushS.stop();pushX=x;pushRender()}else pushS.to(x,{w:18})}
 /* the screen's surface: status bar colour (profile's header filled → black) */

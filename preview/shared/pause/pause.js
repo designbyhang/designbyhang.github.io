@@ -22,9 +22,9 @@
               Only live UI rises, never the media: a <video>, a poster, or a still that belongs to the media (the scrim, the gradient over
               the video: mark it data-media) is left out of the lift, and so is any piece holding one; the scrim stays where it is in every
               state, paused or playing
-     pz.set(on, tap)  on: glyph in, controls up and held while paused. Off with tap (the media tap that resumes): glyph out, the controls
-                      stay for the split screen's dwell (2080ms) and fade (320ms). Off without tap (a reset: another reel, leaving Reels,
-                      the IAB's close): both go at once
+     pz.set(on, tap)  on: glyph in, controls up and held while paused. Off with tap (the media tap that resumes): glyph out and the controls
+                      fade straight away on the split screen's 320ms ease-out (no dwell: they are only up while paused). Off without
+                      tap (a reset: another reel, leaving Reels, the IAB's close): both go at once
      pz.paused        the video the viewer paused (or null) · pz.lift: the overlay's lift now (px; for hit tests by position)
    A press on the track seeks and never reaches the host (VideoScrubber stops its events), so it does not toggle the video. */
 (function(){
@@ -67,7 +67,7 @@ function mount(el,o){
     set(on,tap){on=!!on;el.classList.toggle('on',on);if(!vf)return;
       const v=vf();
       if(on){held=v||null;const r=ctl(v);if(r){show(r);r.s.hold(true)}return}
-      held=null;const r=tap?ctl(v):null;if(r){show(r);r.s.hold(false)}else drop()}};
+      held=null;const r=tap&&cur?ctl(v):null;if(r&&r===cur){r.s.release()}else drop()}};
 }
 window.FMSSPause={mount};
 })();
