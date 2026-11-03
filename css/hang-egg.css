@@ -9,15 +9,13 @@ footer.bot>span.hegg-trg{position:relative;width:fit-content;cursor:pointer}
 footer.bot>span.hegg-trg .t{position:relative;display:inline-block}
 footer.bot>span.hegg-trg .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease;pointer-events:none}
 footer.bot>span.hegg-trg:hover .t::after,footer.bot>span.hegg-trg:focus-visible .t::after{transform:scaleX(1)}
-/* copyright hover, mouse only: the © smiles (Feather "smile" at the ©'s scale). The C's opening swings to the top as it trims into the smile arc on the same circle, so the mouth's low point stays where the C's bottom sits (113.6deg centred on the bottom, less the round ends: 320ms), then the eyes pop in, left then right (+160 / +224ms, 160ms each); hover-out is the same timeline backwards, eyes out first */
-@media (hover:hover) and (pointer:fine){
+/* copyright hover with a mouse, or in view on touch (js/hang-egg.js .is-smile): the © smiles (Feather "smile" at the ©'s scale). The C's opening swings to the top as it trims into the smile arc on the same circle, so the mouth's low point stays where the C's bottom sits (113.6deg centred on the bottom, less the round ends: 320ms), then the eyes pop in, left then right (+160 / +224ms, 160ms each); hover-out is the same timeline backwards, eyes out first */
 footer.bot>span.hegg-trg .c-arc{transition:transform .32s cubic-bezier(.2,.7,.2,1) .064s,stroke-dasharray .32s cubic-bezier(.2,.7,.2,1) .064s}
 footer.bot>span.hegg-trg .c-eye{transition:transform .16s cubic-bezier(.2,.7,.2,1) .064s}
 footer.bot>span.hegg-trg .c-eye-r{transition-delay:0s}
-footer.bot>span.hegg-trg:hover .c-arc{transform:translateY(0) rotate(44.43deg) scale(1);stroke-dasharray:5.408 15.955;transition-delay:0s}
-footer.bot>span.hegg-trg:hover .c-eye{transform:scale(1);transition-timing-function:cubic-bezier(.2,.7,.2,1.32);transition-delay:.16s}
-footer.bot>span.hegg-trg:hover .c-eye-r{transition-delay:.224s}
-}
+footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-arc{transform:translateY(0) rotate(44.43deg) scale(1);stroke-dasharray:5.408 15.955;transition-delay:0s}
+footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-eye{transform:scale(1);transition-timing-function:cubic-bezier(.2,.7,.2,1.32);transition-delay:.16s}
+footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-eye-r{transition-delay:.224s}
 @media (prefers-reduced-motion:reduce){footer.bot>span.hegg-trg .t::after,footer.bot>span.hegg-trg .c-arc,footer.bot>span.hegg-trg .c-eye{transition:none}}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
 /* paper grain, HANG egg only (.hegg-egg, js/hang-egg.js EGG cfg; the phone full-screen prototype .hegg.proto-full has none), both themes: a 256px fractal tile shown at 128px, so a speck is one device pixel on a 2x screen. Overlay darkens the light page and lightens the dark page. Static image, not redrawn. */

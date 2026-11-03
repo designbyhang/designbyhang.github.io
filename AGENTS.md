@@ -11,7 +11,7 @@ Static portfolio site for Hang Zheng, served by GitHub Pages from `main`. Pushin
 
 ## Cache-busting (`?v=`)
 - CSS/JS are referenced with `?v=N`. Bump only the files you changed, in every page that loads them.
-- Next free number: **392** (391: grain removed (phone full-screen prototype; grain now egg-only); 390: FMSS 02 rebuild case.css; 389: FMSS all-in-one fixes; 388: intro CTA centred + CTA-box verticals stop at its top; 387: home intro fixes; 384 Sidekick, live; 386 used by the aw/ja-slide preview) (update this line when you use one). Numbers are global; never reuse one.
+- Next free number: **393** (392: C smile on touch (in view); 391: grain removed (phone full-screen prototype; grain now egg-only); 390: FMSS 02 rebuild case.css; 389: FMSS all-in-one fixes; 388: intro CTA centred + CTA-box verticals stop at its top; 387: home intro fixes; 384 Sidekick, live; 386 used by the aw/ja-slide preview) (update this line when you use one). Numbers are global; never reuse one.
 - Don't touch pinned refs: `header.js?v=137`, the cc-proto `nav.webp?v=263`, and the Citi animation pins.
 - Other agents (Animation-Wiz for Citi animations) also push to `main`. Fetch and rebase right before pushing.
 

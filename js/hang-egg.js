@@ -112,6 +112,8 @@ const coarse=matchMedia('(pointer: coarse)');
 function armMotion(){if(!coarse.matches||reduce.matches)return;const D=window.DeviceOrientationEvent;if(!D)return;
   try{window.__dbhMotion=typeof D.requestPermission==='function'?D.requestPermission().catch(()=>'denied'):Promise.resolve('granted');}
   catch(_){window.__dbhMotion=Promise.resolve('denied');}}
+/* touch has no hover: the © smiles while the copyright line is fully in view (css/hang-egg.css .is-smile), and again each time it comes back */
+if(!matchMedia('(hover:hover) and (pointer:fine)').matches&&'IntersectionObserver' in window)new IntersectionObserver(([e])=>trg.classList.toggle('is-smile',e.isIntersecting),{threshold:1}).observe(trg);
 trg.addEventListener('click',()=>{armMotion();openEgg();});
 trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();armMotion();openEgg();}});
 /* restore after a refresh: the page at its footer, the layer already on. ?fs=hang; an old ?fs=egg still opens and is rewritten to hang. */
