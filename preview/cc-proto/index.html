@@ -20,7 +20,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/type.css?v=370"><link rel="stylesheet" href="../../css/theme.css?v=378">
 <!-- shared FMSS foundation: the Reels ad details (caption.css .c-stack + the VAC caption), the tap-to-pause glyph, the squircle, the device tokens -->
-<link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=355"></script><script src="../../js/squircle.js?v=375"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../shared/pause/pause.js?v=369"></script>
+<link rel="stylesheet" href="../shared/caption/caption.css?v=359"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><script src="../../js/vac-caption.js?v=358"></script><script src="../shared/caption/caption.js?v=408"></script><script src="../../js/squircle.js?v=375"></script><script src="../../js/video-scrubber.js?v=369"></script><script src="../shared/pause/pause.js?v=369"></script>
 <!-- preview-only page: no gate.js / passcode -->
 <link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/material/material.css?v=380">
 <style>
@@ -63,14 +63,16 @@ video{display:block;object-fit:cover}
 .grad{left:0;top:470px;width:375px;height:342px;background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.4) 22%,rgba(0,0,0,.3) 40%,rgba(0,0,0,.2) 58%,rgba(0,0,0,.08) 78%,rgba(0,0,0,0) 100%)}
 /* UFI: the shared Reels UFI (preview/shared/ufi: ufi.js + ufi.css, FMSS's rail and icons, with the save item; like / comment / share / save
    at 430 + 65i, more at 690, x 326–376), as every Reels player on the VAC page */
-/* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), its bottom 16pt above the nav
-   (--c-bottom 90: the CTA 686–722 as VAC's, 20 above the nav at 742, as VAC's comment bar). Inside it, from the author row (ads 606, creator posts 586): avatar 36 + name (+ the globe on ads and the seed; 20px line; the verified badge after every name (FMSS's), no "· Follow"/"· Following" anywhere) and
-   "Sponsored" under the name (the shared .c-sp line: 12/16, white 70%, as MAC and SAP since v230; no Ad pill), the VAC caption at +48
-   (ads 668; every caption, the Nike seed's and the creator posts' too: cut on whole glyphs, "… more ⌄", the arrow ending ≤ x 311, 4pt inside
-   the CTA's right edge: js/vac-caption.js via caption.js), the CTA at +80 (the live .ad-cta, css/ad-cta.css: the one video ad CTA, 303×36, r8). Creator posts: the name and its badge (no globe, no "· Following"), the post's age under it, the caption, and the
-   commerce card (56) at +80 (666–722). The Nike seed: name / 4h and its caption only (author 658, caption 702) */
-.phone .c-stack{--c-bottom:90px}
-.c-stack.cc-org{height:136px}
+/* the details: the shared layout (preview/shared/caption/caption.css .c-stack, as MAC and SAP), 68 high (the author row 0–36, the caption
+   at +48, 20px), its bottom 16pt above the nav (--c-bottom 90: 722, 20 above the nav at 742, as VAC's comment bar). The author row: avatar
+   36 + name (+ the globe on ads and the seed; 20px line; the verified badge after every name (FMSS's), no "· Follow"/"· Following" anywhere)
+   and under the name "Sponsored" on ads, the post's age on creator posts and Nespresso ("5H": short, uppercase, as every reel's age), in the
+   shared .c-sp line (12/16, white 70%, as MAC and SAP since v230; no Ad pill); the VAC caption (every caption, the Nike seed's too: cut on
+   whole glyphs, "… more ⌄", the arrow ending ≤ x 311: js/vac-caption.js via caption.js). At rest: author 654, caption 702. Under it, in
+   CC, the reel's action (.act): an ad's CTA (the live .ad-cta, css/ad-cta.css, here 303×40, r12: 682–722) or a creator post's commerce
+   card (56: 666–722); once it is in, the details sit 12 above it (ads: author 602, caption 650; posts: 586, 634). Nespresso (an organic
+   post in Feed) has none. The Nike seed: name / 4H and its caption only (author 658, caption 702) */
+.phone .c-stack{--c-bottom:90px;height:68px}   /* the details: author row + caption (48 + 20); the action sits under it in its own row (.act) */
 .c-stack.cc-seed{height:64px}
 .c-stack>.cav{left:0;top:0;width:36px;height:36px;border-radius:50%;background:#fff 50% 50%/cover no-repeat}
 .c-stack>.cn{left:44px;top:0;display:flex;align-items:center;height:20px;white-space:nowrap;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62);-webkit-font-smoothing:antialiased}
@@ -79,7 +81,7 @@ video{display:block;object-fit:cover}
    both 12×12 centred on the 20px name line, with the name's shadow (FMSS's 1px 62% black: stdDeviation .5) */
 .cn .cbadge,.cn .cglobe{flex:none;width:12px;height:12px;margin-left:4px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))}
 .c-stack.cc-seed>.c-cap{top:44px}
-.c-stack>.card{left:0;top:80px;box-sizing:border-box;width:max-content;max-width:303px;height:56px;padding:10px 12px 0 56px;border-radius:16px;
+.act>.card{position:relative;box-sizing:border-box;width:max-content;max-width:303px;height:56px;padding:10px 12px 0 56px;border-radius:16px;
   background:rgba(156,156,156,.5);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);overflow:hidden;isolation:isolate}
 /* the commerce card (Hang's design, measured from his mock at 2x; one rule for every shoppable card): 56 tall, hugging its text (12 after
    the longer line; at most the stack's 303, then the text ellipsizes), r16; an even 10pt inset round the 36×36 thumbnail, r8 (rounder
@@ -106,6 +108,11 @@ video{display:block;object-fit:cover}
 .tabvp{position:absolute;left:40px;top:0;width:335px;height:52px;overflow:hidden;-webkit-mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px);mask:linear-gradient(90deg,#000 0,#000 295px,rgba(0,0,0,0) 335px)}
 .ribbon{position:absolute;left:0;top:0;height:52px;display:flex;gap:20px;align-items:center;white-space:nowrap;will-change:transform}
 .tab{font:var(--t-r-tab);letter-spacing:var(--t-r-tab-ls);font-feature-settings:var(--t-sf-ft);color:#fff;opacity:.55;text-shadow:0 0 2px rgba(0,0,0,.25);-webkit-font-smoothing:antialiased}
+/* the action row (every CC reel: an ad's CTA, a creator post's commerce card), under the details, its bottom at 722 (20 above the nav):
+   303 wide, as tall as its action, clipping it. The action comes in once its reel has been on screen ACTIN (render(), act()), and the
+   details rise with it. CC's ad CTA: the shared .ad-cta (css/ad-cta.css) at 40 tall, r12 (10 + its 20px line + 10), here only */
+.pg>.act{left:12px;bottom:90px;width:303px;overflow:hidden}
+.act>.ad-cta{position:relative;display:block;width:303px;height:40px;padding:10px 12px;border-radius:12px}
 /* the bottom nav, on VAC's comment bar line (742–782, 30 above the screen's bottom): round home (40, at 12,742: FMSS's feed-tab home outline,
    preview/shared/videotab/tabbar.svg, 16 at +12, white) + the pill (303×40 at 60,742): its icon at +10 (white 85%), the query at +34 (white 70%;
    otherwise the caption's type exactly: the --t-r-cap role and the caption's rendering, its 1px 62% shadow, antialiased, geometricPrecision, as .c-cap/.vcap);
@@ -209,16 +216,16 @@ new ResizeObserver(fit).observe(frame);fit();
    its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this", after
    pre: "Coffee", its query on arrival, with the search sparkle) */
 const R={
-  nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
-  nesp:{kind:'ad',name:'Nespresso',cap:'Sip through spring with our indulgent iced coffee recipes.',cta:'#5f3d8f',pre:'Coffee',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
+  nike:{kind:'seed',name:'Nike',sub:'4H',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
+  nesp:{kind:'org',name:'Nespresso',ago:'5H',cap:'Sip through spring with our indulgent iced coffee recipes.',pre:'Coffee',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
   bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
   sbux:{kind:'ad',name:'Starbucks',cap:'This summer\'s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
   lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
   cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
-  univ:{kind:'org',name:'Universal Studios',ago:'5 hours ago',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
-  laura:{kind:'org',name:'Laura Byrnes',ago:'6 hours ago',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
-  serena:{kind:'org',name:'xzmserena',ago:'3 hours ago',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
-const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena']],LAST=CATS.length-1;
+  univ:{kind:'org',name:'Universal Studios',ago:'5H',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
+  laura:{kind:'org',name:'Laura Byrnes',ago:'6H',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
+  serena:{kind:'org',name:'xzmserena',ago:'3H',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
+const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena']],LAST=CATS.length-1,KL=CATS[0].length-1;
 const FIRST=[0,0,1,1,1];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, the rest 1: Home leads, Beauty ends
                             // inside the fade; FIRST 2 would ask for 139 of a ribbon that only scrolls 90 and leave Home cut under the chevron)
 const ICO={
@@ -235,8 +242,9 @@ function page(id){
   let h=`<video class="fv" muted playsinline preload="${lazy}" disableremoteplayback poster="${AV}${id}.webp${VV(id)}" src="${AV}${id}.mp4${VV(id)}"></video><i class="tgrad"></i><i class="grad"></i>`;
   h+=ReelsUFI.html(d.ufi);
   const row=(sub,mark=GLOBE)=>`<i class="cav" style="background-image:url(assets/av-${id}.webp${V})"></i><p class="cn">${esc(d.name)}${BADGE}${mark}</p><p class="c-sp">${esc(sub)}</p>`;
-  if(d.kind==='ad')h+=`<div class="c-stack">${row('Sponsored')}<p class="c-cap">${esc(d.cap)}</p><p class="c-act ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p></div>`;
-  else if(d.kind==='org')h+=`<div class="c-stack cc-org">${row(d.ago,'')}<p class="c-cap">${esc(d.cap)}</p><div class="card"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t cta-type">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div></div>`;
+  const det=r=>`<div class="c-stack">${r}<p class="c-cap">${esc(d.cap)}</p></div>`,act=a=>`<div class="act" data-reel="cta">${a}</div>`;
+  if(d.kind==='ad')h+=det(row('Sponsored'))+act(`<p class="ad-cta" style="background:${d.cta}">${esc(d.ctaText||'Learn more')}<i class="press"></i></p>`);
+  else if(d.kind==='org')h+=det(row(d.ago,''))+(d.ct?act(`<div class="card"><i class="th" style="background-image:url(assets/th-${id}.webp${V})"></i><p class="t cta-type">${esc(d.ct)}</p><p class="u">${esc(d.cu)}</p><i class="press"></i></div>`):'');
   else h+=`<div class="c-stack cc-seed">${row(d.sub)}<p class="c-cap">${esc(d.cap)}</p></div>`;
   p.innerHTML=h;return p}
 const PG={},VID={};
@@ -266,6 +274,16 @@ function anim(get,set){let raf=0,busy=false;
       const f=now=>{const q=clamp((now-t0)/ms);set(lerp(from,target,ease(q)));if(q<1)raf=requestAnimationFrame(f);else{busy=false;onDone&&onDone()}};
       raf=requestAnimationFrame(f)}}}
 const easeIn=q=>q*q,easeOut=q=>1-(1-q)*(1-q);
+/* ---------- the action (every CC reel's: an ad's CTA, a creator post's commerce card): once the reel has been on screen ACTIN it rises
+   its own height inside its row and fades in (Slow, ACTMS, as SAP's chip), and the details (author row, caption; never the UFI) rise
+   with it on the same progress, by the action's height + 12 (ReelsCaption.lift: CTA 40 → 52, card 56 → 68). AP: each one's progress.
+   A reel that leaves the screen before (or after) loses it; every arrival replays it. Inline (the scripted loop) it is always in ---------- */
+const ACTIN=1504,ACTMS=1000,AP={},ACT={};
+CATS.flat().forEach(id=>{const el=PG[id].querySelector('.act>*');ACT[id]={el,det:PG[id].querySelector('.c-stack'),h:R[id].kind==='ad'?40:56,p:-1};AP[id]=INLP?1:0});
+let apId=null,apT=0;
+const apA=anim(()=>apId?AP[apId]:0,v=>{if(apId)AP[apId]=v;render()});
+function actArm(id){if(INL()||apId===id||!(id in AP))return;actOff();apId=id;apT=setTimeout(()=>{if(apId===id)apA.to(1,{ms:ACTMS})},ACTIN)}
+function actOff(){clearTimeout(apT);apA.stop();if(apId)AP[apId]=0;apId=null}
 
 /* ---------- the screen: one set of values, everything rendered from them ----------
    mode  feed (Nike ↔ Nespresso) · in (Explore more like this: Nespresso off left, CC's Coffee in from the right, 664) · cc · out (the
@@ -305,6 +323,9 @@ function render(){
   op(els.fbar,1-pv);op(els.tabs,pv);op(els.chev,chevDim);
   setT(els.ribbon,tr(-ribX(),0));
   TABEL.forEach((e,i)=>op(e,.55+.45*clamp(1-Math.abs(c-i))));
+  if(apId&&!INL()&&!(ccOn&&onS(o[apId])))actOff();   // off the screen: the action goes; the next arrival replays it
+  for(const id in AP){if(!PG[id].style.visibility.startsWith('v'))continue;const p=AP[id],a=ACT[id];
+    if(a.p!==p){a.p=p;a.el.style.transform=ty(a.h*(1-p));op(a.el,p);ReelsCaption.lift(a.det,p,a.h+12)}}
   pill();
   $('pillb').style.pointerEvents=!INL()&&mode==='feed'&&f===1?'auto':'none';
   $('back').style.pointerEvents=!INL()&&mode==='cc'?'auto':'none';
@@ -353,7 +374,7 @@ function nsReset(){nsOn=false;cancelAnimationFrame(nsRaf);ns=0;fx()}
    CC: swipe up/down within Coffee (up on a tab's last reel: the next tab, the tab change; Beauty, the last: nothing); swipe left/right across categories (or tap a tab; the tab row also drags sideways); the chevron goes back.
    Universal's card: not tappable. Other CTAs, cards and the nav: press feedback only (Figma has no destination for them).
    A tap anywhere else pauses / resumes the reel (the shared FMSS pause glyph) */
-const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:ReelsCaption.act(),card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52]};
+const RC={pill:[60,742,303,40],home:[12,742,40,40],cta:[12,682,303,40],card:[12,666,303,56],back:[2,48,44,44],tabs:[40,44,335,52]};
 const inR=(r,a,b)=>a>=r[0]&&a<=r[0]+r[2]&&b>=r[1]&&b<=r[1]+r[3];
 const pz=FMSSPause.mount($('pz'),{video:()=>VID[curId()]||null,at:$('rc'),bar:742,scope:()=>PG[curId()]||null});let paused=null;   // the reel the viewer has paused (id)
 const settled=v=>Math.abs(v-Math.round(v))<.01;
@@ -362,15 +383,14 @@ function pressAt(a,b){   // [overlay, kind]
   if(mode==='feed'&&settled(f)){const id=curId();
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];   // Nespresso's pill is the #pillb button above this layer
-    if(id==='nesp'&&inR(RC.cta,a,b+pz.lift))return [PG.nesp.querySelector('.ad-cta .press'),'cta'];
     return [null,'reel']}
   if(mode==='cc'&&settled(c)&&settled(k)){const id=curId(),d=R[id];
     if(inR(RC.back,a,b))return [null,'back'];
     if(inR(RC.tabs,a,b)){const rx=a-40+ribX();for(let i=0;i<TABS.length;i++)if(rx>=TABX[i]-10&&rx<=TABX[i]+TABW[i]+10)return [null,'tab'+i];return [null,'tabs']}
     if(inR(RC.home,a,b))return [$('homePress'),'nav'];
     if(inR(RC.pill,a,b))return [$('pillPress'),'nav'];
-    if(d.kind==='ad'&&inR(RC.cta,a,b+pz.lift))return [PG[id].querySelector('.ad-cta .press'),'cta'];
-    if(d.kind==='org'&&id!=='univ'&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b+pz.lift))return [PG[id].querySelector('.card .press'),'card'];
+    if(d.kind==='ad'&&AP[id]===1&&inR(RC.cta,a,b+pz.lift))return [PG[id].querySelector('.ad-cta .press'),'cta'];
+    if(d.kind==='org'&&id!=='univ'&&AP[id]===1&&inR([RC.card[0],RC.card[1],PG[id].querySelector('.card').offsetWidth,RC.card[3]],a,b+pz.lift))return [PG[id].querySelector('.card .press'),'card'];
     return [null,'reel']}
   return [null,null]}
 let pd=null,pressEl=null;
@@ -395,7 +415,8 @@ touch.addEventListener('pointermove',ev=>{if(!pd||ev.pointerId!==pd.id)return;
     else pd.axis=Math.abs(dx)>Math.abs(dy)?'c':(Math.round(c)===0?'k':'v')}   // a single-reel category: up goes to the next tab (Beauty, the last, has none), down to the previous tab's last reel
   let v=0;
   if(pd.axis==='f'){f=rub(pd.f0-dy/812,0,1);v=f}
-  else if(pd.axis==='k'){pd.u=pd.k0-dy/812;k=rub(pd.u,0,2);v=pd.u}   // the flick speed: the finger's, not the rubber band's
+  else if(pd.axis==='k'){pd.u=pd.k0-dy/812;k=rub(Math.min(pd.u,KL),0,KL);v=pd.u}   // the flick speed: the finger's, not the rubber band's. Past Coffee's
+     // last reel is the next tab (as every tab's last reel, 'v'): the reel holds and the release hands off, no band; above its first, the band
   else if(pd.axis==='c'){c=rub(pd.c0-dx/375,0,LAST);v=c}
   else if(pd.axis==='v'){v=-dy/812;pd.u=v}
   else if(pd.axis==='ro'){const base=scrollOf(c);ro=rub(pd.ro0-dx,-base,RMAX-base,375);v=ro}
@@ -411,14 +432,14 @@ function touchUp(ev){if(!pd||ev.pointerId!==pd.id)return;const d=pd;pd=null;setP
     return}
   const v0=vel(d);
   if(d.axis==='f'){const t=snap(f,v0,Math.round(d.f0),0,1,812);stepF(t,Math.round(d.f0),v0)}
-  else if(d.axis==='k'){const t=snap(Math.round(d.k0)===2?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,3,812);if(t===3){kA.to(2,{ms:400});nextCat()}else stepK(t,Math.round(d.k0),v0)}
+  else if(d.axis==='k'){const t=snap(Math.round(d.k0)===KL?Math.max(k,d.u||0):k,v0,Math.round(d.k0),0,KL+1,812);if(t===KL+1){kA.to(KL,{ms:400});nextCat()}else stepK(t,Math.round(d.k0),v0)}
   else if(d.axis==='v'){const t=snap(d.u||0,v0,0,-1,1,812);if(t===1)nextCat();else if(t===-1)prevCat()}
   else if(d.axis==='c'){const t=snap(c,v0,Math.round(d.c0),0,LAST,375);goCat(t,Math.round(d.c0),v0)}
   else if(d.axis==='ro'){const base=scrollOf(c),t=clamp(ro+v0*.25,-base,RMAX-base);roA.to(t,{ms:400})}}
 touch.addEventListener('pointerup',touchUp);touch.addEventListener('pointercancel',touchUp);
 addEventListener('pointerup',touchUp,true);touch.addEventListener('lostpointercapture',ev=>{if(pd&&ev.pointerId===pd.id)touchUp({type:'pointercancel',pointerId:ev.pointerId})});   // any release ends the drag, wherever it lands
 function restart(id){const v=VID[id];if(v){try{v.currentTime=0}catch(_){}}if(paused){paused=null;pz.set(false)}}
-function arrive(id){say(R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?' post':' reel'))}
+function arrive(id,t){say(t||R[id].name+(R[id].kind==='ad'?' ad':R[id].kind==='org'?' post':' reel'));actArm(id)}
 function stepF(t,from=Math.round(f),v=0){if(t!==from)restart(t?'nesp':'nike');const d=t-f;fA.to(t,{ms:664,ease:d&&v?springV(664,v/d):SLOW,onDone:()=>{arrive(t?'nesp':'nike');if(t)nsStart();else nsReset()}})}
 function stepK(t,from=Math.round(k),v=0){if(t!==from)restart(CATS[0][t]);const d=t-k;kA.to(t,{ms:664,ease:d&&v?springV(664,v/d):SLOW,onDone:()=>arrive(CATS[0][t])})}
 function nextCat(){const t=Math.round(c)+1;if(t<=LAST)goCat(t)}   // swipe up on a tab's last reel: the next tab, with the tab change (Beauty, the last tab: nothing)
@@ -433,7 +454,7 @@ function togglePause(){const id=curId();if(!id)return;const v=VID[id];
 function explore(){
   if(INL()||mode!=='feed'||f!==1)return;
   mode='in';x=0;c=0;k=0;ro=0;homeTell(false);restart('bb');touch.classList.remove('on');
-  xA.to(1,{ms:664,onDone:()=>{mode='cc';nsReset();touch.classList.add('on');render();say('Commerce Chaining: Coffee, Blue Bottle Coffee ad')}});render()}
+  xA.to(1,{ms:664,onDone:()=>{mode='cc';nsReset();touch.classList.add('on');render();arrive('bb','Commerce Chaining: Coffee, Blue Bottle Coffee ad')}});render()}
 function back(){
   if(INL()||mode!=='cc')return;stopAll();c=Math.round(c);k=Math.round(k);ro=0;
   mode='out';x=0;restart('nesp');touch.classList.remove('on');
@@ -516,7 +537,7 @@ function fingerAt(t){
   finger.style.transform=`translate3d(${px.toFixed(2)}px,${py.toFixed(2)}px,0) scale(${fo.s.toFixed(4)})`;op(finger,fo.o)}
 let tl=0;   // the loop clock (ms in [0, T))
 function applyT(t){
-  tl=t;ro=0;
+  tl=t;ro=0;for(const id in AP)AP[id]=1;
   if(t<E.u4){mode='feed';f=swipeP(t,1,812);x=0}
   else if(t<E.u4+SH){mode='in';f=1;x=SLOW((t-E.u4)/SH);c=0;k=0}
   else if(t<E.u14){mode='cc';x=0;
@@ -583,7 +604,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureTabs);a
 
 /* ---------- full screen: entering it (html.embed-full) on the Nike seed keeps going; from anywhere else it cuts to the seed's start
    (its first-frame still, the video seated on it). Leaving it, it cuts back to the loop's start the same way (the 2.6s still) ---------- */
-function toSeed(){stopAll();xA.stop();nsReset();mode='feed';f=0;x=0;c=0;k=0;ro=0;chevDim=1;paused=null;pz.set(false);
+function toSeed(){stopAll();xA.stop();nsReset();actOff();for(const id in AP)AP[id]=0;mode='feed';f=0;x=0;c=0;k=0;ro=0;chevDim=1;paused=null;pz.set(false);
   if(!INL())touch.classList.add('on');setPress(null);render()}
 function fsStart(keep){
   stopAuto();ALLV.forEach(v=>v.loop=true);op(finger,0);pillPress.classList.remove('on');
@@ -593,7 +614,7 @@ function fsStart(keep){
 let wasInl=INL();
 if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;fit();
   if(!i){const keep=ready&&mode==='feed'&&f===0;if(keep)fsStart(true);else fsStart(false);return}
-  stopAll();xA.stop();nsReset();touch.classList.remove('on');paused=null;pz.set(false);setPress(null);
+  stopAll();xA.stop();nsReset();actOff();touch.classList.remove('on');paused=null;pz.set(false);setPress(null);
   seedStill();const sn=seat(VID.nike,NIKE_IN);tl=0;applyT(0);pauseAll();sn.then(sched)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 if(!INL())touch.classList.add('on');
 
