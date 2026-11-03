@@ -21,7 +21,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/gate.css?v=355"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <script src="../../js/gate.js?v=355"></script>
 <link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../../js/video-scrubber.js?v=365"></script><script src="../shared/pause/pause.js?v=365"></script>
-<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=359"><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=358"><script src="../shared/reel/reel.js?v=359"></script><script src="../shared/device/snap.js?v=356"></script>
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=359"><link rel="stylesheet" href="../shared/videotab/videotab.css?v=363"><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=363"><script src="../shared/reel/reel.js?v=363"></script><script src="../shared/device/snap.js?v=356"></script>
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
@@ -58,8 +58,6 @@ img.abs{pointer-events:none;-webkit-user-drag:none}
 .btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #more{z-index:6}   /* the caption tap: the shared reel's (../shared/reel [data-reel=more]), over the IAB dim */
 #shop{z-index:6}   /* Shop now: the shared reel CTA (../shared/reel), over the IAB dim like the caption tap */
-.tabbar{left:0;top:734px;width:375px;height:78px}
-.navbar{left:0;top:44px;width:375px;height:52px}
 .status{left:0;top:0;width:375px;height:44px;z-index:30}
 .status-d{opacity:0}
 .exit-area{left:12px;top:94px;width:351px;height:300px;z-index:7;display:none;border-radius:8px}
@@ -106,8 +104,8 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div data-reel="scrim"></div>
         <div data-reel="rail"></div>
         <div class="abs" id="pz" aria-hidden="true"></div>
-        <img class="abs tabbar" src="assets/tabbar.svg?v=359" alt="">
-        <img class="abs navbar" src="assets/navbar-video.svg" alt="">
+        <img class="abs vt-tab" src="../shared/videotab/tabbar.svg?v=363" alt="">   <!-- the shared Facebook Video tab chrome (../shared/videotab): tab bar and "Video" title bar, under the IAB dim -->
+        <img class="abs vt-nav" src="../shared/videotab/navbar.svg?v=363" alt="">
         <div class="abs overlay" id="overlay"></div>   <!-- the IAB dim: over the reel and its chrome (nav bar, tab bar); only the raised caption, its tap and the CTA above -->
         <div data-reel="details" id="details" aria-hidden="true"></div>
         <p class="sr" id="captext">Nike, Sponsored. Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it's perfect for all your activities.</p>

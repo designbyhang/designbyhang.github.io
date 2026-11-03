@@ -23,9 +23,9 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../../css/type.css?v=359"><link rel="stylesheet" href="../../css/theme.css?v=355">
 <link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=355"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=355"></script><script src="../../js/video-scrubber.js?v=365"></script><script src="../shared/pause/pause.js?v=365"></script>
 <link rel="stylesheet" href="../shared/appbar/appbar.css?v=359"><script src="../shared/appbar/appbar.js?v=355"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=355"><script src="../shared/tabbar/tabbar.js?v=359"></script>
+<link rel="stylesheet" href="../shared/videotab/videotab.css?v=363"><link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=355"><script src="../shared/tabbar/tabbar.js?v=359"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=358"><script src="../shared/reel/reel.js?v=359"></script><script src="../shared/device/snap.js?v=356"></script><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=359">
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=363"><script src="../shared/reel/reel.js?v=363"></script><script src="../shared/device/snap.js?v=356"></script><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=359">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
@@ -64,7 +64,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* the push reel ⇄ profile is one value on the shared IAB spring (pushRender below): no CSS transitions on the surfaces */
 .video{left:0;top:0;width:402px;height:874px;object-fit:cover;background:#000}
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
-.hot{left:8px;top:550px;width:116px;height:44px;border-radius:22px}   /* Nike: avatar, name and badges of the shared author row (554–590, over the comment bar) */
+.hot{left:8px;top:566px;width:116px;height:44px;border-radius:22px}   /* Nike: avatar, name and badges of the shared author row (570–606 px, as on fmss-cb) */
 .hot:active{background:rgba(255,255,255,.08)}
 /* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre while paused */
 #pz{left:169px;top:405px;z-index:1}   /* the shared play glyph (../shared/pause) */
@@ -178,8 +178,9 @@ html.hosted .phone{background:transparent;border-radius:0}
           <div class="abs" id="pz" aria-hidden="true"></div>
           <div class="abs rov" id="rov">
             <div data-reel="scrim"></div>
-            <div data-reel="comment" aria-hidden="true"></div>
             <div data-reel="rail"></div>
+            <img class="abs vt-tab" src="../shared/videotab/tabbar.svg?v=363" alt="">   <!-- Caption & Browse's Facebook Video tab chrome (../shared/videotab): tab bar and "Video" title bar, under the IAB dim (#iab .overlay) -->
+            <img class="abs vt-nav" src="../shared/videotab/navbar.svg?v=363" alt="">
             <div data-reel="details" aria-hidden="true"></div>
             <button data-reel="more" id="more" type="button" aria-describedby="rsCapT" aria-label="More: open the in-app browser (IAB) as a half sheet" tabindex="-1"></button>
             <button data-reel="cta" id="shop" type="button" aria-label="Learn more: open the in-app browser (IAB) full screen"></button>
@@ -187,7 +188,6 @@ html.hosted .phone{background:transparent;border-radius:0}
             <div id="rc"></div>   <!-- the Reels video controls (../shared/pause: the split screen's scrubber, above the comment bar) -->
             <button class="abs btn hot" id="author" type="button" aria-label="Nike: open profile"></button>
           </div>
-          <span class="abs ico ab-ico pback" aria-hidden="true"><svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10.5 1.4L2 10l8.5 8.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <p class="sr" id="rsCapT">Nike. Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.</p>
           <div class="abs reel-dim" id="reelDim"></div>
         </div>
@@ -252,7 +252,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const HOSTED=document.documentElement.classList.contains('hosted');
 const host=()=>{if(!HOSTED)return null;try{return parent.__cbHost||null}catch(_){return null}};   // fmss-cb's hooks: reel parallax, resume, idle demo
 const W=402,H=874;                                   // recording points (iPhone 402×874), scaled 375/402 into the 375×812 phone
-const tb=FMSSTabBar.mount($('tabbar'),{theme:'dark'});tb.setExit(1);   // the shared FMSS tab bar: dark on the reel, light on the profile
+const tb=FMSSTabBar.mount($('tabbar'),{theme:'dark'});tb.setExit(1);   // the profile's shared FMSS tab bar: light on the profile, dark from the cut back to the reel (the reel itself shows fmss-cb's Video tab bar, ../shared/videotab)
 /* the push reel ⇄ profile: one value, x (the profile's left edge, W on the reel → 0 on the profile), on the shared IAB spring
    (FMSSIAB.makeSpring: critically damped ω18, 4 substeps). Everything rides it: profile slide, reel parallax −30%, reel dim .2.
    Transform/opacity only; the surface (tab bar theme, status bar colour) flips at the cut, when the push starts. */
@@ -278,7 +278,7 @@ new ResizeObserver(fit).observe(frame);fit();
    recording's button showed (#F53C60 as Chrome and Safari drew it). The caption tap opens the IAB half sheet as fmss-cb's does (below:
    capOpen) ---------- */
 const ad=FMSSReel.mount($('rov'),{cta:'Learn more',color:'#F53C60',cap:'Engineered for greatness. Designed f',
-  capX:"Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.",counts:{like:'12.4K',comment:'842',share:'1.1K'},comment:true});
+  capX:"Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.",counts:{like:'12.4K',comment:'842',share:'1.1K'}});
 
 /* ---------- Figma corner smoothing (same squircle as fmss-cb) ---------- */
 function squircle(w,h,R,sm){
@@ -400,7 +400,7 @@ $('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?
 reel.addEventListener('click',e=>{
   if(screen!==1||iab.state!==1||iab.busy||e.target.closest('button'))return;
   const [x,y]=ptOf(e);
-  if(y>=112&&y<594&&(x<349||y<504))mediaTap();                 // the footage, not the status/back row, the author/caption/CTA/Sponsored/comment rows (554 px on) or the action rail (326, 470 px)
+  if(y>=96*W/375&&y<570*W/375&&(x<326*W/375||y<486*W/375))mediaTap();   // fmss-cb's zone: the footage, not the status/Video bar row (96 px), the author/caption/CTA/Sponsored rows and tab bar (570 px on) or the action rail (326, 486 px)
 });
 
 /* ---------- peek ⇄ card surface ---------- */
@@ -652,7 +652,7 @@ async function swipe(dist,ms,tk,flingV=0){
 }
 /* the demo as steps: a number is a wait (a hover may hold during it), a function is one gesture (always finishes under a hover) */
 const STEPS=[
-  4700,tk=>tap('author',32,614,tk,openProfile),                 // reel plays, then tap Nike (the avatar, 30,572 px)
+  4700,tk=>tap('author',32,630,tk,openProfile),                 // reel plays, then tap Nike (the avatar, 30,588 px)
   2200,tk=>swipe(300,1100,tk),                                  // peek slides up and loads; scroll: peek collapses into the card
   2000,tk=>swipe(-300,520,tk,-1800),                            // back to the very top: peek springs back
   2000,tk=>swipe(420,900,tk,2200),                              // down again, all the way

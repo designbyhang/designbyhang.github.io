@@ -1,14 +1,13 @@
 /* FMSSReel: fills a host's Reels ad placeholders with the shared overlay (reel.css). One call per reel:
-     FMSSReel.mount(root, {cap, capX, cta, color, counts, comment})
+     FMSSReel.mount(root, {cap, capX, cta, color, counts})
        root   the element holding the placeholders: [data-reel=scrim] [data-reel=rail] [data-reel=details] [data-reel=cta] [data-reel=pill]
-              [data-reel=comment] (any may be left out; the host places them in its own z-order)
+              (any may be left out; the host places them in its own z-order)
        cap    the collapsed caption as the design cuts it (an ellipsis is added), followed by "more ⌄"
        capX   optional: the expanded caption, set across the full content width (351: left 12, right inset 12), cross-faded in as it rises
               (returned .capX)
        cta    the CTA label; color its fill
        counts the ad's UFI counts {like, comment, share}, live text: the rail is the shared Reels UFI (preview/shared/ufi, ReelsUFI,
               loaded first) with FMSS's three items (no save), its icons the Figma paths and its counts the type the outlines had
-       comment true: the "Add a comment" bar in [data-reel=comment] (reel.css), and the overlay 16px higher above it
      -> {rail, details, capC, capX, cta, rise}
    rise(t) the caption tap's motion, for the host's IAB onRender (t: 0 closed → 1 half sheet): the details rise with the half sheet until
           the whole caption (capX, measured live, so any line count and any font) ends 16px above the sheet's top (406), and the collapsed
@@ -31,9 +30,6 @@ function mount(root,o){
   if(rail){const n=o.counts||{},t=document.createElement('div');
     t.innerHTML=ReelsUFI.html([n.like,n.comment,n.share].map(v=>v==null?'':v),{keys:['like','comment','share']});
     const r=t.firstElementChild;r.dataset.reel='rail';rail.replaceWith(r);out.rail=r}
-  const cm=q('comment');
-  if(o.comment&&cm){['rail','details','more','cta','pill'].forEach(k=>{const e=k==='rail'?out.rail:q(k);if(e)e.classList.add('rl-c')});
-    cm.innerHTML='<div class="rl-in"><p class="rl-t">Add a comment</p><i class="rl-em" style="--m:url('+new URL('../../../assets/vac-anim/v4/i-emoji.webp',base).href+')"></i></div>'}
   const pill=q('pill');if(pill)pill.src=new URL('../sponsored/sponsored-chip.svg',base).href+'?v='+V;
   const d=q('details');
   if(d){

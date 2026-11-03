@@ -40,18 +40,3 @@
 [data-reel=cta]{left:12px;top:650px;width:303px;appearance:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;background:var(--rl-cta,#2F4EBE)}
 [data-reel=cta]:active{filter:brightness(.92)}
 [data-reel=pill]{left:12px;top:698px;width:94px;height:24px;pointer-events:none}   /* the shared FMSS "Sponsored" pill, 12px under the CTA */
-/* the comment bar (mount {comment:true}; Profile & Browse): Figma Reels VDD › Comment (140796:11959): the black panel 734–812 (82 tall here
-   so it also fills the host's last fraction of a px under 812), its input 12,742 351×40 r20 white 10%, "Add a comment" SF Pro 15/20 white
-   90% from 24, the design's emoji (its own 20dp alpha mask, assets/vac-anim/v4/i-emoji.webp, as VAC) 20×20 at 331,752 in white 90%.
-   With it the overlay sits 16px higher (.rl-c), as the reel with the bar was laid out
-   (on each piece, so the details keep it when a host lifts them over its IAB dim) */
-[data-reel=comment]{left:0;top:734px;width:375px;height:82px;background:#000;pointer-events:none}
-.rl-in{position:absolute;left:12px;top:8px;width:351px;height:40px;box-sizing:border-box;padding:0 12px;border-radius:20px;
-  background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between}
-.rl-in .rl-t{font:var(--t-r-input);letter-spacing:var(--t-r-input-ls);font-feature-settings:var(--t-sf-ft);color:rgba(255,255,255,.9);text-shadow:none}
-.rl-em{flex:none;width:20px;height:20px;background:rgba(255,255,255,.9);-webkit-mask:var(--m) 0 0/20px 20px no-repeat;mask:var(--m) 0 0/20px 20px no-repeat}
-.r-ufi[data-reel=rail].rl-c{top:470px}
-[data-reel=details].rl-c{top:554px}
-[data-reel=more].rl-c{top:598px}
-[data-reel=cta].rl-c{top:634px}
-[data-reel=pill].rl-c{top:682px}
