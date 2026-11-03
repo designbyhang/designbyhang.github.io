@@ -25,6 +25,8 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../shared/device/device.css?v=355"><script src="../shared/device/snap.js?v=356"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
 <link rel="stylesheet" href="../shared/reel/reel.css?v=358">
+<!-- the shared Feed ad header icons (preview/shared/feed: badge.png 12×12, globe.png 10×10, Hang's Figma 3x renders) -->
+<link rel="stylesheet" href="../shared/feed/feed.css?v=359">
 <!-- preview-only page: no gate.js / passcode -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1)}
@@ -75,6 +77,15 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .hd .sp{font:var(--t-r-sp);letter-spacing:var(--t-r-sp-ls);font-feature-settings:var(--t-sf-ft);color:var(--t-r-sp-c);-webkit-font-smoothing:antialiased;text-shadow:0 0 1px rgba(0,0,0,.62)}
 .hd .ic{left:295px;top:72px;width:68px;height:24px}
 .hd .ic svg{position:absolute;top:0;width:24px;height:24px}
+/* Feed ad header (Figma Ad Header): live over the surface screenshot, whose own (soft) name, "Sponsored ·" and icons it covers; the avatar,
+   ··· and × stay the screenshot's. Figma: avatar 40 at 12,116; name 15/20 at 60,118; "Sponsored ·" 13/16 at 60,140; badge at the name's
+   end (y 122), globe at 137,141 (../shared/feed). The caption starts at 171, the ··· at 310 */
+.fh{width:375px;height:812px;pointer-events:none}
+.fh>*{position:absolute}
+.fh .cv{left:56px;top:112px;width:244px;height:52px;background:#fff}
+.fh p{left:60px;margin:0;white-space:nowrap;-webkit-font-smoothing:antialiased}
+.fh .n{top:118px;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#050505}
+.fh .s{top:140px;font:var(--t-r-body-s);letter-spacing:var(--t-r-body-s-ls);font-feature-settings:var(--t-sf-ft);color:#65676B}
 /* native sheet (lead form, Messenger, App Store, product catalog): the Solution sheet image, its live top and handle, and C's layers */
 .ns{width:375px;height:1240px;touch-action:none;cursor:grab;will-change:transform}
 .ns.off{pointer-events:none}
@@ -192,19 +203,19 @@ const S1={d:'../fmss-sol1/assets/',v:'?v=5'},S2={d:'../fmss-sol2/assets/',v:'?v=
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const EXP=[
   {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Default',from:'Solution 1 · Offsite Conversions',build:split,
-   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],fh:{name:'Nike',bx:96},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'}}},
   {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Default',from:'Solution 1 · Lead Generation',build:split,
-   c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
+   c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],fh:{name:'Meta for Work',bx:164},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#fff'}}},
   {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Default',from:'Solution 1 · Business Messages',build:split,
-   c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
+   c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],fh:{name:'Artifox',bx:112},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#fff',cs:'#fff',cu:'#ccd1d8'}}},
   {tab:'Feed',group:'watch',name:'Watch & Install',variant:'w/ Screenshots',from:'Solution 1 · App Installs',build:split,
-   c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
+   c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#fff'}}},
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Feed',build:split,
-   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',cu:'#f7f7f7'}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Video (Reels)',build:split,
    c:{S:S2,n:2,top:548,tone:0,surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[12,560,303,128],
@@ -234,6 +245,7 @@ function split(E,root){
     :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="pt ${cls}" style="background:${o.patch}"></i>`:'')};
   let h=`<i class="L sk" style="background-image:url(${u('bu'+n)});background-size:100% ${top*100/30}%"></i>`;
   h+=C.surf.map(o=>layer(o,'sf')).join('');
+  if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
   h+=img('bu'+n,'bu',`height:${top}px;opacity:0`);
   h+=`<div class="mv" data-r="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
@@ -248,7 +260,7 @@ function split(E,root){
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
   const els=X.els={sk:q('.sk'),sf:[...root.querySelectorAll('.sf')],bu:q('.bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),hit:r('hit'),ctl:r('ctl'),hd:r('hd'),splx:r('splx'),host:r('sheetHost'),sbl:r('sbl'),home:r('home')};
+    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),splx:r('splx'),host:r('sheetHost'),sbl:r('sbl'),home:r('home')};
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
 
@@ -297,6 +309,10 @@ function split(E,root){
   render(X);
   return X;
 }
+/* the Feed header's icons: at Figma's x, or just after the live text (2px clear) where this device's font sets it wider; measured once it is on screen */
+function fhFit(X){const C=X.E.c,f=X.els.fh,k=scale(),wn=f.querySelector('.n').getBoundingClientRect().width,ws=f.querySelector('.s').getBoundingClientRect().width;
+  if(!wn||!k)return;X.fhOk=1;
+  f.querySelector('.fd-bd').style.left=Math.max(C.fh.bx,Math.round(60+wn/k+2))+'px';f.querySelector('.fd-gl').style.left=Math.max(137,Math.round(60+ws/k+2))+'px'}
 function open(X){if(X.state!==1||X.sheet.busy)return;X.sheet.go(2,{w:16})}
 function close(X){if(X.state!==2)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
 
@@ -305,6 +321,7 @@ function render(X){
   const C=X.E.c,e=X.els,top=C.top,m=C.m,y=X.y;
   const a=clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
   const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
+  if(e.fh&&!X.fhOk)fhFit(X);
   e.bu.style.opacity=a.toFixed(3);if(e.bo)e.bo.style.opacity=a.toFixed(3);
   e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
   e.sk.style.transform=`translate3d(0,${(y-2).toFixed(2)}px,0)`;e.sk.style.opacity=a>0?'1':'0';
