@@ -108,8 +108,8 @@ video{display:block;object-fit:cover}
 .ufinger.on{opacity:.9}
 .ufinger.down{scale:.85}
 .phone.u-on .finger{opacity:0!important}
-/* first load: a black screen holds until the seed's frame and the UI have decoded (no baked image: it would go stale with the design) */
-.ldc{left:0;top:0;width:375px;height:812px;z-index:45;pointer-events:none;background:#000}
+/* the poster handoff: the seed video waiting for its first frame stays transparent over the seed's still of that exact frame */
+.fv.hold{opacity:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.finger{display:none}*{transition-duration:0s!important}.ufinger.down{scale:1}}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
@@ -167,7 +167,6 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L iab" id="iab"></div>
         <i class="L sb" id="sb" aria-hidden="true"></i>
         <i class="L home" id="home" aria-hidden="true"></i>
-        <i class="L ldc" id="ldc" aria-hidden="true"></i>
         <div class="L finger" id="finger" aria-hidden="true"></div>
         <div class="L ufinger" id="ufinger" aria-hidden="true"></div>
       </div>
@@ -404,7 +403,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseAll()
    15688  touch on the chevron · 16184 press · 16424 release   16424–17064  the pop (640): the stack off right, the seed (no chip) in
           from −120, its video running 1.686 → 2.326s into the wrap, so 17064 ≡ 0 and the loop rounds without a cut.
    Each touch fades in (248) and is fully shown for at least 488ms before it lifts, then fades out (248).
-   First reveal: the loop starts on the 5704 frame, under the black cover ---------- */
+   First paint: the loop's 5704 frame, its seed still (vac-sap-rayban-in.webp, the video's 8.030s) under the UI ---------- */
 const T=17064,E={chip:4000,f1:5704,d1:6200,u1:6440,p0:6440,p1:7104,f2:9024,d2:9600,r2:9760,e2:10440,f3:11424,d3:12000,r3:12160,e3:12840,f4:15688,d4:16184,u4:16424},
   DRAG=48,DRAGMS=160,SPRMS=680,SV=springV(SPRMS,(2*DRAG/(DRAGMS/1000))/(PG-DRAG)),
   SEED_IN=2.326,LC_HOLD=4.4,SEED_PARK=SEED_IN-(T-E.u4)/1000,F_IN=248,F_DOWN=176,F_UP=120;
@@ -458,45 +457,47 @@ function startAuto(){if(autoOn||!canRun())return;autoOn=true;frame.dataset.autop
 function stopAuto(){if(!autoOn)return;autoOn=false;cancelAnimationFrame(raf);frame.dataset.autoplay='off';pauseAll()}
 function sched(){if(!autoOn&&canRun())startAuto()}
 
-/* ---------- the black cover: on first load it holds until the seed's frame, the posters and the UI have decoded (max 3.2s), then
-   fades (248); it also bridges a mode change (into full screen from mid-loop, back to inline): in 120, the new state set under it, out 248.
-   The first-load wait runs on the real clock (demoClock.native): the frame loads 400px ahead, paused (js/demos.js), and the demo clock
-   holds its frames and timers until it has the turn, so a reveal on it kept the cover up on screen. Paused or off screen the cover goes
-   at once (nothing animates there) ---------- */
-let ready=false;const ldc=$('ldc');
+/* ---------- no cover: the seed shows from its first paint, the still of the exact frame it starts on (inline the loop's 5704 frame,
+   vac-sap-rayban-in.webp; full screen its first frame) under the whole UI, and the video takes over on that frame once it has it (seat: it
+   stays transparent until then), so nothing fades in from black and nothing jumps (as the FMSS prototypes). The first-load wait (the
+   seed's frame, the posters and the UI decoded, max 3.2s) only holds the loop's start; it runs on the real clock (demoClock.native),
+   since the demo clock holds its frames and timers until it has the turn ---------- */
+let ready=false;
 const seekTo=(v,t)=>new Promise(r=>{if(v.readyState>=2&&Math.abs(v.currentTime-t)<.02)return r();const f=()=>{v.removeEventListener('seeked',f);r()};v.addEventListener('seeked',f);try{v.currentTime=t}catch(_){r()}setTimeout(r,1200)});
 const firstFrame=v=>v.readyState>=2?Promise.resolve():new Promise(r=>{v.addEventListener('loadeddata',r,{once:true});v.addEventListener('error',r,{once:true});setTimeout(r,3000)});
-function coverOut(){ldc.getAnimations().forEach(a=>a.cancel());if(RM.matches||!ldc.animate||demoClock.paused||!visible){ldc.style.opacity='0';return}
-  ldc.style.opacity='0';ldc.animate([{opacity:1},{opacity:0}],{duration:248,easing:'ease-out'})}
-function cover(then){   // in 120 → then() (returns a promise) → out 248
-  if(RM.matches||!ldc.animate){Promise.resolve(then()).then(()=>{ldc.style.opacity='0'});return}
-  ldc.getAnimations().forEach(a=>a.cancel());const o=+getComputedStyle(ldc).opacity;ldc.style.opacity='1';
-  const a=ldc.animate([{opacity:o},{opacity:1}],{duration:120,easing:'ease-in'});
-  a.onfinish=()=>{Promise.resolve(then()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(coverOut)))}}
+const SEED_STILL='../../assets/vac/vac-sap-rayban-in.webp?v=366',seedStill=()=>{els.seed.style.backgroundImage=INL()?`url(${SEED_STILL})`:''};
+const SEAT=new WeakMap();
+function seat(v,s){   // hold v transparent until it shows its frame at s (the seed's still is that frame), then hand over
+  const k={},N=demoClock.native,ev=['loadeddata','seeked','playing'];SEAT.set(v,k);v.classList.add('hold');
+  const off=()=>ev.forEach(e=>v.removeEventListener(e,chk));
+  function chk(){if(SEAT.get(v)!==k)return off();if(v.readyState>=2&&!v.seeking&&Math.abs(v.currentTime-s)<.5){off();N.raf(()=>N.raf(()=>{if(SEAT.get(v)===k)v.classList.remove('hold')}))}}
+  ev.forEach(e=>v.addEventListener(e,chk));
+  return firstFrame(v).then(()=>seekTo(v,s)).then(chk)}
+seedStill();if(INL())applyT(tl);
 const decodeImg=u=>{const im=new Image();im.src=u;return (im.decode?im.decode():new Promise(r=>{im.onload=im.onerror=r})).catch(()=>{})};
 (function(){
-  const imgs=[...document.querySelectorAll('#seed img,#nav,#chev,.bar')].map(i=>i.src).concat(['vac-sap-rayban','vac-sap-warby'].map(n=>'../../assets/vac/'+n+'.webp?v=223'));
-  const prep=INL()?firstFrame(sv).then(()=>seekTo(sv,SEED_IN+E.f1/1000)):firstFrame(sv);
+  const imgs=[...document.querySelectorAll('#seed img,#nav,#chev,.bar')].map(i=>i.src).concat(['vac-sap-rayban','vac-sap-warby'].map(n=>'../../assets/vac/'+n+'.webp?v=223'),INL()?[SEED_STILL]:[]);
+  const prep=INL()?seat(sv,SEED_IN+E.f1/1000):firstFrame(sv);
   const all=Promise.all(imgs.map(decodeImg).concat([prep,firstFrame(wv)]));
   let done=false;const go=()=>{if(done)return;done=true;ready=true;
-    if(INL()){applyT(tl);sched()}else{fsStart(false)}
-    coverOut()};
+    if(INL()){applyT(tl);sched()}else{fsStart(false)}};
   const N=demoClock.native;all.then(()=>N.raf(()=>N.raf(go)));N.setTimeout(go,3200)})();
 
 /* ---------- full screen: entering it (html.embed-full) from the seed keeps going (the same frame, the chip as it was, or on its way);
-   from mid-chain the cover bridges to the seed's start. Leaving it, the cover bridges back to the loop's 5704 frame ---------- */
+   from mid-chain it cuts to the seed's start (its first-frame still, the video seated on it). Leaving it, it cuts back to the loop's 5704
+   frame the same way (its still) ---------- */
 function fsStart(keep){
   stopAuto();ORDER=FS_ORDER;cta=null;iab.reset();sheetP=0;sd=0;[sv,ev].forEach(v=>v.loop=true);zv.loop=true;lv.loop=true;wv.loop=true;
   op(els.zl,0);op(finger,0);$('chipPress').classList.remove('on');
   if(keep){const c=chip,t=tl;toSeed();chip=c;render();if(chip<1){if(t>=E.chip){cA.to(1,{ms:Math.max(8,Math.round((1-c)*125)*8)})}else armChip(E.chip-t)}}
-  else{toSeed();chip=0;try{sv.currentTime=0}catch(_){}render();armChip(4000)}
+  else{toSeed();chip=0;seedStill();seat(sv,0);render();armChip(4000)}
   homeS=null;homeTell(true);vidSync();
 }
 let wasInl=INL();
 if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
-  if(!i){const keep=mode==='seed'&&ready;if(keep)fsStart(true);else cover(()=>{fsStart(false)});return}
+  if(!i){const keep=mode==='seed'&&ready;if(keep)fsStart(true);else fsStart(false);return}
   unpause();clearTimeout(chipT);cA.stop();pxA.stop();kA.stop();bA.stop();cta=null;iab.reset();sheetP=0;sd=0;touch.classList.remove('on');ORDER=IN_ORDER;
-  cover(()=>{tl=E.f1;applyT(tl);pauseAll();return seekTo(sv,SEED_IN+E.f1/1000).then(()=>{sched()})})}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+  seedStill();const sn=seat(sv,SEED_IN+E.f1/1000);tl=E.f1;applyT(tl);pauseAll();sn.then(sched)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 if(!INL())touch.classList.add('on');
 
 /* ---------- a11y + proto-state (the host page: js/proto-fs.js desktop, js/case.js phone) ---------- */
