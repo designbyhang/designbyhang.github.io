@@ -81,8 +81,8 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
  '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s svg{display:none;position:absolute;left:50%;top:0;margin-left:-12px;width:24px;height:24px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.24))}'+
  '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s svg{display:block}'+
- // muted: the speaker crop cut before its waves, then moved by half the waves' width, so the bare speaker sits on its cell's centre line too
- '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0);translate:var(--vs-shift,0) 0}'+
+ // muted: the speaker crop cut before its waves only, so the speaker sits exactly where it sits with sound on
+ '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0)}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
  // no focus ring, outline or tap highlight on any part of the player, keyboard focus included (the FMSS demos' audience never uses a keyboard)
  '.vs,.vs *,.vs-tap{-webkit-tap-highlight-color:transparent}'+
@@ -113,18 +113,19 @@ function create(o){
   // centred in it. INK: the glyphs' ink centres in the strip (ci1.webp, 250×48 at 2x: expand 16.75, pause 60.75, speaker with its waves
   // 104.75 — the icon as drawn, its resting look), so every glyph sits on its cell's centre line and the row is only translated.
   // PLAY_INK: the play path's ink centre in its own 24px box (7.5..19.8), so the triangle is centred on its ink, not on a box it does not fill
-  var ib=o.iconBox,INK=[16.75,60.75,104.75],PLAY_INK=13.65;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
+  var ib=o.iconBox,INK=[16.75,60.75,104.75],PLAY_INK=13.65,PLAY_NUDGE=2;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
+  // PLAY_NUDGE: a triangle reads as centred only when its ink sits a little right of the box's centre; 2 design px, VAC and FMSS alike
   function cell(k){return [ib.left+k*ib.size,iy+12-ib.size/2]}   // a cell's left / top: on the glyph row's centre line, as the strip is
   // icons: one crop; cut in three around the pause glyph's slot (and the speaker's, when muted), so one slot alone can show the play icon.
   // The strip's speaker: body 95..107 design px, its two waves out to 114.5, so muted (the body alone) it moves right by that half width
   function slice(a,b,g,sp,k){var l=ib?cell(k)[0]+ib.size/2-(INK[k]-a):ix+a;
-    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;'+(ib?'--vs-shift:3.75px;':'')+'':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
+    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
   root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+x+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
-  if(ib){var pv=f.querySelector('.vs-g svg');if(pv)pv.style.left=(INK[1]-sl[0]-(PLAY_INK-12))+'px'}   // the play path's ink centre on the pause glyph's (the box is drawn with margin-left:-12px)
+  if(ib){var pv=f.querySelector('.vs-g svg');if(pv)pv.style.left=(INK[1]-sl[0]-(PLAY_INK-12)+PLAY_NUDGE)+'px'}   // the play path's ink centre on the pause glyph's (the box is drawn with margin-left:-12px), then nudged right (PLAY_NUDGE)
   // o.hold: this player's hold before the fade (ms, a multiple of 8; default HOLD, as FMSS), the 320ms fade unchanged
   var hold=o.hold>0?o.hold:HOLD,gone=hold+FADE;
   var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=rl?-1e9:null,rIn=-1e9,pend=null,up=false,base=0,prev=null,area=null;
