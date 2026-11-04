@@ -268,13 +268,14 @@ const EXP=[
       Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
       Watched for 4s it shrinks into the split screen by itself, the IAB rises, the video keeps playing, and the control strip shows for
       ~2s then fades. A media tap is organic behaviour everywhere, this ad included: the reel pauses, its overlay lifts and the scrubber
-      comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. */
-   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci1',tap:[0,0,375,734],
+      comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
+      this surface has no full-screen viewer. */
+   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',variant:'w/ In-Content Ads',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
-   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci1',tap:[12,644,351,74],
+   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & IAB Peek',variant:'on Dwell',from:'Solution 2 · Stories',build:split,
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
@@ -356,15 +357,22 @@ function split(E,root){
 
   /* live player controls (the shared VideoScrubber, as Solution 1 / 2, here interactive: seek, tap to pause; expand, pause and mute buttons in VAC's 44px icon cells, FMSS's 2080ms hold) */
   if(C.cs&&VS){X.vs=VS.create({video:X.video,icons:u(C.ci),trackY:top-14,className:'vsx',tapToPause:true,pauseButton:true,muteButton:true,iconBox:{left:219,size:44},
-    onExpand:VW?()=>vwOpen(X):()=>close(X)});r('vsAt').replaceWith(X.vs.el)}
-    // the strip's three cells on every split screen: on the Feed ads expand opens the full-screen viewer (VW), and on the two Reels
-    // surfaces, which have no viewer of their own, it is the way back out of the split screen to the full-screen reel
+    ...(VW?{onExpand:()=>vwOpen(X)}:{})});r('vsAt').replaceWith(X.vs.el)}   // expand, only on the Feed ads (VW = the entry has a viewer)
+  /* the Feed ads' expand cell answers while the split screen is still travelling in as well as once it has settled: the shared strip's own
+     button only takes a tap while its clock runs, which starts when the sheet arrives, so the same 44px cell gets the tap here and the
+     viewer opens the moment the sheet settles (vwOpen holds it) */
+  if(VW&&X.vs){const ex=X.vs.el.querySelector('.vs-e[aria-label="Expand"]');let ep=null;
+    ex.addEventListener('pointerdown',e=>{if(e.button>0)return;ep={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),moved:false}});
+    ex.addEventListener('pointermove',e=>{if(ep&&e.pointerId===ep.id&&Math.hypot(e.clientX-ep.x,e.clientY-ep.y)>10)ep.moved=true});
+    ex.addEventListener('pointercancel',()=>{ep=null});
+    ex.addEventListener('pointerup',e=>{const p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600)return;
+      if(X.state!==2||X.vw||X.vwS.busy)return;if(X.sheet.busy||X.vs.since()==null)vwOpen(X)})}   // the settled tap is the strip's own
+    // (the Reels and In-Content split screens were never meant to have one: no path to the full-screen surface, so pause and mute only)
   /* DUAL-BASED split screen on a sponsor-labelled Reels AD (C.ad): two panes, ad above and IAB below. It is reached by DWELL at C.adDwell
      (4s of playing), never by a media tap. A media tap is organic behaviour: the reel pauses, its overlay band lifts and the scrubber
      comes up with the quiet play glyph (../shared/pause, the VAC prototype's own affordance), and while it is paused the dwell clock
      stops, so a paused reel never falls into the split screen on its own. In split screen a tap pauses and resumes, as the other ads'
-     strip does. This surface has no full-screen viewer of its own, so its expand cell means the reverse of the way in: the video back
-     out to the full-screen reel */
+     strip does. Its strip carries no expand cell: this surface has no full-screen viewer of its own */
   if(C.ui){
     // on the In-Content ad the reel a tap pauses is the organic video behind the banner, not the banner's own thumbnail
     X.pz=FMSSPause.mount(els.pz,{video:()=>C.reelTap?(root.querySelector('.rl video')||X.video):X.video,at:els.rc,bar:734,
@@ -428,7 +436,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{clearTimeout(dw);X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -447,7 +455,12 @@ function vwFit(X){const o=X.els.vwo,k=scale(),n=o.querySelector('.vwn').getBound
   c.style.maxHeight=''}
 function open(X){if(X.state!==1||X.sheet.busy)return;X.sheet.go(2,{w:16})}
 /* the viewer: split (vw 0) -> full-bleed video (vw 1), the surface -> split shared-element lerp run backwards from the split rect, the close spring (ω16, ζ 1) both ways */
-function vwOpen(X){if(X.state!==2||X.sheet.busy||X.vwS.busy||X.vw)return;X.vwS.to(1,{w:16,onDone:()=>say(X.E.name+', full screen video')})}
+/* the Feed ads' expand cell answers the moment the split screen is up, as the Reels and In-Content cells do: while the sheet is still
+   travelling into split the tap is held and the viewer opens the instant it settles, so the cell never reads as a dead press */
+function vwOpen(X){if(X.state!==2||X.vwS.busy||X.vw)return;const go=()=>X.vwS.to(1,{w:16,onDone:()=>say(X.E.name+', full screen video')});
+  if(!X.sheet.busy)return go();if(X.vwArm)return;X.vwArm=()=>{if(cur!==X||X.state!==2||X.vw||X.vwS.busy)return;go()};
+  const wait=()=>{if(!X.vwArm)return;if(cur!==X||X.state!==2){X.vwArm=null;return}
+    if(X.sheet.busy)requestAnimationFrame(wait);else{const f=X.vwArm;X.vwArm=null;f()}};requestAnimationFrame(wait)}
 function vwPlay(X){if(X.vs2&&X.vs2.paused()){X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}}
 /* the viewer's own expand cell: the video shrinks back into the split screen's box (the same spring, the reverse of vwOpen) */
 function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.vwS.to(0,{w:16,onDone:()=>{vwPlay(X);say(X.E.name+', split screen')}})}
