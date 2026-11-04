@@ -77,6 +77,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .xp img.uih{height:481px}
 .xp img.uiu{height:253px;transform-origin:0 0}
 .xp img.uib{height:78px}
+.xp img.uis{height:253px}   /* the band's gradient scrim, cut out of the same export: it never lifts */
 .uz{left:155.5px;top:335px;pointer-events:none}
 .rc{left:0;top:0;width:375px;height:812px;pointer-events:none;z-index:2}   /* the paused reel's scrubber (../shared/pause), above the bands */
 /* the expand viewer (Figma 138260:60964): split screen's video back out to full bleed in a 375 square at 219, on black, with the post's
@@ -308,7 +309,8 @@ function split(E,root){
      stay put. Organic surfaces have no ads, so they never get any of this. */
   if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`;
   h+=`<img class="L ot uih" data-r="uih" alt="" src="${b('head')}">`+   // the Reels header: status row, Video title, search and profile
-    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px">`+   // the band a paused tap lifts
+    `<img class="L ot uis" data-r="uis" alt="" src="${b('scrim')}" style="top:${UI_TOP}px">`+   // the band's gradient scrim: fixed, it never lifts
+    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px">`+   // the band's live content, the only thing a paused tap lifts
     `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
   /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
