@@ -71,6 +71,28 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .ctl{will-change:transform,opacity}
 .splx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
 .splx.on{display:block}
+/* the expand viewer (Figma 138260:60964): split screen's video back out to full bleed in a 375 square at 219, on black, with the post's
+   details (avatar, name, badge, 2-line caption), a second live VideoScrubber, the persistent CTA and the UFI, all live components (no crops);
+   the reverse of surface -> split on the close spring (ω16) */
+.vwb{width:375px;height:812px;background:#000;display:none}
+.vwo{width:375px;height:812px;display:none;pointer-events:none;color:#fff;font-feature-settings:var(--t-sf-ft);-webkit-font-smoothing:antialiased}
+.vwo>*{position:absolute;margin:0}
+.vwo .vwx{left:325px;top:46px;width:44px;height:44px;pointer-events:auto}
+.vwo .vwx img{position:absolute;left:10px;top:10px;width:24px;height:24px}
+.vwo .vwx img,.vwo .vwbd{filter:invert(1)}   /* Figma's nav-cross / badge exports are black ink; white on the viewer, as the design */
+.vwo .vwav{left:12px;top:96px;width:40px;height:40px;border-radius:50%;background-size:375px 812px;background-position:-12px -116px;background-repeat:no-repeat}
+.vwo .vwn{left:60px;top:106px;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);white-space:nowrap}
+.vwo .vwbd{left:175px;top:110px;width:12px;height:12px}
+.vwo .vwcap{left:12px;top:148px;width:351px;font:400 15px/20px var(--t-sf);letter-spacing:-.24px;max-height:40px;overflow:hidden}
+.vwo .vwcap span{color:rgba(255,255,255,.56)}
+.vwo .vwcta{left:12px;top:650px;width:351px;height:36px;border-radius:6px;background:#fff;color:#050505;font:var(--t-r-name);font-size:15px;letter-spacing:var(--t-r-name-ls);text-align:center;line-height:36px;pointer-events:auto}
+.vwo .vwr{top:711px;width:16px;height:16px}
+.vwo .vwt{top:709px;font:400 15px/20px var(--t-sf);letter-spacing:-.24px;white-space:nowrap}
+.vwo .vwdv{left:12px;top:739px;width:351px;height:.5px;background:#C9CCD1}
+.vwo .vwi{top:749px;width:20px;height:20px}.vwo .vwi svg{display:block;width:20px;height:20px}
+.vwo .vwal{top:751px;font:var(--t-r-body-s);font-weight:590;letter-spacing:var(--t-r-body-s-ls);white-space:nowrap}
+.vwv .vs-t{top:537.8px!important;font:var(--t-r-name);font-size:15px;letter-spacing:var(--t-r-name-ls)}
+.ctl.vwon .vs-e,.ctl.vwon .vs-h{pointer-events:none!important}
 /* Stories header (Figma .Header: Stepper + Meta + Icon Button Group), live so it moves inward with the canvas (as Solution 2) */
 .hd{position:absolute;left:0;top:0;width:375px;height:120px;color:#fff;font-weight:590;pointer-events:none}
 .hd>*{position:absolute;will-change:transform}
@@ -194,6 +216,7 @@ const frame=$('frame'),stage=$('stage'),phone=$('phone'),xps=$('xps');
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const SP=FMSSIAB.makeSpring,VS=window.VideoScrubber,SQ=CSS.supports('clip-path','path("M0 0H1V1Z")');
+const VWI={like:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M9.41667 0.5C8.35812 0.5 7.5 1.35812 7.5 2.41667V3.02899C7.5 4.18278 7.18643 5.31488 6.5928 6.30425L5.7887 7.64443C5.62445 7.91818 5.48486 8.2045 5.37087 8.5H2.5C1.39543 8.5 0.5 9.39543 0.5 10.5V17C0.5 18.1046 1.39543 19 2.5 19H14.75C16.1617 19 17.3249 17.9363 17.482 16.5667C18.2439 16.0784 18.75 15.2239 18.75 14.25C18.75 14.1349 18.7429 14.0212 18.729 13.9093C19.2056 13.4153 19.5 12.742 19.5 12C19.5 11.4887 19.3599 11.009 19.1164 10.5985C19.2032 10.3308 19.25 10.0454 19.25 9.75C19.25 8.23122 18.0188 7 16.5 7H12.5V3.58333C12.5 1.88046 11.1195 0.5 9.41667 0.5ZM5 17.5V10H2.5C2.22386 10 2 10.2239 2 10.5V17C2 17.2761 2.22386 17.5 2.5 17.5H5ZM6.5 17.5H14.75C15.4404 17.5 16 16.9404 16 16.25C16 16.2195 15.9989 16.1894 15.9968 16.1596C15.9738 15.8347 16.1632 15.5321 16.4654 15.4107C16.9266 15.2255 17.25 14.7746 17.25 14.25C17.25 14.1144 17.2287 13.9852 17.1898 13.8649C17.0888 13.5527 17.2025 13.2112 17.4704 13.0218C17.7923 12.7941 18 12.4213 18 12C18 11.6872 17.8861 11.4029 17.6965 11.1835C17.4935 10.9485 17.4563 10.6127 17.603 10.339C17.6966 10.1643 17.75 9.96448 17.75 9.75C17.75 9.05964 17.1904 8.5 16.5 8.5H12.1365C11.5088 8.5 11 7.99118 11 7.36351V3.58333C11 2.70888 10.2911 2 9.41667 2C9.18655 2 9 2.18655 9 2.41667V3.02899C9 4.45465 8.61254 5.85351 7.87904 7.076L7.07494 8.41617C6.69873 9.04319 6.5 9.76066 6.5 10.4919V17.5Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/></svg>',comment:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M0.5 10C0.5 4.75329 4.7533 0.5 10 0.5C15.2467 0.5 19.5 4.75329 19.5 10C19.5 11.5934 19.1071 13.0973 18.4123 14.4178C18.3314 14.5716 18.3157 14.724 18.3469 14.8466L19.1238 17.9083C19.3103 18.6431 18.6434 19.31 17.9086 19.1236L14.8468 18.3468C14.7242 18.3157 14.5717 18.3313 14.418 18.4122C13.0974 19.1071 11.5935 19.5 10 19.5C4.7533 19.5 0.5 15.2467 0.5 10ZM10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C11.3443 18 12.6091 17.669 13.7195 17.0848C14.1582 16.8539 14.6894 16.7593 15.2156 16.8928L17.4633 17.4631L16.8929 15.2156C16.7594 14.6893 16.854 14.1581 17.0848 13.7194C17.669 12.609 18 11.3443 18 10C18 5.58172 14.4183 2 10 2Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/></svg>',share:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M11.2931 2.73337C10.8262 2.24312 10 2.5736 10 3.25062V6.75063C10 7.16484 9.66421 7.50063 9.25 7.50063H8.93182C6.48734 7.50063 4.65657 8.59865 3.41513 10.259C2.34217 11.694 1.70509 13.5605 1.54193 15.5008C2.18077 14.6662 2.96332 13.9791 3.966 13.4745C5.26783 12.8194 6.88389 12.5006 8.93182 12.5006H9.25C9.66421 12.5006 10 12.8364 10 13.2506V16.7506C10 17.4277 10.8262 17.7581 11.2931 17.2678L17.7217 10.5175C17.9975 10.2279 17.9975 9.7727 17.7217 9.48305L11.2931 2.73337ZM8.5 3.25062C8.5 1.21954 10.9785 0.228117 12.3793 1.69886L18.8078 8.44854C19.6355 9.31748 19.6355 10.683 18.8079 11.552L12.3793 18.3023C10.9786 19.7732 8.5 18.7817 8.5 16.7506V14.0059C6.8218 14.0479 5.58748 14.3377 4.64029 14.8144C3.62526 15.3252 2.88403 16.0786 2.27116 17.0936C1.9477 17.6293 1.3524 17.7267 0.940363 17.6331C0.524864 17.5387 0 17.1734 0 16.5006C0 13.9479 0.730247 11.3449 2.2138 9.36076C3.63857 7.45523 5.75184 6.13565 8.5 6.01039V3.25062Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/></svg>'};   // the viewer's UFI glyphs: Figma's own 20x20 vectors
 const sqP=(w,h,R,sm=.6)=>Array.isArray(R)?Squircle.pathR(w,h,R,sm):Squircle.path(w,h,R,sm);
 
 /* ---------- fit phone to container (same as the FMSS Evolution prototypes) ---------- */
@@ -216,19 +239,19 @@ const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const EXP=[
   {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Default',from:'Solution 1 · Offsite Conversions',build:split,
-   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],fh:{name:'Nike',bx:96},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},fh:{name:'Nike',bx:96},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'}}},
   {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Default',from:'Solution 1 · Lead Generation',build:split,
-   c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],fh:{name:'Meta for Work',bx:164},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
+   c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],vw:{cta:'Download',name:'Meta for Work',cap:'We asked 400 business leaders in the US & UK about the trends they think will shape t'},fh:{name:'Meta for Work',bx:164},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:60,be:390,foot:[722,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Default',from:'Solution 1 · Business Messages',build:split,
-   c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],fh:{name:'Artifox',bx:112},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
+   c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},fh:{name:'Artifox',bx:112},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8',caret:[30,485]}}}},
   {tab:'Feed',group:'watch',name:'Watch & Install',variant:'w/ Screenshots',from:'Solution 1 · App Installs',build:split,
-   c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
+   c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],vw:{cta:'Install',name:'Chick-fil-A',cap:'Free delivery on your first mobile order. Try our Classic Chicken Sandwich today!'},fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:72,be:388,foot:[798,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Feed',build:split,
-   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Video (Reels)',build:split,
    c:{S:S2,n:2,top:548,tone:0,surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[12,560,303,128],
@@ -268,10 +291,21 @@ function split(E,root){
   const xa=C.xAt||[325,46,44,44];
   h+=`<button class="L btn splx" data-r="splx" type="button" aria-label="Close split screen" style="left:${xa[0]}px;top:${xa[1]}px;width:${xa[2]}px;height:${xa[3]}px"></button>`;
   h+=`<div class="L iabh" data-r="sheetHost" style="width:375px;height:812px"></div>`;
+  const VW=!!(C.cs&&C.fh);   // the expand viewer: the Feed ads (their post rows are the a image's)
+  if(VW){const A=u(C.surf[0].f),V=C.vw,esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;'),
+      act=(ic,ix,lab,lx)=>`<i class="vwi" style="left:${ix}px">${ic}</i><p class="vwal" style="left:${lx}px">${lab}</p>`;
+    h+=`<div class="L vwb" data-r="vwb"></div><div class="L vwo" data-r="vwo">`+
+      `<i class="vwav" style="background-image:url(${A})"></i><p class="vwn">${esc(V.name)}</p><img class="vwbd" alt="" src="assets/vw-badge.png">`+
+      `<p class="vwcap" data-r="vwcap">${esc(V.cap)}</p><i data-r="vwsAt"></i>`+
+      `<button class="btn vwcta" type="button" data-sq-off>${esc(V.cta)}</button>`+
+      [1,2,3].map((n,i)=>`<img class="vwr" alt="" src="assets/vw-r${n}.png" style="left:${12+16*i}px">`).join('')+
+      `<p class="vwt" style="left:64px">171K</p><p class="vwt" style="right:12px">2K comments</p><i class="vwdv"></i>`+
+      act(VWI.like,36.5,'Like',62.5)+act(VWI.comment,143.5,'Comment',169.5)+act(VWI.share,281,'Share',307)+
+      `<button class="btn vwx" data-r="vwx" type="button" aria-label="Close full screen video"><img alt="" src="assets/vw-x.png"></button></div>`}
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
   const els=X.els={sf:[...root.querySelectorAll('.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),splx:r('splx'),host:r('sheetHost')};els.bui=els.bu.firstChild;
+    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
 
@@ -291,8 +325,16 @@ function split(E,root){
     if(P.fullFrom){const hf=X.sheet.panel.querySelector('.iab-hf');hf.style.objectFit='cover';hf.style.objectPosition='0 -46px'}   // the full header: c's own header rows (46-92)
   }else X.sheet=nativeSheet({host:els.host,y2:top,u,n,P:C.sheet,label:E.name,hooks});
 
-  /* live player controls (the shared VideoScrubber, as Solution 1 / 2, here interactive: seek, tap to pause; pause and mute buttons in VAC's 44px icon cells, FMSS's 2080ms hold) */
-  if(C.cs&&VS){X.vs=VS.create({video:X.video,icons:u(C.ci),trackY:top-14,className:'vsx',tapToPause:true,pauseButton:true,muteButton:true,iconBox:{left:219,size:44}});r('vsAt').replaceWith(X.vs.el)}
+  /* live player controls (the shared VideoScrubber, as Solution 1 / 2, here interactive: seek, tap to pause; expand, pause and mute buttons in VAC's 44px icon cells, FMSS's 2080ms hold) */
+  if(C.cs&&VS){X.vs=VS.create({video:X.video,icons:u(C.ci),trackY:top-14,className:'vsx',tapToPause:true,pauseButton:true,muteButton:true,iconBox:{left:219,size:44},
+    ...(VW?{onExpand:()=>vwOpen(X)}:{})});r('vsAt').replaceWith(X.vs.el)}   // expand (Feed ads): the full-screen viewer
+  /* the viewer's player: a second VideoScrubber over the same video, live only while the viewer is up (no fade: held at 1, the layer fades with k) */
+  if(VW&&VS){X.vs2=VS.create({video:X.video,icons:'assets/vw-ctl.png',trackY:579.2,x:12,w:351,className:'vwv',pauseButton:true,muteButton:true,iconBox:{left:235,size:44},
+    sinceSplit:()=>X.vw>0?0:null});r('vwsAt').replaceWith(X.vs2.el)}
+  X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});
+  if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwClose(X)})
+    /* in the viewer a tap on the video does nothing (the buttons are the controls): the split player's tap to pause never sees it; a swipe still closes */
+    root.addEventListener('pointerup',e=>{if(X.vw&&els.mv.contains(e.target)){e.stopPropagation();mvUp(e)}},true)}
 
   /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
   let hp=null;
@@ -309,14 +351,15 @@ function split(E,root){
   let mp=null;
   els.mv.addEventListener('pointerdown',e=>{if(e.button>0)return;mp={id:e.pointerId,x:e.clientX,y:e.clientY,sheet:false};try{els.mv.setPointerCapture(e.pointerId)}catch(_){}});
   els.mv.addEventListener('pointermove',e=>{if(!mp||e.pointerId!==mp.id)return;const dx=e.clientX-mp.x,dy=e.clientY-mp.y;
-    if(!mp.sheet&&X.state===2&&!X.sheet.busy&&dy>8&&dy>Math.abs(dx)){mp.sheet=true;X.sheet.dragStart(mp.y,mp.id,scale())}
+    if(!mp.sheet&&!X.vw&&X.state===2&&!X.sheet.busy&&dy>8&&dy>Math.abs(dx)){mp.sheet=true;X.sheet.dragStart(mp.y,mp.id,scale())}
     if(mp.sheet)X.sheet.dragMove(e.clientY)});
-  const mvUp=e=>{if(!mp||e.pointerId!==mp.id)return;const p=mp;mp=null;if(p.sheet){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd()}};
+  const mvUp=e=>{if(!mp||e.pointerId!==mp.id)return;const p=mp;mp=null;if(X.vw&&e.type==='pointerup'&&(e.clientY-p.y)/scale()>48){vwClose(X);return}   // the viewer: a swipe down closes it
+  if(p.sheet){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd()}};
   els.mv.addEventListener('pointerup',mvUp);els.mv.addEventListener('pointercancel',mvUp);
   els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
   /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
   let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp)open(X)},C.dwell)};
-  X.reset=()=>{clearTimeout(dw);hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{clearTimeout(dw);X.vwS.stop();if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -324,8 +367,20 @@ function split(E,root){
 function fhFit(X){const C=X.E.c,f=X.els.fh,k=scale(),wn=f.querySelector('.n').getBoundingClientRect().width,ws=f.querySelector('.s').getBoundingClientRect().width;
   if(!wn||!k)return;X.fhOk=1;
   f.querySelector('.fd-bd').style.left=Math.max(C.fh.bx,Math.round(60+wn/k+2))+'px';f.querySelector('.fd-gl').style.left=Math.max(137,Math.round(60+ws/k+2))+'px'}
+/* the viewer's details, measured once on screen: the badge 4px after the live name (fallback 175); the caption clamped to 2 lines, cut at a
+   word and closed with '… See more' when the copy runs longer */
+function vwFit(X){const o=X.els.vwo,k=scale(),n=o.querySelector('.vwn').getBoundingClientRect().width;if(!n||!k)return;X.vwFit=1;
+  o.querySelector('.vwbd').style.left=Math.round(60+n/k+4)+'px';
+  const c=X.els.vwcap,t=X.E.c.vw.cap,W=t.split(' ');c.style.maxHeight='none';c.textContent=t;
+  const cut=!/[.!?]$/.test(t);   // copy that stops mid-word (as the Feed image shows it, itself cut): its last fragment is dropped, the cut shown
+  if(cut||c.offsetHeight>40){let lo=0,hi=W.length-(cut?1:0);const fit=m=>{c.innerHTML=W.slice(0,m).join(' ').replace(/&/g,'&amp;').replace(/</g,'&lt;')+'…<span> See more</span>';return c.offsetHeight<=40};
+    while(lo<hi){const m=(lo+hi+1)>>1;if(fit(m))lo=m;else hi=m-1}fit(lo)}
+  c.style.maxHeight=''}
 function open(X){if(X.state!==1||X.sheet.busy)return;X.sheet.go(2,{w:16})}
-function close(X){if(X.state!==2)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
+/* the viewer: split (vw 0) -> full-bleed video (vw 1), the surface -> split shared-element lerp run backwards from the split rect, the close spring (ω16, ζ 1) both ways */
+function vwOpen(X){if(X.state!==2||X.sheet.busy||X.vwS.busy||X.vw)return;X.vwS.to(1,{w:16,onDone:()=>say(X.E.name+', full screen video')})}
+function vwClose(X){if(!X.vw||X.vwS.target===0)return;X.vwS.to(0,{w:16,onDone:()=>{if(X.vs2&&X.vs2.paused()){X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}say(X.E.name+', split screen')}})}
+function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
 
 /* every layer from the sheet's y (the Solution loops' A / B / C recipe, the poses read live) */
 function render(X){
@@ -337,29 +392,34 @@ function render(X){
   e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
   /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
   const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
-  const R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);
-  const mv=e.mv.style;mv.left=x0.toFixed(2)+'px';mv.top=y0.toFixed(2)+'px';mv.width=w.toFixed(2)+'px';mv.height=h.toFixed(2)+'px';
-  const key=[w,h,...R].map(v=>v.toFixed(1)).join();
-  if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+w.toFixed(2),+h.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
+  let R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);
+  const k=X.vw||0;let vx=x0,vy=y0,vw=w,vh=h;
+  if(k>0){const fh=375*m.a[3]/m.a[2];vx=lerp(x0,0,k);vy=lerp(y0,219+(375-fh)/2,k);vw=lerp(w,375,k);vh=lerp(h,fh,k);R=R.map(v=>+lerp(v,0,k).toFixed(2));sm=lerp(sm,m.asm||0,k)}
+  const mv=e.mv.style;mv.left=vx.toFixed(2)+'px';mv.top=vy.toFixed(2)+'px';mv.width=vw.toFixed(2)+'px';mv.height=vh.toFixed(2)+'px';
+  const key=[vw,vh,...R].map(v=>v.toFixed(1)).join();
+  if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+vw.toFixed(2),+vh.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
   /* the backdrop: the same box from the video's surface rect (and its corners) to the whole 375 × 734 canvas, behind the video; at a = 0 it is
      all behind the video, so it grows out of it on the way in and closes back into it on the way out, frame for frame with it */
-  const B=FMSSBackdrop.box(m.a,ar,a),bx=B.x,by=B.y,bw=B.w,bh=B.h,bR=B.R,bs=e.bu.style;
-  bs.display=a>0?'block':'none';
+  const B=k>0?FMSSBackdrop.box([vx,vy,vw,vh],R,a*(1-k)):FMSSBackdrop.box(m.a,ar,a),bx=B.x,by=B.y,bw=B.w,bh=B.h,bR=B.R,bs=e.bu.style;
+  bs.display=a*(1-k)>0?'block':'none';
   if(a>0){bs.left=bx.toFixed(2)+'px';bs.top=by.toFixed(2)+'px';bs.width=bw.toFixed(2)+'px';bs.height=bh.toFixed(2)+'px';
     e.bui.style.transform=`translate3d(${(-bx).toFixed(2)}px,${(-by).toFixed(2)}px,0)`;
     const bk=[bw,bh,...bR].map(v=>v.toFixed(1)).join();
     if(bk!==X.bk){X.bk=bk;if(SQ&&bR.some(v=>v>.05)){bs.clipPath=`path('${sqP(+bw.toFixed(2),+bh.toFixed(2),bR,sm)}')`;bs.borderRadius=''}else{bs.clipPath='';bs.borderRadius=bR.map(v=>v+'px').join(' ')}}}
-  if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=a.toFixed(3)}
+  if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
+  /* the viewer's layers lift over the sheet while it is out (black under the backdrop and the video, the post rows over them) */
+  if(e.vwb){const on=k>0;e.vwb.style.display=e.vwo.style.display=on?'block':'none';e.vwb.style.opacity=k.toFixed(3);e.vwo.style.opacity=k.toFixed(3);
+    e.host.style.zIndex=on?'4':'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
-  X.tone=lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c);
+  X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,k);
   if(X===cur){pill(X.tone);chrome(X)}
 }
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
    light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
 const dcSb=$('dcSb'),dcHm=$('dcHm');
-function chrome(X){const C=X.E.c;dcSb.style.opacity=C.sheet.iab?X.sd.toFixed(3):'0';
-  const k=Math.max(C.tone,clamp((803-X.y)/5)),g=Math.round(255*(1-k));dcHm.style.background=`rgb(${g},${g},${g})`}
+function chrome(X){const C=X.E.c,v=X.vw||0;dcSb.style.opacity=Math.max(C.sheet.iab?X.sd:0,v).toFixed(3);dcSb.classList.toggle('sb-dark',!(v>0));   // the viewer: white icons
+  const k=Math.max(C.tone,clamp((803-X.y)/5))*(1-v),g=Math.round(255*(1-k));dcHm.style.background=`rgb(${g},${g},${g})`}
 
 /* ---------- the native sheet: the Solution's sheet image (bl) and full screen (c), on the shared spring with the IAB's drag rules ----------
    Same stops (812 · split line · 44), springs (ω16 open / close, ω18 split ↔ full, ζ .82 into split), 1:1 drag with a velocity +
@@ -496,12 +556,12 @@ mmVp.addEventListener('pointerup',vpUp);mmVp.addEventListener('pointercancel',vp
 mmTr.querySelectorAll('.mm-it').forEach(b=>b.addEventListener('click',e=>{if(e.detail===0)pick(+b.dataset.i)}));   // keyboard
 function pick(i){show(i);closeMenu()}
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)return closeMenu();if(!cur)return;
-  if(cur.state===3)cur.sheet.go(2);else if(cur.state===2)close(cur)});
+  if(cur.vw)vwClose(cur);else if(cur.state===3)cur.sheet.go(2);else if(cur.state===2)close(cur)});
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
 let seen=false;
 function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden;
-  cur.vids.forEach(v=>{const vsHeld=cur.vs&&v===cur.video&&(cur.vs.paused()||cur.vs.dragging());
+  cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&cur.vs2&&(cur.vs2.paused()||cur.vs2.dragging())));
     if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
 document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('pageshow',vidSync);
