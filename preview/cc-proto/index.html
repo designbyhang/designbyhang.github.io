@@ -216,15 +216,15 @@ new ResizeObserver(fit).observe(frame);fit();
    its age, caption, commerce card). pill: the bottom bar's query for that reel (Nespresso's is the entry: "Explore more like this", after
    pre: "Coffee", its query on arrival, with the search sparkle) */
 const R={
-  nike:{kind:'seed',name:'Nike',sub:'4H',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
-  nesp:{kind:'org',name:'Nespresso',ago:'5H',cap:'Sip through spring with our indulgent iced coffee recipes.',pre:'Coffee',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
+  nike:{kind:'seed',name:'Nike',sub:'4h',cap:'Meet the new Nike Vomero Premium, with plush cushioning for every mile.',pill:'Running',ufi:['27K','892','340','210']},
+  nesp:{kind:'org',name:'Nespresso',ago:'5h',cap:'Sip through spring with our indulgent iced coffee recipes.',pre:'Coffee',pill:'Explore more like this',icon:'explore',ufi:['1.3K','1.5K','107','86']},
   bb:{kind:'ad',name:'Blue Bottle Coffee',cap:'Ceremonial-grade craft matcha, whisked to order at Blue Bottle.',cta:'#1f6cb0',pill:'Matcha Latte',ufi:['2.4K','312','96','140']},
   sbux:{kind:'ad',name:'Starbucks',cap:'This summer\'s new drink just dropped. Order ahead in the Starbucks app.',cta:'#00573f',ctaText:'Order now',pill:'Summer drinks',ufi:['8.9K','1.1K','402','615']},
   lc:{kind:'ad',name:'La Colombe Coffee',cap:'Because a draft is always the right move. Meet the Strawberry Mocha Draft Latte.',cta:'#d9475f',pill:'Iced coffee',ufi:['1.8K','204','77','131']},
   cb2:{kind:'ad',name:'CB2',cap:'See the new home collection unfold in every room.',cta:'#b5552a',pill:'Furniture',ufi:['964','58','31','112']},
-  univ:{kind:'org',name:'Universal Studios',ago:'5H',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
-  laura:{kind:'org',name:'Laura Byrnes',ago:'6H',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
-  serena:{kind:'org',name:'xzmserena',ago:'3H',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
+  univ:{kind:'org',name:'Universal Studios',ago:'5h',cap:'Join Mario on an epic cosmic adventure, now playing in theaters.',ct:'The Super Mario Galaxy Movie',cu:'View Storefront',pill:'Mario & Luigi',ufi:['41K','2.3K','5.6K','3.1K']},
+  laura:{kind:'org',name:'Laura Byrnes',ago:'6h',cap:'When I don\'t know what to wear, I fall back on a camel cashmere coat.',ct:'Quiet Luxury Cashmere',cu:'Shop this look',pill:'Fit check',ufi:['12K','486','210','1.9K']},
+  serena:{kind:'org',name:'xzmserena',ago:'3h',cap:'Discover your next beauty must-haves for a fresh, minimal look.',ct:'Minimalist Makeup',cu:'Shop this look',pill:'Makeup tutorial',ufi:['7.2K','318','95','1.2K']}};
 const TABS=['Coffee','Home','Movie','Fashion','Beauty'],CATS=[['bb','sbux','lc'],['cb2'],['univ'],['laura'],['serena']],LAST=CATS.length-1,KL=CATS[0].length-1;
 const FIRST=[0,0,1,1,1];   // the tab row's scroll per category: the first tab showing after the chevron (Coffee/Home 0, the rest 1: Home leads, Beauty ends
                             // inside the fade; FIRST 2 would ask for 139 of a ribbon that only scrolls 90 and leave Home cut under the chevron)
