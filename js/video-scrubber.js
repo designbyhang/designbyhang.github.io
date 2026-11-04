@@ -35,6 +35,13 @@
    - expand (opt-in, o.onExpand): the fullscreen glyph (the strip's first slot, expandSlot:[x,w], default [0,44]) becomes a 44px
      button that calls o.onExpand() on a tap while in split screen and the controls show. Like the track, every one of its events
      stops at it (no tap to pause, card link or prototype gesture sees them); a press that moves or is held is not a tap
+   - pause / mute buttons (opt-in, o.pauseButton / o.muteButton: for a host whose tap on the video does something else, VAC's tap to
+     Reels): buttons over the pause glyph and the speaker, built as the expand button (events stop at them, live while in split screen
+     and the controls show). Pause is the tap to pause's toggle (the play icon, the controls held while paused); mute toggles the
+     speaker's own state, sound on to start, without touching the video (it stays muted so it autoplays): muted is the same crop cut
+     before its waves (muteCut, strip x, default 107), so the speaker alone shows. With o.iconBox = {left, size} the three buttons are size×size cells side by side from `left` (edges
+     touching, expand · pause · mute), each glyph centred in its cell, all in the host's design px so the row scales with the phone;
+     otherwise each sits on its glyph slot (pauseHit, muteHit, 44 tall)
    - lock (opt-in, o.lock = {zero, park:[from, to], avoid:[from, to]}): the video's playhead is a function of the host's loop clock
      (sinceSplit from VideoScrubber.loop(), or o.lock.clock / o.lock.T), so the same video moment shows at the same loop moment: loop
      time `zero` (ms) shows video 0:00 and the video runs 1:1 with the loop. Over `park` (loop ms, where the host covers the video) it
@@ -74,6 +81,8 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
  '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s svg{display:none;position:absolute;left:50%;top:0;margin-left:-12px;width:24px;height:24px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.24))}'+
  '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s svg{display:block}'+
+ // muted: the speaker crop cut before its waves, then moved by half the waves' width, so the bare speaker sits on its cell's centre line too
+ '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0);translate:var(--vs-shift,0) 0}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
  // no focus ring, outline or tap highlight on any part of the player, keyboard focus included (the FMSS demos' audience never uses a keyboard)
  '.vs,.vs *,.vs-tap{-webkit-tap-highlight-color:transparent}'+
@@ -93,19 +102,31 @@ function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list
 function run(){if(!raf&&list.length)raf=requestAnimationFrame(tick)}
 var STOP=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
 /* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
-       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, demoTaps, tapAt, reel, onOpacity} */
+       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, pauseButton, pauseHit, muteButton, muteHit, muteCut, iconBox, hold,
+       demoTaps, tapAt, reel, onOpacity} */
 function create(o){
   var v=o.video,doc=(o.document||document);style(doc);
   var x=o.x==null?12:o.x,w=o.w==null?351:o.w,ty=o.trackY==null?392:o.trackY,tb=o.timeY==null?ty-30:o.timeY;
   var ro=!!o.readOnly,rl=!ro&&!!o.reel,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(rl?' vs-rl':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
-  var tap=!ro&&!rl&&!!o.tapToPause,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
-  // icons: one crop; with tap to pause it is cut in three around the pause glyph's slot, so that slot alone can show the play icon
-  function slice(a,b,g){return '<i class="vs-i vs-s'+(g?' vs-g':'')+'" style="left:'+(ix+a)+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
-  root.innerHTML='<div class="vs-f">'+(o.icons?(tl?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
+  var tap=!ro&&!rl&&!!o.tapToPause,pb=!ro&&!rl&&!!o.pauseButton,mb=!ro&&!rl&&!!o.muteButton,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||pb||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
+  // icon box (o.iconBox {left, size}): three size×size cells side by side, edges touching (expand · pause · mute); each cell's glyph is
+  // centred in it. INK: the glyphs' ink centres in the strip (ci1.webp, 250×48 at 2x: expand 16.75, pause 60.75, speaker with its waves
+  // 104.75 — the icon as drawn, its resting look), so every glyph sits on its cell's centre line and the row is only translated.
+  // PLAY_INK: the play path's ink centre in its own 24px box (7.5..19.8), so the triangle is centred on its ink, not on a box it does not fill
+  var ib=o.iconBox,INK=[16.75,60.75,104.75],PLAY_INK=13.65;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
+  function cell(k){return [ib.left+k*ib.size,iy+12-ib.size/2]}   // a cell's left / top: on the glyph row's centre line, as the strip is
+  // icons: one crop; cut in three around the pause glyph's slot (and the speaker's, when muted), so one slot alone can show the play icon.
+  // The strip's speaker: body 95..107 design px, its two waves out to 114.5, so muted (the body alone) it moves right by that half width
+  function slice(a,b,g,sp,k){var l=ib?cell(k)[0]+ib.size/2-(INK[k]-a):ix+a;
+    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;'+(ib?'--vs-shift:3.75px;':'')+'':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
+  root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+x+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
+  if(ib){var pv=f.querySelector('.vs-g svg');if(pv)pv.style.left=(INK[1]-sl[0]-(PLAY_INK-12))+'px'}   // the play path's ink centre on the pause glyph's (the box is drawn with margin-left:-12px)
+  // o.hold: this player's hold before the fade (ms, a multiple of 8; default HOLD, as FMSS), the 320ms fade unchanged
+  var hold=o.hold>0?o.hold:HOLD,gone=hold+FADE;
   var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=rl?-1e9:null,rIn=-1e9,pend=null,up=false,base=0,prev=null,area=null;
   var api={el:root,video:v,dragging:function(){return !!drag},
     since:o.sinceSplit||function(){return t0==null?null:performance.now()-t0},
@@ -113,7 +134,7 @@ function create(o){
     fraction:function(){return last.fr},opacity:function(){return last.op},
     paused:function(){return up},togglePause:function(){toggle()},
     reveal:function(){reveal()},hold:function(on){if(!rl)return;up=!!on;root.classList.toggle('vs-p',up);reveal()},
-    release:function(){if(!rl)return;up=false;root.classList.remove('vs-p');if(last.op>0){t0=performance.now()-HOLD;fade();run()}},
+    release:function(){if(!rl)return;up=false;root.classList.remove('vs-p');if(last.op>0){t0=performance.now()-hold;fade();run()}},
     hide:function(){if(!rl)return;up=false;root.classList.remove('vs-p');t0=rIn=-1e9;fade()},
     destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);if(io)io.disconnect();root.remove()}};
   if(rl){last.op=0;last.off=true;f.style.opacity='0';root.classList.add('vs-off')}   // reel: hidden until revealed
@@ -125,8 +146,8 @@ function create(o){
   function reveal(){if(!rl)return;var now=performance.now();if(last.op<=0)rIn=now;else if(now-rIn>=ENTER&&last.op<1)rIn=now-ENTER*last.op;t0=now;fade();run()}
   function fade(){var op;
     if(rl){var now=performance.now(),e=RM.matches?1:Math.min(1,(now-rIn)/ENTER),ms=drag||up?0:now-t0;
-      op=Math.min(easeOut(e),ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE))}
-    else{var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE)}
+      op=Math.min(easeOut(e),ms<hold?1:ms>=gone?0:1-easeOut((ms-hold)/FADE))}
+    else{var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;op=ms==null||ms<hold?1:ms>=gone?0:1-easeOut((ms-hold)/FADE)}
     var off=op===0;
     if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4));if(o.onOpacity)o.onOpacity(op)}
     if(off!==last.off){last.off=off;root.classList.toggle('vs-off',off)}}
@@ -206,15 +227,25 @@ function create(o){
     area.addEventListener('pointermove',function(e){if(press&&e.pointerId===press.id&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10)press.moved=true});
     area.addEventListener('pointercancel',function(){press=null});
     area.addEventListener('pointerup',function(e){var p=press;press=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!on())return;toggle()})}
-  if(o.onExpand&&!ro){var es=o.expandSlot||[0,44],eb=doc.createElement('button'),ep=null;eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label','Expand');
-    eb.style.left=(ix+es[0])+'px';eb.style.width=es[1]+'px';eb.style.top=(iy-10)+'px';f.appendChild(eb);
+  // the strip's buttons (expand, pause, mute), live in split screen while the controls show; every event stops at them; a press that
+  // moves or is held is not a tap. In the icon box each is one size×size cell (k = 0, 1, 2); otherwise it lies on its glyph slot
+  function button(k,slot,label,fn){var eb=doc.createElement('button'),ep=null,c=ib&&cell(k);eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label',label);
+    if(c){eb.style.left=c[0]+'px';eb.style.top=c[1]+'px';eb.style.width=eb.style.height=ib.size+'px'}
+    else{eb.style.left=(ix+slot[0])+'px';eb.style.width=slot[1]+'px';eb.style.top=(iy-10)+'px';eb.style.height='44px'}
+    f.appendChild(eb);
     var eOn=function(){var ms=api.since();return ms!=null&&ms>=0&&!last.off};
     STOP.forEach(function(n){eb.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
     eb.addEventListener('pointerdown',function(e){if(e.button>0)return;ep={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),moved:false}});
     eb.addEventListener('pointermove',function(e){if(ep&&e.pointerId===ep.id&&Math.hypot(e.clientX-ep.x,e.clientY-ep.y)>10)ep.moved=true});
     eb.addEventListener('pointercancel',function(){ep=null});
-    eb.addEventListener('pointerup',function(e){var p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!eOn())return;o.onExpand()});
-    eb.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&eOn()){e.preventDefault();e.stopPropagation();o.onExpand()}})}
+    eb.addEventListener('pointerup',function(e){var p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!eOn())return;fn()});
+    eb.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&eOn()){e.preventDefault();e.stopPropagation();fn()}});return eb}
+  if(o.onExpand&&!ro)button(0,o.expandSlot||[0,44],'Expand',function(){o.onExpand()});
+  if(pb)button(1,o.pauseHit||[40,44],'Pause or play',toggle);
+  // mute: the speaker's own UI state, sound on to start (the prototype shows the intended experience; its clips have no audio and the
+  // video stays muted so it always autoplays), so a tap only toggles the icon
+  if(mb){var muted=false,mB=button(2,o.muteHit||[84,44],'Mute',function(){muted=!muted;mute()}),mute=function(){root.classList.toggle('vs-mu',muted);mB.setAttribute('aria-label',muted?'Unmute':'Mute')};
+    mute()}
   // in view: ticked only while its screen intersects the window (no observer: always); observed once the host has placed it
   var W=v.ownerDocument.defaultView||window,io=W.IntersectionObserver?new W.IntersectionObserver(function(es){api._in=es[es.length-1].isIntersecting;run()}):null;
   api._in=!io;if(io)Promise.resolve().then(function(){io.observe(root.parentNode||v)});
