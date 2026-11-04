@@ -21,7 +21,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <!-- shared FMSS foundation, unchanged: the IAB (sheet + header + page + toolbar), the live player controls, the squircle, the device tokens -->
 <link rel="stylesheet" href="../shared/iab/iab.css?v=389">
 <script src="../../js/squircle.js?v=389"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=389"></script><script src="../shared/caret/caret.js?v=398"></script>
-<script src="../../js/video-scrubber.js?v=413"></script>
+<script src="../../js/video-scrubber.js?v=413"></script><script src="../shared/pause/pause.js?v=369"></script>
 <link rel="stylesheet" href="../shared/device/device.css?v=389"><script src="../shared/device/snap.js?v=389"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
 <link rel="stylesheet" href="../shared/reel/reel.css?v=389">
@@ -71,6 +71,14 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .ctl{will-change:transform,opacity}
 .splx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
 .splx.on{display:block}
+/* the Reels ad's overlay bands (head 0–481, ui 481–734, tab bar 734–812), the ui band lifting while the reel is paused by a media tap;
+   the play glyph sits at the media band's centre (the design's 375×734 canvas, not counting the tab bar) */
+.uih,.uiu,.uib{pointer-events:none;object-fit:cover;object-position:0 0}
+.xp img.uih{height:481px}
+.xp img.uiu{height:253px;transform-origin:0 0}
+.xp img.uib{height:78px}
+.uz{left:155.5px;top:335px;pointer-events:none}
+.rc{left:0;top:0;width:375px;height:812px;pointer-events:none;z-index:2}   /* the paused reel's scrubber (../shared/pause), above the bands */
 /* the expand viewer (Figma 138260:60964): split screen's video back out to full bleed in a 375 square at 219, on black, with the post's
    details (avatar, name, badge, 2-line caption), a second live VideoScrubber, the persistent CTA and the UFI, all live components (no crops);
    the reverse of surface -> split on the close spring (ω16) */
@@ -238,6 +246,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
 const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=6'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
+const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 const EXP=[
   {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Default',from:'Solution 1 · Offsite Conversions',build:split,
    c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},fh:{name:'Nike',bx:96},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
@@ -255,15 +264,18 @@ const EXP=[
    c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'w/ Prod. Catalog',from:'Solution 2 · Video (Reels)',build:split,
-   /* Reels: the media itself is the tap target, not the caption band (the caption sits over the media, so it opens the split screen there too).
-      This surface has no full-screen viewer: like the In-Content ad it shows only pause and mute, never an expand cell */
-   c:{S:S2,n:2,top:548,tone:0,surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
-      out:[{f:'ao2',hole:1}],sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
+   /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
+      Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
+      Watched for 4s it shrinks into the split screen by itself, the IAB rises, the video keeps playing, and the control strip shows for
+      ~2s then fades. A media tap is organic behaviour everywhere, this ad included: the reel pauses, its overlay lifts and the scrubber
+      comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. */
+   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci1',tap:[0,0,375,734],
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',variant:'w/ In-Content Ads',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
-   c:{S:S2,n:4,top:406,tone:0,reelTap:1,surf:[{f:'au4'},{reel:'r4'},{f:'ag4',hole:1}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
-      out:[{f:'ao4',hole:1}],sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
+   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci1',tap:[12,644,351,74],
+      sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & IAB Peek',variant:'on Dwell',from:'Solution 2 · Stories',build:split,
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
       stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}}
@@ -290,6 +302,15 @@ function split(E,root){
   h+=`<div class="mv" data-r="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
+  /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
+     the media band between head and tab bar is what lifts when the ad's media is tapped and the reel pauses (ui), while the head and the tab bar
+     stay put. Organic surfaces have no ads, so they never get any of this. */
+  if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`;
+  h+=`<img class="L ot uih" data-r="uih" alt="" src="${b('head')}">`+   // the Reels header: status row, Video title, search and profile
+    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px">`+   // the band a paused tap lifts
+    `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
+  /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
+  if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
   if(C.cs)h+=`<div class="L ctl" data-r="ctl" style="opacity:0"><i data-r="vsAt"></i></div>`;
   if(!C.stories)h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`+(SQ?`clip-path:${HOLE(top)}`:''));
   if(C.stories)h+=`<div class="hd" data-r="hd"><i class="pb"></i><div class="meta"><img alt="" src="${u('av3')}"><div><div class="nm"><p class="rl-t rl-name">Away</p>${ico('verified.png')}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`;
@@ -310,7 +331,8 @@ function split(E,root){
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
   const els=X.els={sf:[...root.querySelectorAll('.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost')};els.bui=els.bu.firstChild;
+    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
+    uiu:r('uiu'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
 
@@ -334,8 +356,35 @@ function split(E,root){
 
   /* live player controls (the shared VideoScrubber, as Solution 1 / 2, here interactive: seek, tap to pause; expand, pause and mute buttons in VAC's 44px icon cells, FMSS's 2080ms hold) */
   if(C.cs&&VS){X.vs=VS.create({video:X.video,icons:u(C.ci),trackY:top-14,className:'vsx',tapToPause:true,pauseButton:true,muteButton:true,iconBox:{left:219,size:44},
-    ...(VW?{onExpand:()=>vwOpen(X)}:{})});r('vsAt').replaceWith(X.vs.el)}   // expand, only on the Feed ads (VW = the entry has a viewer): Reels and
-    // the In-Content ad were never meant to have one and have no path to the full-screen surface, so their row is pause and mute only
+    onExpand:VW?()=>vwOpen(X):()=>close(X)});r('vsAt').replaceWith(X.vs.el)}
+    // the strip's three cells on every split screen: on the Feed ads expand opens the full-screen viewer (VW), and on the two Reels
+    // surfaces, which have no viewer of their own, it is the way back out of the split screen to the full-screen reel
+  /* DUAL-BASED split screen on a sponsor-labelled Reels AD (C.ad): two panes, ad above and IAB below. It is reached by DWELL at C.adDwell
+     (4s of playing), never by a media tap. A media tap is organic behaviour: the reel pauses, its overlay band lifts and the scrubber
+     comes up with the quiet play glyph (../shared/pause, the VAC prototype's own affordance), and while it is paused the dwell clock
+     stops, so a paused reel never falls into the split screen on its own. In split screen a tap pauses and resumes, as the other ads'
+     strip does. This surface has no full-screen viewer of its own, so its expand cell means the reverse of the way in: the video back
+     out to the full-screen reel */
+  if(C.ui){
+    // on the In-Content ad the reel a tap pauses is the organic video behind the banner, not the banner's own thumbnail
+    X.pz=FMSSPause.mount(els.pz,{video:()=>C.reelTap?(root.querySelector('.rl video')||X.video):X.video,at:els.rc,bar:734,
+      lift:()=>[els.uiu]});   // only the media band rises: the Reels header and the tab bar stay where they are
+    /* a media tap while the surface is still full screen: pause the reel, lift its band, bring up the scrubber and the quiet play glyph,
+       and hold the video paused (vidSync leaves a pz.paused video alone). A second tap resumes and lets all of it go at once */
+    X.mediaTap=()=>{if(X.state!==1||X.sheet.busy)return;
+      const on=!X.pz.on,v=(C.reelTap?(root.querySelector('.rl video')||X.video):X.video);
+      X.pz.set(on,true);if(on)v.pause();else{const q=v.play();q&&q.catch(()=>{})}
+      if(X.dwellPause)X.dwellPause(on);say(X.E.name+(on?', reel paused':', reel playing'))};
+  }
+  /* the Reels AD's dwell (C.adDwell): watched for that long the split screen comes by itself — the video shrinks into it, the IAB rises and
+     the video keeps playing. A media tap that pauses the reel stops the clock where it is and resumes it from there, so a paused reel never
+     falls into the split screen behind the viewer's back */
+  if(C.adDwell){let t=null,t0=0,left=C.adDwell;
+    X.dwellPause=on=>{if(on){if(t){left=Math.max(0,left-(performance.now()-t0));clearTimeout(t);t=null}}else X.adDwellArm()};
+    X.adDwellArm=()=>{clearTimeout(t);t=null;if(X.state!==1||(X.pz&&X.pz.on)||!cur||cur!==X||menuOpen)return;t0=performance.now();
+      t=setTimeout(()=>{t=null;if(X.state===1&&!(X.pz&&X.pz.on))open(X)},Math.max(0,left))};
+    X.adDwellClear=()=>{clearTimeout(t);t=null;left=C.adDwell};
+  }
   /* the viewer's player: a second VideoScrubber over the same video, live only while the viewer is up (no fade: held at 1, the layer fades with k) */
   if(VW&&VS){X.vs2=VS.create({video:X.video,icons:'assets/vw-ctl.png',trackY:579.2,x:12,w:351,className:'vwv',pauseButton:true,muteButton:true,iconBox:{left:235,size:44},
     onExpand:()=>vwBack(X),sinceSplit:()=>X.vw>0?0:1e9});r('vwsAt').replaceWith(X.vs2.el)}   // the viewer's expand cell: back to split screen
@@ -353,7 +402,7 @@ function split(E,root){
     if(hp.drag)X.sheet.dragMove(e.clientY)});
   const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
     if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
-    if(e.type==='pointerup'&&!p.moved)open(X)};
+    if(e.type==='pointerup'&&!p.moved){if(C.ad)X.mediaTap();else open(X)}};
   els.hit.addEventListener('pointerup',hitUp);els.hit.addEventListener('pointercancel',hitUp);
   els.hit.addEventListener('click',e=>{if(e.detail===0)open(X)});   // keyboard
   /* split screen: a swipe down on the video takes the sheet down with it (to the surface); a tap is the controls' tap to pause */
@@ -365,19 +414,21 @@ function split(E,root){
   const mvUp=e=>{if(!mp||e.pointerId!==mp.id)return;const p=mp;mp=null;if(X.vw&&e.type==='pointerup'&&(e.clientY-p.y)/scale()>48){vwClose(X);return}   // the viewer: a swipe down closes it
   if(p.sheet){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd()}};
   els.mv.addEventListener('pointerup',mvUp);els.mv.addEventListener('pointercancel',mvUp);
-  /* the In-Content ad's organic Reels video is its own player: a tap on it pauses or plays it, and does nothing else (no split screen, no
-     viewer). The banner row above it is the split screen's only way in (its .hit), so the two never overlap */
+  /* the In-Content surface's own reel: a media tap is organic behaviour (pause, lift, scrubber), never the split screen. The banner row
+     above it is that surface's only way in (its .hit), so the two never overlap */
   if(C.reelTap){const rl=root.querySelector('.rl'),rv=rl&&rl.querySelector('video');let rp=null;
     if(rv){rl.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;rp={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false}});
       rl.addEventListener('pointermove',e=>{if(rp&&e.pointerId===rp.id&&Math.hypot(e.clientX-rp.x,e.clientY-rp.y)>10)rp.moved=true});
       rl.addEventListener('pointercancel',()=>{rp=null});
       rl.addEventListener('pointerup',e=>{const p=rp;rp=null;if(!p||e.pointerId!==p.id||p.moved||X.state!==1)return;
-        if(rv.paused){X.reelHeld=false;const g=rv.play();g&&g.catch(()=>{})}else{X.reelHeld=true;rv.pause()}})}}
+        X.reelHeld=!X.pz.on;X.mediaTap()})}}
   els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
   /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
-  let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp)open(X)},C.dwell)};
+  let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp&&!(X.pz&&X.pz.on))open(X)},C.dwell)};
+  /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
+  if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{clearTimeout(dw);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{clearTimeout(dw);X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -591,6 +642,9 @@ function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.h
   cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs2&&(cur.vs2.paused()||cur.vs2.dragging())))));
     /* the In-Content ad's own Reels video is paused by a tap on it: the watchdog leaves it paused (only the ad's player is its to drive) */
     if(v===cur.reelVideo&&cur.reelHeld){if(!v.paused)v.pause();return}
+    /* a reel the viewer paused with a media tap stays paused (../shared/pause owns that state, as in the VAC prototype) */
+    const pzHeld=cur.pz&&cur.pz.paused===v;
+    if(pzHeld){if(!v.paused)v.pause();return}
     if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
 document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('pageshow',vidSync);
