@@ -297,7 +297,7 @@ function split(E,root){
     h+=`<div class="L vwb" data-r="vwb"></div><div class="L vwo" data-r="vwo">`+
       `<i class="vwav" style="background-image:url(${A})"></i><p class="vwn">${esc(V.name)}</p><img class="vwbd" alt="" src="assets/vw-badge.png">`+
       `<p class="vwcap" data-r="vwcap">${esc(V.cap)}</p><i data-r="vwsAt"></i>`+
-      `<button class="btn vwcta" type="button" data-sq-off>${esc(V.cta)}</button>`+
+      `<button class="btn vwcta" data-r="vwcta" type="button" data-sq-off>${esc(V.cta)}</button>`+
       [1,2,3].map((n,i)=>`<img class="vwr" alt="" src="assets/vw-r${n}.png" style="left:${12+16*i}px">`).join('')+
       `<p class="vwt" style="left:64px">171K</p><p class="vwt" style="right:12px">2K comments</p><i class="vwdv"></i>`+
       act(VWI.like,36.5,'Like',62.5)+act(VWI.comment,143.5,'Comment',169.5)+act(VWI.share,281,'Share',307)+
@@ -312,15 +312,17 @@ function split(E,root){
   /* the sheet */
   const hooks={
     render:o=>{X.y=o.y;X.sd=o.sd||0;render(X)},
+    x:()=>X.sheet.go(2),   // the page's × over the viewer closes it back to the video (the sheet's split stop, under it)
     state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
+      if(s===2&&X.vwCta){X.vwCta=false;render(X);vwPlay(X);say(E.name+', full screen video')}
       if(s===1){X.vs&&X.vs.leaveSplit()}},
     opened:s=>{if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
-    closed:()=>{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}};
+    closed:()=>{X.vs&&X.vs.leaveSplit();if(X.vw&&X.vwCta){X.vwCta=false;vwPlay(X);say(E.name+', full screen video')}else say(E.name+', '+E.tab)}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
       :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
     X.sheet=FMSSIAB.create({host:els.host,y2:top,label:'In-app browser (IAB): '+P.iab,url:P.iab,headers:{full:P.full||u(P.fullFrom)},handle:true,shift:'p',
-      web,webH:P.pageH,onRender:hooks.render,onState:hooks.state,onOpened:hooks.opened,onClosed:hooks.closed,onClose:()=>{X.vs&&X.vs.leaveSplit()},onX:()=>X.sheet.go(2),
+      web,webH:P.pageH,onRender:hooks.render,onState:hooks.state,onOpened:hooks.opened,onClosed:hooks.closed,onClose:()=>{X.vs&&X.vs.leaveSplit()},onX:()=>hooks.x(),
       wheelTo:(e,d,apply)=>{if(apply(d)&&e.cancelable)e.preventDefault()}});
     if(P.fullFrom){const hf=X.sheet.panel.querySelector('.iab-hf');hf.style.objectFit='cover';hf.style.objectPosition='0 -46px'}   // the full header: c's own header rows (46-92)
   }else X.sheet=nativeSheet({host:els.host,y2:top,u,n,P:C.sheet,label:E.name,hooks});
@@ -330,9 +332,10 @@ function split(E,root){
     ...(VW?{onExpand:()=>vwOpen(X)}:{})});r('vsAt').replaceWith(X.vs.el)}   // expand (Feed ads): the full-screen viewer
   /* the viewer's player: a second VideoScrubber over the same video, live only while the viewer is up (no fade: held at 1, the layer fades with k) */
   if(VW&&VS){X.vs2=VS.create({video:X.video,icons:'assets/vw-ctl.png',trackY:579.2,x:12,w:351,className:'vwv',pauseButton:true,muteButton:true,iconBox:{left:235,size:44},
-    sinceSplit:()=>X.vw>0?0:null});r('vwsAt').replaceWith(X.vs2.el)}
+    onExpand:()=>vwBack(X),sinceSplit:()=>X.vw>0?0:1e9});r('vwsAt').replaceWith(X.vs2.el)}   // the viewer's expand cell: back to split screen
+  if(VW)r('vwcta').addEventListener('click',e=>{e.stopPropagation();vwCta(X)});
   X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});
-  if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwClose(X)})
+  if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwFeed(X)})
     /* in the viewer a tap on the video does nothing (the buttons are the controls): the split player's tap to pause never sees it; a swipe still closes */
     root.addEventListener('pointerup',e=>{if(X.vw&&els.mv.contains(e.target)){e.stopPropagation();mvUp(e)}},true)}
 
@@ -359,7 +362,7 @@ function split(E,root){
   els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
   /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
   let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp)open(X)},C.dwell)};
-  X.reset=()=>{clearTimeout(dw);X.vwS.stop();if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{clearTimeout(dw);X.vwS.stop();if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -379,7 +382,13 @@ function vwFit(X){const o=X.els.vwo,k=scale(),n=o.querySelector('.vwn').getBound
 function open(X){if(X.state!==1||X.sheet.busy)return;X.sheet.go(2,{w:16})}
 /* the viewer: split (vw 0) -> full-bleed video (vw 1), the surface -> split shared-element lerp run backwards from the split rect, the close spring (ω16, ζ 1) both ways */
 function vwOpen(X){if(X.state!==2||X.sheet.busy||X.vwS.busy||X.vw)return;X.vwS.to(1,{w:16,onDone:()=>say(X.E.name+', full screen video')})}
-function vwClose(X){if(!X.vw||X.vwS.target===0)return;X.vwS.to(0,{w:16,onDone:()=>{if(X.vs2&&X.vs2.paused()){X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}say(X.E.name+', split screen')}})}
+function vwPlay(X){if(X.vs2&&X.vs2.paused()){X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}}
+/* the viewer's own expand cell: the video shrinks back into the split screen's box (the same spring, the reverse of vwOpen) */
+function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.vwS.to(0,{w:16,onDone:()=>{vwPlay(X);say(X.E.name+', split screen')}})}
+/* the X: all the way back to the Feed (the sheet leaves split for its closed stop as the video settles into it, then the video to the surface) */
+function vwFeed(X){if(!X.vw)return;vwBack(X);X.sheet.go(1,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)})}
+/* the CTA: the in-app browser opens over the paused viewer, full screen; closing it (its X, a swipe down, Escape) comes back to the viewer */
+function vwCta(X){if(!X.vw||X.vwS.busy||X.sheet.busy||X.vwCta)return;X.vwCta=true;X.video.pause();render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', in-app browser')}
 function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
 
 /* every layer from the sheet's y (the Solution loops' A / B / C recipe, the poses read live) */
@@ -407,18 +416,20 @@ function render(X){
     const bk=[bw,bh,...bR].map(v=>v.toFixed(1)).join();
     if(bk!==X.bk){X.bk=bk;if(SQ&&bR.some(v=>v>.05)){bs.clipPath=`path('${sqP(+bw.toFixed(2),+bh.toFixed(2),bR,sm)}')`;bs.borderRadius=''}else{bs.clipPath='';bs.borderRadius=bR.map(v=>v+'px').join(' ')}}}
   if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
-  /* the viewer's layers lift over the sheet while it is out (black under the backdrop and the video, the post rows over them) */
-  if(e.vwb){const on=k>0;e.vwb.style.display=e.vwo.style.display=on?'block':'none';e.vwb.style.opacity=k.toFixed(3);e.vwo.style.opacity=k.toFixed(3);
-    e.host.style.zIndex=on?'4':'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
+  /* the viewer's layers lift over the sheet while it is out (black under the backdrop and the video, the post rows over them); the CTA's
+     page then opens over them all, in full screen, and the viewer waits under it */
+  if(e.vwb){const on=k>0,page=on&&X.vwCta;e.vwb.style.display=e.vwo.style.display=on?'block':'none';e.vwb.style.opacity=k.toFixed(3);e.vwo.style.opacity=k.toFixed(3);
+    e.host.style.zIndex=on?(page?'9':'4'):'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
-  X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,k);
+  X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
   if(X===cur){pill(X.tone);chrome(X)}
 }
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
    light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
 const dcSb=$('dcSb'),dcHm=$('dcHm');
-function chrome(X){const C=X.E.c,v=X.vw||0;dcSb.style.opacity=Math.max(C.sheet.iab?X.sd:0,v).toFixed(3);dcSb.classList.toggle('sb-dark',!(v>0));   // the viewer: white icons
+function chrome(X){const C=X.E.c,v=X.vwCta?0:(X.vw||0);   // under the CTA's page the sheet's own chrome takes over
+  dcSb.style.opacity=Math.max(C.sheet.iab?X.sd:0,v).toFixed(3);dcSb.classList.toggle('sb-dark',!(v>0));   // the viewer: white icons
   const k=Math.max(C.tone,clamp((803-X.y)/5))*(1-v),g=Math.round(255*(1-k));dcHm.style.background=`rgb(${g},${g},${g})`}
 
 /* ---------- the native sheet: the Solution's sheet image (bl) and full screen (c), on the shared spring with the IAB's drag rules ----------
@@ -486,7 +497,7 @@ function nativeSheet(o){
   ns.addEventListener('pointermove',e=>{if(e.pointerId===own)dragMove(e.clientY)});
   const upH=e=>{if(e.pointerId!==own)return;own=null;dragEnd()};
   ns.addEventListener('pointerup',upH);ns.addEventListener('pointercancel',upH);
-  nx.addEventListener('click',()=>go(2));
+  nx.addEventListener('click',()=>hk.x?hk.x():go(2));
   function reset(){yS.stop();drag=null;own=null;y=Y1;setState(1);render()}
   reset();
   return {Y1,Y2,Y3,get y(){return y},get state(){return state},get busy(){return yS.busy},get drag(){return drag},go,dragStart,dragMove,dragEnd,reset,setY:v=>{yS.stop();y=v;render()}};
@@ -556,12 +567,13 @@ mmVp.addEventListener('pointerup',vpUp);mmVp.addEventListener('pointercancel',vp
 mmTr.querySelectorAll('.mm-it').forEach(b=>b.addEventListener('click',e=>{if(e.detail===0)pick(+b.dataset.i)}));   // keyboard
 function pick(i){show(i);closeMenu()}
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)return closeMenu();if(!cur)return;
-  if(cur.vw)vwClose(cur);else if(cur.state===3)cur.sheet.go(2);else if(cur.state===2)close(cur)});
+  if(cur.vw){if(cur.state===3)cur.sheet.go(cur.vwCta?2:1);else vwFeed(cur)}
+  else if(cur.state===3)cur.sheet.go(2);else if(cur.state===2)close(cur)});
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
 let seen=false;
 function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden;
-  cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&cur.vs2&&(cur.vs2.paused()||cur.vs2.dragging())));
+  cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs2&&(cur.vs2.paused()||cur.vs2.dragging())))));
     if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
 document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('pageshow',vidSync);
