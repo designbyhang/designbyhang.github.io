@@ -79,8 +79,8 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-b{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.16)}'+
  '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h,.vs.vs-off .vs-e{pointer-events:none}'+
  '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
- '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s img.vs-play{display:none;position:absolute;left:50%;top:1px;margin-left:-10.225px;width:22px!important;height:22px!important;max-width:none!important;pointer-events:none}'+
- '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s img.vs-play{display:block}'+
+ '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s img.vs-play{display:none!important;position:absolute;left:50%;top:1px;margin-left:-10.225px;width:22px!important;height:22px!important;max-width:none!important;pointer-events:none}'+
+ '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s img.vs-play{display:block!important}'+
  // muted: the speaker crop cut before its waves only, so the speaker sits exactly where it sits with sound on
  '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0)}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
@@ -96,7 +96,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
 // play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
 // (radius 1 / stdDeviation .5, offset 0,0, rgba(0,0,0,.62)). Sibling of the host's ci*.webp (or vw-ctl) as play.webp; 22 design px incl. 1px shadow pad around the 20 icon.
-function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=418');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
+function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=419');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
