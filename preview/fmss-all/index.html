@@ -353,15 +353,15 @@ function split(E,root){
   const hooks={
     render:o=>{X.y=o.y;X.sd=o.sd||0;render(X);if(X.E.c.reelTap)vidSync()},
     x:()=>{   // × on the full-screen destination: a CTA open closes back to the surface it opened over (Feed · the viewer); else to Feed
-      if(X.ctaFrom==='vw')X.sheet.go(2,{w:16,entry:null});
+      if(X.ctaFrom==='vw')X.sheet.go(1,{w:16});   // off the bottom (the reverse of its entry), the viewer stays
       else if(X.ctaFrom==='feed')X.sheet.go(1,{w:16});
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
     state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;render(X);vwPlay(X);say(E.name+', full screen video')}
       if(s===1){X.vs&&X.vs.leaveSplit()}},
-    opened:s=>{if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
-    closed:()=>{X.ctaFrom=null;X.vs&&X.vs.leaveSplit();if(X.vw&&X.vwCta){X.vwCta=false;vwPlay(X);say(E.name+', full screen video')}else say(E.name+', '+E.tab)}};
+    opened:s=>{if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
+    closed:()=>{X.ctaFrom=null;X.vs&&X.vs.leaveSplit();if(X.vw&&X.vwCta){X.vwCta=false;X.vwOff=true;render(X);vwPlay(X);say(E.name+', full screen video')}else say(E.name+', '+E.tab)}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
       :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
@@ -413,10 +413,12 @@ function split(E,root){
   if(VW&&VS){X.vs2=VS.create({video:X.video,icons:'assets/vw-ctl.png',trackY:579.2,x:12,w:351,className:'vwv',pauseButton:true,muteButton:true,iconBox:{left:235,size:44},
     onExpand:()=>vwBack(X),sinceSplit:()=>X.vw>0?0:1e9});r('vwsAt').replaceWith(X.vs2.el)}   // the viewer's expand cell: back to split screen
   if(VW)r('vwcta').addEventListener('click',e=>{e.stopPropagation();vwCta(X)});
-  X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});
+  X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});X.bdg=1;X.bdS=SP(()=>X.bdg,v=>{X.bdg=v;render(X)});
   if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwFeed(X)})
-    /* in the viewer a tap on the video does nothing (the buttons are the controls): the split player's tap to pause never sees it; a swipe still closes */
-    root.addEventListener('pointerup',e=>{if(X.vw&&els.mv.contains(e.target)){e.stopPropagation();mvUp(e)}},true)}
+    /* in the viewer a tap on the video pauses / resumes it, as in split screen, through the viewer's own player (its pause cell shows the
+       state); the split player's tap never sees it; a swipe down still closes */
+    root.addEventListener('pointerup',e=>{if(X.vw&&els.mv.contains(e.target)){e.stopPropagation();const p=mp;mvUp(e);
+      if(p&&e.pointerId===p.id&&Math.hypot(e.clientX-p.x,e.clientY-p.y)<=10&&performance.now()-p.t<=600&&X.vw===1&&!X.vwS.busy&&!X.vwCta&&X.vs2)X.vs2.togglePause()}},true)}
 
   /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
   let hp=null;
@@ -433,7 +435,7 @@ function split(E,root){
   els.hit.addEventListener('click',e=>{if(e.detail===0)open(X)});   // keyboard
   /* split screen: a swipe down on the video takes the sheet down with it (to the surface); a tap is the controls' tap to pause */
   let mp=null;
-  els.mv.addEventListener('pointerdown',e=>{if(e.button>0)return;mp={id:e.pointerId,x:e.clientX,y:e.clientY,sheet:false};try{els.mv.setPointerCapture(e.pointerId)}catch(_){}});
+  els.mv.addEventListener('pointerdown',e=>{if(e.button>0)return;mp={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),sheet:false};try{els.mv.setPointerCapture(e.pointerId)}catch(_){}});
   els.mv.addEventListener('pointermove',e=>{if(!mp||e.pointerId!==mp.id)return;const dx=e.clientX-mp.x,dy=e.clientY-mp.y;
     if(!mp.sheet&&!X.vw&&X.state===2&&!X.sheet.busy&&dy>8&&dy>Math.abs(dx)){mp.sheet=true;X.sheet.dragStart(mp.y,mp.id,scale())}
     if(mp.sheet)X.sheet.dragMove(e.clientY)});
@@ -454,7 +456,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.ctaFrom=null;clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -475,15 +477,19 @@ function open(X){if(X.state!==1||X.sheet.busy)return;if(X.pz&&X.pz.on){X.pz.set(
 /* the viewer: split (vw 0) -> full-bleed video (vw 1), the surface -> split shared-element lerp run backwards from the split rect, the close spring (ω16, ζ 1) both ways */
 /* the Feed ads' expand cell answers the moment the split screen is up, as the Reels and In-Content cells do: while the sheet is still
    travelling into split the tap is held and the viewer opens the instant it settles, so the cell never reads as a dead press */
-function vwOpen(X){if(X.state!==2||X.vwS.busy||X.vw)return;const go=()=>X.vwS.to(1,{w:16,onDone:()=>say(X.E.name+', full screen video')});
+function vwOpen(X){if(X.state!==2||X.vwS.busy||X.vw)return;const go=()=>{X.bdS.to(0,{w:32});X.vwS.to(1,{w:16,onDone:()=>say(X.E.name+', full screen video')})};
   if(!X.sheet.busy)return go();if(X.vwArm)return;X.vwArm=()=>{if(cur!==X||X.state!==2||X.vw||X.vwS.busy)return;go()};
   const wait=()=>{if(!X.vwArm)return;if(cur!==X||X.state!==2){X.vwArm=null;return}
     if(X.sheet.busy)requestAnimationFrame(wait);else{const f=X.vwArm;X.vwArm=null;f()}};requestAnimationFrame(wait)}
 function vwPlay(X){if(X.vs2&&X.vs2.paused())X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}   // always resume: the viewer CTA pauses the element directly
 /* the viewer's own expand cell: the video shrinks back into the split screen's box (the same spring, the reverse of vwOpen) */
-function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.vwS.to(0,{w:16,onDone:()=>{vwPlay(X);say(X.E.name+', split screen')}})}
+function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.bdS.stop();X.bdg=0;
+  if(X.vwOff)X.sheet.go(2,{w:16,load:false});   // a viewer CTA's destination left off the bottom: the sheet rises back into split with the video
+  X.vwS.to(0,{w:16,onDone:()=>{X.bdS.to(1,{w:18});vwPlay(X);say(X.E.name+', split screen')}})}
 /* the X: all the way back to the Feed (the sheet leaves split for its closed stop as the video settles into it, then the video to the surface) */
-function vwFeed(X){if(!X.vw)return;vwBack(X);X.sheet.go(1,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)})}
+function vwClose(X){vwBack(X)}   // a swipe down on the viewer: back to split, as its collapse cell
+function vwFeed(X){if(!X.vw)return;if(X.vwOff){X.vwOff=false;X.bdS.stop();X.bdg=1;X.vwS.to(0,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)});return}
+  vwBack(X);X.sheet.go(1,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)})}
 /* the CTA: the in-app browser opens over the paused viewer, full screen; its × closes back to the viewer (hooks.x); swipe / Escape stay on their own handlers */
 function vwCta(X){if(!X.vw||X.vwS.busy||X.sheet.busy||X.vwCta)return;X.vwCta=true;X.ctaFrom='vw';X.video.pause();render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', in-app browser')}
 /* Feed ad footer: open the destination full screen from Feed (same go(3) path as the viewer's CTA); media taps keep using open() → split */
@@ -494,7 +500,7 @@ function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go
 function render(X){
   const C=X.E.c,e=X.els,top=C.top,m=C.m,y=X.y;
   /* a CTA open (X.ctaFrom) is a layer over the surface it came from: the surface keeps its pose (Feed a 0 · viewer), only the sheet moves */
-  const a=X.ctaFrom==='feed'?0:clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
+  const a=X.ctaFrom==='feed'?0:X.vwOff||X.ctaFrom==='vw'?1:clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
   const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
   if(e.fh&&!X.fhOk)fhFit(X);
   if(e.bo)e.bo.style.opacity=a.toFixed(3);
@@ -507,13 +513,12 @@ function render(X){
   const mv=e.mv.style;mv.left=vx.toFixed(2)+'px';mv.top=vy.toFixed(2)+'px';mv.width=vw.toFixed(2)+'px';mv.height=vh.toFixed(2)+'px';
   const key=[vw,vh,...R].map(v=>v.toFixed(1)).join();
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+vw.toFixed(2),+vh.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
-  /* one motion, two legs, each a straight line from its own fixed start (never from the live box, which would apply the progress twice):
-     split↔Feed  p=a: the backdrop out of the video's live Feed-side box [vx,vy,vw,vh] (radii R, smoothing sm) to the 375×734 canvas;
-     split↔viewer p=a·(1−k): out of the viewer's video box (k=1 pose, square corners) to the same canvas, on the video's own spring, so
-     at the viewer it sits exactly behind the video and its margins grow / retract with it. Image stays screen-fixed; only the clip-path
-     reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb: the black only recedes, it never reveals the colour. */
-  const vb=k>0?[0,219+(375-375*m.a[3]/m.a[2])/2,375,375*m.a[3]/m.a[2]]:[vx,vy,vw,vh],
-    p=k>0?a*(1-k):a,B=FMSSBackdrop.box(vb,k>0?[0,0,0,0]:R,p),bs=e.bu.style;
+  /* the backdrop: p=a·g out of the video's LIVE box [vx,vy,vw,vh] (radii R, smoothing sm) to the 375×734 canvas (split↔Feed: g=1).
+     split↔viewer it is the video's own box: in the viewer it is already behind the video, so the collapse carries it in that box, never
+     taller or wider than the video; only once the video has landed in split does g (X.bdS, ω18) grow it out to the split canvas, and on
+     the way into the viewer g retracts it into the video (ω32) as the video starts to grow. Image stays screen-fixed; only the
+     clip-path reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb: the black only recedes, it never reveals it. */
+  const g=X.bdg==null?1:X.bdg,p=a*g,B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
   bs.display=a>0?'block':'none';   // keep laid out for the whole open (avoid display:none pop on the first collapse frame)
   if(a>0){e.bui.style.transform='';
     const bk=[B.x,B.y,B.w,B.h,...B.R,sm,p].map(v=>(+v).toFixed(2)).join();
@@ -568,11 +573,12 @@ function nativeSheet(o){
        (c0: where the top edge reaches c's row d; at once where bl sits above c's header, d <= 44), so c's × fades in whole, never cut */
     ngb.style.opacity=ngh.style.opacity=(1-clamp((c-c0)/.4)).toFixed(3);
     if(K){   /* Messenger: the keyboard rises from the bottom edge with c; the composer stays docked at the sheet's bottom until the keyboard meets it.
-         Both layers are full-screen only: at c≈0 (split or Feed) they must not paint — otherwise the "Write a message…" bar sits on the Feed. */
+         Both paint only while the sheet is up (split and full screen: the composer docks under the replies in split); closed (Feed) they
+         must not paint — otherwise the "Write a message…" bar sits on the Feed. */
       const kt=812-(812-K.k0)*c,ctp=Math.min(Math.max(y,Y2)+K.b0,kt-(K.k0-K.c0));
       nf.style.transform=`translate3d(0,${(ctp-K.c0).toFixed(2)}px,0)`;nfb.style.opacity=(1-clamp(c/.3)).toFixed(3);
       nfk.style.transform=`translate3d(0,${(kt-K.k0).toFixed(2)}px,0)`;
-      const show=c>.01;nf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
+      const show=y<ctp;   // only while the sheet top is above the composer row (split, full screen); never over the Feed or the viewernf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
       if(!show&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}
     }else nf.style.transform=`translate3d(0,${((812-F)*(1-clamp((c-.2)/.8))).toFixed(2)}px,0)`;   // the footer: the IAB toolbar's rule
     cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ct2.style.opacity=c.toFixed(3);
@@ -676,7 +682,7 @@ mmVp.addEventListener('pointerup',vpUp);mmVp.addEventListener('pointercancel',vp
 mmTr.querySelectorAll('.mm-it').forEach(b=>b.addEventListener('click',e=>{if(e.detail===0)pick(+b.dataset.i)}));   // keyboard
 function pick(i){show(i);closeMenu()}
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)return closeMenu();if(!cur)return;
-  if(cur.vw){if(cur.state===3)cur.sheet.go(cur.vwCta?2:1,{entry:null});else vwFeed(cur)}
+  if(cur.vw){if(cur.state===3)cur.sheet.go(1,{w:16});else vwFeed(cur)}
   else if(cur.state===3)cur.sheet.go(cur.ctaFrom==='feed'?1:2);else if(cur.state===2)close(cur)});
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
