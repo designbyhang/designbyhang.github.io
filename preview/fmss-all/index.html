@@ -66,10 +66,14 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .rl{width:375px;height:734px;overflow:hidden}
 .mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .mv .mvp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
-/* In-Content banner thumb: Figma Contained Icon Button 11559:62481 (32×32 at 33,665 → 21,21 inside the 74×74 .mv). Exact export; never redraw. */
-.mv .mtp{position:absolute;left:21px;top:21px;width:32px;height:32px;display:block;pointer-events:none;z-index:2}
+/* In-Content banner thumb play: the canonical js/play.webp (VideoScrubber's own play mark, 22×22 as it draws it), centred in the 74×74 .mv.
+   assets/thumb-play.webp was an opaque RGB export (its alpha lost), so it painted as a black square. Never redraw. */
+.mv .mtp{position:absolute;left:26px;top:26px;width:22px;height:22px;display:block;pointer-events:none;z-index:2}
 /* In-Content: .mv must paint ABOVE .uiu — ag4-ui's thumb slot is opaque grey (same as sol2's ag4); sol2 orders .mv after ag4 so the live thumb shows through. hit stays on top for taps. */
 .xp.ic .mv{z-index:2}.xp.ic .uiu{z-index:1}.xp.ic .hit{z-index:3}
+/* ...which also put the live player controls (.ctl: timestamp, expand, pause, mute, scrubber) under the video in split (as sol2 ?v 425):
+   stack .ctl above .mv, and the sheet host above both so the full-screen IAB still covers them */
+.xp.ic .ctl{z-index:3}.xp.ic .iabh{z-index:4}
 .hit{z-index:auto;touch-action:none;cursor:pointer}
 .hit.off{pointer-events:none}
 .ctl{will-change:transform,opacity}
@@ -311,7 +315,7 @@ function split(E,root){
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
   h+=FMSSBackdrop.html(u('bu'+n),top,{attrs:' data-r="bu" style="display:none"'});
   h+=`<div class="mv" data-r="mv"><img class="mvp" alt="" src="${u('p'+n)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video>`+
-    (C.reelTap?`<img class="mtp" data-r="mtp" alt="" src="assets/thumb-play.webp">`:'')+`</div>`;
+    (C.reelTap?`<img class="mtp" data-r="mtp" alt="" src="../../js/play.webp?v=424">`:'')+`</div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
   /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
