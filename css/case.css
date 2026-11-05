@@ -274,21 +274,22 @@ body.cs .inc-col .media.mframe.pd-label{--pd-ground:#f1f1f1;background:var(--pd-
 html[data-theme=dark] body.cs .inc-col .media.mframe.pd-label{--pd-ground:var(--frame)}
 body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;inset:0;margin:auto;width:calc(var(--dev-h)*375/812);height:var(--dev-h)}
 body.cs .inc-col .media.mframe.pd-label .inc-scr video{display:block;width:100%;height:100%;margin:0;object-fit:cover;background:none;transform:none}
-body.cs .inc-col .media.mframe .car-track>*{transition:opacity 704ms cubic-bezier(.4,0,.2,1)}
+body.cs .inc-col .media.mframe .car-track>*{transition:opacity 560ms cubic-bezier(.4,0,.2,1)}
 body.cs .inc-col .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:50%;width:min(var(--dev-h)*1440/1218,100cqw*1440/1225);max-width:none;height:auto;aspect-ratio:1440/1620;transform:translate(-50%,calc(-100%*771/1620))}
 @media (prefers-reduced-motion:reduce){body.cs .inc-col .media.mframe .car-track>*{transition:none}}
-/* carousel controls: a glass pill of 5px dots + the 32px .mbtn play/pause, 32px inset (16px on phones).
-   Each dot holds a 5px-tall bar: 5px wide = a dot, 24px = the active track; the active slot is 40px, the rest 24px, so the pill
-   keeps one width. js/case.js sets the widths and --p (fill progress) every frame */
+/* carousel controls: a glass pill of 4px dots + the 32px .mbtn play/pause, 32px inset (16px on phones).
+   Each dot holds a 4px-tall bar: 4px wide = a dot, 24px = the active track; the active slot is 32px (4px margin each side), the rest
+   12px (4px margin each side = 8px gap between every dot/bar), and the pill has 8px side padding (= 12px from the pill edge to the first
+   and last dot), so every dimension sits on the even 4/8/12/16/20/24/32 scale. js/case.js sets the widths and --p every frame */
 .car-ctrl{position:absolute;right:32px;bottom:32px;z-index:3;display:flex;align-items:center;gap:8px}
 @media (max-width:640px){.vid-btn,.car-ctrl{right:16px;bottom:16px}} /* 16px inset on mobile; after both base rules so it wins (it sat above .car-ctrl, which kept carousels at 32px) */
-.car-dots{display:flex;align-items:center;height:32px;padding:0 4px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;color:var(--c-strong);transition:border-color .2s ease} /* same 32px height as .mbtn */
-.car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:30px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.car-dots{display:flex;align-items:center;height:32px;padding:0 8px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;color:var(--c-strong);transition:border-color .2s ease} /* same 32px height as .mbtn */
+.car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:12px;height:32px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .car-dot[aria-current=true]{cursor:default}
-.car-bar{position:relative;display:block;flex:none;width:5px;height:5px;border-radius:2.5px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
+.car-bar{position:relative;display:block;flex:none;width:4px;height:4px;border-radius:2px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
 .car-dot:not([aria-current=true]):hover .car-bar{background:var(--c-strong)} /* hovered inactive dot = full ink, both themes */
 html[data-theme=dark] .car-bar{background:color-mix(in srgb,var(--c-strong) 40%,transparent)} /* dark glass over a light image reads mid-grey, where #555 dots vanish; 40% ink stays visible over dark and light media */
-.car-fill{display:none;position:absolute;top:0;bottom:0;left:0;width:calc(5px + (100% - 5px) * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
+.car-fill{display:none;position:absolute;top:0;bottom:0;left:0;width:calc(4px + (100% - 4px) * var(--p,0));border-radius:2px;background:var(--c-strong)}
 .car-dot[aria-current=true] .car-fill{display:block} /* fill starts as a full 5px head dot at the left end, then grows to the bar width */
 .car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.car-bar,.mbtn,.car-dots{transition:none}}
