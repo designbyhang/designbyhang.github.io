@@ -71,12 +71,20 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mv .mtp{position:absolute;left:26px;top:26px;width:22px;height:22px;display:block;pointer-events:none;z-index:2}
 /* In-Content: .mv must paint ABOVE .uiu — ag4-ui's thumb slot is opaque grey (same as sol2's ag4); sol2 orders .mv after ag4 so the live thumb shows through. hit stays on top for taps. */
 .xp.ic .mv{z-index:2}.xp.ic .uiu{z-index:1}.xp.ic .hit{z-index:3}
-/* ...which also put the live player controls (.ctl: timestamp, expand, pause, mute, scrubber) under the video in split (as sol2 ?v 425):
-   stack .ctl above .mv, and the sheet host above both so the full-screen IAB still covers them */
-.xp.ic .ctl{z-index:3}.xp.ic .iabh{z-index:4}
+/* ...which also put the live player controls under the video in split (as sol2 ?v 425):
+   stack the shared control wrapper above .mv, and the sheet host above both so the full-screen IAB still covers them */
+.xp.ic .ctlw{z-index:3}.xp.ic .iabh{z-index:4}
 .hit{z-index:auto;touch-action:none;cursor:pointer}
 .hit.off{pointer-events:none}
-.ctl{will-change:transform,opacity}
+/* one shared VideoScrubber for split and the fullscreen viewer (Hang): rides the live video box's bottom edge.
+   .ctlw matches the video rect; the scrubber is bottom-anchored with --ctl-b = the split video's bottom so its trackY
+   (top-14) lands on the split rest, and as the box grows/shrinks the bar translates with that edge — no second copy,
+   no fade-out for the motion. Sheet host stays in front (z 10 while k>0). */
+.ctlw{z-index:8;pointer-events:none;will-change:left,top,width,height,opacity}
+.ctlw>.ctl{left:50%;top:auto;bottom:var(--ctl-b,394px);margin-left:-187.5px;will-change:transform,opacity}
+/* expand/collapse hit: sibling of the fading .vs-f so it still answers after the idle fade (Hang: collapse button still works) */
+.ctl>.ctl-ex{position:absolute;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
+.ctl>.ctl-ex:is(:focus,:focus-visible,:active){outline:none!important}
 .splx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
 .splx.on{display:block}
 /* the Reels ad's overlay bands (head 0–481, ui 481–734, tab bar 734–812), the ui band lifting while the reel is paused by a media tap;
@@ -89,8 +97,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .uz{left:155.5px;top:335px;pointer-events:none}
 .rc{left:0;top:0;width:375px;height:812px;pointer-events:none;z-index:2}   /* the paused reel's scrubber (../shared/pause), above the bands */
 /* the expand viewer (Figma 138260:60964): split screen's video back out to full bleed in a 375 square at 219, on black, with the post's
-   details (avatar, name, badge, 2-line caption), a second live VideoScrubber, the persistent CTA and the UFI, all live components (no crops);
-   the reverse of surface -> split on the close spring (ω16) */
+   details (avatar, name, badge, 2-line caption), the persistent CTA and the UFI, all live components (no crops); the shared VideoScrubber
+   rides the video box from split (no second copy). The reverse of surface -> split on the close spring (ω16) */
 .vwb{width:375px;height:812px;background:#000;display:none}
 .vwo{width:375px;height:812px;display:none;pointer-events:none;color:#fff;font-feature-settings:var(--t-sf-ft);-webkit-font-smoothing:antialiased}
 .vwo>*{position:absolute;margin:0}
@@ -108,8 +116,6 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .vwo .vwdv{left:12px;top:739px;width:351px;height:.5px;background:#C9CCD1}
 .vwo .vwi{top:749px;width:20px;height:20px}.vwo .vwi svg{display:block;width:20px;height:20px}
 .vwo .vwal{top:751px;font:var(--t-r-body-s);font-weight:590;letter-spacing:var(--t-r-body-s-ls);white-space:nowrap}
-.vwv .vs-t{top:537.8px!important;font:var(--t-r-name);font-size:15px;letter-spacing:var(--t-r-name-ls)}
-.ctl.vwon .vs-e,.ctl.vwon .vs-h{pointer-events:none!important}
 /* Stories header (Figma .Header: Stepper + Meta + Icon Button Group), live so it moves inward with the canvas (as Solution 2) */
 .hd{position:absolute;left:0;top:0;width:375px;height:120px;color:#fff;font-weight:590;pointer-events:none}
 .hd>*{position:absolute;will-change:transform}
@@ -328,7 +334,7 @@ function split(E,root){
     `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
   /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
-  if(C.cs)h+=`<div class="L ctl" data-r="ctl" style="opacity:0"><i data-r="vsAt"></i></div>`;
+  if(C.cs)h+=`<div class="L ctlw" data-r="ctlw" style="opacity:0"><i data-r="vsAt"></i></div>`;
   if(!C.stories)h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`+(SQ?`clip-path:${HOLE(top)}`:''));
   else h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`);   // Stories: bo3 is only the 'Swipe up to see more' line (design 638–652.5), as sol2 — fades in with the peek
   if(C.stories)h+=`<div class="hd" data-r="hd"><i class="pb"></i><div class="meta"><img alt="" src="${u('av3')}"><div><div class="nm"><p class="rl-t rl-name">Away</p>${ico('verified.png')}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`;
@@ -340,7 +346,7 @@ function split(E,root){
       act=(ic,ix,lab,lx)=>`<i class="vwi" style="left:${ix}px">${ic}</i><p class="vwal" style="left:${lx}px">${lab}</p>`;
     h+=`<div class="L vwb" data-r="vwb"></div><div class="L vwo" data-r="vwo">`+
       `<i class="vwav" style="background-image:url(${A})"></i><p class="vwn">${esc(V.name)}</p><img class="vwbd" alt="" src="assets/vw-badge.png">`+
-      `<p class="vwcap" data-r="vwcap">${esc(V.cap)}</p><i data-r="vwsAt"></i>`+
+      `<p class="vwcap" data-r="vwcap">${esc(V.cap)}</p>`+
       `<button class="btn vwcta" data-r="vwcta" type="button" data-sq-off>${esc(V.cta)}</button>`+
       [1,2,3].map((n,i)=>`<img class="vwr" alt="" src="assets/vw-r${n}.png" style="left:${12+16*i}px">`).join('')+
       `<p class="vwt" style="left:64px">171K</p><p class="vwt" style="right:12px">2K comments</p><i class="vwdv"></i>`+
@@ -349,7 +355,7 @@ function split(E,root){
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
   const els=X.els={sf:[...root.querySelectorAll('.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
+    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
     uiu:r('uiu'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
@@ -363,10 +369,10 @@ function split(E,root){
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
     state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
-      if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;render(X);vwPlay(X);say(E.name+', full screen video')}
+      if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       if(s===1){X.vs&&X.vs.leaveSplit()}},
     opened:s=>{if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
-    closed:()=>{X.ctaFrom=null;X.vs&&X.vs.leaveSplit();if(X.vw&&X.vwCta){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();render(X);vwPlay(X);say(E.name+', full screen video')}else say(E.name+', '+E.tab)}};
+    closed:()=>{X.ctaFrom=null;if(X.vw&&X.vwCta){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
       :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
@@ -376,18 +382,27 @@ function split(E,root){
     if(P.fullFrom){const hf=X.sheet.panel.querySelector('.iab-hf');hf.style.objectFit='cover';hf.style.objectPosition='0 -46px'}   // the full header: c's own header rows (46-92)
   }else X.sheet=nativeSheet({host:els.host,y2:top,u,n,P:C.sheet,label:E.name,hooks});
 
-  /* live player controls (the shared VideoScrubber, as Solution 1 / 2, here interactive: seek, tap to pause; expand, pause and mute buttons in VAC's 44px icon cells, FMSS's 2080ms hold) */
-  if(C.cs&&VS){X.vs=VS.create({video:X.video,icons:u(C.ci),trackY:top-14,className:'vsx',tapToPause:true,pauseButton:true,muteButton:true,iconBox:{size:44},timeX:24,
-    ...(VW?{onExpand:()=>vwOpen(X)}:{})});r('vsAt').replaceWith(X.vs.el)}   // expand, only on the Feed ads (VW = the entry has a viewer)
+  /* live player controls: ONE shared VideoScrubber for split and the fullscreen viewer (Hang). Seeks, tap to pause, expand/collapse,
+     pause and mute in VAC's 44px icon cells, FMSS's 2080ms hold. It lives in .ctlw and rides the live video box's bottom edge — never a
+     second copy that hides/shows. Expand opens the viewer; the same cell collapses back once the viewer is up (glyph swaps to vw-ctl). */
+  if(C.cs&&VS){X._ctlSplit=u(C.ci);X._ctlView=VW?'assets/vw-ctl.png':X._ctlSplit;X.vs=VS.create({video:X.video,icons:X._ctlSplit,trackY:top-14,className:'ctl',tapToPause:true,pauseButton:true,muteButton:true,iconBox:{size:44},timeX:24,
+    ...(VW?{onExpand:()=>{}}:{})});r('vsAt').replaceWith(X.vs.el);
+    if(els.ctlw){const b=m.b[1]+m.b[3];els.ctlw.style.setProperty('--ctl-b',b+'px');els.ctlw.style.left=m.b[0]+'px';els.ctlw.style.top=m.b[1]+'px';els.ctlw.style.width=m.b[2]+'px';els.ctlw.style.height=m.b[3]+'px'}
+    /* persistent expand/collapse hit over cell 0 — outside the fading .vs-f so it answers after idle fade */
+    if(VW){const ex=X.vs.el.querySelector('.vs-e'),hit=document.createElement('button');hit.type='button';hit.className='ctl-ex';hit.setAttribute('aria-label','Expand');
+      if(ex){hit.style.left=ex.style.left;hit.style.top=ex.style.top;hit.style.width=ex.style.width;hit.style.height=ex.style.height;ex.style.pointerEvents='none'}
+      X.vs.el.appendChild(hit);X._ctlEx=hit}}
   /* the Feed ads' expand cell answers while the split screen is still travelling in as well as once it has settled: the shared strip's own
      button only takes a tap while its clock runs, which starts when the sheet arrives, so the same 44px cell gets the tap here and the
      viewer opens the moment the sheet settles (vwOpen holds it) */
-  if(VW&&X.vs){const ex=X.vs.el.querySelector('.vs-e[aria-label="Expand"]');let ep=null;
+  if(VW&&X._ctlEx){const ex=X._ctlEx;let ep=null;
     ex.addEventListener('pointerdown',e=>{if(e.button>0)return;ep={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),moved:false}});
     ex.addEventListener('pointermove',e=>{if(ep&&e.pointerId===ep.id&&Math.hypot(e.clientX-ep.x,e.clientY-ep.y)>10)ep.moved=true});
     ex.addEventListener('pointercancel',()=>{ep=null});
     ex.addEventListener('pointerup',e=>{const p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600)return;
-      if(X.state!==2||X.vw||X.vwS.busy)return;if(X.sheet.busy||X.vs.since()==null)vwOpen(X)})}   // the settled tap is the strip's own
+      if(X.state!==2||X.vwS.busy)return;
+      if(X.vw){vwBack(X);return}   // collapse works even after the idle fade (Hang)
+      vwOpen(X)})}   // open even while the sheet is still travelling in (vwOpen holds it)
     // (the Reels and In-Content split screens were never meant to have one: no path to the full-screen surface, so pause and mute only)
   /* DUAL-BASED split screen on a sponsor-labelled Reels AD (C.ad): two panes, ad above and IAB below. It is reached by DWELL at C.adDwell
      (4s of playing), never by a media tap. A media tap is organic behaviour: the reel pauses, its overlay band lifts and the scrubber
@@ -414,17 +429,13 @@ function split(E,root){
       t=setTimeout(()=>{t=null;if(X.state===1&&!(X.pz&&X.pz.on))open(X)},Math.max(0,left))};
     X.adDwellClear=()=>{clearTimeout(t);t=null;left=C.adDwell};
   }
-  /* the viewer's player: a second VideoScrubber over the same video, live only while the viewer is up. Its controls follow split screen's: held
-     2080ms from the viewer's landing (X.vwT0), then the shared 320ms ease-out; a tap brings them back (VideoScrubber's own clock) */
-  if(VW&&VS){X.vs2=VS.create({video:X.video,icons:'assets/vw-ctl.png',trackY:579.2,x:12,w:351,className:'vwv',pauseButton:true,muteButton:true,iconBox:{left:235,size:44},
-    onExpand:()=>vwBack(X),sinceSplit:()=>X.vw===1&&X.vwT0!=null?performance.now()-X.vwT0:X.vw>0?0:1e9});r('vwsAt').replaceWith(X.vs2.el)}   // the viewer's expand cell: back to split screen
   if(VW)r('vwcta').addEventListener('click',e=>{e.stopPropagation();vwCta(X)});
   X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});X.bdg=1;X.bdS=SP(()=>X.bdg,v=>{X.bdg=v;render(X)});
   if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwFeed(X)})
     /* in the viewer a tap on the video pauses / resumes it, as in split screen, through the viewer's own player (its pause cell shows the
        state); the split player's tap never sees it; no drag of any kind */
     root.addEventListener('pointerup',e=>{if(X.vw&&els.mv.contains(e.target)){e.stopPropagation();const p=mp;mvUp(e);
-      if(p&&e.pointerId===p.id&&Math.hypot(e.clientX-p.x,e.clientY-p.y)<=10&&performance.now()-p.t<=600&&X.vw===1&&!X.vwS.busy&&!X.vwCta&&X.vs2)X.vs2.togglePause()}},true)}
+      if(p&&e.pointerId===p.id&&Math.hypot(e.clientX-p.x,e.clientY-p.y)<=10&&performance.now()-p.t<=600&&X.vw===1&&!X.vwS.busy&&!X.vwCta&&X.vs)X.vs.togglePause()}},true)}
 
   /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
   let hp=null;
@@ -462,7 +473,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -483,14 +494,14 @@ function open(X){if(X.state!==1||X.sheet.busy)return;if(X.pz&&X.pz.on){X.pz.set(
 /* the viewer: split (vw 0) -> full-bleed video (vw 1), the surface -> split shared-element lerp run backwards from the split rect, the close spring (ω16, ζ 1) both ways */
 /* the Feed ads' expand cell answers the moment the split screen is up, as the Reels and In-Content cells do: while the sheet is still
    travelling into split the tap is held and the viewer opens the instant it settles, so the cell never reads as a dead press */
-function vwOpen(X){if(X.state!==2||X.vwS.busy||X.vw)return;const go=()=>{X.bdS.to(0,{w:32});X.vwS.to(1,{w:16,onDone:()=>{X.vwT0=performance.now();say(X.E.name+', full screen video')}})};
+function vwOpen(X){if(X.state!==2||X.vwS.busy||X.vw)return;const go=()=>{X.vs&&X.vs.enterSplit();X.bdS.to(0,{w:32});X.vwS.to(1,{w:16,onDone:()=>{X.vwT0=performance.now();X.vs&&X.vs.enterSplit();say(X.E.name+', full screen video')}})};
   if(!X.sheet.busy)return go();if(X.vwArm)return;X.vwArm=()=>{if(cur!==X||X.state!==2||X.vw||X.vwS.busy)return;go()};
   const wait=()=>{if(!X.vwArm)return;if(cur!==X||X.state!==2){X.vwArm=null;return}
     if(X.sheet.busy)requestAnimationFrame(wait);else{const f=X.vwArm;X.vwArm=null;f()}};requestAnimationFrame(wait)}
-function vwPlay(X){if(X.vs2&&X.vs2.paused())X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}   // always resume: the viewer CTA pauses the element directly
+function vwPlay(X){if(X.vs&&X.vs.paused())X.vs.togglePause();const p=X.video.play();p&&p.catch(()=>{})}   // always resume: the viewer CTA pauses the element directly
 /* the viewer's own expand cell: the video shrinks back into the split screen's box (the same spring, the reverse of vwOpen) */
 function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.bdS.stop();X.bdg=0;X.vwT0=null;
-  X.vs&&X.vs.enterSplit();   // split's controls come up with the collapse (ctl opacity a·(1−k)) and run split's own hold + fade from here
+  X.vs&&X.vs.enterSplit();   // shared bar stays up for the whole collapse spring; idle hold+fade restarts from here once landed
   /* g stays 0 while k moves: p=a·g=0 → box() is the live video rect, so the colour rides with the video and is never taller (Hang).
      One grow spring to the 734 rest starts when the collapse lands — no early-arm / mid-spring reveal hitch (Hang 2026-11-05 choppy). */
   if(X.vwOff)X.sheet.go(2,{w:16,load:false});   // a viewer CTA's destination left off the bottom: the sheet rises back into split with the video
@@ -539,7 +550,17 @@ function render(X){
     const bk=[B.x,B.y,B.w,B.h,...B.R,sm,p].map(v=>(+v).toFixed(2)).join();
     if(bk!==X.bk){X.bk=bk;bs.clipPath=a>0.001?FMSSBackdrop.clip(B,sm):'inset(0 100% 100% 0)';bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}   // p=0 still clips to the live video box (not a fully-hidden inset) so the land→grow spring has no hidden→visible jump
   if(e.mtp)e.mtp.style.opacity=(1-a).toFixed(3);   // Contained play glyph: surface thumb only (hides as the banner grows into split)
-  if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
+  /* shared controls: ride the live video box (Hang). Split rest keeps the feed→split lift; once k>0 the wrapper IS the live
+     video rect so the bar tracks its bottom edge 1:1 — visible for the whole spring (no a·(1−k) hide, no second scrubber). Idle
+     fade is VideoScrubber's own 2080+320 once landed. Expand glyph: ci (outward) in split, vw-ctl (inward) in the viewer. */
+  if(e.ctlw&&X.vs){const sb=C.m.b[1]+C.m.b[3],on=a>0.001,ride=k>0;
+    e.ctlw.style.setProperty('--ctl-b',sb+'px');
+    if(ride){e.ctlw.style.left=vx.toFixed(2)+'px';e.ctlw.style.top=vy.toFixed(2)+'px';e.ctlw.style.width=vw.toFixed(2)+'px';e.ctlw.style.height=vh.toFixed(2)+'px'}
+    else{e.ctlw.style.left=C.m.b[0]+'px';e.ctlw.style.top=C.m.b[1]+'px';e.ctlw.style.width=C.m.b[2]+'px';e.ctlw.style.height=C.m.b[3]+'px'}
+    e.ctlw.style.opacity=on?a.toFixed(3):'0';e.ctlw.style.zIndex=ride?'8':'';
+    X.vs.el.style.transform=ride?'':`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;
+    const ic=ride?(X._ctlView||X._ctlSplit):X._ctlSplit;if(ic&&ic!==X._ctlIc){X._ctlIc=ic;X.vs.el.querySelectorAll('.vs-i').forEach(el=>{el.style.backgroundImage=`url('${ic}')`})}
+    if(X._ctlEx)X._ctlEx.setAttribute('aria-label',ride?'Collapse':'Expand')}
   /* the viewer's layers: black (.vwb) under the collapsing backdrop so the colour rides with the video; video and post rows over both;
      the bottom sheet (host, 10) is the front layer over them all, never under the player: opening the viewer it slides down off the bottom
      in front of the growing video (offset (812−y)·k, so parked below the screen in the settled viewer), collapsing it rises and covers the
@@ -709,7 +730,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)r
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
 let seen=false;
 function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden,C=cur.E.c;
-  cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs2&&(cur.vs2.paused()||cur.vs2.dragging())))));
+  cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs&&(cur.vs.paused()||cur.vs.dragging())))));
     /* the In-Content ad's own Reels video is paused by a tap on it: the watchdog leaves it paused (only the ad's player is its to drive) */
     if(v===cur.reelVideo&&cur.reelHeld){if(!v.paused)v.pause();return}
     /* a reel the viewer paused with a media tap stays paused (../shared/pause owns that state, as in the VAC prototype) */
