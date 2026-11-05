@@ -330,6 +330,7 @@ function split(E,root){
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
   if(C.cs)h+=`<div class="L ctl" data-r="ctl" style="opacity:0"><i data-r="vsAt"></i></div>`;
   if(!C.stories)h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`+(SQ?`clip-path:${HOLE(top)}`:''));
+  else h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`);   // Stories: bo3 is only the 'Swipe up to see more' line (design 638–652.5), as sol2 — fades in with the peek
   if(C.stories)h+=`<div class="hd" data-r="hd"><i class="pb"></i><div class="meta"><img alt="" src="${u('av3')}"><div><div class="nm"><p class="rl-t rl-name">Away</p>${ico('verified.png')}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`;
   const xa=C.xAt||[325,46,44,44];
   h+=`<button class="L btn splx" data-r="splx" type="button" aria-label="Close split screen" style="left:${xa[0]}px;top:${xa[1]}px;width:${xa[2]}px;height:${xa[3]}px"></button>`;
@@ -508,7 +509,11 @@ function render(X){
   const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
   if(e.fh&&!X.fhOk)fhFit(X);
   if(e.bo)e.bo.style.opacity=a.toFixed(3);
-  e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
+  /* Stories: the story's own overlay copy stays above the IAB peek (Hang: "missing the texts above the iab peek"). SHOP NOW (ao3, pill 657–694.5)
+     would sit 14.5px under the 680 peek, so it and the Swipe-up line (bo3, 638–652.5) lift 22.5px with the peek: pill 634.5–672, 8px above
+     the sheet, the 4.5px text→pill gap kept. Other entries' out layers still fade (1−a). */
+  if(C.stories){const t=`translateY(${(-22.5*a).toFixed(2)}px)`;e.ot.forEach(l=>{l.style.opacity='1';l.style.transform=t});if(e.bo)e.bo.style.transform=t}
+  else e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
   /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
   const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
   let R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);
@@ -579,10 +584,11 @@ function nativeSheet(o){
     if(K){   /* Messenger: the keyboard rises from the bottom edge with c; the composer stays docked at the sheet's bottom until the keyboard meets it.
          Both paint only while the sheet is up (split and full screen: the composer docks under the replies in split); closed (Feed) they
          must not paint — otherwise the "Write a message…" bar sits on the Feed. */
-      const kt=812-(812-K.k0)*c,ctp=Math.min(Math.max(y,Y2)+K.b0,kt-(K.k0-K.c0));
+      const kt=812-(812-K.k0)*c,ctp=y>Y2?y+K.b0:Math.min(Y2+K.b0,kt-(K.k0-K.c0));   // below split it rides with the sheet (off the bottom with it), never docked over the Feed or viewer
       nf.style.transform=`translate3d(0,${(ctp-K.c0).toFixed(2)}px,0)`;nfb.style.opacity=(1-clamp(c/.3)).toFixed(3);
       nfk.style.transform=`translate3d(0,${(kt-K.k0).toFixed(2)}px,0)`;
-      const show=y<ctp;   // only while the sheet top is above the composer row (split, full screen); never over the Feed or the viewernf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
+      const show=y<Y1-.5;   // closed (Feed, or the viewer with its CTA gone) it never paints
+      nf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
       if(!show&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}
     }else nf.style.transform=`translate3d(0,${((812-F)*(1-clamp((c-.2)/.8))).toFixed(2)}px,0)`;   // the footer: the IAB toolbar's rule
     cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ct2.style.opacity=c.toFixed(3);
