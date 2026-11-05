@@ -79,7 +79,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-b{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.16)}'+
  '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h,.vs.vs-off .vs-e{pointer-events:none}'+
  '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
- '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s img.vs-play{display:none;position:absolute;left:50%;top:1px;margin-left:-11px;width:22px;height:22px;pointer-events:none}'+
+ '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s img.vs-play{display:none;position:absolute;left:50%;top:1px;margin-left:-10.225px;width:22px!important;height:22px!important;max-width:none!important;pointer-events:none}'+
  '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s img.vs-play{display:block}'+
  // muted: the speaker crop cut before its waves only, so the speaker sits exactly where it sits with sound on
  '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0)}'+
@@ -96,7 +96,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
 // play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
 // (radius 1 / stdDeviation .5, offset 0,0, rgba(0,0,0,.62)). Sibling of the host's ci*.webp (or vw-ctl) as play.webp; 22 design px incl. 1px shadow pad around the 20 icon.
-function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=415');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false">'}
+function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=415');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
@@ -118,6 +118,7 @@ function create(o){
   // PLAY_INK: the Figma play export's ink bbox centre in its own 22px box (5..18.75 → 11.875), so the triangle is centred on its ink, not on the box
   var ib0=o.iconBox,ib=ib0?{left:ib0.left!=null?ib0.left:x+w-3*(ib0.size||44)-4,size:ib0.size||44}:null,INK=[16.75,60.75,104.75],PLAY_SIZE=22,PLAY_INK=11.875,PLAY_NUDGE=2;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
   // PLAY_NUDGE: a triangle reads as centred only when its ink sits a little right of the box's centre; 2 design px, VAC and FMSS alike
+  // non-iconBox (fmss-split hero cover): keep the old SVG's ink at slice centre + 1.65 (24px box, PLAY_INK 13.65), not PLAY_NUDGE
   // timeX: timestamp left (design px). Track stays on x/w; the split screen's interactive players pass timeX:24 (+12 from the track inset)
   var timeX=o.timeX!=null?o.timeX:x;
   function cell(k){return [ib.left+k*ib.size,iy+12-ib.size/2]}   // a cell's left / top: on the glyph row's centre line, as the strip is
@@ -130,7 +131,9 @@ function create(o){
     '<p class="vs-t" style="left:'+timeX+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
-  if(ib){var pv=f.querySelector('.vs-g img.vs-play');if(pv){pv.style.left=(INK[1]-sl[0]+PLAY_NUDGE-PLAY_INK)+'px';pv.style.marginLeft='0'}}   // play ink on the pause glyph's cell centre, then nudged right (PLAY_NUDGE); no 50%/-half trick once left is absolute
+  // play img: iconBox → ink on cell centre + PLAY_NUDGE; else (hero cover / demoTaps) → same ink as the old 24px SVG (slice centre + 1.65).
+  // Use an absolute left (not left:50%) so transformed covers (fmss-split .fsp-ph scale) still land correctly.
+  var pv=f.querySelector('.vs-g img.vs-play');if(pv){pv.style.marginLeft='0';if(ib)pv.style.left=(INK[1]-sl[0]+PLAY_NUDGE-PLAY_INK)+'px';else pv.style.left=(sl[1]/2+(13.65-12)-PLAY_INK)+'px'}
   // o.hold: this player's hold before the fade (ms, a multiple of 8; default HOLD, as FMSS), the 320ms fade unchanged
   var hold=o.hold>0?o.hold:HOLD,gone=hold+FADE;
   var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=rl?-1e9:null,rIn=-1e9,pend=null,up=false,base=0,prev=null,area=null;
