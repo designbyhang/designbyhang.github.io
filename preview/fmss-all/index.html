@@ -136,6 +136,15 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .fh p{left:60px;margin:0;white-space:nowrap;-webkit-font-smoothing:antialiased}
 .fh .n{top:118px;font:var(--t-r-name);letter-spacing:var(--t-r-name-ls);font-feature-settings:var(--t-sf-ft);color:#050505}
 .fh .s{top:140px;font:var(--t-r-body-s);letter-spacing:var(--t-r-body-s-ls);font-feature-settings:var(--t-sf-ft);color:#65676B}
+.mph{width:375px;height:614px;pointer-events:none}
+.mph>*{position:absolute;margin:0;white-space:nowrap;-webkit-font-smoothing:antialiased;font-feature-settings:var(--t-sf-ft)}
+.mph .av{top:365px;width:22px;height:22px;border-radius:50%;background-size:206.25px 446.6px;background-position:-6.6px -63.8px;background-repeat:no-repeat}
+.mph .n{top:362px;font:600 12px/15px var(--t-sf);letter-spacing:-.12px;color:#050505}
+.mph .s{top:377px;font:400 11px/13px var(--t-sf);letter-spacing:-.08px;color:#65676B}
+.mph .dt{top:368px;width:16px;height:16px}
+.mph .hl{top:590px;width:168px;overflow:hidden;text-overflow:ellipsis;font:600 13px/16px var(--t-sf);letter-spacing:-.12px;color:#050505}
+.mpv2{position:absolute;top:396px;width:186px;height:186px;overflow:hidden;background:#000;pointer-events:none}
+.mpv2 video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 /* native sheet (lead form, Messenger, App Store, product catalog): the Solution sheet image, its live top and handle, and C's layers */
 /* one layer owns the motion: the sheet's surface (.ns: its colour, squircle top, live handle, the drag) and one content group (.ng: c, with the
    split pose bl registered on it and dissolving out) on one transform; the full screen's bottom chrome (.nf: a footer / composer / keyboard)
@@ -170,24 +179,37 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mp .dk{background:rgba(255,255,255,.24);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
 .mp span{position:relative;pointer-events:none}
 
-/* ---------- the menu: a card over the blurred app (Hang's Figma: FM Split Screen, 187456:53127) ---------- */
+/* ---------- the menu: tree-branch card over the blurred app ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;font-family:var(--t-sf);font-feature-settings:var(--t-sf-ft);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:block}
-.mm-bg{position:absolute;inset:0;background:rgba(214,223,235,.56);-webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2)}
-.mm-card{position:absolute;left:30px;top:72px;width:315px;height:668px;background:#F4F4F4;border-radius:24px;overflow:hidden;transform-origin:50% 50%;color:#050505}
-.mm-t{position:absolute;left:32px;top:32px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#050505;white-space:nowrap}
-.mm-x{position:absolute;left:267px;top:4px;width:44px;height:44px}
-.mm-x i{position:absolute;left:12px;top:12px;width:20px;height:20px;border-radius:10px;background:#1877F2}
-.mm-x svg{position:absolute;left:12px;top:12px;width:20px;height:20px}
-.mm-ls{position:absolute;left:32px;top:72px;width:251px;display:flex;flex-direction:column;gap:8px}
-.mm-sec{display:flex;align-items:center;gap:10px;width:251px;height:36px;padding-top:8px}
-.mm-sec span{font-size:12px;line-height:20px;font-weight:510;letter-spacing:0;color:#B0B3B8;white-space:nowrap}
-.mm-sec i{flex:1;height:1px;border-radius:100px;background:#D4D4D4;box-shadow:0 0 4px rgba(0,0,0,.04)}
-.mm-it{display:flex;justify-content:space-between;align-items:center;width:251px;height:36px;padding:8px 12px;background:#fff;border-radius:8px;box-shadow:0 0 4px rgba(0,0,0,.04);text-align:left;color:#1877F2}
+.mm-bg{position:absolute;inset:0;background:rgba(235,235,240,.68);-webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2)}
+.mm-card{position:absolute;left:24px;top:64px;width:327px;height:684px;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04)}
+.mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
+.mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
+.mm-x i{position:absolute;left:10px;top:10px;width:24px;height:24px;border-radius:12px;background:#F4F4F5}
+.mm-x svg{position:absolute;left:14px;top:14px;width:16px;height:16px}
+.mm-x svg path{stroke:#71717A;stroke-width:1.6}
+.mm-ls{position:absolute;left:12px;top:66px;width:303px;display:flex;flex-direction:column;gap:12px}
+.mm-grp{display:flex;flex-direction:column;width:303px}
+.mm-parent{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:10px;color:#52525B;font-size:16px;line-height:20px;font-weight:500;letter-spacing:0}
+.mm-parent.active{background:#F6F6F7;color:#141416;font-weight:600}
+.mm-parent.off{opacity:.4}
+.mm-parent svg.ic{width:18px;height:18px;flex:none;display:block;overflow:visible}
+.mm-children{position:relative;display:flex;flex-direction:column;padding-left:32px;margin-top:2px;gap:2px}
+.mm-it{position:relative;display:flex;justify-content:space-between;align-items:center;width:271px;height:34px;padding:0 12px;background:transparent;border-radius:8px;text-align:left}
+.mm-it.two{height:48px;align-items:flex-start;padding-top:7px}
 .mm-it.off{opacity:.4;pointer-events:none;cursor:default}
-.mm-it .nm{display:block;font-size:12px;line-height:20px;font-weight:400;letter-spacing:0;color:#1877F2;white-space:nowrap}
-.mm-it .nm b{font-weight:700}
-.mm-it .vr{font-size:10px;line-height:20px;font-weight:400;letter-spacing:0;color:#A3A3A3;white-space:nowrap;text-align:right;margin-left:8px}
+.mm-it::before{content:"";position:absolute;left:-11.5px;top:-19px;width:8px;height:36px;border-left:1px solid #E4E4E7;border-bottom:1px solid #E4E4E7;border-bottom-left-radius:6px;pointer-events:none}
+.mm-it.two+.mm-it::before{top:-33px;height:50px}
+.mm-it:first-child::before{top:-4px;height:21px}
+.mm-it.cur{background:#F4F4F5}
+.mm-it .lf{display:flex;flex-direction:column}
+.mm-it .nm{display:block;font-size:14px;line-height:18px;font-weight:400;letter-spacing:0;color:#71717A;white-space:nowrap}
+.mm-it .nm b{font-weight:500;color:#3F3F46}
+.mm-it.cur .nm,.mm-it.cur .nm b{color:#141416;font-weight:600}
+.mm-it .mm-sub{display:block;margin-top:2px;font-size:12px;line-height:16px;font-weight:400;letter-spacing:0;color:#A1A1AA;white-space:nowrap}
+.mm-it .vr{font-size:12px;line-height:18px;font-weight:400;letter-spacing:0;color:#A1A1AA;white-space:nowrap;text-align:right;margin-left:8px}
+.mm-it.cur .vr{color:#71717A}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
 html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -258,22 +280,22 @@ const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head 
    pause.js amount() lands that edge ABOVE=20 over the scrubber track. ao2 Sponsored/CTA ≈232.5 → 233; ag4 Away banner ≈236.5 → 237. */
 const UI_BOTTOM={ao2:233,ag4:237};
 const EXP=[
-  {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Default',from:'Solution 1 · Offsite Conversions',build:split,
+  {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Solution 1 · Offsite Conversions',build:split,
    c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},fh:{name:'Nike',bx:96},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'}}},
-  {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Default',from:'Solution 1 · Lead Generation',build:split,
+  {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Video Tap',from:'Solution 1 · Lead Generation',build:split,
    c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],vw:{cta:'Download',name:'Meta for Work',cap:'We asked 400 business leaders in the US & UK about the trends they think will shape t'},fh:{name:'Meta for Work',bx:164},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:60,be:390,foot:[722,'#fff']}}},
-  {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Default',from:'Solution 1 · Business Messages',build:split,
+  {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Video Tap',from:'Solution 1 · Business Messages',build:split,
    c:{S:S1,n:3,top:406,tone:1,surf:[{f:'a3',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},fh:{name:'Artifox',bx:112},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
       sheet:{native:1,hb:92,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8',caret:[30,485]}}}},
-  {tab:'Feed',group:'watch',name:'Watch & Install',variant:'Default',from:'Solution 1 · App Installs',build:split,
+  {tab:'Feed',group:'watch',name:'Watch & Install',variant:'Video Tap',from:'Solution 1 · App Installs',build:split,
    c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],vw:{cta:'Install',name:'Chick-fil-A',cap:'Free delivery on your first mobile order. Try our Classic Chicken Sandwich today!'},fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:72,be:388,foot:[798,'#fff']}}},
-  {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'Default',from:'Solution 2 · Feed',build:split,
+  {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'Video Tap',from:'Solution 2 · Feed',build:split,
    c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
-  {tab:'Reels',group:'watch',name:'Watch & Browse',variant:'w/ In-Content Ads',from:'Solution 2 · In-Content Ads',build:split,
+  {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
    c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
@@ -290,7 +312,11 @@ const EXP=[
   {tab:'Stories',group:'watch',name:'Watch & Browse',variant:'On Dwell',from:'Solution 2 · Stories',build:split,
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
       stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
-  {tab:'Marketplace',name:'Watch & Browse',variant:'Default',disabled:1}
+  {tab:'Marketplace',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Marketplace · Offsite Conversions',build:split,
+   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v3',p2:'p3',x2:189},m:{a:[0,396,186,186],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[0,356,375,256],
+      sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'},
+      alt:{S:S1,n:3,top:406,tone:1,surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v1',p2:'p1',x2:0,isAlt:1},m:{a:[189,396,186,186],b:[12,44,351,350]},cs:185,ci:'ci3',tap:[0,356,375,256],
+        sheet:{native:1,hb:92,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8',caret:[30,485]}}}}}
 ];
 const TABS=['Feed','Reels','Stories','Marketplace'];
 
@@ -312,6 +338,11 @@ function split(E,root){
     :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="pt ${cls}" style="background:${o.patch}"></i>`:'')};
   let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
+  if(C.mph){const M=C.mph,R=M.r,dt='<g fill="#65676B"><circle cx="3" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="13" cy="8" r="1.3"/></g>';
+    h+=`<div class="L mph sf" data-r="mph">`+
+      `<i class="av" style="left:10px;background-image:url(${u(M.av)})"></i><p class="n" style="left:38px">${M.name}</p><p class="s" style="left:38px">Sponsored</p><svg class="dt" style="left:162px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:10px">${M.hl}</p>`+
+      (R?`<i class="av" style="left:199px;background-image:url(${u(R.av)})"></i><p class="n" style="left:227px">${R.name}</p><p class="s" style="left:227px">Sponsored</p><svg class="dt" style="left:351px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:199px">${R.hl}</p>`:'')+
+      `</div><div class="mpv2 sf" style="left:${M.x2}px"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u(M.p2)}" src="${u(M.v2+'.mp4')}"></video></div>`}
   h+=FMSSBackdrop.html(u('bu'+n),top,{attrs:' data-r="bu" style="display:none"'});
   h+=`<div class="mv" data-r="mv"><img class="mvp" alt="" src="${u('p'+n)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video>`+
     (C.reelTap?`<img class="mtp" data-r="mtp" alt="" src="../../js/play.webp?v=424">`:'')+`</div>`;
@@ -334,8 +365,8 @@ function split(E,root){
   const xa=C.xAt||[325,46,44,44];
   h+=`<button class="L btn splx" data-r="splx" type="button" aria-label="Close split screen" style="left:${xa[0]}px;top:${xa[1]}px;width:${xa[2]}px;height:${xa[3]}px"></button>`;
   h+=`<div class="L iabh" data-r="sheetHost" style="width:375px;height:812px"></div>`;
-  const VW=!!(C.cs&&C.fh);   // the expand viewer: the Feed ads (their post rows are the a image's)
-  if(VW){const A=u(C.surf[0].f),V=C.vw,esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;'),
+  const VW=!!(C.cs&&(C.fh||C.mph));   // the expand viewer: the Feed ads (their post rows are the a image's)
+  if(VW){const A=u(C.mph?(C.mph.isAlt?C.mph.r.av:C.mph.av):C.surf[0].f),V=C.vw,esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;'),
       act=(ic,ix,lab,lx)=>`<i class="vwi" style="left:${ix}px">${ic}</i><p class="vwal" style="left:${lx}px">${lab}</p>`;
     h+=`<div class="L vwb" data-r="vwb"></div><div class="L vwo" data-r="vwo">`+
       `<i class="vwav" style="background-image:url(${A})"></i><p class="vwn">${esc(V.name)}</p><img class="vwbd" alt="" src="assets/vw-badge.png">`+
@@ -347,10 +378,24 @@ function split(E,root){
       `<button class="btn vwx" data-r="vwx" type="button" aria-label="Close full screen video"><img alt="" src="assets/vw-x.png"></button></div>`}
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
-  const els=X.els={sf:[...root.querySelectorAll('.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
+  const els=X.els={sf:[...root.querySelectorAll('.sf')],sfImg:root.querySelector('img.sf'),sfPatch:[...root.querySelectorAll('.pt.sf,.fh.sf,.mph.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
     mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
     uiu:r('uiu'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
-  X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
+  X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');X.v2=root.querySelector('.mpv2 video');
+  if(C.mph){
+    X.mpTurn=0;   // 0 = left (Nike) plays 0..6s, 1 = right (Artifox) plays 0..6s
+    X.mpLeft=C.mph.isAlt?X.v2:X.video;
+    X.mpRight=C.mph.isAlt?X.video:X.v2;
+    const onTime=()=>{if(cur!==X||X.state!==1||X.vw)return;
+      const act=X.mpTurn?X.mpRight:X.mpLeft,idl=X.mpTurn?X.mpLeft:X.mpRight;
+      if(!idl.paused)idl.pause();
+      if(act.currentTime>=6){act.pause();try{act.currentTime=0;idl.currentTime=0}catch(_){}X.mpTurn=1-X.mpTurn;vidSync()}};
+    X.mpLeft.addEventListener('timeupdate',onTime);
+    X.mpRight.addEventListener('timeupdate',onTime);
+  }
+  if(C.alt){const altRoot=document.createElement('div');altRoot.className='xp';altRoot.dataset.i='mp-alt';xps.appendChild(altRoot);
+    X.alt=split({tab:E.tab,group:E.group,name:'Watch & Message',variant:E.variant,from:'Marketplace · Business Messages',c:C.alt},altRoot);
+    X.alt.alt=X}
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
 
   /* the sheet */
@@ -432,13 +477,26 @@ function split(E,root){
 
   /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
   let hp=null;
-  els.hit.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;hp={id:e.pointerId,y:e.clientY,x:e.clientX,ly:ptOf(e)[1],moved:false,drag:false};try{els.hit.setPointerCapture(e.pointerId)}catch(_){}});
+  els.hit.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;const [lx,ly]=ptOf(e);hp={id:e.pointerId,y:e.clientY,x:e.clientX,lx,ly,moved:false,drag:false};try{els.hit.setPointerCapture(e.pointerId)}catch(_){}});
   els.hit.addEventListener('pointermove',e=>{if(!hp||e.pointerId!==hp.id)return;const dx=e.clientX-hp.x,dy=e.clientY-hp.y;if(Math.hypot(dx,dy)>10)hp.moved=true;
     if(C.swipeUp&&!hp.drag&&dy<-8&&-dy>Math.abs(dx)){hp.drag=true;X.sheet.dragStart(hp.y,hp.id,scale())}
     if(hp.drag)X.sheet.dragMove(e.clientY)});
   const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
     if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
-    if(e.type==='pointerup'&&!p.moved){if(C.ad)X.mediaTap();
+    if(e.type==='pointerup'&&!p.moved){
+      if(C.mph){
+        const wantAlt=p.lx>=187.5,isAlt=!!C.mph.isAlt;
+        let T=X;
+        if(wantAlt!==isAlt&&X.alt){
+          T=X.alt;T.reset();T.mpTurn=X.mpTurn;
+          try{T.mpLeft.currentTime=X.mpLeft.currentTime;T.mpRight.currentTime=X.mpRight.currentTime}catch(_){}
+          X.root.classList.remove('on');X.vids.forEach(v=>v.pause());
+          cur=T;T.root.classList.add('on');render(T);
+        }
+        if(p.ly>=T.E.c.m.a[1]+T.E.c.m.a[3])openFull(T);else open(T);
+        vidSync();return;
+      }
+      if(C.ad)X.mediaTap();
       else if(C.fh&&p.ly>=C.m.a[1]+C.m.a[3])openFull(X);   // Feed footer / CTA row → destination full screen
       else open(X)}};   // Feed media (and every other surface hit) → split screen, unchanged
   els.hit.addEventListener('pointerup',hitUp);els.hit.addEventListener('pointercancel',hitUp);
@@ -514,7 +572,8 @@ function render(X){
   const C=X.E.c,e=X.els,top=C.top,m=C.m,y=X.y;
   /* a CTA open (X.ctaFrom) is a layer over the surface it came from: the surface keeps its pose (Feed a 0 · viewer), only the sheet moves */
   const a=X.ctaFrom==='feed'?0:X.vwOff||X.ctaFrom==='vw'?1:clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
-  const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
+  const sA=a<1?'1':'0',pA=a<1&&(!e.sfImg||e.sfImg.complete)?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);e.sfPatch.forEach(l=>l.style.opacity=pA);
+  if(e.sfImg&&!e.sfImg.complete&&!X.sfWait){X.sfWait=1;e.sfImg.addEventListener('load',()=>{X.sfWait=0;render(X)},{once:true})}
   if(e.fh&&!X.fhOk)fhFit(X);
   if(e.bo)e.bo.style.opacity=a.toFixed(3);
   /* Stories (Hang / Solution 2): SHOP NOW (ao3) and "Swipe up to see more" (bo3) are mutually exclusive, same as sol2.
@@ -662,24 +721,37 @@ const built=new Map();let cur=null,curI=-1;
 function show(i){
   const E=EXP[i];let X=built.get(i);
   if(!X){const root=document.createElement('div');root.className='xp';root.dataset.i=i;xps.appendChild(root);X=E.build(E,root);built.set(i,X)}
-  if(cur&&cur!==X){cur.root.classList.remove('on');cur.reset();cur.vids.forEach(v=>v.pause())}
-  X.reset();cur=X;curI=i;X.root.classList.add('on');render(X);vidSync();X.dwell();
-  phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
+  const activate=()=>{
+    if(cur&&cur!==X){cur.root.classList.remove('on');cur.reset();cur.vids.forEach(v=>v.pause())}
+    X.reset();cur=X;curI=i;X.root.classList.add('on');render(X);vidSync();X.dwell();
+    phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
+  };
+  const im=X.els.sfImg;
+  if(im&&!im.complete){im.decode().then(activate,activate)}else activate();
 }
+/* preload every experience's surface image after boot so switching menu options never flashes an undecoded surface */
+requestAnimationFrame(()=>EXP.forEach(E=>{if(!E.c||!E.c.surf)return;const S=E.c.S;E.c.surf.forEach(o=>{if(o.f){const im=new Image();im.src=S.d+o.f+'.webp'+S.v}})}));
 
-/* ---------- the menu: one vertical list grouped by surface (Figma 187456:53127, data-driven from EXP) ---------- */
+/* ---------- the menu: tree-branch list grouped by surface with Facebook icons (data-driven from EXP) ---------- */
 const mm=$('mm'),mmCard=$('mmCard'),mmBg=$('mmBg'),mmLs=$('mmLs');
 const tabs=TABS.filter(t=>EXP.some(E=>E.tab===t));
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const nameHTML=s=>{const k=s.lastIndexOf('& ');return k<0?`<b>${esc(s)}</b>`:esc(s.slice(0,k+2))+'<b>'+esc(s.slice(k+2))+'</b>'};
-mmLs.innerHTML=tabs.map(t=>{let h=`<div class="mm-sec"><span>${esc(t)}</span><i></i></div>`;
-  EXP.forEach((E,i)=>{if(E.tab!==t)return;
-    h+=`<button class="btn mm-it${E.disabled?' off':''}" type="button"${E.disabled?' disabled aria-disabled="true"':` data-i="${i}"`} aria-label="${esc(t)}: ${esc(E.name)}, ${esc(E.variant)}"><span class="nm">${nameHTML(E.name)}</span><span class="vr">${esc(E.variant)}</span></button>`});
-  return h}).join('');
-if(SQ){mmCard.style.clipPath=`path('${sqP(315,668,24)}')`;mmCard.style.borderRadius='0';
-  mmLs.querySelectorAll('.mm-it').forEach(b=>{b.style.clipPath=`path('${sqP(251,36,8)}')`;b.style.borderRadius='0'})}
+const FB_ICONS={
+  Feed:'<svg class="ic" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8.98974 23.0002H7.92962C6.5755 23.0002 5.45886 23.0003 4.57511 22.8814C3.64728 22.7567 2.82785 22.4847 2.17174 21.8286C1.51563 21.1725 1.24366 20.3531 1.11892 19.4253C1.0001 18.5415 1.00013 17.4249 1.00017 16.0708L1.00008 11.77C0.999104 10.032 0.998423 8.82315 1.52803 7.76393C2.05764 6.70471 3.02513 5.97995 4.41609 4.93795L6.64866 3.26363C7.763 2.42785 8.66868 1.74856 9.46377 1.28575C10.2931 0.803007 11.092 0.5 12.0002 0.5C12.9083 0.5 13.7072 0.803007 14.5366 1.28575C15.3317 1.74856 16.2373 2.42784 17.3517 3.26363L19.5842 4.93795C20.9752 5.97995 21.9427 6.70471 22.4723 7.76393C23.0019 8.82315 23.0012 10.032 23.0003 11.77L23.0002 16.0707C23.0002 17.4249 23.0002 18.5415 22.8814 19.4253C22.7567 20.3531 22.4847 21.1725 21.8286 21.8286C21.1725 22.4847 20.3531 22.7567 19.4252 22.8814C18.5415 23.0003 17.4249 23.0002 16.0707 23.0002H15.0103C15.0068 23.0002 15.0034 23.0002 15 23.0002H9C8.99658 23.0002 8.99316 23.0002 8.98974 23.0002ZM7.80017 4.9C8.97467 4.01912 9.7876 3.41141 10.4699 3.01425C11.1295 2.63033 11.575 2.5 12.0002 2.5C12.4254 2.5 12.8709 2.63033 13.5304 3.01425C14.2127 3.41141 15.0257 4.01912 16.2002 4.9L18.2002 6.4C19.8508 7.63794 20.3915 8.07453 20.6834 8.65836C20.9754 9.24219 21.0002 9.93677 21.0002 12V16.0002C21.0002 17.4427 20.998 18.4239 20.8993 19.1588C20.8043 19.8648 20.637 20.1918 20.4144 20.4144C20.1918 20.637 19.8648 20.8043 19.1587 20.8993C18.4239 20.9981 17.4427 21.0002 16.0002 21.0002L16 14.5002C16 13.1195 14.8807 12.0002 13.5 12.0002H10.5C9.11929 12.0002 8 13.1195 8 14.5002V21.0002C6.55761 21.0002 5.57639 20.9981 4.8416 20.8993C4.13555 20.8043 3.80853 20.637 3.58595 20.4144C3.36338 20.1918 3.19601 19.8648 3.10109 19.1588C3.00229 18.4239 3.00017 17.4427 3.00017 16.0002V12C3.00017 9.93677 3.02497 9.24219 3.31689 8.65836C3.6088 8.07453 4.14958 7.63794 5.80017 6.4L7.80017 4.9ZM14 21.0002H10V14.5002C10 14.2241 10.2239 14.0002 10.5 14.0002H13.5C13.7761 14.0002 14 14.2241 14 14.5002V21.0002Z"/></svg>',
+  Reels:'<svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><path d="M2.5 8H21.5M7.5 2.2L9.5 8M14.5 2.2L16.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10.6 11.45C10.1 11.15 9.5 11.5 9.5 12.08V16.92C9.5 17.5 10.1 17.85 10.6 17.55L14.85 15.13C15.35 14.84 15.35 14.16 14.85 13.87L10.6 11.45Z" fill="currentColor"/></svg>',
+  Stories:'<svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="14" height="17" rx="3.5" stroke="currentColor" stroke-width="2"/><path d="M10 7.75V13.25M7.25 10.5H12.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 6.5V17.5C21 20.2614 18.7614 22.5 16 22.5H7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  Marketplace:'<svg class="ic" viewBox="0 0 24 24"><g transform="translate(-205.418 -11)"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M207.006 14.2272C207.402 12.9053 208.619 12 209.999 12H224.837C226.217 12 227.434 12.9053 227.83 14.2272L228.646 16.946C228.826 17.5476 228.918 18.1723 228.918 18.8004C228.918 20.2251 228.345 21.5159 227.417 22.4552C227.418 22.47 227.418 22.485 227.418 22.5V27.0705C227.418 28.4247 227.418 29.5413 227.299 30.4251C227.174 31.3529 226.903 32.1723 226.246 32.8284C225.59 33.4845 224.771 33.7565 223.843 33.8812C222.959 34.0001 221.843 34 220.489 34H214.347C212.993 34 211.877 34.0001 210.993 33.8812C210.065 33.7565 209.246 33.4845 208.59 32.8284C207.933 32.1723 207.661 31.3529 207.537 30.4251C207.418 29.5413 207.418 28.4247 207.418 27.0706L207.418 22.5C207.418 22.4849 207.418 22.4699 207.419 22.455C206.491 21.5156 205.918 20.2247 205.918 18.8C205.918 18.1722 206.01 17.5477 206.19 16.9464L207.006 14.2272ZM215.418 32H219.418V28.5C219.418 28.2239 219.194 28 218.918 28H215.918C215.642 28 215.418 28.2239 215.418 28.5V32ZM221.418 31.9981V28.5C221.418 27.1193 220.299 26 218.918 26H215.918C214.537 26 213.418 27.1193 213.418 28.5V31.9981C212.5 31.9929 211.81 31.9731 211.259 31.8991C210.553 31.8042 210.226 31.6368 210.004 31.4142C209.781 31.1916 209.614 30.8646 209.519 30.1586C209.42 29.4237 209.418 28.4425 209.418 27V23.7161C209.951 23.9003 210.523 24.0004 211.118 24.0004C212.302 24.0004 213.394 23.6039 214.268 22.9379C215.142 23.6039 216.234 24.0004 217.418 24.0004C218.602 24.0004 219.694 23.6039 220.568 22.9379C221.442 23.6039 222.534 24.0004 223.718 24.0004C224.313 24.0004 224.885 23.9003 225.418 23.7162V27C225.418 28.4425 225.416 29.4237 225.317 30.1586C225.222 30.8646 225.055 31.1916 224.832 31.4142C224.61 31.6368 224.283 31.8042 223.577 31.8991C223.026 31.9731 222.336 31.9929 221.418 31.9981ZM209.999 14C209.502 14 209.064 14.3259 208.921 14.8019L208.106 17.5211C207.981 17.936 207.918 18.3668 207.918 18.8C207.918 20.5674 209.351 22.0004 211.118 22.0004C212.074 22.0004 212.93 21.5828 213.518 20.9168C213.708 20.7017 213.981 20.5785 214.268 20.5785C214.555 20.5785 214.828 20.7017 215.018 20.9168C215.606 21.5828 216.462 22.0004 217.418 22.0004C218.374 22.0004 219.23 21.5828 219.818 20.9168C220.008 20.7017 220.281 20.5785 220.568 20.5785C220.855 20.5785 221.128 20.7017 221.318 20.9168C221.906 21.5828 222.762 22.0004 223.718 22.0004C225.485 22.0004 226.918 20.5677 226.918 18.8004C226.918 18.367 226.855 17.9359 226.73 17.5207L225.914 14.8019C225.772 14.3259 225.334 14 224.837 14H209.999Z"/></g></svg>'
+};
+mmLs.innerHTML=tabs.map(t=>{let rows='',allOff=true;EXP.forEach((E,i)=>{if(E.tab!==t)return;if(!E.disabled)allOff=false;
+  rows+=`<button class="btn mm-it${E.sub?' two':''}${E.disabled?' off':''}" type="button"${E.disabled?' disabled aria-disabled="true"':` data-i="${i}"`} aria-label="${esc(t)}: ${esc(E.name)}${E.sub?' ('+esc(E.sub)+')':''}, ${esc(E.variant)}"><span class="lf"><span class="nm">${nameHTML(E.name)}</span>${E.sub?`<span class="mm-sub">${esc(E.sub)}</span>`:''}</span><span class="vr">${esc(E.variant)}</span></button>`});
+  return `<div class="mm-grp" data-tab="${esc(t)}"><div class="mm-parent${allOff?' off':''}">${FB_ICONS[t]||''}<span>${esc(t)}</span></div><div class="mm-children">${rows}</div></div>`}).join('');
+if(SQ){mmCard.style.clipPath=`path('${sqP(327,684,28)}')`;mmCard.style.borderRadius='0'}
+function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
+  mmLs.querySelectorAll('.mm-grp').forEach(g=>g.querySelector('.mm-parent').classList.toggle('active',g.dataset.tab===activeTab));
+  mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
 let menuOpen=false,mAn=[];
-function openMenu(){if(menuOpen)return;menuOpen=true;mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
+function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:240,easing:'cubic-bezier(.2,.7,.2,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
 function closeMenu(){if(!menuOpen)return;menuOpen=false;mpEl.setAttribute('aria-expanded','false');
@@ -707,6 +779,11 @@ function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.h
     /* In-Content banner thumbnail (as Solution 2): hold first frame on the surface; play only while growing into / sitting in split;
        pause (keep frame) while shrinking back, and KEEP that frame once landed (Hang 2026-11-05: the banner shows the paused frame the
        user was watching, never a reset to the poster — the seek to 0 also dropped the media out to a blank frame in Safari) */
+    if(C.mph){
+      const surf=cur.state===1&&!cur.vw,act=cur.mpTurn?cur.mpRight:cur.mpLeft;
+      const go=on&&(surf?v===act:(v===cur.video&&cur.state<3&&!vsHeld));
+      if(go){if(v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}}else if(!v.paused)v.pause();
+      return}
     if(C.reelTap&&v===cur.video){const a=clamp((812-cur.y)/(812-C.top));
       if(on&&a>.01){if(!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}cur._thumbWas=1}
       else{if(!v.paused)v.pause();cur._thumbWas=0}
