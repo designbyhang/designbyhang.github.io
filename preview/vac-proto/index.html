@@ -182,7 +182,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap the ad video in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; drag the scrubber to seek while they show. Tap the video, or swipe the sheet or the video down, to go into Reels, then swipe up through the chain. Back (or × in Split Screen or on the full-screen destination) returns to Feed. The ad's call to action (the porsche.com footer in Feed, Learn more in Reels) opens porsche.com in the in-app browser full screen; its × closes to Feed. Escape and swipe keep their own handlers.</p>
+  <p class="below">Tap the ad video in Feed to open Split Screen: the video plays on top with its live controls (timestamp and scrubber, from FMSS) and porsche.com loads in the in-app browser (IAB) sheet below. The controls fade out, leaving only ×; drag the scrubber to seek while they show. Tap the video, or swipe the sheet or the video down, to go into Reels, then swipe up through the chain. Back (or × in Split Screen or on the full-screen destination) returns to Feed. The ad's call to action (the porsche.com footer in Feed, Learn more in Reels) opens porsche.com in the in-app browser full screen; the Feed CTA's × closes to Feed, the Reels CTA's × closes back to Reels. Escape and swipe keep their own handlers.</p>
   <div class="spacer" style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
@@ -307,8 +307,8 @@ else ctlw.remove();
 /* ---------- the IAB: the shared FMSS sheet. Two ways in, one sheet (porsche.com, the Taycan page):
    · Split Screen: the half sheet under the video, full screen on tap or swipe up; × (split or full) closes to Feed; swiped down into Reels
    · a CTA (cta = the surface it was tapped on, 'feed' | 'reels'): closed ↔ full only, as FMSS H-Scroll's Learn more
-     (openCta(): go(3) ω16, entry 'cta': no drag, the full header held, the surface dimmed under it); × closes to Feed
-     (Escape / swipe stay on their own handlers) ---------- */
+     (openCta(): go(3) ω16, entry 'cta': no drag, the full header held, the surface dimmed under it); Feed CTA × closes to Feed,
+     Reels CTA × closes back to Reels (reel resumes); Escape / swipe stay on their own handlers ---------- */
 let cta=null;
 const iab=FMSSIAB.create({host:$('iab'),y2:SH,label:'In-app browser (IAB): porsche.com',url:'porsche.com',
   headers:{full:'assets/iab-header-full.svg?v=163'},handle:true,shift:'p',
@@ -320,8 +320,8 @@ const iab=FMSSIAB.create({host:$('iab'),y2:SH,label:'In-app browser (IAB): porsc
   onClose:()=>{if(cta||mode!=='split')return;mode='toReels';vs&&vs.leaveSplit();$('splx').classList.remove('on');say('Reels')},
   onClosed:()=>{if(cta){const f=cta;cta=null;phone.classList.remove('cta-open');render();if(f==='feed'&&mode==='feed')homeTell(true);return}
     if(mode==='toReels'){mode='reels';c=1;setReels(true);render()}},
-  onX:()=>{   // × is an explicit close to Feed (not back to half-sheet / Reels)
-    if(cta==='reels')iab.go(1,{w:16,onDone:()=>{toFeed();homeTell(true);say('Feed')}});
+  onX:()=>{   // ×: split / Feed-CTA / destinations → Feed; Reels CTA → back to Reels only
+    if(cta==='reels')iab.go(1);   // close IAB, stay on Reels (onClosed clears cta; reel keeps playing)
     else if(cta)iab.go(1);   // Feed CTA: sheet close already lands on Feed
     else closeSplit()},   // full sheet from split → Feed (same path as the split ×)
 
