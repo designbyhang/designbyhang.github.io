@@ -79,8 +79,8 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-b{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.16)}'+
  '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h,.vs.vs-off .vs-e{pointer-events:none}'+
  '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
- '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s svg{display:none;position:absolute;left:50%;top:0;margin-left:-12px;width:24px;height:24px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.5)) drop-shadow(0 0 1.5px rgba(0,0,0,.28))}'+
- '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s svg{display:block}'+
+ '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s img.vs-play{display:none;position:absolute;left:50%;top:1px;margin-left:-11px;width:22px;height:22px;pointer-events:none}'+
+ '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s img.vs-play{display:block}'+
  // muted: the speaker crop cut before its waves only, so the speaker sits exactly where it sits with sound on
  '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0)}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
@@ -94,8 +94,9 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  // demo tap marker (preview/fmss-cb .finger): drawn over the video, outside the fading controls, never takes the pointer
  '.vs-m{position:absolute;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;transform:translate(-50%,-50%);background:rgba(140,140,140,.35);'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
-// play glyph matching the strip's pause (two 5.5×17 rounded bars, 14 wide): a 14×17 white triangle with rounded corners, same optical size
-var PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4.6c0-1 1.1-1.6 1.9-1.1l10.4 7.4c.7.5.7 1.6 0 2.1L9.4 20.4c-.8.6-1.9 0-1.9-1z" fill="#fff"/></svg>';
+// play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
+// (radius 1 / stdDeviation .5, offset 0,0, rgba(0,0,0,.62)). Sibling of the host's ci*.webp (or vw-ctl) as play.webp; 22 design px incl. 1px shadow pad around the 20 icon.
+function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=415');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
@@ -114,8 +115,8 @@ function create(o){
   // for the split screen's default track (12 + 351) that is 227..359 (video right 363). INK: the glyphs' ink centres in the strip (ci1.webp, 250×48 at 2x: expand 16.75, pause
   // 60.75, speaker with its waves 104.75 — the icon as drawn, its resting look), so every glyph sits on its cell's centre line and the
   // row is only translated.
-  // PLAY_INK: the play path's ink centre in its own 24px box (7.5..19.8), so the triangle is centred on its ink, not on a box it does not fill
-  var ib0=o.iconBox,ib=ib0?{left:ib0.left!=null?ib0.left:x+w-3*(ib0.size||44)-4,size:ib0.size||44}:null,INK=[16.75,60.75,104.75],PLAY_INK=13.65,PLAY_NUDGE=2;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
+  // PLAY_INK: the Figma play export's ink bbox centre in its own 22px box (5..18.75 → 11.875), so the triangle is centred on its ink, not on the box
+  var ib0=o.iconBox,ib=ib0?{left:ib0.left!=null?ib0.left:x+w-3*(ib0.size||44)-4,size:ib0.size||44}:null,INK=[16.75,60.75,104.75],PLAY_SIZE=22,PLAY_INK=11.875,PLAY_NUDGE=2;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
   // PLAY_NUDGE: a triangle reads as centred only when its ink sits a little right of the box's centre; 2 design px, VAC and FMSS alike
   // timeX: timestamp left (design px). Track stays on x/w; the split screen's interactive players pass timeX:24 (+12 from the track inset)
   var timeX=o.timeX!=null?o.timeX:x;
@@ -123,13 +124,13 @@ function create(o){
   // icons: one crop; cut in three around the pause glyph's slot (and the speaker's, when muted), so one slot alone can show the play icon.
   // The strip's speaker: body 95..107 design px, its two waves out to 114.5, so muted (the body alone) it moves right by that half width
   function slice(a,b,g,sp,k){var l=ib?cell(k)[0]+ib.size/2-(INK[k]-a):ix+a;
-    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
+    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?playImg(o.icons):'')+'</i>'}
   root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+timeX+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
-  if(ib){var pv=f.querySelector('.vs-g svg');if(pv)pv.style.left=(INK[1]-sl[0]-(PLAY_INK-12)+PLAY_NUDGE)+'px'}   // the play path's ink centre on the pause glyph's (the box is drawn with margin-left:-12px), then nudged right (PLAY_NUDGE)
+  if(ib){var pv=f.querySelector('.vs-g img.vs-play');if(pv){pv.style.left=(INK[1]-sl[0]+PLAY_NUDGE-PLAY_INK)+'px';pv.style.marginLeft='0'}}   // play ink on the pause glyph's cell centre, then nudged right (PLAY_NUDGE); no 50%/-half trick once left is absolute
   // o.hold: this player's hold before the fade (ms, a multiple of 8; default HOLD, as FMSS), the 320ms fade unchanged
   var hold=o.hold>0?o.hold:HOLD,gone=hold+FADE;
   var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=rl?-1e9:null,rIn=-1e9,pend=null,up=false,base=0,prev=null,area=null;
