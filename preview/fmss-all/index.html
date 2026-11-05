@@ -58,10 +58,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .xp{position:absolute;inset:0;display:none;background:#000}
 .xp.on{display:block}
 .xp img.L{width:375px;height:812px}
-/* the split screen's backdrop (bu): a window that grows out of the feed video's box with the same a, and closes back behind it; its image is
-   screen-fixed inside, 734 tall (the Solution's bu rows, the last row carried down past the split line to the Reels canvas' 734)
-   (markup, box and image: ../shared/backdrop, with the Solution 1 / 2 demos); here the window moves and its canvas is counter-moved */
-.bu{will-change:left,top,width,height}.bu>i{will-change:transform}
+/* the split screen's backdrop (bu): the whole 375×734 canvas, screen-fixed (as Solution 1/2 and FMSSBackdrop); its clip-path is the
+   shared open/close box — grows out of the video's current surface rect with progress p=a·(1−k) and closes back into it the same way */
+.bu{left:0;top:0;width:375px;height:734px;will-change:clip-path}
 .pt{position:absolute;left:24px;top:10px;width:60px;height:24px}                    /* the status-bar time's place, under the Menu pill */
 .mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
 .rl{width:375px;height:734px;overflow:hidden}
@@ -494,14 +493,14 @@ function render(X){
   const mv=e.mv.style;mv.left=vx.toFixed(2)+'px';mv.top=vy.toFixed(2)+'px';mv.width=vw.toFixed(2)+'px';mv.height=vh.toFixed(2)+'px';
   const key=[vw,vh,...R].map(v=>v.toFixed(1)).join();
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+vw.toFixed(2),+vh.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
-  /* the backdrop: the same box from the video's surface rect (and its corners) to the whole 375 × 734 canvas, behind the video; at a = 0 it is
-     all behind the video, so it grows out of it on the way in and closes back into it on the way out, frame for frame with it */
-  const B=k>0?FMSSBackdrop.box([vx,vy,vw,vh],R,a*(1-k)):FMSSBackdrop.box(m.a,ar,a),bx=B.x,by=B.y,bw=B.w,bh=B.h,bR=B.R,bs=e.bu.style;
-  bs.display=a*(1-k)>0?'block':'none';
-  if(a>0){bs.left=bx.toFixed(2)+'px';bs.top=by.toFixed(2)+'px';bs.width=bw.toFixed(2)+'px';bs.height=bh.toFixed(2)+'px';
-    e.bui.style.transform=`translate3d(${(-bx).toFixed(2)}px,${(-by).toFixed(2)}px,0)`;
-    const bk=[bw,bh,...bR].map(v=>v.toFixed(1)).join();
-    if(bk!==X.bk){X.bk=bk;if(SQ&&bR.some(v=>v>.05)){bs.clipPath=`path('${sqP(+bw.toFixed(2),+bh.toFixed(2),bR,sm)}')`;bs.borderRadius=''}else{bs.clipPath='';bs.borderRadius=bR.map(v=>v+'px').join(' ')}}}
+  /* one shared motion (open reversed): progress p=a·(1−k) drives the backdrop out of the video's current surface box [vx,vy,vw,vh]
+     (radii R) to the full 375×734 canvas and back — split→Feed and viewer→split/Feed alike. Image stays screen-fixed; only the
+     clip-path reveals the box (FMSSBackdrop.clip), as Solution 1/2. */
+  const p=a*(1-k),B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
+  bs.display=p>0?'block':'none';
+  if(p>0){e.bui.style.transform='';
+    const bk=[B.x,B.y,B.w,B.h,...B.R,sm].map(v=>(+v).toFixed(2)).join();
+    if(bk!==X.bk){X.bk=bk;bs.clipPath=FMSSBackdrop.clip(B,sm);bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}
   if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
   /* the viewer's layers lift over the sheet while it is out (black under the backdrop and the video, the post rows over them); the CTA's
      page then opens over them all, in full screen, and the viewer waits under it */
