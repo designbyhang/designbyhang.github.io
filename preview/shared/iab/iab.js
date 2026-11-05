@@ -11,6 +11,8 @@
      'cta'        a CTA opened it full screen: the sheet never follows a press (no dismiss, no half, no sheet rubber-band); a press
                   below the header only scrolls the page, which rubber-bands at its top (c .55) and springs back, the sheet staying
                   put; × / Escape / the host's controls close it
+                  (set on an open from closed, or passed with go(s, {entry}) on a move between open states: a host CTA over its
+                  own half sheet makes it 'cta'; going back to half passes {entry: null})
      'collapse'   the host's floating CTA opened it: the only drag is the morph back into that CTA (collapse, below)
 
    const iab=FMSSIAB.create({host, y2, label, url, headers:{full}, handle, web:'<img …>', webH, visH, …hooks});
@@ -206,6 +208,7 @@ function create(cfg){
   function go(s,opts={}){
     const from=state,target=s===1?Y1:s===2?Y2:Y3;
     if(from===1&&s>1){entry=opts.entry||null;cfg.onOpen&&cfg.onOpen(s,opts);if(opts.load!==false)load(opts.why)}
+    else if(from>1&&s>1&&'entry' in opts)entry=opts.entry||null;   // a CTA on the host's own surface over an open sheet (half → full as a layer): the entry changes with it
     if(from>1&&s===1){entry=null;cfg.onClose&&cfg.onClose()}
     hLock=opts.hold!=null?!!opts.hold:!!holdRule(from,s);
     setState(s);render();

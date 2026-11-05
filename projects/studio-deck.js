@@ -67,7 +67,7 @@ root.style.position='absolute';root.style.left='0';root.style.top='0';root.style
    alone, instead of the canvas's edge on the same pixel showing as a dark hairline */
 root.style.boxSizing='border-box';
 /* ---- theme palette. Light = the Figma design as-is, except the white slide canvas becomes the site's standard media box colour #f4f4f4.
-   Dark = neutrals map linearly white -> #222 (standard media box, dark) and black -> white. Saturated colours and photos untouched. */
+   Dark = neutrals map linearly white -> #161616 (standard media box, dark: the --frame token) and black -> white. Saturated colours and photos untouched. */
 let dark=de.dataset.theme==='dark';
 /* studio_27-36 (D.noinv) keep their Figma colours in dark mode too: DW is the dark-palette weight, 1 on normal slides,
    0 on those; across 26->27 and 36->37 it tweens with the transition, so every colour (stage included) eases between the two
@@ -77,11 +77,11 @@ function P(c,bg,w){if(!c)return c;w=w===undefined?DW:w;const r=c[0],g=c[1],b=c[2
  const l=bg&&r>=250&&g>=250&&b>=250?[FL,FL,FL,c[3]]:c;if(!dark||w<=0)return l;
  const f=v=>255-v*(255-FD)/255,d=[f(r),f(g),f(b),c[3]];if(w>=1)return d.map((v,j)=>j<3?Math.round(v):v);
  return[0,1,2].map(j=>Math.round(l[j]+(d[j]-l[j])*w)).concat([c[3]]);}
-/* stage = the site's standard .media box (--frame): #f4f4f4 light, #222 dark. studio_27-36 keep their content's Figma colours
+/* stage = the site's standard .media box (--frame): #f4f4f4 light, #161616 dark. studio_27-36 keep their content's Figma colours
    but their surface follows the theme: their stage is exactly that standard colour in both modes (Figma's #eee / black bg is
    not used), and it tweens to/from the neighbours' canvas with the 26->27 / 36->37 transitions. */
 function bgOf(n){if(S[n].ph)return S[n].bg;if(NI.has(n))return dark?[FD,FD,FD,1]:[FL,FL,FL,1];const b=S[n].bg;return b?P(b,1,1):null;}
-const FL=0xf4,FD=0x22;
+const FL=0xf4,FD=0x16; /* = the --frame token (css/case.css light, css/theme.css dark); the dark-palette slide assets (studio-morph-assets/*-d.svg) are drawn with it */
 const mapCss=(s,ni)=>!dark||ni?s:s.replace(/rgba\((\d+),(\d+),(\d+),([\d.]+)\)/g,(m,r,g,b,a)=>{const c=P([+r,+g,+b,+a],0,1);return`rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${a})`;});
 /* ---- per-slide layer maps and child orders */
 const L=S.map(s=>{const m=new Map();for(const[k,e]of s.items)m.set(k,e);return m;});
@@ -240,11 +240,11 @@ function draw(i,t){if(i>=N-1){i=N-2;t=1;}if(i<0){i=0;t=0;}lastDraw=[i,t];
  if(i!==curI)activate(i);
  DW=lerp(KD(i),KD(i+1),t);
  /* the slide's own canvas colour fills the 1920x1080 artboard only; the stage around it (fullscreen letterbox, screen edges)
-    is the standard stage colour, so black slides stay framed and iOS samples #f4f4f4 / #222222 at the edges (studio-present.js
+    is the standard stage colour, so black slides stay framed and iOS samples the --frame token (#f4f4f4 / #161616) at the edges (studio-present.js
     sets data-lb=canvas only on tight viewports where its CLOSE / AUTO SCROLL chrome overlaps the art: then the canvas fills the
     letterbox as before so the chrome stays legible; data-lb=none while the presentation is open otherwise: the stage paints
     nothing and html/body, set to the stage colour, show through) */
- const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';{const ci=(t<1&&S[i].ph)||(t>0&&S[i+1]&&S[i+1].ph);root.style.padding=ci?'var(--cvin)':'';root.style.backgroundClip=ci?'content-box':'';}const lb=stage.dataset.lb;stage.style.background=lb==='none'?'transparent':lb==='canvas'&&bg?rgba(bg):dark?'#222222':'#f4f4f4';
+ const bg=lc(bgOf(i),bgOf(i+1),t);root.style.background=bg?rgba(bg):'';{const ci=(t<1&&S[i].ph)||(t>0&&S[i+1]&&S[i+1].ph);root.style.padding=ci?'var(--cvin)':'';root.style.backgroundClip=ci?'content-box':'';}const lb=stage.dataset.lb;stage.style.background=lb==='none'?'transparent':lb==='canvas'&&bg?rgba(bg):'var(--frame)';
  const n=t>=.5?i+1:i;stage.dataset.slide=String(n).padStart(2,'0');if(n!==shownN){shownN=n;opts.onSlide&&opts.onSlide(n);}
  /* logomark cells that switch on/off (opacity 0<->1 in Figma) are revealed with the clipped-circle sweep instead of an
     opacity fade: full colour throughout, a circle grows from the cell centre (clipped by the cell) until it covers it. */

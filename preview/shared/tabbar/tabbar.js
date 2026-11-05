@@ -1,6 +1,7 @@
 /* FMSS shared bottom tab bar (see tabbar.css).
-   const tb=FMSSTabBar.mount(el,{theme:'light'|'dark'})   el: the host's .tb element (any classes/position; its content is replaced)
-     tb.setTheme('light'|'dark')   flip the variant at once (both are preloaded)
+   const tb=FMSSTabBar.mount(el,{theme:'light'|'dark',tab:'home'|'video'})   el: the host's .tb element (any classes/position; its content is replaced)
+     tab: the active tab, 'home' (default; light and dark) or 'video' (Video active, light only: tabbar-light-video.svg)
+     tb.setTheme('light'|'dark')   flip the variant at once (both are preloaded; a light-only bar stays light)
      tb.setExit(k)                 0 shown … 1 gone: translateY(80px·k) + opacity 1−k, driven by the caller's spring each frame
      tb.theme, tb.el */
 (function(){
@@ -10,10 +11,11 @@ const VER=((document.currentScript&&document.currentScript.src||'').match(/\?v=\
 const EXIT=80;   // slide distance, about the bar's height (79), on the even scale
 function mount(el,o){
   o=o||{};el.classList.add('tb');el.textContent='';el.setAttribute('aria-hidden','true');
-  ['light','dark'].forEach(t=>{const i=document.createElement('img');i.className='tb-'+t;i.alt='';i.decoding='sync';i.src=BASE+'tabbar-'+t+'.svg'+VER;el.append(i)});
-  let theme=o.theme==='dark'?'dark':'light',k=-1;el.dataset.tb=theme;
+  const video=o.tab==='video',themes=video?['light']:['light','dark'];
+  themes.forEach(t=>{const i=document.createElement('img');i.className='tb-'+t;i.alt='';i.decoding='sync';i.src=BASE+'tabbar-'+t+(video?'-video':'')+'.svg'+VER;el.append(i)});
+  let theme=o.theme==='dark'&&!video?'dark':'light',k=-1;el.dataset.tb=theme;
   return {el,get theme(){return theme},
-    setTheme(t){t=t==='dark'?'dark':'light';if(t===theme)return;theme=t;el.dataset.tb=t},
+    setTheme(t){t=t==='dark'&&!video?'dark':'light';if(t===theme)return;theme=t;el.dataset.tb=t},
     setExit(v){v=Math.min(1,Math.max(0,+v||0));if(v===k)return;k=v;
       el.style.transform=v?`translate3d(0,${(EXIT*v).toFixed(2)}px,0)`:'';el.style.opacity=v?(1-v).toFixed(3):'';
       el.style.visibility=v>=1?'hidden':''}};

@@ -30,7 +30,7 @@ img{display:block;max-width:100%;height:auto}
 .meta dd{font-size:var(--t-s15);line-height:1.5;color:var(--ink)}
 /* figures */
 figure{margin:0}
-.media{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative}
+.media{background:var(--frame);border:1px solid var(--frame-line,var(--line));border-radius:var(--r);overflow:hidden;position:relative}
 .media img{width:100%;transition:transform .7s var(--ease)}
 .media.dark{background:#0b0b0b;border-color:#1c1c1c}
 .media.pad{padding:clamp(16px,4vw,48px)}
@@ -94,6 +94,7 @@ blockquote,.sec .quote{font-family:var(--sans);font-weight:400;max-width:none;ma
 @media (max-width:900px){.meta.results{grid-template-columns:1fr}.meta.results>div,.meta.results>div+div{padding:0;border-left:0}.meta.results>div+div{margin-top:28px;padding-top:28px}.meta.results>div+div{border-top:1px solid var(--line)}.meta.results p{font-size:var(--t-body-m-size);line-height:var(--t-body-m-lh)}}
 /* next */
 .next{margin-top:clamp(80px,10vw,128px);padding:0;border:1px solid var(--line);background:var(--c-slot)} /* same ground as the case media containers (--c-slot: #f8f8f8 / #202020) */
+html[data-theme=dark] .next{background:var(--frame);border-color:var(--frame-line)} /* dark: the media container ground (--frame #161616, Hang Nov 2); light keeps --c-slot */
 .next-hit{display:grid;grid-template-columns:1fr 62%;align-items:center;gap:40px;padding:39px 39px 39px 40px;color:inherit;text-decoration:none} /* 39 + 1px border = 40px from the aside edge */
 .next-card{display:block;container-type:inline-size}
 .next .media-wrap{display:block;width:100%;aspect-ratio:1440/820;border-radius:round(calc(100cqi / 30), 2px);overflow:hidden;isolation:isolate;transform:translateZ(0);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04)}
@@ -149,7 +150,7 @@ body.cs .hero{padding-top:clamp(20px,5vw,72px)}
 
 body.cs .media,body.cs .media img,body.cs .media.cover,body.cs .media.cover img,body.cs .phones,body.cs .phones img,
 body.cs .next,body.cs .stats,body.cs .media.pad img{border-radius:0}
-body.cs .media.cover{border:1px solid var(--line)}
+body.cs .media.cover{border:1px solid var(--frame-line,var(--line))}
 @media (max-width:640px){body.cs .meta{grid-template-columns:1fr}.meta>div,.meta>div+div{padding:22px 0;border-left:0}.meta>div+div{border-top:1px solid var(--line)}}
 /* outer white panel keeps its original rounded corners; inner containers stay square */
 /* type matched to Figma: Instrument Sans 400, normal width (wdth 100); display tracking -3.2%…-5% */
@@ -177,7 +178,7 @@ body.cs .hero-slot video{display:block;width:100%;height:100%;object-fit:cover}
 /* top-bar section title: centred on the content column (sheet is centred in the same width as the bar) */
 .bar-mid{position:absolute;top:50%;transform:translateY(-50%);text-align:left;white-space:nowrap;overflow:hidden!important;text-overflow:ellipsis} /* left/right set by case.js from the logo and BACK */
 /* research drawing: same frame as hero placeholder (2800/1560), flat, light outline, drawing contained */
-body.cs .media.draw{aspect-ratio:2800/1560;border:1px solid var(--line);border-radius:0;background:#000;display:flex;align-items:center;justify-content:center}
+body.cs .media.draw{aspect-ratio:2800/1560;border:1px solid var(--frame-line,var(--line));border-radius:0;background:#000;display:flex;align-items:center;justify-content:center}
 body.cs .media.draw img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;border-radius:0}
 body.cs .media.draw:hover img{transform:none}
 
@@ -213,16 +214,12 @@ body.cs .media.draw{aspect-ratio:3840/2052}
 body.cs .wrap .fig .media.draw{box-sizing:content-box;max-width:calc(100% - 2px)} /* ratio on the inner box, like the natural-height image frame */
 @media (max-width:900px){.sec-label:empty{display:none}}
 
-/* Inconsistencies: 3 image cells; stack on the vertical layout */
-/* Inconsistencies: two equal columns; media height matches full mframe (half-width × 1920/2052); per-col captions */
+/* Inconsistencies pair (.inc2, FMSS 02 + VAC 02/05): two equal columns, per-col captions; stacked on the vertical layout; the modules
+   are the phone-container boxes (.phone-demo / .pd-label, below) */
 .inc2 .inc-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
 .inc2 .inc-col{margin:0;min-width:0}
-.inc2 .inc-col .media.mframe{aspect-ratio:1920/2052;width:100%;height:auto;max-width:none;box-sizing:border-box}
 .inc2 .inc-col figcaption{margin:14px 0 0}
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.inc2 .inc-row{grid-template-columns:1fr;gap:32px}}
-/* stacked media: phones get a 4:5 portrait frame (cover crops only the dark side margins: the art is 8:9 with the phones/ad inside
-   its middle 76%, so both phone screens and the ad text stay whole); portrait tablets take the .pd-baked geometry (.pd-label, below) */
-@media (max-width:640px){.inc2 .inc-col .media.mframe{aspect-ratio:4/5}}
 
 /* section label replaces the logo once past the eyebrow (all widths) */
 .brand{transition:opacity .22s ease}
@@ -263,18 +260,36 @@ body.cs .media.mframe .car-track>.is-active{opacity:1;z-index:2;transition:opaci
 .dbh-swipe{touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.dbh-swipe img{-webkit-user-drag:none}
 @media (prefers-reduced-motion:reduce){body.cs .media.mframe .car-track>*{transition:none}}
 body.cs .media.mframe .car-slide img{display:block;width:100%;height:100%;object-fit:cover} /* a slide that is a .car-slide wrapper (e.g. a .theme-light/.theme-dark pair, css/theme.css) fades as one; its imgs fill it */
-/* carousel controls: a glass pill of 5px dots + the 32px .mbtn play/pause, 32px inset (16px on phones).
-   Each dot holds a 5px-tall bar: 5px wide = a dot, 24px = the active track; the active slot is 40px, the rest 24px, so the pill
-   keeps one width. js/case.js sets the widths and --p (fill progress) every frame */
+/* FMSS 02 Inconsistencies (.pd-label pair, Hang Nov 2): nothing baked, one file per asset for both themes; the frame supplies the ground,
+   #f1f1f1 light / --frame dark. Sized as the VAC 02 Problem phone modules (Hang Nov 3: "match the size and margins"): the same box (the
+   shared phone-container tokens below: --mbox-h inside a 1px border, full column width) and the same phone screen, --dev-h tall, centred,
+   --dev-pad (24px) above and below. Video (.inc-scr): the bare 636x1376 screen recording (1280 tier 502x1088), 375:812, --dev-h tall;
+   corners = the shared bare-screen corner rule (with the VAC .pd-bare screens, below; --phone-r set to the carousel mocks' R72/1218 there),
+   60% smoothing by js/squircle.js. Carousel: 1440x1620 slides (two phone screens 1218 tall at y 162..1379, markers out to x 106..1330, on
+   a transparent ground, one file for both themes), scaled so their screens are --dev-h tall too, unless the markers (1225 wide) would
+   then overflow the frame: then as wide as the frame allows (phones, and 0.1% at 1440). Each slide is centred on its phones (slide y
+   162..1380, centre 771), so they sit level with the video's, centred vertically. They cross-fade (the outgoing one fades out too) so
+   their markers never show through */
+body.cs .inc-col .media.mframe.pd-label{--pd-ground:#f1f1f1;background:var(--pd-ground);container-type:size;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto}
+html[data-theme=dark] body.cs .inc-col .media.mframe.pd-label{--pd-ground:var(--frame)}
+body.cs .inc-col .media.mframe.pd-label .inc-scr{position:absolute;inset:0;margin:auto;width:calc(var(--dev-h)*375/812);height:var(--dev-h)}
+body.cs .inc-col .media.mframe.pd-label .inc-scr video{display:block;width:100%;height:100%;margin:0;object-fit:cover;background:none;transform:none}
+body.cs .inc-col .media.mframe .car-track>*{transition:opacity 560ms cubic-bezier(.4,0,.2,1)}
+body.cs .inc-col .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:50%;width:min(var(--dev-h)*1440/1218,100cqw*1440/1225);max-width:none;height:auto;aspect-ratio:1440/1620;transform:translate(-50%,calc(-100%*771/1620))}
+@media (prefers-reduced-motion:reduce){body.cs .inc-col .media.mframe .car-track>*{transition:none}}
+/* carousel controls: a glass pill of 4px dots + the 32px .mbtn play/pause, 32px inset (16px on phones).
+   Each dot holds a 4px-tall bar: 4px wide = a dot, 24px = the active track; the active slot is 32px (4px margin each side), the rest
+   12px (4px margin each side = 8px gap between every dot/bar), and the pill has 8px side padding (= 12px from the pill edge to the first
+   and last dot), so every dimension sits on the even 4/8/12/16/20/24/32 scale. js/case.js sets the widths and --p every frame */
 .car-ctrl{position:absolute;right:32px;bottom:32px;z-index:3;display:flex;align-items:center;gap:8px}
 @media (max-width:640px){.vid-btn,.car-ctrl{right:16px;bottom:16px}} /* 16px inset on mobile; after both base rules so it wins (it sat above .car-ctrl, which kept carousels at 32px) */
-.car-dots{display:flex;align-items:center;height:32px;padding:0 4px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;color:var(--c-strong);transition:border-color .2s ease} /* same 32px height as .mbtn */
-.car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:30px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.car-dots{display:flex;align-items:center;height:32px;padding:0 8px;border:1px solid var(--line);border-radius:16px;box-sizing:border-box;color:var(--c-strong);transition:border-color .2s ease} /* same 32px height as .mbtn */
+.car-dot{appearance:none;display:flex;align-items:center;justify-content:center;flex:none;width:12px;height:32px;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .car-dot[aria-current=true]{cursor:default}
-.car-bar{position:relative;display:block;flex:none;width:5px;height:5px;border-radius:2.5px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
+.car-bar{position:relative;display:block;flex:none;width:4px;height:4px;border-radius:2px;overflow:hidden;background:var(--c-dot);transition:background-color .2s ease}
 .car-dot:not([aria-current=true]):hover .car-bar{background:var(--c-strong)} /* hovered inactive dot = full ink, both themes */
 html[data-theme=dark] .car-bar{background:color-mix(in srgb,var(--c-strong) 40%,transparent)} /* dark glass over a light image reads mid-grey, where #555 dots vanish; 40% ink stays visible over dark and light media */
-.car-fill{display:none;position:absolute;top:0;bottom:0;left:0;width:calc(5px + (100% - 5px) * var(--p,0));border-radius:2.5px;background:var(--c-strong)}
+.car-fill{display:none;position:absolute;top:0;bottom:0;left:0;width:calc(4px + (100% - 4px) * var(--p,0));border-radius:2px;background:var(--c-strong)}
 .car-dot[aria-current=true] .car-fill{display:block} /* fill starts as a full 5px head dot at the left end, then grows to the bar width */
 .car-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.car-bar,.mbtn,.car-dots{transition:none}}
@@ -385,42 +400,51 @@ html.rings-js body.cs .media.exit-rings.rings-on .rings g{opacity:1}
 .t-red{color:var(--red-text)}
 /* VAC 02 Problem + 05 Current State: rows of text cell + phone module (02: module | text; 05 row 1 text | module, row 2 module | text),
    05 stacked with no gap so the modules meet corner to corner. Layout = the FMSS Inconsistencies pair (.inc2 .inc-row / .inc-col: two
-   equal columns, 24px gap, 1920/2052 frames; .pd-baked boxes on portrait tablets; 4:5 phones), so each module is exactly the FMSS column width.
-   Module (.media.mframe.phone-demo, VAC 05 rows and VAC 09 .pd-solo): follows the theme, #f1f1f1 ground + 12% black bezel in light,
-   #1d1d1d + 20% white in dark, one 375x812 phone recording. Geometry = the shared phone-container rule (Hang, Oct 27; the same tokens
-   and values as the phone-spacing branch's .dev): the module is --mbox-h tall inside its 1px border (8px grid), the device (screen
-   812/828 of it + an 8/828 bezel ring outside, corners 48/828) sits --dev-pad (24px) from the top and the bottom, centred across:
-   device 384px tall on phones, 488px at 1440. Controls (.vid-btn, 32px / 16px corner insets) sit over it and never move the phone.
+   equal columns, 24px gap, the same phone-container box as FMSS's .pd-label), so each module is exactly the FMSS column width.
+   Module (.media.mframe.phone-demo, VAC 02 and 05): follows the theme, #f1f1f1 ground in light, --frame (#161616) in dark, one phone
+   recording as a bare screen (.pd-bare, below: no device frame, Hang Nov 2). Geometry = the shared phone-container rule (Hang, Oct 27; the
+   same tokens and values as the phone-spacing branch's .dev): the module is --mbox-h tall inside its 1px border (8px grid), the device box
+   (--dev-h) sits --dev-pad (24px) from the top and the bottom, centred across: 384px tall on phones, 488px at 1440. 05's 375x812 screens
+   keep the place they had inside the old 8/828 bezel ring (812/828 of --dev-h, 8/828 down); 02's screen crops fill the device box.
+   Controls (.vid-btn, 32px / 16px corner insets) sit over it and never move the phone.
    Controls use the current theme's glass.
    Text cell (.pd-txt) = the module's size, no box; text uses the 04 Opportunity type (.prose h2 + p.t-body), inset by the site content
    margin (--wrap-pad, the .wrap padding) and centred vertically.
    Stacked (phones, portrait tablets): text above its module, flush to the content column; 64px above each text, 32px text -> module */
 /* phone-container tokens (phone-spacing): --dev-pad 24px every width; --mbox-h = inner height, 432px on phones, else the full-width
-   media height (content width x 2052/3840) floored to 8px, 432..536px; --dev-h = the device (bezel box) = --mbox-h - 2 x --dev-pad */
+   media height (content width x 2052/3840) floored to 8px, 432..536px; --dev-h = the device box = --mbox-h - 2 x --dev-pad */
 :root{--dev-pad:24px;--mbox-h:clamp(432px,round(down,calc((min(100vw,1152px) - 2*clamp(20px,5vw,72px))*.534375),8px),536px);--dev-h:calc(var(--mbox-h) - 2*var(--dev-pad))}
 @media (max-width:640px){:root{--mbox-h:432px}}
 /* big monitors only (>=1800; laptops up to 1728 keep 1152/536): sheet + foot up to 1440, never into the TOC rail.
    --toc-reserve = toc right inset 24 + toc width 200 + 32 gap + 8 for the classic-scrollbar half-offset = 264 per side */
 @media (min-width:1800px){:root{--toc-reserve:264px;--mbox-h:clamp(432px,round(down,calc((min(100vw - 2*var(--toc-reserve),1440px) - 2*clamp(20px,5vw,72px))*.534375),8px),664px)}.sheet,.foot{max-width:min(1440px,100vw - 2*var(--toc-reserve))}.sec-grid>.prose{margin-left:max(0px,calc(50% - 380px))}}
-body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;--pd-bezel:rgba(0,0,0,.12);background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
-html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:#1d1d1d;--pd-bezel:rgba(255,255,255,.2)}
-.phone-demo .pd-phone{position:relative;flex:none;height:calc(var(--dev-h)*812/828);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812;border-radius:calc(var(--dev-h)*48/828);overflow:hidden;box-shadow:0 0 0 calc(var(--dev-h)*8/828) var(--pd-bezel);transform:translateZ(0)}
+body.cs .media.mframe.phone-demo{--pd-ground:#f1f1f1;background:var(--pd-ground);align-items:flex-start;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + 2px);aspect-ratio:auto} /* + the 1px border top and bottom: the inner box is --mbox-h */
+html[data-theme=dark] body.cs .media.mframe.phone-demo{--pd-ground:var(--frame)}
+.phone-demo .pd-phone{--pd-scr-h:calc(var(--dev-h)*812/828);position:relative;flex:none;height:var(--pd-scr-h);margin-top:calc(var(--dev-pad) + var(--dev-h)*8/828);aspect-ratio:375/812}
 /* the recording fills the screen exactly (object-fit:cover, no zoom), so nothing of the recorded design is clipped: the 750x1624 captures'
    dark capture edge (cols 0-1/748-749, rows 0-3/1620-1623) is cropped out of the files themselves (746x1616, the screen's 375:812
    within 0.04%), so no edge row is left for the downscaler to bleed in as a dark line */
-body.cs .media.mframe.phone-demo .pd-phone img,body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;border-radius:0;transform:none;transition:none}
-/* Baked phone template (.pd-baked): 1624x1824 recordings with the phone screen baked in (1376 tall at y 180) on the template's #1d1d1d
-   ground. The module takes the shared container height plus --pd-label and the video is sized so the baked screen is --dev-h tall at
-   --dev-pad from the top: 24px above the phone, 24px + --pd-label below it, centred across. VAC 02 Problem (all widths) leaves the
-   template's label row empty (no --pd-label: 0). FMSS 02 Inconsistencies (.pd-label) shows it (label bottom 144/1376 of --dev-h under the
-   screen, 41-46px on tablets) and is .pd-baked only stacked on portrait tablets, where the wide 3840/2052 frame cropped the phone:
-   --pd-label 48px, so 24px above the phone and 72px below it, the label clearing the bottom by 26-32px. Its carousel (1440x1620
-   slides of the same template: phones 1219 tall at y 162, on #1f1f1f) takes the same box and places each slide the same way, so the
-   pair's phones and labels match and nothing is cropped. The video drops the .mframe video #f1f1f1 fill, which showed as a 1px light
-   line at its fractional right edge on the dark ground */
-body.cs .media.mframe.pd-baked{box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + var(--pd-label,0px) + 2px);aspect-ratio:auto;background:#1d1d1d}
-body.cs .media.mframe.pd-baked video{position:absolute;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);margin:0;transform:translateX(-50%);object-fit:fill;background:none}
-@media (min-width:641px) and (orientation:portrait) and (max-width:1024px){body.cs .media.mframe.pd-label{--pd-label:48px;box-sizing:border-box;width:100%;max-width:none;height:calc(var(--mbox-h) + var(--pd-label,0px) + 2px);aspect-ratio:auto;background:#1d1d1d}body.cs .media.mframe.pd-label video{position:absolute;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*180/1376);width:auto;height:calc(var(--dev-h)*1824/1376);margin:0;transform:translateX(-50%);object-fit:fill;background:none}body.cs .media.mframe.carousel.pd-label{background:#1f1f1f}body.cs .media.mframe.pd-label .car-track>*{inset:auto;left:50%;top:calc(var(--dev-pad) - var(--dev-h)*162/1219);width:auto;height:calc(var(--dev-h)*1620/1219);transform:translateX(-50%)}}
+body.cs .media.mframe.phone-demo .pd-phone video{display:block;width:100%;height:100%;margin:0;object-fit:cover;transform:none;transition:none}
+/* Bare screen (.phone-demo.pd-bare, VAC 02 Problem + 05 Current State, Hang Nov 2): no device frame in either theme, the screen sits
+   straight on the phone-demo ground. No .mframe video #f1f1f1 fill: painted under the video and clipped on its own, it fringed the
+   screen's anti-aliased edge white on the dark ground (the 02 Ad screen's top).
+   Bare-screen corner, one for every bare phone screen (VAC 02 + 05 .pd-bare, FMSS 02 Inconsistencies .inc-scr; Hang Nov 3): R --phone-r
+   in units of the screen's 1376px source height (R64 of the 636x1376 screen recordings), drawn by js/squircle.js at 60% smoothing
+   (corner-shape in Chromium, a path() clip in WebKit). Both boxes are 375:812, so the radius is a share of the box itself:
+   --phone-r/1376 of its height and the same length across (x 812/375 of its width).
+   The corner is drawn on the <video> itself (the box whose pixels show), never on its wrapper: Safari (iOS) does not clip a playing
+   video by an ancestor's border-radius / clip-path (WebKit bug 251379; the video is its own hardware layer), so the wrapper-clipped,
+   square-cornered recordings showed flat, square corners on phones. A video's own radius and clip-path are always applied.
+   One exception (Hang Nov 3): the FMSS 02 Inconsistencies video takes the corner of the phone mocks in the carousel beside it (their
+   slides' screens: 60% squircle R72 on a 1218px-tall screen, measured from the PNG alpha), so the two phones of the pair match:
+   --phone-r 72*1376/1218 (81.34) on that frame only */
+:root{--phone-r:64}
+body.cs .inc-col .media.mframe.pd-label{--phone-r:calc(72*1376/1218)}
+body.cs .media.mframe.phone-demo.pd-bare .pd-phone video,body.cs .inc-col .media.mframe.pd-label .inc-scr video{border-radius:calc(100%*var(--phone-r)*812/1376/375)/calc(100%*var(--phone-r)/1376)}
+body.cs .media.mframe.phone-demo.pd-bare .pd-phone video{background:none}
+/* 02 Problem's recordings are bare 636x1376 screens scaled from Hang's square-cornered 750x1624 recordings (Nov 3; nothing baked, the page
+   draws the corner), sized like the old 1624x1824 template's screen, so the screen is the whole device box (--dev-h at --dev-pad) */
+body.cs .fig.inc2 .media.mframe.phone-demo.pd-bare .pd-phone{--pd-scr-h:var(--dev-h);margin-top:var(--dev-pad)}
 .pd-rows{margin-top:64px}
 .inc2 .pd-row{align-items:stretch}
 .pd-touch .pd-row{column-gap:0} /* Hang, Oct 26: Current State modules widen to meet, no column gap */

@@ -1,11 +1,28 @@
-/* HANG easter egg: opens from the homepage copyright line (js/hang-egg.js). --page background; the letters take a random vivid colour each beat (js/hang-cube.js colors:'random'), no glow.
+/* HANG easter egg: opens from the copyright line on home and case pages (js/hang-egg.js). Full-viewport wireframe letters (js/hang-wire.js), ink strokes on --page.
    Full-viewport layer in the page colour, z 50, so the light/dark toggle (z 60) stays on top and switches the egg live.
-   Media container 688x688 on desktop (capped by the viewport: 1.2x (viewport height - 2 x 58px), at most viewport - 16px each side, snapped down to a multiple of 8px); phones (<=640px): 80% of (viewport width - 16px each side), square, centred.
+   H A N G sits on the bottom row, centred, level with the theme toggle. Bitcount label at 20px.
    Close = the Studio presentation's "× CLOSE" (projects/studio-present.js: .bar.deck-bar > nav.bar-right > a.ax with .arr.arr-back + .t),
    same markup and classes, top right of the viewport inside the safe area. Its icon comes from css/arrows.css (shared with the homepage);
    the case.css / studio.html header rules the homepage doesn't load are repeated below, scoped to .hegg, with the same values. */
-footer.bot>span.hegg-trg{cursor:pointer}
+/* copyright hover = the home nav / footer links: 1px line grows from the left */
+footer.bot>span.hegg-trg{position:relative;width:fit-content;cursor:pointer}
+footer.bot>span.hegg-trg .t{position:relative;display:inline-block}
+footer.bot>span.hegg-trg .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease;pointer-events:none}
+footer.bot>span.hegg-trg:hover .t::after,footer.bot>span.hegg-trg:focus-visible .t::after{transform:scaleX(1)}
+/* copyright hover with a mouse, or on touch a loop while it is fully in view (js/hang-egg.js .is-smile: on 2384ms, off 2384ms = each transition + a 2000ms hold; none with reduced motion): the © smiles (Feather "smile" at the ©'s scale). The C's opening swings to the top as it trims into the smile arc on the same circle, so the mouth's low point stays where the C's bottom sits (113.6deg centred on the bottom, less the round ends: 320ms), then the eyes pop in, left then right (+160 / +224ms, 160ms each); hover-out is the same timeline backwards, eyes out first */
+footer.bot>span.hegg-trg .c-arc{transition:transform .32s cubic-bezier(.2,.7,.2,1) .064s,stroke-dasharray .32s cubic-bezier(.2,.7,.2,1) .064s}
+footer.bot>span.hegg-trg .c-eye{transition:transform .16s cubic-bezier(.2,.7,.2,1) .064s}
+footer.bot>span.hegg-trg .c-eye-r{transition-delay:0s}
+footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-arc{transform:translateY(0) rotate(44.43deg) scale(1);stroke-dasharray:5.408 15.955;transition-delay:0s}
+footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-eye{transform:scale(1);transition-timing-function:cubic-bezier(.2,.7,.2,1.32);transition-delay:.16s}
+footer.bot>span.hegg-trg:is(:hover,.is-smile) .c-eye-r{transition-delay:.224s}
+@media (prefers-reduced-motion:reduce){footer.bot>span.hegg-trg .t::after,footer.bot>span.hegg-trg .c-arc,footer.bot>span.hegg-trg .c-eye{transition:none}}
 .hegg{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--page);opacity:0;transition:opacity .3s var(--ease);touch-action:none;overscroll-behavior:contain}
+/* paper grain, HANG egg only (.hegg-egg, js/hang-egg.js EGG cfg; the phone full-screen prototype .hegg.proto-full has none), both themes: a 256px fractal tile shown at 128px, so a speck is one device pixel on a 2x screen. Overlay darkens the light page and lightens the dark page. Static image, not redrawn. */
+.hegg.hegg-egg::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:url("grain.png?v=336");background-size:128px 128px;opacity:.72;mix-blend-mode:overlay}
+/* centre glow, HANG egg only (.hegg-egg; not .proto-full): a static radial gradient on the layer background, so it sits under the grain (::before). Fades to transparent before the .hegg-edge strips (60% x 43% of the layer). Per theme via --egg-glow: light 45% white, dark 4% white. .hegg-grow (later, same specificity) still clears it. */
+.hegg.hegg-egg{--egg-glow:rgba(255,255,255,.45);--egg-glow-mid:rgba(255,255,255,.225);background:radial-gradient(ellipse 60% 43% at 50% 50%,var(--egg-glow) 0,var(--egg-glow-mid) 45%,rgba(255,255,255,0) 100%),var(--page)}
+html[data-theme=dark] .hegg.hegg-egg{--egg-glow:rgba(255,255,255,.04);--egg-glow-mid:rgba(255,255,255,.02)}
 /* iOS Safari bars, ported from the Studio presentation as it works on iPhone (projects/studio.html .deck-flow/.deck-edge, commits
    18ac7e0, a735500, f5acbcf): iOS 26 Safari does not take its bar tint from a full-screen fixed layer. Once the layer has faded in,
    html.hegg-flow makes it the document itself (in normal flow, one viewport tall, 2px of scroll range for js/theme.js's re-sample
@@ -18,20 +35,17 @@ footer.bot>span.hegg-trg{cursor:pointer}
 /* grow (js/hang-egg.js cfg.grow): while the view expands from / collapses into the page the layer paints nothing (the cfg draws its own
    expanding panel, js/fs-motion.js timeline), no fade */
 .hegg.hegg-grow,.hegg.hegg-grow:focus,.hegg.hegg-grow:focus-visible{background:none;box-shadow:none;opacity:1;transition:none}
-.hegg-stage{position:relative;z-index:1;width:min(688px,calc(100% - 32px),calc(100vh - 32px),calc((100vh - 116px) * 1.2));aspect-ratio:1;background:var(--page)}
-/* desktop (>640px): the stage snaps DOWN to a multiple of 8px as the window shrinks (688, 680, 672 ... 480 ...), max 688px (H 20%
-   larger, was 576 / the 58px CLOSE bar kept clear above and below): 1.2x the old size (100vh - 116px) wherever that still fits, never more
-   than the window minus 16px on each side (width and height), so the stage, the H and its animation are never clipped. The H ink stays
-   well clear of the CLOSE row (the stage only has the page colour and sits under the bar). Browsers without round() keep the unsnapped size; js/hang-egg.js snaps the drawn
-   letters to the 8px grid either way. The stage is centred on the window, not on the layer: html keeps a stable scrollbar gutter
-   (css/theme.css), so on classic-scrollbar systems the layer is narrower than the window by the gutter and its centre sits half a gutter
-   left; the negative right margin (= -gutter, 0 with overlay scrollbars) moves the grid-centred stage back onto the window's centre line. */
-@media (min-width:641px){.hegg-stage{margin-right:calc(100% - 100vw)}
- @supports (width:round(down,100px,8px)){.hegg-stage{width:round(down,min(688px,calc(100% - 32px),calc(100vh - 32px),calc((100vh - 116px) * 1.2)),8px)}}}
-/* the canvas host (js/hang-egg.js): fills the stage on phones; on desktop hang-egg.js sizes and places it so the letters are a multiple
-   of 8px and their ink is centred in the stage */
-.hegg-cv{position:absolute;inset:0}
-@media (max-width:640px){.hegg-stage{width:calc(min(100% - 32px,100vh - 32px) * .8)}} /* phones: 80% of (viewport - 16px each side): 274px at 375, 286px at 390 */
+.hegg-wire{position:absolute;inset:0;z-index:1;touch-action:none}
+.hegg-wire canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:default;touch-action:none;background:transparent;user-select:none}
+/* a drag starts only on the letter itself (js/hang-wire.js hit()): grab shows over the letter, not the whole page */
+.hegg-wire canvas.is-over{cursor:grab}
+.hegg-wire canvas.is-dragging{cursor:grabbing}
+.hegg-letters{position:fixed;left:0;right:0;bottom:calc(var(--tb-x, clamp(16px, 3vw, 32px)) + env(safe-area-inset-bottom, 0px));z-index:3;height:32px;margin:0;padding:0;display:flex;justify-content:center;align-items:center;gap:8px;pointer-events:none}
+.hegg-letters button{appearance:none;position:relative;border:0;outline:none;background:transparent;color:var(--ink);font:var(--t-label);font-size:20px;letter-spacing:var(--t-label-ls);word-spacing:var(--t-label-ws);text-transform:uppercase;-webkit-font-smoothing:none;height:32px;padding:0 14px;cursor:pointer;pointer-events:auto}
+/* underline sits on the glyph: 1.5px left of the padding box, and the same gap under the dots the 16px size had */
+.hegg-letters button::after{content:"";position:absolute;left:12.5px;right:15.5px;bottom:3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.hegg-letters button:hover::after,.hegg-letters button[aria-pressed="true"]::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.hegg-letters button::after{transition:none}}
 html.hegg-open.theme-anim,html.hegg-open.theme-anim body,html.theme-anim .hegg,html.theme-anim .hegg *{transition:none!important}
 html.hegg-flow{overflow:hidden}
 @media (hover:none) and (pointer:coarse){html.hegg-flow{overflow:auto}}
@@ -54,10 +68,10 @@ html.hegg-flow .hegg-edge{display:block}
    .bar-right a (!important, from --mono-color/--ink) and on the homepage */
 .hegg .hegg-bar{--mono-color:#333;--ink:#171717}
 html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
-/* the CLOSE row spans the top edge: let hits (and WebKit's edge sampler) through to the strip, except on CLOSE itself */
+/* the CLOSE row: hits pass through it to the strip, except on CLOSE itself */
 .hegg .bar.hegg-bar{pointer-events:none}.hegg .hegg-bar .bar-right{pointer-events:auto}
-/* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (safe area); fixed, not absolute: in html.hegg-flow the layer is in the document flow and iOS Safari scrolls it under its bars, the viewport-fixed row (as the theme toggle) stays in view */
-.hegg .bar.hegg-bar{position:fixed;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+/* Close (Studio CLOSE): bar = case.css .bar (58px, side inset 16-32px; <=900px 20-72px; <=640px 50px) + studio.html .deck-bar (safe area); fixed, not absolute: in html.hegg-flow the layer is in the document flow and iOS Safari scrolls it under its bars, the viewport-fixed row (as the theme toggle) stays in view. Right-anchored, only as wide as CLOSE (no left): a full-width fixed row is what iOS 26 Safari's top-edge sampler (it ignores pointer-events) takes as the top bar, and with no background it keeps the colour sampled at open; the solid .hegg-edge-t strip under it (the layer colour, as Studio's .deck-edge) must be the edge element so the status bar follows the layer and the toggle */
+.hegg .bar.hegg-bar{position:fixed;top:env(safe-area-inset-top,0px);right:env(safe-area-inset-right,0px);z-index:2;display:flex;align-items:center;justify-content:flex-end;gap:16px;height:58px;margin:0;padding:0 clamp(16px,3vw,32px);background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (max-width:900px){.hegg .bar.hegg-bar{padding:0 clamp(20px,5vw,72px)}}
 @media (max-width:640px){.hegg .bar.hegg-bar{height:50px}}
 /* link = case.css .bar-right a (14px Bitcount mono, .04em, word-spacing -.32em, --mono-color as the Studio bar, --ink on hover) + hover/focus underline on .t */

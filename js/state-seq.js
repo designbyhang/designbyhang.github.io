@@ -110,7 +110,7 @@ function mount(box){var pins=[];
  /* dots: slot openness e[k] eases with the transition, so the pill keeps one width */
  var e=cfg.states.map(function(){return 0}),e0=e.slice();
  function drawDots(q){if(tg||amb)return;for(var k=0;k<n;k++){var t=k===i?1:0,v=q>=1?t:e0[k]+(t-e0[k])*q;e[k]=v;
-  dots[k].style.width=(24+16*v).toFixed(3)+'px';bars[k].style.width=(5+19*v).toFixed(3)+'px';dots[k].setAttribute('aria-current',k===i?'true':'false');
+  dots[k].style.width=(12+20*v).toFixed(3)+'px';bars[k].style.width=(4+20*v).toFixed(3)+'px';dots[k].setAttribute('aria-current',k===i?'true':'false');
   var p=0;if(k===i&&q>=1)p=(step&&!playing)||RM.matches?1:Math.min(1,hold/holdOf(i));fills[k].style.setProperty('--p',p.toFixed(4))}}
  function setCap(){var st=cfg.states[i];if(cap&&st.caption!=null&&!cap.hasAttribute('data-static'))cap.textContent=st.caption;if(!amb)box.setAttribute('aria-label',(st.name||'')+(n>1?' ('+(i+1)+' of '+n+')':''))}
  function go(k,opt){k=cfg.wrap===false?Math.max(0,Math.min(n-1,k)):(k%n+n)%n;opt=opt||{};var a=i,d=opt.dur!=null?opt.dur:durOf(a,k);if(k===a&&!opt.force)return;

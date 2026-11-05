@@ -1,0 +1,15 @@
+/* Reels nav glass: the frosted material of the bottom nav's round home button and query pill (preview/cc-proto), after Apple's iOS
+   bottom-bar glass (UIBlurEffect .systemThinMaterialDark, the Facebook iOS tab bar): the video shows through, heavily blurred, its
+   colour and shapes still readable as soft light, under a light, low-alpha tint.
+   - Blur 20pt (blur(20px): the phone is laid out in points, 375 wide, and the stage's scale scales the blur with it), with saturate(180%),
+     as Apple's own web glass (saturate(180%) blur(20px)): the blurred colour stays vivid instead of greying out.
+   - Tint #1C1C1E (iOS dark system background) at 22%: translucent, not a fill; it only steadies the white labels' contrast.
+   - A 0.5pt white edge at 16% inside the shape (the material's highlight).
+   The blur lives on ::before and the edge on ::after, under the children (z-index 1). The blur samples the screen under it, so nothing
+   between it and the video may cut it off: never set opacity, filter, mask or clip-path on a .mat or the layers holding the nav (fade a
+   .mat's children instead). */
+.mat{overflow:hidden}
+.mat::before,.mat::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.mat::before{background:rgba(28,28,30,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.mat::after{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16)}
+.mat>*{z-index:1}

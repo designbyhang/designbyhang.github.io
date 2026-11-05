@@ -1,0 +1,8 @@
+/* FMSS shared Facebook Video tab chrome (Caption & Browse's, moved here so Profile & Browse shows the same one): the "Video" title bar
+   (camera, search, profile) and the dark Facebook tab bar (home, Video active, friends, marketplace, notifications, menu).
+   Both are Figma exports drawn as plain images (no mask or pattern, so WebKit keeps them sharp), placed in the host's 375×812 px:
+   navbar.svg 375×52 under the 44px status bar, tabbar.svg 375×78 from 734 to the screen's bottom (the reel's footage and scrims end
+   at 734, ../reel). The host adds class abs (position) and puts them over the reel and under the IAB's 64% dim, with the status bar
+   above the dim (../statusbar .sb-iab), as Caption & Browse does. */
+.vt-nav{position:absolute;left:0;top:44px;width:375px;height:52px}
+.vt-tab{position:absolute;left:0;top:734px;width:375px;height:78px}

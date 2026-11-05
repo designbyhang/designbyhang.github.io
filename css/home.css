@@ -129,7 +129,38 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .h{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .hl{stroke:#9a9a9a;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 .poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
-.poster-svg .m{font-family:var(--mono);fill:var(--c-strong);letter-spacing:.04em;word-spacing:-.32em}
+.poster-svg .m{font-family:var(--sans);font-weight:500;fill:var(--c-strong);letter-spacing:-.01em;word-spacing:0} /* keywords: Instrument Sans 500 (one weight above the CTA), title case (size + place: js/home.js wc/wb) */
+/* Second-language (Traditional Chinese) swap (js/home.js): labels and CTA in Noto Sans TC (OFL; labels 500, CTA 400), self-hosted subsets of only the
+   used glyphs, preloaded (index.html). The labels take the CTA's type (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased
+   smoothing; size and place set in js/home.js (wj) */
+@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-400-sub.woff2?v=395) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-500-sub.woff2?v=395) format("woff2");font-weight:500;font-display:block}
+.poster-svg .m.zh{font-family:"Noto Sans TC Sub",var(--sans);font-weight:500;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
+/* language loop (js/home.js): every word runs the same infinite 8960ms cycle from its --s (ms; 160ms apart, CTA last). Every time below is a multiple of 8ms.
+   A swap, from its start t: the old text rises --ty (16 screen px) and leaves, transform 560ms ease-in (.32,0,.67,0), opacity a little ahead of it,
+   480ms (.33,0,.67,1); at t+400 the new text rises from --ty below, transform 720ms ease-out (.16,1,.3,1), opacity leading, 480ms (.25,1,.5,1); settled
+   at t+1120. The two overlap 160ms (80ms of shared opacity, so the box is never empty). EN->ZH at 0, ZH->EN at 4480 (half the cycle), each language
+   settled 3360ms. Opacity (with visibility) and transform are separate animations on the same clock, so each has its own curve; both state every step
+   from and to explicitly. visibility:hidden on the hidden side so the outgoing text can never stay painted at a near-zero opacity (the faint CTA residue
+   Hang saw, 2026-11-02). No blur: a filter would promote a layer and resample the 1px grid. Before --s (fill both) it is English, the Chinese waiting
+   below, hidden. Labels clip to their band, the CTA to its row.
+   keyframe % = ms / 8960: 400 4.464286, 480 5.357143, 560 6.25, 880 9.821429, 1120 12.5, 4480 50, 4880 54.464286, 4960 55.357143, 5040 56.25,
+   5360 59.821429, 5600 62.5 */
+@keyframes swEo{0%{opacity:1;visibility:visible;animation-timing-function:cubic-bezier(.33,0,.67,1)}5.357143%{opacity:0;visibility:hidden;animation-timing-function:step-end}
+  54.464286%{opacity:0;visibility:hidden;animation-timing-function:cubic-bezier(.25,1,.5,1)}59.821429%{opacity:1;visibility:visible}100%{opacity:1;visibility:visible}}
+@keyframes swEt{0%{transform:none;animation-timing-function:cubic-bezier(.32,0,.67,0)}6.25%{transform:translateY(calc(-1*var(--ty,16px)));animation-timing-function:step-end}
+  54.464286%{transform:translateY(var(--ty,16px));animation-timing-function:cubic-bezier(.16,1,.3,1)}62.5%{transform:none}100%{transform:none}}
+@keyframes swZo{0%{opacity:0;visibility:hidden}4.464286%{opacity:0;visibility:hidden;animation-timing-function:cubic-bezier(.25,1,.5,1)}9.821429%{opacity:1;visibility:visible}
+  50%{opacity:1;visibility:visible;animation-timing-function:cubic-bezier(.33,0,.67,1)}55.357143%{opacity:0;visibility:hidden;animation-timing-function:step-end}100%{opacity:0;visibility:hidden}}
+@keyframes swZt{0%{transform:translateY(var(--ty,16px))}4.464286%{transform:translateY(var(--ty,16px));animation-timing-function:cubic-bezier(.16,1,.3,1)}12.5%{transform:none}
+  50%{transform:none;animation-timing-function:cubic-bezier(.32,0,.67,0)}56.25%{transform:translateY(calc(-1*var(--ty,16px)));animation-timing-function:step-end}100%{transform:translateY(calc(-1*var(--ty,16px)))}}
+:is(.poster-svg,.poster-cta) .sw{animation:swEo 8960ms linear calc(var(--s,0)*1ms) infinite both,swEt 8960ms linear calc(var(--s,0)*1ms) infinite both}
+:is(.poster-svg,.poster-cta) :is(.sw-z,.cta-zh){animation-name:swZo,swZt}
+html.swp :is(.poster-svg,.poster-cta) .sw{animation-play-state:paused} /* tab hidden */
+/* CTA: both texts share one grid cell on the baseline (the cap's box is their union) */
+.poster-cta:has(.cta-zh){display:inline-grid;align-items:last baseline;justify-items:start}
+.poster-cta .cta-en,.poster-cta .cta-zh{grid-area:1/1;white-space:nowrap}
+.poster-cta .cta-zh{font-family:"Noto Sans TC Sub",var(--sans);letter-spacing:.02em}.poster-cta .cta-zh .cta-t{font-size:.912em} /* only the Chinese text is .912em (its ink .925em: 1.16x the English cap, as the labels): the arrow keeps the English size and baseline, so it sits at the same Y in both languages */
+@media (prefers-reduced-motion:reduce){:is(.poster-svg,.poster-cta) .sw{animation:none!important;opacity:1;transform:none;visibility:visible}.sw-z,.cta-zh{display:none!important}}
 .poster-svg .mk{font-family:var(--mono);fill:#6f6f6f}
 .poster-svg .s{font-family:var(--sans);fill:#111;letter-spacing:-.01em}
 .poster-svg .bg{font-family:var(--sans);fill:#efefef;letter-spacing:-.04em}
@@ -140,16 +171,15 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-title{box-shadow:-2px -6px 0 var(--ko,var(--c-paper)),-2px 0px 0 var(--ko,var(--c-paper)),-2px 6px 0 var(--ko,var(--c-paper)),0px -6px 0 var(--ko,var(--c-paper)),0px 6px 0 var(--ko,var(--c-paper)),7px -6px 0 var(--ko,var(--c-paper)),7px 0px 0 var(--ko,var(--c-paper)),7px 6px 0 var(--ko,var(--c-paper))} /* knockout: +6px above and below */
 .intro-in.poster{container-type:inline-size}
 .poster-cap{--pi:6.5cqi;position:absolute;left:var(--pi);bottom:var(--pi);display:flex;flex-direction:column;align-items:flex-start;gap:1.1cqi}
-/* CTA rise (row clip band, --rise, --cd: js/home.js): the button slides up inside the static cap; its knockout moves to the
-   cap's ::before (static, fades in), so no gap is dragged through the grid lines while it moves */
+/* CTA entry (--cd: js/home.js): fades in with the keywords, the same .7s cubic-bezier(.4,0,.2,1) fade (.wf), its knockout (the cap's ::before) with it */
 .poster-cap{isolation:isolate}
 /* the reveal is declared only once build() has timed it after the lines ([data-t] with --cd, js/home.js): untimed, it ran at 0ms and could finish
    (and settle, [data-set]) before the poster was drawn */
 .poster-cap:not([data-t]){visibility:hidden}
 .poster-cap::before{content:"";position:absolute;inset:-6px -7px -6px -2px;z-index:-1;background:var(--ko,var(--c-paper));opacity:0}
-.poster-cap[data-t]::before{animation:pIn .9s cubic-bezier(.2,.7,.2,1) var(--cd) forwards}
+.poster-cap[data-t]::before{animation:pIn .7s cubic-bezier(.4,0,.2,1) var(--cd) forwards}
 .poster-cap .poster-title{background:none;box-shadow:none}
-.poster-cap[data-t] .poster-title{animation:pRiseT 1.1s cubic-bezier(.2,.7,.2,1) var(--cd) both}
+.poster-cap[data-t] .poster-title{animation:pCtaIn .7s cubic-bezier(.4,0,.2,1) var(--cd) both}
 .poster-title{font-family:var(--sans);font-size:3.33cqi;line-height:1;letter-spacing:-.025em;color:var(--c-strong)}
 .poster-hint{display:block;margin:0!important;line-height:1!important;font-size:clamp(7px,1.6cqi,var(--mono-size))!important}
 /* draw-in */
@@ -179,7 +209,7 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .tt{font-family:var(--sans);fill:#111;letter-spacing:-.025em;font-weight:400}
 .poster-svg .dk{stroke:#111;stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
 @keyframes pSlide{from{opacity:1;transform:translateY(55%)}to{opacity:1;transform:none}}
-@keyframes pRiseT{from{translate:0 var(--rise,120%)}to{translate:0 0}}
+@keyframes pCtaIn{from{opacity:0}to{opacity:1}}
 @keyframes pIn{to{opacity:1}}
 @keyframes pdIn{from{fill-opacity:0}to{fill-opacity:1}}
 @keyframes pDrawV{from{y:var(--g0);height:0}}@keyframes pDrawH{from{x:var(--g0);width:0}}
@@ -192,7 +222,7 @@ html.ret .poster-cap::before,html.ret .poster-cap .poster-title{animation:none!i
 @media (max-width:640px),(orientation:portrait) and (max-width:1024px){.intro .media-wrap{aspect-ratio:1;height:auto}.poster-cap{display:none}.intro-in.poster{height:100%}}
 
 /* intro card only: mono in all caps */
-.poster-svg .m,.poster-svg .mk{text-transform:uppercase} /* not .intro-scoped: on desktop the svg lives in .poster-ov */
+.poster-svg .mk{text-transform:uppercase} /* not .intro-scoped: on desktop the svg lives in .poster-ov */
 .intro .hint,.intro .hint *{text-transform:uppercase!important}
 .intro .hint.poster-hint{display:block}
 
@@ -220,8 +250,11 @@ button.poster-cta{appearance:none;border:0;border-radius:0;padding:0;margin:0;fo
 .home .top nav a:hover::after,.home .top nav a:focus-visible::after,.home .bot a:hover::after,.home .bot a:focus-visible::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.home .top nav a::after,.home .bot a::after{transition:none}}
 .poster-cta .cta-t{position:relative}
-.poster-cta .cta-t::after{content:"";position:absolute;left:0;right:0;bottom:-.12em;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.poster-cta:hover .cta-t::after,.poster-cta:focus-visible .cta-t::after{transform:scaleX(1)}
+/* underline thickness = the arrow's stroke (.poster-title .arr path: 1.5px, 1px on phone landscape), in the same local px, so the strip's scale() thickens both alike.
+   Drawn as a 1px box stretched by scaleY (from its bottom edge, so the offset is unchanged): a 1.5px box is pixel-snapped to 1 or 2px before the scale (Chrome), a transform is not */
+.poster-cta{--ul:1.5}@media (orientation:landscape) and (max-height:500px){.poster-cta{--ul:1}}
+.poster-cta .cta-t::after{content:"";position:absolute;left:0;right:0;bottom:-.12em;height:1px;background:currentColor;transform:scale(0,var(--ul));transform-origin:0 100%;transition:transform .25s ease}
+.poster-cta:hover .cta-t::after,.poster-cta:focus-visible .cta-t::after{transform:scale(1,var(--ul))}
 @media (prefers-reduced-motion:reduce){.poster-cta .cta-t::after{transition:none}}
 .home .brand{justify-self:start;width:fit-content}.home .brand:hover,.home .brand:focus-visible{color:var(--ink)!important;text-decoration:none}
 /* links: underline the text only, never the arrow */

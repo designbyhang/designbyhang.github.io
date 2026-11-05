@@ -35,6 +35,13 @@
    - expand (opt-in, o.onExpand): the fullscreen glyph (the strip's first slot, expandSlot:[x,w], default [0,44]) becomes a 44px
      button that calls o.onExpand() on a tap while in split screen and the controls show. Like the track, every one of its events
      stops at it (no tap to pause, card link or prototype gesture sees them); a press that moves or is held is not a tap
+   - pause / mute buttons (opt-in, o.pauseButton / o.muteButton: for a host whose tap on the video does something else, VAC's tap to
+     Reels): buttons over the pause glyph and the speaker, built as the expand button (events stop at them, live while in split screen
+     and the controls show). Pause is the tap to pause's toggle (the play icon, the controls held while paused); mute toggles the
+     speaker's own state, sound on to start, without touching the video (it stays muted so it autoplays): muted is the same crop cut
+     before its waves (muteCut, strip x, default 107), so the speaker alone shows. With o.iconBox = {left, size} the three buttons are size×size cells side by side from `left` (edges
+     touching, expand · pause · mute), each glyph centred in its cell, all in the host's design px so the row scales with the phone;
+     omit `left` and the row sits 4 design px inset from the track's right (x+w − 3×size − 4); otherwise each sits on its glyph slot (pauseHit, muteHit, 44 tall)
    - lock (opt-in, o.lock = {zero, park:[from, to], avoid:[from, to]}): the video's playhead is a function of the host's loop clock
      (sinceSplit from VideoScrubber.loop(), or o.lock.clock / o.lock.T), so the same video moment shows at the same loop moment: loop
      time `zero` (ms) shows video 0:00 and the video runs 1:1 with the loop. Over `park` (loop ms, where the host covers the video) it
@@ -43,19 +50,25 @@
      rate (±15%) and a start or stall more than 1s off seeks (at most every 1.5s). Render guard: while the frame on screen is inside
      `avoid` (s) the <video> is visibility:hidden and is seeked out of it. A scrub or tap pause frees it until the next park; it still
      skips avoid. Off under reduced motion (the hosts' stills keep their own frame). The clip has to cover both stretches it is shown
-     for (zero -> park start, park end -> zero; a console warning names a clip that does not, it would wrap mid-loop there) */
+     for (zero -> park start, park end -> zero; a console warning names a clip that does not, it would wrap mid-loop there)
+  - reel (opt-in, o.reel: the full-screen Reels players, through preview/shared/pause FMSSPause.mount(el, {video, at, bar})): the same
+    track, fill, thumb and seek strip, without the timestamp or the icon strip (the Reels overlay sits where they would). Hidden until
+    the host asks: reveal() brings it in (a 240ms ease-out fade), hold(true) keeps it up while the reel is paused, release() (the
+    tap that resumes) lets it go on the split screen's 320ms ease-out at once (no dwell: the Reels controls are up only while
+    paused), hold(false) reveals it and restarts the split screen's own fade (held 2080ms, then the 320ms ease-out), hide() takes it away at once (the reel changed). A drag seeks without pausing (the host owns play / pause) and restarts
+    the fade from its release. o.onOpacity(op) is called with every opacity change (the host moves its overlay with it) */
 (function(){
 'use strict';
 if(window.VideoScrubber)return;
 var RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
-var HOLD=2080,FADE=320,GONE=HOLD+FADE;   // controls gone 2400ms after split screen is reached (the 320ms ease-out fade itself unchanged)
+var HOLD=2080,FADE=320,GONE=HOLD+FADE,ENTER=240;   // controls gone 2400ms after split screen is reached (the 320ms ease-out fade itself unchanged)
 // CSS ease-out = cubic-bezier(0,0,.58,1), solved for x
 function easeOut(x){if(x<=0)return 0;if(x>=1)return 1;var t=x;for(var i=0;i<8;i++){var cx=3*.58*t*t*(1-t)+t*t*t-x,d=6*.58*t*(1-t)-3*.58*t*t+3*t*t;if(Math.abs(cx)<1e-6||!d)break;t-=cx/d;t=Math.min(1,Math.max(0,t))}return 3*t*t*(1-t)+t*t*t}
 function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
 var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-f{position:absolute;inset:0}'+
  '.vs-i{position:absolute;width:125px;height:24px;background:no-repeat 0 0/125px 24px}'+
- '.vs-t{position:absolute;margin:0;white-space:nowrap;color:#fff;font:400 16px/16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;'+
+ '.vs-t{position:absolute;margin:0;white-space:nowrap;color:#fff;font:590 16px/16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;'+
    'letter-spacing:0;text-shadow:0 0 1px rgba(0,0,0,.16);-webkit-font-smoothing:antialiased}'+
  '.vs-h{position:absolute;height:24px;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}'+
  '.vs-r,.vs-l{position:absolute;left:0;top:10px;width:100%;height:4px;border-radius:16px}'+
@@ -66,51 +79,88 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-b{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 1px rgba(0,0,0,.16)}'+
  '.vs.vs-off .vs-f{visibility:hidden}.vs.vs-off .vs-h,.vs.vs-off .vs-e{pointer-events:none}'+
  '.vs-e{position:absolute;height:44px;padding:0;margin:0;border:0;background:transparent;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}'+
- '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s svg{display:none;position:absolute;left:50%;top:0;margin-left:-12px;width:24px;height:24px;filter:drop-shadow(0 0 .5px rgba(0,0,0,.24))}'+
- '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s svg{display:block}'+
+ '.vs-s{position:absolute;top:0;height:24px;background-repeat:no-repeat}.vs-s img.vs-play{display:none!important;position:absolute;left:50%;top:1px;margin-left:-10.225px;width:22px!important;height:22px!important;max-width:none!important;pointer-events:none}'+
+ '.vs.vs-p .vs-s.vs-g{background-image:none!important}.vs.vs-p .vs-s img.vs-play{display:block!important}'+
+ // muted: the speaker crop cut before its waves only, so the speaker sits exactly where it sits with sound on
+ '.vs.vs-mu .vs-v{clip-path:inset(0 var(--vs-cut) 0 0)}'+
  '.vs-tap{pointer-events:auto!important;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
  // no focus ring, outline or tap highlight on any part of the player, keyboard focus included (the FMSS demos' audience never uses a keyboard)
  '.vs,.vs *,.vs-tap{-webkit-tap-highlight-color:transparent}'+
  ':is(.vs,.vs *,.vs-tap):is(:focus,:focus-visible,:active){outline:none!important;-webkit-tap-highlight-color:transparent}'+
  // read only: nothing of the player takes the pointer (no hit strip, no cursor change)
  '.vs.vs-ro,.vs.vs-ro *{pointer-events:none!important;cursor:auto!important}'+
+ // reel: the track alone (no timestamp)
+ '.vs.vs-rl .vs-t{display:none}'+
  // demo tap marker (preview/fmss-cb .finger): drawn over the video, outside the fading controls, never takes the pointer
  '.vs-m{position:absolute;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;transform:translate(-50%,-50%);background:rgba(140,140,140,.35);'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
-// play glyph matching the strip's pause (two 5.5×17 rounded bars, 14 wide): a 14×17 white triangle with rounded corners, same optical size
-var PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4.6c0-1 1.1-1.6 1.9-1.1l10.4 7.4c.7.5.7 1.6 0 2.1L9.4 20.4c-.8.6-1.9 0-1.9-1z" fill="#fff"/></svg>';
+// play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
+// (radius 1 / stdDeviation .5, offset 0,0,rgba(0,0,0,.62)). One canonical play.webp next to this script (js/play.webp) — never derived from the host's
+// icons folder (ci*.webp / vw-ctl live in many trees; a missing sibling was the broken "?" glyph). 22 design px incl. 1px shadow pad around the 20 icon.
+var PLAY_SRC=(function(){var s=document.querySelector('script[src*="video-scrubber.js"]');return s?s.src.replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=424'):'play.webp?v=424'})();
+function playImg(){return '<img class="vs-play" src="'+PLAY_SRC+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
 function run(){if(!raf&&list.length)raf=requestAnimationFrame(tick)}
 var STOP=['pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','click','dblclick','touchstart','touchmove','touchend','touchcancel','contextmenu'];
-/* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
-       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, demoTaps, tapAt} */
+/* o: {video, icons:url, iconsX:240, iconsY:344, x:12, w:351, timeX (timestamp left; default = x), trackY:392 (centre), timeY:362 (baseline), height, sinceSplit:fn, className,
+       readOnly, tapToPause, tapArea, pauseSlot, onExpand, expandSlot, pauseButton, pauseHit, muteButton, muteHit, muteCut, iconBox, hold,
+       demoTaps, tapAt, reel, onOpacity} */
 function create(o){
   var v=o.video,doc=(o.document||document);style(doc);
   var x=o.x==null?12:o.x,w=o.w==null?351:o.w,ty=o.trackY==null?392:o.trackY,tb=o.timeY==null?ty-30:o.timeY;
-  var ro=!!o.readOnly,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
-  var tap=!ro&&!!o.tapToPause,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
-  // icons: one crop; with tap to pause it is cut in three around the pause glyph's slot, so that slot alone can show the play icon
-  function slice(a,b,g){return '<i class="vs-i vs-s'+(g?' vs-g':'')+'" style="left:'+(ix+a)+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?PLAY:'')+'</i>'}
-  root.innerHTML='<div class="vs-f">'+(o.icons?(tl?slice(0,sl[0])+slice(sl[0],sl[0]+sl[1],1)+slice(sl[0]+sl[1],125):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
+  var ro=!!o.readOnly,rl=!ro&&!!o.reel,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(rl?' vs-rl':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
+  var tap=!ro&&!rl&&!!o.tapToPause,pb=!ro&&!rl&&!!o.pauseButton,mb=!ro&&!rl&&!!o.muteButton,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||pb||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
+  // icon box (o.iconBox {left, size}): three size×size cells side by side, edges touching (expand · pause · mute); each cell's glyph is
+  // centred in it. Works with readOnly too (VAC/FMSS heroes: same layout, no buttons). When `left` is omitted the row sits 4 design px inset from the video track's right edge (x+w − 3×size − 4):
+  // for the split screen's default track (12 + 351) that is 227..359 (video right 363). INK: the glyphs' ink centres in the strip (ci1.webp, 250×48 at 2x: expand 16.75, pause
+  // 60.75, speaker with its waves 104.75 — the icon as drawn, its resting look), so every glyph sits on its cell's centre line and the
+  // row is only translated.
+  // PLAY_INK: the Figma play export's ink bbox centre in its own 22px box (5..18.75 → 11.875), so the triangle is centred on its ink, not on the box
+  var ib0=o.iconBox,ib=ib0?{left:ib0.left!=null?ib0.left:x+w-3*(ib0.size||44)-4,size:ib0.size||44}:null,INK=[16.75,60.75,104.75],PLAY_SIZE=22,PLAY_INK=11.875,PLAY_NUDGE=2;   // the strip's three glyphs are already 44 apart, so the cells keep their spacing
+  // PLAY_NUDGE: a triangle reads as centred only when its ink sits a little right of the box's centre; 2 design px, VAC and FMSS alike
+  // non-iconBox (fmss-split hero cover): keep the old SVG's ink at slice centre + 1.65 (24px box, PLAY_INK 13.65), not PLAY_NUDGE
+  // timeX: timestamp left (design px). Track stays on x/w; the split screen's interactive players pass timeX:24 (+12 from the track inset)
+  var timeX=o.timeX!=null?o.timeX:x;
+  function cell(k){return [ib.left+k*ib.size,iy+12-ib.size/2]}   // a cell's left / top: on the glyph row's centre line, as the strip is
+  // icons: one crop; cut in three around the pause glyph's slot (and the speaker's, when muted), so one slot alone can show the play icon.
+  // The strip's speaker: body 95..107 design px, its two waves out to 114.5, so muted (the body alone) it moves right by that half width
+  function slice(a,b,g,sp,k){var l=ib?cell(k)[0]+ib.size/2-(INK[k]-a):ix+a;
+    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?playImg():'')+'</i>'}
+  root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb||ib?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
-    '<p class="vs-t" style="left:'+x+'px;top:'+(tb-13.75)+'px"></p>'+
+    '<p class="vs-t" style="left:'+timeX+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
   var f=root.firstChild,tx=f.querySelector('.vs-t'),hit=f.querySelector('.vs-h'),fill=f.querySelector('.vs-l>i'),knob=f.querySelector('.vs-b');
-  var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=null,pend=null,up=false,base=0,prev=null,area=null;
+  // play img: iconBox → ink on cell centre + PLAY_NUDGE; else (hero cover / demoTaps) → same ink as the old 24px SVG (slice centre + 1.65).
+  // Use an absolute left (not left:50%) so transformed covers (fmss-split .fsp-ph scale) still land correctly.
+  var pv=f.querySelector('.vs-g img.vs-play');if(pv){pv.style.marginLeft='0';if(ib)pv.style.left=(INK[1]-sl[0]+PLAY_NUDGE-PLAY_INK)+'px';else pv.style.left=(sl[1]/2+(13.65-12)-PLAY_INK)+'px'}
+  // o.hold: this player's hold before the fade (ms, a multiple of 8; default HOLD, as FMSS), the 320ms fade unchanged
+  var hold=o.hold>0?o.hold:HOLD,gone=hold+FADE;
+  var last={fr:-1,txt:'',op:-1,off:null},drag=null,t0=rl?-1e9:null,rIn=-1e9,pend=null,up=false,base=0,prev=null,area=null;
   var api={el:root,video:v,dragging:function(){return !!drag},
     since:o.sinceSplit||function(){return t0==null?null:performance.now()-t0},
     enterSplit:function(){t0=performance.now()},leaveSplit:function(){t0=null},
     fraction:function(){return last.fr},opacity:function(){return last.op},
     paused:function(){return up},togglePause:function(){toggle()},
+    reveal:function(){reveal()},hold:function(on){if(!rl)return;up=!!on;root.classList.toggle('vs-p',up);reveal()},
+    release:function(){if(!rl)return;up=false;root.classList.remove('vs-p');if(last.op>0){t0=performance.now()-hold;fade();run()}},
+    hide:function(){if(!rl)return;up=false;root.classList.remove('vs-p');t0=rIn=-1e9;fade()},
     destroy:function(){var i=list.indexOf(api);if(i>=0)list.splice(i,1);if(io)io.disconnect();root.remove()}};
+  if(rl){last.op=0;last.off=true;f.style.opacity='0';root.classList.add('vs-off')}   // reel: hidden until revealed
   function D(){var d=v.duration;return isFinite(d)&&d>0?d:0}
   function paint(t){var d=D(),fr=d?Math.min(1,Math.max(0,t/d)):0;
     if(fr!==last.fr){last.fr=fr;fill.style.transform='translateX('+((fr-1)*w).toFixed(2)+'px)';knob.style.transform='translateX('+(fr*w)+'px)'}
     var s=d?fmt(Math.min(t,d))+' / '+fmt(d):'';if(s!==last.txt){last.txt=s;tx.textContent=s;hit.setAttribute('aria-valuemax',Math.floor(d));hit.setAttribute('aria-valuenow',Math.floor(t))}}
-  function fade(){var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;var op=ms==null||ms<HOLD?1:ms>=GONE?0:1-easeOut((ms-HOLD)/FADE),off=op===0;
-    if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4))}
+  // reel: in over ENTER from a reveal (from where a fade out had got to), then the split screen's hold and fade from the last reveal
+  function reveal(){if(!rl)return;var now=performance.now();if(last.op<=0)rIn=now;else if(now-rIn>=ENTER&&last.op<1)rIn=now-ENTER*last.op;t0=now;fade();run()}
+  function fade(){var op;
+    if(rl){var now=performance.now(),e=RM.matches?1:Math.min(1,(now-rIn)/ENTER),ms=drag||up?0:now-t0;
+      op=Math.min(easeOut(e),ms<hold?1:ms>=gone?0:1-easeOut((ms-hold)/FADE))}
+    else{var ms=api.since();if(tl)ms=tapClock(ms);if(drag||up)ms=null;op=ms==null||ms<hold?1:ms>=gone?0:1-easeOut((ms-hold)/FADE)}
+    var off=op===0;
+    if(op!==last.op){last.op=op;f.style.opacity=op===1?'':String(+op.toFixed(4));if(o.onOpacity)o.onOpacity(op)}
     if(off!==last.off){last.off=off;root.classList.toggle('vs-off',off)}}
   // hit strip: 24 design px round the track, taller where the phone is drawn small (at least 12 CSS px, at most 48 design px)
   var n=0,hh=24;function hitSize(){var r=hit.getBoundingClientRect(),k=r.width/w;if(!k)return;var h=Math.round(Math.min(48,Math.max(24,12/k)));
@@ -164,10 +214,11 @@ function create(o){
   // seek (not read only): the strip's events stop at it, a press captures the pointer and drags the playhead
   if(!ro){
   STOP.forEach(function(n){hit.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
-  hit.addEventListener('pointerdown',function(e){if(e.button>0||!D())return;e.preventDefault();drag={id:e.pointerId,play:!v.paused,t:0};
-    try{hit.setPointerCapture(e.pointerId)}catch(_){}if(!v.paused)v.pause();move(e)});
+  hit.addEventListener('pointerdown',function(e){if(e.button>0||!D())return;e.preventDefault();drag={id:e.pointerId,play:!rl&&!v.paused,t:0};
+    try{hit.setPointerCapture(e.pointerId)}catch(_){}if(!rl&&!v.paused)v.pause();move(e)});
   hit.addEventListener('pointermove',function(e){if(drag&&e.pointerId===drag.id)move(e)});
   function end(e){if(!drag||e.pointerId!==drag.id)return;var p=drag.play;drag=null;try{hit.releasePointerCapture(e.pointerId)}catch(_){}
+    if(rl)t0=performance.now();
     if(p){var q=v.play();q&&q.catch(function(){})}}
   hit.addEventListener('pointerup',end);hit.addEventListener('pointercancel',end);hit.addEventListener('lostpointercapture',end);}
   // tap to pause: split-screen clock seen through the last tap (base), new entries (clock back to null or jumping back) reset it
@@ -187,15 +238,25 @@ function create(o){
     area.addEventListener('pointermove',function(e){if(press&&e.pointerId===press.id&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10)press.moved=true});
     area.addEventListener('pointercancel',function(){press=null});
     area.addEventListener('pointerup',function(e){var p=press;press=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!on())return;toggle()})}
-  if(o.onExpand&&!ro){var es=o.expandSlot||[0,44],eb=doc.createElement('button'),ep=null;eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label','Expand');
-    eb.style.left=(ix+es[0])+'px';eb.style.width=es[1]+'px';eb.style.top=(iy-10)+'px';f.appendChild(eb);
+  // the strip's buttons (expand, pause, mute), live in split screen while the controls show; every event stops at them; a press that
+  // moves or is held is not a tap. In the icon box each is one size×size cell (k = 0, 1, 2); otherwise it lies on its glyph slot
+  function button(k,slot,label,fn){var eb=doc.createElement('button'),ep=null,c=ib&&cell(k);eb.type='button';eb.className='vs-e';eb.setAttribute('aria-label',label);
+    if(c){eb.style.left=c[0]+'px';eb.style.top=c[1]+'px';eb.style.width=eb.style.height=ib.size+'px'}
+    else{eb.style.left=(ix+slot[0])+'px';eb.style.width=slot[1]+'px';eb.style.top=(iy-10)+'px';eb.style.height='44px'}
+    f.appendChild(eb);
     var eOn=function(){var ms=api.since();return ms!=null&&ms>=0&&!last.off};
     STOP.forEach(function(n){eb.addEventListener(n,function(e){e.stopPropagation();if(n==='click'||n==='dblclick'||n==='contextmenu'||n==='mousedown')e.preventDefault()},{passive:false})});
     eb.addEventListener('pointerdown',function(e){if(e.button>0)return;ep={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),moved:false}});
     eb.addEventListener('pointermove',function(e){if(ep&&e.pointerId===ep.id&&Math.hypot(e.clientX-ep.x,e.clientY-ep.y)>10)ep.moved=true});
     eb.addEventListener('pointercancel',function(){ep=null});
-    eb.addEventListener('pointerup',function(e){var p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!eOn())return;o.onExpand()});
-    eb.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&eOn()){e.preventDefault();e.stopPropagation();o.onExpand()}})}
+    eb.addEventListener('pointerup',function(e){var p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600||!eOn())return;fn()});
+    eb.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&eOn()){e.preventDefault();e.stopPropagation();fn()}});return eb}
+  if(o.onExpand&&!ro)button(0,o.expandSlot||[0,44],'Expand',function(){o.onExpand()});
+  if(pb)button(1,o.pauseHit||[40,44],'Pause or play',toggle);
+  // mute: the speaker's own UI state, sound on to start (the prototype shows the intended experience; its clips have no audio and the
+  // video stays muted so it always autoplays), so a tap only toggles the icon
+  if(mb){var muted=false,mB=button(2,o.muteHit||[84,44],'Mute',function(){muted=!muted;mute()}),mute=function(){root.classList.toggle('vs-mu',muted);mB.setAttribute('aria-label',muted?'Unmute':'Mute')};
+    mute()}
   // in view: ticked only while its screen intersects the window (no observer: always); observed once the host has placed it
   var W=v.ownerDocument.defaultView||window,io=W.IntersectionObserver?new W.IntersectionObserver(function(es){api._in=es[es.length-1].isIntersecting;run()}):null;
   api._in=!io;if(io)Promise.resolve().then(function(){io.observe(root.parentNode||v)});

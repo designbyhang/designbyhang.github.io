@@ -1,8 +1,6 @@
-/* HANG easter egg: click (or Enter/Space on) the homepage copyright line to open a full-viewport layer in the page colour with the
-   HANG letter animation (js/hang-cube.js, loaded on the first open only, same ?v= as this file). Closes only on CLOSE (the Studio presentation's
-   top-right "× CLOSE", same markup/classes; click/tap, Enter or Space) or Esc; clicks elsewhere on the layer do nothing; the animation loop and its observers are destroyed on close. Background --page; letters use the default
-   black/white HANG rendering (same as the gate) and follow the light/dark toggle live. HangCube still offers an opt-in colors:'random' mode
-   (vivid per-beat colours) for future egg experiments; pass {colors:'random'} to mount() to turn it on. prefers-reduced-motion: no fades.
+/* HANG easter egg: click (or Enter/Space on) the copyright line, on the home page and case pages, to open a full-viewport layer in the page colour with the
+   wireframe HANG letters (js/hang-wire.js, loaded on the first open only, same ?v= as this file). Drag orbits a letter (a press on the letter itself; the empty page around it does nothing) and holds while the button is down, on or off the letter (pointer capture); on release it keeps the pointer's velocity (last 64ms) and eases out to rest along that drag. H A N G on the bottom row switches letters. Closes only on CLOSE (the Studio presentation's
+   top-right "× CLOSE", same markup/classes; click/tap, Enter or Space) or Esc; clicks elsewhere on the layer do nothing; the animation loop and its observers are destroyed on close. Background --page; letters are ink strokes and follow the light/dark toggle live. The passcode gate still uses js/hang-cube.js; this egg does not. prefers-reduced-motion: no fades.
    The layer itself (lock, flow, toggle, keys, CLOSE entrance/exit) is shared as window.dbhLayer.open(cfg)/close(): the egg is one cfg;
    the FMSS case page's phone full-screen prototypes (js/case.js) are another. cfg: label, stage (inner HTML), cls, trg (focus fallback),
    mount(o) -> {destroy} or a promise of one, show(o) when the layer turns on, frame(a) each exit frame with the layer opacity, done() at the end,
@@ -17,7 +15,7 @@
    ?fs=<view> with history.replaceState (no new history entry) and clears it on close; on load a page whose URL carries it reopens
    that view without animation once the gate is passed (the gate stays first), the page scrolled under it to the view's section. */
 (()=>{const trg=document.querySelector('footer.bot>span');
-const me=document.currentScript,q=me&&me.src.indexOf('?')>0?me.src.slice(me.src.indexOf('?')):'',src=new URL('hang-cube.js'+q,me?me.src:location.href).href;
+const me=document.currentScript,q=me&&me.src.indexOf('?')>0?me.src.slice(me.src.indexOf('?')):'',src=new URL('hang-wire.js'+q,me?me.src:location.href).href;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 let load=null,ov=null,inst=null,ret=null,cfg=null;
 /* iOS Safari bars, as the Studio presentation (projects/studio-present.js lock/unlock/flow/adoptToggle + js/theme.js): viewport-fit=cover
@@ -31,17 +29,23 @@ let tb=null,tbHome=null,tbNext=null;
 const adoptToggle=o=>{const b=document.querySelector('.theme-btn');if(!b)return;tb=b;tbHome=b.parentNode;tbNext=b.nextSibling;o.appendChild(b);},
  releaseToggle=()=>{if(!tb)return;const b=tb;tb=null;if(tbNext&&tbNext.parentNode===tbHome)tbHome.insertBefore(b,tbNext);else tbHome.appendChild(b);};
 const lock=()=>{if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fit=cover';de.classList.add('hegg-open');},unlock=()=>{de.classList.remove('hegg-open');if(vpm)vpm.content=vp0;};
-const lib=()=>window.HangCube?Promise.resolve():load||(load=new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=ok;s.onerror=()=>{load=null;no();};document.head.appendChild(s);}));
+const lib=()=>window.HangWire?Promise.resolve():load||(load=new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=ok;s.onerror=()=>{load=null;no();};document.head.appendChild(s);}));
 const keys=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();return;}
   if(e.key==='Tab'){e.preventDefault();const f=[ov.querySelector('.hegg-x'),...(cfg.tabs?cfg.tabs():[]),ov.querySelector('.theme-btn')].filter(e=>e&&e.getClientRects().length),i=f.indexOf(document.activeElement);f[(i+(e.shiftKey?f.length-1:1))%f.length].focus();return;}
   if(e.key===' '&&e.target.closest&&e.target.closest('.hegg-x')){e.preventDefault();e.stopPropagation();close();return;} /* Space on CLOSE (a link: Enter clicks it natively) */
   if(e.key===' '&&e.target.closest&&e.target.closest('.theme-btn'))return; /* Space on the toggle (it joins the layer) */
+  if((e.key===' '||e.key==='Enter')&&e.target.closest&&e.target.closest('.hegg-letters'))return; /* letter nav: Enter and Space pick a letter */
+  if(cfg&&cfg.key&&cfg.key(e))return; /* the wire egg uses the arrows to change letters */
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(e.key)){e.preventDefault();e.stopPropagation();}}; /* page behind stays put */
 function open(c){if(ov)return;cfg=c;ret=document.activeElement;
   const o=ov=document.createElement('div');o.className='hegg'+(c.cls?' '+c.cls:'');o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',c.label);
   o.innerHTML='<i class="hegg-edge hegg-edge-t" aria-hidden="true"></i><i class="hegg-edge hegg-edge-b" aria-hidden="true"></i>'+(c.stage||'')+'<div class="bar hegg-bar"><nav class="bar-right" aria-label="'+c.label+'"><a class="ax hegg-x" href="#" role="button" aria-label="Close"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
   o.querySelector('.hegg-x').addEventListener('click',e=>{e.preventDefault();close();});
-  o.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+  /* gestures stop here. The homepage rail listens on window, so a trackpad drag was sliding the cards
+     behind this layer and playing the dial. The letter's own listeners sit on the canvas and run first. */
+  o.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();},{passive:false});
+  o.addEventListener('pointermove',e=>e.stopPropagation());
+  o.addEventListener('touchmove',e=>e.stopPropagation());
   if(c.grow)o.classList.add('hegg-grow');
   document.body.appendChild(o);lock();adoptToggle(o);
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
@@ -97,24 +101,30 @@ window.dbhView={get:()=>{try{return new URLSearchParams(location.search).get('fs
 if(window.dbhView.get()&&'scrollRestoration' in history)history.scrollRestoration='manual';
 if(!trg)return;
 trg.classList.add('hegg-trg');trg.tabIndex=0;trg.setAttribute('role','button');trg.setAttribute('aria-haspopup','dialog');trg.setAttribute('aria-label',trg.textContent.trim()+': play the HANG animation');
-/* desktop (>640px) letter fit: HangCube draws a letter K = letterCap x size (.88 x .74 = .6512) of its box, with its centre .02 of the box
-   below the box centre (js/hang-cube.js draw(): oy = Hc/2 + S*.02, the gate's optical drop; left as is so the gate renders the same). The
-   egg mounts it into a host inside the stage (css/hang-egg.css: stage = a multiple of 8px): the H is snapped to the nearest multiple of 8
-   (688 stage -> 448 H; was 576 -> 376), the host is that H / K square, centred on the stage and raised by the renderer's drop, so the ink of the H sits
-   exactly in the middle of the stage, which is centred on the window: equal space above and below, left and right. Phones: host = stage. */
-const OY=.02,desk=matchMedia('(min-width:641px)');
-const fit=(st,h)=>{const s=h.style;if(!desk.matches){s.left=s.top=s.width=s.height='';return;}
-  const d=window.HangCube.defaults,K=d.letterCap*d.size,W=st.clientWidth,S=Math.floor(W/8)*8,L=Math.max(8,Math.round(K*S/8)*8),r=Math.min(3,window.devicePixelRatio||1);
-  let n=Math.round(L/K*r);if((Math.round(W*r)-n)%2)n++; /* host = whole device pixels, an even number fewer than the stage: the canvas sits on the pixel grid (no resampling blur) */
-  const B=n/r,off=(W-B)/2;s.width=s.height=B+'px';s.left=off+'px';s.top=Math.round((off-OY*B)*r)/r+'px';};
-const EGG={label:'HANG',trg,view:'egg',stage:'<div class="hegg-stage" role="img" aria-label="The letters H, A, N, G drawn and turning in a loop"><div class="hegg-cv"></div></div>',
- mount:o=>lib().then(()=>{if(ov!==o)return null;const st=o.querySelector('.hegg-stage'),h=st.querySelector('.hegg-cv'),re=()=>fit(st,h);re();
-  const ro=new ResizeObserver(re);ro.observe(st);desk.addEventListener('change',re);const c=window.HangCube.mount(h);
-  return Object.assign({},c,{destroy(){ro.disconnect();desk.removeEventListener('change',re);c.destroy();}});})};
+/* full-viewport wire letters (js/hang-wire.js). The host fills the layer; H A N G is centred on the bottom row, level with the theme toggle. */
+const EGG={label:'HANG',cls:'hegg-egg',trg,view:'hang',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
+ tabs(){return inst&&inst.tabs?inst.tabs():[];},
+ key(e){return !!(inst&&inst.key&&inst.key(e));},
+ mount:o=>lib().then(()=>{if(ov!==o)return null;return window.HangWire.mount(o.querySelector('.hegg-wire'));})};
 const openEgg=()=>open(EGG);
-trg.addEventListener('click',openEgg);
-trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEgg();}});
-/* restore after a refresh: the page at its footer (the copyright line), the layer already on */
-window.dbhView.when(()=>{if(window.dbhView.get()!=='egg'||ov)return;scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:'instant'});EGG.instant=true;open(EGG);EGG.instant=false;});
+/* iOS only grants motion inside the tap that opens the egg. Android needs no prompt. HangWire listens if this resolves granted. */
+const coarse=matchMedia('(pointer: coarse)');
+function armMotion(){if(!coarse.matches||reduce.matches)return;const D=window.DeviceOrientationEvent;if(!D)return;
+  try{window.__dbhMotion=typeof D.requestPermission==='function'?D.requestPermission().catch(()=>'denied'):Promise.resolve('granted');}
+  catch(_){window.__dbhMotion=Promise.resolve('denied');}}
+/* touch has no hover: while the copyright line is fully in view the © loops C -> smile -> C (css/hang-egg.css .is-smile): each step
+   toggles the class, its transition plays (384ms either way), then it holds 2000ms (smile, then C), so a step every 2384ms. The loop
+   starts on the smile as the line comes into view and stops, back to the C at once, when it leaves view, when the page is hidden
+   (visibilitychange; it restarts on return if still in view) or under prefers-reduced-motion: reduce (static C). Desktop (fine
+   pointer with hover) never gets the class; it smiles on :hover only. */
+if(!matchMedia('(hover:hover) and (pointer:fine)').matches&&'IntersectionObserver' in window){let loopT=0,seen=false;
+  const STEP=2384,stop=()=>{clearInterval(loopT);loopT=0;trg.classList.remove('is-smile');},
+   run=()=>{stop();if(!seen||document.hidden||reduce.matches)return;trg.classList.add('is-smile');loopT=setInterval(()=>trg.classList.toggle('is-smile'),STEP);};
+  new IntersectionObserver(([e])=>{seen=e.isIntersecting;run();},{threshold:1}).observe(trg);
+  document.addEventListener('visibilitychange',run);if(reduce.addEventListener)reduce.addEventListener('change',run);}
+trg.addEventListener('click',()=>{armMotion();openEgg();});
+trg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();armMotion();openEgg();}});
+/* restore after a refresh: the page at its footer, the layer already on. ?fs=hang; an old ?fs=egg still opens and is rewritten to hang. */
+window.dbhView.when(()=>{const v=window.dbhView.get();if((v!=='hang'&&v!=='egg')||ov)return;scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:'instant'});EGG.instant=true;open(EGG);EGG.instant=false;});
 window.dbhEgg={open:openEgg,close,get cube(){return cfg===EGG?inst:null;}};
 })();

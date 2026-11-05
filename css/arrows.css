@@ -15,4 +15,13 @@
 .poster-cta.ax .arr{margin-left:var(--ax-gap)!important}
 .contact a.ax{--ax-gap:5.92px}
 .bar-right a.ax,.foot a.ax{--ax-gap:8px}
+/* copyright mark: a C inside a circle (hover: a smile, css/hang-egg.css), the back arrow's cap-height box (.64em) and 1px stroke */
+footer.bot>span{position:relative}
+footer.bot .c-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+footer.bot .c-mark{display:inline-block;width:12px;height:12px;margin-right:8px;line-height:0;vertical-align:-2px} /* 12px (Hang) on whole pixels, its bottom 2px under the baseline: the ring's ink centre sits on the Bitcount caps/digits' ink centre (within .25px; their ink is an odd 8.4px); ring r 7.333 = the 1px stroke's outer edge on the box, so the 8px margin is the ink gap to the text */
+footer.bot .c-mark svg{display:block;width:100%;height:100%;overflow:visible}
+footer.bot .c-mark circle{fill:none;stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+/* the C is a trimmed circle (r 3.4, 250deg from 55deg, round ends: each cap adds half the stroke, .667 = 11.23deg, so the dash is 1.333 shorter and starts 11.23deg later; the smile morph in css/hang-egg.css rotates and trims it). Dashes ignore non-scaling-stroke, so it is stroked in user units: 16/12 = 1px in the 12px box */
+footer.bot .c-mark .c-arc{vector-effect:none;stroke-width:1.3333px;stroke-linecap:round;stroke-dasharray:13.502 7.861;transform-box:view-box;transform-origin:8px 8px;transform:translateY(0) rotate(66.23deg) scale(1)}
+footer.bot .c-mark .c-eye{fill:currentColor;stroke:none;transform-box:fill-box;transform-origin:center;transform:scale(0)}
 @media (prefers-reduced-motion:reduce){.ax .arr{transition:none}}

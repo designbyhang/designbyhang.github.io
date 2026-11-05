@@ -25,16 +25,16 @@
    velocity, pages 375x734 apart (the comment bar 734-812 is fixed chrome). Back: a tap on the back chevron, Reels slides off to the right
    while Feed comes in from -120px (the iOS pop), ω16 640ms. Every keyframe sits on the 8ms grid; holds are multiples of 8ms.
    Screens, drawn live (the Figma's Reels component, "Card 6" Screen 140796:11916, for every Reels measure):
-   - Feed: Hang's Figma Feed (vac_21) with the advertiser's parts cleared (feed.webp: status bar, Facebook header, "Sponsored", the post's
-     menu, the link bar and CTA shapes, reactions, UFI, tab bar) under the post's own DOM: avatar, name (no verified badge), caption, link
-     bar domain + headline, CTA label, and the seed video in the media rect
-   - Split Screen: FMSS's parts and recipe (js/fmss-split.js), shared: status bar + close X overlay (preview/fmss-sol1/assets/bo1.webp),
-     the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp, faded on the scrubber's HOLD/FADE), the
-     shared IAB sheet header (preview/shared/iab/header.js, url/porsche.com.svg) on a white sheet (r16, 60% smoothing) with the advertiser's
-     page (porsche-site.webp: the top of the prototype's porsche.com page, preview/vac-proto/assets/page.webp); the backdrop is the video itself, live: drawn small every frame and blurred
-   - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, globe, Sponsored; no verified badge), one-line
-     caption with "more", the advertiser's CTA (303x36 r8, the ad's own colour as Reels does; LensCrafters takes its logo navy #182b50, per Hang), the vertical UFI and fixed chrome (status
-     bar, back, protective gradient, comment composer, home indicator)
+   - Feed: the prototype's own Feed raster (preview/vac-proto/assets/feed.webp: Hang's Figma Feed with the Porsche post baked in) with
+     the shared verified badge and globe (preview/shared/feed, .fd-bd/.fd-gl at the prototype's 122,122 and 137,141) over it, and the
+     seed video in the media rect
+   - Status bar: one fixed layer, the prototype's bo1.webp mask (.vc-sb), black on Feed, white on Split and Reels, never moves
+   - Split Screen: FMSS's parts and recipe (js/fmss-split.js), shared: close X overlay,
+     the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp with iconBox/timeX as vac-proto, faded on the scrubber's HOLD/FADE), the
+     shared IAB sheet header (preview/shared/iab/header.js, url/porsche.com.svg) on a white sheet (r16, 60% smoothing) with the shared IAB page-load bar
+     (FMSSIAB.LOAD_KF, snapped to 8ms) and a home indicator, and the advertiser's page (porsche-site.webp: the top of the prototype's porsche.com page, preview/vac-proto/assets/page.webp); the backdrop is the video itself, live: drawn small every frame and blurred
+   - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, FMSS's verified badge and globe, Sponsored), one-line
+     caption with "more", the advertiser's CTA (303x36 r8, the ad's own colour as Reels does; LensCrafters takes its logo navy #182b50, per Hang), the vertical UFI and fixed chrome (back, protective gradient, comment composer, home indicator)
    Videos are locked to the loop clock (VideoScrubber lock), so every loop shows the same frames: the seed 0:00 at loop 0, 1:1 while it is
    on screen, parked behind the chain (s1e -> tb) on the frame due at tb (11.88s) so the Back pop plays its last 0.64s into the wrap; each
    chained ad starts at 0:00 as its page comes in and is parked while off screen (headless scrubbers: only their lock is
@@ -74,22 +74,22 @@ const R={feed:[0,216,375,375],split:[12,44,351,350],reels:[0,0,375,PG]};   // re
 const px=v=>v.toFixed(2)+'px',tr=(x,y)=>`translate(${px(x)},${px(y)})`;
 const rx=p=>p.pop?375*p.b:0,fx=p=>p.pop?-120*(1-p.b):0;       // Reels group x, Feed x (Back)
 const pageY=(p,j)=>PG*clamp(j-p.k,-1,1),onPage=(p,j)=>p.k>j-1&&p.k<j+1?1:0;
-/* the ads: page 0 is the seed (its video is the shared media layer), 1-3 the chain; Reels counts are like / comment / share */
+/* the ads: page 0 is the seed (its video is the shared media layer), 1-3 the chain; Reels counts are like / comment / share / save (the shared UFI) */
 const ADS=[
   {k:'porsche',name:'Porsche',cap:'Exhilaration is a renewable resource. The all-electric Taycan. Starting at $90,900.',cta:'Learn more',c:'#a67f53',
-    ufi:['3.1K','1.7K','563'],url:'porsche.com',head:'The Porsche Taycan'},   // the seed (the prototype's Porsche ad: copy, counts, CTA colour)
-  {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K']},
-  {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219']},
-  {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148']}];
-const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5',CA=DC.base(document.currentScript,'../preview/shared/caption/');
+    ufi:['3.1K','1.7K','563','241'],url:'porsche.com'},   // the seed (the prototype's Porsche ad: copy, counts, CTA colour)
+  {k:'rayban',name:'Ray-Ban',cap:'Ray-Ban Meta. Ask Meta AI about what you see, hands-free.',cta:'Learn more',c:'#9e724f',ufi:['12K','3.4K','1.1K','860']},
+  {k:'warby',name:'Warby Parker',cap:'Find your next pair. Try frames on in store or at home.',cta:'Shop now',c:'#5b708f',ufi:['2.3K','486','219','174']},
+  {k:'lenscrafters',name:'LensCrafters',cap:'Glasses for every style, fit and prescription, styled by experts.',cta:'Learn more',c:'#182b50',ufi:['1.6K','312','148','124']}];
+const A=DC.base(document.currentScript,'../assets/vac-anim/v4/'),V='?v=7',PA=DC.base(document.currentScript,'../preview/vac-proto/assets/'),FA=DC.base(document.currentScript,'../preview/fmss-sol1/assets/'),FV='?v=5',CA=DC.base(document.currentScript,'../preview/shared/caption/'),RA=DC.base(document.currentScript,'../preview/shared/reel/');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const im=(cls,f,w,h)=>`<img class="${cls}" alt="" src="${A}${f}${V}" width="${w}" height="${h}" draggable="false">`;
 const vid=(cls,k)=>`<video class="${cls}" muted playsinline loop preload="none" disablepictureinpicture disableremoteplayback data-src="${A}${k}.mp4${V}" poster="${A}${k}.webp${V}"></video>`;
-// Reels UI over one ad (page px): bottom gradient, vertical UFI (bottom 12, 48 wide), details (author, caption, CTA: bottom 12, left 12, 303)
-const reelsUI=d=>`<i class="vc-gb"></i><div class="vc-ufi">`+
-  ['like','comment','share'].map((n,i)=>`<span style="top:${495+65*i}px">${im('vc-ic','i-'+n+'.webp',48,48)}<b>${d.ufi[i]}</b></span>`).join('')+
-  `<span style="top:690px">${im('vc-ic','i-dots.webp',48,48)}</span></div>`+
-  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${im('vc-bd','i-globe.webp',24,24)}</p>`+
+// Reels UI over one ad (page px): bottom gradient, the shared Reels UFI (preview/shared/ufi: FMSS's rail + the save item, like at 430, more
+// at 690), details (author: name, FMSS's verified badge and globe, 4 apart; caption, CTA: bottom 12, left 12, 303)
+const shi=(cls,f)=>`<img class="${cls}" alt="" src="${RA}${f}?v=359" width="12" height="12" draggable="false">`;
+const reelsUI=d=>`<i class="vc-gb"></i>`+(window.ReelsUFI?ReelsUFI.html(d.ufi):'')+
+  `<div class="vc-dt">${im('vc-av','a-'+d.k+'.webp',80,80)}<p class="vc-nm"><span>${esc(d.name)}</span>${shi('vc-bd','verified.png')}${shi('vc-bd','globe.png')}</p>`+
   `<p class="vc-sp">Sponsored</p>${CAP(d.cap)}<p class="vc-cta" style="background:${d.c}">${esc(d.cta)}</p></div>`;
 // the caption + "… more ⌄": the shared VAC caption (js/vac-caption.js, with the prototype), cut to fit by VACCaption.watch in build()
 const CAP=cap=>window.VACCaption?VACCaption.html({cap,chev:CA+'chevron-down.svg?v=1',cls:'vc-cp'}):`<p class="vc-cp"><span>${esc(cap)}</span><em>more</em></p>`;
@@ -98,21 +98,20 @@ DC.register('vac',{T,rest:REST,
     const VS=window.VideoScrubber,HD=window.FMSSIABHeader,S=ADS[0];
     scr.innerHTML=
       // Feed: the cleared Figma Feed + the post's own parts
-      `<div class="vc-l vc-feed">${im('vc-fb','feed.webp',750,1624)}${im('vc-fav','a-'+S.k+'.webp',80,80)}`+
-        `<p class="vc-fn"><span>${esc(S.name)}</span></p><p class="vc-fc">${esc(S.cap)}</p>`+
-        `<p class="vc-fu">${S.url}</p><p class="vc-fh">${esc(S.head)}</p><p class="vc-fcta">${esc(S.cta)}</p></div>`+
+      `<div class="vc-l vc-feed"><img class="vc-fb" alt="" src="${PA}feed.webp?v=355" width="750" height="1624" draggable="false">`+
+        `<i class="fd-ic fd-bd" style="left:122px;top:122px"></i><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`+   // the header icons, preview/shared/feed (Figma 3x), as the prototype's
       // Split backdrop: the seed video, live, small and blurred (drawn by frame() below), under a 24% dim
       `<div class="vc-l vc-amb"><canvas width="30" height="34"></canvas></div>`+
       `<i class="vc-l vc-p0"></i>`+
       `<div class="vc-l vc-mv">${vid('vc-v',S.k)}</div>`+
       `<div class="vc-l vc-ui vc-u0">${reelsUI(S)}</div>`+
-      `<img class="vc-l vc-bo vc-bos" alt="" src="${FA}bo1.webp${FV}"><img class="vc-l vc-bo vc-box" alt="" src="${FA}bo1.webp${FV}">`+
+      `<img class="vc-l vc-bo vc-box" alt="" src="${FA}bo1.webp${FV}">`+
       `<i class="vc-l vc-at"></i>`+
-      `<div class="vc-l vc-sh">${im('vc-site',S.k+'-site.webp',750,1444)}</div>`+
+      `<div class="vc-l vc-sh">${im('vc-site',S.k+'-site.webp',750,1444)}<div class="iab-load"><i></i></div></div><i class="vc-l vc-hm"></i>`+
       [1,2,3].map(j=>`<div class="vc-l vc-pg vc-p${j}">${vid('vc-v',ADS[j].k)}<div class="vc-ui">${reelsUI(ADS[j])}</div></div>`).join('')+
-      `<div class="vc-l vc-chrome"><i class="vc-gt"></i><p class="vc-tm">2:04</p><img class="vc-st" alt="" src="${A}status.svg${V}" width="67" height="11">`+
-        `<img class="vc-bk" alt="" src="${A}back.svg${V}" width="24" height="24"></div>`+
-      `<div class="vc-l vc-bar"><p class="vc-in">Add a comment${im('vc-em','i-emoji.webp',40,40)}</p><i class="vc-hi"></i></div>`;
+      `<div class="vc-l vc-chrome"><i class="vc-gt"></i><img class="vc-bk" alt="" src="${A}back.svg${V}" width="24" height="24"></div>`+
+      `<div class="vc-l vc-bar"><p class="vc-in">Add a comment${im('vc-em','i-emoji.webp',40,40)}</p><i class="vc-hi"></i></div>`+
+      `<i class="vc-l vc-sb"></i>`;
     const q=s=>scr.querySelector(s),anims=[],o={duration:T,iterations:Infinity,fill:'both'},An=(s,fn)=>q(s)&&anims.push(q(s).animate(kf(fn),o));
     if(window.VACCaption)VACCaption.watch(scr);
     const sh=q('.vc-sh');if(SQ)sh.style.clipPath=`path('${DC.squircle(375,422,16,.6)}')`;
@@ -122,7 +121,7 @@ DC.register('vac',{T,rest:REST,
     // live player controls (FMSS: js/video-scrubber.js with the FMSS icon crop): split screen from t1 (reached t1e) to t2; the scrubber
     // fades them out HOLD→GONE after t1e (gone at t1e+2400 = 6240, before the sheet is dragged at 7040): only the close X is left
     if(VS){q('.vc-at').replaceWith(VS.create({video:seed,icons:`${FA}ci1.webp${FV}`,trackY:SH-14,className:'vc-l vc-ctl',
-      sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t2]]),lock:LOCK,readOnly:true}).el);   // the VAC hero just plays: no seek, no tap on its video
+      sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t2]]),lock:LOCK,readOnly:true,iconBox:{size:44},timeX:24}).el);   // same layout as vac-proto split (iconBox/timeX); readOnly: no seek / no taps
       // the chained ads: only the lock (these scrubbers' controls are never mounted)
       chain.forEach((v,i)=>{const h=VS.create({video:v,sinceSplit:VS.loop(()=>anims[0],T,[]),lock:CLOCK[i],readOnly:true}).el;
         h.style.display='none';h.setAttribute('aria-hidden','true');scr.appendChild(h)})}
@@ -144,21 +143,36 @@ DC.register('vac',{T,rest:REST,
       return k});
     // the seed's Reels UI over the media, with its page
     An('.vc-u0',p=>({opacity:p.k<1?clamp((p.c-.5)/.5):0,transform:tr(rx(p),pageY(p,0))}));
-    // FMSS overlay bo1, in two clips: status bar (dissolves in with the backdrop, held until Reels' own status bar is up) and the close X
-    // (dissolves in with Split, then fades out in place as the sheet is swiped down into Reels: opacity only, it never moves)
-    An('.vc-bos',p=>({opacity:p.c<1&&!p.pop?p.a*(1-p.c):0}));
+    // FMSS overlay bo1's close X: dissolves in with Split, then fades out in place as the sheet is swiped down into Reels (opacity only,
+    // it never moves)
     An('.vc-box',p=>({opacity:p.pop?0:p.a*clamp(1-2*p.c)}));
-    // player controls: ride up with the media and fade in (FMSS: 185px), then into Reels fade out sliding down 88px (twice the media's
-    // rise, mirrored; as the prototype's .ctl, preview/vac-proto)
-    An('.vc-ctl',p=>{const y=p.c>0?2*(R.split[1]-R.reels[1])*p.c:185*(1-p.a);
-      return {opacity:p.pop?0:p.a*clamp(1-2*p.c),transform:tr(0,y)}});
+    // player controls: ride up with the media and fade in (FMSS: 185px); into Reels they ride the video container's bottom edge as it grows
+    // (centred on it, bottom-anchored at the split video's inset), fading out (as the prototype's .ctlw, preview/vac-proto)
+    An('.vc-ctl',p=>{let x=0,y=185*(1-p.a);if(p.c>0&&!p.pop){const [mx,my,mw,mh]=mvR(p),[sx,sy,sw,sh]=R.split;x=mx+mw/2-(sx+sw/2);y=my+mh-(sy+sh)}
+      return {opacity:p.pop?0:p.a*clamp(1-2*p.c),transform:tr(x,y)}});
     // the sheet (the advertiser's site under the shared header) rises to 406 for Split, then is swiped down off the screen
     An('.vc-sh',p=>({transform:tr(0,SH+SH*(1-p.a)+SH*p.c)}));
+    // the home indicator on the half sheet (the prototype's .home): in with the sheet, out as it is swiped away
+    An('.vc-hm',p=>({opacity:p.pop?0:p.a*(1-p.c)*(1-p.c)}));
     // chained pages
     [1,2,3].forEach(j=>An('.vc-p'+j,p=>({opacity:onPage(p,j),transform:tr(rx(p),pageY(p,j))})));
     // fixed Reels chrome (protective gradient, status bar, back) and the comment composer
     An('.vc-chrome',p=>({opacity:p.c,transform:tr(rx(p),0)}));
     An('.vc-bar',p=>({opacity:p.c,transform:tr(rx(p),0)}));
+    // the device status bar (the prototype's .sb): one, owned by the screen, above every surface; it never moves, only its colour follows
+    // the surface (dark on Feed, light on Split Screen and Reels), on that surface's own value
+    An('.vc-sb',p=>{const g=Math.round(255*clamp(p.pop?1-p.b:p.c>0?1:p.a));return {backgroundColor:`rgb(${g},${g},${g})`}});
+    // the page load as the shared IAB plays it on every open from closed (FMSSIAB: bar fill LOAD_KF, bar fade LOAD_OUT, the page in after
+    // LOAD_THIRD), from the sheet's open (t1), each time on the 8ms grid
+    const IB=window.FMSSIAB;
+    if(IB){const g=ms=>Math.round(ms/STEP)*STEP,at=ms=>(t1+g(ms))/T,o0=t1/T,lb=q('.iab-load');
+      anims.push(lb.firstChild.animate([{offset:0,transform:'scaleX(0)'},{offset:o0,transform:'scaleX(0)',easing:IB.LOAD_KF[0][2]},
+        ...IB.LOAD_KF.slice(1).map(([t,v,e])=>Object.assign({offset:at(t),transform:`scaleX(${v})`},e?{easing:e}:{})),{offset:1,transform:'scaleX(1)'}],o));
+      anims.push(lb.animate([{offset:0,opacity:0},{offset:o0,opacity:0},{offset:o0,opacity:1},{offset:at(IB.LOAD_MS),opacity:1,easing:'ease-out'},
+        {offset:at(IB.LOAD_MS+IB.LOAD_OUT),opacity:0},{offset:1,opacity:0}],o));
+      anims.push(q('.vc-site').animate([{offset:0,opacity:0},{offset:at(IB.LOAD_THIRD),opacity:0,easing:'cubic-bezier(.2,.7,.2,1)'},
+        {offset:at(IB.LOAD_THIRD+200),opacity:1},{offset:1,opacity:1}],o))}
+    else q('.iab-load').remove();
     // the touch marker, over everything
     const fg=DC.finger();scr.appendChild(fg);anims.push(fg.animate(DC.touch(T,TOUCH),o));
     anims.forEach(a=>{a.pause();a.currentTime=0});

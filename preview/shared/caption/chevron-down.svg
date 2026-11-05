@@ -1,5 +1,5 @@
 <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-<!-- the caption's "more" down arrow, from preview/fmss-cb/assets/caption-collapsed.svg (Figma "Screen / Caption & Browse"): there the path is M285.25 9 L289.25 13 L293.25 9 in the 303×20 caption, 5px after the end of "more", centred on the x-height; here it is offset by (−283.25, −7) so the 8×4 arrow sits 2px in from the box's left and top edges. -->
+<!-- the caption's "more" down arrow, from the Figma "Screen / Caption & Browse" caption export: there the path is M285.25 9 L289.25 13 L293.25 9 in the 303×20 caption, 5px after the end of "more", centred on the x-height; here it is offset by (−283.25, −7) so the 8×4 arrow sits 2px in from the box's left and top edges. -->
 <g filter="url(#s)">
 <path d="M2 2L6 6L10 2" stroke="white" stroke-opacity="0.8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>

@@ -1,2 +1,8 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /preview/
+Disallow: /archive/
+Disallow: /nocount.html
+Disallow: /projects/usps_microsite/
+
+Sitemap: https://designbyhang.com/sitemap.xml

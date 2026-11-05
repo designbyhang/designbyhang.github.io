@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FMSS · Profile → IAB — interactive prototype</title>
-<script src="../shared/demo/demo-clock.js?v=311"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
+<script src="../shared/demo/demo-clock.js?v=355"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
 /* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
 (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('dbh-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})();
@@ -20,16 +20,16 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=311"><link rel="stylesheet" href="../../css/theme.css?v=311">
-<link rel="stylesheet" href="../shared/iab/iab.css?v=311"><script src="../../js/squircle.js?v=311"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=325"></script><script src="../shared/edge-back/edge-back.js?v=311"></script><script src="../shared/pause/pause.js?v=311"></script>
-<link rel="stylesheet" href="../shared/appbar/appbar.css?v=311"><script src="../shared/appbar/appbar.js?v=311"></script>
-<link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=311"><script src="../shared/tabbar/tabbar.js?v=311"></script>
+<link rel="stylesheet" href="../../css/type.css?v=370"><link rel="stylesheet" href="../../css/theme.css?v=378">
+<link rel="stylesheet" href="../shared/iab/iab.css?v=355"><script src="../../js/squircle.js?v=375"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=426"></script><script src="../shared/edge-back/edge-back.js?v=355"></script><script src="../../js/video-scrubber.js?v=424"></script><script src="../shared/pause/pause.js?v=423"></script>
+<link rel="stylesheet" href="../shared/appbar/appbar.css?v=359"><script src="../shared/appbar/appbar.js?v=355"></script>
+<link rel="stylesheet" href="../shared/videotab/videotab.css?v=363"><link rel="stylesheet" href="../shared/tabbar/tabbar.css?v=363"><script src="../shared/tabbar/tabbar.js?v=363"></script>
 <!-- preview-only page: no gate.js / passcode -->
-<link rel="stylesheet" href="../shared/device/device.css?v=311"><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=311">
+<link rel="stylesheet" href="../shared/device/device.css?v=355"><link rel="stylesheet" href="../../css/ad-cta.css?v=358"><link rel="stylesheet" href="../shared/ufi/ufi.css?v=358"><script src="../shared/ufi/ufi.js?v=356"></script><link rel="stylesheet" href="../shared/reel/reel.css?v=363"><script src="../shared/reel/reel.js?v=363"></script><script src="../shared/device/snap.js?v=356"></script><link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=359">
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--faint:#9a9a9a;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6b6b6b;--ease:cubic-bezier(.2,.7,.2,1);
   --push:cubic-bezier(.32,.72,0,1);--pushv:cubic-bezier(.22,.9,.24,1)}
-html[data-theme=dark]{--page:#111;--frame:#222;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
+html[data-theme=dark]{--page:#111;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background-color .4s var(--ease),color .4s var(--ease)}
 .wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
@@ -55,22 +55,19 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .btn{appearance:none;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;font:inherit;color:inherit}
 .scr{left:0;top:0;width:402px;height:874px;overflow:hidden;will-change:transform}
 
-/* reel: the recorded reel itself (UI baked in), avatar + name hotspot */
+/* reel: the clean Nike Pegasus Premium ad footage under the shared FMSS Reels overlay (../shared/reel, the one fmss-cb shows). The overlay
+   lives in its own 375×812 px like .iab: scale(402/375) undoes .root's 375/402, so the shared component's numbers hold */
 .reel{background:#000}
+.rov{left:0;top:0;width:375px;height:812px;transform-origin:0 0;transform:scale(1.072);pointer-events:none}
+.rov button{pointer-events:auto}
 .reel-dim{left:0;top:0;width:402px;height:874px;background:#000;opacity:0;pointer-events:none;z-index:9}
 /* the push reel ⇄ profile is one value on the shared IAB spring (pushRender below): no CSS transitions on the surfaces */
-.reel-stc{left:0;top:0;width:402px;height:54px;background:#000;z-index:4;pointer-events:none}   /* covers the footage's baked status band (12:34): the screen's one status bar (.sbar) shows instead */
 .video{left:0;top:0;width:402px;height:874px;object-fit:cover;background:#000}
 .vid-alt{opacity:0;pointer-events:none;background:none}.vid-alt.on{opacity:1}
-.hot{left:8px;top:600px;width:104px;height:44px;border-radius:22px;z-index:5}
+.hot{left:8px;top:566px;width:116px;height:44px;border-radius:22px}   /* Nike: avatar, name and badges of the shared author row (570–606 px, as on fmss-cb) */
 .hot:active{background:rgba(255,255,255,.08)}
 /* tap the reel to pause: the shared quiet play glyph (../shared/pause) fades in at the centre while paused */
 #pz{left:169px;top:405px;z-index:1}   /* the shared play glyph (../shared/pause) */
-/* the label pill under Learn more reads "Promoted" (the footage has "Ad" baked in): a live pill drawn over it at the footage's own
-   geometry (left 12.6, top 732.4, 23.4 tall, megaphone at 20.5, text from 36.7, 8.5 right padding), opaque so the baked one never
-   shows through; its width follows the text */
-.promo{left:12.6px;top:732.4px;height:23.4px;border-radius:11.73px;background:#0e0f10;display:flex;align-items:center;padding:0 8.5px 0 24.1px;box-sizing:border-box;color:#fff;font-size:12px;line-height:16px;font-weight:400;white-space:nowrap;pointer-events:none;z-index:1}
-.promo svg{position:absolute;left:7.9px;top:5.6px;width:12.3px;height:11.2px}
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
    .iab is a 375×812 layer in fmss-cb's own phone px: scale(402/375) undoes .root's 375/402, so the shared component's numbers hold. */
 .iab{left:0;top:0;width:375px;height:812px;transform-origin:0 0;transform:scale(1.072);z-index:20;pointer-events:none}
@@ -93,9 +90,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .pdots{left:318px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
 .psearch{left:362px;top:72px;width:32px;height:32px;display:grid;place-items:center;pointer-events:none}
 /* the shared FMSS tab bar (../shared/tabbar), in its own 375×812 px like .iab: scale(402/375) undoes .root's 375/402; docked to the
-   phone's bottom edge, under the peek / card (z 8). Light on the profile, dark on the reel; exits under the rising peek */
+   phone's bottom edge, under the peek / card (z 8). Light, Video active; exits under the rising peek */
 .tbw{left:0;top:785.78px;width:375px;height:79px;transform-origin:0 0;transform:scale(1.072);z-index:7;pointer-events:none}
 .tbw .tb{top:0}
+/* the tab bar never moves on the push: the profile lets it out (overflow visible; .root still clips) so .tbw can sit still at the
+   phone's bottom while the profile slides, and the reel's dark bar is held against the reel's parallax; the push only changes its colour */
+.profile{overflow:visible}
 
 /* peek ⇄ floating card: one surface, geometry driven by a spring (m: 0 peek → 1 card) */
 .cta{z-index:8;background:#fff;overflow:hidden;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;will-change:left,top,width,height}
@@ -119,11 +119,12 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .cx{z-index:9;width:44px;height:44px;display:grid;place-items:center;color:#000;border-radius:22px}
 
 /* the device status bar: the shared FMSS one (../shared/statusbar), as fmss-hs: 2:04, no Dynamic Island. In its own 375x44 px like
-   .iab: scale(402/375) undoes .root's 375/402, so it lands on fmss-hs's pixels. One, owned by the screen (above both surfaces, under
-   the IAB); white on the reel and on the profile's clear header, black once the shared app bar fills (data-sb). On the reel it always
-   shows over .reel-stc, which covers the footage's baked status band. .stk is the same bar in black over the IAB's white status band. */
-.root .sb{transform-origin:0 0;transform:scale(1.072)}
-.sbar{z-index:15;transition:background-color .24s ease}
+   .iab: scale(402/375) undoes .root's 375/402, so it lands on fmss-hs's pixels. One, over both surfaces, in the IAB's own layer as
+   fmss-cb's (.sb-iab, ../shared/statusbar: above the IAB's 64% dim, under its sheet), so opening the IAB never greys it; white on the
+   reel and on the profile's clear header, black once the shared app bar fills (data-sb). .stk is the same bar in black over the IAB's
+   white status band. */
+.root .stk{transform-origin:0 0;transform:scale(1.072)}   /* #sbar sits in .iab, which already scales */
+.sbar{transition:background-color .24s ease}
 .root[data-sb=dark] .sbar{background:#000}
 html.hosted .root[data-scr="1"] .sbar{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.sbar{transition:none}}
@@ -173,16 +174,24 @@ html.hosted .phone{background:transparent;border-radius:0}
       <div class="phone" id="phone">
       <div class="root" id="root" data-bn="shop">
 
-        <!-- ===== screen 1: the recorded reel (captions, Learn more and rail are baked into the footage; its baked status band is covered by .reel-stc) ===== -->
+        <!-- ===== screen 1: the reel: clean ad footage under the shared FMSS Reels overlay (../shared/reel) ===== -->
         <div class="abs scr reel" id="reel">
-          <video class="abs video" id="vid" src="assets/reel.mp4?v=2" poster="assets/reel-poster.jpg" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
+          <video class="abs video" id="vid" src="assets/reel.mp4?v=361" poster="assets/reel-poster.jpg?v=361" muted autoplay playsinline webkit-playsinline loop preload="auto" aria-hidden="true" tabindex="-1"></video>
           <img class="abs video vid-alt" id="vidAlt" alt="" aria-hidden="true" decoding="async">
-          <i class="abs reel-stc" aria-hidden="true"></i>
-          <div class="abs promo" id="promo" aria-hidden="true"><svg viewBox="0 1.7 24 20.3" preserveAspectRatio="none"><path d="M1.5 5.2H13L20.6 2.4C22.2 1.7 24 2.6 24 4.4V15.6C24 17.4 22.2 18.3 20.6 17.6L13 15.6H1.5C.7 15.6 0 14.9 0 14.1V6.7C0 5.9.7 5.2 1.5 5.2ZM4 16.6H11V20C11 21.1 10.1 22 9 22H6C4.9 22 4 21.1 4 20Z" fill="#fff"/></svg>Promoted</div>
           <div class="abs" id="pz" aria-hidden="true"></div>
-          <p class="sr" id="rsCapT">Nike. Engineered for greatness. Designed f…</p>
-          <button class="abs btn hot" id="author" type="button" aria-label="Nike: open profile"></button>
-          <button class="abs btn shop" id="shop" type="button" aria-label="Learn more: open the in-app browser (IAB) full screen" style="left:12px;top:676px;width:330px;height:42px;border-radius:8px;z-index:5"></button>
+          <div class="abs rov" id="rov">
+            <div data-reel="scrim"></div>
+            <div data-reel="rail"></div>
+            <img class="abs vt-tab" id="vtTab" src="../shared/videotab/tabbar.svg?v=363" alt="">   <!-- Caption & Browse's Facebook Video tab chrome (../shared/videotab): tab bar and "Video" title bar, under the IAB dim (#iab .overlay) -->
+            <img class="abs vt-nav" src="../shared/videotab/navbar.svg?v=363" alt="">
+            <div data-reel="details" aria-hidden="true"></div>
+            <button data-reel="more" id="more" type="button" aria-describedby="rsCapT" aria-label="More: open the in-app browser (IAB) as a half sheet" tabindex="-1"></button>
+            <button data-reel="cta" id="shop" type="button" aria-label="Learn more: open the in-app browser (IAB) full screen"></button>
+            <img data-reel="pill" alt="">
+            <div id="rc"></div>   <!-- the Reels video controls (../shared/pause: the split screen's scrubber, above the comment bar) -->
+            <button class="abs btn hot" id="author" type="button" aria-label="Nike: open profile"></button>
+          </div>
+          <p class="sr" id="rsCapT">Nike. Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.</p>
           <div class="abs reel-dim" id="reelDim"></div>
         </div>
 
@@ -217,11 +226,11 @@ html.hosted .phone{background:transparent;border-radius:0}
         <!-- ===== in-app browser (IAB): the shared component (built into #iab by FMSSIAB.create) in fmss-cb's 375×812 px; opened by Learn more (reel) and by the peek / card (profile) ===== -->
         <div class="abs iab" id="iab">
           <div class="abs overlay" id="overlay"></div>
+          <i class="abs sb sb-iab sbar" id="sbar" aria-hidden="true"></i>   <!-- the shared status bar in the IAB's layer, as fmss-cb: above the dim, under the sheet (.sb-iab) -->
           <button class="abs btn exit-area" id="exitArea" type="button" aria-label="Close in-app browser (IAB)" tabindex="-1"></button>
         </div>
         <div class="abs home" id="home" aria-hidden="true"></div>
 
-        <i class="abs sb sbar" id="sbar" aria-hidden="true"></i>
         <i class="abs sb sb-dark stk" id="stk" aria-hidden="true"></i>
         <div class="abs finger" id="finger" aria-hidden="true"></div>
         <div class="abs ufinger" id="ufinger" aria-hidden="true"></div>
@@ -230,14 +239,14 @@ html.hosted .phone{background:transparent;border-radius:0}
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the profile with the tab bar (the peek shows again the next time you open the profile from the reel), and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB full screen, where it stays put: scroll the page, and × or Escape closes it. The card's × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
+  <p class="below">Tap Nike on the reel to open its profile. A peek of nike.com slides up; scroll the profile and the peek collapses into a floating card (scrolling back up keeps the card until you reach the very top, where the peek springs back). Tap the peek or the card to expand the full-screen in-app browser (IAB); × or Escape closes it back to the profile with the tab bar (the peek shows again the next time you open the profile from the reel), and a swipe down (from the header, or a pull past the page top) morphs it into the floating card. On the reel, Learn more opens the same IAB full screen, where it stays put: scroll the page, and × or Escape closes it. Tapping the caption (“… more”) opens it as a half sheet, as on Caption &amp; Browse: drag it up to go full, down to return to half or dismiss. The card's × dismisses only the card. Back, or a swipe from the left edge, returns to the reel.</p>
   <div style="height:120vh" aria-hidden="true"></div>
 </div>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const frame=$('frame'),stage=$('stage'),phone=$('phone'),root=$('root'),vid=$('vid'),pz=FMSSPause.mount($('pz'));
+const frame=$('frame'),stage=$('stage'),phone=$('phone'),root=$('root'),vid=$('vid'),pz=FMSSPause.mount($('pz'),{video:vid,at:$('rc'),bar:734,scope:$('rov')});   // a media tap also brings up the video controls above the comment bar (734)
 const reel=$('reel'),profile=$('profile'),pcont=$('pcont'),cta=$('cta'),pk=$('pk'),cd=$('cd');
 $('pkh').append(FMSSIAB.header({url:'nike.com'}));   // the peek's header: the shared IAB sheet header (same as the IAB's half sheet)
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
@@ -246,27 +255,35 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const HOSTED=document.documentElement.classList.contains('hosted');
 const host=()=>{if(!HOSTED)return null;try{return parent.__cbHost||null}catch(_){return null}};   // fmss-cb's hooks: reel parallax, resume, idle demo
 const W=402,H=874;                                   // recording points (iPhone 402×874), scaled 375/402 into the 375×812 phone
-const tb=FMSSTabBar.mount($('tabbar'),{theme:'dark'});tb.setExit(1);   // the shared FMSS tab bar: dark on the reel, light on the profile
+const tbw=$('tabbar').parentNode,vtTab=$('vtTab');const tb=FMSSTabBar.mount($('tabbar'),{theme:'light',tab:'video'});tb.setExit(1);   // the profile's shared FMSS tab bar: light, Video active (the tab the reel is on; the reel itself shows fmss-cb's dark Video tab bar, ../shared/videotab). It never moves on the push or the pop: only its colour changes, light over the reel's dark bar
 /* the push reel ⇄ profile: one value, x (the profile's left edge, W on the reel → 0 on the profile), on the shared IAB spring
    (FMSSIAB.makeSpring: critically damped ω18, 4 substeps). Everything rides it: profile slide, reel parallax −30%, reel dim .2.
-   Transform/opacity only; the surface (tab bar theme, status bar colour) flips at the cut, when the push starts. */
+   Transform/opacity only; the tab bar stays still and only changes colour (dark → light); the surface (status bar colour) flips at the cut, when the push starts. */
 let pushX=W;
 const pushS=FMSSIAB.makeSpring(()=>pushX,x=>{pushX=x;pushRender()});
 function pushRender(){const q=1-pushX/W;
   profile.style.transform=`translate3d(${pushX.toFixed(2)}px,0,0)`;
+  tbw.style.transform=pushX?`translate3d(${(-pushX).toFixed(2)}px,0,0) scale(1.072)`:'';tbw.style.opacity=q<1?q.toFixed(3):'';   // the tab bar stays still: the profile's light bar is held in place against the push and fades in over the reel's dark one, so only its colour changes
+  vtTab.style.transform=q>0?`translate3d(${(.3*W*q/1.072).toFixed(2)}px,0,0)`:'';   // the reel's dark bar held against the reel's parallax (.rov's 375 px)
   reel.style.transform=q>0?`translate3d(${(-.3*W*q).toFixed(2)}px,0,0)`:'';$('reelDim').style.opacity=(.2*q).toFixed(3)}
 function pushTo(x,instant){if(instant||RM.matches){pushS.stop();pushX=x;pushRender()}else pushS.to(x,{w:18})}
-/* the screen's surface: tab bar variant and status bar colour (profile's header filled → black) */
-function setSurface(){tb.setTheme(screen===2?'light':'dark');root.dataset.scr=screen;root.dataset.sb=screen===2&&appbar.filled?'dark':'light'}
+/* the screen's surface: status bar colour (profile's header filled → black) */
+function setSurface(){root.dataset.scr=screen;root.dataset.sb=screen===2&&appbar.filled?'dark':'light'}
 
 /* ---------- fit phone to container (8-based padding) ---------- */
 function fit(){
   const r=frame.getBoundingClientRect();
   const pad=r.width<=640?24:40,fs=document.documentElement.classList.contains('embed-full');   // full screen: the parent sets the vertical margins, 16px each side here; width 511 = 391 bezel + 70 shadow room each side (drop-shadow 40px right + 20px blur), so it is never cut
   const s=fs?Math.min(r.height/(812+16),r.width/531):Math.min((r.height-pad*2)/(812+16),(r.width-pad*2)/(375+16+40));
-  stage.style.setProperty('--s',s.toFixed(4));
+  stage.style.setProperty('--s',s.toFixed(4));FMSSSnap(stage);
 }
 new ResizeObserver(fit).observe(frame);fit();
+
+/* ---------- the Reels ad overlay: the shared FMSS build (../shared/reel), as on Caption & Browse; Learn more in the pink the
+   recording's button showed (#F53C60 as Chrome and Safari drew it). The caption tap opens the IAB half sheet as fmss-cb's does (below:
+   capOpen) ---------- */
+const ad=FMSSReel.mount($('rov'),{cta:'Learn more',color:'#F53C60',cap:'Engineered for greatness. Designed f',
+  capX:"Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.",counts:{like:'12.4K',comment:'842',share:'1.1K'}});
 
 /* ---------- Figma corner smoothing (same squircle as fmss-cb) ---------- */
 function squircle(w,h,R,sm){
@@ -308,7 +325,7 @@ function clearLater(){timers.forEach(clearTimeout);timers=[]}
 function setLive(t){$('live').textContent=t}
 function setTabs(){
   const s=screen,c=ctaState;
-  const o=iab.state===1,r1=s===1&&o;$('author').tabIndex=r1?0:-1;$('shop').tabIndex=r1?0:-1;$('back').tabIndex=s===2&&o?0:-1;
+  const o=iab.state===1,r1=s===1&&o;$('author').tabIndex=r1?0:-1;$('more').tabIndex=r1?0:-1;$('shop').tabIndex=r1?0:-1;$('back').tabIndex=s===2&&o?0:-1;
   cta.tabIndex=s===2&&o&&(c==='peek'||c==='card')?0:-1;$('cardX').tabIndex=s===2&&o&&c==='card'?0:-1;
   profile.setAttribute('aria-hidden',s===2&&o?'false':'true');
 }
@@ -331,12 +348,14 @@ function backToReel(){
 
 /* ---------- in-app browser (IAB): the shared FMSS foundation (../shared/iab) in fmss-cb's configuration ----------
    Learn more on the reel rises straight to full (full header held) as a CTA open (entry 'cta'): the sheet never follows a drag, a press
-   on the page scrolls it; × or Escape close. Unlike fmss-cb the reel's overlay (Nike, caption, Learn more, Promoted) is baked into the footage, so nothing
-   on the reel moves: only the dim and the sheet do. The profile's peek / floating card opens this same sheet (iabFrom 'profile', entry
+   on the page scrolls it; × or Escape close; nothing on the reel moves: only the dim and the sheet do. The caption tap opens the half
+   sheet as on fmss-cb (capOpen): the shared details rise with it over the dim (FMSSReel rise), lifted into #iab under the sheet for
+   the trip (#iab and .rov are the same 375×812 px at the reel's origin, so nothing shifts) and put back once the sheet is home. The profile's peek / floating card opens this same sheet (iabFrom 'profile', entry
    'collapse'); × or Escape there brings the tab bar back and leaves the peek and card dismissed (they re-arm on the next push in);
    only the swipe down morphs the sheet back into the card. */
 const Y1=812,Y2=406,Y3=44,stk=$('stk');
-let iabFrom='reel';
+let iabFrom='reel',capOpen=false;
+function capHome(){if(!capOpen)return;capOpen=false;ad.rise(0);$('more').before(ad.details)}   // the details back on the reel
 /* proto-state, to the host page (js/proto-fs.js desktop, js/case.js phone): postMessage {type:'proto-state',home} on each change;
    home = the first screen at rest (false as a move off it starts, true once the IAB's close spring is at rest: onSettled(1), and the reel back from the profile push) */
 let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
@@ -345,14 +364,14 @@ const iab=FMSSIAB.create({
   url:'nike.com',headers:{full:'assets/iab-header-full.svg?v=2'},   // half sheet header: the shared one (../shared/iab header())
   handle:true,shift:'p',halfZ:.82,
   web:'<div class="web" id="web"><img src="assets/page.webp" alt="nike.com product page: Nike Pegasus Premium, Women\'s Road Running Shoes, $220" decoding="async"><img class="bn bn-shop on" src="assets/banner-shop.png" alt=""><img class="bn bn-gift" src="assets/banner-gift.png" alt=""></div>',webH:5125.47,visH:622,
-  onRender({t,sd}){$('overlay').style.opacity=t.toFixed(3);stk.style.opacity=sd.toFixed(3);setHome(t)},
+  onRender({t,sd}){$('overlay').style.opacity=t.toFixed(3);stk.style.opacity=sd.toFixed(3);setHome(t);if(capOpen)ad.rise(t)},
   onState(s){
     $('exitArea').classList.toggle('on',s===2);$('exitArea').tabIndex=s===2?0:-1;
     setTabs();
     setLive(s===1?'In-app browser closed':s===2?'In-app browser (IAB) open, half sheet':'In-app browser (IAB) open, full screen');
   },
   onClose(){if(iabFrom==='reel')resumeReel();else iabClosing()},   // back on the reel from the browser: playback resumes even if it was paused
-  onClosed:()=>{iabFrom='reel'},
+  onClosed:()=>{iabFrom='reel';capHome()},
   onOpen:()=>homeTell(false),onSettled:s=>{if(s===1&&screen===1)homeTell(true)},
   onLoad(){loads++;bnT0=performance.now();setBanner()},
   onX:()=>{close();if(kbd)(iabFrom==='profile'?$('back'):$('shop')).focus({preventScroll:true})},
@@ -379,13 +398,14 @@ function iabClosing(){
   let k=1;spring(()=>k,v=>{k=v;tabsWith(v)},0,{w:20,eps:.002,onDone:()=>tabsWith(0)});
   setLive('Nike profile');
 }
-/* reel: Learn more → full; anywhere else on the media toggles pause */
+/* reel: the caption → half sheet, Learn more → full; anywhere else on the media toggles pause */
 $('shop').addEventListener('click',()=>{if(iab.state===1&&screen===1){iabFrom='reel';openIabFull()}});
+$('more').addEventListener('click',()=>{if(iab.state===1&&screen===1){iabFrom='reel';capOpen=true;$('overlay').after(ad.details);go(2)}});   // caption → half (fmss-cb's openHalf)
 $('exitArea').addEventListener('click',()=>{close();if(kbd)(iabFrom==='profile'?$('back'):$('shop')).focus({preventScroll:true})});
 reel.addEventListener('click',e=>{
   if(screen!==1||iab.state!==1||iab.busy||e.target.closest('button'))return;
   const [x,y]=ptOf(e);
-  if(y>=112&&y<600&&(x<350||y<480))mediaTap();                 // the footage, not its baked status/back row, author/caption/CTA/Promoted/comment rows or the action rail
+  if(y>=96*W/375&&y<570*W/375&&(x<326*W/375||y<486*W/375))mediaTap();   // fmss-cb's zone: the footage, not the status/Video bar row (96 px), the author/caption/CTA/Sponsored rows and tab bar (570 px on) or the action rail (326, 486 px)
 });
 
 /* ---------- peek ⇄ card surface ---------- */
@@ -637,7 +657,7 @@ async function swipe(dist,ms,tk,flingV=0){
 }
 /* the demo as steps: a number is a wait (a hover may hold during it), a function is one gesture (always finishes under a hover) */
 const STEPS=[
-  4700,tk=>tap('author',28,622,tk,openProfile),                 // reel plays (recording 0–5.2s), then tap Nike
+  4700,tk=>tap('author',32,630,tk,openProfile),                 // reel plays, then tap Nike (the avatar, 30,588 px)
   2200,tk=>swipe(300,1100,tk),                                  // peek slides up and loads; scroll: peek collapses into the card
   2000,tk=>swipe(-300,520,tk,-1800),                            // back to the very top: peek springs back
   2000,tk=>swipe(420,900,tk,2200),                              // down again, all the way
@@ -655,7 +675,7 @@ function reset(){                                   // the clean start, instantl
   [profile,reel,$('reelDim')].forEach(el=>el.style.transition='none');
   phone.classList.remove('pushed','drag-reel');profile.classList.remove('drag');
   screen=1;pushTo(W,true);tb.setExit(1);setSurface();setCta('hidden');peekDy=0;setPScroll(0);
-  resetLoad();iabFrom='reel';iab.reset();         // the IAB's clean start
+  resetLoad();iabFrom='reel';iab.reset();capHome();         // the IAB's clean start
   requestAnimationFrame(()=>requestAnimationFrame(()=>{[profile,reel,$('reelDim')].forEach(el=>el.style.transition='')}));
   setTabs();resumeReel();fingerOff();if(was!==1)host()?.push(false,true);homeS=null;homeTell(true);   // always told: the host's cue that this is the clean start
 }
@@ -750,7 +770,7 @@ function vidDisarm(){if(!vidArmed)return;vidArmed=false;['touchend','click','key
 const vidAlt=$('vidAlt');
 let vidMode='video',vidSince=0,vidT0=-1,altT0=0;   // altT0: when the fallback image started animating
 function altShow(){if(userPaused){vidMode='video';return}vidAlt.classList.add('on');altT0=performance.now();vidDisarm();try{vid.pause()}catch(e){}vid.style.visibility='hidden'}   // paused meanwhile: the <video> keeps its paused frame
-function altUse(mode){vidMode=mode;vidAlt.onload=altShow;vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};vidAlt.src=mode==='img-mp4'?'assets/reel.mp4?v=2':'assets/reel.webp?v=2'}
+function altUse(mode){vidMode=mode;vidAlt.onload=altShow;vidAlt.onerror=()=>{if(vidMode==='img-mp4')altUse('img-webp')};vidAlt.src=mode==='img-mp4'?'assets/reel.mp4?v=361':'assets/reel.webp?v=361'}
 function vidFallback(why){if(vidMode!=='video')return;vidAlt.dataset.why=why;altUse(/[?&]alt=mp4\b/.test(location.search)?'img-mp4':'img-webp')}
 setInterval(()=>{
   if(vidMode!=='video')return;
@@ -772,8 +792,8 @@ function altPause(){
   const ready=()=>{if(vid.readyState>=1)seek();else vid.addEventListener('loadedmetadata',seek,{once:true})};
   vid.muted=true;const p=vid.play();if(p&&p.then)p.then(ready,ready);else ready();
 }
-function setPaused(on){
-  if(userPaused===on)return;userPaused=on;pz.set(on);
+function setPaused(on,tap){
+  if(userPaused===on)return;userPaused=on;pz.set(on,tap);
   if(vidMode==='video'){if(on)vid.pause();else playVid()}else if(on)altPause();
   setLive(on?'Reel paused':'Reel playing');
 }
@@ -784,7 +804,7 @@ function mediaTap(){
     if(vid.paused){vid.muted=true;const p=vid.play();if(p&&p.then)p.then(vidDisarm,()=>{})}
     vidKick=0;return;                                           // this tap was the start; the next one pauses
   }
-  setPaused(!userPaused);
+  setPaused(!userPaused,true);
 }
 function vidRefused(e){return e&&(e.name==='NotAllowedError'||e.name==='NotSupportedError')}
 function playVid(){
