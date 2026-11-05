@@ -419,7 +419,7 @@ function split(E,root){
   if(VW&&VS){X.vs2=VS.create({video:X.video,icons:'assets/vw-ctl.png',trackY:579.2,x:12,w:351,className:'vwv',pauseButton:true,muteButton:true,iconBox:{left:235,size:44},
     onExpand:()=>vwBack(X),sinceSplit:()=>X.vw===1&&X.vwT0!=null?performance.now()-X.vwT0:X.vw>0?0:1e9});r('vwsAt').replaceWith(X.vs2.el)}   // the viewer's expand cell: back to split screen
   if(VW)r('vwcta').addEventListener('click',e=>{e.stopPropagation();vwCta(X)});
-  X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;if(X.bdArm&&v<.06){X.bdArm=false;X.bdS.to(1,{w:24})}render(X)});X.bdg=1;X.bdS=SP(()=>X.bdg,v=>{X.bdg=v;render(X)});
+  X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});X.bdg=1;X.bdS=SP(()=>X.bdg,v=>{X.bdg=v;render(X)});
   if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwFeed(X)})
     /* in the viewer a tap on the video pauses / resumes it, as in split screen, through the viewer's own player (its pause cell shows the
        state); the split player's tap never sees it; no drag of any kind */
@@ -462,7 +462,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.bdArm=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;if(X.vs2&&X.vs2.paused()){X.vw=1;X.vs2.togglePause()}X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>{try{v.currentTime=0}catch(_){}});X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -491,9 +491,10 @@ function vwPlay(X){if(X.vs2&&X.vs2.paused())X.vs2.release();const p=X.video.play
 /* the viewer's own expand cell: the video shrinks back into the split screen's box (the same spring, the reverse of vwOpen) */
 function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.bdS.stop();X.bdg=0;X.vwT0=null;
   X.vs&&X.vs.enterSplit();   // split's controls come up with the collapse (ctl opacity a·(1−k)) and run split's own hold + fade from here
-  X.bdArm=true;   // the backdrop's fill starts as the video lands (k < .06, a few px from the split box), not after the spring's tail
+  /* g stays 0 while k moves: p=a·g=0 → box() is the live video rect, so the colour rides with the video and is never taller (Hang).
+     One grow spring to the 734 rest starts when the collapse lands — no early-arm / mid-spring reveal hitch (Hang 2026-11-05 choppy). */
   if(X.vwOff)X.sheet.go(2,{w:16,load:false});   // a viewer CTA's destination left off the bottom: the sheet rises back into split with the video
-  X.vwS.to(0,{w:16,onDone:()=>{if(X.bdArm){X.bdArm=false;X.bdS.to(1,{w:24})}vwPlay(X);say(X.E.name+', split screen')}})}
+  X.vwS.to(0,{w:16,onDone:()=>{X.bdS.to(1,{w:16});vwPlay(X);say(X.E.name+', split screen')}})}
 /* the X: all the way back to the Feed (the sheet leaves split for its closed stop as the video settles into it, then the video to the surface) */
 function vwClose(X){vwBack(X)}   // the viewer's collapse (its cell, Escape): back to split
 function vwFeed(X){if(!X.vw)return;if(X.vwOff){X.vwOff=false;X.bdS.stop();X.bdg=1;X.vwS.to(0,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)});return}
@@ -512,10 +513,11 @@ function render(X){
   const sA=a<1?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);
   if(e.fh&&!X.fhOk)fhFit(X);
   if(e.bo)e.bo.style.opacity=a.toFixed(3);
-  /* Stories: the story's own overlay copy stays above the IAB peek (Hang: "missing the texts above the iab peek"). SHOP NOW (ao3, pill 657–694.5)
-     would sit 14.5px under the 680 peek, so it and the Swipe-up line (bo3, 638–652.5) lift 22.5px with the peek: pill 634.5–672, 8px above
-     the sheet, the 4.5px text→pill gap kept. Other entries' out layers still fade (1−a). */
-  if(C.stories){const t=`translateY(${(-22.5*a).toFixed(2)}px)`;e.ot.forEach(l=>{l.style.opacity='1';l.style.transform=t});if(e.bo)e.bo.style.transform=t}
+  /* Stories (Hang / Solution 2): SHOP NOW (ao3) and "Swipe up to see more" (bo3) are mutually exclusive, same as sol2.
+     Full story (a=0): SHOP NOW at its baked bottom-CTA spot; Swipe-up hidden (bo opacity = a).
+     Split / IAB peek (a→1): SHOP NOW fades out (1−a); Swipe-up fades in at its baked spot (638–652.5) just above the 680 peek — no translate.
+     Never leave SHOP NOW in the peek slot. */
+  if(C.stories){e.ot.forEach(l=>{l.style.opacity=(1-a).toFixed(3);l.style.transform=''});if(e.bo)e.bo.style.transform=''}
   else e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
   /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
   const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
@@ -526,20 +528,16 @@ function render(X){
   const key=[vw,vh,...R].map(v=>v.toFixed(1)).join();
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+vw.toFixed(2),+vh.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
   /* the backdrop: p=a·g out of the video's LIVE box [vx,vy,vw,vh] (radii R, smoothing sm) to the 375×734 canvas (split↔Feed: g=1).
-     split↔viewer it is the video's own box: in the viewer it is already behind the video, so the collapse carries it in that box, never
-     taller or wider than the video; only once the video has landed in split does g (X.bdS, ω18) grow it out to the split canvas, and on
-     the way into the viewer g retracts it into the video (ω32) as the video starts to grow. Image stays screen-fixed; only the
+     split↔viewer: g=0 while k moves so p=0 and box() is exactly the live video rect (colour rides with it, never taller); on land one
+     g spring (ω16) eases out to the 734 rest; into the viewer g retracts (ω32) as the video grows. Image stays screen-fixed; only the
      clip-path reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb: the black only recedes, it never reveals it. */
   /* In-Content closing (split → banner): the backdrop shrinks behind the video at once (p = a⁴), so no large black block sits over the feed
      while the video heads for the 74px thumb; opening is unchanged */
   const g=X.bdg==null?1:X.bdg,p=(C.reelTap&&X.state===1?a*a*a*a:a)*g,B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
-  if(k>0&&e.mv&&p>0){   // viewer→split still moving: the early fill is clipped to the video's live box, so it is never taller than the video (Hang 2026-11-05)
-    const m=e.mv.getBoundingClientRect(),o2=e.bu.getBoundingClientRect(),t=m.top-o2.top,b=m.bottom-o2.top;
-    const y0=Math.max(B.y,t),y1=Math.min(B.y+B.h,b);B.y=y0;B.h=Math.max(0,y1-y0)}
-  bs.display=a>0?'block':'none';   // keep laid out for the whole open (avoid display:none pop on the first collapse frame)
+  bs.display=a>0.001?'block':'none';   // keep laid out for the whole open / close (no display:none snap on the last split→feed frames)
   if(a>0){e.bui.style.transform='';
     const bk=[B.x,B.y,B.w,B.h,...B.R,sm,p].map(v=>(+v).toFixed(2)).join();
-    if(bk!==X.bk){X.bk=bk;bs.clipPath=p>0?FMSSBackdrop.clip(B,sm):'inset(0 100% 100% 0)';bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}
+    if(bk!==X.bk){X.bk=bk;bs.clipPath=a>0.001?FMSSBackdrop.clip(B,sm):'inset(0 100% 100% 0)';bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}   // p=0 still clips to the live video box (not a fully-hidden inset) so the land→grow spring has no hidden→visible jump
   if(e.mtp)e.mtp.style.opacity=(1-a).toFixed(3);   // Contained play glyph: surface thumb only (hides as the banner grows into split)
   if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
   /* the viewer's layers: black (.vwb) under the collapsing backdrop so the colour rides with the video; video and post rows over both;
@@ -579,7 +577,7 @@ function nativeSheet(o){
   const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
     cs=q('.cs'),ct=q('.ct'),ct2=q('.ct2'),nx=q('.nx'),ck=q('.ios-caret');
   let y=Y1,state=1,rk='',entry=null,pr=0;   // pr: a CTA open's page pull (the IAB's top rubber-band: c .55 over the visible page, spring-back ω16)
-  const HB=P.hb||72,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: the full screen's header bottom (it stays put; the page under it is what pulls)   // entry as the shared IAB's: 'cta' (a CTA opened it full screen) → the sheet never follows a press
+  const HB=P.hb||92,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: close-button bar bottom in c's coords (IAB content top = 92; was 72 and cut through the title — Hang 2026-11-05)   // entry as the shared IAB's: 'cta' (a CTA opened it full screen) → the sheet never follows a press
   function render(){
     const c=clamp((Y2-y)/(Y2-Y3)),up=Y2-Y3;
     /* the sheet's surface: 1:1 with the finger, its top corners 16 → 0 into full screen (as the IAB's), the handle out with them */
@@ -589,7 +587,7 @@ function nativeSheet(o){
        so the split pose lands exactly on the full screen; clipped to the sheet, under its 18px handle strip */
     const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy);
     ng.style.transform=`translate3d(0,${(oy+pr).toFixed(2)}px,0)`;ng.style.clipPath=`inset(${(pr>0?Math.max(T,HB):T).toFixed(2)}px 0 ${812-F}px 0)`;
-    ct.style.clipPath=`inset(0 0 ${pr>0?812-HB:768}px 0)`;   // pulling, c's own header (status · title · ×) holds still over the page, as the IAB's
+    ct.style.clipPath=`inset(0 0 ${pr>0?812-HB:768}px 0)`;   // pulling, pin status + close-button bar (through HB); page below moves, as the IAB's
     /* bl and its 18px handle strip (the sheet colour, over c's own header and ×) dissolve out together, once the clip has uncovered that strip
        (c0: where the top edge reaches c's row d; at once where bl sits above c's header, d <= 44), so c's × fades in whole, never cut */
     ngb.style.opacity=ngh.style.opacity=(1-clamp((c-c0)/.4)).toFixed(3);
