@@ -65,6 +65,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
 .rl{width:375px;height:734px;overflow:hidden}
 .mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.mv .mvp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
+/* In-Content: .mv must paint ABOVE .uiu — ag4-ui's thumb slot is opaque grey (same as sol2's ag4); sol2 orders .mv after ag4 so the live thumb shows through. hit stays on top for taps. */
+.xp.ic .mv{z-index:2}.xp.ic .uiu{z-index:1}.xp.ic .hit{z-index:3}
 .hit{z-index:auto;touch-action:none;cursor:pointer}
 .hit.off{pointer-events:none}
 .ctl{will-change:transform,opacity}
@@ -293,6 +296,8 @@ const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rg
 const CROSS='<svg viewBox="0 0 24 24" style="left:44px"><path d="M6 6L18 18M18 6L6 18" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>';
 function split(E,root){
   const C=E.c,S=C.S,u=f=>S.d+f+(f.endsWith('.mp4')?'':'.webp')+S.v,n=C.n,top=C.top,up=top-44,m=C.m;
+  if(C.reelTap)root.classList.add('ic');   // In-Content: .mv above .uiu (live Away thumb over the grey slot)
+
   const X={E,root,y:812,state:1,sd:0,vids:[],els:{}};
   const img=(f,cls,st)=>`<img class="L ${cls}" alt="" src="${u(f)}" style="${st||''}">`;
   const layer=(o,cls)=>{const h=o.h||812;return o.reel?`<div class="L rl ${cls}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u(o.reel)}" src="${u(o.reel+'.mp4')}"></video></div>`
@@ -300,7 +305,7 @@ function split(E,root){
   let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
   h+=FMSSBackdrop.html(u('bu'+n),top,{attrs:' data-r="bu" style="display:none"'});
-  h+=`<div class="mv" data-r="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
+  h+=`<div class="mv" data-r="mv"><img class="mvp" alt="" src="${u('p'+n)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
   /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
