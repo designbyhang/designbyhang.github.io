@@ -68,7 +68,7 @@ function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60),r=s%60;ret
 var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-f{position:absolute;inset:0}'+
  '.vs-i{position:absolute;width:125px;height:24px;background:no-repeat 0 0/125px 24px}'+
- '.vs-t{position:absolute;margin:0;white-space:nowrap;color:#fff;font:400 16px/16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;'+
+ '.vs-t{position:absolute;margin:0;white-space:nowrap;color:#fff;font:590 16px/16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;'+
    'letter-spacing:0;text-shadow:0 0 1px rgba(0,0,0,.16);-webkit-font-smoothing:antialiased}'+
  '.vs-h{position:absolute;height:24px;pointer-events:auto;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}'+
  '.vs-r,.vs-l{position:absolute;left:0;top:10px;width:100%;height:4px;border-radius:16px}'+
@@ -96,7 +96,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
 // play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
 // (radius 1 / stdDeviation .5, offset 0,0, rgba(0,0,0,.62)). Sibling of the host's ci*.webp (or vw-ctl) as play.webp; 22 design px incl. 1px shadow pad around the 20 icon.
-function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=415');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
+function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=417');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
