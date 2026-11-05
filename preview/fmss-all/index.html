@@ -535,9 +535,11 @@ function render(X){
   if(e.mtp)e.mtp.style.opacity=(1-a).toFixed(3);   // Contained play glyph: surface thumb only (hides as the banner grows into split)
   if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
   /* the viewer's layers: black (.vwb) under the collapsing backdrop so the colour rides with the video; video and post rows over both;
-     the CTA's page then opens over them all. */
+     the bottom sheet (host, 10) is the front layer over them all, never under the player: opening the viewer it slides down off the bottom
+     in front of the growing video (offset (812−y)·k, so parked below the screen in the settled viewer), collapsing it rises and covers the
+     shrinking video and its chrome. A CTA's page (vwCta) or a sheet already off (vwOff) moves by its own spring, no offset. Cleared at k 0. */
   if(e.vwb){const on=k>0,page=on&&X.vwCta;e.vwb.style.display=e.vwo.style.display=on?'block':'none';e.vwb.style.opacity=k.toFixed(3);e.vwo.style.opacity=k.toFixed(3);
-    e.host.style.zIndex=on?(page?'9':'4'):'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
+    e.host.style.zIndex=on?'10':'';e.host.style.transform=on&&!page&&!X.vwOff?`translate3d(0,${((812-y)*k).toFixed(2)}px,0)`:'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
