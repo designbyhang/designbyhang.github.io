@@ -507,12 +507,13 @@ function render(X){
   const mv=e.mv.style;mv.left=vx.toFixed(2)+'px';mv.top=vy.toFixed(2)+'px';mv.width=vw.toFixed(2)+'px';mv.height=vh.toFixed(2)+'px';
   const key=[vw,vh,...R].map(v=>v.toFixed(1)).join();
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+vw.toFixed(2),+vh.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
-  /* one shared motion (Feed→split reversed): progress p=a drives the backdrop out of the video's LIVE box [vx,vy,vw,vh]
-     (radii R, smoothing sm) to the full 375×734 canvas and back (split↔Feed). Image stays screen-fixed; only the clip-path reveals
-     the box (FMSSBackdrop.clip). split↔viewer the backdrop holds its split pose in its own place, under the sheet and under the
-     viewer's black (.vwb, opacity k): the black closes over it / lifts off it with the video's own spring, so no colour ever runs
-     ahead of the video or over the sheet and the post rows. */
-  const p=a,B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
+  /* one motion, two legs, each a straight line from its own fixed start (never from the live box, which would apply the progress twice):
+     split↔Feed  p=a: the backdrop out of the video's live Feed-side box [vx,vy,vw,vh] (radii R, smoothing sm) to the 375×734 canvas;
+     split↔viewer p=a·(1−k): out of the viewer's video box (k=1 pose, square corners) to the same canvas, on the video's own spring, so
+     at the viewer it sits exactly behind the video and its margins grow / retract with it. Image stays screen-fixed; only the clip-path
+     reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb: the black only recedes, it never reveals the colour. */
+  const vb=k>0?[0,219+(375-375*m.a[3]/m.a[2])/2,375,375*m.a[3]/m.a[2]]:[vx,vy,vw,vh],
+    p=k>0?a*(1-k):a,B=FMSSBackdrop.box(vb,k>0?[0,0,0,0]:R,p),bs=e.bu.style;
   bs.display=a>0?'block':'none';   // keep laid out for the whole open (avoid display:none pop on the first collapse frame)
   if(a>0){e.bui.style.transform='';
     const bk=[B.x,B.y,B.w,B.h,...B.R,sm,p].map(v=>(+v).toFixed(2)).join();
@@ -522,7 +523,7 @@ function render(X){
   /* the viewer's layers: black (.vwb) under the collapsing backdrop so the colour rides with the video; video and post rows over both;
      the CTA's page then opens over them all. */
   if(e.vwb){const on=k>0,page=on&&X.vwCta;e.vwb.style.display=e.vwo.style.display=on?'block':'none';e.vwb.style.opacity=k.toFixed(3);e.vwo.style.opacity=k.toFixed(3);
-    e.host.style.zIndex=on?(page?'9':'4'):'';e.vwb.style.zIndex=on?'5':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
+    e.host.style.zIndex=on?(page?'9':'4'):'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
