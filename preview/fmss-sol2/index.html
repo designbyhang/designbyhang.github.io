@@ -66,9 +66,12 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
    (and while full), so the spring's sub-pixel tail never opens a hairline of the B media between the fixed status bar and the rising header */
 .cs{position:absolute;left:-4px;right:-4px;top:24px;height:28px}
 /* ad media: one playing <video> per phone; its box travels from the surface rect to the split-screen rect (position, size, corner radius) and back */
-.mv{position:absolute;overflow:hidden;will-change:left,top,width,height}
+.mv{position:absolute;overflow:hidden;will-change:left,top,width,height;z-index:0}
+/* .vs itself is height 0 (no o.height), so its overflowing timestamp / icons / track can vanish under the
+   taller Reels <video> layer on Safari, iOS and Chrome; give .bc the screen and stack it above .mv */
+.bc{z-index:2;height:812px}
 .rl{position:absolute;left:0;top:0;width:375px;height:734px;overflow:hidden}   /* In-Content: Figma 'Media / Organic' (the Reels player) [0,0,375,734] */
-.mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform:translateZ(0)}
 /* Stories header (Figma .Header: Stepper + Meta + Icon Button Group), live so it can move inward with the media */
 .hd{position:absolute;left:0;top:0;width:375px;height:120px;color:#fff;font-family:var(--t-sf)}
 .hd>*{position:absolute;will-change:transform}
