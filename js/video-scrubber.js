@@ -95,8 +95,10 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
  '.vs-m{position:absolute;width:44px;height:44px;border-radius:50%;pointer-events:none;opacity:0;transform:translate(-50%,-50%);background:rgba(140,140,140,.35);'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
 // play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
-// (radius 1 / stdDeviation .5, offset 0,0, rgba(0,0,0,.62)). Sibling of the host's ci*.webp (or vw-ctl) as play.webp; 22 design px incl. 1px shadow pad around the 20 icon.
-function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=419');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
+// (radius 1 / stdDeviation .5, offset 0,0,rgba(0,0,0,.62)). One canonical play.webp next to this script (js/play.webp) — never derived from the host's
+// icons folder (ci*.webp / vw-ctl live in many trees; a missing sibling was the broken "?" glyph). 22 design px incl. 1px shadow pad around the 20 icon.
+var PLAY_SRC=(function(){var s=document.querySelector('script[src*="video-scrubber.js"]');return s?s.src.replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=424'):'play.webp?v=424'})();
+function playImg(){return '<img class="vs-play" src="'+PLAY_SRC+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
@@ -125,7 +127,7 @@ function create(o){
   // icons: one crop; cut in three around the pause glyph's slot (and the speaker's, when muted), so one slot alone can show the play icon.
   // The strip's speaker: body 95..107 design px, its two waves out to 114.5, so muted (the body alone) it moves right by that half width
   function slice(a,b,g,sp,k){var l=ib?cell(k)[0]+ib.size/2-(INK[k]-a):ix+a;
-    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?playImg(o.icons):'')+'</i>'}
+    return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?playImg():'')+'</i>'}
   root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb||ib?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+timeX+'px;top:'+(tb-13.75)+'px"></p>'+

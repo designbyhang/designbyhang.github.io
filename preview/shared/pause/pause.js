@@ -19,9 +19,9 @@
               opacity (in 240ms ease-out, out on the split screen's 320ms ease-out), so nothing overlaps; lift: a function returning
               the pieces instead, for an overlay that is not built from those; also: a function returning pieces outside the scope that
               belong to the overlay (a press highlight or a button laid over the CTA)
-              Only live UI rises, never the media: a <video>, a poster, or a still that belongs to the media (the scrim, the gradient over
-              the video: mark it data-media) is left out of the lift, and so is any piece holding one; the scrim stays where it is in every
-              state, paused or playing
+              Only live UI rises from a scope: a <video>, a poster, or a still that belongs to the media (the scrim, the gradient over
+              the video: mark it data-media) is left out of a scope lift, and so is any piece holding one; the scrim stays where it is in every
+              state, paused or playing. An explicit lift()/also() list is not media-filtered — the host may include a banner thumbnail that holds a video
      pz.set(on, tap)  on: glyph in, controls up and held while paused. Off with tap (the media tap that resumes): glyph out and the controls
                       fade straight away on the split screen's 320ms ease-out (no dwell: they are only up while paused). Off without
                       tap (a reset: another reel, leaving Reels, the IAB's close): both go at once
@@ -46,8 +46,13 @@ function mount(el,o){
   css();el.classList.add('fmss-pz');el.setAttribute('aria-hidden','true');if(!el.querySelector('svg'))el.innerHTML=GLYPH;
   o=o||{};const vf=o.video?fn(o.video):null,at=o.at||null,map=new Map();let cur=null,held=null,lifted=0;
   if(at)at.classList.add('fmss-rc');
-  function pieces(){let a;if(o.lift)a=[...(fn(o.lift)()||[])];else{const s=o.scope?fn(o.scope)():null;a=s?[...s.querySelectorAll(SEL)]:[]}
-    if(o.also)a=a.concat([...(fn(o.also)()||[])]);a=a.filter(e=>e&&!e.matches(MEDIA)&&!e.querySelector(MEDIA));
+  function pieces(){let a,listed=!!o.lift;
+    if(o.lift)a=[...(fn(o.lift)()||[])];else{const s=o.scope?fn(o.scope)():null;a=s?[...s.querySelectorAll(SEL)]:[]}
+    if(o.also)a=a.concat([...(fn(o.also)()||[])]);
+    /* scope auto-discovery never lifts media; an explicit lift/also list is the host's call (In-Content: the banner
+       thumbnail .mv rides with the lifting .uiu band — same translate — even though it holds a <video>) */
+    if(!listed)a=a.filter(e=>e&&!e.matches(MEDIA)&&!e.querySelector(MEDIA));
+    else a=a.filter(e=>!!e);
     return a.filter(e=>!a.some(p=>p!==e&&p.contains(e)))}   // a piece inside another moves with it
   /* how far this reel's overlay rises: so its lowest CTA / pill / caption (the rail aside) ends ABOVE px over the track's top edge,
      measured on the pieces at rest (a piece whose box is larger than what it draws, e.g. a full-screen baked image, says where its
