@@ -196,7 +196,7 @@ PH.forEach((p,i)=>{
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('.mv video'));if(n===4){reel=q('.rl video');thumb=q('.mv video');clock=null}
   // live player controls (../../js/video-scrubber.js): timestamp + track (read only) where bc's were, icons as a crop (ci); they fade out
   // 2080–2400ms after split screen is reached (t1e, t3e)
-  if(m.cs&&VS){const c=VS.create({video:q('.mv video'),icons:`assets/ci${n}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split,readOnly:true});q('.vs-at').replaceWith(c.el);if(n===4)scrub4=c}
+  if(m.cs&&VS){const c=VS.create({video:q('.mv video'),icons:`assets/ci${n}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split,readOnly:true,iconBox:{size:44},timeX:24});q('.vs-at').replaceWith(c.el);if(n===4)scrub4=c}   // same layout as vac-proto (iconBox/timeX); readOnly
   const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn,x)=>{const an=q(el).animate(track(fn),o);anims.push(an);return an};
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   const showA=p=>({opacity:p.a<1?1:0});

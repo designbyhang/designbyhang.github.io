@@ -178,7 +178,7 @@ PH.forEach((p,i)=>{
   const q=s=>dev.querySelector(s);imgs.push(...dev.querySelectorAll('img'));vids.push(q('video'));
   // live player controls (../../js/video-scrubber.js): timestamp + track (read only) where bc's were (design px, not a drawn-size .L layer:
   // it is small), its icons as a crop (ci); they fade out 2080–2400ms after split screen is reached (t1e, t3e)
-  if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`assets/ci${i+1}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split,lock:i===0?LOCK:null,readOnly:true}).el);   // Solution demo: just plays (no seek, no tap, no scripted tap: every phone shows the same controls)
+  if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`assets/ci${i+1}.webp${V}`,trackY:top-14,className:'bc',sinceSplit:split,lock:i===0?LOCK:null,readOnly:true,iconBox:{size:44},timeX:24}).el);   // Solution demo: same layout as vac-proto (iconBox/timeX); just plays (no seek, no tap, no scripted tap)
   const o={duration:T,iterations:Infinity,fill:'both'},A=(el,fn)=>{const an=q(el).animate(track(fn),o);anims.push(an);return an};
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));

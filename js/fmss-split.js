@@ -89,7 +89,7 @@ function screen(el,i,opt){
   // runs t1 → t3 (counted from t1e) and t3 → t4e (from t3e), and the controls fade out 2080–2400ms after it is reached.
   // Read only: the hero demo just plays (no seek, no tap to pause, default cursor); phone 1 shows the scripted video tap (TAPS)
   if(VS)q('.vs-at').replaceWith(VS.create({video:q('video'),icons:`${B}ci${n}.webp${V}`,trackY:top-14,className:'L bc',readOnly:true,
-    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null,demoTaps:i===0?TAPS:null}).el);
+    sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t3],[t3,t3e,t4e]]),lock:i===0?LOCK:null,demoTaps:i===0?TAPS:null,iconBox:{size:44},timeX:24}).el);   // same layout as vac-proto / vac-chain (iconBox/timeX); readOnly + demoTaps unchanged
   // A: under everything; hidden while B/C sit on top so nothing of it shows through the moving sheet
   A('.a',p=>({opacity:p.a<1?1:0}));
   A('.fd-bd',p=>({opacity:p.a<1?1:0}));A('.fd-gl',p=>({opacity:p.a<1?1:0}));   // A's header icons go with it
