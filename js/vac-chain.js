@@ -30,7 +30,7 @@
      seed video in the media rect
    - Status bar: one fixed layer, the prototype's bo1.webp mask (.vc-sb), black on Feed, white on Split and Reels, never moves
    - Split Screen: FMSS's parts and recipe (js/fmss-split.js), shared: close X overlay,
-     the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp, faded on the scrubber's HOLD/FADE), the
+     the live player controls (js/video-scrubber.js, read only, the FMSS icon crop ci1.webp with iconBox/timeX as vac-proto, faded on the scrubber's HOLD/FADE), the
      shared IAB sheet header (preview/shared/iab/header.js, url/porsche.com.svg) on a white sheet (r16, 60% smoothing) with the shared IAB page-load bar
      (FMSSIAB.LOAD_KF, snapped to 8ms) and a home indicator, and the advertiser's page (porsche-site.webp: the top of the prototype's porsche.com page, preview/vac-proto/assets/page.webp); the backdrop is the video itself, live: drawn small every frame and blurred
    - Reels: each ad full frame with the Figma's bottom gradient, author row (avatar 36, name, FMSS's verified badge and globe, Sponsored), one-line
@@ -121,7 +121,7 @@ DC.register('vac',{T,rest:REST,
     // live player controls (FMSS: js/video-scrubber.js with the FMSS icon crop): split screen from t1 (reached t1e) to t2; the scrubber
     // fades them out HOLD→GONE after t1e (gone at t1e+2400 = 6240, before the sheet is dragged at 7040): only the close X is left
     if(VS){q('.vc-at').replaceWith(VS.create({video:seed,icons:`${FA}ci1.webp${FV}`,trackY:SH-14,className:'vc-l vc-ctl',
-      sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t2]]),lock:LOCK,readOnly:true}).el);   // the VAC hero just plays: no seek, no tap on its video
+      sinceSplit:VS.loop(()=>anims[0],T,[[t1,t1e,t2]]),lock:LOCK,readOnly:true,iconBox:{size:44},timeX:24}).el);   // same layout as vac-proto split (iconBox/timeX); readOnly: no seek / no taps
       // the chained ads: only the lock (these scrubbers' controls are never mounted)
       chain.forEach((v,i)=>{const h=VS.create({video:v,sinceSplit:VS.loop(()=>anims[0],T,[]),lock:CLOCK[i],readOnly:true}).el;
         h.style.display='none';h.setAttribute('aria-hidden','true');scr.appendChild(h)})}

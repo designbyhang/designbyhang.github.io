@@ -96,7 +96,7 @@ var css='.vs{position:absolute;left:0;top:0;width:375px;pointer-events:none}'+
    'box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 2px 10px rgba(0,0,0,.35)}';
 // play glyph: Figma 28299:109530's play child (I28299:109530;89868:25897;14451:19383) exported PNG@4 → lossless webp, baked DROP_SHADOW
 // (radius 1 / stdDeviation .5, offset 0,0, rgba(0,0,0,.62)). Sibling of the host's ci*.webp (or vw-ctl) as play.webp; 22 design px incl. 1px shadow pad around the 20 icon.
-function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=417');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
+function playImg(icons){var src=(icons||'').replace(/[^/?#]+(\?[^#]*)?$/,'play.webp?v=418');return '<img class="vs-play" src="'+src+'" width="22" height="22" alt="" aria-hidden="true" draggable="false" style="width:22px;height:22px;max-width:none">'}
 function style(doc){if(doc.getElementById('vs-css'))return;var s=doc.createElement('style');s.id='vs-css';s.textContent=css;(doc.head||doc.documentElement).appendChild(s)}
 var list=[],raf=0;
 function tick(){raf=0;var n=0;for(var i=0;i<list.length;i++)if(list[i]._in||list[i].dragging()){list[i]._tick();n++}if(n)raf=requestAnimationFrame(tick)}
@@ -111,7 +111,7 @@ function create(o){
   var ro=!!o.readOnly,rl=!ro&&!!o.reel,root=doc.createElement('div');root.className='vs'+(ro?' vs-ro':'')+(rl?' vs-rl':'')+(o.className?' '+o.className:'');if(o.height)root.style.height=o.height+'px';
   var tap=!ro&&!rl&&!!o.tapToPause,pb=!ro&&!rl&&!!o.pauseButton,mb=!ro&&!rl&&!!o.muteButton,dm=o.demoTaps&&o.demoTaps.length?o.demoTaps:null,tl=tap||pb||!!dm,ix=o.iconsX==null?240:o.iconsX,iy=o.iconsY==null?ty-48:o.iconsY,sl=o.pauseSlot||[44,36];
   // icon box (o.iconBox {left, size}): three size×size cells side by side, edges touching (expand · pause · mute); each cell's glyph is
-  // centred in it. When `left` is omitted the row sits 4 design px inset from the video track's right edge (x+w − 3×size − 4):
+  // centred in it. Works with readOnly too (VAC/FMSS heroes: same layout, no buttons). When `left` is omitted the row sits 4 design px inset from the video track's right edge (x+w − 3×size − 4):
   // for the split screen's default track (12 + 351) that is 227..359 (video right 363). INK: the glyphs' ink centres in the strip (ci1.webp, 250×48 at 2x: expand 16.75, pause
   // 60.75, speaker with its waves 104.75 — the icon as drawn, its resting look), so every glyph sits on its cell's centre line and the
   // row is only translated.
@@ -126,7 +126,7 @@ function create(o){
   // The strip's speaker: body 95..107 design px, its two waves out to 114.5, so muted (the body alone) it moves right by that half width
   function slice(a,b,g,sp,k){var l=ib?cell(k)[0]+ib.size/2-(INK[k]-a):ix+a;
     return '<i class="vs-i vs-s'+(g?' vs-g':'')+(sp?' vs-v':'')+'" style="'+(sp?'--vs-cut:'+Math.max(0,b-(o.muteCut==null?107:o.muteCut))+'px;':'')+'left:'+l+'px;top:'+iy+'px;width:'+(b-a)+'px;background-image:url(\''+o.icons+'\');background-position:'+(-a)+'px 0">'+(g?playImg(o.icons):'')+'</i>'}
-  root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
+  root.innerHTML='<div class="vs-f">'+(o.icons?(tl||mb||ib?slice(0,sl[0],0,0,0)+slice(sl[0],sl[0]+sl[1],1,0,1)+slice(sl[0]+sl[1],125,0,mb,2):'<i class="vs-i" style="left:'+ix+'px;top:'+iy+'px;background-image:url(\''+o.icons+'\')"></i>'):'')+
     // baseline: the 16px line box puts it 13.75px under its top (SF Pro / Inter ascent ~.95-.97em, centred half-leading)
     '<p class="vs-t" style="left:'+timeX+'px;top:'+(tb-13.75)+'px"></p>'+
     '<div class="vs-h"'+(ro?' aria-hidden="true"':' role="slider" aria-label="Seek" aria-valuemin="0"')+' style="left:'+x+'px;top:'+(ty-12)+'px;width:'+w+'px"><i class="vs-r"></i><i class="vs-l"><i></i></i><i class="vs-b"></i></div></div>'+(dm?'<i class="vs-m" aria-hidden="true"></i>':'');
