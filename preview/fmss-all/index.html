@@ -66,6 +66,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .rl{width:375px;height:734px;overflow:hidden}
 .mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .mv .mvp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
+/* In-Content banner thumb: Figma Contained Icon Button 11559:62481 (32×32 at 33,665 → 21,21 inside the 74×74 .mv). Exact export; never redraw. */
+.mv .mtp{position:absolute;left:21px;top:21px;width:32px;height:32px;display:block;pointer-events:none;z-index:2}
 /* In-Content: .mv must paint ABOVE .uiu — ag4-ui's thumb slot is opaque grey (same as sol2's ag4); sol2 orders .mv after ag4 so the live thumb shows through. hit stays on top for taps. */
 .xp.ic .mv{z-index:2}.xp.ic .uiu{z-index:1}.xp.ic .hit{z-index:3}
 .hit{z-index:auto;touch-action:none;cursor:pointer}
@@ -250,6 +252,9 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
 const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=6'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
+/* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
+   pause.js amount() lands that edge ABOVE=20 over the scrubber track. ao2 Sponsored/CTA ≈232.5 → 233; ag4 Away banner ≈236.5 → 237. */
+const UI_BOTTOM={ao2:233,ag4:237};
 const EXP=[
   {tab:'Feed',group:'watch',name:'Watch & Browse',variant:'Default',from:'Solution 1 · Offsite Conversions',build:split,
    c:{S:S1,n:1,top:406,tone:1,surf:[{f:'a1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},fh:{name:'Nike',bx:96},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
@@ -305,7 +310,8 @@ function split(E,root){
   let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
   h+=FMSSBackdrop.html(u('bu'+n),top,{attrs:' data-r="bu" style="display:none"'});
-  h+=`<div class="mv" data-r="mv"><img class="mvp" alt="" src="${u('p'+n)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video></div>`;
+  h+=`<div class="mv" data-r="mv"><img class="mvp" alt="" src="${u('p'+n)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u('p'+n)}" src="${u('v'+n+'.mp4')}"></video>`+
+    (C.reelTap?`<img class="mtp" data-r="mtp" alt="" src="assets/thumb-play.webp">`:'')+`</div>`;
   h+=`<button class="L btn hit" data-r="hit" type="button" aria-label="Open the ad in split screen" style="left:${C.tap[0]}px;top:${C.tap[1]}px;width:${C.tap[2]}px;height:${C.tap[3]}px"></button>`;
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
   /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
@@ -314,7 +320,7 @@ function split(E,root){
   if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`;
   h+=`<img class="L ot uih" data-r="uih" alt="" src="${b('head')}">`+   // the Reels header: status row, Video title, search and profile
     `<img class="L ot uis" data-r="uis" alt="" src="${b('scrim')}" style="top:${UI_TOP}px">`+   // the band's gradient scrim: fixed, it never lifts
-    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px">`+   // the band's live content, the only thing a paused tap lifts
+    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px"${UI_BOTTOM[C.ui]!=null?` data-ui-bottom="${UI_BOTTOM[C.ui]}"`:''}>`+   // the band's live content, the only thing a paused tap lifts (data-ui-bottom: drawn end, as vac-proto)
     `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
   /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
@@ -338,7 +344,7 @@ function split(E,root){
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
   const els=X.els={sf:[...root.querySelectorAll('.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
+    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctl:r('ctl'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
     uiu:r('uiu'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');
   if(els.hd)['pb','meta','ic'].forEach(k=>els[k]=els.hd.querySelector('.'+k));
@@ -498,21 +504,21 @@ function render(X){
   const mv=e.mv.style;mv.left=vx.toFixed(2)+'px';mv.top=vy.toFixed(2)+'px';mv.width=vw.toFixed(2)+'px';mv.height=vh.toFixed(2)+'px';
   const key=[vw,vh,...R].map(v=>v.toFixed(1)).join();
   if(key!==X.rk){X.rk=key;if(SQ&&R.some(v=>v>.05)){mv.clipPath=`path('${sqP(+vw.toFixed(2),+vh.toFixed(2),R,sm)}')`;mv.borderRadius=''}else{mv.clipPath='';mv.borderRadius=R.map(v=>v+'px').join(' ')}}
-  /* one shared motion with Feed→split: progress p=a drives the backdrop out of the feed/surface video box [x0,y0,w,h] (radii of the
-     surface, not the viewer's live box) to the full 375×734 canvas. Image stays screen-fixed; only the clip-path reveals it
-     (FMSSBackdrop.clip). Viewer k does not re-drive the backdrop — at split a=1 the red is already full under the viewer's black
-     (.vwb); collapsing viewer→split fades that black off the full backdrop (same smoothness as Feed→split). */
-  const smA=lerp(m.asm||0,.6,a);   // surface smoothing only (viewer must not re-key the backdrop)
-  const p=a,B=FMSSBackdrop.box([x0,y0,w,h],ar.map(v=>+lerp(v,16,a).toFixed(2)),p),bs=e.bu.style;
-  bs.display=p>0?'block':'none';
-  if(p>0){e.bui.style.transform='';
-    const bk=[B.x,B.y,B.w,B.h,...B.R,smA].map(v=>(+v).toFixed(2)).join();
-    if(bk!==X.bk){X.bk=bk;bs.clipPath=FMSSBackdrop.clip(B,smA);bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}
+  /* one shared motion (Feed→split reversed): progress p=a·(1−k) drives the backdrop out of the video's LIVE box [vx,vy,vw,vh]
+     (radii R, smoothing sm) to the full 375×734 canvas and back — split↔Feed and viewer→split alike. Image stays screen-fixed;
+     only the clip-path reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb so the colour collapses with the
+     video instead of black fading off an already-full backdrop. */
+  const p=a*(1-k),B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
+  bs.display=a>0?'block':'none';   // keep laid out for the whole open (avoid display:none pop on the first collapse frame)
+  if(a>0){e.bui.style.transform='';
+    const bk=[B.x,B.y,B.w,B.h,...B.R,sm,p].map(v=>(+v).toFixed(2)).join();
+    if(bk!==X.bk){X.bk=bk;bs.clipPath=p>0?FMSSBackdrop.clip(B,sm):'inset(0 100% 100% 0)';bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}
+  if(e.mtp)e.mtp.style.opacity=(1-a).toFixed(3);   // Contained play glyph: surface thumb only (hides as the banner grows into split)
   if(e.ctl){e.ctl.style.transform=`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;e.ctl.style.opacity=(a*(1-k)).toFixed(3);e.ctl.style.pointerEvents=k>0?'none':'';e.ctl.classList.toggle('vwon',k>0)}
-  /* the viewer's layers: black (.vwb) sits ABOVE the full split backdrop so viewer margins stay black; on collapse it fades and the
-     already-full red shows through. Video and post rows over both; the CTA's page then opens over them all. */
+  /* the viewer's layers: black (.vwb) under the collapsing backdrop so the colour rides with the video; video and post rows over both;
+     the CTA's page then opens over them all. */
   if(e.vwb){const on=k>0,page=on&&X.vwCta;e.vwb.style.display=e.vwo.style.display=on?'block':'none';e.vwb.style.opacity=k.toFixed(3);e.vwo.style.opacity=k.toFixed(3);
-    e.host.style.zIndex=on?(page?'9':'4'):'';e.bu.style.zIndex=on?'5':'';e.vwb.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
+    e.host.style.zIndex=on?(page?'9':'4'):'';e.vwb.style.zIndex=on?'5':'';e.bu.style.zIndex=on?'6':'';e.mv.style.zIndex=on?'7':'';e.vwo.style.zIndex=on?'8':'';if(on&&!X.vwFit)vwFit(X)}
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
