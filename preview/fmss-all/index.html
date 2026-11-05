@@ -216,7 +216,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
     </div>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
-  <p class="below">Tap Menu (top left, where the time sits) to pick any of the FMSS Solution 1 and Solution 2 experiences; swipe the menu's pages or tap its tabs. In each: tap the ad (its media or CTA; swipe up on the Story) to open split screen. In split screen drag the scrubber or tap the video to pause; tap or swipe up the sheet for full screen; swipe it, or the video, down to go back; × closes.</p>
+  <p class="below">Tap Menu (top left, where the time sits) to pick any of the FMSS Solution 1 and Solution 2 experiences; swipe the menu's pages or tap its tabs. In each: tap the ad's media (or swipe up on the Story) to open split screen; tap the Feed ad's footer / CTA to open the destination full screen. In split screen drag the scrubber or tap the video to pause; tap or swipe up the sheet for full screen; swipe it, or the video, down to go back; × closes to Feed.</p>
 </div>
 <script>
 (function(){
@@ -342,7 +342,9 @@ function split(E,root){
   /* the sheet */
   const hooks={
     render:o=>{X.y=o.y;X.sd=o.sd||0;render(X)},
-    x:()=>X.sheet.go(2),   // the page's × over the viewer closes it back to the video (the sheet's split stop, under it)
+    x:()=>{   // × on the full-screen destination: explicit close to Feed (not back to split / viewer)
+      if(X.vw){X.vwCta=false;vwFeed(X)}
+      else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
     state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
       if(s===2&&X.vwCta){X.vwCta=false;render(X);vwPlay(X);say(E.name+', full screen video')}
       if(s===1){X.vs&&X.vs.leaveSplit()}},
@@ -406,13 +408,15 @@ function split(E,root){
 
   /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
   let hp=null;
-  els.hit.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;hp={id:e.pointerId,y:e.clientY,x:e.clientX,moved:false,drag:false};try{els.hit.setPointerCapture(e.pointerId)}catch(_){}});
+  els.hit.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;hp={id:e.pointerId,y:e.clientY,x:e.clientX,ly:ptOf(e)[1],moved:false,drag:false};try{els.hit.setPointerCapture(e.pointerId)}catch(_){}});
   els.hit.addEventListener('pointermove',e=>{if(!hp||e.pointerId!==hp.id)return;const dx=e.clientX-hp.x,dy=e.clientY-hp.y;if(Math.hypot(dx,dy)>10)hp.moved=true;
     if(C.swipeUp&&!hp.drag&&dy<-8&&-dy>Math.abs(dx)){hp.drag=true;X.sheet.dragStart(hp.y,hp.id,scale())}
     if(hp.drag)X.sheet.dragMove(e.clientY)});
   const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
     if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
-    if(e.type==='pointerup'&&!p.moved){if(C.ad)X.mediaTap();else open(X)}};
+    if(e.type==='pointerup'&&!p.moved){if(C.ad)X.mediaTap();
+      else if(C.fh&&p.ly>=C.m.a[1]+C.m.a[3])openFull(X);   // Feed footer / CTA row → destination full screen
+      else open(X)}};   // Feed media (and every other surface hit) → split screen, unchanged
   els.hit.addEventListener('pointerup',hitUp);els.hit.addEventListener('pointercancel',hitUp);
   els.hit.addEventListener('click',e=>{if(e.detail===0)open(X)});   // keyboard
   /* split screen: a swipe down on the video takes the sheet down with it (to the surface); a tap is the controls' tap to pause */
@@ -463,13 +467,15 @@ function vwOpen(X){if(X.state!==2||X.vwS.busy||X.vw)return;const go=()=>X.vwS.to
   if(!X.sheet.busy)return go();if(X.vwArm)return;X.vwArm=()=>{if(cur!==X||X.state!==2||X.vw||X.vwS.busy)return;go()};
   const wait=()=>{if(!X.vwArm)return;if(cur!==X||X.state!==2){X.vwArm=null;return}
     if(X.sheet.busy)requestAnimationFrame(wait);else{const f=X.vwArm;X.vwArm=null;f()}};requestAnimationFrame(wait)}
-function vwPlay(X){if(X.vs2&&X.vs2.paused()){X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}}
+function vwPlay(X){if(X.vs2&&X.vs2.paused())X.vs2.release();const p=X.video.play();p&&p.catch(()=>{})}   // always resume: the viewer CTA pauses the element directly
 /* the viewer's own expand cell: the video shrinks back into the split screen's box (the same spring, the reverse of vwOpen) */
 function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.vwS.to(0,{w:16,onDone:()=>{vwPlay(X);say(X.E.name+', split screen')}})}
 /* the X: all the way back to the Feed (the sheet leaves split for its closed stop as the video settles into it, then the video to the surface) */
 function vwFeed(X){if(!X.vw)return;vwBack(X);X.sheet.go(1,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)})}
-/* the CTA: the in-app browser opens over the paused viewer, full screen; closing it (its X, a swipe down, Escape) comes back to the viewer */
+/* the CTA: the in-app browser opens over the paused viewer, full screen; its × closes all the way to Feed (hooks.x); swipe / Escape stay on their own handlers */
 function vwCta(X){if(!X.vw||X.vwS.busy||X.sheet.busy||X.vwCta)return;X.vwCta=true;X.video.pause();render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', in-app browser')}
+/* Feed ad footer: open the destination full screen from Feed (same go(3) path as the viewer's CTA); media taps keep using open() → split */
+function openFull(X){if(X.state!==1||X.sheet.busy)return;X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', full screen')}
 function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
 
 /* every layer from the sheet's y (the Solution loops' A / B / C recipe, the poses read live) */
