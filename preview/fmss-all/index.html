@@ -584,7 +584,7 @@ function split(E,root){
   const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
     if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
     if(e.type==='pointerup'&&!p.moved){
-      if(C.stories)return;   // Stories split screen is triggered by dwell (or swipe up), never by a media tap
+      if(C.stories){if(p.lx>=114&&p.lx<=260&&p.ly>=648&&p.ly<=704)openFull(X);return}   // Stories: SHOP NOW sticker → full screen IAB; split screen is dwell / swipe up only
       if(C.mph){
         const wantAlt=p.lx>=187.5,isAlt=!!C.mph.isAlt;
         let T=X;
@@ -623,6 +623,7 @@ function split(E,root){
   els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
   /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
   let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp&&!(X.pz&&X.pz.on))open(X)},C.dwell)};
+  X.dwellClear=()=>clearTimeout(dw);
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
@@ -643,7 +644,7 @@ function vwFit(X){const o=X.els.vwo,k=scale(),n=o.querySelector('.vwn').getBound
   if(cut||c.offsetHeight>40){let lo=0,hi=W.length-(cut?1:0);const fit=m=>{c.innerHTML=W.slice(0,m).join(' ').replace(/&/g,'&amp;').replace(/</g,'&lt;')+'…<span> See more</span>';return c.offsetHeight<=40};
     while(lo<hi){const m=(lo+hi+1)>>1;if(fit(m))lo=m;else hi=m-1}fit(lo)}
   c.style.maxHeight=''}
-function open(X){if(X.state!==1||X.sheet.busy)return;if(X.pz&&X.pz.on){X.pz.set(false);X.reelHeld=false}X.sheet.go(2,{w:16})}   // drop a paused-reel lift before the morph (banner thumb must start from its surface box)
+function open(X){if(X.state!==1||X.sheet.busy)return;X.dwellClear&&X.dwellClear();if(X.pz&&X.pz.on){X.pz.set(false);X.reelHeld=false}X.sheet.go(2,{w:16})}   // drop a paused-reel lift before the morph (banner thumb must start from its surface box)
 /* the viewer: split (vw 0) -> full-bleed video (vw 1), the surface -> split shared-element lerp run backwards from the split rect, the close spring (ω16, ζ 1) both ways */
 /* the Feed ads' expand cell answers the moment the split screen is up, as the Reels and In-Content cells do: while the sheet is still
    travelling into split the tap is held and the viewer opens the instant it settles, so the cell never reads as a dead press */
@@ -666,7 +667,7 @@ function vwFeed(X){if(!X.vw)return;if(X.vwOff||X.vwCta||X.ctaFrom==='vw'){X.vwOf
 /* the CTA: the in-app browser opens over the paused viewer, full screen; its × closes back to the viewer (hooks.x); swipe / Escape stay on their own handlers */
 function vwCta(X){if(!X.vw||X.vwS.busy||X.sheet.busy||X.vwCta)return;X.vwCta=true;X.ctaFrom='vw';X.vs&&X.vs.leaveSplit();X.video.pause();render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', in-app browser')}
 /* Feed ad footer: open the destination full screen from Feed (same go(3) path as the viewer's CTA); media taps keep using open() → split */
-function openFull(X){if(X.state!==1||X.sheet.busy)return;X.ctaFrom='feed';render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', full screen')}
+function openFull(X){if(X.state!==1||X.sheet.busy)return;X.dwellClear&&X.dwellClear();X.adDwellClear&&X.adDwellClear();X.ctaFrom='feed';render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', full screen')}
 function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
 
 /* every layer from the sheet's y (the Solution loops' A / B / C recipe, the poses read live) */
