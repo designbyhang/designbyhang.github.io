@@ -175,8 +175,10 @@ document.querySelectorAll('[data-alternate]').forEach(function(row){var els=[].s
  sync();
  if(D)ask=D.add(row,{play:function(){on=true;run()},pause:function(){on=false;items.forEach(function(it){if(!it.paused())it.pause()});sync()},want:function(){return want.some(Boolean)},
   box:function(){var a=els[0].getBoundingClientRect(),z=els[els.length-1].getBoundingClientRect();return z.top>=a.bottom-1?els[activeIdx()]:row}});
- if(always){var kick=function(){run()};['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});els.forEach(function(el){if(el.tagName==='VIDEO')el.addEventListener('canplay',kick)})}
+ var kick=function(){run()};
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});
+ els.forEach(function(el){if(el.tagName==='VIDEO'){el.addEventListener('loadeddata',kick);el.addEventListener('canplay',kick)}});
+ if(always){['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})})}
  if(IO){var io=new IntersectionObserver(function(es){es.forEach(function(e){var j=els.indexOf(e.target),was=ok[j];ok[j]=e.isIntersecting&&e.intersectionRatio>=.35;any[j]=e.isIntersecting&&e.intersectionRatio>0;
    if(pin===j&&((was&&!ok[j])||!any[j]))pin=-1});run();if(ask)ask()},{threshold:[0,.35]});els.forEach(function(el){io.observe(el)})}
 });
