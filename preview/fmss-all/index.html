@@ -178,50 +178,51 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* ---------- the device chrome: over every experience and its sheet (the IAB's z 20 / 25 / 40), under the Menu pill ----------
    the status bar's right icons (the shared .sb mask; its time slot is the pill's) for a sheet that brings its own white status band (the IAB),
    and the one home bar (Figma: 134×5 at 121,798), black over a light screen, white over a dark one */
-.dc{width:375px;height:812px;z-index:60;pointer-events:none}
+.dc{width:375px;height:812px;z-index:110;pointer-events:none}
 .dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
-.dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000}
+.dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;transition:background-color .32s cubic-bezier(.22,1,.36,1)}
 
 /* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
+.phone.menu-on .dc .hm{background:#fff!important}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
 
-/* ---------- the menu: tree-branch card over the blurred app ---------- */
+/* ---------- the menu: tree-branch card over the blurred app (iOS Liquid Glass) ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:flex}
-.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.68);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);will-change:opacity}
-.mm-card{position:relative;width:327px;padding:70px 12px 24px;box-sizing:border-box;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04);will-change:transform,opacity}
+.mm-bg{position:absolute;inset:0;background:rgba(8,8,12,.42);-webkit-backdrop-filter:blur(10px) saturate(1.25);backdrop-filter:blur(10px) saturate(1.25);will-change:opacity}
+.mm-card{position:relative;width:327px;padding:66px 12px 24px;box-sizing:border-box;background:linear-gradient(155deg,rgba(255,255,255,.76) 0%,rgba(245,246,252,.62) 52%,rgba(255,255,255,.7) 100%);-webkit-backdrop-filter:blur(40px) saturate(210%) brightness(1.05);backdrop-filter:blur(40px) saturate(210%) brightness(1.05);border:1px solid rgba(255,255,255,.62);border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 28px 68px rgba(0,0,0,.28),0 4px 16px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(255,255,255,.38);will-change:transform,opacity}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
-.mm-x i{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:14px;background:#F4F4F5}
+.mm-x i{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:14px;background:rgba(20,20,24,.07);box-shadow:inset 0 .5px 0 rgba(255,255,255,.7)}
 .mm-x svg{position:absolute;left:10px;top:10px;width:24px;height:24px}
-.mm-x svg path{stroke:#71717A;stroke-width:1.6}
+.mm-x svg path{stroke:#52525B;stroke-width:1.6}
 .mm-ls{position:relative;width:303px;display:flex;flex-direction:column;gap:8px}
 .mm-grp{display:flex;flex-direction:column;width:303px}
-.mm-parent{display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:10px;color:#52525B;font-size:16px;line-height:20px;font-weight:500;letter-spacing:0}
-.mm-parent.active{background:#F6F6F7;color:#141416}
+.mm-parent{display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:10px;color:#3F3F46;font-size:16px;line-height:20px;font-weight:500;letter-spacing:0}
+.mm-parent.active{background:rgba(255,255,255,.58);box-shadow:inset 0 .5px 0 rgba(255,255,255,.85),0 1px 2px rgba(0,0,0,.03);color:#141416}
 .mm-parent.off{opacity:.4}
 .mm-parent svg.ic{width:18px;height:18px;flex:none;display:block;overflow:visible}
 .mm-children{position:relative;display:flex;flex-direction:column;padding-left:32px;margin-top:2px;gap:2px}
 .mm-it{position:relative;display:flex;justify-content:space-between;align-items:center;width:271px;height:30px;padding:0 12px;background:transparent;border-radius:8px;text-align:left}
 .mm-it.two{height:44px;align-items:flex-start;padding-top:5px}
 .mm-it.off{opacity:.4;pointer-events:none;cursor:default}
-.mm-it::before{content:"";position:absolute;left:-11.5px;top:-17px;width:8px;height:32px;border-left:1px solid #E4E4E7;border-bottom:1px solid #E4E4E7;border-bottom-left-radius:6px;pointer-events:none}
+.mm-it::before{content:"";position:absolute;left:-11.5px;top:-17px;width:8px;height:32px;border-left:1px solid rgba(20,20,24,.12);border-bottom:1px solid rgba(20,20,24,.12);border-bottom-left-radius:6px;pointer-events:none}
 .mm-it.two+.mm-it::before{top:-31px;height:46px}
 .mm-it:first-child::before{top:-4px;height:19px}
-.mm-it.cur{background:#F4F4F5}
+.mm-it.cur{background:rgba(255,255,255,.58);box-shadow:inset 0 .5px 0 rgba(255,255,255,.85),0 1px 2px rgba(0,0,0,.03)}
 .mm-it .lf{display:flex;flex-direction:column}
-.mm-it .nm{display:block;font-size:14px;line-height:18px;font-weight:400;letter-spacing:0;color:#71717A;white-space:nowrap}
-.mm-it .nm b{font-weight:500;color:#3F3F46}
+.mm-it .nm{display:block;font-size:14px;line-height:18px;font-weight:400;letter-spacing:0;color:#52525B;white-space:nowrap}
+.mm-it .nm b{font-weight:500;color:#27272A}
 .mm-it.cur .nm,.mm-it.cur .nm b{color:#141416}
-.mm-it .mm-sub{display:block;margin-top:2px;font-size:12px;line-height:16px;font-weight:400;letter-spacing:0;color:#A1A1AA;white-space:nowrap}
-.mm-it .vr{font-size:12px;line-height:18px;font-weight:400;letter-spacing:0;color:#A1A1AA;white-space:nowrap;text-align:right;margin-left:8px}
-.mm-it.cur .vr{color:#71717A}
+.mm-it .mm-sub{display:block;margin-top:2px;font-size:12px;line-height:16px;font-weight:400;letter-spacing:0;color:#71717A;white-space:nowrap}
+.mm-it .vr{font-size:12px;line-height:18px;font-weight:400;letter-spacing:0;color:#71717A;white-space:nowrap;text-align:right;margin-left:8px}
+.mm-it.cur .vr{color:#52525B}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
 html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -805,7 +806,6 @@ function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
   mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
 let menuOpen=false,mAn=[],mmSq=false;
 function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
-  if(SQ&&!mmSq){const ch=mmCard.offsetHeight;if(ch){mmCard.style.clipPath=`path('${sqP(327,ch,28)}')`;mmCard.style.borderRadius='0';mmSq=true}}
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:384,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:0,transform:'translate3d(0,10px,0) scale(.95)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
 function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');
