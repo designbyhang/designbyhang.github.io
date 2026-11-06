@@ -148,9 +148,9 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .srh{width:186px;height:800px;pointer-events:none}
 .srh>*{position:absolute;margin:0;-webkit-font-smoothing:antialiased;font-feature-settings:var(--t-sf-ft)}
 .srh .av{left:14px;top:728.5px;width:18px;height:18px;border-radius:50%;background-size:168.75px 365.4px;background-position:-5.4px -52.2px;background-repeat:no-repeat}
-.srh .nm{left:38px;top:730.5px;font:600 11.5px/14px var(--t-sf);letter-spacing:-.15px;color:#050505;white-space:nowrap}
+.srh .nm{left:38px;top:730.5px;font:600 11.5px/14px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;color:#050505;white-space:nowrap}
 .srh .nm span{font-weight:400;color:#65676B}
-.srh .cp{left:14px;top:753px;width:164px;height:34px;overflow:hidden;font:450 13.5px/16.5px var(--t-sf);letter-spacing:-.2px;color:#050505;-webkit-text-stroke:.12px currentColor;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.srh .cp{left:14px;top:753px;width:164px;height:34px;overflow:hidden;font:450 13.5px/16.5px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;color:#050505;-webkit-text-stroke:.12px currentColor;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 /* native sheet (lead form, Messenger, App Store, product catalog): the Solution sheet image, its live top and handle, and C's layers */
 /* one layer owns the motion: the sheet's surface (.ns: its colour, squircle top, live handle, the drag) and one content group (.ng: c, with the
    split pose bl registered on it and dissolving out) on one transform; the full screen's bottom chrome (.nf: a footer / composer / keyboard)
@@ -180,7 +180,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000}
 
 /* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
-.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:500 15px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
+.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:500 15px/24px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
@@ -193,7 +193,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mm-card{position:relative;width:327px;padding:62px 12px 24px;box-sizing:border-box;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04)}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
-.mm-x i{position:absolute;left:10px;top:10px;width:24px;height:24px;border-radius:12px;background:#F4F4F5}
+.mm-x i{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:14px;background:#F4F4F5}
 .mm-x svg{position:absolute;left:14px;top:14px;width:16px;height:16px}
 .mm-x svg path{stroke:#71717A;stroke-width:1.6}
 .mm-ls{position:relative;width:303px;display:flex;flex-direction:column;gap:8px}
@@ -302,11 +302,6 @@ const EXP=[
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'Video Tap',from:'Solution 2 · Feed',build:split,
    c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
-  {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
-   /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
-      player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
-   c:{S:S2,n:4,top:406,tone:0,reelTap:1,bu:'../../fmss-all/assets/bu-away',ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
-      sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'On Dwell',from:'Solution 2 · Video (Reels)',build:split,
    /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
       Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
@@ -316,6 +311,11 @@ const EXP=[
       this surface has no full-screen viewer. */
    c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
+  {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
+   /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
+      player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
+   c:{S:S2,n:4,top:406,tone:0,reelTap:1,bu:'../../fmss-all/assets/bu-away',ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
+      sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & Browse',variant:'On Dwell',from:'Solution 2 · Stories',build:split,
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
       stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
