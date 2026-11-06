@@ -114,10 +114,10 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 /* the split screen's backdrop (bu): the whole 375×734 canvas, screen-fixed (as Solution 1/2 and FMSSBackdrop); its clip-path is the
    shared open/close box — grows out of the video's current surface rect with progress p=a·(1−k) and closes back into it the same way */
 .bu{left:0;top:0;width:375px;height:734px;will-change:clip-path}
-.mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
+.mv{position:absolute;overflow:hidden;background:none;touch-action:none;will-change:left,top,width,height}
 .rl{width:375px;height:734px;overflow:hidden}
 .mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.mv .mvp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
+.mv .mvp{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
 /* In-Content banner thumb play: the canonical js/play.webp (VideoScrubber's own play mark, 22×22 as it draws it), centred in the 74×74 .mv.
    assets/thumb-play.webp was an opaque RGB export (its alpha lost), so it painted as a black square. Never redraw. */
 .mv .mtp{position:absolute;left:26px;top:26px;width:22px;height:22px;display:block;pointer-events:none;z-index:2}
@@ -241,7 +241,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 
 /* ---------- the Menu pill + Restart button: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
-.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .24s cubic-bezier(.22,1,.36,1)}
+.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .rp.on{opacity:1;pointer-events:auto}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .rp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
@@ -307,7 +307,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L" id="xps" style="width:375px;height:812px"></div>
         <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk" style="opacity:0"></i><span>Menu</span></button>
-        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M1.36 3.55A5.25 5.25 0 1 1 .75 6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M1.1 1.25V3.75H3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M1.46 3.38A5.25 5.25 0 1 1 1.46 8.62" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M1.1 1.15V3.55H3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
@@ -475,6 +475,8 @@ function split(E,root){
     mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),hs:r('hs'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
     uiu:r('uiu'),uiud:r('uiud'),uiucta:r('uiucta'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');X.v2=root.querySelector('.mpv2 video');
+  const mvp=els.mv.querySelector('.mvp');
+  if(mvp&&X.video&&!C.reelTap){const hideMvp=()=>{mvp.style.display='none'};if(X.video.readyState>=2)hideMvp();else X.video.addEventListener('loadeddata',hideMvp,{once:true})}
   const setV=(v,t)=>{if(!v||!v.readyState)return;try{if(Math.abs(v.currentTime-t)>.05)v.currentTime=t}catch(_){}};
   if(C.vStart!=null){const s0=()=>setV(X.video,C.vStart);X.video.addEventListener('loadedmetadata',s0);s0()}
   if(C.mph){
@@ -881,27 +883,25 @@ function nativeSheet(o){
 /* ---------- the Menu pill + Restart button: iOS background blur over light (#F4F4F5, black) and dark (translucent white) status bars ---------- */
 const mpEl=$('menuBtn'),mpLt=mpEl.querySelector('.lt'),mpDk=mpEl.querySelector('.dk');
 const rpEl=$('restartBtn'),rpLt=rpEl.querySelector('.lt'),rpDk=rpEl.querySelector('.dk'),rpSvg=rpEl.querySelector('svg');
-let lastTone=-1,rpBusy=false,rpAn=null;
+let lastTone=-1,rpBusy=false;
 function pill(t){const k=+clamp((t-.35)/.3).toFixed(3);if(k===lastTone)return;lastTone=k;mpLt.style.opacity=rpLt.style.opacity=k;mpDk.style.opacity=rpDk.style.opacity=1-k;const g=Math.round(20+(255-20)*(1-k));mpEl.style.color=rpEl.style.color=`rgb(${g},${g},${g})`}
 function syncRestart(X){
   if(rpBusy)return;
-  const past=!!(X&&!menuOpen&&(X.state>1||X.y<811.5||X.vw>0.01||X.vwCta||X.ctaFrom||X.hadSplit));
+  const past=!!(X&&!menuOpen&&(X.state>1||X.y<811.5||X.vw>0.01||X.vwCta||X.ctaFrom));
   rpEl.classList.toggle('on',past);
 }
 rpEl.addEventListener('click',e=>{
   e.stopPropagation();
   if(!cur||rpBusy||!rpEl.classList.contains('on'))return;
   rpBusy=true;
-  rpEl.style.pointerEvents='none';
-  if(rpAn){rpAn.cancel();rpAn=null}
-  let X=cur;
-  if(!RM.matches&&rpEl.animate){
-    rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:384,easing:'cubic-bezier(.22,1,.36,1)'});
-    rpAn=rpEl.animate([{opacity:1},{opacity:0}],{duration:384,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
-    rpAn.onfinish=()=>{if(rpAn){rpAn.cancel();rpAn=null}rpEl.classList.remove('on');rpEl.style.pointerEvents='';rpBusy=false;syncRestart(cur)};
+  rpEl.classList.remove('on');
+  if(!RM.matches&&rpSvg.animate){
+    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:384,easing:'cubic-bezier(.22,1,.36,1)'});
+    a.onfinish=()=>{rpBusy=false;syncRestart(cur)};
   }else{
-    rpEl.classList.remove('on');rpEl.style.pointerEvents='';rpBusy=false;
+    rpBusy=false;
   }
+  let X=cur;
   if(X.E.c.mph&&X.E.c.mph.isAlt&&X.alt){
     X.reset();X.root.classList.remove('on');X.vids.forEach(v=>v.pause());
     X=cur=X.alt;X.root.classList.add('on');
@@ -918,7 +918,7 @@ function show(i,fade){
     xpAn.forEach(a=>a.cancel());xpAn=[];
     const prev=cur&&cur!==X?cur:null;
     X.reset();cur=X;curI=i;X.root.classList.add('on');X.root.style.zIndex=prev?'2':'';X.root.style.opacity='';
-    if(rpAn){rpAn.cancel();rpAn=null}rpBusy=false;rpEl.classList.remove('on');rpEl.style.pointerEvents='';
+    rpBusy=false;rpEl.classList.remove('on');
     render(X);vidSync();X.dwell();
     if(menuOpen)syncMenu();
     phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
