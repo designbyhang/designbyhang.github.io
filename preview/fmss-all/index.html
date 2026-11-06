@@ -527,9 +527,9 @@ function split(E,root){
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
-      if(s===1){if(!(X.vw&&X.vwOff))X.vs&&X.vs.leaveSplit();if(prev>1)render(X)}},
-    opened:s=>{if(s>=2)X.hadSplit=true;if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();if(s>=2)render(X);say(s===2?E.name+', split screen':E.name+', full screen')},
-    closed:()=>{X.ctaFrom=null;if(X.vw&&(X.vwCta||X.vwOff)){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
+      if(s===1){if(!(X.vw&&X.vwOff))X.vs&&X.vs.leaveSplit();if(prev>1){if(C.mph){X.mpTurn=C.mph.isAlt?1:0;X.mpElapsed=0;X.mpLastT=0}if(C.srh){X.srTurn=2;X.srElapsed=0;X.srLastT=0}render(X);vidSync()}}},
+    opened:s=>{if(s>=2)X.hadSplit=true;if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();if(s>=2)render(X);vidSync();say(s===2?E.name+', split screen':E.name+', full screen')},
+    closed:()=>{X.ctaFrom=null;if(X.vw&&(X.vwCta||X.vwOff)){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();if(C.mph){X.mpTurn=C.mph.isAlt?1:0;X.mpElapsed=0;X.mpLastT=0}if(X.vs&&X.vs.paused())X.vs.togglePause();vidSync();say(E.name+', '+E.tab)}}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
       :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
@@ -607,11 +607,12 @@ function split(E,root){
         const wantAlt=p.lx>=187.5,isAlt=!!C.mph.isAlt;
         let T=X;
         if(wantAlt!==isAlt&&X.alt){
-          T=X.alt;T.reset();T.mpTurn=X.mpTurn;T.mpElapsed=X.mpElapsed;
+          T=X.alt;T.reset();
           try{T.mpLeft.currentTime=X.mpLeft.currentTime;T.mpRight.currentTime=X.mpRight.currentTime}catch(_){}
           X.root.classList.remove('on');X.vids.forEach(v=>v.pause());
           cur=T;T.root.classList.add('on');render(T);
         }
+        T.mpTurn=wantAlt?1:0;T.mpElapsed=0;T.mpLastT=0;
         if(p.ly>=T.E.c.m.a[1]+T.E.c.m.a[3])openFull(T);else open(T);
         vidSync();return;
       }
