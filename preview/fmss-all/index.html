@@ -195,13 +195,13 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* ---------- the menu: tree-branch card over the blurred app (iOS Liquid Glass) ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:flex}
-.mm-bg{position:absolute;inset:0;background:rgba(8,8,12,.42);-webkit-backdrop-filter:blur(10px) saturate(1.25);backdrop-filter:blur(10px) saturate(1.25);will-change:opacity}
-.mm-card{position:relative;width:327px;padding:66px 12px 24px;box-sizing:border-box;background:linear-gradient(155deg,rgba(255,255,255,.76) 0%,rgba(245,246,252,.62) 52%,rgba(255,255,255,.7) 100%);-webkit-backdrop-filter:blur(40px) saturate(210%) brightness(1.05);backdrop-filter:blur(40px) saturate(210%) brightness(1.05);border:1px solid rgba(255,255,255,.62);border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 28px 68px rgba(0,0,0,.28),0 4px 16px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(255,255,255,.38);will-change:transform,opacity}
+.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.52);-webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4);will-change:opacity}
+.mm-card{position:relative;width:327px;padding:66px 12px 24px;box-sizing:border-box;background:linear-gradient(155deg,rgba(255,255,255,.74) 0%,rgba(244,246,252,.58) 52%,rgba(255,255,255,.68) 100%);-webkit-backdrop-filter:blur(44px) saturate(210%) brightness(1.05);backdrop-filter:blur(44px) saturate(210%) brightness(1.05);border:1px solid rgba(255,255,255,.62);border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 28px 68px rgba(0,0,0,.28),0 4px 16px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(255,255,255,.38);will-change:transform,opacity}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
 .mm-x i{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:14px;background:rgba(20,20,24,.07);box-shadow:inset 0 .5px 0 rgba(255,255,255,.7)}
-.mm-x svg{position:absolute;left:10px;top:10px;width:24px;height:24px}
-.mm-x svg path{stroke:#52525B;stroke-width:1.6}
+.mm-x svg{position:absolute;left:12px;top:12px;width:20px;height:20px}
+.mm-x svg path{stroke:#52525B;stroke-width:1.75}
 .mm-ls{position:relative;width:303px;display:flex;flex-direction:column;gap:8px}
 .mm-grp{display:flex;flex-direction:column;width:303px}
 .mm-parent{display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:10px;color:#3F3F46;font-size:16px;line-height:20px;font-weight:500;letter-spacing:0}
@@ -249,7 +249,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
             <h2 class="mm-t">FM Split Screen</h2>
-            <button class="btn mm-x" id="mmX" type="button" aria-label="Close menu"><i></i><svg viewBox="0 0 20 20"><path d="M6.5 6.5L13.5 13.5M13.5 6.5L6.5 13.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></button>
+            <button class="btn mm-x" id="mmX" type="button" aria-label="Close menu"><i></i><svg viewBox="0 0 20 20"><path d="M4.5 4.5L15.5 15.5M15.5 4.5L4.5 15.5" stroke="#fff" stroke-width="1.75" stroke-linecap="round" fill="none"/></svg></button>
             <div class="mm-ls" id="mmLs"></div>
           </div>
         </div>
