@@ -325,9 +325,9 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-vis .iv-str{fill:none;stroke:var(--ink);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
 .iter-vis .iv-dim{fill:none;stroke:color-mix(in srgb,var(--ink) 28%,transparent);stroke-width:1;stroke-dasharray:2 2}
 /* 1. Split Ratio: dotted split line moves up and down while both rounded panes resize inside the phone outline (never overflowing) */
-@keyframes ivSplitTop{0%,15%,100%{height:20px}45%,65%{height:30px}}
+@keyframes ivSplitTop{0%,15%,100%{height:21px}45%,65%{height:31px}}
 @keyframes ivSplitLine{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(10px)}}
-@keyframes ivSplitBot{0%,15%,100%{y:32px;height:24px}45%,65%{y:42px;height:14px}}
+@keyframes ivSplitBot{0%,15%,100%{y:32px;height:25px}45%,65%{y:42px;height:15px}}
 @keyframes ivSplitHdl{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(10px)}}
 .iv-sr-top{animation:ivSplitTop 3.84s var(--ease) infinite}
 .iv-sr-line{animation:ivSplitLine 3.84s var(--ease) infinite}
@@ -337,18 +337,18 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 @keyframes ivTapRing{0%,38%,88%,100%{opacity:0;transform:scale(.6)}44%{opacity:.55;transform:scale(1)}54%{opacity:0;transform:scale(1.35)}}
 @keyframes ivPauseVis{0%,44%,94%,100%{opacity:1}48%,90%{opacity:0}}
 @keyframes ivPlayVis{0%,44%,94%,100%{opacity:0}48%,90%{opacity:1}}
-.iv-tp-ring{transform-origin:24px 32px;animation:ivTapRing 3.84s var(--ease) infinite}
+.iv-tp-ring{transform-origin:24px 24.5px;animation:ivTapRing 3.84s var(--ease) infinite}
 .iv-tp-pause{animation:ivPauseVis 3.84s steps(1) infinite}
 .iv-tp-play{animation:ivPlayVis 3.84s steps(1) infinite}
 /* 3. Media Controls: simplified bottom bar + time pill auto-hiding and re-appearing */
-@keyframes ivCtlFade{0%,45%,100%{opacity:1;transform:translateY(0)}60%,85%{opacity:.12;transform:translateY(2px)}}
-@keyframes ivCtlProg{0%{transform:scaleX(.2)}45%{transform:scaleX(.72)}60%,100%{transform:scaleX(.72)}}
+@keyframes ivCtlFade{0%,45%,100%{opacity:1;transform:translateY(0)}60%,85%{opacity:0;transform:translateY(2px)}}
+@keyframes ivCtlProg{0%{width:5px}45%,100%{width:17.28px}}
 .iv-mc-ui{animation:ivCtlFade 3.84s var(--ease) infinite}
-.iv-mc-fill{transform-origin:11px 36px;animation:ivCtlProg 3.84s linear infinite}
-/* 4. Entry/Exit Animations: feed media shrinking to top pane while bottom sheet springs up, then back */
-@keyframes ivEeMedia{0%,12%,92%,100%{transform:translate(0,0) scale(1)}38%,68%{transform:translate(2px,-9px) scale(.88,.78)}}
-@keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(26px)}38%,68%{transform:translateY(0)}}
-.iv-ee-m{transform-origin:24px 26px;animation:ivEeMedia 3.84s var(--ease) infinite}
+.iv-mc-fill{animation:ivCtlProg 3.84s linear infinite}
+/* 4. Entry/Exit Animations: full-bleed square media (flat corners) shrinking to centred rounded top pane as bottom sheet springs up, then back */
+@keyframes ivEeMedia{0%,12%,92%,100%{x:7px;y:15px;width:34px;height:28px;rx:0px;ry:0px}38%,68%{x:9px;y:7px;width:30px;height:23px;rx:3px;ry:3px}}
+@keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(28px)}38%,68%{transform:translateY(0)}}
+.iv-ee-m{animation:ivEeMedia 3.84s var(--ease) infinite}
 .iv-ee-s{animation:ivEeSheet 3.84s var(--ease) infinite}
 /* 5. Gesture Interactions: finger indicator dragging sheet between half and full stops */
 @keyframes ivGsSheet{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(-16px)}80%{transform:translateY(6px)}}
@@ -356,12 +356,12 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iv-gs-s{animation:ivGsSheet 3.84s var(--ease) infinite}
 .iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
 /* 6. Scrubber & Thumbnail: playhead gliding along track with floating thumbnail preview above it */
-@keyframes ivScMove{0%,12%,100%{transform:translateX(0)}48%,64%{transform:translateX(18px)}}
-@keyframes ivScThumb{0%,10%,82%,100%{opacity:0;transform:translate(0,3px) scale(.85)}20%{opacity:1;transform:translate(0,0) scale(1)}48%,64%{opacity:1;transform:translate(18px,0) scale(1)}}
-@keyframes ivScFill{0%,12%,100%{transform:scaleX(.22)}48%,64%{transform:scaleX(.86)}}
+@keyframes ivScMove{0%,12%,100%{transform:translateX(0)}48%,64%{transform:translateX(14px)}}
+@keyframes ivScThumb{0%,10%,82%,100%{opacity:0;transform:translate(0,3px) scale(.85)}20%{opacity:1;transform:translate(0,0) scale(1)}48%,64%{opacity:1;transform:translate(14px,0) scale(1)}}
+@keyframes ivScFill{0%,12%,100%{width:5px}48%,64%{width:19px}}
 .iv-sc-k{animation:ivScMove 3.84s var(--ease) infinite}
-.iv-sc-t{transform-origin:15px 32px;animation:ivScThumb 3.84s var(--ease) infinite}
-.iv-sc-f{transform-origin:10px 48px;animation:ivScFill 3.84s var(--ease) infinite}
+.iv-sc-t{transform-origin:17px 36px;animation:ivScThumb 3.84s var(--ease) infinite}
+.iv-sc-f{animation:ivScFill 3.84s var(--ease) infinite}
 @media (prefers-reduced-motion:reduce){.iter-vis *{animation:none!important}}
 /* Cross-device iPad expansion card: full-width (2-column span) module under the 6 iteration boxes, showing 3 devices (iPhone -> iPad Portrait -> iPad Landscape) */
 .iter-grid li.iter-ipad{grid-column:1/-1;padding:24px 396px 24px 24px;min-height:176px}
