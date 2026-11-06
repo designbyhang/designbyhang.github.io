@@ -512,12 +512,12 @@ function split(E,root){
       else if(X.ctaFrom==='feed')X.sheet.go(1,{w:16});
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
-    state:s=>{X.state=s;if(s===2)X.hadSplit=true;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
+    state:s=>{const prev=X.state;X.state=s;if(prev>1&&s===1)X.hadSplit=true;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
-      if(s===1){X.vs&&X.vs.leaveSplit()}},
-    opened:s=>{if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
+      if(s===1){X.vs&&X.vs.leaveSplit();if(prev>1)render(X)}},
+    opened:s=>{if(s>=2)X.hadSplit=true;if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();if(s>=2)render(X);say(s===2?E.name+', split screen':E.name+', full screen')},
     closed:()=>{X.ctaFrom=null;if(X.vw&&X.vwCta){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
