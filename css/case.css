@@ -337,9 +337,9 @@ html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-l
 .iv-sr-bot{animation:ivSplitBot 3.84s var(--ease) infinite}
 .iv-sr-hdl{animation:ivSplitHdl 3.84s var(--ease) infinite}
 /* 2. Tap to Pause/Resume: touch ring + play/pause toggle */
-@keyframes ivTapRing{0%,38%,88%,100%{opacity:0;transform:scale(.6)}44%{opacity:.55;transform:scale(1)}54%{opacity:0;transform:scale(1.35)}}
-@keyframes ivPauseVis{0%,44%,94%,100%{opacity:1}48%,90%{opacity:0}}
-@keyframes ivPlayVis{0%,44%,94%,100%{opacity:0}48%,90%{opacity:1}}
+@keyframes ivTapRing{0%,14%,31%,64%,81%,100%{opacity:0;transform:scale(.6)}20%,70%{opacity:.55;transform:scale(1)}30%,80%{opacity:0;transform:scale(1.35)}}
+@keyframes ivPauseVis{0%,70%,100%{opacity:1}20%{opacity:0}}
+@keyframes ivPlayVis{0%,70%,100%{opacity:0}20%{opacity:1}}
 .iv-tp-ring{transform-origin:24px 29px;animation:ivTapRing 3.84s var(--ease) infinite}
 .iv-tp-pause{animation:ivPauseVis 3.84s steps(1) infinite}
 .iv-tp-play{animation:ivPlayVis 3.84s steps(1) infinite}
