@@ -208,8 +208,9 @@ PH.forEach((p,i)=>{
   if(n===4){clock=A('.rl',showA);A('.ag',showA)}
   // A's overlays on the media (Reels UI, nav, sticker, play button) fade out; B's overlays (nav, status) fade in (hs: mnav opacity = m);
   // B's backdrop grows out of the media's surface box (rect and corners) with it (buFit)
-  BU.push({an:A('.bu',p=>({opacity:p.a>0?1:0})),el:q('.bu'),rect:m.a,R:m.ar,sm:p=>lerp(m.asm,BSM,p.a)});A('.bo',p=>({opacity:p.a}));
-  if(q('.ao'))A('.ao',p=>({opacity:1-p.a}));
+  BU.push({an:A('.bu',p=>({opacity:p.a>0?1:0})),el:q('.bu'),rect:m.a,R:m.ar,sm:p=>lerp(m.asm,BSM,p.a)});
+  if(n===3){A('.bo',p=>{const t=clamp((p.a-.2)/.8),e=t*t*(3-2*t);return {...ty((18*(1-e)).toFixed(2)),opacity:e}});A('.ao',p=>{const t=clamp(1-p.a/.55);return {opacity:t*t}})}
+  else{A('.bo',p=>({opacity:p.a}));if(q('.ao'))A('.ao',p=>({opacity:1-p.a}))}
   // shared element: the same playing video's box travels surface rect -> split-screen rect (x, y, width, height, per-corner radius on one value) and back
   A('.mv',p=>{const e=p.a,x=lerp(m.a[0],m.b[0],e),y=lerp(m.a[1],m.b[1],e),w=lerp(m.a[2],m.b[2],e),h=lerp(m.a[3],m.b[3],e),r=m.ar.map(v=>lerp(v,BR,e)),sm=lerp(m.asm,BSM,e);
     const k={left:x.toFixed(2)+'px',top:y.toFixed(2)+'px',width:w.toFixed(2)+'px',height:h.toFixed(2)+'px'};
