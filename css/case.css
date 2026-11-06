@@ -307,7 +307,7 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 
 /* System & Scale: iteration examples as boxes between paragraphs */
 .iter-grid{list-style:none;display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 28px;padding:0}
-.iter-grid li{border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:6px}
+.iter-grid li{border:1px solid var(--frame-line,var(--line));padding:20px;display:flex;flex-direction:column;gap:6px}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
 .iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5} /* label/value pairing matches the Role / Timeline block */
 /* System & Scale boxes: full media width, 3 columns x 2 rows */
