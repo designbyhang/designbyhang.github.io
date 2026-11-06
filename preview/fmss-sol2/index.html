@@ -110,7 +110,7 @@ const MED=[
   {a:[0,44,375,667], ar:[16,16,16,16],asm:.6,b:[12,44,351,624],cs:0},  // Stories: canvas -> inset canvas
   {a:[12,644,74,74], ar:[8,0,0,8],asm:0,  b:[12,44,351,350],cs:406}];  // In-Content: banner thumbnail -> inset
 const BR=16,BSM=.6;
-const V='?v=445';
+const V='?v=460';
 /* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
    a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
    ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
@@ -192,7 +192,7 @@ PH.forEach((p,i)=>{
     (n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}r4.webp${V}" src="${AS}r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+FMSSBackdrop.html(`${AS}bu${n}.webp${V}`,top,{cls:'L',dp})+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${n}.webp${V}" src="${AS}v${n}.mp4${V}"></video></div>`+
     (n===3?im('sg','sg3'):'')+
-    (n===2?`<img class="L ao uih" alt="" src="../fmss-all/assets/ao2-head.webp${V}">`+
+    (n===2?im('ao-h','ao2','clip-path:inset(0 0 40.764% 0)')+
       `<img class="L ao uis" alt="" src="../fmss-all/assets/ao2-scrim.webp${V}" style="top:481px">`+
       `<img class="L ao uiu uiu-r" alt="" src="../fmss-all/assets/ao2-ui.webp${V}" style="top:481px;clip-path:polygon(84.267% 0,100% 0,100% 100%,84.267% 100%,84.267% 83.794%,0 83.794%,0 100%,84.267% 100%)">`+
       `<img class="L ao uiu uiu-d" alt="" src="../fmss-all/assets/ao2-ui.webp${V}" style="top:481px;clip-path:inset(33.202% 15.733% 36.364% 0)">`+
@@ -233,7 +233,7 @@ PH.forEach((p,i)=>{
     A('.ao-t',p=>{const t=clamp(1-p.a/.55);return {opacity:t*t}});
     A('.ao',p=>{const t=clamp(1-p.a/.55);return {opacity:+(t*t*ctaW(p)).toFixed(4)}})}
   else if(n===2){A('.bo',p=>({opacity:p.a}));
-    ['.uih','.uis','.uiu-r','.uib'].forEach(s=>A(s,p=>({opacity:1-p.a})));
+    ['.ao-h','.uis','.uiu-r','.uib'].forEach(s=>A(s,p=>({opacity:1-p.a})));
     A('.uiu-d',p=>({...ty((48*(1-ctaW(p))).toFixed(2)),opacity:1-p.a}));
     A('.uiu-c',p=>({opacity:+((1-p.a)*ctaW(p)).toFixed(4)}))}
   else{A('.bo',p=>({opacity:p.a}));if(q('.ao'))A('.ao',p=>({opacity:1-p.a}))}
