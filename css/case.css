@@ -359,6 +359,24 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iv-sc-t{transform-origin:15px 32px;animation:ivScThumb 3.84s var(--ease) infinite}
 .iv-sc-f{transform-origin:10px 48px;animation:ivScFill 3.84s var(--ease) infinite}
 @media (prefers-reduced-motion:reduce){.iter-vis *{animation:none!important}}
+/* Cross-device iPad expansion card: full-width (2-column span) module under the 6 iteration boxes, showing 3 devices (iPhone -> iPad Portrait -> iPad Landscape) */
+.iter-grid li.iter-ipad{grid-column:1/-1;padding:24px 396px 24px 24px;min-height:176px}
+.iter-grid li.iter-ipad span{max-width:38ch;text-wrap:balance}
+.iter-vis.iter-vis-ipad{width:348px;height:143.36px}
+.iter-vis.iter-vis-ipad svg{width:348px;height:143.36px}
+@keyframes ivPadMedia{0%,14%,90%,100%{transform:translate(0,0) scale(1)}38%,68%{transform:translate(0,-10px) scale(.92,.64)}}
+@keyframes ivPadSheet{0%,14%,90%,100%{transform:translateY(28px)}38%,68%{transform:translateY(0)}}
+.iv-pad-m-ph{transform-origin:18px 27px;animation:ivPadMedia 3.84s var(--ease) infinite}
+.iv-pad-s-ph{animation:ivPadSheet 3.84s var(--ease) infinite}
+.iv-pad-m-pt{transform-origin:90px 26px;animation:ivPadMedia 3.84s var(--ease) .096s infinite}
+.iv-pad-s-pt{animation:ivPadSheet 3.84s var(--ease) .096s infinite}
+.iv-pad-m-ls{transform-origin:171px 28px;animation:ivPadMedia 3.84s var(--ease) .192s infinite}
+.iv-pad-s-ls{animation:ivPadSheet 3.84s var(--ease) .192s infinite}
+@media (max-width:900px){
+  .iter-grid li.iter-ipad{padding:24px;gap:16px}
+  .iter-vis.iter-vis-ipad{position:relative;right:auto;top:auto;transform:none;width:100%;max-width:348px;height:auto;aspect-ratio:220/64;margin-top:8px}
+  .iter-vis.iter-vis-ipad svg{width:100%;height:100%}
+}
 /* hero: optical left alignment; cancel the display font's left side bearing so the title's stems line up with the kicker and summary */
 .hero h1{margin-left:-.07em}
 .hero .sum{margin-left:-.03em}
