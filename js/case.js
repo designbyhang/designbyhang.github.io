@@ -82,48 +82,6 @@ window.dbhSwipe=function(el,step,opt){var skip=(opt&&opt.skip)||'.car-ctrl,.ss-c
 document.querySelectorAll('video.demo-video').forEach(function(v){if(v.closest('[data-alternate]'))return;v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
  var sync=dbhPlayPause(v.closest('.media')||v.parentNode,v,{paused:function(){return v.paused},play:function(){var p=v.play();if(p&&p.catch)p.catch(function(){})},pause:function(){v.pause()}},'video');
  v.addEventListener('play',sync);v.addEventListener('pause',sync);if(v.__kick){v.addEventListener('loadeddata',v.__kick);v.addEventListener('canplay',v.__kick);}});
-/* [data-alternate] (on a row of demo videos, e.g. the .inc-row of VAC 02 Problem): the videos take turns, in DOM order, one loop each,
-   forever. The row is ONE member of the page's one-demo pool (js/demos.js), so it never splits into two competing members; while it
-   holds the pool's turn only the current video plays, and only while that video is >= 35% in view (as every demo video). At the end of
-   its loop it rewinds to its first frame (the poster frame) and the next one plays from its start. A video waiting for its turn always
-   sits on its first frame.
-   Visibility (phones, where the pair stacks): when the video whose turn it is drops below 35% in view while a sibling is >= 35%, the
-   turn goes to that sibling now: it starts from its first frame (where a waiting video always is, as at the end of a loop or a play
-   press) and the one leaving rewinds to its poster (it is all but off screen). After that loop the rotation goes on; a turn that falls
-   on a video below 35% while a sibling is in view passes straight back, so the visible one keeps looping. Neither >= 35%: both pause
-   in place. Side by side (desktop) both are in view, so the rotation is pure. The pool measures the row while the videos sit side by
-   side, and the video that would play (box()) while they stack, so the nearest-centre pick sees what is actually on screen.
-   Losing the pool's turn pauses the current video where it is; the turn back resumes it from there. The buttons (one per video, as
-   every .vid-btn): play on a waiting video switches to it at once (the other pauses and goes back to its first frame), even if the
-   other is more in view, and it keeps the turn until it scrolls out (below 35%, or out of view entirely, as nothing plays off screen) or
-   its loop ends; pause holds the whole row (want() false: nothing auto-advances or hands over, the pool may hand the turn to another
-   demo) until play is pressed on either. Icons follow each video's real state */
-document.querySelectorAll('[data-alternate]').forEach(function(row){var vs=[].slice.call(row.querySelectorAll('video.demo-video'));if(!vs.length)return;
- var D=window.dbhDemos,always=document.body.hasAttribute('data-always-play'),IO='IntersectionObserver' in window&&!always,on=!D,held=false,k=0,pin=-1,ask=null,bs=[],
-  ok=vs.map(function(){return !IO}),any=vs.map(function(){return !IO});   // ok[j]: >= 35% in view; any[j]: any part in view
- var play=function(v){var p=v.play();if(p&&p.catch)p.catch(function(){})},
-  sync=function(){vs.forEach(function(v,j){var b=bs[j],o=!v.paused;b.setAttribute('aria-pressed',o?'true':'false');b.setAttribute('aria-label',(o?'Pause ':'Play ')+(v.getAttribute('aria-label')||'video'))})},
-  rewind=function(v){try{if(v.currentTime)v.currentTime=0}catch(_){}},
-  can=function(j){return ok[j]||(pin===j&&any[j])},
-  /* who should hold the turn: the current video while it may play, else the first sibling >= 35% in view, else the current one */
-  next=function(){if(can(k))return k;for(var i=1;i<vs.length;i++){var j=(k+i)%vs.length;if(ok[j])return j}return k},
-  turn=function(j){if(j===k)return;var o=vs[k];o.pause();rewind(o);k=j},
-  run=function(){if(on&&!held)turn(next());vs.forEach(function(v,j){if(j!==k&&!v.paused)v.pause()});var v=vs[k];if(on&&!held&&can(k)){if(v.paused)play(v)}else if(!v.paused)v.pause();sync()};
- vs.forEach(function(v,j){v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=false;v.autoplay=false;v.removeAttribute('autoplay');v.removeAttribute('loop');v.pause();
-  var b=document.createElement('button');b.type='button';b.className='mbtn vid-btn';b.innerHTML=window.dbhPP;(v.closest('.media')||v.parentNode).appendChild(b);dbhTapPP(b.parentNode,b);bs.push(b);
-  b.addEventListener('click',function(){if(v.paused){held=false;turn(j);pin=j;play(v)}else{held=true;v.pause()}sync();if(ask)ask()});
-  v.addEventListener('play',function(){if(j!==k||!on||held||!can(j))v.pause();sync()});v.addEventListener('pause',sync);
-  /* one loop done: the next video's turn, from its start (only while the row runs; a held row stays where it is) */
-  v.addEventListener('ended',function(){if(j!==k)return;pin=-1;var n=(k+1)%vs.length;rewind(v);if(n!==k){k=n;rewind(vs[k])}run();if(ask)ask()})});
- sync();
- if(D)ask=D.add(row,{play:function(){on=true;run()},pause:function(){on=false;vs.forEach(function(v){if(!v.paused)v.pause()});sync()},want:function(){return !held},
-  box:function(){var a=vs[0].getBoundingClientRect(),z=vs[vs.length-1].getBoundingClientRect();return z.top>=a.bottom-1?vs[held?k:next()]:row}});
- if(always){var kick=function(){run()};['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});vs.forEach(function(v){v.addEventListener('canplay',kick)})}
- if(IO){var io=new IntersectionObserver(function(es){es.forEach(function(e){var j=vs.indexOf(e.target),was=ok[j];ok[j]=e.isIntersecting&&e.intersectionRatio>=.35;any[j]=e.isIntersecting&&e.intersectionRatio>0;
-   if(pin===j&&((was&&!ok[j])||!any[j]))pin=-1});run();if(ask)ask()},{threshold:[0,.35]});vs.forEach(function(v){io.observe(v)})}
-});
-
 /* solution carousel: a pill of dots (one per slide) + play/pause. Each slide fills over 5s (linear), then a 1s handoff
    (easeInOutQuad = cubic-bezier(.455,.03,.515,.955)): the active bar drops its fill and shrinks to a dot while the next dot grows
    into an empty track, on one shared progress, so the pill keeps its width. The fill starts once the handoff lands. Loops forever.
@@ -133,20 +91,20 @@ document.querySelectorAll('[data-alternate]').forEach(function(row){var vs=[].sl
    Reduced motion: no autoplay, no animation */
 (function(){var DUR=5000,HAND=1000,RM=matchMedia('(prefers-reduced-motion: reduce)'),ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
 document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.querySelector('.car-track');if(!tr)return;var imgs=[].slice.call(tr.children),n=imgs.length;if(n<2)return;
- var dur=+c.getAttribute('data-dur')||DUR,hand=+c.getAttribute('data-hand')||HAND,nodots=c.hasAttribute('data-nodots');
- var i=0,playing=!RM.matches,vis=false,on=!window.dbhDemos,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),roll=cap&&cap.querySelector('.ss-roll'),rolls=roll?[].slice.call(roll.children):[],caps=imgs.map(function(img){return img.getAttribute('alt')||((img.querySelector('img[alt]')||{}).alt)||''});
+ var dur=+c.getAttribute('data-dur')||DUR,hand=+c.getAttribute('data-hand')||HAND,nodots=c.hasAttribute('data-nodots'),alt=!!c.closest('[data-alternate]'),wrap=false,onEnd=null,onToggle=null;
+ var i=0,playing=!RM.matches&&!alt,vis=false,on=!window.dbhDemos&&!alt,ask=null,elapsed=0,h=1,ht=0,last=0,raf=0,cap=c.closest('figure')&&c.closest('figure').querySelector('figcaption'),roll=cap&&cap.querySelector('.ss-roll'),rolls=roll?[].slice.call(roll.children):[],caps=imgs.map(function(img){return img.getAttribute('alt')||((img.querySelector('img[alt]')||{}).alt)||''});
  var ctrl=document.createElement('div'),row=nodots?null:document.createElement('div'),pp=document.createElement('button'),sr=document.createElement('span'),bars=[],fills=[];
  ctrl.className='car-ctrl';if(row){row.className='car-dots';row.setAttribute('role','group');row.setAttribute('aria-label','Choose slide');}
  var dots=row?imgs.map(function(img,k){var b=document.createElement('button');b.type='button';b.className='car-dot';b.innerHTML='<i class="car-bar" aria-hidden="true"><i class="car-fill"></i></i>';
   b.setAttribute('aria-label','Slide '+(k+1)+' of '+n+(caps[k]?': '+caps[k]:''));b.addEventListener('click',function(){go(k)});row.appendChild(b);bars.push(b.firstChild);fills.push(b.firstChild.firstChild);return b}):[];
- pp.type='button';pp.className='mbtn car-pp';pp.innerHTML=window.dbhPP;pp.addEventListener('click',function(){playing=!playing;sync();kick();if(ask)ask()});
+ pp.type='button';pp.className='mbtn car-pp';pp.innerHTML=window.dbhPP;pp.addEventListener('click',function(){if(onToggle){onToggle();return}playing=!playing;sync();kick();if(ask)ask()});
  sr.className='car-sr';if(row)ctrl.appendChild(row);ctrl.appendChild(pp);c.appendChild(ctrl);c.appendChild(sr);dbhTapPP(c,pp);
  if(row)row.addEventListener('keydown',function(e){var k=dots.indexOf(document.activeElement),t=null;if(k<0)return;
   if(e.key==='ArrowRight')t=k+1;else if(e.key==='ArrowLeft')t=k-1;else if(e.key==='Home')t=0;else if(e.key==='End')t=n-1;
   if(t===null)return;e.preventDefault();e.stopPropagation();go(t);dots[i].focus()});
- dbhSwipe(c,function(d){go(i+d);if(ask)ask()}); /* = a dot tap: the handoff runs and the 5s fill restarts (only while it holds the
+ dbhSwipe(c,function(d){wrap=false;go(i+d);if(ask)ask()}); /* = a dot tap: the handoff runs and the 5s fill restarts (only while it holds the
     demo turn, js/demos.js, which re-picks); wraps like autoplay */
- c.addEventListener('keydown',function(e){if(e.target!==c)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();go(i+(e.key==='ArrowRight'?1:-1))}});
+ c.addEventListener('keydown',function(e){if(e.target!==c)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();wrap=false;go(i+(e.key==='ArrowRight'?1:-1))}});
  function sync(){pp.setAttribute('aria-pressed',playing?'true':'false');pp.setAttribute('aria-label',(playing?'Pause':'Play')+' slideshow');sr.setAttribute('aria-live',playing?'off':'polite')}
  /* e[k]: how open slot k is (0 dot, 1 track); a handoff eases every slot from where it is to its target, so sum(e) stays 1 */
  var e=imgs.map(function(_,k){return k?0:1}),e0=e.slice();
@@ -160,15 +118,68 @@ document.querySelectorAll('.media.carousel').forEach(function(c){var tr=c.queryS
  function running(){return h<1||(playing&&vis&&on&&!document.hidden)}
  function kick(){if(!raf&&running()){last=0;raf=requestAnimationFrame(frame)}}
  function frame(now){raf=0;var dt=last?Math.min(50,now-last):16;last=now;
-  if(h<1)h=Math.min(1,(now-ht)/hand);else if(playing&&vis&&on&&!document.hidden){elapsed+=dt;if(elapsed>=dur){go(i+1);return}}
+  if(h<1){h=Math.min(1,(now-ht)/hand);if(h>=1&&wrap){wrap=false;if(onEnd&&onEnd()===false){draw();return}}}
+  else if(playing&&vis&&on&&!document.hidden){elapsed+=dt;if(elapsed>=dur){if(alt&&i===n-1)wrap=true;go(i+1);return}}
   draw();if(running())raf=requestAnimationFrame(frame)}
  if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(x){vis=x.intersectionRatio>=.35;kick()})},{threshold:[0,.35,1]}).observe(c);else vis=true;
  document.addEventListener('visibilitychange',kick);
  /* the fill runs only while it has the page's one demo turn (js/demos.js) */
- if(window.dbhDemos)ask=dbhDemos.add(c,{play:function(){on=true;kick()},pause:function(){on=false},want:function(){return playing}});
+ if(!alt&&window.dbhDemos)ask=dbhDemos.add(c,{play:function(){on=true;kick()},pause:function(){on=false},want:function(){return playing}});
  if(RM.addEventListener)RM.addEventListener('change',function(){if(RM.matches){playing=false;h=1;sync();draw()}});
+ if(alt)c.__car={get paused(){return !playing},play:function(){wrap=false;playing=true;on=true;sync();kick()},pause:function(){wrap=false;playing=false;sync()},
+  rewind:function(){wrap=false;elapsed=0;if(i!==0||h<1){i=0;h=1;e=imgs.map(function(_,k){return k?0:1});e0=e.slice();imgs.forEach(function(im,j){im.classList.toggle('is-active',j===0)});c.setAttribute('aria-label','Slide 1 of '+n);draw()}},
+  set onToggle(fn){onToggle=fn},set onEnded(fn){onEnd=fn}};
  go(0,true);sync();
  });})();
+
+/* [data-alternate] (on a row of demo videos and/or carousels, e.g. the .inc-row of VAC 02 and FMSS 02 Problem): the items take turns,
+   in DOM order, one full loop each, forever, unless the user interacts with their play/pause buttons to put both to play or both to pause. */
+document.querySelectorAll('[data-alternate]').forEach(function(row){var els=[].slice.call(row.querySelectorAll('video.demo-video,.media.carousel'));if(!els.length)return;
+ var D=window.dbhDemos,always=document.body.hasAttribute('data-always-play'),IO='IntersectionObserver' in window&&!always,on=!D,pin=-1,ask=null,
+  want=els.map(function(_,j){return j===0}),
+  ok=els.map(function(){return !IO}),any=els.map(function(){return !IO}),
+  items=els.map(function(el,j){
+   if(el.__car){var C=el.__car;C.onToggle=function(){toggle(j)};C.onEnded=function(){return ended(j)};
+    return {el:el,paused:function(){return C.paused},play:function(){C.play()},pause:function(){C.pause()},rewind:function(){C.rewind()},sync:function(){}}}
+   el.muted=true;el.defaultMuted=true;el.playsInline=true;el.loop=false;el.autoplay=false;el.removeAttribute('autoplay');el.removeAttribute('loop');el.pause();
+   var b=document.createElement('button');b.type='button';b.className='mbtn vid-btn';b.innerHTML=window.dbhPP;(el.closest('.media')||el.parentNode).appendChild(b);dbhTapPP(b.parentNode,b);
+   b.addEventListener('click',function(){toggle(j)});
+   el.addEventListener('play',function(){if(!want[j]||!on||!can(j))el.pause();sync()});el.addEventListener('pause',sync);
+   el.addEventListener('ended',function(){ended(j)});
+   return {el:el,paused:function(){return el.paused},play:function(){var p=el.play();if(p&&p.catch)p.catch(function(){})},pause:function(){el.pause()},
+    rewind:function(){try{if(el.currentTime)el.currentTime=0}catch(_){}},
+    sync:function(){var o=!el.paused;b.setAttribute('aria-pressed',o?'true':'false');b.setAttribute('aria-label',(o?'Pause ':'Play ')+(el.getAttribute('aria-label')||'video'))}};
+  });
+ function can(j){return ok[j]||(pin===j&&any[j])}
+ function sync(){items.forEach(function(it){it.sync()})}
+ function activeIdx(){for(var i=0;i<want.length;i++)if(want[i])return i;return 0}
+ function run(){
+  var cnt=want.filter(Boolean).length;
+  if(on&&cnt===1){var k=activeIdx();if(!can(k)){for(var i=1;i<items.length;i++){var m=(k+i)%items.length;if(ok[m]){items[k].pause();items[k].rewind();want[k]=false;want[m]=true;break}}}}
+  items.forEach(function(it,j){if(on&&want[j]&&can(j)){if(it.paused())it.play()}else if(!it.paused())it.pause()});
+  sync();
+ }
+ function toggle(j){
+  if(want[j]&&!items[j].paused()){want[j]=false;if(pin===j)pin=-1;items[j].pause()}
+  else{want[j]=true;pin=j;if(on&&can(j))items[j].play()}
+  run();if(ask)ask();
+ }
+ function ended(j){
+  if(!want[j])return false;
+  var cnt=want.filter(Boolean).length;
+  if(cnt>1){items[j].rewind();if(on&&can(j))items[j].play();sync();return true}
+  pin=-1;var n=(j+1)%items.length;items[j].pause();items[j].rewind();
+  if(n!==j){want[j]=false;want[n]=true;items[n].rewind()}
+  run();if(ask)ask();return false;
+ }
+ sync();
+ if(D)ask=D.add(row,{play:function(){on=true;run()},pause:function(){on=false;items.forEach(function(it){if(!it.paused())it.pause()});sync()},want:function(){return want.some(Boolean)},
+  box:function(){var a=els[0].getBoundingClientRect(),z=els[els.length-1].getBoundingClientRect();return z.top>=a.bottom-1?els[activeIdx()]:row}});
+ if(always){var kick=function(){run()};['pointerdown','touchstart','keydown','scroll'].forEach(function(t){addEventListener(t,kick,{passive:true,capture:true})});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)kick()});els.forEach(function(el){if(el.tagName==='VIDEO')el.addEventListener('canplay',kick)})}
+ if(IO){var io=new IntersectionObserver(function(es){es.forEach(function(e){var j=els.indexOf(e.target),was=ok[j];ok[j]=e.isIntersecting&&e.intersectionRatio>=.35;any[j]=e.isIntersecting&&e.intersectionRatio>0;
+   if(pin===j&&((was&&!ok[j])||!any[j]))pin=-1});run();if(ask)ask()},{threshold:[0,.35]});els.forEach(function(el){io.observe(el)})}
+});
 /* Back to top: always to scrollY 0 (#top is the hero, below the bar); smooth unless reduced motion */
 document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
 /* live prototype iframes (iframe[data-src]): attach src only once the site is unlocked (the same-origin frame then reads the shared
