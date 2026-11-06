@@ -36,11 +36,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 html[data-theme=dark]{--page:#111;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
 *{box-sizing:border-box}
 *:focus,*:focus-visible{outline:none}
-html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px var(--sans);transition:background-color .4s var(--ease),color .4s var(--ease)}
+html,body{margin:0;background:var(--page);color:var(--ink);font:var(--t-body);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;transition:background-color .4s var(--ease),color .4s var(--ease)}
 .wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
 header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
 header.top h1{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin:0 0 8px}
-header.top p{margin:0;color:var(--mute);max-width:56ch;font-size:var(--t-s16);line-height:1.7}
+header.top p{margin:0;font:var(--t-body);font-size:var(--t-s16);line-height:1.7;color:var(--mute);max-width:56ch}
 .mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--frame-line,var(--line));overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
 html.deck-open .mframe{overflow:visible;contain:none}
 @media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
@@ -144,7 +144,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
    the play glyph sits at the media band's centre (the design's 375×734 canvas, not counting the tab bar) */
 .uih,.uiu,.uib{pointer-events:none;object-fit:cover;object-position:0 0}
 .xp img.uih{height:481px}
-.xp img.uiu{height:253px;transform-origin:0 0}
+.xp img.uiu,.xp .uiu>img{height:253px;transform-origin:0 0}
 .xp img.uib{height:78px}
 .xp img.uis{height:253px}   /* the band's gradient scrim, cut out of the same export: it never lifts */
 .uz{left:155.5px;top:335px;pointer-events:none}
@@ -372,7 +372,7 @@ const EXP=[
       ~2s then fades. A media tap is organic behaviour everywhere, this ad included: the reel pauses, its overlay lifts and the scrubber
       comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
       this surface has no full-screen viewer. */
-   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:2400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
+   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:3400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
@@ -380,7 +380,7 @@ const EXP=[
    c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4',hole:1},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & Browse',variant:'On Dwell',from:'Solution 2 · Stories',build:split,
-   c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
+   c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:3400,stories:1,xAt:[317,62,44,44],
       stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Marketplace',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Marketplace · Offsite Conversions',build:split,
    c:{S:S1,n:1,top:406,tone:1,surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v3',p2:'../../fmss-all/assets/p3-mp',x2:189.5},m:{a:[0,396,185.5,186],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[0,356,375,256],
@@ -427,11 +427,18 @@ function split(E,root){
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
   /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
      the media band between head and tab bar is what lifts when the ad's media is tapped and the reel pauses (ui), while the head and the tab bar
-     stay put. Organic surfaces have no ads, so they never get any of this. */
+     stay put. On the Reels ad (C.ad), the Shop now CTA appears only after the user has exited split screen, so the details sit 48px lower
+     (above the Sponsored chip) until then. Organic surfaces have no ads, so they never get any of this. */
   if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`+S.v;
   h+=`<img class="L ot uih" data-r="uih" alt="" src="${b('head')}">`+   // the Reels header: status row, Video title, search and profile
     `<img class="L ot uis" data-r="uis" alt="" src="${b('scrim')}" style="top:${UI_TOP}px">`+   // the band's gradient scrim: fixed, it never lifts
-    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px"${UI_BOTTOM[C.ui]!=null?` data-ui-bottom="${UI_BOTTOM[C.ui]}"`:''}>`+   // the band's live content, the only thing a paused tap lifts (data-ui-bottom: drawn end, as vac-proto)
+    (C.ad
+      ?`<div class="L ot uiu" data-r="uiu" style="top:${UI_TOP}px;width:375px;height:253px" data-ui-bottom="${UI_BOTTOM[C.ui]}">`+
+        `<img class="L uiu-r" alt="" src="${b('ui')}" style="clip-path:polygon(316px 0,375px 0,375px 253px,316px 253px,316px 212px,0 212px,0 253px,316px 253px)">`+
+        `<img class="L uiu-d" data-r="uiud" alt="" src="${b('ui')}" style="clip-path:inset(84px 59px 92px 0);transform:translate3d(0,48px,0)">`+
+        `<img class="L uiu-c" data-r="uiucta" alt="" src="${b('ui')}" style="clip-path:inset(165px 59px 44px 0);opacity:0">`+
+        `</div>`
+      :`<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px"${UI_BOTTOM[C.ui]!=null?` data-ui-bottom="${UI_BOTTOM[C.ui]}"`:''}>`)+   // the band's live content, the only thing a paused tap lifts (data-ui-bottom: drawn end, as vac-proto)
     `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
   /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
@@ -457,7 +464,7 @@ function split(E,root){
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
   const els=X.els={sf:[...root.querySelectorAll('.sf')],sfImg:root.querySelector('img.sf'),sfPatch:[...root.querySelectorAll('.pt.sf,.fh.sf,.mph.sf,.srh.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
     mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
-    uiu:r('uiu'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
+    uiu:r('uiu'),uiud:r('uiud'),uiucta:r('uiucta'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');X.v2=root.querySelector('.mpv2 video');
   const setV=(v,t)=>{if(!v||!v.readyState)return;try{if(Math.abs(v.currentTime-t)>.05)v.currentTime=t}catch(_){}};
   if(C.vStart!=null){const s0=()=>setV(X.video,C.vStart);X.video.addEventListener('loadedmetadata',s0);s0()}
@@ -505,7 +512,7 @@ function split(E,root){
       else if(X.ctaFrom==='feed')X.sheet.go(1,{w:16});
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
-    state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
+    state:s=>{X.state=s;if(s===2)X.hadSplit=true;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
@@ -584,7 +591,7 @@ function split(E,root){
   const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
     if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
     if(e.type==='pointerup'&&!p.moved){
-      if(C.stories){if(p.lx>=114&&p.lx<=260&&p.ly>=648&&p.ly<=704)openFull(X);return}   // Stories: SHOP NOW sticker → full screen IAB; split screen is dwell / swipe up only
+      if(C.stories){if(X.hadSplit&&p.lx>=114&&p.lx<=260&&p.ly>=648&&p.ly<=704)openFull(X);return}   // Stories: SHOP NOW sticker (after split screen exit) → full screen IAB; split screen is dwell / swipe up only
       if(C.mph){
         const wantAlt=p.lx>=187.5,isAlt=!!C.mph.isAlt;
         let T=X;
@@ -597,7 +604,7 @@ function split(E,root){
         if(p.ly>=T.E.c.m.a[1]+T.E.c.m.a[3])openFull(T);else open(T);
         vidSync();return;
       }
-      if(C.ad)X.mediaTap();
+      if(C.ad){const l=X.pz?X.pz.lift:0;if(X.hadSplit&&p.lx>=12&&p.lx<=315&&p.ly+l>=650&&p.ly+l<=686)openFull(X);else X.mediaTap()}
       else if((C.fh||C.srh)&&p.ly>=C.m.a[1]+C.m.a[3])openFull(X);   // Feed footer / CTA row → destination full screen
       else open(X)}};   // Feed media (and every other surface hit) → split screen, unchanged
   els.hit.addEventListener('pointerup',hitUp);els.hit.addEventListener('pointercancel',hitUp);
@@ -627,7 +634,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.hadSplit=false;X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -682,14 +689,19 @@ function render(X){
      as the IAB peek settles. */
   if(C.stories){
     const aoA=clamp(1-a/.55);
-    e.ot.forEach(l=>{l.style.opacity=(aoA*aoA).toFixed(3);l.style.transform=''});
+    e.ot.forEach(l=>{l.style.opacity=(aoA*aoA).toFixed(3);l.style.transform='';l.style.clipPath=X.hadSplit?'':'inset(0 0 600px 0)'});
     if(e.bo){
       if(X.sheet&&X.sheet.drag){clearTimeout(X.stTm);X.stS.stop();X.stBo=clamp((a-.2)/.8)*(1-clamp(c/.35))}
       const sb=clamp((X.stBo||0)*(1-clamp(c/.35))),eb=sb*sb*(3-2*sb);
       e.bo.style.opacity=eb.toFixed(3);
       e.bo.style.transform=`translate3d(0,${(18*(1-eb)).toFixed(2)}px,0)`;
     }
-  }else{if(e.bo)e.bo.style.opacity=a.toFixed(3);e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3))}
+  }else{
+    if(e.bo)e.bo.style.opacity=a.toFixed(3);
+    e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
+    if(e.uiud)e.uiud.style.transform=X.hadSplit?'':'translate3d(0,48px,0)';
+    if(e.uiucta)e.uiucta.style.opacity=X.hadSplit?'1':'0';
+  }
   /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
   const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
   let R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);

@@ -31,6 +31,7 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .bezel-fill{position:absolute;inset:0;background:var(--bezel);border-radius:48px;transition:background-color .4s var(--ease)}
 .scr{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#fff;isolation:isolate}
 .scr img{position:absolute;left:0;top:0;width:375px;height:812px;display:block;-webkit-user-drag:none}
+.scr img.uih{height:481px}.scr img.uis,.scr img.uiu{height:253px}.scr img.uib{height:78px}
 /* B sheet top, live (no baked corners or handle): the sheet image (.bs) is clipped to the sheet's own shape, a 16px squircle top corner each
    side (60% smoothing, at drawn size, set in fit()), and its first 18 rows (the lossy-compressed corners and grab handle baked into it, which
    read pixelated, most of all at 3x and over a light backdrop) are drawn live by .bk: the sheet colour under the same clip, with the
@@ -55,6 +56,9 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
  /* the white under every layer stops 8px short of the screen's side edges: the layers' anti-aliased side columns meet the bezel there, not white (no light hairline down the sides) */
  .scr{background:none}.scr>.bg{position:absolute;left:8px;top:0;background:#fff;width:calc(359px * var(--s,.5));height:calc(812px * var(--s,.5))}
  .scr img.L{width:calc(375px * var(--s,.5));height:calc(812px * var(--s,.5))}
+ .scr img.L.uih{height:calc(481px * var(--s,.5))}
+ .scr img.L.uis,.scr img.L.uiu{height:calc(253px * var(--s,.5))}
+ .scr img.L.uib{height:calc(78px * var(--s,.5))}
  .scr .bk{width:calc(375px * var(--s,.5))}
  .scr .bu{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}.scr .bu>i{width:calc(375px * var(--s,.5));height:calc(734px * var(--s,.5))}.scr .bu img,.scr .bu b{width:calc(375px * var(--s,.5))}
  .scr .cu{right:auto;bottom:auto;width:calc(383px * var(--s,.5));height:calc(36px * var(--s,.5))}
@@ -183,7 +187,16 @@ PH.forEach((p,i)=>{
     im('au',`au${n}`)+(n===1?'<i class="L fd-ic fd-bd" style="left:173px;top:122px"></i><i class="L fd-ic fd-gl" style="left:137px;top:141px"></i>':'')+   // phone 1's Feed header icons (Outdoor Voices), ../shared/feed over the baked ones
     (n===4?`<div class="rl"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}r4.webp${V}" src="${AS}r4.mp4${V}"></video></div>`+im('ag','ag4'):'')+FMSSBackdrop.html(`${AS}bu${n}.webp${V}`,top,{cls:'L',dp})+
     `<div class="mv"><video muted playsinline loop preload="auto" disableremoteplayback poster="${AS}p${n}.webp${V}" src="${AS}v${n}.mp4${V}"></video></div>`+
-    (n===3?im('sg','sg3'):'')+(n!==1?im('ao',`ao${n}`):'')+(m.cs?(VS?'<i class="vs-at"></i>':im('bc',`bc${n}`,cut)):'')+im('bo',`bo${n}`,cut)+
+    (n===3?im('sg','sg3'):'')+
+    (n===2?`<img class="L ao uih" alt="" src="../fmss-all/assets/ao2-head.webp${V}">`+
+      `<img class="L ao uis" alt="" src="../fmss-all/assets/ao2-scrim.webp${V}" style="top:481px">`+
+      `<img class="L ao uiu uiu-r" alt="" src="../fmss-all/assets/ao2-ui.webp${V}" style="top:481px;clip-path:polygon(84.267% 0,100% 0,100% 100%,84.267% 100%,84.267% 83.794%,0 83.794%,0 100%,84.267% 100%)">`+
+      `<img class="L ao uiu uiu-d" alt="" src="../fmss-all/assets/ao2-ui.webp${V}" style="top:481px;clip-path:inset(33.202% 15.733% 36.364% 0)">`+
+      `<img class="L ao uiu uiu-c" alt="" src="../fmss-all/assets/ao2-ui.webp${V}" style="top:481px;clip-path:inset(65.217% 15.733% 17.391% 0)">`+
+      `<img class="L ao uib" alt="" src="../fmss-all/assets/ao2-bar.webp${V}" style="top:734px">`
+      :(n===3?im('ao-t','ao3','clip-path:inset(0 0 73.892% 0)')+im('ao','ao3','clip-path:inset(26.108% 0 0 0)')
+      :(n!==1?im('ao',`ao${n}`):'')))+
+    (m.cs?(VS?'<i class="vs-at"></i>':im('bc',`bc${n}`,cut)):'')+im('bo',`bo${n}`,cut)+
     (n===3?`<div class="hd"><i class="pb"></i><div class="meta"><img alt="" src="assets/av3.webp${V}"><div><div class="nm">Away${CHECK}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`:'')+
     im('bs',`bl${n}`,`top:${top}px;height:${dp(812-top)}`)+
     `<i class="L bk" style="top:${top}px;height:${dp(18)};background:${SC[i]}">${HD[i]?'':`<i style="left:${dp(168)};top:${dp(8)};width:${dp(40)};height:${dp(4)};border-radius:${dp(2)}"></i>`}</i>`+
@@ -209,7 +222,13 @@ PH.forEach((p,i)=>{
   // A's overlays on the media (Reels UI, nav, sticker, play button) fade out; B's overlays (nav, status) fade in (hs: mnav opacity = m);
   // B's backdrop grows out of the media's surface box (rect and corners) with it (buFit)
   BU.push({an:A('.bu',p=>({opacity:p.a>0?1:0})),el:q('.bu'),rect:m.a,R:m.ar,sm:p=>lerp(m.asm,BSM,p.a)});
-  if(n===3){A('.bo',p=>{const t=clamp((p.a-.2)/.8),e=t*t*(3-2*t);return {...ty((18*(1-e)).toFixed(2)),opacity:e}});A('.ao',p=>{const t=clamp(1-p.a/.55);return {opacity:t*t}})}
+  if(n===3){A('.bo',p=>{const t=clamp((p.a-.2)/.8),e=t*t*(3-2*t);return {...ty((18*(1-e)).toFixed(2)),opacity:e}});
+    A('.ao-t',p=>{const t=clamp(1-p.a/.55);return {opacity:t*t}});
+    A('.ao',p=>{if(p.t<t3e)return {opacity:0};const t=clamp(1-p.a/.55);return {opacity:t*t}})}
+  else if(n===2){A('.bo',p=>({opacity:p.a}));
+    ['.uih','.uis','.uiu-r','.uib'].forEach(s=>A(s,p=>({opacity:1-p.a})));
+    A('.uiu-d',p=>({...ty(p.t>=t3e?0:48),opacity:1-p.a}));
+    A('.uiu-c',p=>({opacity:p.t>=t3e?1-p.a:0}))}
   else{A('.bo',p=>({opacity:p.a}));if(q('.ao'))A('.ao',p=>({opacity:1-p.a}))}
   // shared element: the same playing video's box travels surface rect -> split-screen rect (x, y, width, height, per-corner radius on one value) and back
   A('.mv',p=>{const e=p.a,x=lerp(m.a[0],m.b[0],e),y=lerp(m.a[1],m.b[1],e),w=lerp(m.a[2],m.b[2],e),h=lerp(m.a[3],m.b[3],e),r=m.ar.map(v=>lerp(v,BR,e)),sm=lerp(m.asm,BSM,e);
