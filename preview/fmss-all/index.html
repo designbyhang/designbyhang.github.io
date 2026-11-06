@@ -114,10 +114,10 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 /* the split screen's backdrop (bu): the whole 375×734 canvas, screen-fixed (as Solution 1/2 and FMSSBackdrop); its clip-path is the
    shared open/close box — grows out of the video's current surface rect with progress p=a·(1−k) and closes back into it the same way */
 .bu{left:0;top:0;width:375px;height:734px;will-change:clip-path}
-.mv{position:absolute;overflow:hidden;background:#000;touch-action:none;will-change:left,top,width,height}
+.mv{position:absolute;overflow:hidden;background:none;touch-action:none;will-change:left,top,width,height}
 .rl{width:375px;height:734px;overflow:hidden}
 .mv video,.rl video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.mv .mvp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
+.mv .mvp{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);object-fit:cover;display:block;pointer-events:none}   /* still under the video: Safari shows this before the first decoded frame */
 /* In-Content banner thumb play: the canonical js/play.webp (VideoScrubber's own play mark, 22×22 as it draws it), centred in the 74×74 .mv.
    assets/thumb-play.webp was an opaque RGB export (its alpha lost), so it painted as a black square. Never redraw. */
 .mv .mtp{position:absolute;left:26px;top:26px;width:22px;height:22px;display:block;pointer-events:none;z-index:2}
@@ -239,16 +239,19 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;transition:background-color .32s cubic-bezier(.22,1,.36,1)}
 
-/* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
+/* ---------- the Menu pill + Restart button: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
+.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .48s cubic-bezier(.22,1,.36,1)}
+.rp.on{opacity:1;pointer-events:auto}
 .phone.menu-on{--sb-hide:1}
-.phone.menu-on .mp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
+.phone.menu-on .mp,.phone.menu-on .rp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
 .phone.menu-on .uih,.phone.menu-on .st,.phone.menu-on .bo{clip-path:path(evenodd,'M0 0H375V812H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z M280 10H366V34H280Z')!important}
 .phone.menu-on .dc .hm{background:#fff!important}
-.mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
-.mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
-.mp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.mp i,.rp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
+.mp .lt,.rp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.mp .dk,.rp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
+.rp svg{position:relative;width:12px;height:12px;display:block;pointer-events:none;will-change:transform}
 
 /* ---------- the menu: tree-branch card over the blurred app (iOS Liquid Glass · Dark) ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
@@ -304,6 +307,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L" id="xps" style="width:375px;height:812px"></div>
         <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk" style="opacity:0"></i><span>Menu</span></button>
+        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><g transform="rotate(30 6 6)"><path d="M1.46 3.38A5.25 5.25 0 1 1 1.46 8.62" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M1.1 1.15V3.55H3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></g></svg></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
@@ -400,7 +404,7 @@ const TABS=['Feed','Reels','Stories','Marketplace','Search'];
 /* ---------- the split-screen builder: Solution 1 / 2's layer recipe, every layer a function of the sheet's top edge y ----------
    a = surface → split (the sheet from 812 to the split line), c = split → full (split line to 44): the same two values the Solution
    loops pre-sample, here read live from the sheet (the shared IAB's spring and drag, or the native sheet's, same spring, ω16 / ω18). */
-const HOLE=h=>`path(evenodd,'M0 0H375V${h}H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z')`;   // the status bar's 2:04 is the Menu pill's place: cut out of overlays, the pill's own shape
+const HOLE=h=>`path(evenodd,'M0 0H375V${h}H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z M100 10A12 12 0 1 1 100 34A12 12 0 1 1 100 10Z')`;   // the status bar's 2:04 is the Menu + Restart pill's place: cut out of overlays, the pills' own shapes
 /* header badges: the one shared set (preview/shared/reel), Hang's Figma exports, referenced by URL so an update there is picked up here; never copied */
 const ICONS={base:new URL('../shared/reel/',location.href).href,v:'?v=359'}   /* absolute: a url() in a custom property resolves against the sheet that reads it (reel.css) */,ico=f=>`<i class="rl-ico" style="--m:url(${ICONS.base+f+ICONS.v})"></i>`;
 const DOTS='<svg viewBox="0 0 24 24" style="left:0;filter:drop-shadow(0 0 1px rgba(0,0,0,.62))"><g fill="#fff"><circle cx="4" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="20" cy="12" r="2.5"/></g></svg>';
@@ -471,6 +475,8 @@ function split(E,root){
     mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),hs:r('hs'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
     uiu:r('uiu'),uiud:r('uiud'),uiucta:r('uiucta'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');X.v2=root.querySelector('.mpv2 video');
+  const mvp=els.mv.querySelector('.mvp');
+  if(mvp&&X.video&&!C.reelTap){const hideMvp=()=>{mvp.style.display='none'};if(X.video.readyState>=2)hideMvp();else X.video.addEventListener('loadeddata',hideMvp,{once:true})}
   const setV=(v,t)=>{if(!v||!v.readyState)return;try{if(Math.abs(v.currentTime-t)>.05)v.currentTime=t}catch(_){}};
   if(C.vStart!=null){const s0=()=>setV(X.video,C.vStart);X.video.addEventListener('loadedmetadata',s0);s0()}
   if(C.mph){
@@ -658,7 +664,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.hadSplit=false;X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.hsReset&&X.hsReset();X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.sheet.reset();X.hadSplit=false;X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.hsReset&&X.hsReset();X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -766,7 +772,7 @@ function render(X){
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
-  if(X===cur){pill(X.tone);chrome(X);homeTell(menuOpen&&!picked)}
+  if(X===cur){pill(X.tone);chrome(X);syncRestart(X);homeTell(menuOpen&&!picked)}
 }
 let homeS=null,standaloneHome=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*');if(standaloneHome)standaloneHome(h)}
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
@@ -874,9 +880,36 @@ function nativeSheet(o){
   return {Y1,Y2,Y3,get y(){return y},get state(){return state},get busy(){return yS.busy},get drag(){return drag},go,dragStart,dragMove,dragEnd,reset,setY:v=>{yS.stop();y=v;render()}};
 }
 
-/* ---------- the Menu pill: iOS background blur over light (#F4F4F5, black) and dark (translucent white) status bars ---------- */
-const mpEl=$('menuBtn'),mpLt=mpEl.querySelector('.lt'),mpDk=mpEl.querySelector('.dk');let lastTone=-1;
-function pill(t){const k=+clamp((t-.35)/.3).toFixed(3);if(k===lastTone)return;lastTone=k;mpLt.style.opacity=k;mpDk.style.opacity=1-k;const g=Math.round(20+(255-20)*(1-k));mpEl.style.color=`rgb(${g},${g},${g})`}
+/* ---------- the Menu pill + Restart button: iOS background blur over light (#F4F4F5, black) and dark (translucent white) status bars ---------- */
+const mpEl=$('menuBtn'),mpLt=mpEl.querySelector('.lt'),mpDk=mpEl.querySelector('.dk');
+const rpEl=$('restartBtn'),rpLt=rpEl.querySelector('.lt'),rpDk=rpEl.querySelector('.dk'),rpSvg=rpEl.querySelector('svg');
+let lastTone=-1,rpBusy=false,rpTm=0;
+function pill(t){const k=+clamp((t-.35)/.3).toFixed(3);if(k===lastTone)return;lastTone=k;mpLt.style.opacity=rpLt.style.opacity=k;mpDk.style.opacity=rpDk.style.opacity=1-k;const g=Math.round(20+(255-20)*(1-k));mpEl.style.color=rpEl.style.color=`rgb(${g},${g},${g})`}
+function syncRestart(X){
+  if(rpBusy)return;
+  const past=!!(X&&!menuOpen&&(X.state>1||X.y<811.5||X.vw>0.01||X.vwCta||X.ctaFrom));
+  if(!past){clearTimeout(rpTm);rpTm=0;rpEl.classList.remove('on');return}
+  if(rpEl.classList.contains('on')||rpTm)return;
+  rpTm=setTimeout(()=>{rpTm=0;if(!rpBusy&&cur===X&&!menuOpen&&(X.state>1||X.y<811.5||X.vw>0.01||X.vwCta||X.ctaFrom))rpEl.classList.add('on')},RM.matches?0:640);
+}
+rpEl.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!cur||rpBusy||!rpEl.classList.contains('on'))return;
+  clearTimeout(rpTm);rpTm=0;rpBusy=true;
+  rpEl.classList.remove('on');
+  if(!RM.matches&&rpSvg.animate){
+    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:992,easing:'cubic-bezier(.22,1,.36,1)'});
+    a.onfinish=()=>{rpBusy=false;syncRestart(cur)};
+  }else{
+    rpBusy=false;
+  }
+  let X=cur;
+  if(X.E.c.mph&&X.E.c.mph.isAlt&&X.alt){
+    X.reset();X.root.classList.remove('on');X.vids.forEach(v=>v.pause());
+    X=cur=X.alt;X.root.classList.add('on');
+  }
+  X.reset();vidSync();X.dwell();say(X.E.name+', restarted');
+});
 
 /* ---------- switching: every experience is built once (on its first pick) and reset to its start state on every pick ---------- */
 const built=new Map();let cur=null,curI=-1,xpAn=[];
@@ -887,6 +920,7 @@ function show(i,fade){
     xpAn.forEach(a=>a.cancel());xpAn=[];
     const prev=cur&&cur!==X?cur:null;
     X.reset();cur=X;curI=i;X.root.classList.add('on');X.root.style.zIndex=prev?'2':'';X.root.style.opacity='';
+    clearTimeout(rpTm);rpTm=0;rpBusy=false;rpEl.classList.remove('on');
     render(X);vidSync();X.dwell();
     if(menuOpen)syncMenu();
     phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
