@@ -16,7 +16,7 @@ st.textContent=
  'html body p.vcap.vcap{display:flex;gap:'+GAP+'px;width:'+W+'px;margin:0;padding:0;white-space:nowrap;font:var(--t-r-cap);letter-spacing:var(--t-r-cap-ls);font-feature-settings:var(--t-sf-ft);color:#fff;text-shadow:0 0 1px rgba(0,0,0,.62)}'+
  'html body p.vcap span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}'+
  'html body p.vcap em{flex:none;display:flex;align-items:flex-start;font-style:normal;color:var(--t-r-more-c)}'+
- 'html body p.vcap em .vcap-cv{position:static;left:auto;top:auto;display:block;flex:none;width:12px;height:12px;max-width:none;margin:4.5px 0 0 '+(ARROW-INSET)+'px;pointer-events:none}';
+ 'html body p.vcap em .vcap-cv{position:static;left:auto;top:auto;display:block;flex:none;width:12px;height:12px;max-width:none;margin:4.5px 0 0 '+(ARROW-INSET)+'px;filter:drop-shadow(0 0 1px rgba(0,0,0,.62));pointer-events:none}';
 document.head.appendChild(st);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 function html(o){return '<p class="vcap'+(o.cls?' '+o.cls:'')+'" data-cap="'+esc(o.cap)+'"'+(o.cut?' data-cut':'')+'><span>'+esc(o.cap)+(o.cut?'…':'')+'</span>'+
