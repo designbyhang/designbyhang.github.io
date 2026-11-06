@@ -241,8 +241,8 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 
 /* ---------- the Menu pill + Restart button: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
-.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .48s cubic-bezier(.22,1,.36,1)}
-.rp.on{opacity:1;pointer-events:auto}
+.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity 1.12s cubic-bezier(.22,1,.36,1)}
+.rp.on{opacity:1;pointer-events:auto;transition:opacity .48s cubic-bezier(.22,1,.36,1)}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .rp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
 .phone.menu-on .uih,.phone.menu-on .st,.phone.menu-on .bo{clip-path:path(evenodd,'M0 0H375V812H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z M280 10H366V34H280Z')!important}
@@ -251,7 +251,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .mp .lt,.rp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk,.rp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
-.rp svg{position:relative;width:12px;height:12px;display:block;overflow:visible;pointer-events:none;will-change:transform}
+.rp svg{position:relative;width:13px;height:13px;display:block;overflow:visible;pointer-events:none;will-change:transform}
 
 /* ---------- the menu: tree-branch card over the blurred app (iOS Liquid Glass · Dark) ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
@@ -307,7 +307,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L" id="xps" style="width:375px;height:812px"></div>
         <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk" style="opacity:0"></i><span>Menu</span></button>
-        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="-2 -2 54 54" overflow="visible" aria-hidden="true"><g transform="matrix(0 1 1 0 0 0)"><path fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" d="M 25 1 A 2.0002 2.0002 0 1 0 25 5 C 36.118033 5 45 13.97989 45 25 C 45 36.02011 36.118033 45 25 45 C 13.871038 45 5 36.128962 5 25 C 5 19.959871 6.8890005 15.319498 10 11.796875 L 10 17 A 2.0002 2.0002 0 1 0 14 17 L 14 7 A 2.0002 2.0002 0 0 0 12 5 L 2 5 A 2.0002 2.0002 0 1 0 2 9 L 7.1386719 9 C 3.316396 13.254863 1 18.890139 1 25 C 1 38.271038 11.728962 49 25 49 C 38.281967 49 49 38.17989 49 25 C 49 11.82011 38.281967 1 25 1 z"/></g></svg></button>
+        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 24 24" overflow="visible" fill="none" aria-hidden="true"><path d="M9.2 5.4A8.5 8.5 0 1 1 3.5 13.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M12.5 1.4L8.4 5.2L12.5 9.1" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
@@ -898,7 +898,7 @@ rpEl.addEventListener('click',e=>{
   clearTimeout(rpTm);rpTm=0;rpBusy=true;
   rpEl.classList.remove('on');
   if(!RM.matches&&rpSvg.animate){
-    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:992,easing:'cubic-bezier(.22,1,.36,1)'});
+    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:1488,easing:'cubic-bezier(.22,1,.36,1)'});
     a.onfinish=()=>{rpBusy=false;syncRestart(cur)};
   }else{
     rpBusy=false;
