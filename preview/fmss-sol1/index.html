@@ -22,7 +22,7 @@ html,body{margin:0;background:var(--page);color:var(--ink);transition:background
 body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .wrap{max-width:1440px;margin:0 auto;padding:48px}
 /* container: same proportions as the case-study .media.mframe (3840/2052) */
-.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--line);overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease)}
+.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--frame-line,var(--line));overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease)}
 /* stage = the Figma slide minus its title row: 1920×1026 design px, scaled to the frame */
 .stage{position:absolute;left:50%;top:50%;width:1920px;height:1026px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.5))}
 /* phone: Figma 375×812 screen at x 90/545/1000/1455 (80px apart); 8px code-drawn bezel outside it */
