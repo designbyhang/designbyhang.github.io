@@ -348,7 +348,7 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iv-mc-ui{animation:ivCtlFade 3.84s var(--ease) infinite}
 .iv-mc-fill{animation:ivCtlProg 3.84s linear infinite}
 /* 4. Entry/Exit Animations: full-bleed square media (flat corners) shrinking to centred rounded top pane as bottom sheet springs up, then back */
-@keyframes ivEeMedia{0%,12%,92%,100%{x:7px;y:15px;width:34px;height:28px;rx:0px;ry:0px}38%,68%{x:9px;y:7px;width:30px;height:23px;rx:3px;ry:3px}}
+@keyframes ivEeMedia{0%,12%,92%,100%{x:7px;y:18px;width:34px;height:28px;rx:0px;ry:0px}38%,68%{x:9px;y:7px;width:30px;height:23px;rx:3px;ry:3px}}
 @keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(28px)}38%,68%{transform:translateY(0)}}
 .iv-ee-m{animation:ivEeMedia 3.84s var(--ease) infinite}
 .iv-ee-s{animation:ivEeSheet 3.84s var(--ease) infinite}
@@ -372,7 +372,7 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-grid li.iter-ipad span{max-width:44ch;text-wrap:balance}
 .iter-vis.iter-vis-ipad{width:268.8px;height:143.36px}
 .iter-vis.iter-vis-ipad svg{width:268.8px;height:143.36px}
-@keyframes ivPadPtMedia{0%,12%,92%,100%{x:3px;y:15px;width:44px;height:28px;rx:0px;ry:0px}38%,68%{x:5px;y:7px;width:40px;height:23px;rx:3px;ry:3px}}
+@keyframes ivPadPtMedia{0%,12%,92%,100%{x:3px;y:18px;width:44px;height:28px;rx:0px;ry:0px}38%,68%{x:5px;y:7px;width:40px;height:23px;rx:3px;ry:3px}}
 @keyframes ivPadPtSheet{0%,12%,92%,100%{transform:translateY(28px)}38%,68%{transform:translateY(0)}}
 @keyframes ivPadLsMedia{0%,12%,92%,100%{x:76px;y:10px;width:30px;height:44px;rx:0px;ry:0px}38%,68%{x:61px;y:13px;width:27px;height:38px;rx:3px;ry:3px}}
 @keyframes ivPadLsSheet{0%,12%,92%,100%{transform:translateX(34px)}38%,68%{transform:translateX(0)}}
