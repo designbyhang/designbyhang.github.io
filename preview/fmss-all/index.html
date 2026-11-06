@@ -146,6 +146,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mpv2{position:absolute;top:396px;width:185.5px;height:186px;overflow:hidden;background:#000;pointer-events:none}
 .mpv2 img,.mpv2 video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .srh{width:186px;height:800px;pointer-events:none}
+.srv{position:absolute;top:148px;width:181.5px;height:244.5px;border-radius:9.5px 9.5px 0 0;overflow:hidden;background:#000;pointer-events:none}
+.srv img,.srv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .srh>*{position:absolute;margin:0;-webkit-font-smoothing:antialiased;font-feature-settings:var(--t-sf-ft)}
 .srh .av{left:14px;top:728.5px;width:18px;height:18px;border-radius:50%;background-size:168.75px 365.4px;background-position:-5.4px -52.2px;background-repeat:no-repeat}
 .srh .nm{left:38px;top:730.5px;font:600 11.5px/14px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;color:#050505;white-space:nowrap}
@@ -180,7 +182,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000}
 
 /* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
-.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:500 15px/24px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
+.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font-family:var(--t-sf);font-size:14px;line-height:24px;font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
@@ -189,7 +191,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* ---------- the menu: tree-branch card over the blurred app ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:flex}
-.mm-bg{position:absolute;inset:0;background:rgba(235,235,240,.68);-webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2)}
+.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.72);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4)}
 .mm-card{position:relative;width:327px;padding:62px 12px 24px;box-sizing:border-box;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04)}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
@@ -280,7 +282,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=6'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=7'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -353,7 +355,9 @@ function split(E,root){
       `<i class="av" style="left:10px;background-image:url(${u(M.av)})"></i><p class="n" style="left:38px">${M.name}</p><p class="s" style="left:38px">Sponsored</p><svg class="dt" style="left:162px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:10px">${M.hl}</p>`+
       (R?`<i class="av" style="left:199px;background-image:url(${u(R.av)})"></i><p class="n" style="left:227px">${R.name}</p><p class="s" style="left:227px">Sponsored</p><svg class="dt" style="left:351px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:199px">${R.hl}</p>`:'')+
       `</div><div class="mpv2 sf" style="left:${M.x2}px"><img class="mvp" alt="" src="${u(M.p2)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u(M.p2)}" src="${u(M.v2+'.mp4')}"></video></div>`}
-  if(C.srh)h+=`<div class="L srh sf" data-r="srh"><i class="av" style="background-image:url(${u(C.srh.av)})"></i><p class="nm">${C.srh.name} <span>· Sponsored</span></p><p class="cp">${C.srh.cap}</p></div>`;
+  if(C.srh)h+=`<div class="srv sf" data-sq-off style="left:3.5px"><img class="mvp" alt="" src="assets/sr-p1.webp"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/sr-p1.webp" src="assets/sr-v1.mp4"></video></div>`+
+    `<div class="srv sf" data-sq-off style="left:189px"><img class="mvp" alt="" src="assets/sr-p2.webp"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/sr-p2.webp" src="assets/sr-v2.mp4"></video></div>`+
+    `<div class="L srh sf" data-r="srh"><i class="av" style="background-image:url(${u(C.srh.av)})"></i><p class="nm">${C.srh.name} <span>· Sponsored</span></p><p class="cp">${C.srh.cap}</p></div>`;
   const vSrc=u(C.v||'v'+n+'.mp4'),pSrc=u(C.p||'p'+n),buSrc=u(C.bu||'bu'+n);
   h+=FMSSBackdrop.html(buSrc,top,{attrs:' data-r="bu" style="display:none"'});
   h+=`<div class="mv" data-r="mv"><img class="mvp" alt="" src="${pSrc}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${pSrc}" src="${vSrc}"></video>`+
@@ -370,7 +374,7 @@ function split(E,root){
     `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
   /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
-  if(C.cs)h+=`<div class="L ctlw off" data-r="ctlw" style="opacity:0;visibility:hidden"><i data-r="vsAt"></i></div>`;
+  if(C.cs)h+=`<div class="L ctlw off" data-r="ctlw" style="opacity:0"><i data-r="vsAt"></i></div>`;
   if(!C.stories)h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`+(SQ?`clip-path:${HOLE(top)}`:''));
   else h+=img('bo'+n,'bo',`height:${top}px;opacity:0;`);   // Stories: bo3 is only the 'Swipe up to see more' line (design 638–652.5), as sol2 — fades in with the peek
   if(C.stories)h+=`<div class="hd" data-r="hd"><i class="pb"></i><div class="meta"><img alt="" src="${u('av3')}"><div><div class="nm"><p class="rl-t rl-name">Away</p>${ico('verified.png')}</div><div class="sp">Sponsored</div></div></div><div class="ic">${DOTS}${CROSS}</div></div>`;
@@ -411,6 +415,19 @@ function split(E,root){
     X.mpLeft.addEventListener('timeupdate',onTime);
     X.mpRight.addEventListener('timeupdate',onTime);
   }
+  if(C.srh){
+    const srVids=[...root.querySelectorAll('.srv video')];
+    X.srList=[srVids[0],srVids[1],X.video];
+    X.srTurn=0;X.srElapsed=0;X.srLastT=0;   // 0 = post 1 (4s), 1 = post 2 (4s), 2 = Nike ad
+    const onSrTime=()=>{if(cur!==X||X.state!==1||X.vw)return;
+      const now=performance.now(),dt=X.srLastT?Math.min(500,now-X.srLastT):0;X.srLastT=now;
+      const act=X.srList[X.srTurn];
+      X.srList.forEach((v,i)=>{if(i!==X.srTurn&&!v.paused)v.pause()});
+      if(!act.paused)X.srElapsed+=dt;
+      const dur=X.srTurn<2?4000:((act.duration&&isFinite(act.duration)?act.duration*1000:14000));
+      if(X.srElapsed>=dur){X.srElapsed=0;act.pause();setV(act,0);X.srTurn=(X.srTurn+1)%3;setV(X.srList[X.srTurn],0);vidSync()}};
+    X.srList.forEach(v=>v.addEventListener('timeupdate',onSrTime));
+  }
   if(C.alt){const altRoot=document.createElement('div');altRoot.className='xp';altRoot.dataset.i='mp-alt';xps.appendChild(altRoot);
     X.alt=split({tab:E.tab,group:E.group,name:'Watch & Message',variant:E.variant,from:'Marketplace · Business Messages',c:C.alt},altRoot);
     X.alt.alt=X}
@@ -420,13 +437,14 @@ function split(E,root){
   const hooks={
     render:o=>{X.y=o.y;X.sd=o.sd||0;render(X);if(X.E.c.reelTap)vidSync()},
     x:()=>{   // × on the full-screen destination: a CTA open closes back to the surface it opened over (Feed · the viewer); else to Feed
-      if(X.ctaFrom==='vw')X.sheet.go(1,{w:16});   // off the bottom (the reverse of its entry), the viewer stays
+      if(X.ctaFrom==='vw'){X.vwCta=false;X.ctaFrom=null;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);X.sheet.go(1,{w:16})}   // off the bottom (the reverse of its entry), the viewer stays
       else if(X.ctaFrom==='feed')X.sheet.go(1,{w:16});
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
     state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
+      else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
       if(s===1){X.vs&&X.vs.leaveSplit()}},
     opened:s=>{if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
     closed:()=>{X.ctaFrom=null;if(X.vw&&X.vwCta){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
@@ -489,11 +507,7 @@ function split(E,root){
   if(VW)r('vwcta').addEventListener('click',e=>{e.stopPropagation();vwCta(X)});
   X.vw=0;X.vwS=SP(()=>X.vw,v=>{X.vw=v;render(X)});X.bdg=1;X.bdS=SP(()=>X.bdg,v=>{X.bdg=v;render(X)});
   X.stBo=0;X.stTm=0;X.stS=SP(()=>X.stBo,v=>{X.stBo=v;render(X)});
-  if(VW){r('vwx').addEventListener('click',e=>{e.stopPropagation();vwFeed(X)})
-    /* in the viewer a tap on the video pauses / resumes it, as in split screen, through the viewer's own player (its pause cell shows the
-       state); the split player's tap never sees it; no drag of any kind */
-    root.addEventListener('pointerup',e=>{if(X.vw&&els.mv.contains(e.target)){e.stopPropagation();const p=mp;mvUp(e);
-      if(p&&e.pointerId===p.id&&Math.hypot(e.clientX-p.x,e.clientY-p.y)<=10&&performance.now()-p.t<=600&&X.vw===1&&!X.vwS.busy&&!X.vwCta&&X.vs)X.vs.togglePause()}},true)}
+  if(VW)r('vwx').addEventListener('click',e=>{e.stopPropagation();vwFeed(X)});
 
   /* the surface: a tap on the ad opens split screen; a Story also takes a swipe up (the sheet follows the finger) */
   let hp=null;
@@ -546,7 +560,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.mpElapsed=0;X.mpLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -577,14 +591,14 @@ function vwBack(X){if(!X.vw||X.vwS.target===0)return;X.bdS.stop();X.bdg=0;X.vwT0
   X.vs&&X.vs.enterSplit();   // shared bar stays up for the whole collapse spring; idle hold+fade restarts from here once landed
   /* g stays 0 while k moves: p=a·g=0 → box() is the live video rect, so the colour rides with the video and is never taller (Hang).
      One grow spring to the 734 rest starts when the collapse lands — no early-arm / mid-spring reveal hitch (Hang 2026-11-05 choppy). */
-  if(X.vwOff)X.sheet.go(2,{w:16,load:false});   // a viewer CTA's destination left off the bottom: the sheet rises back into split with the video
+  if(X.vwOff||X.vwCta||X.ctaFrom==='vw'){X.vwOff=false;X.vwCta=false;X.ctaFrom=null;X.sheet.go(2,{w:16,load:false})}   // a viewer CTA's destination left off the bottom: the sheet rises back into split with the video
   X.vwS.to(0,{w:16,onDone:()=>{X.bdS.to(1,{w:16});vwPlay(X);say(X.E.name+', split screen')}})}
 /* the X: all the way back to the Feed (the sheet leaves split for its closed stop as the video settles into it, then the video to the surface) */
 function vwClose(X){vwBack(X)}   // the viewer's collapse (its cell, Escape): back to split
-function vwFeed(X){if(!X.vw)return;if(X.vwOff){X.vwOff=false;X.bdS.stop();X.bdg=1;X.vwS.to(0,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)});return}
+function vwFeed(X){if(!X.vw)return;if(X.vwOff||X.vwCta||X.ctaFrom==='vw'){X.vwOff=false;X.vwCta=false;X.ctaFrom='feed';X.bdS.stop();X.bdg=1;X.vwT0=null;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16});X.vwS.to(0,{w:16,onDone:()=>{if(!X.sheet.busy)X.ctaFrom=null;render(X);say(X.E.name+', '+X.E.tab)}});return}
   vwBack(X);X.sheet.go(1,{w:16,onDone:()=>say(X.E.name+', '+X.E.tab)})}
 /* the CTA: the in-app browser opens over the paused viewer, full screen; its × closes back to the viewer (hooks.x); swipe / Escape stay on their own handlers */
-function vwCta(X){if(!X.vw||X.vwS.busy||X.sheet.busy||X.vwCta)return;X.vwCta=true;X.ctaFrom='vw';X.video.pause();render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', in-app browser')}
+function vwCta(X){if(!X.vw||X.vwS.busy||X.sheet.busy||X.vwCta)return;X.vwCta=true;X.ctaFrom='vw';X.vs&&X.vs.leaveSplit();X.video.pause();render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', in-app browser')}
 /* Feed ad footer: open the destination full screen from Feed (same go(3) path as the viewer's CTA); media taps keep using open() → split */
 function openFull(X){if(X.state!==1||X.sheet.busy)return;X.ctaFrom='feed';render(X);X.sheet.go(3,{w:16,why:'cta',entry:'cta'});say(X.E.name+', full screen')}
 function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}
@@ -593,7 +607,7 @@ function close(X){if(X.state!==2||X.vw)return;X.vs&&X.vs.leaveSplit();X.sheet.go
 function render(X){
   const C=X.E.c,e=X.els,top=C.top,m=C.m,y=X.y;
   /* a CTA open (X.ctaFrom) is a layer over the surface it came from: the surface keeps its pose (Feed a 0 · viewer), only the sheet moves */
-  const a=X.ctaFrom==='feed'?0:X.vwOff||X.ctaFrom==='vw'?1:clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
+  const a=X.ctaFrom==='feed'?0:(X.vwOff&&X.vw>0)||X.ctaFrom==='vw'?1:clamp((812-y)/(812-top)),c=clamp((top-y)/(top-44));
   const sA=a<1?'1':'0',pA=a<1&&(!e.sfImg||e.sfImg.complete)?'1':'0';e.sf.forEach(l=>l.style.opacity=sA);e.sfPatch.forEach(l=>l.style.opacity=pA);
   if(e.sfImg&&!e.sfImg.complete&&!X.sfWait){X.sfWait=1;e.sfImg.addEventListener('load',()=>{X.sfWait=0;render(X)},{once:true})}
   if(e.fh&&!X.fhOk)fhFit(X);
@@ -621,7 +635,7 @@ function render(X){
      split↔viewer: g=0 while k moves so p=0 and box() is exactly the live video rect (colour rides with it, never taller); on land one
      g spring (ω16) eases out to the 734 rest; into the viewer g retracts (ω32) as the video grows. Image stays screen-fixed; only the
      clip-path reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb: the black only recedes, it never reveals it. */
-  const g=X.bdg==null?1:X.bdg,grid=!!(C.mph||C.srh),p=a*g,bRect=k>0?[vx,vy,vw,vh]:[0,vy,375,vh],bR=k>0?R:[0,0,0,0],B=FMSSBackdrop.box(bRect,bR,p),bs=e.bu.style;
+  const g=X.bdg==null?1:X.bdg,grid=!!(C.mph||C.srh),p=a*g,B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
   bs.display=a>0.001?'block':'none';   // keep laid out for the whole open / close (no display:none snap on the last split→feed frames)
   bs.opacity=k>0?'1':(a*a).toFixed(3);
   if(a>0){e.bui.style.transform='';
@@ -631,13 +645,12 @@ function render(X){
   /* shared controls: ride the live video box (Hang). Split rest keeps the feed→split lift; once k>0 the wrapper IS the live
      video rect so the bar tracks its bottom edge 1:1 — visible for the whole spring (no a·(1−k) hide, no second scrubber). Idle
      fade is VideoScrubber's own 2080+320 once landed. Expand glyph: ci (outward) in split, vw-ctl (inward) in the viewer. */
-  if(e.ctlw&&X.vs){const sb=C.m.b[1]+C.m.b[3],on=a>0.001,ride=k>0||grid;
+  if(e.ctlw&&X.vs){const sb=C.m.b[1]+C.m.b[3],on=a>0.001&&c<.99,ride=k>0||grid;
     e.ctlw.classList.toggle('off',!on||(X.state===1&&!X.vw)||c>.05);
-    e.ctlw.style.visibility=on&&c<.99?'':'hidden';
     e.ctlw.style.setProperty('--ctl-b',sb+'px');
     if(ride){e.ctlw.style.left=vx.toFixed(2)+'px';e.ctlw.style.top=vy.toFixed(2)+'px';e.ctlw.style.width=vw.toFixed(2)+'px';e.ctlw.style.height=vh.toFixed(2)+'px'}
     else{e.ctlw.style.left=C.m.b[0]+'px';e.ctlw.style.top=C.m.b[1]+'px';e.ctlw.style.width=C.m.b[2]+'px';e.ctlw.style.height=C.m.b[3]+'px'}
-    e.ctlw.style.opacity=on?(grid?clamp((a-.8)/.2):a).toFixed(3):'0';e.ctlw.style.zIndex=k>0?'8':'';
+    e.ctlw.style.opacity=on?((grid?clamp((a-.8)/.2):a)*(1-clamp(c/.2))).toFixed(3):'0';e.ctlw.style.zIndex=k>0?'8':'';
     X.vs.el.style.transform=ride?'':`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;
     const ic=k>0?(X._ctlView||X._ctlSplit):X._ctlSplit;if(ic&&ic!==X._ctlIc){X._ctlIc=ic;X.vs.el.querySelectorAll('.vs-i').forEach(el=>{el.style.backgroundImage=`url('${ic}')`})}
     if(X._ctlEx)X._ctlEx.setAttribute('aria-label',k>0?'Collapse':'Expand')}
@@ -816,6 +829,11 @@ function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.h
        user was watching, never a reset to the poster — the seek to 0 also dropped the media out to a blank frame in Safari) */
     if(C.mph){
       const surf=cur.state===1&&!cur.vw,act=cur.mpTurn?cur.mpRight:cur.mpLeft;
+      const go=on&&(surf?v===act:(v===cur.video&&cur.state<3&&!vsHeld));
+      if(go){if(v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}}else if(!v.paused)v.pause();
+      return}
+    if(C.srh){
+      const surf=cur.state===1&&!cur.vw,act=cur.srList[cur.srTurn||0];
       const go=on&&(surf?v===act:(v===cur.video&&cur.state<3&&!vsHeld));
       if(go){if(v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}}else if(!v.paused)v.pause();
       return}
