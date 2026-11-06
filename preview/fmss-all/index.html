@@ -241,7 +241,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 
 /* ---------- the Menu pill + Restart button: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
-.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
+.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .48s cubic-bezier(.22,1,.36,1)}
 .rp.on{opacity:1;pointer-events:auto}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .rp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
@@ -883,20 +883,22 @@ function nativeSheet(o){
 /* ---------- the Menu pill + Restart button: iOS background blur over light (#F4F4F5, black) and dark (translucent white) status bars ---------- */
 const mpEl=$('menuBtn'),mpLt=mpEl.querySelector('.lt'),mpDk=mpEl.querySelector('.dk');
 const rpEl=$('restartBtn'),rpLt=rpEl.querySelector('.lt'),rpDk=rpEl.querySelector('.dk'),rpSvg=rpEl.querySelector('svg');
-let lastTone=-1,rpBusy=false;
+let lastTone=-1,rpBusy=false,rpTm=0;
 function pill(t){const k=+clamp((t-.35)/.3).toFixed(3);if(k===lastTone)return;lastTone=k;mpLt.style.opacity=rpLt.style.opacity=k;mpDk.style.opacity=rpDk.style.opacity=1-k;const g=Math.round(20+(255-20)*(1-k));mpEl.style.color=rpEl.style.color=`rgb(${g},${g},${g})`}
 function syncRestart(X){
   if(rpBusy)return;
   const past=!!(X&&!menuOpen&&(X.state>1||X.y<811.5||X.vw>0.01||X.vwCta||X.ctaFrom));
-  rpEl.classList.toggle('on',past);
+  if(!past){clearTimeout(rpTm);rpTm=0;rpEl.classList.remove('on');return}
+  if(rpEl.classList.contains('on')||rpTm)return;
+  rpTm=setTimeout(()=>{rpTm=0;if(!rpBusy&&cur===X&&!menuOpen&&(X.state>1||X.y<811.5||X.vw>0.01||X.vwCta||X.ctaFrom))rpEl.classList.add('on')},RM.matches?0:640);
 }
 rpEl.addEventListener('click',e=>{
   e.stopPropagation();
   if(!cur||rpBusy||!rpEl.classList.contains('on'))return;
-  rpBusy=true;
+  clearTimeout(rpTm);rpTm=0;rpBusy=true;
   rpEl.classList.remove('on');
   if(!RM.matches&&rpSvg.animate){
-    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:384,easing:'cubic-bezier(.22,1,.36,1)'});
+    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:704,easing:'cubic-bezier(.22,1,.36,1)'});
     a.onfinish=()=>{rpBusy=false;syncRestart(cur)};
   }else{
     rpBusy=false;
@@ -918,7 +920,7 @@ function show(i,fade){
     xpAn.forEach(a=>a.cancel());xpAn=[];
     const prev=cur&&cur!==X?cur:null;
     X.reset();cur=X;curI=i;X.root.classList.add('on');X.root.style.zIndex=prev?'2':'';X.root.style.opacity='';
-    rpBusy=false;rpEl.classList.remove('on');
+    clearTimeout(rpTm);rpTm=0;rpBusy=false;rpEl.classList.remove('on');
     render(X);vidSync();X.dwell();
     if(menuOpen)syncMenu();
     phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
