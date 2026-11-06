@@ -917,7 +917,8 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen){
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
 let seen=false,held=false;
-function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden&&!held,C=cur.E.c;
+function vidSync(){if(!cur)return;const full=document.documentElement.classList.contains('embed-full')||document.documentElement.classList.contains('deck-open');
+  const on=(seen||demoClock.hosted||full)&&!document.hidden&&!held&&!(window.demoClock&&demoClock.paused),C=cur.E.c;
   cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs&&(cur.vs.paused()||cur.vs.dragging())))));
     /* the In-Content ad's own Reels video is paused by a tap on it: the watchdog leaves it paused (only the ad's player is its to drive) */
     if(v===cur.reelVideo&&cur.reelHeld){if(!v.paused)v.pause();return}
@@ -943,7 +944,7 @@ function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.h
       return}
     if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
-document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('pageshow',vidSync);
+document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('demo:play',vidSync);addEventListener('demo:pause',vidSync);addEventListener('pageshow',vidSync);
 addEventListener('embed:hold',()=>{held=true;vidSync()});addEventListener('embed:release',()=>{held=false;vidSync()});
 addEventListener('pointerdown',()=>setTimeout(vidSync,0),true);
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
@@ -995,7 +996,7 @@ if(!document.documentElement.classList.contains('embed')&&window.dbhFS){
   const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;
   let flowY=null;
   const flow=on=>{if(on){if(flowY!==null)return;flowY=scrollY;de.classList.add('hegg-flow','fs-stage');scrollTo({top:0,left:0,behavior:'instant'});if(window.__dbhResample)window.__dbhResample()}
-    else{if(flowY===null)return;const y=flowY;flowY=null;de.classList.remove('hegg-flow','fs-stage');scrollTo({top:y,left:0,behavior:'instant'});if(window.__dbhResample)window.__dbhResample()}};
+    else{if(flowY===null)return;const y=flowY;flowY=null;de.classList.remove('hegg-flow','fs-stage');scrollTo({top:y,left:0,behavior:'instant'});seen=true;if(window.__dbhResample)window.__dbhResample()}};
   function openFs(){
     if(fsState!=='closed')return;
     const A=hostBox();G={A,s0:sInline(A.w,A.h)};
