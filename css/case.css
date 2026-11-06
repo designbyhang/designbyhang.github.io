@@ -353,10 +353,10 @@ html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-l
 @keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(34px)}38%,68%{transform:translateY(0)}}
 .iv-ee-m{animation:ivEeMedia 3.84s var(--ease) infinite}
 .iv-ee-s{animation:ivEeSheet 3.84s var(--ease) infinite}
-/* 5. Gesture Interactions: drag up expands bottom sheet to fill full container in full color (handle fades out), then drag down returns to split screen */
-@keyframes ivGsSheet{0%,15%,88%,100%{y:38px;height:34px;rx:4px;ry:4px;fill:var(--iv-faint)}40%,62%{y:5px;height:66px;rx:5px;ry:5px;fill:var(--iv-med)}}
-@keyframes ivGsHdl{0%,15%,88%,100%{y:41px;opacity:1}40%,62%{y:8px;opacity:0}}
-@keyframes ivGsDot{0%,8%,94%,100%{opacity:0;transform:translateY(2px)}15%{opacity:1;transform:translateY(0)}40%,62%{opacity:1;transform:translateY(-31px)}88%{opacity:1;transform:translateY(0)}}
+/* 5. Gesture Interactions: drag up expands bottom sheet to fill full container in full color (handle fades out), dot fades out at fullscreen hold then fades back in to drag down to split screen */
+@keyframes ivGsSheet{0%,15%,88%,100%{y:38px;height:34px;rx:4px;ry:4px;fill:var(--iv-faint)}36%,66%{y:5px;height:66px;rx:5px;ry:5px;fill:var(--iv-med)}}
+@keyframes ivGsHdl{0%,15%,88%,100%{y:41px;opacity:1}36%,66%{y:8px;opacity:0}}
+@keyframes ivGsDot{0%,8%,94%,100%{opacity:0;transform:translateY(2px)}15%,88%{opacity:1;transform:translateY(0)}36%,66%{opacity:1;transform:translateY(-31px)}42%,60%{opacity:0;transform:translateY(-33px)}}
 .iv-gs-s{animation:ivGsSheet 3.84s var(--ease) infinite}
 .iv-gs-h{animation:ivGsHdl 3.84s var(--ease) infinite}
 .iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
