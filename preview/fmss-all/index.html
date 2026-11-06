@@ -186,6 +186,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
+.phone.menu-on .uih,.phone.menu-on .st,.phone.menu-on .bo{clip-path:path(evenodd,'M0 0H375V812H0Z M24 10H84V34H24Z M280 10H366V34H280Z')!important}
 .phone.menu-on .dc .hm{background:#fff!important}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
@@ -286,7 +287,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=8'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=9'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -371,7 +372,7 @@ function split(E,root){
   /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
      the media band between head and tab bar is what lifts when the ad's media is tapped and the reel pauses (ui), while the head and the tab bar
      stay put. Organic surfaces have no ads, so they never get any of this. */
-  if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`;
+  if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`+S.v;
   h+=`<img class="L ot uih" data-r="uih" alt="" src="${b('head')}">`+   // the Reels header: status row, Video title, search and profile
     `<img class="L ot uis" data-r="uis" alt="" src="${b('scrim')}" style="top:${UI_TOP}px">`+   // the band's gradient scrim: fixed, it never lifts
     `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px"${UI_BOTTOM[C.ui]!=null?` data-ui-bottom="${UI_BOTTOM[C.ui]}"`:''}>`+   // the band's live content, the only thing a paused tap lifts (data-ui-bottom: drawn end, as vac-proto)
