@@ -671,7 +671,7 @@ function render(X){
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
-  if(X===cur){pill(X.tone);chrome(X);homeTell(curI===0&&X.state===1&&!X.vw&&!menuOpen)}
+  if(X===cur){pill(X.tone);chrome(X);homeTell(menuOpen)}
 }
 let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
@@ -780,6 +780,7 @@ function show(i){
   const activate=()=>{
     if(cur&&cur!==X){cur.root.classList.remove('on');cur.reset();cur.vids.forEach(v=>v.pause())}
     X.reset();cur=X;curI=i;X.root.classList.add('on');render(X);vidSync();X.dwell();
+    if(menuOpen)syncMenu();
     phone.dataset.xp=i;say(E.name+' '+E.variant+', '+E.tab);
   };
   const im=X.els.sfImg;
@@ -807,10 +808,11 @@ function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
   mmLs.querySelectorAll('.mm-grp').forEach(g=>g.querySelector('.mm-parent').classList.toggle('active',g.dataset.tab===activeTab));
   mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
 let menuOpen=false,mAn=[],mmSq=false;
-function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');homeTell(false);
+function setMenuNow(on){mAn.forEach(a=>a.cancel());mAn=[];menuOpen=on;if(on)syncMenu();phone.classList.toggle('menu-on',on);mm.classList.toggle('on',on);mpEl.setAttribute('aria-expanded',on?'true':'false');homeTell(on)}
+function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');homeTell(true);
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:384,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:0,transform:'translate3d(0,10px,0) scale(.95)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
-function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');if(cur)homeTell(curI===0&&cur.state===1&&!cur.vw);
+function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');homeTell(false);
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:320,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:1,transform:'translate3d(0,0,0) scale(1)'},{opacity:0,transform:'translate3d(0,6px,0) scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
   mAn[0].onfinish=()=>{if(!menuOpen){mm.classList.remove('on');mAn.forEach(a=>a.cancel());mAn=[]}}}
@@ -857,12 +859,12 @@ addEventListener('pointerdown',()=>setTimeout(vidSync,0),true);
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
 let wasInl=INL();
 if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
-  if(menuOpen){menuOpen=false;phone.classList.remove('menu-on');mm.classList.remove('on');mpEl.setAttribute('aria-expanded','false');mAn.forEach(a=>a.cancel());mAn=[]}
-  show(0);homeS=null;homeTell(true)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+  show(0);homeS=null;setMenuNow(true)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 
 function say(t){$('live').textContent=t}
 const q0=+new URLSearchParams(location.search).get('x');
 show(q0>=1&&q0<=EXP.length?q0-1:0);
+if(!q0)setMenuNow(true);
 window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen},get page(){return pg}};   // for checks
 })();
 /* ---------- theme toggle + follow the site theme ---------- */
