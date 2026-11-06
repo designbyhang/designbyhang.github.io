@@ -217,7 +217,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .ng img,.nf img{position:absolute;left:0;top:0;width:375px;height:812px}
 .ng img.n-ext{top:772px;height:222px}
 .n-ttl{position:absolute;left:12px;top:58px;margin:0;padding:0;background:none;font:700 16px/20px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:-.32px;color:#050505;white-space:nowrap;-webkit-font-smoothing:antialiased;pointer-events:none}
-.hs{width:375px;overflow:hidden;touch-action:none;cursor:grab;z-index:2}
+.hs{width:375px;overflow:hidden;background:#f6f8fa;touch-action:none;cursor:grab;z-index:2}
 .hs.off{pointer-events:none}
 .hs img{position:absolute;left:0;top:0;display:block;will-change:transform}
 .ng .ngh{position:absolute;left:0;width:375px;height:18px}
@@ -348,7 +348,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=444'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=445'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -805,7 +805,7 @@ function nativeSheet(o){
     const R=+(16*(1-c)).toFixed(1);if(R+''!==rk){rk=R+'';ns.style.borderRadius=R>.05?`${R}px ${R}px 0 0`:''}
     /* the content group: bl's rows sit on c's (bl[r] = c[r + d]); split → full it closes that offset (d → 0 at the top's 44) as the sheet rises,
        so the split pose lands exactly on the full screen; clipped to the sheet, under its 18px handle strip */
-    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=(pin?Math.max(T,HB-pr):T).toFixed(2),ctClip=pin?812-HB:768;
+    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=(pin?Math.max(T,HB,HB-pr):T).toFixed(2),ctClip=pin?812-HB:768;
     ng.style.transform=`translate3d(0,${(oy+pr).toFixed(2)}px,0)`;
     if(ngClip!==ngk){ngk=ngClip;ng.style.clipPath=`inset(${ngClip}px 0 ${(812-F+pr).toFixed(2)}px 0)`}
     if(ctClip!==ctk){ctk=ctClip;ct.style.clipPath=`inset(0 0 ${ctClip}px 0)`}   // scrolling or pulling: pin status + header bar (through HB); page below moves
