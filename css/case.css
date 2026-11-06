@@ -307,16 +307,16 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 
 /* System & Scale: iteration examples as boxes between paragraphs */
 .iter-grid{list-style:none;display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 28px;padding:0}
-.iter-grid li{position:relative;border:1px solid var(--frame-line,var(--line));padding:20px 116px 20px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:132px;overflow:hidden}
+.iter-grid li{position:relative;border:1px solid var(--frame-line,var(--line));padding:24px 156px 24px 24px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:176px;overflow:hidden}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
-.iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5;max-width:15ch;text-wrap:balance} /* label/value pairing matches the Role / Timeline block */
-/* System & Scale boxes: full media width, 3 columns x 2 rows */
+.iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5} /* label/value pairing matches the Role / Timeline block */
+/* System & Scale boxes: full media width, 2 columns x 3 rows */
 .iter-wrap{margin-top:48px}
-.iter-wrap .iter-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
+.iter-wrap .iter-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
 @media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
-/* Direction A: live monochrome wireframe micro-diagrams on the right of each .iter-grid card (+60%: 48x64 -> 76.8x102.4) */
-.iter-vis{position:absolute;right:16px;top:50%;width:76.8px;height:102.4px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
-.iter-vis svg{display:block;width:76.8px;height:102.4px;overflow:visible}
+/* Direction A: live monochrome wireframe micro-diagrams on the right of each .iter-grid card (+40% over 76.8x102.4 -> 107.52x143.36) */
+.iter-vis{position:absolute;right:20px;top:50%;width:107.52px;height:143.36px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
+.iter-vis svg{display:block;width:107.52px;height:143.36px;overflow:visible}
 .iter-vis .iv-ph,.iter-vis .iv-str,.iter-vis .iv-dim{vector-effect:non-scaling-stroke}
 .iter-vis .iv-ph{fill:var(--frame);stroke:var(--frame-line,var(--line));stroke-width:1}
 .iter-vis .iv-faint{fill:color-mix(in srgb,var(--ink) 8%,transparent)}
