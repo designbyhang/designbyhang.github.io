@@ -360,9 +360,9 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iv-gs-h{animation:ivGsHdl 3.84s var(--ease) infinite}
 .iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
 /* 6. Scrubber & Thumbnail: playhead gliding along track with floating thumbnail preview above it (in split screen, matching Tap to Pause/Resume ratio) */
-@keyframes ivScMove{0%,12%,100%{transform:translateX(0)}48%,64%{transform:translateX(14px)}}
-@keyframes ivScThumb{0%,10%,82%,100%{opacity:0;transform:translate(0,3px) scale(.85)}20%{opacity:1;transform:translate(0,0) scale(1)}48%,64%{opacity:1;transform:translate(14px,0) scale(1)}}
-@keyframes ivScFill{0%,12%,100%{width:5px}48%,64%{width:19px}}
+@keyframes ivScMove{0%,14%,84%,100%{transform:translateX(0)}42%,56%{transform:translateX(14px)}}
+@keyframes ivScThumb{0%,6%,92%,100%{opacity:0;transform:translate(0,2px) scale(.88)}14%,84%{opacity:1;transform:translate(0,0) scale(1)}42%,56%{opacity:1;transform:translate(14px,0) scale(1)}}
+@keyframes ivScFill{0%,14%,84%,100%{width:5px}42%,56%{width:19px}}
 .iv-sc-k{animation:ivScMove 3.84s var(--ease) infinite}
 .iv-sc-t{transform-origin:17px 41px;animation:ivScThumb 3.84s var(--ease) infinite}
 .iv-sc-f{animation:ivScFill 3.84s var(--ease) infinite}
@@ -384,7 +384,7 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 @keyframes ivPadPtMedia{0%,12%,92%,100%{x:11px;y:24px;width:28px;height:28px;rx:0px;ry:0px}38%,68%{x:11px;y:7px;width:28px;height:28px;rx:3px;ry:3px}}
 @keyframes ivPadPtFlank{0%,12%,92%,100%{opacity:1}30%,74%{opacity:0}}
 @keyframes ivPadPtSheet{0%,12%,92%,100%{transform:translateY(34px)}38%,68%{transform:translateY(0)}}
-@keyframes ivPadLsMedia{0%,12%,92%,100%{x:72.5px;y:23px;width:30px;height:30px;rx:0px;ry:0px}38%,68%{x:56px;y:14px;width:30px;height:48px;rx:3px;ry:3px}}
+@keyframes ivPadLsMedia{0%,12%,92%,100%{x:72.5px;y:23px;width:30px;height:30px;rx:0px;ry:0px}38%,68%{x:56px;y:23px;width:30px;height:30px;rx:3px;ry:3px}}
 @keyframes ivPadLsFlank{0%,12%,92%,100%{opacity:1}30%,74%{opacity:0}}
 @keyframes ivPadLsSheet{0%,12%,92%,100%{transform:translateX(33px)}38%,68%{transform:translateX(0)}}
 .iv-pad-m-pt{animation:ivPadPtMedia 3.84s var(--ease) infinite}
