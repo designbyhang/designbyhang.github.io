@@ -307,57 +307,102 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 
 /* System & Scale: iteration examples as boxes between paragraphs */
 .iter-grid{list-style:none;display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 28px;padding:0}
-.iter-grid li{position:relative;border:1px solid var(--frame-line,var(--line));padding:20px 80px 20px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:96px;overflow:hidden}
+.iter-grid li{position:relative;border:1px solid var(--frame-line,var(--line));padding:24px 156px 24px 24px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:208px;overflow:hidden}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
 .iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5} /* label/value pairing matches the Role / Timeline block */
-/* System & Scale boxes: full media width, 3 columns x 2 rows */
+/* System & Scale boxes: full media width, 2 columns x 3 rows */
 .iter-wrap{margin-top:48px}
-.iter-wrap .iter-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
+.iter-wrap .iter-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
 @media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
-/* Direction A: live monochrome wireframe micro-diagrams on the right of each .iter-grid card */
-.iter-vis{position:absolute;right:16px;top:50%;width:48px;height:64px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
-.iter-vis svg{display:block;width:48px;height:64px;overflow:visible}
-.iter-vis .iv-ph{fill:var(--frame);stroke:var(--frame-line,var(--line));stroke-width:1}
-.iter-vis .iv-faint{fill:color-mix(in srgb,var(--ink) 8%,transparent)}
-.iter-vis .iv-med{fill:color-mix(in srgb,var(--ink) 16%,transparent)}
-.iter-vis .iv-ink{fill:var(--ink)}
-.iter-vis .iv-str{fill:none;stroke:var(--ink);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
-.iter-vis .iv-dim{fill:none;stroke:color-mix(in srgb,var(--ink) 28%,transparent);stroke-width:1;stroke-dasharray:2 2}
-/* 1. Split Ratio: top media + bottom sheet shifting between 50/50 and 70/30 anchor points */
-@keyframes ivSplitTop{0%,15%,100%{transform:scaleY(1)}45%,65%{transform:scaleY(1.42)}}
-@keyframes ivSplitBot{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(10px)}}
-.iv-sr-top{transform-origin:0 8px;animation:ivSplitTop 3.84s var(--ease) infinite}
+/* Direction A: live monochrome wireframe micro-diagrams on the right of each .iter-grid card (48x76 viewBox at 2.24x = 107.52x170.24px, +20% taller) */
+.iter-vis{--iv-ph-bg:#f2f2f2;--iv-ph-bd:#d4d4d4;--iv-faint:#e2e2e2;--iv-med:#cccccc;--iv-trk:#a8a8a8;--iv-hdl:#767676;--iv-fg:#525252;position:absolute;right:20px;top:50%;width:107.52px;height:170.24px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
+html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-line,var(--line));--iv-faint:color-mix(in srgb,var(--ink) 8%,var(--frame));--iv-med:color-mix(in srgb,var(--ink) 16%,var(--frame));--iv-trk:color-mix(in srgb,var(--ink) 32%,var(--frame));--iv-hdl:color-mix(in srgb,var(--ink) 50%,var(--frame));--iv-fg:color-mix(in srgb,var(--ink) 74%,var(--frame))}
+.iter-vis svg{display:block;width:107.52px;height:170.24px;overflow:visible}
+.iter-vis .iv-ph,.iter-vis .iv-str,.iter-vis .iv-dim{vector-effect:non-scaling-stroke}
+.iter-vis .iv-ph{fill:var(--iv-ph-bg);stroke:var(--iv-ph-bd);stroke-width:1}
+.iter-vis .iv-faint{fill:var(--iv-faint)}
+.iter-vis .iv-med{fill:var(--iv-med)}
+.iter-vis .iv-trk{fill:var(--iv-trk)}
+.iter-vis .iv-ink{fill:var(--iv-fg)}
+.iter-vis .iv-str{fill:none;stroke:var(--iv-fg);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.iter-vis .iv-dim{fill:none;stroke:var(--iv-hdl);stroke-width:1;stroke-dasharray:2 2}
+.iter-vis .iv-hdl{fill:var(--iv-hdl)}
+/* 1. Split Ratio: dotted split line moves up and down between the 50/50 split (28/34) and Tap to Pause/Resume's 70/30 split (44/18) */
+@keyframes ivSplitTop{0%,15%,100%{height:28px}45%,65%{height:44px}}
+@keyframes ivSplitLine{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(16px)}}
+@keyframes ivSplitBot{0%,15%,100%{y:38px;height:34px}45%,65%{y:54px;height:18px}}
+@keyframes ivSplitHdl{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(16px)}}
+.iv-sr-top{animation:ivSplitTop 3.84s var(--ease) infinite}
+.iv-sr-line{animation:ivSplitLine 3.84s var(--ease) infinite}
 .iv-sr-bot{animation:ivSplitBot 3.84s var(--ease) infinite}
+.iv-sr-hdl{animation:ivSplitHdl 3.84s var(--ease) infinite}
 /* 2. Tap to Pause/Resume: touch ring + play/pause toggle */
-@keyframes ivTapRing{0%,38%,88%,100%{opacity:0;transform:scale(.6)}44%{opacity:.55;transform:scale(1)}54%{opacity:0;transform:scale(1.35)}}
-@keyframes ivPauseVis{0%,44%,94%,100%{opacity:1}48%,90%{opacity:0}}
-@keyframes ivPlayVis{0%,44%,94%,100%{opacity:0}48%,90%{opacity:1}}
-.iv-tp-ring{transform-origin:24px 32px;animation:ivTapRing 3.84s var(--ease) infinite}
+@keyframes ivTapRing{0%,14%,31%,64%,81%,100%{opacity:0;transform:scale(.6)}20%,70%{opacity:.55;transform:scale(1)}30%,80%{opacity:0;transform:scale(1.35)}}
+@keyframes ivPauseVis{0%,70%,100%{opacity:1}20%{opacity:0}}
+@keyframes ivPlayVis{0%,70%,100%{opacity:0}20%{opacity:1}}
+.iv-tp-ring{transform-origin:24px 29px;animation:ivTapRing 3.84s var(--ease) infinite}
 .iv-tp-pause{animation:ivPauseVis 3.84s steps(1) infinite}
 .iv-tp-play{animation:ivPlayVis 3.84s steps(1) infinite}
 /* 3. Media Controls: simplified bottom bar + time pill auto-hiding and re-appearing */
-@keyframes ivCtlFade{0%,45%,100%{opacity:1;transform:translateY(0)}60%,85%{opacity:.12;transform:translateY(2px)}}
-@keyframes ivCtlProg{0%{transform:scaleX(.2)}45%{transform:scaleX(.72)}60%,100%{transform:scaleX(.72)}}
+@keyframes ivCtlFade{0%,45%,100%{opacity:1;transform:translateY(0)}60%,85%{opacity:0;transform:translateY(2px)}}
+@keyframes ivCtlProg{0%{width:5px}45%,100%{width:17.28px}}
 .iv-mc-ui{animation:ivCtlFade 3.84s var(--ease) infinite}
-.iv-mc-fill{transform-origin:11px 36px;animation:ivCtlProg 3.84s linear infinite}
-/* 4. Entry/Exit Animations: feed media shrinking to top pane while bottom sheet springs up, then back */
-@keyframes ivEeMedia{0%,12%,92%,100%{transform:translate(0,0) scale(1)}38%,68%{transform:translate(2px,-9px) scale(.88,.78)}}
-@keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(26px)}38%,68%{transform:translateY(0)}}
-.iv-ee-m{transform-origin:24px 26px;animation:ivEeMedia 3.84s var(--ease) infinite}
+.iv-mc-fill{animation:ivCtlProg 3.84s linear infinite}
+/* 4. Entry/Exit Animations: full-bleed square media (flat corners) shrinking to centred rounded top pane as bottom sheet springs up, then back */
+@keyframes ivEeMedia{0%,12%,92%,100%{x:7px;y:21px;width:34px;height:34px;rx:0px;ry:0px}38%,68%{x:9px;y:7px;width:30px;height:28px;rx:3px;ry:3px}}
+@keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(34px)}38%,68%{transform:translateY(0)}}
+.iv-ee-m{animation:ivEeMedia 3.84s var(--ease) infinite}
 .iv-ee-s{animation:ivEeSheet 3.84s var(--ease) infinite}
-/* 5. Gesture Interactions: finger indicator dragging sheet between half and full stops */
-@keyframes ivGsSheet{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(-16px)}80%{transform:translateY(6px)}}
-@keyframes ivGsDot{0%,10%,100%{opacity:0;transform:translateY(4px)}18%{opacity:.7;transform:translateY(0)}45%,60%{opacity:.7;transform:translateY(-16px)}72%{opacity:.7;transform:translateY(6px)}85%{opacity:0;transform:translateY(6px)}}
+/* 5. Gesture Interactions: drag up expands bottom sheet to fill full container in full color (handle fades out), dot fades out at fullscreen hold then fades back in to drag down to split screen */
+@keyframes ivGsSheet{0%,15%,88%,100%{y:38px;height:34px;rx:4px;ry:4px;fill:var(--iv-faint)}36%,66%{y:5px;height:66px;rx:5px;ry:5px;fill:var(--iv-med)}}
+@keyframes ivGsHdl{0%,15%,88%,100%{y:41px;opacity:1}36%,66%{y:8px;opacity:0}}
+@keyframes ivGsDot{0%,8%,94%,100%{opacity:0;transform:translateY(2px)}15%,88%{opacity:1;transform:translateY(0)}36%,66%{opacity:1;transform:translateY(-31px)}42%,60%{opacity:0;transform:translateY(-33px)}}
 .iv-gs-s{animation:ivGsSheet 3.84s var(--ease) infinite}
+.iv-gs-h{animation:ivGsHdl 3.84s var(--ease) infinite}
 .iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
-/* 6. Scrubber & Thumbnail: playhead gliding along track with floating thumbnail preview above it */
-@keyframes ivScMove{0%,12%,100%{transform:translateX(0)}48%,64%{transform:translateX(18px)}}
-@keyframes ivScThumb{0%,10%,82%,100%{opacity:0;transform:translate(0,3px) scale(.85)}20%{opacity:1;transform:translate(0,0) scale(1)}48%,64%{opacity:1;transform:translate(18px,0) scale(1)}}
-@keyframes ivScFill{0%,12%,100%{transform:scaleX(.22)}48%,64%{transform:scaleX(.86)}}
+/* 6. Scrubber & Thumbnail: playhead gliding along track with floating thumbnail preview above it (in split screen, matching Tap to Pause/Resume ratio) */
+@keyframes ivScMove{0%,14%,84%,100%{transform:translateX(0)}42%,56%{transform:translateX(14px)}}
+@keyframes ivScThumb{0%,6%,92%,100%{opacity:0;transform:translate(0,2px) scale(.88)}14%,84%{opacity:1;transform:translate(0,0) scale(1)}42%,56%{opacity:1;transform:translate(14px,0) scale(1)}}
+@keyframes ivScFill{0%,14%,84%,100%{width:5px}42%,56%{width:19px}}
 .iv-sc-k{animation:ivScMove 3.84s var(--ease) infinite}
-.iv-sc-t{transform-origin:15px 32px;animation:ivScThumb 3.84s var(--ease) infinite}
-.iv-sc-f{transform-origin:10px 48px;animation:ivScFill 3.84s var(--ease) infinite}
+.iv-sc-t{transform-origin:17px 41px;animation:ivScThumb 3.84s var(--ease) infinite}
+.iv-sc-f{animation:ivScFill 3.84s var(--ease) infinite}
+/* 7. Media Formats: top pane cross-fades right-to-left through Video, Image, Caption, and Carousel above the bottom sheet */
+@keyframes ivMf1{0%,17%{opacity:1;transform:translateX(0)}25%,91.9%{opacity:0;transform:translateX(-10px)}92%{opacity:0;transform:translateX(10px)}100%{opacity:1;transform:translateX(0)}}
+@keyframes ivMf2{0%,17%{opacity:0;transform:translateX(10px)}25%,42%{opacity:1;transform:translateX(0)}50%,100%{opacity:0;transform:translateX(-10px)}}
+@keyframes ivMf3{0%,42%{opacity:0;transform:translateX(10px)}50%,67%{opacity:1;transform:translateX(0)}75%,100%{opacity:0;transform:translateX(-10px)}}
+@keyframes ivMf4{0%,67%{opacity:0;transform:translateX(10px)}75%,92%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(-10px)}}
+.iv-mf-1{animation:ivMf1 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-mf-2{animation:ivMf2 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-mf-3{animation:ivMf3 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-mf-4{animation:ivMf4 7.68s cubic-bezier(.4,0,.2,1) infinite}
 @media (prefers-reduced-motion:reduce){.iter-vis *{animation:none!important}}
+/* 8. Split Screen on iPad: one iPad that shows Portrait split screen, rotates -90deg into Landscape 2-column split screen, and loops */
+.iter-grid li.iter-ipad{padding:24px 180px 24px 24px;height:auto;min-height:208px}
+.iter-grid li.iter-ipad span{max-width:none;text-wrap:pretty}
+.iter-vis.iter-vis-ipad{width:152.32px;height:170.24px}
+.iter-vis.iter-vis-ipad svg{width:152.32px;height:170.24px}
+@keyframes ivPadDev{0%,43%,94%,100%{transform:rotate(0deg)}51%,86%{transform:rotate(-90deg)}}
+@keyframes ivPadPtG{0%,43%,94%,100%{opacity:1}49%,88%{opacity:0}}
+@keyframes ivPadPtM{0%,10%,38%,100%{x:20px;y:24px;width:28px;height:28px;rx:0px;ry:0px}18%,30%{x:20px;y:7px;width:28px;height:28px;rx:3px;ry:3px}}
+@keyframes ivPadPtF{0%,10%,38%,43%,94%,100%{opacity:1}16%,32%,48%,89%{opacity:0}}
+@keyframes ivPadPtS{0%,10%,38%,100%{transform:translateY(34px)}18%,30%{transform:translateY(0)}}
+@keyframes ivPadLsG{0%,45%,92%,100%{opacity:0}51%,86%{opacity:1}}
+@keyframes ivPadLsM{0%,56%,84%,100%{x:20px;y:24px;width:28px;height:28px;rx:0px;ry:0px}64%,76%{x:4px;y:24px;width:28px;height:28px;rx:3px;ry:3px}}
+@keyframes ivPadLsF{0%,45%,62%,78%,92%,100%{opacity:0}51%,56%,84%,86%{opacity:1}}
+@keyframes ivPadLsS{0%,56%,84%,100%{transform:translateX(34px)}64%,76%{transform:translateX(0)}}
+.iv-pad-dev{transform-origin:34px 38px;animation:ivPadDev 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-pt-g{animation:ivPadPtG 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-m-pt{animation:ivPadPtM 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-fl-pt{animation:ivPadPtF 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-s-pt{animation:ivPadPtS 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-ls-g{animation:ivPadLsG 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-m-ls{animation:ivPadLsM 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-fl-ls{animation:ivPadLsF 7.68s cubic-bezier(.4,0,.2,1) infinite}
+.iv-pad-s-ls{animation:ivPadLsS 7.68s cubic-bezier(.4,0,.2,1) infinite}
+@media (max-width:640px){
+  .iter-grid li.iter-ipad{padding:24px 168px 24px 24px}
+}
 /* hero: optical left alignment; cancel the display font's left side bearing so the title's stems line up with the kicker and summary */
 .hero h1{margin-left:-.07em}
 .hero .sum{margin-left:-.03em}

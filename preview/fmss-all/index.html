@@ -36,11 +36,11 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 html[data-theme=dark]{--page:#111;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
 *{box-sizing:border-box}
 *:focus,*:focus-visible{outline:none}
-html,body{margin:0;background:var(--page);color:var(--ink);font:400 16px/24px var(--sans);transition:background-color .4s var(--ease),color .4s var(--ease)}
+html,body{margin:0;background:var(--page);color:var(--ink);font:var(--t-body);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;transition:background-color .4s var(--ease),color .4s var(--ease)}
 .wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
 header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
 header.top h1{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin:0 0 8px}
-header.top p{margin:0;color:var(--mute);max-width:56ch;font-size:var(--t-s16);line-height:1.7}
+header.top p{margin:0;font:var(--t-body);font-size:var(--t-s16);line-height:1.7;color:var(--mute);max-width:56ch}
 .mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--frame-line,var(--line));overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
 html.deck-open .mframe{overflow:visible;contain:none}
 @media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
@@ -144,7 +144,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
    the play glyph sits at the media band's centre (the design's 375×734 canvas, not counting the tab bar) */
 .uih,.uiu,.uib{pointer-events:none;object-fit:cover;object-position:0 0}
 .xp img.uih{height:481px}
-.xp img.uiu{height:253px;transform-origin:0 0}
+.xp img.uiu,.xp .uiu>img{height:253px;transform-origin:0 0}
 .xp img.uib{height:78px}
 .xp img.uis{height:253px}   /* the band's gradient scrim, cut out of the same export: it never lifts */
 .uz{left:155.5px;top:335px;pointer-events:none}
@@ -215,6 +215,10 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .ns i{position:absolute;left:168px;top:8px;width:40px;height:4px;border-radius:2px;background:#C9CCD1}
 .iabh .ng,.iabh .nf{width:375px;height:812px;pointer-events:none;will-change:transform}
 .ng img,.nf img{position:absolute;left:0;top:0;width:375px;height:812px}
+.n-ttl{position:absolute;left:12px;top:58px;margin:0;padding:0;background:none;font:700 16px/20px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:-.32px;color:#050505;white-space:nowrap;-webkit-font-smoothing:antialiased;pointer-events:none}
+.hs{width:375px;overflow:hidden;background:#f6f8fa;touch-action:none;cursor:grab;z-index:2}
+.hs.off{pointer-events:none}
+.hs img{position:absolute;left:0;top:0;display:block;will-change:transform}
 .ng .ngh{position:absolute;left:0;width:375px;height:18px}
 .nf .nfu{position:absolute;left:0;top:798px;width:375px;height:14px}
 .cs{left:-4px;top:24px;width:383px;height:28px}
@@ -343,7 +347,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=10'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=445'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -363,8 +367,8 @@ const EXP=[
    c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],vw:{cta:'Install',name:'Chick-fil-A',cap:'Free delivery on your first mobile order. Try our Classic Chicken Sandwich today!'},fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:72,be:388,foot:[798,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'Video Tap',from:'Solution 2 · Feed',build:split,
-   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
+   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],hs:{src:'assets/ov-hscroll.webp?v=444',y:645,h:89,w:676,sh:102},vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[812,'#f1f2f6']}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'On Dwell',from:'Solution 2 · Video (Reels)',build:split,
    /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
       Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
@@ -372,15 +376,15 @@ const EXP=[
       ~2s then fades. A media tap is organic behaviour everywhere, this ad included: the reel pauses, its overlay lifts and the scrubber
       comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
       this surface has no full-screen viewer. */
-   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:2400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
-      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
+   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
+      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[812,'#f1f2f6']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
    c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4',hole:1},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & Browse',variant:'On Dwell',from:'Solution 2 · Stories',build:split,
-   c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
+   c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:4400,stories:1,xAt:[317,62,44,44],
       stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Marketplace',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Marketplace · Offsite Conversions',build:split,
    c:{S:S1,n:1,top:406,tone:1,surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v3',p2:'../../fmss-all/assets/p3-mp',x2:189.5},m:{a:[0,396,185.5,186],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[0,356,375,256],
@@ -411,6 +415,7 @@ function split(E,root){
     :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="L pt ${cls}" style="background:${o.patch}"></i>`:'')};
   let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
+  if(C.hs)h+=`<div class="L hs sf" data-r="hs" style="top:${C.hs.y}px;height:${C.hs.h}px"><img alt="" src="${C.hs.src}" style="width:${C.hs.w}px;height:${C.hs.sh}px"></div>`;
   if(C.mph){const M=C.mph,R=M.r,dt='<g fill="#65676B"><circle cx="3" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="13" cy="8" r="1.3"/></g>';
     h+=`<div class="L mph sf" data-r="mph">`+
       `<i class="av" style="left:10px;background-image:url(${u(M.av)})"></i><p class="n" style="left:38px">${M.name}</p><p class="s" style="left:38px">Sponsored</p><svg class="dt" style="left:162px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:10px">${M.hl}</p>`+
@@ -427,11 +432,18 @@ function split(E,root){
   h+=(C.stay||[]).map(o=>layer(o,'st')).join('')+(C.out||[]).map(o=>layer(o,'ot')).join('');
   /* a Reels ad's overlay, cut into head / ui / tab bar (preview/fmss-all/assets: exact crops of the Solution's own export, nothing redrawn):
      the media band between head and tab bar is what lifts when the ad's media is tapped and the reel pauses (ui), while the head and the tab bar
-     stay put. Organic surfaces have no ads, so they never get any of this. */
+     stay put. On the Reels ad (C.ad), the Shop now CTA appears only after the user has exited split screen, so the details sit 48px lower
+     (above the Sponsored chip) until then. Organic surfaces have no ads, so they never get any of this. */
   if(C.ui){const b=f=>`assets/${C.ui}-${f}.webp`+S.v;
   h+=`<img class="L ot uih" data-r="uih" alt="" src="${b('head')}">`+   // the Reels header: status row, Video title, search and profile
     `<img class="L ot uis" data-r="uis" alt="" src="${b('scrim')}" style="top:${UI_TOP}px">`+   // the band's gradient scrim: fixed, it never lifts
-    `<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px"${UI_BOTTOM[C.ui]!=null?` data-ui-bottom="${UI_BOTTOM[C.ui]}"`:''}>`+   // the band's live content, the only thing a paused tap lifts (data-ui-bottom: drawn end, as vac-proto)
+    (C.ad
+      ?`<div class="L ot uiu" data-r="uiu" style="top:${UI_TOP}px;width:375px;height:253px" data-ui-bottom="${UI_BOTTOM[C.ui]}">`+
+        `<img class="L uiu-r" alt="" src="${b('ui')}" style="clip-path:polygon(316px 0,375px 0,375px 253px,316px 253px,316px 212px,0 212px,0 253px,316px 253px)">`+
+        `<img class="L uiu-d" data-r="uiud" alt="" src="${b('ui')}" style="clip-path:inset(84px 59px 92px 0);transform:translate3d(0,48px,0)">`+
+        `<img class="L uiu-c" data-r="uiucta" alt="" src="${b('ui')}" style="clip-path:inset(165px 59px 44px 0);opacity:0">`+
+        `</div>`
+      :`<img class="L ot uiu" data-r="uiu" alt="" src="${b('ui')}" style="top:${UI_TOP}px"${UI_BOTTOM[C.ui]!=null?` data-ui-bottom="${UI_BOTTOM[C.ui]}"`:''}>`)+   // the band's live content, the only thing a paused tap lifts (data-ui-bottom: drawn end, as vac-proto)
     `<img class="L ot uib" data-r="uib" alt="" src="${b('bar')}" style="top:734px">`}   // the tab bar, which never lifts
   /* the quiet play glyph the reel shows while a media tap has paused it (../shared/pause, as the VAC prototype): a 64px circle at 28% black */
   if(C.ui)h+=`<div class="L uz" data-r="uz"><i data-r="pz"></i></div><i class="L rc" data-r="rc"></i>`;
@@ -455,9 +467,9 @@ function split(E,root){
       `<button class="btn vwx" data-r="vwx" type="button" aria-label="Close full screen video"><img alt="" src="assets/vw-x.png"></button></div>`}
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
-  const els=X.els={sf:[...root.querySelectorAll('.sf')],sfImg:root.querySelector('img.sf'),sfPatch:[...root.querySelectorAll('.pt.sf,.fh.sf,.mph.sf,.srh.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
-    uiu:r('uiu'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
+  const els=X.els={sf:[...root.querySelectorAll('.sf')],sfImg:root.querySelector('img.sf'),sfPatch:[...root.querySelectorAll('.pt.sf,.fh.sf,.mph.sf,.srh.sf,.hs.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
+    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),hs:r('hs'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
+    uiu:r('uiu'),uiud:r('uiud'),uiucta:r('uiucta'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');X.v2=root.querySelector('.mpv2 video');
   const setV=(v,t)=>{if(!v||!v.readyState)return;try{if(Math.abs(v.currentTime-t)>.05)v.currentTime=t}catch(_){}};
   if(C.vStart!=null){const s0=()=>setV(X.video,C.vStart);X.video.addEventListener('loadedmetadata',s0);s0()}
@@ -505,18 +517,18 @@ function split(E,root){
       else if(X.ctaFrom==='feed')X.sheet.go(1,{w:16});
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
-    state:s=>{X.state=s;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
+    state:s=>{const prev=X.state;X.state=s;if(prev>1&&s===1)X.hadSplit=true;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);if(els.hs)els.hs.classList.toggle('off',s!==1);
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
-      if(s===1){X.vs&&X.vs.leaveSplit()}},
-    opened:s=>{if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();say(s===2?E.name+', split screen':E.name+', full screen')},
-    closed:()=>{X.ctaFrom=null;if(X.vw&&X.vwCta){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
+      if(s===1){if(!(X.vw&&X.vwOff))X.vs&&X.vs.leaveSplit();if(prev>1)render(X)}},
+    opened:s=>{if(s>=2)X.hadSplit=true;if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();if(s>=2)render(X);say(s===2?E.name+', split screen':E.name+', full screen')},
+    closed:()=>{X.ctaFrom=null;if(X.vw&&(X.vwCta||X.vwOff)){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
       :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
     X.sheet=FMSSIAB.create({host:els.host,y2:top,label:'In-app browser (IAB): '+P.iab,url:P.iab,headers:{full:P.full||u(P.fullFrom)},handle:true,shift:'p',
-      web,webH:P.pageH,onRender:hooks.render,onState:hooks.state,onOpened:hooks.opened,onClosed:hooks.closed,onClose:()=>{X.vs&&X.vs.leaveSplit()},onX:()=>hooks.x(),
+      web,webH:P.pageH,onRender:hooks.render,onState:hooks.state,onOpened:hooks.opened,onClosed:hooks.closed,onClose:()=>{if(!(X.vw&&X.vwOff))X.vs&&X.vs.leaveSplit()},onX:()=>hooks.x(),
       wheelTo:(e,d,apply)=>{if(apply(d)&&e.cancelable)e.preventDefault()}});
     if(P.fullFrom){const hf=X.sheet.panel.querySelector('.iab-hf');hf.style.objectFit='cover';hf.style.objectPosition='0 -46px'}   // the full header: c's own header rows (46-92)
   }else X.sheet=nativeSheet({host:els.host,y2:top,u,n,P:C.sheet,label:E.name,hooks});
@@ -539,7 +551,7 @@ function split(E,root){
     ex.addEventListener('pointermove',e=>{if(ep&&e.pointerId===ep.id&&Math.hypot(e.clientX-ep.x,e.clientY-ep.y)>10)ep.moved=true});
     ex.addEventListener('pointercancel',()=>{ep=null});
     ex.addEventListener('pointerup',e=>{const p=ep;ep=null;if(!p||e.pointerId!==p.id||p.moved||performance.now()-p.t>600)return;
-      if(X.state!==2||X.vwS.busy)return;
+      if((X.state!==2&&!X.vw)||X.vwS.busy)return;
       if(X.vw){vwBack(X);return}   // collapse works even after the idle fade (Hang)
       vwOpen(X)})}   // open even while the sheet is still travelling in (vwOpen holds it)
     // (the Reels and In-Content split screens were never meant to have one: no path to the full-screen surface, so pause and mute only)
@@ -584,7 +596,7 @@ function split(E,root){
   const hitUp=e=>{if(!hp||e.pointerId!==hp.id)return;const p=hp;hp=null;
     if(p.drag){if(e.type==='pointercancel')X.sheet.dragMove(p.y);X.sheet.dragEnd();return}
     if(e.type==='pointerup'&&!p.moved){
-      if(C.stories){if(p.lx>=114&&p.lx<=260&&p.ly>=648&&p.ly<=704)openFull(X);return}   // Stories: SHOP NOW sticker → full screen IAB; split screen is dwell / swipe up only
+      if(C.stories){if(X.hadSplit&&p.lx>=114&&p.lx<=260&&p.ly>=648&&p.ly<=704)openFull(X);return}   // Stories: SHOP NOW sticker (after split screen exit) → full screen IAB; split screen is dwell / swipe up only
       if(C.mph){
         const wantAlt=p.lx>=187.5,isAlt=!!C.mph.isAlt;
         let T=X;
@@ -597,7 +609,7 @@ function split(E,root){
         if(p.ly>=T.E.c.m.a[1]+T.E.c.m.a[3])openFull(T);else open(T);
         vidSync();return;
       }
-      if(C.ad)X.mediaTap();
+      if(C.ad){const l=X.pz?X.pz.lift:0;if(X.hadSplit&&p.lx>=12&&p.lx<=315&&p.ly+l>=650&&p.ly+l<=686)openFull(X);else X.mediaTap()}
       else if((C.fh||C.srh)&&p.ly>=C.m.a[1]+C.m.a[3])openFull(X);   // Feed footer / CTA row → destination full screen
       else open(X)}};   // Feed media (and every other surface hit) → split screen, unchanged
   els.hit.addEventListener('pointerup',hitUp);els.hit.addEventListener('pointercancel',hitUp);
@@ -620,6 +632,25 @@ function split(E,root){
       rl.addEventListener('pointercancel',()=>{rp=null});
       rl.addEventListener('pointerup',e=>{const p=rp;rp=null;if(!p||e.pointerId!==p.id||p.moved||X.state!==1)return;
         X.reelHeld=!X.pz.on;X.mediaTap()})}}
+  if(els.hs){
+    const hsEl=els.hs,hsImg=hsEl.firstChild,HMAX=C.hs.w-375;
+    let hx=0,hd=null;
+    const setHx=v=>{hx=v;hsImg.style.transform=`translate3d(${hx.toFixed(2)}px,0,0)`};
+    const hxS=SP(()=>hx,setHx);
+    hsEl.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;hxS.stop();const k=scale();hd={id:e.pointerId,c0:e.clientX,x0:hx,sc:k,moved:false,s:[[performance.now(),hx]]};try{hsEl.setPointerCapture(e.pointerId)}catch(_){}});
+    hsEl.addEventListener('pointermove',e=>{if(!hd||e.pointerId!==hd.id)return;if(e.pointerType==='mouse'&&!(e.buttons&1)){const d=hd;hd=null;const tgt=clamp(hx,-HMAX,0);if(Math.abs(hx-tgt)>.3)hxS.to(tgt,{w:16});return}
+      const dx=e.clientX-hd.c0;if(Math.abs(dx)>4)hd.moved=true;
+      const v=hd.x0+dx/hd.sc;
+      setHx(v>0?FMSSIAB.rb(v,375):v<-HMAX?-HMAX-FMSSIAB.rb(-HMAX-v,375):v);
+      const now=performance.now();hd.s.push([now,hx]);while(hd.s.length>2&&now-hd.s[0][0]>100)hd.s.shift()});
+    const hsEnd=e=>{if(!hd||e.pointerId!==hd.id)return;const d=hd;hd=null;
+      if(!d.moved&&e.type==='pointerup'){openFull(X);return}
+      const A=d.s[0],B=d.s[d.s.length-1],vx=B[0]-A[0]>0?(B[1]-A[1])/((B[0]-A[0])/1000):0,tgt=clamp(hx+vx*.16,-HMAX,0);
+      if(Math.abs(hx-tgt)>.3)hxS.to(tgt,{w:16});else if(hx!==tgt)setHx(tgt)};
+    hsEl.addEventListener('pointerup',hsEnd);hsEl.addEventListener('pointercancel',hsEnd);
+    hsEl.addEventListener('wheel',e=>{if(X.state!==1||X.sheet.busy||hd)return;const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY,n=clamp(hx-d,-HMAX,0);if(Math.abs(n-hx)<.5)return;if(e.cancelable)e.preventDefault();hxS.stop();setHx(n)},{passive:false});
+    X.hsReset=()=>{hxS.stop();hd=null;setHx(0)};
+  }
   els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
   /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
   let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp&&!(X.pz&&X.pz.on))open(X)},C.dwell)};
@@ -627,7 +658,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.hadSplit=false;X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.hsReset&&X.hsReset();X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -682,14 +713,19 @@ function render(X){
      as the IAB peek settles. */
   if(C.stories){
     const aoA=clamp(1-a/.55);
-    e.ot.forEach(l=>{l.style.opacity=(aoA*aoA).toFixed(3);l.style.transform=''});
+    e.ot.forEach(l=>{l.style.opacity=(aoA*aoA).toFixed(3);l.style.transform='';l.style.clipPath=X.hadSplit?'':'inset(0 0 600px 0)'});
     if(e.bo){
       if(X.sheet&&X.sheet.drag){clearTimeout(X.stTm);X.stS.stop();X.stBo=clamp((a-.2)/.8)*(1-clamp(c/.35))}
       const sb=clamp((X.stBo||0)*(1-clamp(c/.35))),eb=sb*sb*(3-2*sb);
       e.bo.style.opacity=eb.toFixed(3);
       e.bo.style.transform=`translate3d(0,${(18*(1-eb)).toFixed(2)}px,0)`;
     }
-  }else{if(e.bo)e.bo.style.opacity=a.toFixed(3);e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3))}
+  }else{
+    if(e.bo)e.bo.style.opacity=a.toFixed(3);
+    e.ot.forEach(l=>l.style.opacity=(1-a).toFixed(3));
+    if(e.uiud)e.uiud.style.transform=X.hadSplit?'':'translate3d(0,48px,0)';
+    if(e.uiucta)e.uiucta.style.opacity=X.hadSplit?'1':'0';
+  }
   /* shared element: the playing video's box travels the surface rect → the split-screen rect (x, y, w, h, per-corner radius, smoothing) */
   const ar=Array.isArray(m.ar)?m.ar:[m.ar||0,m.ar||0,m.ar||0,m.ar||0],x0=lerp(m.a[0],m.b[0],a),y0=lerp(m.a[1],m.b[1],a),w=lerp(m.a[2],m.b[2],a),h=lerp(m.a[3],m.b[3],a);
   let R=ar.map(v=>+lerp(v,16,a).toFixed(2)),sm=lerp(m.asm||0,.6,a);
@@ -712,12 +748,12 @@ function render(X){
   /* shared controls: ride the live video box (Hang). Split rest keeps the feed→split lift; once k>0 the wrapper IS the live
      video rect so the bar tracks its bottom edge 1:1 — visible for the whole spring (no a·(1−k) hide, no second scrubber). Idle
      fade is VideoScrubber's own 2080+320 once landed. Expand glyph: ci (outward) in split, vw-ctl (inward) in the viewer. */
-  if(e.ctlw&&X.vs){const sb=C.m.b[1]+C.m.b[3],on=a>0.001&&c<.99,ride=k>0||grid;
-    e.ctlw.classList.toggle('off',!on||(X.state===1&&!X.vw)||c>.05);
+  if(e.ctlw&&X.vs){const sb=C.m.b[1]+C.m.b[3],on=a>0.001&&(c<.99||(k>0&&!X.vwCta)),ride=k>0||grid;
+    e.ctlw.classList.toggle('off',!on||(X.state===1&&!X.vw)||(c>.05&&!(k>0&&!X.vwCta)));
     e.ctlw.style.setProperty('--ctl-b',sb+'px');
     if(ride){e.ctlw.style.left=vx.toFixed(2)+'px';e.ctlw.style.top=vy.toFixed(2)+'px';e.ctlw.style.width=vw.toFixed(2)+'px';e.ctlw.style.height=vh.toFixed(2)+'px'}
     else{e.ctlw.style.left=C.m.b[0]+'px';e.ctlw.style.top=C.m.b[1]+'px';e.ctlw.style.width=C.m.b[2]+'px';e.ctlw.style.height=C.m.b[3]+'px'}
-    e.ctlw.style.opacity=on?((grid?clamp((a-.8)/.2):a)*(1-clamp(c/.2))).toFixed(3):'0';e.ctlw.style.zIndex=k>0?'8':'';
+    e.ctlw.style.opacity=on?(k>0&&!X.vwCta?'1':((grid?clamp((a-.8)/.2):a)*(1-clamp(c/.2))).toFixed(3)):'0';e.ctlw.style.zIndex=k>0?'8':'';
     X.vs.el.style.transform=ride?'':`translate3d(0,${(C.cs*(1-a)).toFixed(2)}px,0)`;
     const ic=k>0?(X._ctlView||X._ctlSplit):X._ctlSplit;if(ic&&ic!==X._ctlIc){X._ctlIc=ic;X.vs.el.querySelectorAll('.vs-i').forEach(el=>{el.style.backgroundImage=`url('${ic}')`})}
     if(X._ctlEx)X._ctlEx.setAttribute('aria-label',k>0?'Collapse':'Expand')}
@@ -744,22 +780,23 @@ function chrome(X){const C=X.E.c,v=X.vwCta?0:(X.vw||0);   // under the CTA's pag
    Same stops (812 · split line · 44), springs (ω16 open / close, ω18 split ↔ full, ζ .82 into split), 1:1 drag with a velocity +
    position snap and a flick that always moves one stop, tap the sheet for full, × (full) back to split: FMSSIAB's behaviour, its look the Solution's. */
 function nativeSheet(o){
-  const Y1=812,Y2=o.y2,Y3=44,u=o.u,n=o.n,P=o.P,host=o.host,hk=o.hooks,d=P.d,H=812-Y2,K=P.kb;
+  const Y1=812,Y2=o.y2,Y3=44,u=o.u,n=o.n,P=o.P,host=o.host,hk=o.hooks,d=P.d,H=812-Y2,K=P.kb,SMAX=P.smax||0,GH=812+SMAX;
   const F=K?K.c0:P.foot[0];   // c's last row the group draws: its bottom chrome (footer / composer + keyboard) is .nf's
   const c0=d>Y3?18/(18+d-Y3):0;   // c at which the group's top edge has uncovered c's row d (bl's top)
   const cI=`<img alt="" src="${u('c'+n)}">`;
+  const ttl=P.title?`<p class="n-ttl">${P.title}</p>`:'',extI=P.ext?`<img class="n-ext" alt="" src="${P.ext}" style="top:772px;height:222px">`:'';
   host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}" style="background:${P.sc}"><i></i></div>`+
-    `<div class="L ng" style="clip-path:inset(0 0 ${812-F}px 0)">${cI}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i></div>`+
+    `<div class="L ng" style="height:${GH}px;clip-path:inset(0 0 ${812-F}px 0)">${cI}${extI}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i>${ttl}</div>`+
     (K?`<div class="L nf nfc" style="clip-path:inset(${K.c0}px 0 ${812-K.k0}px 0)">${cI}${K.caret?FMSSCaret.html(...K.caret):''}<img class="nfb" alt="" src="${u('bl'+n)}" style="top:${K.c0-K.b0}px;height:${H}px"></div>`+
        `<div class="L nf nfk" style="clip-path:inset(${K.k0}px 0 0 0)">${cI}<i class="nfu" style="background:${K.bg}"></i></div>`
       :`<div class="L nf" style="clip-path:inset(${F}px 0 0 0)">${cI}<i class="nfu" style="background:${P.foot[1]}"></i></div>`)+
     `<i class="L cs" style="background:${P.cs};opacity:0"></i>`+
-    `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0"><i class="L pt ct-pt" style="background:${P.cs};opacity:0"></i>`+
+    `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0">${P.title?`<p class="n-ttl ct-ttl" style="opacity:0">${P.title}</p>`:''}<i class="L pt ct-pt" style="background:${P.cs};opacity:0"></i>`+
     `<button class="L btn nx" type="button" aria-label="Close full screen"></button>`;
   const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
-    cs=q('.cs'),ct=q('.ct'),ctPt=q('.ct-pt'),nx=q('.nx'),ck=q('.ios-caret');
-  let y=Y1,state=1,rk='',ngk='',ctk='',entry=null,pr=0;   // pr: a CTA open's page pull (the IAB's top rubber-band: c .55 over the visible page, spring-back ω16)
-  const HB=P.hb||92,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: close-button bar bottom in c's coords (IAB content top = 92; was 72 and cut through the title — Hang 2026-11-05)   // entry as the shared IAB's: 'cta' (a CTA opened it full screen) → the sheet never follows a press
+    cs=q('.cs'),ct=q('.ct'),ctTtl=q('.ct-ttl'),ctPt=q('.ct-pt'),nx=q('.nx'),ck=q('.ios-caret');
+  let y=Y1,state=1,rk='',ngk='',ctk='',entry=null,pr=0;   // pr: page scroll (<0 scrolled down to 4th row, >0 top rubber-band pull)
+  const HB=P.hb||92,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: close-button bar bottom in c's coords
   function render(){
     const c=clamp((Y2-y)/(Y2-Y3)),up=Y2-Y3;
     /* the sheet's surface: 1:1 with the finger, its top corners 16 → 0 into full screen (as the IAB's), the handle out with them */
@@ -767,13 +804,13 @@ function nativeSheet(o){
     const R=+(16*(1-c)).toFixed(1);if(R+''!==rk){rk=R+'';ns.style.borderRadius=R>.05?`${R}px ${R}px 0 0`:''}
     /* the content group: bl's rows sit on c's (bl[r] = c[r + d]); split → full it closes that offset (d → 0 at the top's 44) as the sheet rises,
        so the split pose lands exactly on the full screen; clipped to the sheet, under its 18px handle strip */
-    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),ngClip=(pr>0?Math.max(T,HB):T).toFixed(2),ctClip=pr>0?812-HB:768;
+    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=`inset(${(pin?Math.max(T,HB,HB-pr):T).toFixed(2)}px 0 ${(GH-F+pr).toFixed(2)}px 0)`,ctClip=pin?812-HB:768;
     ng.style.transform=`translate3d(0,${(oy+pr).toFixed(2)}px,0)`;
-    if(ngClip!==ngk){ngk=ngClip;ng.style.clipPath=`inset(${ngClip}px 0 ${812-F}px 0)`}
-    if(ctClip!==ctk){ctk=ctClip;ct.style.clipPath=`inset(0 0 ${ctClip}px 0)`}   // pulling, pin status + close-button bar (through HB); page below moves, as the IAB's
+    if(ngClip!==ngk){ngk=ngClip;ng.style.clipPath=ngClip}
+    if(ctClip!==ctk){ctk=ctClip;ct.style.clipPath=`inset(0 0 ${ctClip}px 0)`}   // scrolling or pulling: pin status + header bar (through HB); page below moves
     /* bl and its 18px handle strip (the sheet colour, over c's own header and ×) dissolve out together, once the clip has uncovered that strip
        (c0: where the top edge reaches c's row d; at once where bl sits above c's header, d <= 44), so c's × fades in whole, never cut */
-    ngb.style.opacity=ngh.style.opacity=(1-clamp((c-c0)/.4)).toFixed(3);
+    const bo=(1-clamp((c-c0)/.4)).toFixed(3);ngb.style.opacity=ngh.style.opacity=bo;
     if(K){   /* Messenger: the keyboard rises from the bottom edge with c; the composer stays docked at the sheet's bottom until the keyboard meets it.
          Both paint only while the sheet is up (split and full screen: the composer docks under the replies in split); closed (Feed) they
          must not paint — otherwise the "Write a message…" bar sits on the Feed. */
@@ -784,7 +821,7 @@ function nativeSheet(o){
       nf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
       if(!show&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}
     }else nf.style.transform=`translate3d(0,${((812-F)*(1-clamp((c-.2)/.8))).toFixed(2)}px,0)`;   // the footer: the IAB toolbar's rule
-    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ctPt.style.opacity=c.toFixed(3);
+    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ctPt.style.opacity=c.toFixed(3);if(ctTtl)ctTtl.style.opacity=pin&&c>=.99?'1':'0';
     hk.render({y,sd:0});
   }
   function setState(s){state=s;ns.classList.toggle('off',s===1);nx.classList.toggle('on',s===3);ns.setAttribute('aria-hidden',s===1?'true':'false');if(s!==3&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}hk.state(s)}
@@ -792,18 +829,27 @@ function nativeSheet(o){
   function go(s,op={}){
     const from=state,target=s===1?Y1:s===2?Y2:Y3;
     if(s===1)entry=null;else if(from===1||'entry' in op)entry=op.entry||null;
+    if(s!==3&&(pr||prS.busy)){prS.stop();pr=0}
     setState(s);
     if(ck&&s===3&&from!==3)FMSSCaret.start(ck);   // the composer's caret: steady as the keyboard comes up, then the iOS blink (../shared/caret)
     yS.to(target,{v:op.v||0,w:op.w!=null?op.w:s===1?16:18,z:op.z||1,onDone:()=>{if(s===1)hk.closed();else hk.opened(s)}});
     if(from===1&&s===1)hk.closed();
   }
   let drag=null;
-  function dragStart(cy,id,sc){if(entry==='cta'){if(state===3){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:sc||scale()}}return}yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:sc||scale(),s:[[performance.now(),y]]}}
-  function dragMove(cy){if(!drag)return;if(drag.pull){const v=drag.p0+(cy-drag.c0)/drag.sc;pr=v>0?FMSSIAB.rb(v,812-HB):0;render();return}let v=drag.y0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
+  function dragStart(cy,id,sc){
+    const k=sc||scale(),ly=(cy-host.getBoundingClientRect().top)/k;
+    if(state===3&&!yS.busy&&(entry==='cta'||(SMAX>0&&ly>=HB))){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}
+    if(entry==='cta')return;
+    yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:k,s:[[performance.now(),y]]}}
+  function dragMove(cy){if(!drag)return;
+    if(drag.pull){const v=drag.p0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
+      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc}=drag;drag=null;pr=0;render();dragStart(cy,id,sc);if(drag&&!drag.pull)drag.moved=true;return}
+      pr=v>0?FMSSIAB.rb(v,812-HB):v<-SMAX?-SMAX-FMSSIAB.rb(-SMAX-v,812-HB):v;render();return}
+    let v=drag.y0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
     if(v<Y3)v=Y3-FMSSIAB.rb(Y3-v,Y1-Y3);y=Math.min(Y1,v);render();const now=performance.now();drag.s.push([now,y]);while(drag.s.length>2&&now-drag.s[0][0]>100)drag.s.shift()}
   function dragEnd(){
     if(!drag)return;const d=drag;drag=null;
-    if(d.pull){if(pr>0)prS.to(0,{w:16});return}   // a CTA open never leaves full screen by a drag: the page springs back
+    if(d.pull){const tgt=clamp(pr,-SMAX,0);if(Math.abs(pr-tgt)>.3)prS.to(tgt,{w:16});else if(pr!==tgt){pr=tgt;render()}return}   // snap back to [−SMAX, 0]
     if(!d.moved){if(d.from===2)return go(3);return yS.to(d.from===3?Y3:d.from===2?Y2:Y1,{w:18})}
     const A=d.s[0],B=d.s[d.s.length-1],v=B[0]-A[0]>0?(B[1]-A[1])/((B[0]-A[0])/1000):0,proj=y+v*.18;
     const cands=d.from===3?[[3,Y3],[2,Y2]]:[[3,Y3],[2,Y2],[1,Y1]];
@@ -821,6 +867,7 @@ function nativeSheet(o){
   ns.addEventListener('lostpointercapture',e=>{if(mine(e)&&e.pointerType==='mouse'&&!(e.buttons&1))release()});
   addEventListener('blur',()=>{if(own!=null&&drag)release()});
   ['selectstart','dragstart'].forEach(t=>addEventListener(t,e=>{if(own!=null&&drag)e.preventDefault()},true));
+  if(SMAX>0)ns.addEventListener('wheel',e=>{if(state!==3||yS.busy||drag)return;const n=clamp(pr-e.deltaY,-SMAX,0);if(Math.abs(n-pr)<.5)return;if(e.cancelable)e.preventDefault();prS.stop();pr=n;render()},{passive:false});
   nx.addEventListener('click',()=>hk.x?hk.x():go(2));
   function reset(){yS.stop();prS.stop();pr=0;drag=null;entry=null;own=null;y=Y1;setState(1);render()}
   reset();
