@@ -368,11 +368,11 @@ const EXP=[
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'On Dwell',from:'Solution 2 · Video (Reels)',build:split,
    /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
       Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
-      Watched for 4s it shrinks into the split screen by itself, the IAB rises, the video keeps playing, and the control strip shows for
+      Watched for 2.4s it shrinks into the split screen by itself, the IAB rises, the video keeps playing, and the control strip shows for
       ~2s then fades. A media tap is organic behaviour everywhere, this ad included: the reel pauses, its overlay lifts and the scrubber
       comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
       this surface has no full-screen viewer. */
-   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
+   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:2400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
@@ -544,7 +544,7 @@ function split(E,root){
       vwOpen(X)})}   // open even while the sheet is still travelling in (vwOpen holds it)
     // (the Reels and In-Content split screens were never meant to have one: no path to the full-screen surface, so pause and mute only)
   /* DUAL-BASED split screen on a sponsor-labelled Reels AD (C.ad): two panes, ad above and IAB below. It is reached by DWELL at C.adDwell
-     (4s of playing), never by a media tap. A media tap is organic behaviour: the reel pauses, its overlay band lifts and the scrubber
+     (2.4s of playing), never by a media tap. A media tap is organic behaviour: the reel pauses, its overlay band lifts and the scrubber
      comes up with the quiet play glyph (../shared/pause, the VAC prototype's own affordance), and while it is paused the dwell clock
      stops, so a paused reel never falls into the split screen on its own. In split screen a tap pauses and resumes, as the other ads'
      strip does. Its strip carries no expand cell: this surface has no full-screen viewer of its own */
@@ -564,8 +564,10 @@ function split(E,root){
      falls into the split screen behind the viewer's back */
   if(C.adDwell){let t=null,t0=0,left=C.adDwell;
     X.dwellPause=on=>{if(on){if(t){left=Math.max(0,left-(performance.now()-t0));clearTimeout(t);t=null}}else X.adDwellArm()};
-    X.adDwellArm=()=>{clearTimeout(t);t=null;if(X.state!==1||(X.pz&&X.pz.on)||!cur||cur!==X||menuOpen)return;t0=performance.now();
-      t=setTimeout(()=>{t=null;if(X.state===1&&!(X.pz&&X.pz.on))open(X)},Math.max(0,left))};
+    /* Arm even while the menu is still closing after a pick (menuOpen true for ~80ms).
+       Stories dwell checks !menuOpen at fire time; Reels used to bail at arm time and never started. */
+    X.adDwellArm=()=>{clearTimeout(t);t=null;if(X.state!==1||(X.pz&&X.pz.on)||!cur||cur!==X)return;t0=performance.now();
+      t=setTimeout(()=>{t=null;if(X.state===1&&!(X.pz&&X.pz.on)&&!menuOpen&&cur===X)open(X)},Math.max(0,left))};
     X.adDwellClear=()=>{clearTimeout(t);t=null;left=C.adDwell};
   }
   if(VW)r('vwcta').addEventListener('click',e=>{e.stopPropagation();vwCta(X)});
