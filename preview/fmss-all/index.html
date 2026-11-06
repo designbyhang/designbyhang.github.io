@@ -166,6 +166,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .nf .nfu{position:absolute;left:0;top:798px;width:375px;height:14px}
 .cs{left:-4px;top:24px;width:383px;height:28px}
 .pt{left:24px;top:10px;width:60px;height:24px;border-radius:12px}
+.pt::after{content:"";position:absolute;left:260px;top:0;width:85px;height:24px;border-radius:12px;background:inherit;opacity:var(--sb-hide,0);transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .cs,.pt,.ct{pointer-events:none}
 .nx{left:325px;top:46px;width:44px;height:44px;border-radius:22px;display:none}
 .nx.on{display:block}
@@ -177,26 +178,28 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* ---------- the device chrome: over every experience and its sheet (the IAB's z 20 / 25 / 40), under the Menu pill ----------
    the status bar's right icons (the shared .sb mask; its time slot is the pill's) for a sheet that brings its own white status band (the IAB),
    and the one home bar (Figma: 134×5 at 121,798), black over a light screen, white over a dark one */
-.dc{width:375px;height:812px;z-index:90;pointer-events:none}
-.dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0}
+.dc{width:375px;height:812px;z-index:60;pointer-events:none}
+.dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000}
 
 /* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
-.mp{left:24px;top:10px;width:60px;height:24px;z-index:95;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
+.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
+.phone.menu-on{--sb-hide:1}
+.phone.menu-on .mp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
 
 /* ---------- the menu: tree-branch card over the blurred app ---------- */
-.mm{inset:0;width:375px;height:812px;z-index:80;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
+.mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:flex}
-.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.68);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4)}
-.mm-card{position:relative;width:327px;padding:62px 12px 24px;box-sizing:border-box;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04)}
+.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.68);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);will-change:opacity}
+.mm-card{position:relative;width:327px;padding:70px 12px 24px;box-sizing:border-box;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04);will-change:transform,opacity}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
 .mm-x i{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:14px;background:#F4F4F5}
-.mm-x svg{position:absolute;left:14px;top:14px;width:16px;height:16px}
+.mm-x svg{position:absolute;left:10px;top:10px;width:24px;height:24px}
 .mm-x svg path{stroke:#71717A;stroke-width:1.6}
 .mm-ls{position:relative;width:303px;display:flex;flex-direction:column;gap:8px}
 .mm-grp{display:flex;flex-direction:column;width:303px}
@@ -666,13 +669,12 @@ function render(X){
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
-  if(X===cur){pill(menuOpen?0:X.tone);chrome(X)}
+  if(X===cur){pill(X.tone);chrome(X)}
 }
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
    light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
 const dcSb=$('dcSb'),dcHm=$('dcHm');
 function chrome(X){const C=X.E.c,v=X.vwCta?0:(X.vw||0);   // under the CTA's page the sheet's own chrome takes over
-  if(menuOpen){dcSb.style.opacity='1';dcSb.classList.remove('sb-dark');dcHm.style.background='#fff';return}
   dcSb.style.opacity=Math.max(C.sheet.iab?X.sd:0,v).toFixed(3);dcSb.classList.toggle('sb-dark',!(v>0));   // the viewer: white icons
   const k=Math.max(C.tone,clamp((803-X.y)/5))*(1-v),g=Math.round(255*(1-k));dcHm.style.background=`rgb(${g},${g},${g})`}
 
@@ -802,15 +804,15 @@ function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
   mmLs.querySelectorAll('.mm-grp').forEach(g=>g.querySelector('.mm-parent').classList.toggle('active',g.dataset.tab===activeTab));
   mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
 let menuOpen=false,mAn=[],mmSq=false;
-function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');if(cur){pill(0);chrome(cur)}
+function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
   if(SQ&&!mmSq){const ch=mmCard.offsetHeight;if(ch){mmCard.style.clipPath=`path('${sqP(327,ch,28)}')`;mmCard.style.borderRadius='0';mmSq=true}}
-  mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:240,easing:'cubic-bezier(.2,.7,.2,1)',fill:'both'};
-  mAn=[mmCard.animate([{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
-function closeMenu(){if(!menuOpen)return;menuOpen=false;mpEl.setAttribute('aria-expanded','false');if(cur){pill(cur.tone);chrome(cur)}
-  mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:200,easing:'cubic-bezier(.4,0,.6,1)',fill:'both'};
-  mAn=[mmCard.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
+  mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:384,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
+  mAn=[mmCard.animate([{opacity:0,transform:'translate3d(0,10px,0) scale(.95)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
+function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');
+  mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:320,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
+  mAn=[mmCard.animate([{opacity:1,transform:'translate3d(0,0,0) scale(1)'},{opacity:0,transform:'translate3d(0,6px,0) scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
   mAn[0].onfinish=()=>{if(!menuOpen){mm.classList.remove('on');mAn.forEach(a=>a.cancel());mAn=[]}}}
-mpEl.addEventListener('click',e=>{e.stopPropagation();menuOpen?closeMenu():openMenu()});
+mpEl.addEventListener('click',e=>{e.stopPropagation();openMenu()});
 $('mmX').addEventListener('click',closeMenu);
 mmBg.addEventListener('click',closeMenu);
 mmLs.querySelectorAll('.mm-it:not(.off)').forEach(b=>b.addEventListener('click',()=>pick(+b.dataset.i)));
