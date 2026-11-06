@@ -88,6 +88,8 @@ body{pointer-events:none;user-select:none;-webkit-user-select:none}
 .hd .sp{font:var(--t-r-sp-st);letter-spacing:var(--t-r-sp-st-ls);font-feature-settings:var(--t-sf-ft);color:var(--t-r-sp-st-c);text-shadow:0 0 1px rgba(0,0,0,.62)}
 .hd .ic{left:295px;top:72px;width:68px;height:24px}
 .hd .ic svg{position:absolute;top:0;width:24px;height:24px}
+.n-ttl{position:absolute;left:0;width:375px;height:36px;will-change:transform,opacity;pointer-events:none}
+.n-ttl>b{position:absolute;left:12px;top:4px;padding:2px 260px 2px 0;background:#f1f2f6;font:700 20px/24px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:-.4px;color:#050505;white-space:nowrap;-webkit-font-smoothing:antialiased}
 /* label: Figma "Notes", Bitcount Grid Single 16/32, 40px under the screen */
 .lab{position:absolute;left:0;width:375px;top:852px;text-align:center;font:400 16px/32px "Bitcount Grid Single",ui-monospace,Menlo,monospace;letter-spacing:.32px;white-space:nowrap;color:var(--ink);transition:color .4s var(--ease)}
 html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
@@ -108,7 +110,7 @@ const MED=[
   {a:[0,44,375,667], ar:[16,16,16,16],asm:.6,b:[12,44,351,624],cs:0},  // Stories: canvas -> inset canvas
   {a:[12,644,74,74], ar:[8,0,0,8],asm:0,  b:[12,44,351,350],cs:406}];  // In-Content: banner thumbnail -> inset
 const BR=16,BSM=.6;
-const V='?v=437';
+const V='?v=443';
 /* Motion ported from the Evolution prototypes. preview/fmss-hs makeSpring() (same as fmss-cb springTo(), fmss-profile spring()):
    a critically damped spring on the sheet's top edge, a += -w²(x-target) - 2ζw·v, semi-implicit Euler with 4 substeps per 60Hz frame,
    ζ=1 (no overshoot), at rest once |x-target|<.3px and |v|<7.5px/s, then snapped to the target. ω=16 for opening from the feed and
@@ -206,6 +208,7 @@ PH.forEach((p,i)=>{
     `<i class="L cs" style="background:${CS[i]}"></i>`+
     im('cb',`c${n}`,`clip-path:inset(${43/8.12}% 0 0 0)`)+
     im('ct',`c${n}`,`clip-path:inset(0 0 ${768/8.12}% 0)`)+
+    (n<=2?`<div class="n-ttl" style="top:${top+28}px"><b>Explore Outdoor Voices</b></div>`:'')+
     `</div><div class="lab">${p.label}</div>`;
   stage.appendChild(dev);
   if(SQ){dev.querySelector('.scr').style.clipPath=`path('${scrP}')`;dev.querySelector('.bezel-fill').style.clipPath=`path('${bzP}')`}
@@ -248,6 +251,7 @@ PH.forEach((p,i)=>{
   // split line, not the full b image under a clip-path inset: no mask edge and no baked tint row to show as a hairline under the video
   // the B sheet rises from the bottom edge to the split line, then on to the top for full screen
   A('.bs',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));A('.bk',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // live sheet top rides with it
+  if(n<=2)A('.n-ttl',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2)),opacity:p.a>0?1:0}));
   if(HD[i])A('.bhd',p=>({...ty((dn*(1-p.a)-up*p.c).toFixed(2))}));   // its header rides with it
   // C content expands up out of the sheet position and dissolves in over it; C status bar dissolves in
   A('.cs',p=>({...ty((up*(1-p.c)).toFixed(2)),opacity:p.c>=.99?1:0}));
