@@ -671,8 +671,9 @@ function render(X){
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
-  if(X===cur){pill(X.tone);chrome(X)}
+  if(X===cur){pill(X.tone);chrome(X);homeTell(curI===0&&X.state===1&&!X.vw&&!menuOpen)}
 }
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
    light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
 const dcSb=$('dcSb'),dcHm=$('dcHm');
@@ -806,10 +807,10 @@ function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
   mmLs.querySelectorAll('.mm-grp').forEach(g=>g.querySelector('.mm-parent').classList.toggle('active',g.dataset.tab===activeTab));
   mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
 let menuOpen=false,mAn=[],mmSq=false;
-function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
+function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');homeTell(false);
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:384,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:0,transform:'translate3d(0,10px,0) scale(.95)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
-function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');
+function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');if(cur)homeTell(curI===0&&cur.state===1&&!cur.vw);
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:320,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:1,transform:'translate3d(0,0,0) scale(1)'},{opacity:0,transform:'translate3d(0,6px,0) scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
   mAn[0].onfinish=()=>{if(!menuOpen){mm.classList.remove('on');mAn.forEach(a=>a.cancel());mAn=[]}}}
@@ -823,8 +824,8 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)r
   else if(cur.state===3)cur.sheet.go(cur.ctaFrom==='feed'?1:2);else if(cur.state===2)close(cur)});
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
-let seen=false;
-function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden,C=cur.E.c;
+let seen=false,held=false;
+function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.hidden&&!held,C=cur.E.c;
   cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs&&(cur.vs.paused()||cur.vs.dragging())))));
     /* the In-Content ad's own Reels video is paused by a tap on it: the watchdog leaves it paused (only the ad's player is its to drive) */
     if(v===cur.reelVideo&&cur.reelHeld){if(!v.paused)v.pause();return}
@@ -851,7 +852,13 @@ function vidSync(){if(!cur)return;const on=(seen||demoClock.hosted)&&!document.h
     if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
 document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('pageshow',vidSync);
+addEventListener('embed:hold',()=>{held=true;vidSync()});addEventListener('embed:release',()=>{held=false;vidSync()});
 addEventListener('pointerdown',()=>setTimeout(vidSync,0),true);
+const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
+let wasInl=INL();
+if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
+  if(menuOpen){menuOpen=false;phone.classList.remove('menu-on');mm.classList.remove('on');mpEl.setAttribute('aria-expanded','false');mAn.forEach(a=>a.cancel());mAn=[]}
+  show(0);homeS=null;homeTell(true)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 
 function say(t){$('live').textContent=t}
 const q0=+new URLSearchParams(location.search).get('x');
