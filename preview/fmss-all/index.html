@@ -152,7 +152,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .srh .av{left:14px;top:728.5px;width:18px;height:18px;border-radius:50%;background-size:168.75px 365.4px;background-position:-5.4px -52.2px;background-repeat:no-repeat}
 .srh .nm{left:38px;top:730.5px;font:600 11.5px/14px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;color:#050505;white-space:nowrap}
 .srh .nm span{font-weight:400;color:#65676B}
-.srh .cp{left:14px;top:753px;width:164px;height:34px;overflow:hidden;font:450 13.5px/16.5px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;color:#050505;-webkit-text-stroke:.12px currentColor;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.srh .cp{left:14px;top:753px;width:164px;height:34px;overflow:hidden;font:400 13.5px/16.5px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:0;color:#050505;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 /* native sheet (lead form, Messenger, App Store, product catalog): the Solution sheet image, its live top and handle, and C's layers */
 /* one layer owns the motion: the sheet's surface (.ns: its colour, squircle top, live handle, the drag) and one content group (.ng: c, with the
    split pose bl registered on it and dissolving out) on one transform; the full screen's bottom chrome (.nf: a footer / composer / keyboard)
@@ -177,21 +177,21 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* ---------- the device chrome: over every experience and its sheet (the IAB's z 20 / 25 / 40), under the Menu pill ----------
    the status bar's right icons (the shared .sb mask; its time slot is the pill's) for a sheet that brings its own white status band (the IAB),
    and the one home bar (Figma: 134×5 at 121,798), black over a light screen, white over a dark one */
-.dc{width:375px;height:812px;z-index:60;pointer-events:none}
+.dc{width:375px;height:812px;z-index:90;pointer-events:none}
 .dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0}
 .dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000}
 
 /* ---------- the Menu pill: in the status bar's time slot, over every experience ---------- */
-.mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
+.mp{left:24px;top:10px;width:60px;height:24px;z-index:95;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
 
 /* ---------- the menu: tree-branch card over the blurred app ---------- */
-.mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
+.mm{inset:0;width:375px;height:812px;z-index:80;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
 .mm.on{display:flex}
-.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.72);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4)}
+.mm-bg{position:absolute;inset:0;background:rgba(10,10,14,.68);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4)}
 .mm-card{position:relative;width:327px;padding:62px 12px 24px;box-sizing:border-box;background:#FFFFFF;border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#141416;box-shadow:0 24px 60px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04)}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#141416;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
@@ -282,7 +282,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=7'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=8'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -316,7 +316,7 @@ const EXP=[
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
-   c:{S:S2,n:4,top:406,tone:0,reelTap:1,bu:'../../fmss-all/assets/bu-away',ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
+   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & Browse',variant:'On Dwell',from:'Solution 2 · Stories',build:split,
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
@@ -327,7 +327,7 @@ const EXP=[
       alt:{S:S1,n:3,top:406,tone:1,vStart:10.7,p:'../../fmss-all/assets/p3-mp',surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v1',p2:'p1',x2:0,isAlt:1},m:{a:[189.5,396,185.5,186],b:[12,44,351,350]},cs:185,ci:'ci3',tap:[0,356,375,256],
         sheet:{native:1,hb:92,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8',caret:[30,485]}}}}},
   {tab:'Search',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Search · Offsite Conversions',build:split,
-   c:{S:S1,n:1,top:406,tone:1,v:'../../fmss-profile/assets/reel.mp4',p:'../../fmss-all/assets/p-pegasus',bu:'../../fmss-all/assets/bu-pegasus',surf:[{f:'../../fmss-all/assets/sr1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.'},srh:{av:'a1',name:'Nike',cap:'Engineered for greatness. Designed for you. Nike...'},m:{a:[3.5,473.5,181.5,244.5],ar:[9.5,9.5,0,0],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[3.5,473.5,181.5,320.5],
+   c:{S:S1,n:1,top:406,tone:1,v:'../../fmss-profile/assets/reel.mp4',p:'../../fmss-all/assets/p-pegasus',bu:'../../fmss-all/assets/bu-pegasus',surf:[{f:'../../fmss-all/assets/sr1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.'},srh:{av:'a1',name:'Nike',cap:'Engineered for greatness. Designed for you.'},m:{a:[3.5,473.5,181.5,244.5],ar:[9.5,9.5,0,0],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[3.5,473.5,181.5,320.5],
       sheet:{iab:'nike.com',full:'../fmss-profile/assets/iab-header-full.svg?v=2',page:'../fmss-profile/assets/page.webp?v=2',pageH:5125,alt:'nike.com, Nike Pegasus Premium, $220'}}}
 ];
 const TABS=['Feed','Reels','Stories','Marketplace','Search'];
@@ -355,8 +355,8 @@ function split(E,root){
       `<i class="av" style="left:10px;background-image:url(${u(M.av)})"></i><p class="n" style="left:38px">${M.name}</p><p class="s" style="left:38px">Sponsored</p><svg class="dt" style="left:162px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:10px">${M.hl}</p>`+
       (R?`<i class="av" style="left:199px;background-image:url(${u(R.av)})"></i><p class="n" style="left:227px">${R.name}</p><p class="s" style="left:227px">Sponsored</p><svg class="dt" style="left:351px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:199px">${R.hl}</p>`:'')+
       `</div><div class="mpv2 sf" style="left:${M.x2}px"><img class="mvp" alt="" src="${u(M.p2)}"><video muted playsinline loop preload="auto" disableremoteplayback poster="${u(M.p2)}" src="${u(M.v2+'.mp4')}"></video></div>`}
-  if(C.srh)h+=`<div class="srv sf" data-sq-off style="left:3.5px"><img class="mvp" alt="" src="assets/sr-p1.webp"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/sr-p1.webp" src="assets/sr-v1.mp4"></video></div>`+
-    `<div class="srv sf" data-sq-off style="left:189px"><img class="mvp" alt="" src="assets/sr-p2.webp"><video muted playsinline loop preload="auto" disableremoteplayback poster="assets/sr-p2.webp" src="assets/sr-v2.mp4"></video></div>`+
+  if(C.srh)h+=`<div class="srv sf" data-sq-off style="left:3.5px"><img class="mvp" alt="" src="assets/sr-p1.webp"><video muted playsinline preload="auto" disableremoteplayback poster="assets/sr-p1.webp" src="assets/sr-v1.mp4"></video></div>`+
+    `<div class="srv sf" data-sq-off style="left:189px"><img class="mvp" alt="" src="assets/sr-p2.webp"><video muted playsinline preload="auto" disableremoteplayback poster="assets/sr-p2.webp" src="assets/sr-v2.mp4"></video></div>`+
     `<div class="L srh sf" data-r="srh"><i class="av" style="background-image:url(${u(C.srh.av)})"></i><p class="nm">${C.srh.name} <span>· Sponsored</span></p><p class="cp">${C.srh.cap}</p></div>`;
   const vSrc=u(C.v||'v'+n+'.mp4'),pSrc=u(C.p||'p'+n),buSrc=u(C.bu||'bu'+n);
   h+=FMSSBackdrop.html(buSrc,top,{attrs:' data-r="bu" style="display:none"'});
@@ -418,15 +418,18 @@ function split(E,root){
   if(C.srh){
     const srVids=[...root.querySelectorAll('.srv video')];
     X.srList=[srVids[0],srVids[1],X.video];
-    X.srTurn=0;X.srElapsed=0;X.srLastT=0;   // 0 = post 1 (4s), 1 = post 2 (4s), 2 = Nike ad
+    X.srTurn=0;X.srElapsed=0;X.srLastT=0;   // 0 = post 1 (4s, freezes at end), 1 = post 2 (4s, freezes at end), 2 = Nike ad
+    const nextSr=()=>{if(X.srTurn>=2)return;const act=X.srList[X.srTurn];act.pause();X.srElapsed=0;X.srLastT=0;X.srTurn++;vidSync()};
     const onSrTime=()=>{if(cur!==X||X.state!==1||X.vw)return;
       const now=performance.now(),dt=X.srLastT?Math.min(500,now-X.srLastT):0;X.srLastT=now;
       const act=X.srList[X.srTurn];
       X.srList.forEach((v,i)=>{if(i!==X.srTurn&&!v.paused)v.pause()});
-      if(!act.paused)X.srElapsed+=dt;
-      const dur=X.srTurn<2?4000:((act.duration&&isFinite(act.duration)?act.duration*1000:14000));
-      if(X.srElapsed>=dur){X.srElapsed=0;act.pause();setV(act,0);X.srTurn=(X.srTurn+1)%3;setV(X.srList[X.srTurn],0);vidSync()}};
-    X.srList.forEach(v=>v.addEventListener('timeupdate',onSrTime));
+      if(X.srTurn<2){
+        if(!act.paused)X.srElapsed+=dt;
+        if(act.ended||(act.duration&&act.currentTime>=act.duration-.08)||X.srElapsed>=4000)nextSr();
+      }};
+    srVids.forEach((v,i)=>{v.addEventListener('timeupdate',onSrTime);v.addEventListener('ended',()=>{if(cur===X&&X.state===1&&!X.vw&&X.srTurn===i)nextSr()})});
+    X.video.addEventListener('timeupdate',onSrTime);
   }
   if(C.alt){const altRoot=document.createElement('div');altRoot.className='xp';altRoot.dataset.i='mp-alt';xps.appendChild(altRoot);
     X.alt=split({tab:E.tab,group:E.group,name:'Watch & Message',variant:E.variant,from:'Marketplace · Business Messages',c:C.alt},altRoot);
@@ -663,12 +666,13 @@ function render(X){
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
-  if(X===cur){pill(X.tone);chrome(X)}
+  if(X===cur){pill(menuOpen?0:X.tone);chrome(X)}
 }
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
    light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
 const dcSb=$('dcSb'),dcHm=$('dcHm');
 function chrome(X){const C=X.E.c,v=X.vwCta?0:(X.vw||0);   // under the CTA's page the sheet's own chrome takes over
+  if(menuOpen){dcSb.style.opacity='1';dcSb.classList.remove('sb-dark');dcHm.style.background='#fff';return}
   dcSb.style.opacity=Math.max(C.sheet.iab?X.sd:0,v).toFixed(3);dcSb.classList.toggle('sb-dark',!(v>0));   // the viewer: white icons
   const k=Math.max(C.tone,clamp((803-X.y)/5))*(1-v),g=Math.round(255*(1-k));dcHm.style.background=`rgb(${g},${g},${g})`}
 
@@ -798,15 +802,15 @@ function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
   mmLs.querySelectorAll('.mm-grp').forEach(g=>g.querySelector('.mm-parent').classList.toggle('active',g.dataset.tab===activeTab));
   mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
 let menuOpen=false,mAn=[],mmSq=false;
-function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');
+function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');if(cur){pill(0);chrome(cur)}
   if(SQ&&!mmSq){const ch=mmCard.offsetHeight;if(ch){mmCard.style.clipPath=`path('${sqP(327,ch,28)}')`;mmCard.style.borderRadius='0';mmSq=true}}
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:240,easing:'cubic-bezier(.2,.7,.2,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
-function closeMenu(){if(!menuOpen)return;menuOpen=false;mpEl.setAttribute('aria-expanded','false');
+function closeMenu(){if(!menuOpen)return;menuOpen=false;mpEl.setAttribute('aria-expanded','false');if(cur){pill(cur.tone);chrome(cur)}
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:200,easing:'cubic-bezier(.4,0,.6,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
   mAn[0].onfinish=()=>{if(!menuOpen){mm.classList.remove('on');mAn.forEach(a=>a.cancel());mAn=[]}}}
-mpEl.addEventListener('click',e=>{e.stopPropagation();openMenu()});
+mpEl.addEventListener('click',e=>{e.stopPropagation();menuOpen?closeMenu():openMenu()});
 $('mmX').addEventListener('click',closeMenu);
 mmBg.addEventListener('click',closeMenu);
 mmLs.querySelectorAll('.mm-it:not(.off)').forEach(b=>b.addEventListener('click',()=>pick(+b.dataset.i)));
