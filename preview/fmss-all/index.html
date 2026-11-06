@@ -143,7 +143,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mph .s{top:377px;font:400 11px/13px var(--t-sf);letter-spacing:-.08px;color:#65676B}
 .mph .dt{top:368px;width:16px;height:16px}
 .mph .hl{top:590px;width:168px;overflow:hidden;text-overflow:ellipsis;font:600 13px/16px var(--t-sf);letter-spacing:-.12px;color:#050505}
-.mpv2{position:absolute;top:396px;width:186px;height:186px;overflow:hidden;background:#000;pointer-events:none}
+.mpv2{position:absolute;top:396px;width:185.5px;height:186px;overflow:hidden;background:#000;pointer-events:none}
 .mpv2 img,.mpv2 video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .srh{width:186px;height:800px;pointer-events:none}
 .srh>*{position:absolute;margin:0;-webkit-font-smoothing:antialiased;font-feature-settings:var(--t-sf-ft)}
@@ -305,7 +305,7 @@ const EXP=[
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
-   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
+   c:{S:S2,n:4,top:406,tone:0,reelTap:1,bu:'../../fmss-all/assets/bu-away',ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'On Dwell',from:'Solution 2 · Video (Reels)',build:split,
    /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
@@ -320,9 +320,9 @@ const EXP=[
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
       stay:[{f:'sg3',hole:1}],out:[{f:'ao3'}],sheet:{iab:'away.com',fullFrom:'c3',page:'c3',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Marketplace',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Marketplace · Offsite Conversions',build:split,
-   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v3',p2:'../../fmss-all/assets/p3-mp',x2:189},m:{a:[0,396,186,186],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[0,356,375,256],
+   c:{S:S1,n:1,top:406,tone:1,surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Luxuriously soft and tailored for comfort and everyday wear, the Nike 24.7 Collection moves with you all day long. Combining breathable fabrics and a sleek fit, it\'s perfect for all your activities.'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v3',p2:'../../fmss-all/assets/p3-mp',x2:189.5},m:{a:[0,396,185.5,186],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[0,356,375,256],
       sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'},
-      alt:{S:S1,n:3,top:406,tone:1,vStart:10.7,p:'../../fmss-all/assets/p3-mp',surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v1',p2:'p1',x2:0,isAlt:1},m:{a:[189,396,186,186],b:[12,44,351,350]},cs:185,ci:'ci3',tap:[0,356,375,256],
+      alt:{S:S1,n:3,top:406,tone:1,vStart:10.7,p:'../../fmss-all/assets/p3-mp',surf:[{f:'../../fmss-all/assets/mp1',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},mph:{av:'a1',name:'Nike',hl:'24.7 Collection',r:{av:'a3',name:'Artifox',hl:'Refresh your workspace'},v2:'v1',p2:'p1',x2:0,isAlt:1},m:{a:[189.5,396,185.5,186],b:[12,44,351,350]},cs:185,ci:'ci3',tap:[0,356,375,256],
         sheet:{native:1,hb:92,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8',caret:[30,485]}}}}},
   {tab:'Search',group:'watch',name:'Watch & Browse',variant:'Video Tap',from:'Search · Offsite Conversions',build:split,
    c:{S:S1,n:1,top:406,tone:1,v:'../../fmss-profile/assets/reel.mp4',p:'../../fmss-all/assets/p-pegasus',bu:'../../fmss-all/assets/bu-pegasus',surf:[{f:'../../fmss-all/assets/sr1',patch:'#fff'}],vw:{cta:'Shop now',name:'Nike',cap:'Engineered for greatness. Designed for you. Nike Pegasus Premium delivers explosive energy return and a locked-in fit so every stride feels faster than the last.'},srh:{av:'a1',name:'Nike',cap:'Engineered for greatness. Designed for you. Nike Pegasus Premium...'},m:{a:[4,474,181,244],ar:[7,7,0,0],b:[12,44,351,350]},cs:185,ci:'ci1',tap:[4,474,181,320],
@@ -621,10 +621,9 @@ function render(X){
      split↔viewer: g=0 while k moves so p=0 and box() is exactly the live video rect (colour rides with it, never taller); on land one
      g spring (ω16) eases out to the 734 rest; into the viewer g retracts (ω32) as the video grows. Image stays screen-fixed; only the
      clip-path reveals the box (FMSSBackdrop.clip). During the viewer bu sits ABOVE .vwb: the black only recedes, it never reveals it. */
-  /* In-Content & multi-column grids (Marketplace / Search): the backdrop shrinks into the video box at once so no large slab sits over the grid */
-  const g=X.bdg==null?1:X.bdg,grid=!!(C.mph||C.srh),p=((grid||(C.reelTap&&X.state===1))?a*a*a*a*a*a:a)*g,B=FMSSBackdrop.box([vx,vy,vw,vh],R,p),bs=e.bu.style;
+  const g=X.bdg==null?1:X.bdg,grid=!!(C.mph||C.srh),p=a*g,bRect=k>0?[vx,vy,vw,vh]:[0,vy,375,vh],bR=k>0?R:[0,0,0,0],B=FMSSBackdrop.box(bRect,bR,p),bs=e.bu.style;
   bs.display=a>0.001?'block':'none';   // keep laid out for the whole open / close (no display:none snap on the last split→feed frames)
-  bs.opacity=grid?(a*a*a).toFixed(3):'1';
+  bs.opacity=k>0?'1':(a*a).toFixed(3);
   if(a>0){e.bui.style.transform='';
     const bk=[B.x,B.y,B.w,B.h,...B.R,sm,p].map(v=>(+v).toFixed(2)).join();
     if(bk!==X.bk){X.bk=bk;bs.clipPath=a>0.001?FMSSBackdrop.clip(B,mvRest?sm:0):'inset(0 100% 100% 0)';bs.borderRadius='';bs.left=bs.top='0';bs.width='375px';bs.height='734px'}}   // p=0 still clips to the live video box (not a fully-hidden inset) so the land→grow spring has no hidden→visible jump
