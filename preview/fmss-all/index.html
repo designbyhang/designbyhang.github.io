@@ -645,7 +645,7 @@ function split(E,root){
       setHx(v>0?FMSSIAB.rb(v,375):v<-HMAX?-HMAX-FMSSIAB.rb(-HMAX-v,375):v);
       const now=performance.now();hd.s.push([now,hx]);while(hd.s.length>2&&now-hd.s[0][0]>100)hd.s.shift()});
     const hsEnd=e=>{if(!hd||e.pointerId!==hd.id)return;const d=hd;hd=null;
-      if(!d.moved&&e.type==='pointerup'){open(X);return}
+      if(!d.moved&&e.type==='pointerup'){openFull(X);return}
       const A=d.s[0],B=d.s[d.s.length-1],vx=B[0]-A[0]>0?(B[1]-A[1])/((B[0]-A[0])/1000):0,tgt=clamp(hx+vx*.16,-HMAX,0);
       if(Math.abs(hx-tgt)>.3)hxS.to(tgt,{w:16});else if(hx!==tgt)setHx(tgt)};
     hsEl.addEventListener('pointerup',hsEnd);hsEl.addEventListener('pointercancel',hsEnd);
