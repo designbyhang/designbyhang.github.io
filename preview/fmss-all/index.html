@@ -251,7 +251,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .mp .lt,.rp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk,.rp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
-.rp svg{position:relative;width:12px;height:12px;display:block;pointer-events:none;will-change:transform}
+.rp svg{position:relative;width:16px;height:16px;display:block;overflow:visible;pointer-events:none;will-change:transform}
 
 /* ---------- the menu: tree-branch card over the blurred app (iOS Liquid Glass · Dark) ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
@@ -307,7 +307,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L" id="xps" style="width:375px;height:812px"></div>
         <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk" style="opacity:0"></i><span>Menu</span></button>
-        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><g transform="rotate(30 6 6)"><path d="M1.46 3.38A5.25 5.25 0 1 1 1.46 8.62" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M1.1 1.15V3.55H3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></g></svg></button>
+        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="-2 -2 16 16" overflow="visible" fill="none" aria-hidden="true"><g transform="rotate(30 6 6)"><path d="M1.46 3.38A5.25 5.25 0 1 1 1.46 8.62" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M1.1 1.15V3.55H3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></g></svg></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
