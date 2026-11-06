@@ -352,10 +352,12 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 @keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(28px)}38%,68%{transform:translateY(0)}}
 .iv-ee-m{animation:ivEeMedia 3.84s var(--ease) infinite}
 .iv-ee-s{animation:ivEeSheet 3.84s var(--ease) infinite}
-/* 5. Gesture Interactions: finger indicator dragging sheet between half and full stops */
-@keyframes ivGsSheet{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(-16px)}80%{transform:translateY(6px)}}
-@keyframes ivGsDot{0%,10%,100%{opacity:0;transform:translateY(4px)}18%{opacity:.7;transform:translateY(0)}45%,60%{opacity:.7;transform:translateY(-16px)}72%{opacity:.7;transform:translateY(6px)}85%{opacity:0;transform:translateY(6px)}}
+/* 5. Gesture Interactions: drag up expands bottom sheet to fill full container in full color (handle fades out), then drag down returns to split screen */
+@keyframes ivGsSheet{0%,15%,88%,100%{y:32px;height:28px;rx:4px;ry:4px;fill:color-mix(in srgb,var(--ink) 8%,var(--frame))}40%,62%{y:5px;height:54px;rx:5px;ry:5px;fill:color-mix(in srgb,var(--ink) 16%,var(--frame))}}
+@keyframes ivGsHdl{0%,15%,88%,100%{opacity:1;transform:translateY(0)}34%,66%{opacity:0;transform:translateY(-27px)}}
+@keyframes ivGsDot{0%,8%,94%,100%{opacity:0;transform:translateY(2px)}15%{opacity:.7;transform:translateY(0)}40%,62%{opacity:.7;transform:translateY(-25px)}88%{opacity:.7;transform:translateY(0)}}
 .iv-gs-s{animation:ivGsSheet 3.84s var(--ease) infinite}
+.iv-gs-h{animation:ivGsHdl 3.84s var(--ease) infinite}
 .iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
 /* 6. Scrubber & Thumbnail: playhead gliding along track with floating thumbnail preview above it */
 @keyframes ivScMove{0%,12%,100%{transform:translateX(0)}48%,64%{transform:translateX(14px)}}
