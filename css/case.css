@@ -326,11 +326,11 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-vis .iv-str{fill:none;stroke:var(--ink);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
 .iter-vis .iv-dim{fill:none;stroke:color-mix(in srgb,var(--ink) 50%,var(--frame));stroke-width:1;stroke-dasharray:2 2}
 .iter-vis .iv-hdl{fill:color-mix(in srgb,var(--ink) 50%,var(--frame))}
-/* 1. Split Ratio: dotted split line moves up and down while both rounded panes resize inside the phone outline (never overflowing) */
-@keyframes ivSplitTop{0%,15%,100%{height:27px}45%,65%{height:45px}}
-@keyframes ivSplitLine{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(18px)}}
-@keyframes ivSplitBot{0%,15%,100%{y:38px;height:34px}45%,65%{y:56px;height:16px}}
-@keyframes ivSplitHdl{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(18px)}}
+/* 1. Split Ratio: dotted split line moves up and down between the 50/50 split (28/34) and Tap to Pause/Resume's 70/30 split (44/18) */
+@keyframes ivSplitTop{0%,15%,100%{height:28px}45%,65%{height:44px}}
+@keyframes ivSplitLine{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(16px)}}
+@keyframes ivSplitBot{0%,15%,100%{y:38px;height:34px}45%,65%{y:54px;height:18px}}
+@keyframes ivSplitHdl{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(16px)}}
 .iv-sr-top{animation:ivSplitTop 3.84s var(--ease) infinite}
 .iv-sr-line{animation:ivSplitLine 3.84s var(--ease) infinite}
 .iv-sr-bot{animation:ivSplitBot 3.84s var(--ease) infinite}
