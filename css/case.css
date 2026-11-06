@@ -307,13 +307,57 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 
 /* System & Scale: iteration examples as boxes between paragraphs */
 .iter-grid{list-style:none;display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 28px;padding:0}
-.iter-grid li{border:1px solid var(--frame-line,var(--line));padding:20px;display:flex;flex-direction:column;gap:6px}
+.iter-grid li{position:relative;border:1px solid var(--frame-line,var(--line));padding:20px 80px 20px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:96px;overflow:hidden}
 .iter-grid b{color:var(--ink);font-weight:600;font-size:var(--t-s16)}
 .iter-grid span{color:var(--ink);font-size:var(--t-s15);line-height:1.5} /* label/value pairing matches the Role / Timeline block */
 /* System & Scale boxes: full media width, 3 columns x 2 rows */
 .iter-wrap{margin-top:48px}
 .iter-wrap .iter-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin:0}
 @media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
+/* Direction A: live monochrome wireframe micro-diagrams on the right of each .iter-grid card */
+.iter-vis{position:absolute;right:16px;top:50%;width:48px;height:64px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
+.iter-vis svg{display:block;width:48px;height:64px;overflow:visible}
+.iter-vis .iv-ph{fill:var(--frame);stroke:var(--frame-line,var(--line));stroke-width:1}
+.iter-vis .iv-faint{fill:color-mix(in srgb,var(--ink) 8%,transparent)}
+.iter-vis .iv-med{fill:color-mix(in srgb,var(--ink) 16%,transparent)}
+.iter-vis .iv-ink{fill:var(--ink)}
+.iter-vis .iv-str{fill:none;stroke:var(--ink);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.iter-vis .iv-dim{fill:none;stroke:color-mix(in srgb,var(--ink) 28%,transparent);stroke-width:1;stroke-dasharray:2 2}
+/* 1. Split Ratio: top media + bottom sheet shifting between 50/50 and 70/30 anchor points */
+@keyframes ivSplitTop{0%,15%,100%{transform:scaleY(1)}45%,65%{transform:scaleY(1.42)}}
+@keyframes ivSplitBot{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(10px)}}
+.iv-sr-top{transform-origin:0 8px;animation:ivSplitTop 3.84s var(--ease) infinite}
+.iv-sr-bot{animation:ivSplitBot 3.84s var(--ease) infinite}
+/* 2. Tap to Pause/Resume: touch ring + play/pause toggle */
+@keyframes ivTapRing{0%,38%,88%,100%{opacity:0;transform:scale(.6)}44%{opacity:.55;transform:scale(1)}54%{opacity:0;transform:scale(1.35)}}
+@keyframes ivPauseVis{0%,44%,94%,100%{opacity:1}48%,90%{opacity:0}}
+@keyframes ivPlayVis{0%,44%,94%,100%{opacity:0}48%,90%{opacity:1}}
+.iv-tp-ring{transform-origin:24px 32px;animation:ivTapRing 3.84s var(--ease) infinite}
+.iv-tp-pause{animation:ivPauseVis 3.84s steps(1) infinite}
+.iv-tp-play{animation:ivPlayVis 3.84s steps(1) infinite}
+/* 3. Media Controls: simplified bottom bar + time pill auto-hiding and re-appearing */
+@keyframes ivCtlFade{0%,45%,100%{opacity:1;transform:translateY(0)}60%,85%{opacity:.12;transform:translateY(2px)}}
+@keyframes ivCtlProg{0%{transform:scaleX(.2)}45%{transform:scaleX(.72)}60%,100%{transform:scaleX(.72)}}
+.iv-mc-ui{animation:ivCtlFade 3.84s var(--ease) infinite}
+.iv-mc-fill{transform-origin:11px 36px;animation:ivCtlProg 3.84s linear infinite}
+/* 4. Entry/Exit Animations: feed media shrinking to top pane while bottom sheet springs up, then back */
+@keyframes ivEeMedia{0%,12%,92%,100%{transform:translate(0,0) scale(1)}38%,68%{transform:translate(2px,-9px) scale(.88,.78)}}
+@keyframes ivEeSheet{0%,12%,92%,100%{transform:translateY(26px)}38%,68%{transform:translateY(0)}}
+.iv-ee-m{transform-origin:24px 26px;animation:ivEeMedia 3.84s var(--ease) infinite}
+.iv-ee-s{animation:ivEeSheet 3.84s var(--ease) infinite}
+/* 5. Gesture Interactions: finger indicator dragging sheet between half and full stops */
+@keyframes ivGsSheet{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(-16px)}80%{transform:translateY(6px)}}
+@keyframes ivGsDot{0%,10%,100%{opacity:0;transform:translateY(4px)}18%{opacity:.7;transform:translateY(0)}45%,60%{opacity:.7;transform:translateY(-16px)}72%{opacity:.7;transform:translateY(6px)}85%{opacity:0;transform:translateY(6px)}}
+.iv-gs-s{animation:ivGsSheet 3.84s var(--ease) infinite}
+.iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
+/* 6. Scrubber & Thumbnail: playhead gliding along track with floating thumbnail preview above it */
+@keyframes ivScMove{0%,12%,100%{transform:translateX(0)}48%,64%{transform:translateX(18px)}}
+@keyframes ivScThumb{0%,10%,82%,100%{opacity:0;transform:translate(0,3px) scale(.85)}20%{opacity:1;transform:translate(0,0) scale(1)}48%,64%{opacity:1;transform:translate(18px,0) scale(1)}}
+@keyframes ivScFill{0%,12%,100%{transform:scaleX(.22)}48%,64%{transform:scaleX(.86)}}
+.iv-sc-k{animation:ivScMove 3.84s var(--ease) infinite}
+.iv-sc-t{transform-origin:15px 32px;animation:ivScThumb 3.84s var(--ease) infinite}
+.iv-sc-f{transform-origin:10px 48px;animation:ivScFill 3.84s var(--ease) infinite}
+@media (prefers-reduced-motion:reduce){.iter-vis *{animation:none!important}}
 /* hero: optical left alignment; cancel the display font's left side bearing so the title's stems line up with the kicker and summary */
 .hero h1{margin-left:-.07em}
 .hero .sum{margin-left:-.03em}
