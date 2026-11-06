@@ -215,8 +215,11 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .ns i{position:absolute;left:168px;top:8px;width:40px;height:4px;border-radius:2px;background:#C9CCD1}
 .iabh .ng,.iabh .nf{width:375px;height:812px;pointer-events:none;will-change:transform}
 .ng img,.nf img{position:absolute;left:0;top:0;width:375px;height:812px}
-.ng img.n-ext{top:782px;height:212px}
-.n-ttl{position:absolute;left:12px;top:56px;margin:0;padding:2px 260px 2px 0;background:#f1f2f6;font:700 20px/24px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:-.4px;color:#050505;white-space:nowrap;-webkit-font-smoothing:antialiased;pointer-events:none}
+.ng img.n-ext{top:772px;height:222px}
+.n-ttl{position:absolute;left:12px;top:58px;margin:0;padding:0;background:none;font:700 16px/20px var(--t-sf);font-feature-settings:var(--t-sf-ft);letter-spacing:-.32px;color:#050505;white-space:nowrap;-webkit-font-smoothing:antialiased;pointer-events:none}
+.hs{width:375px;overflow:hidden;touch-action:none;cursor:grab;z-index:2}
+.hs.off{pointer-events:none}
+.hs img{position:absolute;left:0;top:0;display:block;will-change:transform}
 .ng .ngh{position:absolute;left:0;width:375px;height:18px}
 .nf .nfu{position:absolute;left:0;top:798px;width:375px;height:14px}
 .cs{left:-4px;top:24px;width:383px;height:28px}
@@ -345,7 +348,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=443'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=444'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -365,8 +368,8 @@ const EXP=[
    c:{S:S1,n:4,top:406,tone:1,surf:[{f:'a4',patch:'#fff'}],vw:{cta:'Install',name:'Chick-fil-A',cap:'Free delivery on your first mobile order. Try our Classic Chicken Sandwich today!'},fh:{name:'Chick-fil-A',bx:140},m:{a:[0,216,375,240],b:[12,107,351,225]},cs:185,ci:'ci4',tap:feedTap([0,216,375,240]),
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:72,be:388,foot:[798,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'Video Tap',from:'Solution 2 · Feed',build:split,
-   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=442',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[798,'#efefef']}}},
+   c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],hs:{src:'assets/ov-hscroll.webp?v=444',y:645,h:89,w:676,sh:102},vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
+      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[812,'#f1f2f6']}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'On Dwell',from:'Solution 2 · Video (Reels)',build:split,
    /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
       Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
@@ -375,7 +378,7 @@ const EXP=[
       comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
       this surface has no full-screen viewer. */
    c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
-      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=442',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
+      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[812,'#f1f2f6']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
@@ -413,6 +416,7 @@ function split(E,root){
     :img(o.f,cls,(o.hole&&SQ?`clip-path:${HOLE(h)};`:'')+(o.h?`height:${o.h}px;`:''))+(o.patch?`<i class="L pt ${cls}" style="background:${o.patch}"></i>`:'')};
   let h=C.surf.map(o=>layer(o,'sf')).join('');
   if(C.fh)h+=`<div class="L fh sf" data-r="fh"><i class="cv"></i><p class="n">${C.fh.name}</p><i class="fd-ic fd-bd" style="left:${C.fh.bx}px;top:122px"></i><p class="s">Sponsored ·</p><i class="fd-ic fd-gl" style="left:137px;top:141px"></i></div>`;   // goes with the surface
+  if(C.hs)h+=`<div class="L hs sf" data-r="hs" style="top:${C.hs.y}px;height:${C.hs.h}px"><img alt="" src="${C.hs.src}" style="width:${C.hs.w}px;height:${C.hs.sh}px"></div>`;
   if(C.mph){const M=C.mph,R=M.r,dt='<g fill="#65676B"><circle cx="3" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="13" cy="8" r="1.3"/></g>';
     h+=`<div class="L mph sf" data-r="mph">`+
       `<i class="av" style="left:10px;background-image:url(${u(M.av)})"></i><p class="n" style="left:38px">${M.name}</p><p class="s" style="left:38px">Sponsored</p><svg class="dt" style="left:162px" viewBox="0 0 16 16">${dt}</svg><p class="hl" style="left:10px">${M.hl}</p>`+
@@ -464,8 +468,8 @@ function split(E,root){
       `<button class="btn vwx" data-r="vwx" type="button" aria-label="Close full screen video"><img alt="" src="assets/vw-x.png"></button></div>`}
   root.innerHTML=h;
   const q=s=>root.querySelector(s),r=k=>root.querySelector(`[data-r="${k}"]`);
-  const els=X.els={sf:[...root.querySelectorAll('.sf')],sfImg:root.querySelector('img.sf'),sfPatch:[...root.querySelectorAll('.pt.sf,.fh.sf,.mph.sf,.srh.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
-    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
+  const els=X.els={sf:[...root.querySelectorAll('.sf')],sfImg:root.querySelector('img.sf'),sfPatch:[...root.querySelectorAll('.pt.sf,.fh.sf,.mph.sf,.srh.sf,.hs.sf')],bu:r('bu'),bo:q('.bo'),st:[...root.querySelectorAll('.st')],ot:[...root.querySelectorAll('.ot')],
+    mv:r('mv'),mtp:r('mtp'),hit:r('hit'),fh:r('fh'),hs:r('hs'),ctlw:r('ctlw'),hd:r('hd'),vwb:r('vwb'),vwo:r('vwo'),vwcap:r('vwcap'),splx:r('splx'),host:r('sheetHost'),
     uiu:r('uiu'),uiud:r('uiud'),uiucta:r('uiucta'),rc:r('rc'),pz:r('pz')};els.bui=els.bu.firstChild;
   X.vids=[...root.querySelectorAll('video')];X.video=els.mv.querySelector('video');X.v2=root.querySelector('.mpv2 video');
   const setV=(v,t)=>{if(!v||!v.readyState)return;try{if(Math.abs(v.currentTime-t)>.05)v.currentTime=t}catch(_){}};
@@ -514,7 +518,7 @@ function split(E,root){
       else if(X.ctaFrom==='feed')X.sheet.go(1,{w:16});
       else if(X.vw){X.vwCta=false;vwFeed(X)}
       else{X.vs&&X.vs.leaveSplit();X.sheet.go(1,{w:16})}},
-    state:s=>{const prev=X.state;X.state=s;if(prev>1&&s===1)X.hadSplit=true;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);
+    state:s=>{const prev=X.state;X.state=s;if(prev>1&&s===1)X.hadSplit=true;els.splx.classList.toggle('on',s===2);els.hit.classList.toggle('off',s!==1);if(els.hs)els.hs.classList.toggle('off',s!==1);
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
@@ -629,6 +633,25 @@ function split(E,root){
       rl.addEventListener('pointercancel',()=>{rp=null});
       rl.addEventListener('pointerup',e=>{const p=rp;rp=null;if(!p||e.pointerId!==p.id||p.moved||X.state!==1)return;
         X.reelHeld=!X.pz.on;X.mediaTap()})}}
+  if(els.hs){
+    const hsEl=els.hs,hsImg=hsEl.firstChild,HMAX=C.hs.w-375;
+    let hx=0,hd=null;
+    const setHx=v=>{hx=v;hsImg.style.transform=`translate3d(${hx.toFixed(2)}px,0,0)`};
+    const hxS=SP(()=>hx,setHx);
+    hsEl.addEventListener('pointerdown',e=>{if(e.button>0||X.state!==1||X.sheet.busy)return;hxS.stop();const k=scale();hd={id:e.pointerId,c0:e.clientX,x0:hx,sc:k,moved:false,s:[[performance.now(),hx]]};try{hsEl.setPointerCapture(e.pointerId)}catch(_){}});
+    hsEl.addEventListener('pointermove',e=>{if(!hd||e.pointerId!==hd.id)return;if(e.pointerType==='mouse'&&!(e.buttons&1)){const d=hd;hd=null;const tgt=clamp(hx,-HMAX,0);if(Math.abs(hx-tgt)>.3)hxS.to(tgt,{w:16});return}
+      const dx=e.clientX-hd.c0;if(Math.abs(dx)>4)hd.moved=true;
+      const v=hd.x0+dx/hd.sc;
+      setHx(v>0?FMSSIAB.rb(v,375):v<-HMAX?-HMAX-FMSSIAB.rb(-HMAX-v,375):v);
+      const now=performance.now();hd.s.push([now,hx]);while(hd.s.length>2&&now-hd.s[0][0]>100)hd.s.shift()});
+    const hsEnd=e=>{if(!hd||e.pointerId!==hd.id)return;const d=hd;hd=null;
+      if(!d.moved&&e.type==='pointerup'){open(X);return}
+      const A=d.s[0],B=d.s[d.s.length-1],vx=B[0]-A[0]>0?(B[1]-A[1])/((B[0]-A[0])/1000):0,tgt=clamp(hx+vx*.16,-HMAX,0);
+      if(Math.abs(hx-tgt)>.3)hxS.to(tgt,{w:16});else if(hx!==tgt)setHx(tgt)};
+    hsEl.addEventListener('pointerup',hsEnd);hsEl.addEventListener('pointercancel',hsEnd);
+    hsEl.addEventListener('wheel',e=>{if(X.state!==1||X.sheet.busy||hd)return;const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY,n=clamp(hx-d,-HMAX,0);if(Math.abs(n-hx)<.5)return;if(e.cancelable)e.preventDefault();hxS.stop();setHx(n)},{passive:false});
+    X.hsReset=()=>{hxS.stop();hd=null;setHx(0)};
+  }
   els.splx.addEventListener('click',e=>{e.stopPropagation();close(X)});
   /* on Dwell (Stories): the peek opens by itself once the Story has been watched for a moment, once per pick; a tap or a swipe up opens it sooner */
   let dw=0;X.dwell=()=>{clearTimeout(dw);if(C.dwell)dw=setTimeout(()=>{if(cur===X&&!menuOpen&&X.state===1&&!hp&&!(X.pz&&X.pz.on))open(X)},C.dwell)};
@@ -636,7 +659,7 @@ function split(E,root){
   /* the Reels ad arms its own dwell whenever its surface comes into view, and clears it when the sheet opens or the surface resets */
   if(C.adDwell){X.dwell=()=>{clearTimeout(dw);X.adDwellArm()}}
   if(C.reelTap)X.reelVideo=root.querySelector('.rl video');
-  X.reset=()=>{X.hadSplit=false;X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
+  X.reset=()=>{X.hadSplit=false;X.ctaFrom=null;X.vwOff=false;X.vwT0=null;X.bdS&&X.bdS.stop();X.bdg=1;clearTimeout(dw);clearTimeout(X.stTm);X.stS&&X.stS.stop();X.stBo=0;X.vwArm=null;X.adDwellClear&&X.adDwellClear();X.pz&&X.pz.on&&X.pz.set(false);X.vwS.stop();X.reelHeld=false;X.vw=0;X.vwFit=0;X.vwCta=false;hp=mp=null;X.hsReset&&X.hsReset();X.mpElapsed=0;X.mpLastT=0;X.srTurn=0;X.srElapsed=0;X.srLastT=0;X.sheet.reset();X.vs&&X.vs.leaveSplit();if(X.vs&&X.vs.paused())X.vs.togglePause();X.vids.forEach(v=>setV(v,(X.mpRight&&v===X.mpRight)||(C.vStart!=null&&v===X.video)?10.7:0));X.y=812;X.sd=0;render(X)};
   render(X);
   return X;
 }
@@ -764,14 +787,14 @@ function nativeSheet(o){
   const cI=`<img alt="" src="${u('c'+n)}">`;
   const ttl=P.title?`<p class="n-ttl">${P.title}</p>`:'',extI=P.ext?`<img class="n-ext" alt="" src="${P.ext}">`:'';
   host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}" style="background:${P.sc}"><i></i></div>`+
-    `<div class="L ng" style="clip-path:inset(0 0 ${812-F}px 0)">${cI}${extI}${ttl}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)">${P.title?`<p class="n-ttl ngb-ttl" style="top:${56+d}px">${P.title}</p>`:''}<i class="ngh" style="top:${d}px;background:${P.sc}"></i></div>`+
+    `<div class="L ng" style="clip-path:inset(0 0 ${812-F}px 0)">${cI}${extI}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i>${ttl}</div>`+
     (K?`<div class="L nf nfc" style="clip-path:inset(${K.c0}px 0 ${812-K.k0}px 0)">${cI}${K.caret?FMSSCaret.html(...K.caret):''}<img class="nfb" alt="" src="${u('bl'+n)}" style="top:${K.c0-K.b0}px;height:${H}px"></div>`+
        `<div class="L nf nfk" style="clip-path:inset(${K.k0}px 0 0 0)">${cI}<i class="nfu" style="background:${K.bg}"></i></div>`
       :`<div class="L nf" style="clip-path:inset(${F}px 0 0 0)">${cI}<i class="nfu" style="background:${P.foot[1]}"></i></div>`)+
     `<i class="L cs" style="background:${P.cs};opacity:0"></i>`+
     `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0">${P.title?`<p class="n-ttl ct-ttl" style="opacity:0">${P.title}</p>`:''}<i class="L pt ct-pt" style="background:${P.cs};opacity:0"></i>`+
     `<button class="L btn nx" type="button" aria-label="Close full screen"></button>`;
-  const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngbTtl=q('.ngb-ttl'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
+  const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
     cs=q('.cs'),ct=q('.ct'),ctTtl=q('.ct-ttl'),ctPt=q('.ct-pt'),nx=q('.nx'),ck=q('.ios-caret');
   let y=Y1,state=1,rk='',ngk='',ctk='',entry=null,pr=0;   // pr: page scroll (<0 scrolled down to 4th row, >0 top rubber-band pull)
   const HB=P.hb||92,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: close-button bar bottom in c's coords
@@ -788,7 +811,7 @@ function nativeSheet(o){
     if(ctClip!==ctk){ctk=ctClip;ct.style.clipPath=`inset(0 0 ${ctClip}px 0)`}   // scrolling or pulling: pin status + header bar (through HB); page below moves
     /* bl and its 18px handle strip (the sheet colour, over c's own header and ×) dissolve out together, once the clip has uncovered that strip
        (c0: where the top edge reaches c's row d; at once where bl sits above c's header, d <= 44), so c's × fades in whole, never cut */
-    const bo=(1-clamp((c-c0)/.4)).toFixed(3);ngb.style.opacity=ngh.style.opacity=bo;if(ngbTtl)ngbTtl.style.opacity=bo;
+    const bo=(1-clamp((c-c0)/.4)).toFixed(3);ngb.style.opacity=ngh.style.opacity=bo;
     if(K){   /* Messenger: the keyboard rises from the bottom edge with c; the composer stays docked at the sheet's bottom until the keyboard meets it.
          Both paint only while the sheet is up (split and full screen: the composer docks under the replies in split); closed (Feed) they
          must not paint — otherwise the "Write a message…" bar sits on the Feed. */

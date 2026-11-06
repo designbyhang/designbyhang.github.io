@@ -315,16 +315,16 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-wrap .iter-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
 @media (max-width:900px){.iter-wrap .iter-grid{grid-template-columns:1fr}}
 /* Direction A: live monochrome wireframe micro-diagrams on the right of each .iter-grid card (48x76 viewBox at 2.24x = 107.52x170.24px, +20% taller) */
-.iter-vis{--iv-ph-bg:#f2f2f2;--iv-ph-bd:#d4d4d4;--iv-faint:#e2e2e2;--iv-med:#cccccc;--iv-trk:#a8a8a8;--iv-hdl:#767676;position:absolute;right:20px;top:50%;width:107.52px;height:170.24px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
-html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-line,var(--line));--iv-faint:color-mix(in srgb,var(--ink) 8%,var(--frame));--iv-med:color-mix(in srgb,var(--ink) 16%,var(--frame));--iv-trk:color-mix(in srgb,var(--ink) 32%,var(--frame));--iv-hdl:color-mix(in srgb,var(--ink) 50%,var(--frame))}
+.iter-vis{--iv-ph-bg:#f2f2f2;--iv-ph-bd:#d4d4d4;--iv-faint:#e2e2e2;--iv-med:#cccccc;--iv-trk:#a8a8a8;--iv-hdl:#767676;--iv-fg:#525252;position:absolute;right:20px;top:50%;width:107.52px;height:170.24px;transform:translateY(-50%);pointer-events:none;color:var(--ink)}
+html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-line,var(--line));--iv-faint:color-mix(in srgb,var(--ink) 8%,var(--frame));--iv-med:color-mix(in srgb,var(--ink) 16%,var(--frame));--iv-trk:color-mix(in srgb,var(--ink) 32%,var(--frame));--iv-hdl:color-mix(in srgb,var(--ink) 50%,var(--frame));--iv-fg:color-mix(in srgb,var(--ink) 74%,var(--frame))}
 .iter-vis svg{display:block;width:107.52px;height:170.24px;overflow:visible}
 .iter-vis .iv-ph,.iter-vis .iv-str,.iter-vis .iv-dim{vector-effect:non-scaling-stroke}
 .iter-vis .iv-ph{fill:var(--iv-ph-bg);stroke:var(--iv-ph-bd);stroke-width:1}
 .iter-vis .iv-faint{fill:var(--iv-faint)}
 .iter-vis .iv-med{fill:var(--iv-med)}
 .iter-vis .iv-trk{fill:var(--iv-trk)}
-.iter-vis .iv-ink{fill:var(--ink)}
-.iter-vis .iv-str{fill:none;stroke:var(--ink);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.iter-vis .iv-ink{fill:var(--iv-fg)}
+.iter-vis .iv-str{fill:none;stroke:var(--iv-fg);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
 .iter-vis .iv-dim{fill:none;stroke:var(--iv-hdl);stroke-width:1;stroke-dasharray:2 2}
 .iter-vis .iv-hdl{fill:var(--iv-hdl)}
 /* 1. Split Ratio: dotted split line moves up and down between the 50/50 split (28/34) and Tap to Pause/Resume's 70/30 split (44/18) */
@@ -356,7 +356,7 @@ html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-l
 /* 5. Gesture Interactions: drag up expands bottom sheet to fill full container in full color (handle fades out), then drag down returns to split screen */
 @keyframes ivGsSheet{0%,15%,88%,100%{y:38px;height:34px;rx:4px;ry:4px;fill:var(--iv-faint)}40%,62%{y:5px;height:66px;rx:5px;ry:5px;fill:var(--iv-med)}}
 @keyframes ivGsHdl{0%,15%,88%,100%{y:41px;opacity:1}40%,62%{y:8px;opacity:0}}
-@keyframes ivGsDot{0%,8%,94%,100%{opacity:0;transform:translateY(2px)}15%{opacity:.7;transform:translateY(0)}40%,62%{opacity:.7;transform:translateY(-31px)}88%{opacity:.7;transform:translateY(0)}}
+@keyframes ivGsDot{0%,8%,94%,100%{opacity:0;transform:translateY(2px)}15%{opacity:1;transform:translateY(0)}40%,62%{opacity:1;transform:translateY(-31px)}88%{opacity:1;transform:translateY(0)}}
 .iv-gs-s{animation:ivGsSheet 3.84s var(--ease) infinite}
 .iv-gs-h{animation:ivGsHdl 3.84s var(--ease) infinite}
 .iv-gs-d{animation:ivGsDot 3.84s var(--ease) infinite}
