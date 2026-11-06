@@ -186,7 +186,7 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
-.phone.menu-on .uih,.phone.menu-on .st,.phone.menu-on .bo{clip-path:path(evenodd,'M0 0H375V812H0Z M24 10H84V34H24Z M280 10H366V34H280Z')!important}
+.phone.menu-on .uih,.phone.menu-on .st,.phone.menu-on .bo{clip-path:path(evenodd,'M0 0H375V812H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z M280 10H366V34H280Z')!important}
 .phone.menu-on .dc .hm{background:#fff!important}
 .mp i{position:absolute;inset:0;pointer-events:none;border-radius:12px}
 .mp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
@@ -250,7 +250,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
             <h2 class="mm-t">FM Split Screen</h2>
-            <button class="btn mm-x" id="mmX" type="button" aria-label="Close menu"><i></i><svg viewBox="0 0 20 20"><path d="M4.5 4.5L15.5 15.5M15.5 4.5L4.5 15.5" stroke="#fff" stroke-width="1.75" stroke-linecap="round" fill="none"/></svg></button>
+            <button class="btn mm-x" id="mmX" type="button" aria-label="Close menu"><i></i><svg viewBox="0 0 20 20"><path d="M6.5 6.5L13.5 13.5M13.5 6.5L6.5 13.5" stroke="#fff" stroke-width="1.75" stroke-linecap="round" fill="none"/></svg></button>
             <div class="mm-ls" id="mmLs"></div>
           </div>
         </div>
@@ -287,7 +287,7 @@ const ptOf=e=>{const r=phone.getBoundingClientRect(),k=r.width/375;return [(e.cl
    Every entry is one of the FMSS Solution 1 / Solution 2 phones, built from that page's own assets (../fmss-sol1/assets, ../fmss-sol2/assets)
    by the one split-screen builder below. sheet: {iab} = the shared in-app browser (../shared/iab, FMSSIAB) for a web destination;
    {native} = the Solution's own sheet image (bl) and full screen (c) for a native destination (form, Messenger, App Store, catalog). */
-const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=9'};
+const S1={d:'../fmss-sol1/assets/',v:'?v=6'},S2={d:'../fmss-sol2/assets/',v:'?v=10'};
 const feedTap=(m)=>[0,m[1],375,m[3]+54];   // the post's media and its CTA bar under it
 const UI_TOP=481;   // where a Reels ad's lifting overlay band starts (its head ends, 481, and its tab bar starts at 734)
 /* drawn content bottom inside each ui band (design px from the band's top), same contract as vac-proto's data-ui-bottom=722:
@@ -316,12 +316,12 @@ const EXP=[
       ~2s then fades. A media tap is organic behaviour everywhere, this ad included: the reel pauses, its overlay lifts and the scrubber
       comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
       this surface has no full-screen viewer. */
-   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2'}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
+   c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4000,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[798,'#efefef']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
-   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4'},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
+   c:{S:S2,n:4,top:406,tone:0,reelTap:1,ui:'ag4',surf:[{f:'au4',hole:1},{reel:'r4'}],m:{a:[12,644,74,74],ar:[8,0,0,8],b:[12,44,351,350]},cs:406,ci:'ci4',tap:[12,644,351,74],
       sheet:{iab:'away.com',fullFrom:'c4',page:'c4',pageY:92,pageH:625,alt:'away.com, The Flex Collection'}}},
   {tab:'Stories',group:'watch',name:'Watch & Browse',variant:'On Dwell',from:'Solution 2 · Stories',build:split,
    c:{S:S2,n:3,top:680,tone:0,surf:[{f:'au3'}],m:{a:[0,44,375,667],ar:16,asm:.6,b:[12,44,351,624]},cs:0,tap:[0,44,375,667],swipeUp:1,dwell:2400,stories:1,xAt:[317,62,44,44],
@@ -689,15 +689,15 @@ function nativeSheet(o){
   const c0=d>Y3?18/(18+d-Y3):0;   // c at which the group's top edge has uncovered c's row d (bl's top)
   const cI=`<img alt="" src="${u('c'+n)}">`;
   host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}" style="background:${P.sc}"><i></i></div>`+
-    `<div class="L ng" style="clip-path:inset(0 0 ${812-F}px 0)">${cI}<img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i></div>`+
+    `<div class="L ng" style="clip-path:inset(0 0 ${812-F}px 0)">${cI}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i></div>`+
     (K?`<div class="L nf nfc" style="clip-path:inset(${K.c0}px 0 ${812-K.k0}px 0)">${cI}${K.caret?FMSSCaret.html(...K.caret):''}<img class="nfb" alt="" src="${u('bl'+n)}" style="top:${K.c0-K.b0}px;height:${H}px"></div>`+
        `<div class="L nf nfk" style="clip-path:inset(${K.k0}px 0 0 0)">${cI}<i class="nfu" style="background:${K.bg}"></i></div>`
       :`<div class="L nf" style="clip-path:inset(${F}px 0 0 0)">${cI}<i class="nfu" style="background:${P.foot[1]}"></i></div>`)+
     `<i class="L cs" style="background:${P.cs};opacity:0"></i>`+
-    `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0">`+
+    `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0"><i class="L pt ct-pt" style="background:${P.cs};opacity:0"></i>`+
     `<button class="L btn nx" type="button" aria-label="Close full screen"></button>`;
   const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
-    cs=q('.cs'),ct=q('.ct'),nx=q('.nx'),ck=q('.ios-caret');
+    cs=q('.cs'),ct=q('.ct'),ctPt=q('.ct-pt'),nx=q('.nx'),ck=q('.ios-caret');
   let y=Y1,state=1,rk='',ngk='',ctk='',entry=null,pr=0;   // pr: a CTA open's page pull (the IAB's top rubber-band: c .55 over the visible page, spring-back ω16)
   const HB=P.hb||92,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: close-button bar bottom in c's coords (IAB content top = 92; was 72 and cut through the title — Hang 2026-11-05)   // entry as the shared IAB's: 'cta' (a CTA opened it full screen) → the sheet never follows a press
   function render(){
@@ -724,7 +724,7 @@ function nativeSheet(o){
       nf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
       if(!show&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}
     }else nf.style.transform=`translate3d(0,${((812-F)*(1-clamp((c-.2)/.8))).toFixed(2)}px,0)`;   // the footer: the IAB toolbar's rule
-    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=c.toFixed(3);
+    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ctPt.style.opacity=c.toFixed(3);
     hk.render({y,sd:0});
   }
   function setState(s){state=s;ns.classList.toggle('off',s===1);nx.classList.toggle('on',s===3);ns.setAttribute('aria-hidden',s===1?'true':'false');if(s!==3&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}hk.state(s)}
