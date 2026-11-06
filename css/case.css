@@ -321,9 +321,11 @@ blockquote::before,.sec .quote::before{content:"";position:absolute;left:0;width
 .iter-vis .iv-ph{fill:var(--frame);stroke:var(--frame-line,var(--line));stroke-width:1}
 .iter-vis .iv-faint{fill:color-mix(in srgb,var(--ink) 8%,var(--frame))}
 .iter-vis .iv-med{fill:color-mix(in srgb,var(--ink) 16%,var(--frame))}
+.iter-vis .iv-trk{fill:color-mix(in srgb,var(--ink) 32%,var(--frame))}
 .iter-vis .iv-ink{fill:var(--ink)}
 .iter-vis .iv-str{fill:none;stroke:var(--ink);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
-.iter-vis .iv-dim{fill:none;stroke:var(--ink);stroke-width:1;stroke-dasharray:2 2}
+.iter-vis .iv-dim{fill:none;stroke:color-mix(in srgb,var(--ink) 50%,var(--frame));stroke-width:1;stroke-dasharray:2 2}
+.iter-vis .iv-hdl{fill:color-mix(in srgb,var(--ink) 50%,var(--frame))}
 /* 1. Split Ratio: dotted split line moves up and down while both rounded panes resize inside the phone outline (never overflowing) */
 @keyframes ivSplitTop{0%,15%,100%{height:21px}45%,65%{height:31px}}
 @keyframes ivSplitLine{0%,15%,100%{transform:translateY(0)}45%,65%{transform:translateY(10px)}}
