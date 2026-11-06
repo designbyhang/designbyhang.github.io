@@ -134,9 +134,11 @@ const dur=S=>(S.length-1)*STEP;
    sync (below): the thumbnail v4 (22.033s) plays t1-t4 (14.83s) from 0:00; the reel r4 (6.9s) plays t4 -> t1e (5.81s) and is
    rewound to 0:00 while hidden, so it never wraps on screen. Feed and Reels are locked to each other (follow(), below) */
 const HOLD=4744,t1=4000,t1e=t1+dur(R1),t2=t1e+HOLD,t2e=t2+dur(R2),t3=t2e+3584,t3e=t3+dur(R3),t4=t3e+HOLD,t4e=t4+dur(R4),T=t4e+528;
-/* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition */
+/* the loop as poses: a = surface → split progress, c = split → full progress, one sample every 8ms inside each transition,
+   and over the post-exit tail (t4e -> T) so the Reels / Stories CTAs fade out smoothly before the loop wraps */
 const POSE=(()=>{const P=[{t:0,a:0,c:0}],seg=(t0,S,f)=>S.forEach((e,k)=>P.push({t:t0+k*STEP,...f(e)}));
-  seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));P.push({t:T,a:0,c:0});return P})();
+  seg(t1,R1,e=>({a:e,c:0}));seg(t2,R2,e=>({a:1,c:e}));seg(t3,R3,e=>({a:1,c:1-e}));seg(t4,R4,e=>({a:1-e,c:0}));
+  for(let t=t4e+STEP;t<=T;t+=STEP)P.push({t,a:0,c:0});return P})();
 /* WAAPI keyframes from POSE: the shared track (../../js/device-cover.js), linear between the 8ms samples, dropping a sample equal to both
    neighbours (WebKit re-processes every keyframe of accelerated animations on every scrolled frame) */
 const track=fn=>DeviceCover.track(POSE,T,fn);
@@ -222,13 +224,15 @@ PH.forEach((p,i)=>{
   // A's overlays on the media (Reels UI, nav, sticker, play button) fade out; B's overlays (nav, status) fade in (hs: mnav opacity = m);
   // B's backdrop grows out of the media's surface box (rect and corners) with it (buFit)
   BU.push({an:A('.bu',p=>({opacity:p.a>0?1:0})),el:q('.bu'),rect:m.a,R:m.ar,sm:p=>lerp(m.asm,BSM,p.a)});
+  /* Reels & Stories CTAs appear on exit from split screen (t4 -> t4e) and fade back to the no-CTA state over the loop tail (T-320 -> T) */
+  const ctaW=p=>{if(p.t<t3e)return 0;if(p.t<=T-320)return 1;const u=clamp((T-p.t)/320);return u*u*(3-2*u)};
   if(n===3){A('.bo',p=>{const t=clamp((p.a-.2)/.8),e=t*t*(3-2*t);return {...ty((18*(1-e)).toFixed(2)),opacity:e}});
     A('.ao-t',p=>{const t=clamp(1-p.a/.55);return {opacity:t*t}});
-    A('.ao',p=>{if(p.t<t3e)return {opacity:0};const t=clamp(1-p.a/.55);return {opacity:t*t}})}
+    A('.ao',p=>{const t=clamp(1-p.a/.55);return {opacity:+(t*t*ctaW(p)).toFixed(4)}})}
   else if(n===2){A('.bo',p=>({opacity:p.a}));
     ['.uih','.uis','.uiu-r','.uib'].forEach(s=>A(s,p=>({opacity:1-p.a})));
-    A('.uiu-d',p=>({...ty(p.t>=t3e?0:48),opacity:1-p.a}));
-    A('.uiu-c',p=>({opacity:p.t>=t3e?1-p.a:0}))}
+    A('.uiu-d',p=>({...ty((48*(1-ctaW(p))).toFixed(2)),opacity:1-p.a}));
+    A('.uiu-c',p=>({opacity:+((1-p.a)*ctaW(p)).toFixed(4)}))}
   else{A('.bo',p=>({opacity:p.a}));if(q('.ao'))A('.ao',p=>({opacity:1-p.a}))}
   // shared element: the same playing video's box travels surface rect -> split-screen rect (x, y, width, height, per-corner radius on one value) and back
   A('.mv',p=>{const e=p.a,x=lerp(m.a[0],m.b[0],e),y=lerp(m.a[1],m.b[1],e),w=lerp(m.a[2],m.b[2],e),h=lerp(m.a[3],m.b[3],e),r=m.ar.map(v=>lerp(v,BR,e)),sm=lerp(m.asm,BSM,e);
