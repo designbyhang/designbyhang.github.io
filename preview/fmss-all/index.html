@@ -200,6 +200,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 .mm-card{position:relative;width:327px;padding:66px 12px 24px;box-sizing:border-box;background:linear-gradient(155deg,rgba(42,42,48,.72) 0%,rgba(24,24,28,.62) 52%,rgba(34,34,40,.68) 100%);-webkit-backdrop-filter:blur(44px) saturate(200%) brightness(.94);backdrop-filter:blur(44px) saturate(200%) brightness(.94);border:1px solid rgba(255,255,255,.16);border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#FAFAFA;box-shadow:0 32px 72px rgba(0,0,0,.52),0 4px 16px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(255,255,255,.08);will-change:transform,opacity}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#FFFFFF;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
+.mm.init .mm-x{display:none}
+.mm.init .mm-bg{pointer-events:none;cursor:default}
 .mm-x i{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:14px;background:rgba(255,255,255,.12);box-shadow:inset 0 .5px 0 rgba(255,255,255,.22)}
 .mm-x svg{position:absolute;left:12px;top:12px;width:20px;height:20px}
 .mm-x svg path{stroke:rgba(255,255,255,.76);stroke-width:1.75}
@@ -671,7 +673,7 @@ function render(X){
   if(e.hd){e.pb.style.transform=`translateX(${(12*a).toFixed(2)}px) scaleX(${lerp(1,327/351,a).toFixed(4)})`;e.meta.style.transform=`translateX(${(12*a).toFixed(2)}px)`;e.ic.style.transform=`translateX(${(-12*a).toFixed(2)}px)`}
   /* the Menu pill's tone: the status bar under it (surface tone → the split screen's dark backdrop → full screen's light header) */
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
-  if(X===cur){pill(X.tone);chrome(X);homeTell(menuOpen)}
+  if(X===cur){pill(X.tone);chrome(X);homeTell(menuOpen&&!picked)}
 }
 let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
@@ -804,12 +806,13 @@ const FB_ICONS={
 mmLs.innerHTML=tabs.map(t=>{let rows='',allOff=true;EXP.forEach((E,i)=>{if(E.tab!==t)return;if(!E.disabled)allOff=false;
   rows+=`<button class="btn mm-it${E.sub?' two':''}${E.disabled?' off':''}" type="button"${E.disabled?' disabled aria-disabled="true"':` data-i="${i}"`} aria-label="${esc(t)}: ${esc(E.name)}${E.sub?' ('+esc(E.sub)+')':''}, ${esc(E.variant)}"><span class="lf"><span class="nm">${nameHTML(E.name)}</span>${E.sub?`<span class="mm-sub">${esc(E.sub)}</span>`:''}</span><span class="vr">${esc(E.variant)}</span></button>`});
   return `<div class="mm-grp" data-tab="${esc(t)}"><div class="mm-parent${allOff?' off':''}">${FB_ICONS[t]||''}<span>${esc(t)}</span></div><div class="mm-children">${rows}</div></div>`}).join('');
-function syncMenu(){const activeTab=EXP[curI]&&EXP[curI].tab;
+function syncMenu(){const activeTab=picked&&EXP[curI]&&EXP[curI].tab;
+  mm.classList.toggle('init',!picked);
   mmLs.querySelectorAll('.mm-grp').forEach(g=>g.querySelector('.mm-parent').classList.toggle('active',g.dataset.tab===activeTab));
-  mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',+b.dataset.i===curI))}
-let menuOpen=false,mAn=[],mmSq=false;
-function setMenuNow(on){mAn.forEach(a=>a.cancel());mAn=[];menuOpen=on;if(on)syncMenu();phone.classList.toggle('menu-on',on);mm.classList.toggle('on',on);mpEl.setAttribute('aria-expanded',on?'true':'false');homeTell(on)}
-function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');homeTell(true);
+  mmLs.querySelectorAll('.mm-it').forEach(b=>b.classList.toggle('cur',picked&&+b.dataset.i===curI))}
+let menuOpen=false,picked=false,mAn=[],mmSq=false;
+function setMenuNow(on){mAn.forEach(a=>a.cancel());mAn=[];menuOpen=on;if(on)syncMenu();phone.classList.toggle('menu-on',on);mm.classList.toggle('on',on);mpEl.setAttribute('aria-expanded',on?'true':'false');homeTell(on&&!picked)}
+function openMenu(){if(menuOpen)return;menuOpen=true;syncMenu();phone.classList.add('menu-on');mm.classList.add('on');mpEl.setAttribute('aria-expanded','true');homeTell(!picked);
   mAn.forEach(a=>a.cancel());const o={duration:RM.matches?0:384,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'};
   mAn=[mmCard.animate([{opacity:0,transform:'translate3d(0,10px,0) scale(.95)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}],o),mmBg.animate([{opacity:0},{opacity:1}],o)];say('Menu')}
 function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('menu-on');mpEl.setAttribute('aria-expanded','false');homeTell(false);
@@ -817,11 +820,11 @@ function closeMenu(){if(!menuOpen)return;menuOpen=false;phone.classList.remove('
   mAn=[mmCard.animate([{opacity:1,transform:'translate3d(0,0,0) scale(1)'},{opacity:0,transform:'translate3d(0,6px,0) scale(.96)'}],o),mmBg.animate([{opacity:1},{opacity:0}],o)];
   mAn[0].onfinish=()=>{if(!menuOpen){mm.classList.remove('on');mAn.forEach(a=>a.cancel());mAn=[]}}}
 mpEl.addEventListener('click',e=>{e.stopPropagation();openMenu()});
-$('mmX').addEventListener('click',closeMenu);
-mmBg.addEventListener('click',closeMenu);
+$('mmX').addEventListener('click',()=>{if(picked)closeMenu()});
+mmBg.addEventListener('click',()=>{if(picked)closeMenu()});
 mmLs.querySelectorAll('.mm-it:not(.off)').forEach(b=>b.addEventListener('click',()=>pick(+b.dataset.i)));
-function pick(i){show(i);closeMenu()}
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen)return closeMenu();if(!cur)return;
+function pick(i){picked=true;show(i);closeMenu()}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen){if(picked)closeMenu();return}if(!cur)return;
   if(cur.vw){if(cur.state===3)cur.sheet.go(1,{w:16});else vwFeed(cur)}
   else if(cur.state===3)cur.sheet.go(cur.ctaFrom==='feed'?1:2);else if(cur.state===2)close(cur)});
 
@@ -859,12 +862,11 @@ addEventListener('pointerdown',()=>setTimeout(vidSync,0),true);
 const INLP=/[?&]inline=1\b/.test(location.search),INL=()=>INLP&&!document.documentElement.classList.contains('embed-full');
 let wasInl=INL();
 if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
-  show(0);homeS=null;setMenuNow(true)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+  picked=false;show(0);homeS=null;setMenuNow(true)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 
 function say(t){$('live').textContent=t}
 const q0=+new URLSearchParams(location.search).get('x');
-show(q0>=1&&q0<=EXP.length?q0-1:0);
-if(!q0)setMenuNow(true);
+if(q0>=1&&q0<=EXP.length){picked=true;show(q0-1)}else{show(0);setMenuNow(true)}
 window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen},get page(){return pg}};   // for checks
 })();
 /* ---------- theme toggle + follow the site theme ---------- */
