@@ -307,7 +307,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L" id="xps" style="width:375px;height:812px"></div>
         <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk" style="opacity:0"></i><span>Menu</span></button>
-        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 24 24" overflow="visible" aria-hidden="true"><g transform="translate(24 0) scale(-1 1)"><path fill="currentColor" stroke="currentColor" stroke-width=".92" stroke-linejoin="round" d="M20.188,7.277c-0.236-0.337-0.703-0.422-1.045-0.182c-0.339,0.238-0.42,0.706-0.182,1.045	c1.007,1.433,1.539,3.118,1.539,4.875c0,4.679-3.806,8.484-8.484,8.484c-4.678,0-8.483-3.806-8.483-8.484	c0-4.678,3.806-8.483,8.483-8.483c0.432,0,0.865,0.032,1.29,0.097c0.098,0.015,0.194,0.008,0.285-0.014L11.75,6.192	c-0.314,0.27-0.351,0.743-0.081,1.058c0.148,0.173,0.358,0.262,0.569,0.262c0.173,0,0.347-0.06,0.488-0.181l2.798-2.397	c0.154-0.132,0.248-0.321,0.261-0.523c0.012-0.203-0.059-0.402-0.195-0.552l-2.802-3.066c-0.279-0.306-0.754-0.328-1.06-0.048	c-0.306,0.279-0.327,0.754-0.048,1.06l1.155,1.264c-0.273-0.022-0.546-0.035-0.82-0.035c-5.505,0-9.983,4.479-9.983,9.983	c0,5.506,4.479,9.984,9.983,9.984C17.521,23,22,18.521,22,13.016C22,10.948,21.373,8.965,20.188,7.277z"/></g></svg></button>
+        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 24 24" overflow="visible" aria-hidden="true"><g transform="translate(24 -1) scale(-1 1)"><path fill="currentColor" stroke="currentColor" stroke-width=".92" stroke-linejoin="round" d="M20.188,7.277c-0.236-0.337-0.703-0.422-1.045-0.182c-0.339,0.238-0.42,0.706-0.182,1.045	c1.007,1.433,1.539,3.118,1.539,4.875c0,4.679-3.806,8.484-8.484,8.484c-4.678,0-8.483-3.806-8.483-8.484	c0-4.678,3.806-8.483,8.483-8.483c0.432,0,0.865,0.032,1.29,0.097c0.098,0.015,0.194,0.008,0.285-0.014L11.75,6.192	c-0.314,0.27-0.351,0.743-0.081,1.058c0.148,0.173,0.358,0.262,0.569,0.262c0.173,0,0.347-0.06,0.488-0.181l2.798-2.397	c0.154-0.132,0.248-0.321,0.261-0.523c0.012-0.203-0.059-0.402-0.195-0.552l-2.802-3.066c-0.279-0.306-0.754-0.328-1.06-0.048	c-0.306,0.279-0.327,0.754-0.048,1.06l1.155,1.264c-0.273-0.022-0.546-0.035-0.82-0.035c-5.505,0-9.983,4.479-9.983,9.983	c0,5.506,4.479,9.984,9.983,9.984C17.521,23,22,18.521,22,13.016C22,10.948,21.373,8.965,20.188,7.277z"/></g></svg></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
@@ -843,14 +843,15 @@ function nativeSheet(o){
     if(from===1&&s===1)hk.closed();
   }
   let drag=null;
+  function sheetStart(cy,id,sc){yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:sc||scale(),s:[[performance.now(),y]]}}
   function dragStart(cy,id,sc){
     const k=sc||scale(),ly=(cy-host.getBoundingClientRect().top)/k;
     if(state===3&&!yS.busy&&(entry==='cta'||(SMAX>0&&ly>=HB))){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}
     if(entry==='cta')return;
-    yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:k,s:[[performance.now(),y]]}}
+    sheetStart(cy,id,k)}
   function dragMove(cy){if(!drag)return;
     if(drag.pull){const v=drag.p0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
-      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc}=drag;drag=null;pr=0;render();dragStart(cy,id,sc);if(drag&&!drag.pull)drag.moved=true;return}
+      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc}=drag;drag=null;pr=0;render();sheetStart(cy,id,sc);drag.moved=true;return}
       pr=v>0?FMSSIAB.rb(v,812-HB):v<-SMAX?-SMAX-FMSSIAB.rb(-SMAX-v,812-HB):v;render();return}
     let v=drag.y0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
     if(v<Y3)v=Y3-FMSSIAB.rb(Y3-v,Y1-Y3);y=Math.min(Y1,v);render();const now=performance.now();drag.s.push([now,y]);while(drag.s.length>2&&now-drag.s[0][0]>100)drag.s.shift()}
