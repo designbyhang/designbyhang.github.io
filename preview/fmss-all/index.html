@@ -230,6 +230,8 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .iabh{position:absolute;inset:0;z-index:10;pointer-events:none}
 .iabh>*{pointer-events:auto}
 .iabh>.cs,.iabh>.ct{pointer-events:none}   /* the status-bar seam is decorative: it must never take the tap meant for the media under it */
+.iabh>.ct,.iabh>.ct-ttl,.iabh>.ct-pt{z-index:4}   /* pinned nav stays over the scrolling page */
+.iabh>.nx{z-index:5}
 .iabh .web img{position:absolute;left:0;top:0;width:375px;display:block}
 
 /* ---------- the device chrome: over every experience and its sheet (the IAB's z 20 / 25 / 40), under the Menu pill ----------
@@ -258,8 +260,6 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .mm.on{display:flex}
 .mm-bg{position:absolute;inset:0;background:rgba(6,6,10,.48);-webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4);will-change:opacity}
 .mm-card{position:relative;width:327px;padding:66px 12px 24px;box-sizing:border-box;background:linear-gradient(155deg,rgba(42,42,48,.72) 0%,rgba(24,24,28,.62) 52%,rgba(34,34,40,.68) 100%);-webkit-backdrop-filter:blur(44px) saturate(200%) brightness(.94);backdrop-filter:blur(44px) saturate(200%) brightness(.94);border:1px solid rgba(255,255,255,.16);border-radius:28px;overflow:hidden;transform-origin:50% 50%;color:#FAFAFA;box-shadow:0 32px 72px rgba(0,0,0,.52),0 4px 16px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(255,255,255,.08);will-change:transform,opacity}
-.mm-card::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:url("../../css/grain.png?v=336");background-size:128px 128px;opacity:.14;mix-blend-mode:overlay}
-.mm-card>*{position:relative;z-index:1}
 .mm-t{position:absolute;left:24px;top:24px;margin:0;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0;color:#FFFFFF;white-space:nowrap}
 .mm-x{position:absolute;left:269px;top:14px;width:44px;height:44px}
 .mm.init .mm-x{display:none}
@@ -374,7 +374,7 @@ const EXP=[
       sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:72,be:388,foot:[798,'#fff']}}},
   {tab:'Feed',group:'watch',name:'Watch & Navigate',variant:'Video Tap',from:'Solution 2 · Feed',build:split,
    c:{S:S2,n:1,top:406,tone:1,surf:[{f:'au1',patch:'#fff'}],hs:{src:'assets/ov-hscroll.webp?v=444',y:645,h:89,w:676,sh:102},vw:{cta:'Shop now',name:'Outdoor Voices',cap:'Stretch it out in the new SeamlessRib Kit. Pick a top, match a bottom, get bendy.'},fh:{name:'Outdoor Voices',bx:173},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci1',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[812,'#f1f2f6']}}},
+      sheet:{native:1,hb:92,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:390,foot:[812,'#f1f2f6']}}},
   {tab:'Reels',group:'watch',name:'Watch & Navigate',variant:'On Dwell',from:'Solution 2 · Video (Reels)',build:split,
    /* DUAL-BASED split screen, Reels ads only: the screen splits into two panes, the ad above and the IAB below. Organic videos never split.
       Reels AD (Outdoor Voices): a sponsor-labelled ad, so it is the one Reels surface that gets it — by DWELL, never by a tap.
@@ -383,7 +383,7 @@ const EXP=[
       comes up (C.ui). In split screen a tap pauses and resumes, as on the other ads. Its strip is pause and mute only: no expand, since
       this surface has no full-screen viewer. */
    c:{S:S2,n:2,top:548,tone:0,ad:1,adDwell:4400,ui:'ao2',surf:[{f:'au2',hole:1}],m:{a:[0,0,375,734],b:[12,44,351,492]},cs:264,ci:'ci2',tap:[0,0,375,734],
-      sheet:{native:1,hb:84,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[812,'#f1f2f6']}}},
+      sheet:{native:1,hb:92,smax:196,title:'Explore Outdoor Voices',ext:'assets/nav-r4.webp?v=444',sc:'#f1f2f6',cs:'#f1f2f6',d:24,be:248,foot:[812,'#f1f2f6']}}},
   {tab:'Reels',group:'watch',name:'Watch & Browse',sub:'In-Content Ads',variant:'Video Tap',from:'Solution 2 · In-Content Ads',build:split,
    /* In-Content: only the banner row (the 74px Away thumbnail and its bar) opens the split screen. The organic Reels video behind it is its own
       player: a tap on it pauses or plays the video and goes no further (reelTap); unlike Feed and the Reels entry it never opens the split screen */
@@ -848,7 +848,7 @@ function nativeSheet(o){
   function sheetStart(cy,id,sc){yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:sc||scale(),s:[[performance.now(),y]]}}
   function dragStart(cy,id,sc){
     const k=sc||scale(),ly=(cy-host.getBoundingClientRect().top)/k;
-    if(state===3&&!yS.busy&&(entry==='cta'||(SMAX>0&&ly>=HB))){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}
+    if(state===3&&!yS.busy&&(entry==='cta'||SMAX>0)){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}   /* the nav stays: a drag anywhere on a scrolling full screen moves the page, never the bar */
     if(entry==='cta')return;
     sheetStart(cy,id,k)}
   function dragMove(cy){if(!drag)return;

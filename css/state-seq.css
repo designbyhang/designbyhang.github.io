@@ -12,6 +12,8 @@ body.cs .media.sseq:hover img{transform:none}
 .ss-ctrl .ss-next svg{transform:scaleX(-1)}
 /* phones: rounded screens; .st = the 1px inside stroke (white 20%), .sh = the 40/0/24 drop shadow (black 24%) */
 .sseq .ss-ph{overflow:hidden;background:#000;border-radius:32px}
+.sseq .ss-ph:not(.st){background:transparent}   /* light feed phones: a black ground reads as a hairline on the grey frame */
+body.cs .media.mframe.sseq .ss-ph img{width:calc(100% + 2px);height:calc(100% + 2px);max-width:none;margin:-1px}   /* cover the subpixel gap at the rounded edge */
 .sseq .ss-ph.st::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.2);border-radius:inherit;pointer-events:none}
 .sseq .ss-ph.sh{box-shadow:40px 0 24px rgba(0,0,0,.24)}
 .sseq .r30{border-radius:30px}.sseq .r28{border-radius:28px}.sseq .r26{border-radius:26px}
