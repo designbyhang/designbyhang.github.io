@@ -151,7 +151,7 @@ var VEC={
    (r[2]?TX(335,t+21,14,18,'#333',r[1],{a:'end'})+TX(335,t+43,12,16,'#666',r[2],{a:'end'}):TX(335,t+31,14,18,'#333',r[1],{a:'end'}))+(i<4?RC(16,t+79,319,1,'#eee'):'')}).join(''));
   /* Insights: the shell; the red "high" state for the Monthly Overview dashboard */
   var ins='';if(o.insight==='high')ins='<g transform="translate(12 20)">'+IM('insight-high.svg',146.535,8.93,33.929,32.143)+TX(163.5,54,12,16,'#333','You spent',{a:'middle'})+
-   vAmt(163.5,78,'#fd4949',12,'756','82',24,'so far this week','#333')+RC(15,110,297,1,'#eee')+TX(163.5,123,12,16,'#fd4949','That’s high for you.',{a:'middle'})+
+   vAmt(163.5,78,'#fd4949',12,'756','82',24,'so far this week','#333')+RC(15,110,297,1,'#eee')+TX(163.5,123,12,16,'#fd4949','That\'s high for you.',{a:'middle'})+
    TX(163.5,139,12,16,'#999','Your average spend is $865.30',{a:'middle'})+'</g><circle cx="159.5" cy="197" r="2" fill="#0055D8"/><circle cx="175.5" cy="197" r="2" fill="#DDDDDD"/><circle cx="191.5" cy="197" r="2" fill="#DDDDDD"/>';
   s+=vTile(id,y+392,219,ins,'t20');
   /* Bills */
