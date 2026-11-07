@@ -241,8 +241,8 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 
 /* ---------- the Menu pill + Restart button: in the status bar's time slot, over every experience ---------- */
 .mp{left:24px;top:10px;width:60px;height:24px;z-index:90;border-radius:12px;overflow:hidden;font:600 14px/24px var(--t-sf);letter-spacing:0;-webkit-font-smoothing:antialiased;text-align:center;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
-.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .48s cubic-bezier(.22,1,.36,1)}
-.rp.on{opacity:1;pointer-events:auto}
+.rp{left:88px;top:10px;width:24px;height:24px;z-index:90;border-radius:12px;overflow:hidden;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity 1.12s cubic-bezier(.22,1,.36,1)}
+.rp.on{opacity:1;pointer-events:auto;transition:opacity .48s cubic-bezier(.22,1,.36,1)}
 .phone.menu-on{--sb-hide:1}
 .phone.menu-on .mp,.phone.menu-on .rp,.phone.menu-on .dc .sb{opacity:0!important;pointer-events:none}
 .phone.menu-on .uih,.phone.menu-on .st,.phone.menu-on .bo{clip-path:path(evenodd,'M0 0H375V812H0Z M36 10H72A12 12 0 0 1 72 34H36A12 12 0 0 1 36 10Z M280 10H366V34H280Z')!important}
@@ -251,7 +251,7 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .mp .lt,.rp .lt{background:rgba(244,244,245,.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp .dk,.rp .dk{background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .mp span{position:relative;font-weight:600;pointer-events:none}
-.rp svg{position:relative;width:16px;height:16px;display:block;overflow:visible;pointer-events:none;will-change:transform}
+.rp svg{position:relative;width:13px;height:13px;display:block;overflow:visible;pointer-events:none;will-change:transform}
 
 /* ---------- the menu: tree-branch card over the blurred app (iOS Liquid Glass · Dark) ---------- */
 .mm{inset:0;width:375px;height:812px;z-index:100;display:none;align-items:center;justify-content:center;font-family:var(--t-sf);-webkit-font-smoothing:antialiased}   /* SF Pro (css/type.css), as the FMSS protos */
@@ -307,7 +307,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L" id="xps" style="width:375px;height:812px"></div>
         <div class="L dc" id="dc" aria-hidden="true"><i class="sb sb-dark" id="dcSb"></i><i class="hm" id="dcHm"></i></div>
         <button class="L btn mp" id="menuBtn" type="button" aria-label="Menu: choose an experience" aria-haspopup="dialog"><i class="lt"></i><i class="dk" style="opacity:0"></i><span>Menu</span></button>
-        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="-2 -2 16 16" overflow="visible" fill="none" aria-hidden="true"><g transform="rotate(30 6 6)"><path d="M1.46 3.38A5.25 5.25 0 1 1 1.46 8.62" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M1.1 1.15V3.55H3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></g></svg></button>
+        <button class="L btn rp" id="restartBtn" type="button" aria-label="Restart experience"><i class="lt"></i><i class="dk" style="opacity:0"></i><svg viewBox="0 0 24 24" overflow="visible" aria-hidden="true"><g transform="translate(24 -1) scale(-1 1)"><path fill="currentColor" stroke="currentColor" stroke-width=".92" stroke-linejoin="round" d="M20.188,7.277c-0.236-0.337-0.703-0.422-1.045-0.182c-0.339,0.238-0.42,0.706-0.182,1.045	c1.007,1.433,1.539,3.118,1.539,4.875c0,4.679-3.806,8.484-8.484,8.484c-4.678,0-8.483-3.806-8.483-8.484	c0-4.678,3.806-8.483,8.483-8.483c0.432,0,0.865,0.032,1.29,0.097c0.098,0.015,0.194,0.008,0.285-0.014L11.75,6.192	c-0.314,0.27-0.351,0.743-0.081,1.058c0.148,0.173,0.358,0.262,0.569,0.262c0.173,0,0.347-0.06,0.488-0.181l2.798-2.397	c0.154-0.132,0.248-0.321,0.261-0.523c0.012-0.203-0.059-0.402-0.195-0.552l-2.802-3.066c-0.279-0.306-0.754-0.328-1.06-0.048	c-0.306,0.279-0.327,0.754-0.048,1.06l1.155,1.264c-0.273-0.022-0.546-0.035-0.82-0.035c-5.505,0-9.983,4.479-9.983,9.983	c0,5.506,4.479,9.984,9.983,9.984C17.521,23,22,18.521,22,13.016C22,10.948,21.373,8.965,20.188,7.277z"/></g></svg></button>
         <div class="L mm" id="mm" role="dialog" aria-modal="true" aria-label="FM Split Screen experiences">
           <div class="mm-bg" id="mmBg"></div>
           <div class="mm-card" id="mmCard">
@@ -527,9 +527,9 @@ function split(E,root){
       if(C.stories){clearTimeout(X.stTm);if(s===2)X.stTm=setTimeout(()=>X.stS.to(1,{w:9.5}),64);else X.stS.to(0,{w:16})}
       if(s===2&&X.vwCta){X.vwCta=false;X.ctaFrom=null;X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}
       else if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();
-      if(s===1){if(!(X.vw&&X.vwOff))X.vs&&X.vs.leaveSplit();if(prev>1)render(X)}},
-    opened:s=>{if(s>=2)X.hadSplit=true;if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();if(s>=2)render(X);say(s===2?E.name+', split screen':E.name+', full screen')},
-    closed:()=>{X.ctaFrom=null;if(X.vw&&(X.vwCta||X.vwOff)){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();say(E.name+', '+E.tab)}}};
+      if(s===1){if(!(X.vw&&X.vwOff))X.vs&&X.vs.leaveSplit();if(prev>1){if(C.mph){X.mpTurn=C.mph.isAlt?1:0;X.mpElapsed=0;X.mpLastT=0}if(C.srh){X.srTurn=2;X.srElapsed=0;X.srLastT=0}render(X);vidSync()}}},
+    opened:s=>{if(s>=2)X.hadSplit=true;if(s===2&&X.vwOff){X.vwOff=false}if(s===2&&X.vs&&X.vs.since()==null)X.vs.enterSplit();if(s>=2)render(X);vidSync();say(s===2?E.name+', split screen':E.name+', full screen')},
+    closed:()=>{X.ctaFrom=null;if(X.vw&&(X.vwCta||X.vwOff)){X.vwCta=false;X.vwOff=true;X.vwT0=performance.now();X.vs&&X.vs.enterSplit();render(X);vwPlay(X);say(E.name+', full screen video')}else{X.vs&&X.vs.leaveSplit();if(C.mph){X.mpTurn=C.mph.isAlt?1:0;X.mpElapsed=0;X.mpLastT=0}if(X.vs&&X.vs.paused())X.vs.togglePause();vidSync();say(E.name+', '+E.tab)}}};
   if(C.sheet.iab){
     const P=C.sheet,web=P.pageY?`<div class="web" style="height:${P.pageH}px;overflow:hidden"><img alt="${P.alt}" src="${u(P.page)}" style="top:-${P.pageY}px;height:812px"></div>`
       :`<div class="web"><img alt="${P.alt}" src="${P.page}" style="height:${P.pageH}px"></div>`;
@@ -607,11 +607,12 @@ function split(E,root){
         const wantAlt=p.lx>=187.5,isAlt=!!C.mph.isAlt;
         let T=X;
         if(wantAlt!==isAlt&&X.alt){
-          T=X.alt;T.reset();T.mpTurn=X.mpTurn;T.mpElapsed=X.mpElapsed;
+          T=X.alt;T.reset();
           try{T.mpLeft.currentTime=X.mpLeft.currentTime;T.mpRight.currentTime=X.mpRight.currentTime}catch(_){}
           X.root.classList.remove('on');X.vids.forEach(v=>v.pause());
           cur=T;T.root.classList.add('on');render(T);
         }
+        T.mpTurn=wantAlt?1:0;T.mpElapsed=0;T.mpLastT=0;
         if(p.ly>=T.E.c.m.a[1]+T.E.c.m.a[3])openFull(T);else open(T);
         vidSync();return;
       }
@@ -842,14 +843,15 @@ function nativeSheet(o){
     if(from===1&&s===1)hk.closed();
   }
   let drag=null;
+  function sheetStart(cy,id,sc){yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:sc||scale(),s:[[performance.now(),y]]}}
   function dragStart(cy,id,sc){
     const k=sc||scale(),ly=(cy-host.getBoundingClientRect().top)/k;
     if(state===3&&!yS.busy&&(entry==='cta'||(SMAX>0&&ly>=HB))){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}
     if(entry==='cta')return;
-    yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:k,s:[[performance.now(),y]]}}
+    sheetStart(cy,id,k)}
   function dragMove(cy){if(!drag)return;
     if(drag.pull){const v=drag.p0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
-      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc}=drag;drag=null;pr=0;render();dragStart(cy,id,sc);if(drag&&!drag.pull)drag.moved=true;return}
+      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc,c0}=drag;drag=null;pr=0;render();sheetStart(c0,id,sc);drag.moved=true;dragMove(cy);return}
       pr=v>0?FMSSIAB.rb(v,812-HB):v<-SMAX?-SMAX-FMSSIAB.rb(-SMAX-v,812-HB):v;render();return}
     let v=drag.y0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
     if(v<Y3)v=Y3-FMSSIAB.rb(Y3-v,Y1-Y3);y=Math.min(Y1,v);render();const now=performance.now();drag.s.push([now,y]);while(drag.s.length>2&&now-drag.s[0][0]>100)drag.s.shift()}
@@ -898,7 +900,7 @@ rpEl.addEventListener('click',e=>{
   clearTimeout(rpTm);rpTm=0;rpBusy=true;
   rpEl.classList.remove('on');
   if(!RM.matches&&rpSvg.animate){
-    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:992,easing:'cubic-bezier(.22,1,.36,1)'});
+    const a=rpSvg.animate([{transform:'rotate(0deg)'},{transform:'rotate(-360deg)'}],{duration:1488,easing:'cubic-bezier(.22,1,.36,1)'});
     a.onfinish=()=>{rpBusy=false;syncRestart(cur)};
   }else{
     rpBusy=false;
