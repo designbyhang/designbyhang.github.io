@@ -803,7 +803,7 @@ function nativeSheet(o){
     `<img class="L ct" alt="" src="${u('c'+n)}" style="clip-path:inset(0 0 768px 0);opacity:0">${P.title?`<p class="n-ttl ct-ttl" style="opacity:0">${P.title}</p>`:''}<i class="L pt ct-pt" style="background:${P.cs};opacity:0"></i>`+
     `<button class="L btn nx" type="button" aria-label="Close full screen"></button>`;
   const q=k=>host.querySelector(k),ns=q('.ns'),hb=ns.firstChild,ng=q('.ng'),ngb=q('.ngb'),ngh=q('.ngh'),nf=q('.nf'),nfb=q('.nfb'),nfk=q('.nfk'),
-    cs=q('.cs'),ct=q('.ct'),ctTtl=q('.ct-ttl'),ctPt=q('.ct-pt'),nx=q('.nx'),ck=q('.ios-caret');
+    cs=q('.cs'),ct=q('.ct'),ctTtl=q('.ct-ttl'),ctPt=q('.ct-pt'),nx=q('.nx'),ck=q('.ios-caret'),ngTtl=q('.ng .n-ttl');
   let y=Y1,state=1,rk='',ngk='',ctk='',entry=null,pr=0;   // pr: page scroll (<0 scrolled down to 4th row, >0 top rubber-band pull)
   const HB=P.hb||92,prS=SP(()=>pr,v=>{pr=v;render()});   // HB: close-button bar bottom in c's coords
   function render(){
@@ -813,7 +813,7 @@ function nativeSheet(o){
     const R=+(16*(1-c)).toFixed(1);if(R+''!==rk){rk=R+'';ns.style.borderRadius=R>.05?`${R}px ${R}px 0 0`:''}
     /* the content group: bl's rows sit on c's (bl[r] = c[r + d]); split → full it closes that offset (d → 0 at the top's 44) as the sheet rises,
        so the split pose lands exactly on the full screen; clipped to the sheet, under its 18px handle strip */
-    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=`inset(${(pin?Math.max(T,HB-pr):T).toFixed(2)}px 0 ${(GH-F+pr).toFixed(2)}px 0)`,ctClip=pin?812-HB:768;
+    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=`inset(${(pin?Math.max(T,HB-Math.min(pr,0)):T).toFixed(2)}px 0 ${(GH-F+pr).toFixed(2)}px 0)`,ctClip=pin?812-HB:768;
     ng.style.transform=`translate3d(0,${(oy+pr).toFixed(2)}px,0)`;
     if(ngClip!==ngk){ngk=ngClip;ng.style.clipPath=ngClip}
     if(ctClip!==ctk){ctk=ctClip;ct.style.clipPath=`inset(0 0 ${ctClip}px 0)`}   // scrolling or pulling: pin status + header bar (through HB); page below moves
@@ -830,7 +830,7 @@ function nativeSheet(o){
       nf.style.opacity=show?'1':'0';nfk.style.opacity=show?'1':'0';nf.style.visibility=show?'':'hidden';nfk.style.visibility=show?'':'hidden';
       if(!show&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}
     }else nf.style.transform=`translate3d(0,${((812-F)*(1-clamp((c-.2)/.8))).toFixed(2)}px,0)`;   // the footer: the IAB toolbar's rule
-    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ctPt.style.opacity=c.toFixed(3);if(ctTtl)ctTtl.style.opacity=pin&&c>=.99?'1':'0';
+    cs.style.transform=`translate3d(0,${(up*(1-c)).toFixed(2)}px,0)`;cs.style.opacity=c>=.99?'1':'0';ct.style.opacity=ctPt.style.opacity=c.toFixed(3);if(ctTtl)ctTtl.style.opacity=pin&&c>=.99?'1':'0';if(ngTtl)ngTtl.style.opacity=pin?'0':'1';   /* one title: the pinned copy while the page is moving, the scrolling copy only at rest */
     hk.render({y,sd:0});
   }
   function setState(s){state=s;ns.classList.toggle('off',s===1);nx.classList.toggle('on',s===3);ns.setAttribute('aria-hidden',s===1?'true':'false');if(s!==3&&ck&&ck._ck){ck._ck.cancel();ck._ck=null}hk.state(s)}
