@@ -851,7 +851,7 @@ function nativeSheet(o){
     sheetStart(cy,id,k)}
   function dragMove(cy){if(!drag)return;
     if(drag.pull){const v=drag.p0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
-      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc}=drag;drag=null;pr=0;render();sheetStart(cy,id,sc);drag.moved=true;return}
+      if(v>0&&drag.p0>=0&&entry!=='cta'){const {id,sc,c0}=drag;drag=null;pr=0;render();sheetStart(c0,id,sc);drag.moved=true;dragMove(cy);return}
       pr=v>0?FMSSIAB.rb(v,812-HB):v<-SMAX?-SMAX-FMSSIAB.rb(-SMAX-v,812-HB):v;render();return}
     let v=drag.y0+(cy-drag.c0)/drag.sc;if(Math.abs(cy-drag.c0)>4)drag.moved=true;
     if(v<Y3)v=Y3-FMSSIAB.rb(Y3-v,Y1-Y3);y=Math.min(Y1,v);render();const now=performance.now();drag.s.push([now,y]);while(drag.s.length>2&&now-drag.s[0][0]>100)drag.s.shift()}
