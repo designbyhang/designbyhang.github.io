@@ -111,7 +111,8 @@ header.top p{margin:4px 0 0;color:var(--mute);font-size:14px;line-height:20px}
 /* Reels: chained pages (one 734px pitch), its chrome and comment bar */
 .pg{width:375px;height:734px;z-index:30;opacity:0;will-change:transform}
 /* a chained reel that is a video (On: Hang's On Cloudboom Max ad, assets/vac-anim/v4/on.mp4 + on.webp; Away: the tall clip of FMSS Solution 2's Away ad,
-   preview/fmss-sol2/assets/v3.mp4 + its poster p3.webp; Perrier: Hang's Maison Perrier Ultimate ad, assets/vac-anim/v4/perrier.mp4 + perrier.webp):
+   preview/fmss-sol2/assets/v3.mp4 + its poster p3.webp; Perrier: Hang's Maison Perrier Ultimate ad, assets/vac-anim/v4/perrier.mp4 + perrier.webp,
+   letterboxed onto its own green so the bottle sits at the VAC_5 size, 340×552 inside the 375×734 page, and cover shows it whole):
    full bleed, cover-cropped as the seed's (.mv video), under its Reels UI overlay (the shared scrim assets/reel-scrim.webp, data-media, never moves;
    + reel-on-ui.webp / reel-away-ui.webp / reel-perrier-ui.webp, the baked avatar + CTA, live UI that rises with the video controls; all split from
    Hang's reel-*.webp, as the seed's) */
@@ -168,7 +169,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         <div class="L iab" id="iab"></div>
         <div class="L pg pgv" id="p1"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/on.webp?v=355" src="../../assets/vac-anim/v4/on.mp4?v=355"></video><img data-media alt="" src="assets/reel-scrim.webp?v=365"><img class="rui" data-ui-bottom="722" alt="" src="assets/reel-on-ui.webp?v=365"><i class="ufi" data-n="4.2K|1.2K|113|286"></i></div>
         <div class="L pg pgv" id="p2"><video muted playsinline loop preload="auto" disableremoteplayback poster="../fmss-sol2/assets/p3.webp?v=355" src="../fmss-sol2/assets/v3.mp4?v=355"></video><img data-media alt="" src="assets/reel-scrim.webp?v=365"><img class="rui" data-ui-bottom="722" alt="" src="assets/reel-away-ui.webp?v=365"><i class="ufi" data-n="1.4K|1.3K|53|94"></i></div>
-        <div class="L pg pgv" id="p3"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/perrier.webp?v=469" src="../../assets/vac-anim/v4/perrier.mp4?v=469"></video><img data-media alt="" src="assets/reel-scrim.webp?v=365"><img class="rui" data-ui-bottom="722" alt="" src="assets/reel-perrier-ui.webp?v=469"><i class="ufi" data-n="259|158|37|18"></i></div>
+        <div class="L pg pgv" id="p3"><video muted playsinline loop preload="auto" disableremoteplayback poster="../../assets/vac-anim/v4/perrier.webp?v=470" src="../../assets/vac-anim/v4/perrier.mp4?v=470"></video><img data-media alt="" src="assets/reel-scrim.webp?v=365"><img class="rui" data-ui-bottom="722" alt="" src="assets/reel-perrier-ui.webp?v=469"><i class="ufi" data-n="259|158|37|18"></i></div>
         <div class="L pager" id="pager" aria-label="Reels: swipe up for the next reel"></div>
         <i class="L" id="rc" style="z-index:33"></i>   <!-- the Reels video controls (../shared/pause: the split screen's scrubber, above the comment bar), over the pager so the track takes its own presses -->
         <img class="L chrome" id="chrome" alt="" src="assets/chrome.webp?v=229">
