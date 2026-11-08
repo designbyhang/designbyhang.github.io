@@ -14,8 +14,9 @@ else{const go=()=>{const de=document.documentElement;let q=[],raf=0;
    clearTimeout(el.__fxT);el.__fxT=setTimeout(()=>el.style.removeProperty('--fx-d'),896+d+32);el.classList.add('in');});};
  const io=new IntersectionObserver(es=>{if(fsLock())return;es.forEach(e=>{const el=e.target;
   if(e.isIntersecting){if(!el.classList.contains('in')&&!q.includes(el)){q.push(el);if(!raf)raf=requestAnimationFrame(flush);}}
-  else if(e.boundingClientRect.top>innerHeight*.92){clearTimeout(el.__fxT);el.style.removeProperty('--fx-d');el.style.transition='none';el.classList.remove('in');void el.offsetWidth;el.style.transition='';}
- });},{rootMargin:'0px 0px -15% 0px'});fx.forEach(e=>io.observe(e));};
+  /* replay only once the block has left through the bottom. The old 92% line snapped a still-visible slice back to invisible */
+  else if(e.boundingClientRect.top>=innerHeight){clearTimeout(el.__fxT);el.style.removeProperty('--fx-d');el.style.transition='none';el.classList.remove('in');void el.offsetWidth;el.style.transition='';}
+ });},{rootMargin:'0px 0px 64px 0px'});fx.forEach(e=>io.observe(e));};
 /* gated: reveal only after unlock (js/gate.js fires gate:unlocked), otherwise they finish unseen under the gate */
 document.documentElement.classList.contains('gated')?addEventListener('gate:unlocked',go,{once:true}):go();}
 const secs=[...document.querySelectorAll('section[data-title]')],links=[...document.querySelectorAll('.toc a')],mid=document.getElementById('bar-mid'),bar=document.querySelector('.prog i');
@@ -77,8 +78,16 @@ window.dbhSwipe=function(el,step,opt){var skip=(opt&&opt.skip)||'.car-ctrl,.ss-c
  el.addEventListener('click',function(e){if(!eat)return;eat=false;e.preventDefault();e.stopPropagation()},true);
  el.addEventListener('wheel',function(e){if(e.ctrlKey||Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;e.preventDefault();var now=performance.now();
   if(now-wt>200){held=false;acc=0}wt=now;if(held)return;acc+=e.deltaX*(e.deltaMode?16:1);if(Math.abs(acc)>=40){held=true;step(acc>0?1:-1);acc=0}},{passive:false});};
-/* video[data-lazy]: heavy demos get their source only when they near the view (600px ahead), then the play helper starts them */
-(function(){var vs=document.querySelectorAll('video[data-lazy]');if(!vs.length)return;var go=function(v){v.removeAttribute('data-lazy');v.querySelectorAll('source[data-src]').forEach(function(s){s.src=s.getAttribute('data-src');s.removeAttribute('data-src')});v.load()};if(!('IntersectionObserver' in window)){vs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'600px 0px'});vs.forEach(function(v){io.observe(v)})})();
+/* video[data-lazy]: heavy demos get their source a viewport and a half ahead, so the poster is replaced before the frame is on screen */
+(function(){var vs=document.querySelectorAll('video[data-lazy]');if(!vs.length)return;var go=function(v){v.removeAttribute('data-lazy');v.querySelectorAll('source[data-src]').forEach(function(s){s.src=s.getAttribute('data-src');s.removeAttribute('data-src')});v.load()};if(!('IntersectionObserver' in window)){vs.forEach(go);return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);go(e.target)}})},{rootMargin:'1200px 0px'});vs.forEach(function(v){io.observe(v)})})();
+/* photos: the browser's lazy load starts at the edge, so a frame can arrive grey and then pop. Start them the same distance ahead */
+(function(){var imgs=document.querySelectorAll('img[loading="lazy"]');if(!imgs.length||!('IntersectionObserver' in window))return;
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;e.target.loading='eager';io.unobserve(e.target)})},{rootMargin:'1200px 0px'});
+ imgs.forEach(function(img){io.observe(img)})})();
+/* heroes: content-visibility:auto drops the phone layers while they are far away and can paint a blank frame as they come back. Paint them a viewport early */
+(function(){var els=document.querySelectorAll('.fmss-anim,.cover-anim');if(!els.length||!('IntersectionObserver' in window))return;
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.style.contentVisibility=e.isIntersecting?'visible':''})},{rootMargin:'100% 0px'});
+ els.forEach(function(el){io.observe(el)})})();
 document.querySelectorAll('video.demo-video').forEach(function(v){if(v.closest('[data-alternate]'))return;v.muted=true;v.defaultMuted=true;v.playsInline=true;v.loop=true;v.autoplay=false;v.removeAttribute('autoplay');v.pause();
  var sync=dbhPlayPause(v.closest('.media')||v.parentNode,v,{paused:function(){return v.paused},play:function(){var p=v.play();if(p&&p.catch)p.catch(function(){})},pause:function(){v.pause()}},'video');
  v.addEventListener('play',sync);v.addEventListener('pause',sync);if(v.__kick){v.addEventListener('loadeddata',v.__kick);v.addEventListener('canplay',v.__kick);}});
@@ -185,17 +194,19 @@ document.querySelectorAll('[data-alternate]').forEach(function(row){var els=[].s
 /* Back to top: always to scrollY 0 (#top is the hero, below the bar); smooth unless reduced motion */
 document.querySelectorAll('.foot a[href="#top"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});});
 /* live prototype iframes (iframe[data-src]): attach src only once the site is unlocked (the same-origin frame then reads the shared
-   sessionStorage flag and shows no second gate) and only as the frame nears the viewport (400px ahead); each prototype pauses its own
-   idle demo offscreen. A frame that drifts more than a screen and a half away is unloaded again (src back to data-src, the document
-   swapped for about:blank) so its decoded images, videos and layers are freed: iOS Safari kills a tab that keeps every demo on the page
-   alive at once. It reloads, from its own start, when it nears again. Never while lifted into full screen (.proto-lift / .fsx-lift) */
+   sessionStorage flag and shows no second gate) and a viewport and a half ahead, so the first paint is done before the frame is on screen.
+   Each prototype pauses its own idle demo offscreen. On a phone, a frame that drifts more than a screen and a half away is unloaded
+   again (src back to data-src, the document swapped for about:blank) so iOS Safari does not kill a tab that keeps every demo alive.
+   It reloads, from its own start, when it nears again. Desktop keeps the frame: unloading it blanked the prototype on the way back.
+   Never while lifted into full screen (.proto-lift / .fsx-lift) */
 (function(){var fs=document.querySelectorAll('iframe[data-src]');if(!fs.length)return;var go=function(f){if(!f.hasAttribute('data-src'))return;f.src=f.getAttribute('data-src');f.removeAttribute('data-src')};
 var drop=function(f){var u=f.getAttribute('src');if(!u||f.hasAttribute('data-keep')||f.classList.contains('proto-lift')||f.classList.contains('fsx-lift'))return;
  try{f.contentWindow.location.replace('about:blank')}catch(_){}f.setAttribute('data-src',u);f.removeAttribute('src')};
 var arm=function(){if(!('IntersectionObserver' in window)){fs.forEach(go);return}
- var near=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)go(e.target)})},{rootMargin:'400px 0px'});
- var far=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)drop(e.target)})},{rootMargin:'150% 0px'});
- fs.forEach(function(f){near.observe(f);far.observe(f)})};
+ var near=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)go(e.target)})},{rootMargin:'1200px 0px'});
+ var coarse=matchMedia('(hover:none) and (pointer:coarse)').matches;
+ var far=coarse?new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)drop(e.target)})},{rootMargin:'150% 0px'}):null;
+ fs.forEach(function(f){near.observe(f);if(far)far.observe(f)})};
 var open=false;try{open=sessionStorage.getItem('dbh-unlocked')==='1'}catch(_){}
 if(open||!document.documentElement.classList.contains('gated'))arm();else addEventListener('gate:unlocked',arm,{once:true})})();
 /* phones (<=640px, the breakpoint where these frames go 4:5): each live prototype frame is a tap target (.proto-open) that opens it full

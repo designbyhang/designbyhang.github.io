@@ -115,9 +115,11 @@ html[data-theme=dark] .next{background:var(--frame);border-color:var(--frame-lin
 .toc a:hover{color:var(--body)}
 .toc a[aria-current="true"]{color:var(--ink)}.toc a[aria-current="true"]::after{width:24px}
 @media (max-width:1649px){.toc{display:none}}
-/* motion: 896ms (112x8ms) on var(--ease), 32px rise; simultaneous entries stagger 80ms apart via --fx-d (js/case.js); no scale on .fx so media/prototype boxes never raster-scale */
+/* motion: 896ms (112x8ms) on var(--ease), 32px rise; simultaneous entries stagger 80ms apart via --fx-d (js/case.js); no scale on .fx so media/prototype boxes never raster-scale.
+   Text fades in. Photos, video, heroes and the next card do not: a large frame fading up from nothing reads as a blink as it enters. They stay opaque and only rise. */
 .fx{opacity:0;transform:translateY(32px);transition:opacity 896ms var(--ease) var(--fx-d,0ms),transform 896ms var(--ease) var(--fx-d,0ms)}
 .fx.in{opacity:1;transform:none}
+figure.fx,.fig.fx,.hero-media.fx,.next.fx,.pd-row.fx,.iter-wrap.fx{opacity:1}
 html.theme-anim .fx{transition:opacity 896ms var(--ease) var(--fx-d,0ms),transform 896ms var(--ease) var(--fx-d,0ms),background-color .3s ease,color .3s ease,border-color .3s ease!important}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fx{opacity:1;transform:none;transition:none}.media img,.phones img{transition:none}.media:hover img,.phones img:hover{transform:none}}
 /* responsive */
