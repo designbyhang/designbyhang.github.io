@@ -21,7 +21,7 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../../css/type.css?v=389"><link rel="stylesheet" href="../../css/arrows.css?v=347"><link rel="stylesheet" href="../../css/theme.css?v=432">
 <!-- shared FMSS foundation, unchanged: the IAB (sheet + header + page + toolbar), the live player controls, the squircle, the device tokens -->
 <link rel="stylesheet" href="../shared/iab/iab.css?v=389">
-<script src="../../js/squircle.js?v=389"></script><script src="../../js/sfx.js?v=355"></script><script src="../../js/fs-motion.js?v=355"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=477"></script><script src="../shared/caret/caret.js?v=398"></script>
+<script src="../../js/squircle.js?v=389"></script><script src="../../js/sfx.js?v=355"></script><script src="../../js/fs-motion.js?v=355"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=478"></script><script src="../shared/caret/caret.js?v=398"></script>
 <script src="../../js/video-scrubber.js?v=424"></script><script src="../shared/pause/pause.js?v=423"></script>
 <link rel="stylesheet" href="../shared/device/device.css?v=389"><script src="../shared/device/snap.js?v=389"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
@@ -365,7 +365,7 @@ const EXP=[
       sheet:{iab:'nike.com',full:'../fmss-cb/assets/iab-header-full.svg?v=2',page:'../shared/web/nike-247.webp?v=2',pageH:3052,alt:'nike.com, Nike 24.7 (251)'}}},
   {tab:'Feed',group:'watch',name:'Watch & Lead Gen',variant:'Video Tap',from:'Solution 1 · Lead Generation',build:split,
    c:{S:S1,n:2,top:406,tone:1,surf:[{f:'a2',patch:'#fff'}],vw:{cta:'Download',name:'Meta for Work',cap:'We asked 400 business leaders in the US & UK about the trends they think will shape t'},fh:{name:'Meta for Work',bx:164},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci2',tap:feedTap([0,216,375,375]),
-      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:60,be:390,foot:[722,'#fff']}}},
+      sheet:{native:1,sc:'#f1f2f6',cs:'#f1f2f6',d:60,be:390,foot:[722,'#fff'],smax:240,body:{src:'assets/lg-form.webp?v=478',y:80,h:882}}}},
   {tab:'Feed',group:'watch',name:'Watch & Message',variant:'Video Tap',from:'Solution 1 · Business Messages',build:split,
    c:{S:S1,n:3,top:406,tone:1,vStart:10.7,p:'../../fmss-all/assets/p3-mp',surf:[{f:'a3',patch:'#fff'}],vw:{cta:'Send message',name:'Artifox',cap:'A solid hardwood bench designed to work as a coffee table, media console, or entryw'},fh:{name:'Artifox',bx:112},m:{a:[0,216,375,375],b:[12,44,351,350]},cs:185,ci:'ci3',tap:feedTap([0,216,375,375]),
       sheet:{native:1,hb:92,sc:'#fff',cs:'#fff',d:24,be:306,kb:{c0:455,k0:520,b0:306,bg:'#ccd1d8',caret:[30,485]}}}},
@@ -793,9 +793,10 @@ function nativeSheet(o){
   const F=K?K.c0:P.foot[0];   // c's last row the group draws: its bottom chrome (footer / composer + keyboard) is .nf's
   const c0=d>Y3?18/(18+d-Y3):0;   // c at which the group's top edge has uncovered c's row d (bl's top)
   const cI=`<img alt="" src="${u('c'+n)}">`;
-  const ttl=P.title?`<p class="n-ttl">${P.title}</p>`:'',extI=P.ext?`<img class="n-ext" alt="" src="${P.ext}" style="top:772px;height:222px">`:'';
+  const ttl=P.title?`<p class="n-ttl">${P.title}</p>`:'',extI=P.ext?`<img class="n-ext" alt="" src="${P.ext}" style="top:772px;height:222px">`:'',
+    bodyI=P.body?`<img class="n-body" alt="" src="${P.body.src}" style="top:${P.body.y}px;height:${P.body.h}px;background:${P.sc}">`:'';   // the page's own full-length content (Figma), from under its nav to its end
   host.innerHTML=`<div class="L ns off" role="dialog" aria-label="${o.label}" style="background:${P.sc}"><i></i></div>`+
-    `<div class="L ng" style="height:${GH}px;clip-path:inset(0 0 ${812-F}px 0)">${cI}${extI}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i>${ttl}</div>`+
+    `<div class="L ng" style="height:${GH}px;clip-path:inset(0 0 ${812-F}px 0)">${cI}${extI}${bodyI}<i class="L pt" style="background:${P.cs}"></i><img class="ngb" alt="" src="${u('bl'+n)}" style="top:${d}px;height:${H}px;clip-path:inset(18px 0 ${H-P.be}px 0)"><i class="ngh" style="top:${d}px;background:${P.sc}"></i>${ttl}</div>`+
     (K?`<div class="L nf nfc" style="clip-path:inset(${K.c0}px 0 ${812-K.k0}px 0)">${cI}${K.caret?FMSSCaret.html(...K.caret):''}<img class="nfb" alt="" src="${u('bl'+n)}" style="top:${K.c0-K.b0}px;height:${H}px"></div>`+
        `<div class="L nf nfk" style="clip-path:inset(${K.k0}px 0 0 0)">${cI}<i class="nfu" style="background:${K.bg}"></i></div>`
       :`<div class="L nf" style="clip-path:inset(${F}px 0 0 0)">${cI}<i class="nfu" style="background:${P.foot[1]}"></i></div>`)+
@@ -813,7 +814,7 @@ function nativeSheet(o){
     const R=+(16*(1-c)).toFixed(1);if(R+''!==rk){rk=R+'';ns.style.borderRadius=R>.05?`${R}px ${R}px 0 0`:''}
     /* the content group: bl's rows sit on c's (bl[r] = c[r + d]); split → full it closes that offset (d → 0 at the top's 44) as the sheet rises,
        so the split pose lands exactly on the full screen; clipped to the sheet, under its 18px handle strip */
-    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=`inset(${(pin?Math.max(T,HB-Math.min(pr,0)):T).toFixed(2)}px 0 ${(GH-F+pr).toFixed(2)}px 0)`,ctClip=pin?812-HB:768;
+    const oy=y-d+(d-Y3)*c,T=Math.max(0,y+18*(1-c)-oy),pin=Math.abs(pr)>.05,ngClip=`inset(${(pin?Math.max(T,HB-Math.min(pr,0)):T).toFixed(2)}px 0 ${Math.max(GH-F+pr,GH-F-SMAX).toFixed(2)}px 0)`,ctClip=pin?812-HB:768;
     ng.style.transform=`translate3d(0,${(oy+pr).toFixed(2)}px,0)`;
     if(ngClip!==ngk){ngk=ngClip;ng.style.clipPath=ngClip}
     if(ctClip!==ctk){ctk=ctClip;ct.style.clipPath=`inset(0 0 ${ctClip}px 0)`}   // scrolling or pulling: pin status + header bar (through HB); page below moves
@@ -848,7 +849,7 @@ function nativeSheet(o){
   function sheetStart(cy,id,sc){yS.stop();drag={id,y0:y,c0:cy,from:state,moved:false,sc:sc||scale(),s:[[performance.now(),y]]}}
   function dragStart(cy,id,sc){
     const k=sc||scale(),ly=(cy-host.getBoundingClientRect().top)/k;
-    if(state===3&&!yS.busy&&(entry==='cta'||SMAX>0)){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}   /* the nav stays: a drag anywhere on a scrolling full screen moves the page, never the bar */
+    if(state===3&&!yS.busy){prS.stop();drag={id,c0:cy,p0:pr,pull:true,sc:k,moved:false};return}   /* one full screen for every entry (a CTA open or expanded from split): the nav stays, a drag anywhere moves the page beneath it, never the bar; pulled down past the top, an expanded one hands over to the sheet (dragMove) */
     if(entry==='cta')return;
     sheetStart(cy,id,k)}
   function dragMove(cy){if(!drag)return;

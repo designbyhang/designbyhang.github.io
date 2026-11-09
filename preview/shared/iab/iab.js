@@ -4,7 +4,8 @@
    its hairline on its last row (screen y 91), the page from 48 (screen y 92).
    Motion (one place for every prototype): critically damped spring ω18 (close ω16), 4 substeps; 1:1 drag with 100ms velocity
    samples, projection y + v·0.18s, a flick > 600px/s moves at least one step, iOS rubber-band (c .55) above full; a tap on the half
-   sheet → full. Full screen: a press below the header scrolls the page (iOS rubber-band c .55, spring-back ω16, fling τ 325ms) and a
+   sheet → full. Full screen (one structure whether a CTA opened it or it was expanded from split): the nav bar holds at the status
+   bar's bottom, a drag on it only takes the sheet down, never up; a press below the header scrolls the page (iOS rubber-band c .55, spring-back ω16, fling τ 325ms) and a
    pull past the page top hands over to the sheet. Every open from closed plays the page load (1140ms bar, page fades in after 1/3).
    Entry point: how the sheet was opened from closed (go(s, {entry}), kept until it closes) decides what a drag on it may do:
      (none)       a sheet open (caption, product tile, swipe): every drag above
@@ -240,7 +241,7 @@ function create(cfg){
     if(!drag)return;
     let ny=drag.y0+(clientY-drag.startY)/(drag.scale||scaleNow());
     if(Math.abs(clientY-drag.startY)>4)drag.moved=true;
-    if(ny<Y3)ny=Y3-rb(Y3-ny,Y1-Y3);
+    if(ny<Y3)ny=drag.from===3?Y3:Y3-rb(Y3-ny,Y1-Y3);   // full screen is one structure for every entry (Hang): from full the nav bar never leaves its place under the status bar, only the page scrolls beneath it; the rubber-band above full is the expand from split only
     const prev=y;y=Math.min(Y1,ny);render();
     const now=performance.now();drag.samples.push([now,y]);
     while(drag.samples.length>2&&now-drag.samples[0][0]>100)drag.samples.shift();
