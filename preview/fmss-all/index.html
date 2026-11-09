@@ -8,20 +8,23 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Unified Split Screen — Design by Hang</title>
+<script>/* standalone page removed: a direct visit opens the case page's unique full-screen prototype URL */
+if(!/[?&]embed=1(&|$)/.test(location.search)){location.replace('/projects/fmss.html?fs=fmss-all')}</script>
 <script src="../shared/demo/demo-clock.js?v=355"></script>   <!-- first: the shared pausable clock (one demo plays at a time, js/case.js) -->
 <script>
-/* theme: same contract as the portfolio (html[data-theme], localStorage 'dbh-theme'); ?theme=dark|light overrides for testing */
-(function(){var q=new URLSearchParams(location.search).get('theme');var t=q;if(!t){try{t=localStorage.getItem('dbh-theme')}catch(_){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
-/* ?embed=1: framed inside a case-study page; only the device stage shows, the parent page supplies the container */
-if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.add('embed');['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt)}catch(_){}try{frameElement&&frameElement.dispatchEvent(new Event('proto-doc'))}catch(_){}}
+/* embed-only: parent case page supplies the container and theme; this document is always html.embed when it renders */
+(function(){var t='light';try{var pt=parent.document.documentElement.getAttribute('data-theme');if(pt==='dark'||pt==='light')t=pt}catch(_){try{t=localStorage.getItem('dbh-theme')}catch(__){}}if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})();
+document.documentElement.classList.add('embed');
+['selectstart','dragstart'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},true)});
+try{frameElement&&frameElement.dispatchEvent(new Event('proto-doc'))}catch(_){}
 </script>
 <meta name="theme-color" content="#ededed"><script>if(document.documentElement.getAttribute('data-theme')==='dark')document.querySelector('meta[name=theme-color]').content='#111111'</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@400&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../css/type.css?v=389"><link rel="stylesheet" href="../../css/arrows.css?v=347"><link rel="stylesheet" href="../../css/theme.css?v=432">
+<link rel="stylesheet" href="../../css/type.css?v=389">
 <!-- shared FMSS foundation, unchanged: the IAB (sheet + header + page + toolbar), the live player controls, the squircle, the device tokens -->
 <link rel="stylesheet" href="../shared/iab/iab.css?v=389">
-<script src="../../js/squircle.js?v=389"></script><script src="../../js/sfx.js?v=355"></script><script src="../../js/fs-motion.js?v=355"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=479"></script><script src="../shared/caret/caret.js?v=398"></script>
+<script src="../../js/squircle.js?v=389"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=479"></script><script src="../shared/caret/caret.js?v=398"></script>
 <script src="../../js/video-scrubber.js?v=424"></script><script src="../shared/pause/pause.js?v=423"></script>
 <link rel="stylesheet" href="../shared/device/device.css?v=389"><script src="../shared/device/snap.js?v=389"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
@@ -30,74 +33,18 @@ if(/[?&]embed=1(&|$)/.test(location.search)){document.documentElement.classList.
 <link rel="stylesheet" href="../shared/feed/feed.css?v=389">
 <!-- the shared iOS status bar (preview/shared/statusbar: one status.svg mask, .sb / .sb-dark): the device chrome's right icons -->
 <link rel="stylesheet" href="../shared/statusbar/statusbar.css?v=389"><link rel="stylesheet" href="../shared/caret/caret.css?v=398"><link rel="stylesheet" href="../shared/backdrop/backdrop.css?v=402">
-<!-- preview-only page: no gate.js / passcode -->
+<!-- embed-only prototype: direct visits redirect to /projects/fmss.html?fs=fmss-all; no gate.js -->
 <style>
 :root{--sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;--mono:"Bitcount Grid Single",ui-monospace,Menlo,monospace;--page:#ededed;--frame:#f4f4f4;--line:#e6e6e6;--ink:#171717;--mute:#6f6f6f;--ease:cubic-bezier(.2,.7,.2,1)}
 html[data-theme=dark]{--page:#111;--line:#2a2a2a;--ink:#f2f2f2;--mute:#a6a6a6}
 *{box-sizing:border-box}
 *:focus,*:focus-visible{outline:none}
-html,body{margin:0;background:var(--page);color:var(--ink);font:var(--t-body);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;transition:background-color .4s var(--ease),color .4s var(--ease)}
-.wrap{max-width:1440px;margin:0 auto;padding:48px 48px 96px}
-header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
-header.top h1{font:var(--t-h3);letter-spacing:var(--t-h3-ls);color:var(--ink);margin:0 0 8px}
-header.top p{margin:0;font:var(--t-body);font-size:var(--t-s16);line-height:1.7;color:var(--mute);max-width:56ch}
-.mframe{position:relative;width:100%;aspect-ratio:3840/2052;background:var(--frame);border:1px solid var(--frame-line,var(--line));overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease),border-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
-html.deck-open .mframe{overflow:visible;contain:none}
-@media (max-width:640px){.wrap{padding:24px 16px 64px}header.top{margin-bottom:24px}.mframe{aspect-ratio:4/5}}
+/* embed-only page: the parent case page supplies the container; only the device stage shows */
+html,body{margin:0;height:100%;overflow:hidden;background:var(--frame);color:var(--ink);font:var(--t-body);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;transition:background-color .4s var(--ease),color .4s var(--ease);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.wrap{max-width:none;margin:0;padding:0}
+.mframe{position:relative;width:100%;height:100vh;background:var(--frame);border:0;overflow:hidden;contain:layout paint;transition:background-color .4s var(--ease);-webkit-tap-highlight-color:transparent}
+html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
 .stage{position:absolute;left:50%;top:50%;width:375px;height:812px;transform-origin:50% 50%;transform:translate(-50%,-50%) scale(var(--s,.8))}
-/* standalone expand button (.mbtn.proto-x) + fullscreen prototype view (identical to designbyhang.com case.css / proto-fs.css) */
-.mbtn{appearance:none;display:grid;place-items:center;flex:none;width:32px;height:32px;padding:0;margin:0;border:1px solid var(--ring-media);border-radius:50%;box-sizing:border-box;background:color-mix(in srgb,var(--c-paper) 44%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 1px 4px rgba(0,0,0,.06);color:var(--c-strong);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .2s ease}
-.mbtn:hover{border-color:var(--ring-hover)}
-.proto-x{position:absolute;right:32px;bottom:32px;z-index:3}
-@media (max-width:640px){.proto-x{right:16px;bottom:16px}}
-.mbtn.proto-x svg{width:16px;height:16px;fill:none;display:block}
-.mbtn.proto-x svg path{stroke:currentColor;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linecap:butt;stroke-linejoin:miter}
-.fsx-open{position:absolute;inset:0;z-index:2;width:100%;height:100%;margin:0;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-html.embed .proto-x,html.embed .fsx-open,html.deck-open .proto-x,html.deck-open .fsx-open{display:none!important}
-html:not(.embed):not(.embed-full):not(.has-x) .stage{pointer-events:none}
-.fsx-bg{position:fixed;inset:0;z-index:2147482998;pointer-events:none;overflow:hidden}
-.fsx-bg[hidden],.fsx[hidden]{display:none}
-.fsx-panel{position:absolute;left:0;top:0;transform-origin:0 0;background:var(--frame);will-change:transform;pointer-events:auto;touch-action:none}
-.fsx-bg .deck-edge{display:none;position:fixed;left:0;right:0;z-index:1;background:var(--frame);pointer-events:auto;touch-action:none}
-.fsx-bg.is-open .deck-edge{display:block}
-.fsx-bg .deck-edge-t{top:0;height:calc(58px + env(safe-area-inset-top,0px))}
-@media (max-width:640px){.fsx-bg .deck-edge-t{height:calc(50px + env(safe-area-inset-top,0px))}}
-.fsx-bg .deck-edge-b{bottom:0;height:calc(clamp(16px,3vw,32px) + env(safe-area-inset-bottom,0px))}
-.fsx-bg .fsx-probe{position:fixed;left:0;width:0;top:calc(64px + env(safe-area-inset-top,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));visibility:hidden;pointer-events:none}
-@media (max-width:640px){.fsx-bg .fsx-probe{top:calc(56px + env(safe-area-inset-top,0px));bottom:calc(56px + env(safe-area-inset-bottom,0px))}}
-.deck-fs.fsx{position:fixed;inset:0;z-index:2147483000;overflow:hidden;pointer-events:none;outline:none;border-radius:0}
-/* Right-anchored, only as wide as CLOSE (no left): a full-width fixed row is what iOS 26 Safari's top-edge sampler (it ignores pointer-events)
-   takes as the top bar, and with no background it keeps the colour sampled at open; the solid .deck-edge-t strip under it (the layer colour)
-   must be the edge element so the status bar follows the layer and the toggle (hang-egg.css ?v=406) */
-.deck-fs.fsx .bar.deck-bar{position:fixed;top:env(safe-area-inset-top,0px);right:env(safe-area-inset-right,0px);height:58px;padding:0 clamp(16px,3vw,32px);display:flex;align-items:center;justify-content:flex-end;z-index:2;background:none;pointer-events:none}
-@media (max-width:640px){.deck-fs.fsx .bar.deck-bar{height:50px}}
-.deck-fs.fsx .deck-bar .bar-right,.deck-fs.fsx .deck-bar a,.deck-fs.fsx .theme-btn{pointer-events:auto}
-.deck-fs.fsx.is-closing .deck-bar a{pointer-events:none}
-.deck-fs.fsx .theme-btn{z-index:3}
-.deck-fs.fsx .deck-bar a{font-family:var(--mono)!important;font-size:14px!important;line-height:1!important;letter-spacing:.04em!important;word-spacing:-.32em!important;color:var(--c-label)!important;text-decoration:none;font-weight:400!important}
-.deck-fs.fsx .deck-bar a:hover{color:var(--ink)!important}
-.deck-fs.fsx .deck-bar a .t{position:relative;display:inline-block}
-.deck-fs.fsx .deck-bar a .t::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
-.deck-fs.fsx .deck-bar a:hover .t::after{transform:scaleX(1)}
-.fs-ins{--mono-color:#333;position:absolute;z-index:2;left:0;top:0;margin:0;box-sizing:content-box;overflow:clip;padding-bottom:16px;font-family:var(--mono);font-weight:400;font-style:normal;font-size:14px;line-height:1;letter-spacing:.04em;word-spacing:-.32em;text-transform:none;color:var(--mono-color);text-align:center;text-wrap:balance;pointer-events:none;-webkit-user-select:none;user-select:none}
-.fs-ins span{display:block}
-html[data-theme=dark] .fs-ins{--mono-color:#cfcfcf}
-html.deck-lock{overflow:hidden;scrollbar-gutter:stable}
-html.deck-lock,html.deck-lock body,.fsx-bg,.deck-fs.fsx{-webkit-user-select:none;user-select:none}
-html.deck-lock.theme-anim,html.deck-lock.theme-anim body,html.fs-stage.theme-anim,html.fs-stage.theme-anim body,html.hegg-flow.theme-anim,html.hegg-flow.theme-anim body{transition:none!important}
-html.theme-anim .fsx-bg,html.theme-anim .fsx-bg *,html.theme-anim .deck-fs.fsx,html.theme-anim .deck-fs.fsx *{transition:none!important}
-.fsx-bg.is-closing .fsx-panel{pointer-events:none}
-/* iOS Safari bars when fullscreen is settled (html.hegg-flow, from css/hang-egg.css): make the fullscreen layer the document in flow with
-   2px of scroll range for the 1px scroll nudge so iOS 26 Safari re-samples the status bar and browser bar immediately on theme toggle */
-html.hegg-flow{overflow:hidden}
-@media (hover:none) and (pointer:coarse){html.hegg-flow{overflow:auto}}
-html.hegg-flow,html.hegg-flow body{height:100%}
-html.hegg-flow body{display:block;min-height:0;overflow:visible;margin:0;padding:0 0 2px;box-sizing:content-box}
-html.hegg-flow body>.wrap{position:absolute!important;top:0!important;left:0!important;right:0!important;width:auto!important;height:0!important;min-height:0!important;overflow:hidden!important;visibility:hidden!important;pointer-events:none!important}
-html.hegg-flow .stage.fsx-lift{visibility:visible!important}
-html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;background:var(--frame);box-shadow:0 0 0 100vmax var(--frame)}
-.stage.fsx-lift{position:fixed;z-index:2147482999;pointer-events:auto}
-.stage.fsx-anim{pointer-events:none!important}
 
 /* ---------- phone: 375×812 screen + 8px theme-aware bezel (the FMSS Evolution prototypes) ---------- */
 .phone{position:absolute;inset:0;border-radius:40px;overflow:hidden;background:#000;isolation:isolate;user-select:none;-webkit-user-select:none;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif}
@@ -289,19 +236,10 @@ html.hegg-flow .fsx-bg{position:relative;inset:auto;width:100%;height:100%;backg
 .mm-it .vr{font-size:12px;line-height:18px;font-weight:400;letter-spacing:0;color:rgba(255,255,255,.44);white-space:nowrap;text-align:right;margin-left:8px}
 .mm-it.cur .vr{color:rgba(255,255,255,.72)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-html.embed,html.embed body{height:100%;overflow:hidden;background:var(--frame)}
-html.embed{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-html.embed .wrap{max-width:none;padding:0}
-html.embed header.top,html.embed .theme-btn{display:none!important}
-html.embed .mframe{aspect-ratio:auto;height:100vh;border:0}
-html.embed-full,html.embed-full body,html.embed-full .mframe{background:transparent;touch-action:none;overscroll-behavior:none}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="top" id="topHdr">
-    <div id="topCopy"><h1>Unified Split Screen</h1><p>Brings every split screen experience into one prototype, with a consistent interaction model across ad objectives and Facebook surfaces.</p></div>
-  </header>
   <div class="mframe" id="frame">
     <div class="stage" id="stage">
       <div class="bezel" aria-hidden="true"><div class="bezel-fill" id="bezelFill"></div></div>
@@ -320,12 +258,9 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
         </div>
       </div>
     </div>
-    <button class="fsx-open" id="fsxOpen" type="button" aria-label="Open Unified Split Screen full screen" aria-haspopup="dialog"></button>
-    <button class="mbtn proto-x" id="protoX" type="button" aria-label="Expand prototype" aria-haspopup="dialog"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9 7L13 3M8.5 3H13V7.5M7 9L3 13M7.5 13H3V8.5"/></svg></button>
     <p class="sr" id="live" aria-live="polite"></p>
   </div>
 </div>
-<button class="theme-btn theme-float" id="theme" type="button" aria-label="Switch theme"><svg class="i-moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M14.4 10.2A6.7 6.7 0 0 1 5.8 1.6 6.7 6.7 0 1 0 14.4 10.2z"/></svg><svg class="i-sun" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.5"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(0 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(60 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(120 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(180 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(240 8 8)"/><rect x="7.15" y="0.6" width="1.7" height="2.6" rx="0.85" transform="rotate(300 8 8)"/></svg></button>
 <script>
 (function(){
 'use strict';
@@ -777,7 +712,7 @@ function render(X){
   X.tone=lerp(lerp(lerp(C.tone,0,a),1,C.sheet.iab?X.sd:c),0,X.vwCta?0:k);
   if(X===cur){pill(X.tone);chrome(X);syncRestart(X);homeTell(menuOpen&&!picked)}
 }
-let homeS=null,standaloneHome=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*');if(standaloneHome)standaloneHome(h)}
+let homeS=null;function homeTell(h){if(h===homeS)return;homeS=h;if(parent!==window)parent.postMessage({type:'proto-state',home:h},'*')}
 /* the device chrome, from the experience on screen: the IAB's status icons with its white status band (sd); the home bar black once a
    light sheet is under it (its edge past 803), else the surface's tone (light Feed: black, dark Reels / Stories: white) */
 const dcSb=$('dcSb'),dcHm=$('dcHm');
@@ -1007,7 +942,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen){
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
 let seen=false,held=false;
-function vidSync(){if(!cur)return;const full=document.documentElement.classList.contains('embed-full')||document.documentElement.classList.contains('deck-open');
+function vidSync(){if(!cur)return;const full=document.documentElement.classList.contains('embed-full');
   const on=(seen||demoClock.hosted||full)&&!document.hidden&&!held&&!(window.demoClock&&demoClock.paused),C=cur.E.c;
   cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs&&(cur.vs.paused()||cur.vs.dragging())))));
     /* the In-Content ad's own Reels video is paused by a tap on it: the watchdog leaves it paused (only the ad's player is its to drive) */
@@ -1045,112 +980,12 @@ if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
 function say(t){$('live').textContent=t}
 const q0=+new URLSearchParams(location.search).get('x');
 if(q0>=1&&q0<=EXP.length){document.documentElement.classList.add('has-x');picked=true;show(q0-1)}else{show(0);setMenuNow(true)}
-window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen},get page(){return pg}};   // for checks
+window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen}};   // for checks
 
-/* ---------- standalone fullscreen prototype view (matches designbyhang.com proto-fs.js + case.js) ---------- */
-if(!document.documentElement.classList.contains('embed')&&window.dbhFS){
-  const de=document.documentElement,FS=window.dbhFS,hdr=$('topHdr'),topCopy=$('topCopy'),tBtn=$('theme'),openB=$('fsxOpen'),pxB=$('protoX');
-  const bg=document.createElement('div');bg.className='fsx-bg';bg.hidden=true;
-  bg.innerHTML='<i class="fsx-panel" aria-hidden="true"></i><i class="deck-edge deck-edge-t" aria-hidden="true"></i><i class="deck-edge deck-edge-b" aria-hidden="true"></i><i class="fsx-probe" aria-hidden="true"></i><p class="fs-ins"><span>Pick one to start</span></p>';
-  const panel=bg.firstChild,probe=bg.querySelector('.fsx-probe'),ins=bg.lastChild,insS=ins.firstChild;
-  const fs=document.createElement('div');fs.className='deck-fs fsx';fs.hidden=true;fs.tabIndex=-1;fs.setAttribute('role','dialog');fs.setAttribute('aria-modal','true');fs.setAttribute('aria-label','Unified Split Screen, full screen');
-  fs.innerHTML='<div class="bar deck-bar"><nav class="bar-right" aria-label="Prototype"><a class="ax deck-x" href="#frame" role="button" aria-label="Close prototype"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
-  document.body.append(bg,fs);
-  const closeB=fs.querySelector('.deck-x');
-  let fsState='closed',tw=null,P=0,G=null,insA=null,insTapped=false,insShut=false;
-  const FADE={duration:400,easing:'cubic-bezier(.25,.1,.25,1)'};
-  const insStop=()=>{if(insA){insA.cancel();insA=null}};
-  const insHide=()=>{insStop();insS.style.opacity='0'};
-  const insFade=()=>{if(RM.matches||!insS.animate){insHide();return}const o=+getComputedStyle(insS).opacity;insStop();insS.style.opacity='0';if(o>0){insA=insS.animate([{opacity:o},{opacity:0}],FADE);insA.onfinish=()=>{insA=null}}};
-  const insEnter=(d=840)=>{if(insTapped)return;insStop();insS.style.opacity='';if(RM.matches||!insS.animate)return;insA=insS.animate([{opacity:0},{opacity:1}],Object.assign({delay:d,fill:'backwards'},FADE));insA.onfinish=()=>{insA=null}};
-  standaloneHome=h=>{if(fsState!=='open'&&fsState!=='opening')return;if(!h){if(!insTapped){insTapped=true;if(insA&&insA.playState!=='finished'&&(insA.currentTime||0)<insA.effect.getTiming().delay){insHide();return}insFade()}}else if(insTapped){insTapped=false;insEnter(800)}};
-  const ch=FS.chrome({hdr,lefts:[topCopy],opening:()=>fsState==='opening'});
-  const hostBox=()=>{const r=frame.getBoundingClientRect(),b=frame.clientLeft||0;return{x:r.left+b,y:r.top+b,w:frame.clientWidth,h:frame.clientHeight}};
-  const sInline=(w,h)=>{const pad=w<=640?24:40;return Math.min((h-pad*2)/828,(w-pad*2)/431)};
-  function measure(){
-    const W=fs.clientWidth||innerWidth,H=fs.clientHeight||innerHeight;G.W=W;G.H=H;
-    panel.style.width=W+'px';panel.style.height=H+'px';
-    const q=probe.getBoundingClientRect(),av=Math.max(0,q.bottom-q.top);
-    const iw=Math.max(0,Math.min(375,W-32));ins.style.width=iw+'px';
-    const T=insS.textContent?insS.offsetHeight:0,gap=T?40:0;
-    const sw=Math.min(1,W/531),bh=Math.max(0,Math.floor(Math.min(av-gap-T,828,828*sw))),bt=Math.round(q.top+(av-bh-gap-T)/2);
-    ins.style.top=(bt+bh)+'px';ins.style.paddingTop=gap+'px';ins.style.left=Math.round(W/2-iw/2)+'px';
-    G.s1=Math.min(1,bh/828,W/531);G.cx=W/2;G.cy=bt+bh/2;
-  }
-  function renderFs(p,fresh){
-    if(fresh||fsState==='closing'){G.A=hostBox();G.s0=sInline(G.A.w,G.A.h)}
-    const A=G.A;panel.style.transform=FS.rectXf(A,G.W,G.H,p);
-    const cx=lerp(A.x+A.w/2,G.cx,p),cy=lerp(A.y+A.h/2,G.cy,p),s=lerp(G.s0,G.s1,p);
-    stage.style.left=cx.toFixed(2)+'px';stage.style.top=cy.toFixed(2)+'px';stage.style.setProperty('--s',s.toFixed(4));stage.style.transform='translate(-50%,-50%) scale(var(--s))';
-  }
-  const vpm=document.querySelector('meta[name=viewport]'),vp0=vpm&&vpm.content;
-  let flowY=null;
-  const flow=on=>{if(on){if(flowY!==null)return;flowY=scrollY;de.classList.add('hegg-flow','fs-stage');scrollTo({top:0,left:0,behavior:'instant'});if(window.__dbhResample)window.__dbhResample()}
-    else{if(flowY===null)return;const y=flowY;flowY=null;de.classList.remove('hegg-flow','fs-stage');scrollTo({top:y,left:0,behavior:'instant'});seen=true;if(window.__dbhResample)window.__dbhResample()}};
-  function openFs(){
-    if(fsState!=='closed')return;
-    const A=hostBox();G={A,s0:sInline(A.w,A.h)};
-    insTapped=false;insShut=false;insHide();
-    if(vpm&&!/viewport-fit/.test(vp0))vpm.content=vp0+', viewport-fit=cover';
-    fsState='opening';de.classList.add('deck-lock','deck-open','embed-full');
-    bg.hidden=fs.hidden=false;bg.classList.remove('is-open','is-closing');fs.classList.remove('is-closing');
-    fs.appendChild(tBtn);ch.measure();
-    stage.classList.add('fsx-lift','fsx-anim');
-    measure();renderFs(0,true);ch.set(0);FS.uiEnter([closeB],false);insEnter(840);
-    if(tw)tw.cancel();
-    tw=FS.tween(0,1,p=>{P=p;ch.set(P);renderFs(P)},()=>{tw=null;fsState='open';stage.classList.remove('fsx-anim');panel.style.transform='';FMSSSnap(stage);bg.classList.add('is-open');flow(true);fs.focus({preventScroll:true})});
-  }
-  function closeFs(){
-    if(fsState!=='open'&&fsState!=='opening')return;
-    const p0=P;fsState='closing';
-    if(!insShut){insShut=true;insFade()}
-    flow(false);
-    fs.classList.add('is-closing');bg.classList.add('is-closing');bg.classList.remove('is-open');
-    stage.classList.add('fsx-anim');
-    FS.uiStop(closeB);const cOp=+getComputedStyle(closeB).opacity,cX=parseFloat(closeB.style.translate)||0;
-    ch.measure();ch.set(p0);de.classList.remove('deck-lock');if(vpm)vpm.content=vp0;
-    if(tw)tw.cancel();
-    tw=FS.tween(p0,0,p=>{P=p;ch.set(P);renderFs(P);const k=p*p*(3-2*p);closeB.style.opacity=(cOp*k).toFixed(4);closeB.style.translate=(cX+(-16-cX)*(1-k)).toFixed(2)+'px 0'},()=>{
-      tw=null;document.body.appendChild(tBtn);closeB.style.opacity=closeB.style.translate='';
-      stage.classList.remove('fsx-lift','fsx-anim');stage.style.left=stage.style.top='';
-      panel.style.transform='';ch.reset();bg.hidden=fs.hidden=true;fs.classList.remove('is-closing');bg.classList.remove('is-closing');
-      fsState='closed';de.classList.remove('deck-open','embed-full');G=null;P=0;
-      if(window.__dbhResample)window.__dbhResample();
-      picked=false;show(0);homeS=null;setMenuNow(true);fit();
-    });
-  }
-  openB.addEventListener('click',e=>{e.preventDefault();openFs()});
-  pxB.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openFs()});
-  closeB.addEventListener('click',e=>{e.preventDefault();closeFs()});
-  addEventListener('resize',()=>{if(fsState==='closed')return;measure();renderFs(P,true)});
-  addEventListener('keydown',e=>{if(e.key==='Escape'&&fsState!=='closed'&&(!menuOpen||!picked)){e.preventDefault();e.stopPropagation();closeFs()}},true);
-}
+
 })();
-/* ---------- theme toggle + follow the site theme (same as designbyhang.com js/theme.js) ---------- */
-(function(){
-  const de=document.documentElement,b=document.getElementById('theme');
-  const lab=()=>b.setAttribute('aria-label',de.getAttribute('data-theme')==='dark'?'Switch to light mode':'Switch to dark mode');lab();
-  const spark=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2,n=4+Math.floor(Math.random()*4),dark=de.getAttribute('data-theme')==='dark',col=dark?'#ffe9a8':'#e3a008';
-    for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,len=2+Math.random()*3,dist=3+Math.random()*5,e=document.createElement('i');e.setAttribute('aria-hidden','true');
-      e.style.cssText=`position:fixed;left:${cx+Math.cos(a)*R}px;top:${cy+Math.sin(a)*R}px;width:${len}px;height:${1+Math.round(Math.random())}px;background:${col};border-radius:1px;pointer-events:none;z-index:2147483001;transform-origin:0 50%;box-shadow:0 0 2px ${col};transition:none!important`;
-      document.body.appendChild(e);const rot=a*180/Math.PI;e.animate([{transform:`rotate(${rot}deg) translateX(0)`,opacity:1},{transform:`rotate(${rot}deg) translateX(${dist}px)`,opacity:0}],{duration:250+Math.random()*150,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>e.remove()}
-    b.animate([{opacity:1},{opacity:.35,offset:.3},{opacity:1}],{duration:160})};
-  b.addEventListener('click',()=>{const n=de.getAttribute('data-theme')==='dark'?'light':'dark';de.classList.add('theme-anim');de.setAttribute('data-theme',n);try{localStorage.setItem('dbh-theme',n)}catch(_){}lab();
-    const k=window.dbhSfx?(window.dbhSfx.toggle?window.dbhSfx.toggle():(window.dbhSfx.tap(),'tap')):'none';if(k==='zap')spark();setTimeout(()=>de.classList.remove('theme-anim'),350)});
-  /* iOS 26 Safari status bar & browser bar sync (ported from js/theme.js): replace <meta name="theme-color"> node on change, set html/body
-     backgroundColor directly (--frame when fullscreen is open, #111111/#ededed inline), and nudge scrollTop by 1px for one frame so iOS Safari
-     re-samples its top status bar and bottom toolbar immediately when toggled */
-  if(!de.classList.contains('embed')){
-    let last='';
-    const re=()=>{const m=document.querySelector('meta[name="theme-color"]');if(m)m.replaceWith(m.cloneNode());
-      const se=document.scrollingElement||de,y=se.scrollTop,max=se.scrollHeight-se.clientHeight;if(max<1)return;
-      window.__dbhNudge=performance.now();se.scrollTo({top:y<max?y+1:y-1,behavior:'instant'});requestAnimationFrame(()=>requestAnimationFrame(()=>se.scrollTo({top:y,behavior:'instant'})))};
-    const s=()=>{const dk=de.getAttribute('data-theme')==='dark',fs=de.classList.contains('deck-lock')||de.classList.contains('fs-stage'),c=fs?getComputedStyle(de).getPropertyValue('--frame').trim():(dk?'#111111':'#ededed');if(c+fs===last)return;last=c+fs;
-      document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove());const m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);de.style.backgroundColor=c;if(document.body)document.body.style.backgroundColor=fs?c:'';clearTimeout(s.t);s.t=setTimeout(re,420);if(de.classList.contains('hegg-flow')||de.classList.contains('fs-stage'))requestAnimationFrame(re)};
-    window.__dbhResample=re;s();new MutationObserver(s).observe(de,{attributes:true,attributeFilter:['data-theme','class']});
-  }
-})();
-(function(){if(new URLSearchParams(location.search).get('theme'))return;const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',e=>{if(e.key===null||e.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
+/* ---------- follow the site theme (parent case page owns the toggle) ---------- */
+(function(){const h=document.documentElement,mq=matchMedia('(prefers-color-scheme:dark)');const sync=()=>{let t=null;try{t=localStorage.getItem('dbh-theme')}catch(_){}if(t!=='dark'&&t!=='light')t=mq.matches?'dark':'light';if(h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)};addEventListener('storage',e=>{if(e.key===null||e.key==='dbh-theme')sync()});mq.addEventListener('change',sync);try{if(parent!==window&&parent.document){const pd=parent.document.documentElement;new MutationObserver(()=>{const t=pd.getAttribute('data-theme');if((t==='dark'||t==='light')&&h.getAttribute('data-theme')!==t)h.setAttribute('data-theme',t)}).observe(pd,{attributes:true,attributeFilter:['data-theme']})}}catch(_){}})();
 </script>
 </body>
 </html>
