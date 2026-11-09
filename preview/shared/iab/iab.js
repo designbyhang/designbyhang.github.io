@@ -5,7 +5,7 @@
    Motion (one place for every prototype): critically damped spring ω18 (close ω16), 4 substeps; 1:1 drag with 100ms velocity
    samples, projection y + v·0.18s, a flick > 600px/s moves at least one step, iOS rubber-band (c .55) above full; a tap on the half
    sheet → full. Full screen (one structure whether a CTA opened it or it was expanded from split): the nav bar holds at the status
-   bar's bottom, a drag on it only takes the sheet down, never up; a press below the header scrolls the page (iOS rubber-band c .55, spring-back ω16, fling τ 325ms) and a
+   bar's bottom, a drag on it only takes the sheet down, never up; a press below the header (any press while the sheet is still on its way up to full) scrolls the page (iOS rubber-band c .55, spring-back ω16, fling τ 325ms) and a
    pull past the page top hands over to the sheet. Every open from closed plays the page load (1140ms bar, page fades in after 1/3).
    Entry point: how the sheet was opened from closed (go(s, {entry}), kept until it closes) decides what a drag on it may do:
      (none)       a sheet open (caption, product tile, swipe): every drag above
@@ -269,7 +269,7 @@ function create(cfg){
     go(best[0],{v,z:best[0]===2?halfZ:SP.z});
   }
   function cancelFake(){const d=drag;if(!d||d.id!=='fake')return false;drag=null;sheet.classList.remove('drag');ySpring.to(d.y0,{w:SP.w,z:SP.z});return true}
-  const atFull=()=>!ySpring.busy||(ySpring.target===Y3&&Math.abs(y-Y3)<24);   // settling into full still scrolls; a travelling sheet is caught
+  const atFull=()=>!ySpring.busy||ySpring.target===Y3;   // full is full from the moment it is chosen: a sheet still on its way there (an expand from split, a CTA open) is never caught by a press, its nav bar keeps riding the spring and the page scrolls beneath it
   function scStart(clientY,id,scale){stopScroll();sc={id,startY:clientY,s0:sy,scale,moved:false,samples:[[performance.now(),sy]]}}
   function scMove(clientY){
     const want=sc.s0-(clientY-sc.startY)/sc.scale;
@@ -297,7 +297,7 @@ function create(cfg){
     if(e.pointerType==='mouse'){const s=getSelection&&getSelection();if(s&&s.rangeCount)s.removeAllRanges()}
     own=e.pointerId;
     const s0=scaleNow();
-    if(state===3&&atFull()&&(e.clientY-sheet.getBoundingClientRect().top)/s0>=CT){scStart(e.clientY,e.pointerId,s0);return}
+    if(state===3&&atFull()&&(ySpring.busy||(e.clientY-sheet.getBoundingClientRect().top)/s0>=CT)){scStart(e.clientY,e.pointerId,s0);return}   // on the way to full any press is the page's (a pull down past its top still hands over to the sheet)
     dragStart(e.clientY,e.pointerId,s0);
   });
   const mine=e=>own!=null&&e.pointerId===own&&((sc&&sc.id===own)||(drag&&drag.id===own));
