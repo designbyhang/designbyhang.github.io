@@ -13,6 +13,10 @@
                   put; × / Escape / the host's controls close it
                   (set on an open from closed, or passed with go(s, {entry}) on a move between open states: a host CTA over its
                   own half sheet makes it 'cta'; going back to half passes {entry: null})
+                  A CTA open is a layer over the surface it came from and never changes what is behind it (Hang): onRender's st is
+                  the value the host moves its surface by (a caption rise, a lift) and holds where it was when the CTA opened it (0 from
+                  closed) through the open, the stay and the close, until the close lands; t stays the sheet's own closed→half value
+                  for the layer itself (its dim). Every other entry: st = t.
      'collapse'   the host's floating CTA opened it: the only drag is the morph back into that CTA (collapse, below)
 
    const iab=FMSSIAB.create({host, y2, label, url, headers:{full}, handle, web:'<img …>', webH, visH, …hooks});
@@ -28,7 +32,7 @@
      hold(from,to) hold the full header through a move (1→3 / 3→1)
      capOpacity(sd) status backing opacity (default sd = (84 - y) / 40)   xOn(s) when × shows (s === 3)
      spring {w, z, wClose}                                     scale()   host px → client px (host height / 812)
-   Hooks: onRender(c) c = {y, t (closed→half), p (fullness), hk (header), sd (status), state} · onState(s) · onOpen(s, opts)
+   Hooks: onRender(c) c = {y, t (closed→half), st (the surface's own motion), p (fullness), hk (header), sd (status), state} · onState(s) · onOpen(s, opts)
      before a fresh open · onClose() a close starts · onClosed() a close lands (spring at rest, back home) · onOpened(s) an open
      or half↔full move lands · onSettled(s) any move lands at rest in state s (1 = home) · onLoad(why) · onPress(e) a real press on the sheet
      · onX() × tapped · wheelTo(e, d, apply) / wd(e) the page's wheel routing (wheel scrolls the page in full only via these).
@@ -109,6 +113,7 @@ function create(cfg){
 
   /* ---------- render everything from y ---------- */
   let y=Y1,state=1,hLock=false,col=null,entry=null;   // entry: the open's entry point (see the top), null while closed
+  let layer=null;   // a CTA open's held surface value (st, see the top): set as entry turns 'cta', cleared once the close lands
   function render(){
     if(col)return renderCol();
     const t=clamp((Y1-y)/(Y1-Y2)),p=fullness(y);
@@ -125,7 +130,7 @@ function create(cfg){
     loadEl.style.top=lerp(52,CT,hk).toFixed(2)+'px';
     tb.style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*110).toFixed(2)}px,0)`;
     tb.style.visibility=y<Y1-.5?'visible':'hidden';
-    cfg.onRender&&cfg.onRender({y,t,p,hk,sd,state});
+    cfg.onRender&&cfg.onRender({y,t,st:layer!=null?layer:t,p,hk,sd,state});
   }
   /* collapse morph: m 0 (the sheet where it was let go) → 1 (the CTA's rect); the rest (overlay, toolbar, status) rides an effective y
      that runs from the release point to closed */
@@ -143,7 +148,7 @@ function create(cfg){
     cc.style.opacity=clamp((m-.35)/.5).toFixed(3);
     tb.style.transform=`translate3d(0,${((1-clamp((p-.2)/.8))*110).toFixed(2)}px,0)`;
     tb.style.visibility=yE<Y1-.5?'visible':'hidden';
-    cfg.onRender&&cfg.onRender({y:yE,t,p,hk:0,sd,state});
+    cfg.onRender&&cfg.onRender({y:yE,t,st:t,p,hk:0,sd,state});
   }
   const mSpring=makeSpring(()=>col?col.m:1,v=>{if(col){col.m=v;render()}});
   function clearCol(){col=null;mSpring.stop();cc.style.display='none';cc.style.opacity='0';cc.textContent='';
@@ -152,7 +157,7 @@ function create(cfg){
     const C=cfg.collapse,to=C.to();ySpring.stop();
     const n=C.content&&C.content();cc.textContent='';if(n)cc.append(n);cc.style.display='block';
     col={m:0,y0:y,to,r0:16*(1-fullness(y)),oh:+hHalf.style.opacity||0,of:+hFull.style.opacity||0,oa:handle?+handle.style.opacity||0:0,co:+cap.style.opacity||0};
-    hLock=false;entry=null;setState(1);C.onStart&&C.onStart();render();
+    hLock=false;entry=null;layer=null;setState(1);C.onStart&&C.onStart();render();
     /* the spring's last step lands within eps of m 1 and its exact m 1 render shares a task with the handoff, so it is never painted:
        the last painted morph frame sat ~1px short of the CTA. Paint m 1 exactly (to() re-read now, so the morph ends on the CTA's
        resting rect) and hand off on the next frame: pixel-exact, same spring */
@@ -207,14 +212,15 @@ function create(cfg){
   /* ---------- go: 1 closed · 2 half · 3 full ---------- */
   function go(s,opts={}){
     const from=state,target=s===1?Y1:s===2?Y2:Y3;
-    if(from===1&&s>1){entry=opts.entry||null;cfg.onOpen&&cfg.onOpen(s,opts);if(opts.load!==false)load(opts.why)}
-    else if(from>1&&s>1&&'entry' in opts)entry=opts.entry||null;   // a CTA on the host's own surface over an open sheet (half → full as a layer): the entry changes with it
+    const st=layer!=null?layer:clamp((Y1-y)/(Y1-Y2));   // the surface where it is now: a CTA layer holds it there
+    if(from===1&&s>1){entry=opts.entry||null;layer=entry==='cta'?st:null;cfg.onOpen&&cfg.onOpen(s,opts);if(opts.load!==false)load(opts.why)}
+    else if(from>1&&s>1&&'entry' in opts){entry=opts.entry||null;layer=entry==='cta'?st:null}   // a CTA on the host's own surface over an open sheet (half → full as a layer): the entry changes with it
     if(from>1&&s===1){entry=null;cfg.onClose&&cfg.onClose()}
     hLock=opts.hold!=null?!!opts.hold:!!holdRule(from,s);
     setState(s);render();
     const o={v:opts.v||0,w:opts.w!=null?opts.w:s===1?SP.wClose:SP.w,z:opts.z!=null?opts.z:SP.z,onDone:opts.onDone};
     const d=o.onDone;
-    o.onDone=s===1?()=>{resetLoad();stopScroll();setScroll(0);cfg.onClosed&&cfg.onClosed();cfg.onSettled&&cfg.onSettled(1);d&&d()}
+    o.onDone=s===1?()=>{layer=null;resetLoad();stopScroll();setScroll(0);cfg.onClosed&&cfg.onClosed();cfg.onSettled&&cfg.onSettled(1);d&&d()}
                    :()=>{cfg.onOpened&&cfg.onOpened(s);cfg.onSettled&&cfg.onSettled(s);d&&d()};
     ySpring.to(target,o);
   }
@@ -312,7 +318,7 @@ function create(cfg){
   x.addEventListener('click',()=>{if(cfg.onX)cfg.onX();else go(1)});
 
   /* the clean start, instantly */
-  function reset(){if(col)clearCol();ySpring.stop();entry=null;drag=null;sc=null;own=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
+  function reset(){if(col)clearCol();ySpring.stop();entry=null;layer=null;drag=null;sc=null;own=null;sheet.classList.remove('drag');stopScroll();setScroll(0);resetLoad();hLock=false;y=Y1;setState(1);render()}
   function setY(v){ySpring.stop();y=v;render()}
 
   const api={Y1,Y2,Y3,sheet,panel,cap,toolbar:tb,x,web,webv,
