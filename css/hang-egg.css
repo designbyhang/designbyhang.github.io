@@ -54,9 +54,12 @@ html.hegg-flow,html.hegg-flow body{height:100%}
 html.hegg-flow body{display:block;min-height:0;overflow:visible;margin:0;padding:0 0 2px;box-sizing:content-box}
 html.hegg-flow body>:not(.hegg){position:absolute!important;top:0!important;left:0!important;right:0!important;width:auto!important;height:0!important;min-height:0!important;overflow:hidden!important;visibility:hidden!important;pointer-events:none!important}
 html.hegg-flow .hegg{position:relative;inset:auto;width:100%;height:100%}
-/* edge strips = Studio .deck-edge: top = the header row (58px, 50px <=640px) + safe area, bottom = clamp(16px,3vw,32px) + safe area. No
-   pointer-events:none: WebKit's edge sampler hit-tests */
-.hegg-edge{display:none;position:fixed;left:0;right:0;z-index:0;background:var(--page)}
+/* edge strips = Studio .deck-edge: top = the header row (58px, 50px <=640px) + safe area, bottom = clamp(16px,3vw,32px) + safe area.
+   z-index 2: above the wire canvas (.hegg-wire, z 1) and below CLOSE / H A N G / the toggle (later in the DOM or z 3), as the Studio strips sit
+   over its stage. iOS 26 Safari tints its bars from the topmost hit at the middle of each viewport edge (WebKit LocalFrameView::fixedContainerEdges):
+   with the full-viewport canvas on top it found no fixed container, so Safari kept the colour of the last one it had seen, the open-time
+   colour, and never followed the toggle. pointer-events:none is safe: that hit test ignores it (IgnoreCSSPointerEventsProperty) */
+.hegg-edge{display:none;position:fixed;left:0;right:0;z-index:2;background:var(--page);pointer-events:none}
 html.hegg-flow .hegg-edge{display:block}
 .hegg-edge-t{top:0;height:calc(58px + env(safe-area-inset-top,0px))}
 @media (max-width:640px){.hegg-edge-t{height:calc(50px + env(safe-area-inset-top,0px))}}
