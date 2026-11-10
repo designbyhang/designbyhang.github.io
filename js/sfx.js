@@ -30,8 +30,12 @@
     try{const g=v.g.gain,cur=Math.max(g.value,1e-6);g.cancelScheduledValues(t);g.setValueAtTime(cur,t);g.linearRampToValueAtTime(0,t+f);}catch(_){}
     const wait=Math.max(16,(v.end-t)*1000+50);setTimeout(()=>{try{v.g.disconnect();}catch(_){}},wait);};
   /* one kalimba tine strike: noise click + 880Hz partials (1, 5.4, 2); g is the strike level (.6 = full) */
-  const kStrike=(at,g,dst,nodes)=>{hit(3000,3,.25*g,.006,at,dst);
-    for(const[r,amp,dec]of KPARTS){const o=ac.createOscillator(),a=ac.createGain(),tau=dec/3,atk=.0008,pk=amp*.28*g*Math.exp(-atk/tau);
+  /* kChoke: the gain nodes of the last notch note. Re-striking the same tine damps it (4ms), so a fast spin is a run of distinct plucks
+     instead of overlapping 880Hz tails piling up into one sustained "bing" under the trill. */
+  let kChoke=null;
+  const kStrike=(at,g,dst,nodes,choke)=>{hit(3000,3,.25*g,.006,at,dst);
+    if(choke){if(kChoke)for(const a of kChoke){try{a.gain.cancelScheduledValues(at);a.gain.setTargetAtTime(0,at,.004/3);}catch(_){}}kChoke=[];}
+    for(const[r,amp,dec]of KPARTS){const o=ac.createOscillator(),a=ac.createGain(),tau=dec/3,atk=.0008,pk=amp*.28*g*Math.exp(-atk/tau);choke&&kChoke.push(a);
       o.type='sine';o.frequency.setValueAtTime(880*r,at);
       a.gain.setValueAtTime(0,at);a.gain.linearRampToValueAtTime(pk,at+atk);a.gain.setTargetAtTime(0,at+atk,tau);
       o.connect(a).connect(dst);o.start(at);o.stop(at+Math.max(dec,.28)+.01);nodes&&nodes.push(o);}};
@@ -48,6 +52,6 @@
     _tg:0,_tgT:0,toggle(){const n=performance.now();if(n-this._tgT>2000)this._tg=0;this._tgT=n;this._tg++;if(this._tg<7){this.tap();return'tap';}this.count.zap=(this.count.zap||0)+1;zap();return'zap';},
     set(on){mute=!on;localStorage.setItem('dbh-sound',on?'on':'off');},get on(){return!mute;},
     /* egg letter H: one strike per 36deg notch the letter's yaw passes (hang-wire.js kTick); delay spreads several notches over a frame */
-    kalimbaNote(g,delay){this.count.kalimbaNote=(this.count.kalimbaNote||0)+1;ready(()=>kStrike(ac.currentTime+(delay||0),g,out));},
+    kalimbaNote(g,delay){this.count.kalimbaNote=(this.count.kalimbaNote||0)+1;ready(()=>kStrike(ac.currentTime+(delay||0),g,out,null,1));},
     kalimba(){this.count.kalimba++;kStart=null;ready(kalimbaOn);},get kalimbaStart(){return kStart;},kalimbaStop,kalimbaTimes,kalimbaProgress,get kalimbaLast(){return kalimbaTimes[kalimbaTimes.length-1];}};})();
 window.dbhSfx=window.__sound=sfx;})();
