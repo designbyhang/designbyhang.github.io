@@ -45,6 +45,18 @@
     for(let i=0;i<n;i++){const dt=kalimbaTimes[i],g=i<n-1?.6*(1-.55*dt/KTOT):.6;kStrike(t0+dt,g,bus,nodes);}
     kV={g:bus,n:nodes,end:t0+kalimbaTimes[n-1]+.29};};
 
+  /* dingNote (v488, Hang's pick: single-ding #4 bright-ding-5k3, sim9.py): the notch note of every egg letter (H A N G).
+     ONE sine at hz*(1 +-0.5%), linear attack .8ms (>=.7ms or it splatters), exp ramp to .001 at DDEC*c, c = min(1, .8*ring/DDEC)
+     (ring = seconds to the next notch; Infinity for the last notes of a spin/fling, so they ring the full 100ms). Level DK*g/.6
+     (DK .032: EBU R128 loudness-matched to the gauge tick, same at 4.2-6.4kHz). The previous voice is released with
+     setTargetAtTime(0,now,.008) when the next strikes. Shares KGAP / kLast with kalimbaNote (64ms min spacing). */
+  let dV=null;const DDEC=.1,DATK=.0008,DK=.032;
+  const dingStop=()=>{if(!dV||!ac)return;const v=dV,t=ac.currentTime;dV=null;try{v.a.gain.cancelScheduledValues(t);v.a.gain.setTargetAtTime(0,t,.008);v.o.stop(t+.064);}catch(_){}};
+  const dStrike=(g,ring,hz)=>{if(!ac||mute||ac.state!=='running')return;dingStop();const at=ac.currentTime,o=ac.createOscillator(),a=ac.createGain(),
+      c=Math.min(1,.8*ring/DDEC),dd=Math.max(DATK*2,DDEC*c),pk=DK*g/.6;
+    o.type='sine';o.frequency.setValueAtTime(hz*(1+(Math.random()*2-1)*.005),at);
+    a.gain.setValueAtTime(0,at);a.gain.linearRampToValueAtTime(pk,at+DATK);a.gain.exponentialRampToValueAtTime(pk*.001,at+dd);
+    o.connect(a).connect(out);o.start(at);o.stop(at+dd+.01);dV={o,a};};
   return{count:{tick:0,land:0,tap:0,kalimba:0} /* land: clunk removed, stays 0 */,
     move(x,span){const d=Math.floor(x/(span/DET));if(lastD===null){lastD=d;return;}if(d===lastD)return;lastD=d;this.tick();},
     /* one gauge detent tick (home dial; also each Studio presentation step) */
@@ -57,5 +69,9 @@
        Returns false (no sound) when the last note was <KGAP ms ago. */
     kalimbaNote(g,ring){const n=performance.now();if(n-kLast<KGAP)return false;kLast=n;this.count.kalimbaNote=(this.count.kalimbaNote||0)+1;
       ready(()=>kStrike(ac.currentTime,g,out,null,1,Math.max(KGAP/1e3,ring||1)));return true;},
+    /* egg letters H A N G: one ding per 36deg notch (hang-wire.js kTick); g level (.6 = full), ring s to the next notch, hz the letter's pitch.
+       Returns false (no sound) when the last notch note was <KGAP ms ago. */
+    dingNote(g,ring,hz){const n=performance.now();if(n-kLast<KGAP)return false;kLast=n;this.count.dingNote=(this.count.dingNote||0)+1;
+      ready(()=>dStrike(g,Math.max(KGAP/1e3,ring||1),hz||5300));return true;},dingStop,
     kalimba(){this.count.kalimba++;kStart=null;ready(kalimbaOn);},get kalimbaStart(){return kStart;},kalimbaStop,kalimbaTimes,kalimbaProgress,get kalimbaLast(){return kalimbaTimes[kalimbaTimes.length-1];}};})();
 window.dbhSfx=window.__sound=sfx;})();
