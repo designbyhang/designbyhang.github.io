@@ -37,7 +37,9 @@ const keys=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close
   if((e.key===' '||e.key==='Enter')&&e.target.closest&&e.target.closest('.hegg-letters'))return; /* letter nav: Enter and Space pick a letter */
   if(cfg&&cfg.key&&cfg.key(e))return; /* the wire egg uses the arrows to change letters */
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(e.key)){e.preventDefault();e.stopPropagation();}}; /* page behind stays put */
-function open(c){if(ov)return;cfg=c;ret=document.activeElement;
+/* nosel (the egg, v502): nothing on the page is selectable while the egg is open (Hang: an iPhone long-press showed the blue selection handles and the Copy / Look Up / Translate callout). html.hegg-nosel (css/hang-egg.css) sets user-select, -webkit-touch-callout and the tap highlight off on everything; selectstart and contextmenu are cancelled in the capture phase while open; any selection is cleared on open. Pointer drag/fling and taps are untouched. */
+const noSel=e=>e.preventDefault(),selOff=on=>{de.classList.toggle('hegg-nosel',on);const f=on?'addEventListener':'removeEventListener';document[f]('selectstart',noSel,true);document[f]('contextmenu',noSel,true);if(on){const g=window.getSelection&&window.getSelection();if(g)g.removeAllRanges();}};
+function open(c){if(ov)return;cfg=c;ret=document.activeElement;if(c.nosel)selOff(true);
   const o=ov=document.createElement('div');o.className='hegg'+(c.cls?' '+c.cls:'');o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',c.label);
   o.innerHTML='<i class="hegg-edge hegg-edge-t" aria-hidden="true"></i><i class="hegg-edge hegg-edge-b" aria-hidden="true"></i>'+(c.stage||'')+'<div class="bar hegg-bar"><nav class="bar-right" aria-label="'+c.label+'"><a class="ax hegg-x" href="#" role="button" aria-label="Close"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
   o.querySelector('.hegg-x').addEventListener('click',e=>{e.preventDefault();close();});
@@ -80,7 +82,7 @@ function enter(o){const x=o.querySelector('.hegg-x'),clr=clrOf(x),t0=performance
   const go=()=>{FS.uiEnter(uis(o));if(cfg&&cfg.enter)cfg.enter();};
   const tick=now=>{if(ov!==o)return;const p=ease(Math.min(1,(now-t0)/DUR));if(p>=clr||p>=1)go();else requestAnimationFrame(tick);};
   requestAnimationFrame(tick);}
-function close(){if(!ov)return;const o=ov,c=inst,cf=cfg,r=ret,gw=cf.grow,p0=gw?P:1;ov=inst=null;if(grow){grow.cancel();grow=null;}if(cf.view)window.dbhView.set(null);document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
+function close(){if(!ov)return;const o=ov,c=inst,cf=cfg,r=ret,gw=cf.grow,p0=gw?P:1;ov=inst=null;if(cf.nosel)selOff(false);if(grow){grow.cancel();grow=null;}if(cf.view)window.dbhView.set(null);document.removeEventListener('keydown',keys,true);flow(false);releaseToggle();o.classList.add('is-closing');
   if(gw){o.classList.add('hegg-grow');gw.begin(false);}
   const fin=()=>{if(c)c.destroy();if(gw)gw.end(false);if(cf.done)cf.done();o.remove();if(!ov){unlock();resample();if(r&&r.focus&&document.contains(r))r.focus({preventScroll:true});else if(cf.trg)cf.trg.focus({preventScroll:true});}};
   if(reduce.matches){if(gw)gw.frame(0);fin();return;}
@@ -102,7 +104,7 @@ if(window.dbhView.get()&&'scrollRestoration' in history)history.scrollRestoratio
 if(!trg)return;
 trg.classList.add('hegg-trg');trg.tabIndex=0;trg.setAttribute('role','button');trg.setAttribute('aria-haspopup','dialog');trg.setAttribute('aria-label',trg.textContent.trim()+': play the HANG animation');
 /* full-viewport wire letters (js/hang-wire.js). The host fills the layer; H A N G is centred on the bottom row, level with the theme toggle. */
-const EGG={label:'HANG',cls:'hegg-egg',trg,view:'hang',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
+const EGG={label:'HANG',cls:'hegg-egg',nosel:true,trg,view:'hang',stage:'<div class="hegg-wire" role="img" aria-label="Wireframe letter H"></div>',
  tabs(){return inst&&inst.tabs?inst.tabs():[];},
  key(e){return !!(inst&&inst.key&&inst.key(e));},
  mount:o=>lib().then(()=>{if(ov!==o)return null;return window.HangWire.mount(o.querySelector('.hegg-wire'));})};

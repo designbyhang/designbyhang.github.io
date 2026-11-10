@@ -92,3 +92,5 @@ html[data-theme=dark] .hegg .hegg-bar{--mono-color:#cfcfcf;--ink:#f2f2f2}
 .hegg.proto-full .deck-n{position:fixed;right:auto;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;line-height:1.6}
 .hegg.proto-full .deck-n{--mono-color:#333;--ink:#171717}
 html[data-theme=dark] .hegg.proto-full .deck-n{--mono-color:#cfcfcf;--ink:#f2f2f2}
+/* the egg (js/hang-egg.js selOff, v502): nothing selectable while it is open; no long-press callout, no tap flash */
+html.hegg-nosel,html.hegg-nosel *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
