@@ -287,17 +287,23 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   if(!on){d.style.removeProperty('--fsx-t');d.style.removeProperty('--fsx-h')}d.classList.toggle('fsx-pad',on)};
  var lay=function(){var L=window.dbhLayer,el=L&&L.el,p=el&&el.querySelector('.fs-ins');if(!p||!f.classList.contains('proto-lift'))return;
   if(held){pad(false);geo=null;return}var r=fbox(),W=r.width,iw=Math.max(0,Math.min(375,W-32));p.style.width=iw+'px';
-  var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tb.getBoundingClientRect():null;
-  var lb=el.getBoundingClientRect(),vv=window.visualViewport,yb=Math.max(innerHeight,lb.bottom,vv?vv.offsetTop+vv.height:0);if(tr&&(!tr.width||tr.top<0||tr.bottom>yb+1))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
+  var cx=r.left+W/2,tb=document.querySelector('.theme-btn'),tr=tb&&tb.getClientRects().length&&getComputedStyle(tb).visibility!=='hidden'?tbox(tb):null;
+  var lb=el.getBoundingClientRect();if(tr&&(!tr.width||tr.top<0))tr=null;if(tr&&p.textContent){var w=Math.floor(2*(cx-tr.right-16));if(w<160)tr=null;else{iw=Math.min(iw,w);p.style.width=iw+'px'}}else tr=null;
   var T=p.firstChild?p.firstChild.offsetHeight:0,g=T?40:0,h=Math.max(0,Math.floor(Math.min((r.height-g-T)*828/(828+2*ROOM),828,828*W/531))),t=Math.round((r.height-h-g-T)/2);
-  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2-(innerHeight-de.clientHeight)),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*W/531)));t=ct-g-r.top-h}}
+  if(tr){var ct=Math.round(tr.top+tr.height/2-T/2),sp=ct-g-r.top;if(sp>r.height-g-T){h=Math.max(0,Math.floor(Math.min(sp*828/(828+ROOM),828,828*W/531)));t=ct-g-r.top-h}}
   pad(true,t,h);geo={t:t,h:h};p.style.top=(r.top-lb.top+t+h)+'px';p.style.paddingTop=g+'px'};
  /* the lifted iframe's layout box (position:fixed, so offsets are viewport px), not its rect: it is transformed while it grows */
- var fbox=function(){return {left:f.offsetLeft,top:f.offsetTop,width:f.offsetWidth,height:f.offsetHeight}},geo=null;
+ var fbox=function(){return {left:f.offsetLeft,top:f.offsetTop,width:f.offsetWidth,height:f.offsetHeight}},geo=null,
+ /* the theme toggle's box the same way (it is position:fixed too: one coordinate space with fbox, no transform, no visual viewport).
+    Not its client rect corrected by innerHeight - clientHeight: iOS 26 Safari changes innerHeight (the visual viewport) while its
+    toolbar settles and re-tints, e.g. after a theme toggle (js/theme.js re-sample, ~420ms) and in the first second after open, with
+    nothing on screen moving, so ct jumped ~8px and the device lost ~8px of height (1.3%) and got it back, frame to frame. A theme
+    toggle now changes no input here; the device is refitted only when the iframe's box, the toggle's own layout or the text moves. */
+ tbox=function(b){return {left:b.offsetLeft,top:b.offsetTop,width:b.offsetWidth,height:b.offsetHeight,right:b.offsetLeft+b.offsetWidth,bottom:b.offsetTop+b.offsetHeight}};
  /* re-pin: Safari's toolbar and the layer's own settle move the toggle after open, so the layout is measured again on window and
     visualViewport resize/scroll, on each frame for the first 1.2s (only when the toggle's centre or the frame's box moved), and
     when the instruction starts and ends its entrance */
- var pinK='',pinR=0,pinKey=function(){var tb=document.querySelector('.theme-btn'),a=tb?tb.getBoundingClientRect():null,r=fbox();return (a?Math.round(a.top+a.height/2):'-')+','+Math.round(r.top)+','+Math.round(r.height)+','+Math.round(r.width)},
+ var pinK='',pinR=0,pinKey=function(){var tb=document.querySelector('.theme-btn'),a=tb?tbox(tb):null,r=fbox();return (a?Math.round(a.top+a.height/2):'-')+','+Math.round(r.top)+','+Math.round(r.height)+','+Math.round(r.width)},
   repin=function(){var k=pinKey();if(k!==pinK){pinK=k;lay()}},
   pinOn=function(on){var vv=window.visualViewport;['resize','scroll'].forEach(function(n){if(vv)vv[on?'addEventListener':'removeEventListener'](n,repin)});
    (on?addEventListener:removeEventListener)('resize',repin);cancelAnimationFrame(pinR);pinR=0;pinK='';if(!on)return;
