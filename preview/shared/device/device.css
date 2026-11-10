@@ -4,3 +4,8 @@
    frame's width and geometry live with each demo's device markup. */
 :root{--bezel:#111}
 html[data-theme=dark]{--bezel:#868686}
+/* full screen (html.embed-full, set by the case page while the prototype is lifted into its layer): the bezel takes the new theme in
+   the same frame as the layer behind it, which switches instantly (css/hang-egg.css, css/proto-fs.css). With the 400ms fade the
+   bezel was still #111 on the dark #161616 layer for the first frames of a light->dark toggle, so its 8px frame vanished and the
+   phone looked ~4% smaller, then grew back as the grey faded in. Inline (case page cross-fading its own colours) keeps the fade. */
+html.embed-full .bezel-fill{transition:none}
