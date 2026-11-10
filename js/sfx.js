@@ -30,13 +30,13 @@
     try{const g=v.g.gain,cur=Math.max(g.value,1e-6);g.cancelScheduledValues(t);g.setValueAtTime(cur,t);g.linearRampToValueAtTime(0,t+f);}catch(_){}
     const wait=Math.max(16,(v.end-t)*1000+50);setTimeout(()=>{try{v.g.disconnect();}catch(_){}},wait);};
   /* one kalimba tine strike: noise click + 880Hz partials (1, 5.4, 2); g is the strike level (.6 = full) */
-  /* kChoke: the gain nodes of the last notch note. Re-striking the same tine damps it (4ms).
-     ring (s): time to the next expected note; each partial's decay is capped at half of it (KRING), so the 880Hz tone is only on between plucks
-     while a slow note still rings its full .28s. KGAP: notch notes never closer than 64ms (~15/s, below the rate where same-pitch strikes fuse
-     into one sustained "bing"); faster notches are dropped, not stacked. */
-  let kChoke=null,kLast=-1e9;const KGAP=64,KRING=.5;
+  /* kChoke: the gain nodes of the last notch note. Re-striking the same tine releases it over 24ms (KREL), a soft damp rather than a cut.
+     ring (s): time to the next expected note; each partial's decay is capped at 1x of it (KRING), so in a fast run the 880Hz tone dips ~25dB
+     between plucks while a slow note, or the last note of a spin/fling (ring = Infinity), rings its full .28s. KGAP: notch notes never closer
+     than 64ms (~15/s, below the rate where same-pitch strikes fuse into one sustained "bing"); faster notches are dropped, not stacked. */
+  let kChoke=null,kLast=-1e9;const KGAP=64,KRING=1,KREL=.024;
   const kStrike=(at,g,dst,nodes,choke,ring)=>{hit(3000,3,.25*g,.006,at,dst);
-    if(choke){if(kChoke)for(const a of kChoke){try{a.gain.cancelScheduledValues(at);a.gain.setTargetAtTime(0,at,.004/3);}catch(_){}}kChoke=[];}
+    if(choke){if(kChoke)for(const a of kChoke){try{a.gain.cancelScheduledValues(at);a.gain.setTargetAtTime(0,at,KREL/3);}catch(_){}}kChoke=[];}
     for(const[r,amp,dec]of KPARTS){const o=ac.createOscillator(),a=ac.createGain(),tau=(ring?Math.min(dec,KRING*ring):dec)/3,atk=.0008,pk=amp*.28*g*Math.exp(-atk/tau);choke&&kChoke.push(a);
       o.type='sine';o.frequency.setValueAtTime(880*r,at);
       a.gain.setValueAtTime(0,at);a.gain.linearRampToValueAtTime(pk,at+atk);a.gain.setTargetAtTime(0,at+atk,tau);
