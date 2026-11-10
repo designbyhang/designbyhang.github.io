@@ -16,22 +16,27 @@
     zapOn=(c,dst,t)=>{const s=c.createBufferSource(),lp=c.createBiquadFilter(),g=c.createGain();s.buffer=zapBuf(c);lp.type='lowpass';lp.frequency.value=5000+Math.random()*2000;lp.Q.value=.5;g.gain.value=ZAPG;s.connect(lp).connect(g).connect(dst);s.start(t);s.stop(t+s.buffer.duration+.01);},
     zap=()=>ready(()=>zapOn(ac,out,ac.currentTime));
   window.__sfxTest={zapOn,nbOf:c=>{const b=c.createBuffer(1,Math.round(c.sampleRate*.03),c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);return b;}};
-  /* kalimba spin trill (egg letter H): 21 strikes, interval 24ms -> ~280ms over 2s, last strike ~1.898s.
+  /* kalimba spin trill (egg letter H): 21 strikes, interval 24ms -> ~237ms, last strike ~1.898s.
      Shared schedule is the clock for the H letter's 2-turn yaw spin (hang-wire.js). */
   const KTOT=2,KG0=.024,KG1=.28,KPARTS=[[1,1,.28],[5.4,.2,.03],[2,.1,.05]];
   const kalimbaTimes=(()=>{const T=[];let t=0;while(t<KTOT){T.push(t);t+=KG0+(KG1-KG0)*(t/KTOT);}return T;})();
   const kalimbaProgress=t=>{if(t<=0)return 0;const last=kalimbaTimes[kalimbaTimes.length-1];if(t>=last)return 1;let i=0;while(i<kalimbaTimes.length-1&&kalimbaTimes[i+1]<=t)i++;return(i+(t-kalimbaTimes[i])/(kalimbaTimes[i+1]-kalimbaTimes[i]))/(kalimbaTimes.length-1);};
-  let kV=null;
+  /* kStart: performance.now() ms at which strike 0 is actually heard (speaker time, output latency included); null until the audio is scheduled.
+     The H spin reads this as its clock, so the yaw steps land on the strikes you hear, not on the tap (audio resume can lag the tap by 100ms+). */
+  let kV=null,kStart=null;
+  const heardAt=ct=>{try{const o=ac.getOutputTimestamp&&ac.getOutputTimestamp();if(o&&o.performanceTime>0&&o.contextTime>0)return o.performanceTime+(ct-o.contextTime)*1000;}catch(_){}
+    return performance.now()+(ct-ac.currentTime+(ac.outputLatency||ac.baseLatency||0))*1000;};
   const kalimbaStop=()=>{if(!kV||!ac)return;const v=kV,t=ac.currentTime,f=.008;kV=null;
     try{const g=v.g.gain,cur=Math.max(g.value,1e-6);g.cancelScheduledValues(t);g.setValueAtTime(cur,t);g.linearRampToValueAtTime(0,t+f);}catch(_){}
     const wait=Math.max(16,(v.end-t)*1000+50);setTimeout(()=>{try{v.g.disconnect();}catch(_){}},wait);};
-  const kalimbaOn=()=>{kalimbaStop();const bus=ac.createGain();bus.gain.value=1;bus.connect(out);const t0=ac.currentTime,n=kalimbaTimes.length,nodes=[];
-    for(let i=0;i<n;i++){const dt=kalimbaTimes[i],g=i<n-1?.6*(1-.55*dt/KTOT):.6,at=t0+dt;
-      hit(3000,3,.25*g,.006,at,bus);
-      for(const[r,amp,dec]of KPARTS){const o=ac.createOscillator(),a=ac.createGain(),tau=dec/3,atk=.0008,pk=amp*.28*g*Math.exp(-atk/tau);
-        o.type='sine';o.frequency.setValueAtTime(880*r,at);
-        a.gain.setValueAtTime(0,at);a.gain.linearRampToValueAtTime(pk,at+atk);a.gain.setTargetAtTime(0,at+atk,tau);
-        o.connect(a).connect(bus);o.start(at);o.stop(at+Math.max(dec,.28)+.01);nodes.push(o);}}
+  /* one kalimba tine strike: noise click + 880Hz partials (1, 5.4, 2); g is the strike level (.6 = full) */
+  const kStrike=(at,g,dst,nodes)=>{hit(3000,3,.25*g,.006,at,dst);
+    for(const[r,amp,dec]of KPARTS){const o=ac.createOscillator(),a=ac.createGain(),tau=dec/3,atk=.0008,pk=amp*.28*g*Math.exp(-atk/tau);
+      o.type='sine';o.frequency.setValueAtTime(880*r,at);
+      a.gain.setValueAtTime(0,at);a.gain.linearRampToValueAtTime(pk,at+atk);a.gain.setTargetAtTime(0,at+atk,tau);
+      o.connect(a).connect(dst);o.start(at);o.stop(at+Math.max(dec,.28)+.01);nodes&&nodes.push(o);}};
+  const kalimbaOn=()=>{kalimbaStop();const bus=ac.createGain();bus.gain.value=1;bus.connect(out);const t0=ac.currentTime+.008,n=kalimbaTimes.length,nodes=[];kStart=heardAt(t0);
+    for(let i=0;i<n;i++){const dt=kalimbaTimes[i],g=i<n-1?.6*(1-.55*dt/KTOT):.6;kStrike(t0+dt,g,bus,nodes);}
     kV={g:bus,n:nodes,end:t0+kalimbaTimes[n-1]+.29};};
 
   return{count:{tick:0,land:0,tap:0,kalimba:0} /* land: clunk removed, stays 0 */,
@@ -42,5 +47,7 @@
     /* easter egg: 7th+ consecutive theme toggle (counter resets after 2s idle) = broken-circuit short */
     _tg:0,_tgT:0,toggle(){const n=performance.now();if(n-this._tgT>2000)this._tg=0;this._tgT=n;this._tg++;if(this._tg<7){this.tap();return'tap';}this.count.zap=(this.count.zap||0)+1;zap();return'zap';},
     set(on){mute=!on;localStorage.setItem('dbh-sound',on?'on':'off');},get on(){return!mute;},
-    kalimba(){this.count.kalimba++;ready(kalimbaOn);},kalimbaStop,kalimbaTimes,kalimbaProgress,get kalimbaLast(){return kalimbaTimes[kalimbaTimes.length-1];}};})();
+    /* egg letter H: one strike per 36deg notch the letter's yaw passes (hang-wire.js kTick); delay spreads several notches over a frame */
+    kalimbaNote(g,delay){this.count.kalimbaNote=(this.count.kalimbaNote||0)+1;ready(()=>kStrike(ac.currentTime+(delay||0),g,out));},
+    kalimba(){this.count.kalimba++;kStart=null;ready(kalimbaOn);},get kalimbaStart(){return kStart;},kalimbaStop,kalimbaTimes,kalimbaProgress,get kalimbaLast(){return kalimbaTimes[kalimbaTimes.length-1];}};})();
 window.dbhSfx=window.__sound=sfx;})();
