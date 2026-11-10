@@ -48,9 +48,9 @@
   /* dingNote (v488, Hang's pick: single-ding #4 bright-ding-5k3, sim9.py): the notch note of every egg letter (H A N G).
      ONE sine at hz*(1 +-0.5%), linear attack .8ms (>=.7ms or it splatters), exp ramp to .001 at DDEC*c, c = min(1, .8*ring/DDEC)
      (ring = seconds to the next notch; Infinity for the last notes of a spin/fling, so they ring the full 100ms). Level DK*g/.6
-     (DK .064 since v490, +6dB at Hang's ask; was .032: EBU R128 loudness-matched to the gauge tick, same at 4.2-6.4kHz). The previous voice is released with
+     (DK .0806 since v491 = .064 +2dB; v490 .064 = .032 +6dB, both at Hang's ask; was .032: EBU R128 loudness-matched to the gauge tick, same at 4.2-6.4kHz). The previous voice is released with
      setTargetAtTime(0,now,.008) when the next strikes. Shares KGAP / kLast with kalimbaNote (64ms min spacing). */
-  let dV=null;const DDEC=.1,DATK=.0008,DK=.064;
+  let dV=null;const DDEC=.1,DATK=.0008,DK=.0806;
   const dingStop=()=>{if(!dV||!ac)return;const v=dV,t=ac.currentTime;dV=null;try{v.a.gain.cancelScheduledValues(t);v.a.gain.setTargetAtTime(0,t,.008);v.o.stop(t+.064);}catch(_){}};
   const dStrike=(g,ring,hz)=>{if(!ac||mute||ac.state!=='running')return;dingStop();const at=ac.currentTime,o=ac.createOscillator(),a=ac.createGain(),
       c=Math.min(1,.8*ring/DDEC),dd=Math.max(DATK*2,DDEC*c),pk=DK*g/.6;
