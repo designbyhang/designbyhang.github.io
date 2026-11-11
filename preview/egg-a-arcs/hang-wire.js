@@ -44,7 +44,7 @@ i0?p.lineTo(px-dy/sl*dz,py+dx/sl*dz):p.moveTo(px-dy/sl*dz,py+dx/sl*dz)
 if(u1>=len)break
 u1=Math.min(len,u1+st0*(.6+1.2*gzH(sd,ky,i0+900))),i0++}if(ch<=.03)continue
 let al0=ch*(.7+.3*gzH(sd,c,j*4+5))*(1-.8*ag)
-p.shadowColor=`rgba(${Yc},${al0})`,p.shadowBlur=6*k0,p.strokeStyle=`rgba(${Yc},${al0})`
+hLt()&&(al0=1);p.shadowColor=`rgba(${Yc},${al0})`,p.shadowBlur=hLt()?0:6*k0,p.strokeStyle=`rgba(${Yc},${al0})`
 p.stroke(),p.shadowBlur=0}}}
 /* gzElec (Hang, v503; v504 smooth + hot in light): electrons on the electric A. While the A holds charge, three streaks run along its wires: one clockwise round the front outer perimeter (up a leg, left/right across the apex, the feet and the underside of the crossbar), one anticlockwise round the back perimeter, and one up and down through the interior (the inner edges of both legs, foot -> apex -> foot, ping-pong). Perimeter lap 1200ms, interior 800ms each way. Each streak is ONE continuous path (72px of wire sampled every 3px, butt caps, round joins), stroked once per layer with a single tail->head linear gradient, so there are no per-segment alpha steps, overlapping caps or dashes (v503 drew 12 separate round-capped segments, each with its own alpha and width plus a dark #5C8A00 underlay and head on light, which read as a striped olive dash). Layers: a 2.6px (light theme 4.4px, so it swells past the 2px wire) #FFEB3B body (alpha 0 at the tail -> .22 -> .7 -> 1 at the head) with its own yellow glow (canvas shadow, blur 12px dark / 20px light), so the bloom rides the head and trail locally; a 1.2px (light 2px) hot core #FFFCE2 over the last 40% (white glow on dark, yellow glow on light); no underlay or edge on any theme (v504: yellow and glow only). Level eI = smoothstep(.2, .7, charge): they settle away as the fill cools, handing off to the lingering crackle (gZap). prefers-reduced-motion: none. Buffers are allocated once. */let geP=null,geB=null,geL=null,gex=0,gey=0,GEH=`255,252,226`,GEN=24
 const GEP=[[0,0],[276,704],[500,704],[776,0],[580,0],[543.19,102],[232.81,102],[196,0]],GEI=[[196,0],[232.81,102],[286.23,250],[388,532],[489.77,250],[543.19,102],[580,0]]
@@ -78,7 +78,7 @@ let hx=gex,hy=gey
 if(Math.hypot(hx-tx,hy-ty)<4*k0)continue
 let gb=p.createLinearGradient(tx,ty,hx,hy),gc=p.createLinearGradient(tx,ty,hx,hy)
 gb.addColorStop(0,`rgba(${Yc},0)`),gb.addColorStop(.45,`rgba(${Yc},${.22*eI})`),gb.addColorStop(.8,`rgba(${Yc},${.7*eI})`),gb.addColorStop(1,`rgba(${Yc},${eI})`)
-let GH=lt0?`240,186,0`:GEH;gc.addColorStop(0,`rgba(${GH},0)`),gc.addColorStop(.6,`rgba(${GH},0)`),gc.addColorStop(.9,`rgba(${GH},${.75*eI})`),gc.addColorStop(1,`rgba(${GH},${eI})`)
+let GH=lt0?`210,156,0`:GEH;gc.addColorStop(0,`rgba(${GH},0)`),gc.addColorStop(.6,`rgba(${GH},0)`),gc.addColorStop(.9,`rgba(${GH},${.75*eI})`),gc.addColorStop(1,`rgba(${GH},${eI})`)
 p.beginPath()
 for(let kk=0;kk<=GEN;kk++){geAt(b0,l0,m0,cl,hd-dir*tl*(1-kk/GEN))
 kk?p.lineTo(gex,gey):p.moveTo(gex,gey)}p.lineCap=`butt`,p.lineJoin=`round`
@@ -189,7 +189,7 @@ const HWD=.36;/* preview/egg-a-arcs (throwaway; Hang: "This is what we are missi
    bar), flick (a short bolt off a wire into the air). Each arc lives 80-240ms (8ms steps), its path re-randomised every 32ms (midpoint
    displacement, irregular kinks) with 0-2 fine branches. Spawn rate and count follow spin speed (hW) and the A's charge; after release they thin
    out with the live linger (gzRes x gzE) and stop. Colour = the live A's family: white-hot core GEH #FFFCE2 (~#FFFBE6) over a thin GY yellow glow
-   (two soft stroke layers, additive); light theme (Hang: like H and G, the same hues deepened, no brown): like the H (#FF7A1A -> #D9480F) the whole A deepens to a rich gold #D29C00 on light (fill, crackle, glow, electrons; electrons' hot core #F0BA00); arcs: a lighter #F4C200 core over a solid #D69E00 stroke and a soft #E2AA00 glow, saturation kept at 100%, plain source-over, never mixed toward black or grey. Ink at rest. */
+   (two soft stroke layers, additive); light theme (Hang: like H and G, the same hues deepened, no brown): like the H (#FF7A1A -> #D9480F) the whole A deepens to #D29C00 on light, and every bolt-like thing on light (arcs and branches, crackle, electron cores) is EXACTLY #D29C00 (opaque, source-over, no underlay/glow layers or shadow, so overlaps cannot darken); arcs and branches also carry the dark theme's white-hot GEH #FFFCE2 core line (same 1.1px width), which flickers. Ink at rest. */
 const AAX=18;let aaA=[],aaE=null,aaEL=null,aaL=0
 function aaLv(){return r||!t[v]||t[v].name!==`A`?0:Math.max(hH,gzRes*gzE)}
 function aaPt(P2,e,u){let[A1,B1]=P2[e];return[A1.x+(B1.x-A1.x)*u,A1.y+(B1.y-A1.y)*u]}
@@ -207,9 +207,10 @@ else if(a0.ty===1){[ax,ay]=aaPt(P2,a0.e,a0.u);[bx,by]=aaPt(P2,a0.e2,a0.u2)}
 else{[ax,ay]=aaPt(P2,a0.e,a0.u);let l2=a0.ln*.45;bx=ax+Math.cos(a0.ang)*l2,by=ay+Math.sin(a0.ang)*l2}
 let pts=aaBolt(ax,ay,bx,by,sd,rg,bolts);pts.al=(1-ag*ag)*(.75+.25*gzH(sd,1,3))
 let nb=Math.floor(gzH(sd,2,5)*2.6);for(let b=0;b<nb;b++){let i0=2+Math.floor(gzH(sd,b,9)*(pts.length-4)),[cx,cy]=pts[i0],dx=bx-ax,dy=by-ay,l0=Math.hypot(dx,dy)||1,an=Math.atan2(dy,dx)+(gzH(sd,b,11)<.5?-1:1)*(.5+.7*gzH(sd,b,12)),bl=l0*(.18+.22*gzH(sd,b,13)),bp=aaBolt(cx,cy,cx+Math.cos(an)*bl,cy+Math.sin(an)*bl,sd+b*101,.35,brs);bp.al=pts.al*.7}}
-let Yc=hWho()[0].join(`,`),LY=lt0?[[6.4,`226,170,0`,.32],[2.6,`214,158,0`,1],[1,`244,194,0`,1]]:[[5,Yc,.2],[2.6,Yc,.45],[1.1,GEH,1]]
+let Yc=hWho()[0].join(`,`),LY=[[5,Yc,.2],[2.6,Yc,.45],[1.1,GEH,1]]
 p.save(),p.globalCompositeOperation=lt0?`source-over`:`lighter`,p.lineJoin=`miter`,p.miterLimit=4,p.lineCap=`round`
-for(let[w1,c1,a1]of LY)for(let[arr,wm]of[[bolts,1],[brs,.7]])for(let q of arr){p.beginPath();q.forEach(([x,y],k)=>k?p.lineTo(x,y):p.moveTo(x,y));p.lineWidth=w1*wm*k0,p.strokeStyle=`rgba(${c1},${Math.min(1,a1*q.al*en)})`,p.stroke()}
+if(lt0){for(let[arr,wm]of[[bolts,1],[brs,.7]])for(let q of arr){p.beginPath();q.forEach(([x,y],k)=>k?p.lineTo(x,y):p.moveTo(x,y));p.lineWidth=2.6*wm*k0,p.strokeStyle=`rgb(${Yc})`,p.stroke(),p.lineWidth=1.1*wm*k0,p.strokeStyle=`rgba(${GEH},${Math.min(1,q.al*en)})`,p.stroke()}}
+else for(let[w1,c1,a1]of LY)for(let[arr,wm]of[[bolts,1],[brs,.7]])for(let q of arr){p.beginPath();q.forEach(([x,y],k)=>k?p.lineTo(x,y):p.moveTo(x,y));p.lineWidth=w1*wm*k0,p.strokeStyle=`rgba(${c1},${Math.min(1,a1*q.al*en)})`,p.stroke()}
 p.restore()}
 function hFill(y0,y1,al){if(t[v]&&t[v].name===`G`&&y1>y0)return gxFill(y0,y1,al);if(hH<=0||!hWho()||!(y1>y0))return`rgba(${ee},${al})`;let P0=hPal(),gr=p.createLinearGradient(0,y1,0,y0),F0=hH*(1+HWD);for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD));gr.addColorStop(q,`rgba(${P0[Math.round((hOp()?c*hH:c)*32)]},${al})`)}return gr}_();let v=t.findIndex(e=>e.name===(n.get(`letter`)||`A`).toUpperCase());v<0&&(v=0);let y=`idle`,b=0,x=s,S=s,C=c,E=0,D=0,O=0,k=0,A=null,j=0,M=0,N=null,P=[],F=0,I=!0,L=0,R=performance.now(),z=matchMedia(`(pointer: coarse)`).matches,ne=2.2,B=!1,V=!1,H=!1,re=0,ie=0,U=s,ae=c;function oe(){let n=t[v].name;h.forEach((e,t)=>e.setAttribute(`aria-pressed`,String(t===v))),e.setAttribute(`aria-label`,`Wireframe letter ${n}`)}function se(e){return e>=1?1:1-2**(-10*e)}function ce(){P.length=0,F=0}/* kalimba notches on the H (sound follows motion; the spin itself is untouched): one note each time the yaw passes a 36deg notch during the
    auto-spin, a drag or a release fling (not tilt). Level follows angular speed, sqrt(w/1200deg/s) capped at 1; below 60deg/s no notes, so the
