@@ -6,7 +6,7 @@ h^=h>>>15,h=Math.imul(h,739982445),h^=h>>>12,h=Math.imul(h,695607609),h^=h>>>15
 return(h>>>0)/4294967296}function gzFl(L){return hH<=.01||r||L.name!==`A`?1:1-.16*hH*gzH(Math.floor(performance.now()/24),7,7)**2}function gzInit(L){gzC=[],gzB=[],gzL=[]
 for(let r1 of L.parts)for(let yy of[-o/2,o/2]){let m0=r1.poly.length,f0=new Float32Array(m0*3)
 r1.poly.forEach(([s0,c0],k0)=>{f0[k0*3]=(s0-L.w/2)*a,f0[k0*3+1]=yy,f0[k0*3+2]=(c0-352)*a})
-gzC.push(f0),gzB.push(new Float32Array(m0*2)),gzL.push(new Float32Array(m0+1))}}/* gzDraw reach (Hang, v508): the A's crackle spikes reach 30% further off the wire (GZX, mean; each spike jittered x.85-1.15 of that), spike start jitters across 1.6 slots (was 1) and length spans 10-66px (was 16-56) so placement and length read less regular. Same spike count, odds, forks, colour, glow and timings. A only (gzDraw returns for other letters). */const GZX=1.3;function gzDraw(yw,pt,Lay){let hq=Math.max(hH,gzRes);if(hq<=.01||r||!t[v]||t[v].name!==`A`)return
+gzC.push(f0),gzB.push(new Float32Array(m0*2)),gzL.push(new Float32Array(m0+1))}}function gzDraw(yw,pt,Lay){let hq=Math.max(hH,gzRes);if(hq<=.01||r||!t[v]||t[v].name!==`A`)return
 gzC||gzInit(t[v])
 let cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt),sc=Lay.scale,k0=d.width/g,y0=1/0,y1=-1/0
 for(let c=0;c<gzC.length;c++){let f0=gzC[c],b0=gzB[c],l0=gzL[c],m0=f0.length/3
@@ -21,7 +21,7 @@ if(tot<8*k0)continue
 let ns=Math.max(1,Math.round(tot/(48*k0)))
 for(let j=0;j<ns;j++){let pr=48*(4+Math.floor(5*gzH(c,j,77))),tm=nw+8*Math.floor(gzH(c,j,78)*pr/8),sd=Math.floor(tm/pr),ag=(tm-sd*pr)/pr
 if(gzH(sd,c,j*4)>odds)continue
-let s0=((j-.3+1.6*gzH(sd,c,j*4+1))*tot/ns+tot)%tot,len=(10+56*gzH(sd,c,j*4+2))*k0*(.6+.4*hq),sd0=gzH(sd,c,j*4+3)<.5?-1:1,q=0,ch=-1,amp=0,u1=0,i0=0,ky=c*131+j
+let s0=(j+gzH(sd,c,j*4+1))*tot/ns,len=(16+40*gzH(sd,c,j*4+2))*k0*(.6+.4*hq),sd0=gzH(sd,c,j*4+3)<.5?-1:1,q=0,ch=-1,amp=0,u1=0,i0=0,ky=c*131+j
 p.beginPath()
 for(;;){let s1=s0+u1
 s1>=tot&&(s1-=tot,q>0&&s1<l0[q]&&(q=0))
@@ -29,7 +29,7 @@ for(;q<m0-1&&l0[q+1]<s1;)q++
 let j1=(q+1)%m0,dx=b0[j1*2]-b0[q*2],dy=b0[j1*2+1]-b0[q*2+1],sl=Math.hypot(dx,dy)||1,tt=Math.max(0,Math.min(1,(s1-l0[q])/sl)),px=b0[q*2]+dx*tt,py=b0[q*2+1]+dy*tt
 if(ch<0){let qy=(y1-py)/hh0;ch=Math.max(Math.max(0,Math.min(1,(F0-qy)/HWD))*hH,Math.max(0,Math.min(1,(Fp-qy)/HWD))*gzRes)
 if(ch<=.03)break
-amp=(.6+1.6*ch)*k0*GZX*(.85+.3*gzH(sd,ky,7000))}let w1=u1/(12*k0),f1=Math.floor(w1),g1=w1-f1,vn=gzH(sd,ky,f1+500),vn2=gzH(sd,ky,f1+501),sm=g1*g1*(3-2*g1),pk=gzH(sd,ky,i0),dz=(sd0*(.9+1.2*(vn+(vn2-vn)*sm))+(pk*2-1)*(pk>.82?2.2:1))*amp*Math.min(1,u1/len*3.2,(len-u1)/len*3.2)
+amp=(.6+1.6*ch)*k0}let w1=u1/(12*k0),f1=Math.floor(w1),g1=w1-f1,vn=gzH(sd,ky,f1+500),vn2=gzH(sd,ky,f1+501),sm=g1*g1*(3-2*g1),pk=gzH(sd,ky,i0),dz=(sd0*(.9+1.2*(vn+(vn2-vn)*sm))+(pk*2-1)*(pk>.82?2.2:1))*amp*Math.min(1,u1/len*3.2,(len-u1)/len*3.2)
 i0?p.lineTo(px-dy/sl*dz,py+dx/sl*dz):p.moveTo(px-dy/sl*dz,py+dx/sl*dz)
 if(u1>=len)break
 u1=Math.min(len,u1+st0*(.6+1.2*gzH(sd,ky,i0+900))),i0++}if(ch<=.03)continue
