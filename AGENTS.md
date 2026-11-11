@@ -19,6 +19,7 @@ Static portfolio site for Hang Zheng, served by GitHub Pages from `main`. Pushin
 
 - preview/egg-haang/ is a throwaway preview (H A N G: the A is the v507 preview A from local 5bf8eac — no fill, travelling yellow lines, wilder spikes), with its own copies of hang-egg.js/css and hang-wire.js. It is not a ?v slot (its files use ?v=2); delete it once Hang picks an A. Not a ?v slot (507 stays reserved for 5bf8eac; next free is in the ledger above).
 - preview/egg-a1/ is a throwaway preview (the single-line egg A: no fill, ONE rising #FFEB3B line per stroke of the A instead of v507's dense train, v507's wilder spikes; from local 4e03a5e on branch egg-a-single), with its own copies of hang-egg.js/css and hang-wire.js; opens on the A. It is not a ?v slot (its files use ?v=2); delete it once Hang decides. Main pages are untouched.
+- preview/egg-g/ is a throwaway preview (the green electric G: the v507 effect from local 5bf8eac applied to the G in green #22D35A with core #E6FFE9 — no fill, rising lines, travelling fade, wild fast-spin crackle; built in local branch egg-g-preview c5bb9d6; opens on the G), with its own copies of hang-egg.js/css and hang-wire.js. It is not a ?v slot; delete it once Hang decides on the G.
 - Don't touch pinned refs: `header.js?v=137`, the cc-proto `nav.webp?v=263`, and the Citi animation pins.
 - Other agents (Animation-Wiz for Citi animations) also push to `main`. Fetch and rebase right before pushing.
 
