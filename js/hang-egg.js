@@ -109,9 +109,12 @@ const EGG={label:'HANG',cls:'hegg-egg',nosel:true,trg,view:'hang',stage:'<div cl
  key(e){return !!(inst&&inst.key&&inst.key(e));},
  mount:o=>lib().then(()=>{if(ov!==o)return null;return window.HangWire.mount(o.querySelector('.hegg-wire'));})};
 const openEgg=()=>open(EGG);
+/* EGG_GYRO (v512, Hang 2026-11-11): gyroscope tilt is PARKED for later, so armMotion() returns at once: no iOS motion/orientation permission
+   prompt on open. To re-enable: set EGG_GYRO=true here AND in js/hang-wire.js. */
+const EGG_GYRO=false;
 /* iOS only grants motion inside the tap that opens the egg. Android needs no prompt. HangWire listens if this resolves granted. */
 const coarse=matchMedia('(pointer: coarse)');
-function armMotion(){if(!coarse.matches||reduce.matches)return;const D=window.DeviceOrientationEvent;if(!D)return;
+function armMotion(){if(!EGG_GYRO||!coarse.matches||reduce.matches)return;const D=window.DeviceOrientationEvent;if(!D)return;
   try{window.__dbhMotion=typeof D.requestPermission==='function'?D.requestPermission().catch(()=>'denied'):Promise.resolve('granted');}
   catch(_){window.__dbhMotion=Promise.resolve('denied');}}
 /* touch has no hover: while the copyright line is fully in view the © loops C -> smile -> C (css/hang-egg.css .is-smile): each step
