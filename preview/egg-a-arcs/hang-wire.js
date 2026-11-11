@@ -189,7 +189,7 @@ const HWD=.36;/* preview/egg-a-arcs (throwaway; Hang: "This is what we are missi
    bar), flick (a short bolt off a wire into the air). Each arc lives 80-240ms (8ms steps), its path re-randomised every 32ms (midpoint
    displacement, irregular kinks) with 0-2 fine branches. Spawn rate and count follow spin speed (hW) and the A's charge; after release they thin
    out with the live linger (gzRes x gzE) and stop. Colour = the live A's family: white-hot core GEH #FFFCE2 (~#FFFBE6) over a thin GY yellow glow
-   (two soft stroke layers, additive); light theme: thin dark-amber core over a yellow/amber glow so it reads on white. Ink at rest. */
+   (two soft stroke layers, additive); light theme (Hang: no brown): the same pale #FFFCE2 core over a solid saturated golden #FFCC00 stroke and a soft #FFD600 halo, plain source-over, never mixed toward black. Ink at rest. */
 const AAX=18;let aaA=[],aaE=null,aaEL=null,aaL=0
 function aaLv(){return r||!t[v]||t[v].name!==`A`?0:Math.max(hH,gzRes*gzE)}
 function aaPt(P2,e,u){let[A1,B1]=P2[e];return[A1.x+(B1.x-A1.x)*u,A1.y+(B1.y-A1.y)*u]}
@@ -207,7 +207,7 @@ else if(a0.ty===1){[ax,ay]=aaPt(P2,a0.e,a0.u);[bx,by]=aaPt(P2,a0.e2,a0.u2)}
 else{[ax,ay]=aaPt(P2,a0.e,a0.u);let l2=a0.ln*.45;bx=ax+Math.cos(a0.ang)*l2,by=ay+Math.sin(a0.ang)*l2}
 let pts=aaBolt(ax,ay,bx,by,sd,rg,bolts);pts.al=(1-ag*ag)*(.75+.25*gzH(sd,1,3))
 let nb=Math.floor(gzH(sd,2,5)*2.6);for(let b=0;b<nb;b++){let i0=2+Math.floor(gzH(sd,b,9)*(pts.length-4)),[cx,cy]=pts[i0],dx=bx-ax,dy=by-ay,l0=Math.hypot(dx,dy)||1,an=Math.atan2(dy,dx)+(gzH(sd,b,11)<.5?-1:1)*(.5+.7*gzH(sd,b,12)),bl=l0*(.18+.22*gzH(sd,b,13)),bp=aaBolt(cx,cy,cx+Math.cos(an)*bl,cy+Math.sin(an)*bl,sd+b*101,.35,brs);bp.al=pts.al*.7}}
-let Yc=GY.join(`,`),LY=lt0?[[4.2,`255,214,10`,.5],[2.2,`245,176,0`,.7],[1,`150,92,0`,.95]]:[[5,Yc,.2],[2.6,Yc,.45],[1.1,GEH,1]]
+let Yc=GY.join(`,`),LY=lt0?[[7,`255,214,0`,.38],[2.4,`255,204,0`,1],[.9,`255,252,226`,1]]:[[5,Yc,.2],[2.6,Yc,.45],[1.1,GEH,1]]
 p.save(),p.globalCompositeOperation=lt0?`source-over`:`lighter`,p.lineJoin=`miter`,p.miterLimit=4,p.lineCap=`round`
 for(let[w1,c1,a1]of LY)for(let[arr,wm]of[[bolts,1],[brs,.7]])for(let q of arr){p.beginPath();q.forEach(([x,y],k)=>k?p.lineTo(x,y):p.moveTo(x,y));p.lineWidth=w1*wm*k0,p.strokeStyle=`rgba(${c1},${Math.min(1,a1*q.al*en)})`,p.stroke()}
 p.restore()}
