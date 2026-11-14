@@ -194,7 +194,7 @@ const HWD=.36;/* preview/egg-n-glass (throwaway; Hang: "Try this instead", clear
    the light-facing side of each bar with warm amber ends, and a soft milky sheen band on the other side; drawn through a slowly travelling mask
    so the light slides along the bars during the hold. Side walls get a rounded-tube profile (dark edges, sheen and a streak in the middle).
    Sound: dbhSfx.glassTink(level), a soft clean glass ring an octave under the N ding (preview sfx.js). */
-let niF=0,niT=0,niM=0,niPk=0,niL=0,niG=null,niGL=null,niTx={}
+let niH0=0,niF=0,niT=0,niM=0,niPk=0,niL=0,niG=null,niGL=null,niTx={}
 function niOn(){return!!t[v]&&t[v].name===`N`}
 function niR(s){return()=>(s=(s*1103515245+12345)%2147483648)/2147483648}
 function niIn(P,x,y){let c=0;for(let i=0,j=P.length-1;i<P.length;j=i++){let[xi,yi]=P[i],[xj,yj]=P[j];yi>y!=yj>y&&x<(xj-xi)*(y-yi)/(yj-yi)+xi&&(c=!c)}return c}
@@ -238,15 +238,19 @@ q.restore()
 return{cv,hc,wc,M,S,Ht,E,lx,ly,sc:mk(Wd,Ht)}}};return J}
 function niGeo(L){let W=(s0,c0,yy)=>[(s0-L.w/2)*a,yy,(c0-352)*a];return{W,faces:L.parts.map(z=>[-o/2,o/2].map(yy=>z.poly.map(([s0,c0])=>W(s0,c0,yy))))}}
 /* slight 3/4 angle while set (N only; eased with niF) */
-function ngYo(){return niOn()&&niF>0?.18*niF*niF*(3-2*niF):0}
-function ngPo(){return niOn()&&niF>0?-.06*niF*niF*(3-2*niF):0}
-function niStep(){let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(niL||nw))/1e3));niL=nw
-if(!niOn()||r||i){niF=0,niM=0,niPk=0;return}
-if(hW>HW0){niPk=Math.max(niPk,hH);niM&&(niM=0,niT=0)}
-if(!niM&&niPk>=.45&&!N&&hW<Math.PI){niM=1,niT=0;let q=window.dbhSfx;q&&q.glassTink&&q.glassTink(Math.min(1,niPk));niPk=0}
-if(niM){niT+=dt;let tg=niT<.24?(x=>x*x*(3-2*x))(niT/.24):niT<1.6?1:niT<2.4?(x=>1-x*x*(3-2*x))((niT-1.6)/.8):0;niF=tg;niT>=2.4&&(niM=0,niF=0)}else niF=Math.max(0,niF-dt/.128)}
+function ngYo(){return 0}/* v3: no re-pose (Hang: it must stop in one direction, like H/A/G) */
+function ngPo(){return 0}
+function niStep(){let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(niL||nw))/1e3)),q=window.dbhSfx;niL=nw
+if(!niOn()||r||i){niF=0,niM=0,niPk=0,niH0=0;q&&q.glassSet&&q.glassSet(0);return}
+/* v3: one continuous transformation. While the N moves (drag or spin above ~180deg/s) the glass builds toward its charge share
+   min(1, hH/.45) (smoothstep), never faster than 0 -> 1 in 128ms and never down while moving, so a respin just keeps building. When it
+   stops it holds 1600ms, then thaws back to line art over 800ms (2400ms in all, 8ms multiples). The glass ring follows niF (glassSet). */
+if(N||hW>HW0*.25){let tg=Math.min(1,hH/.45);tg=tg*tg*(3-2*tg);tg>niF&&(niF=Math.min(tg,niF+dt/.128));niM=1,niT=0,niH0=niF}
+else if(niM){niT+=dt;if(niT>=1.6){let u=Math.min(1,(niT-1.6)/.8);niF=niH0*(1-u*u*(3-2*u))}niT>=2.4&&(niM=0,niF=0)}
+else niF=Math.max(0,niF-dt/.8)
+q&&q.glassSet&&q.glassSet(niF)}
 function niFill(y0,y1,al){let P0=hPal(),F0=hH*(1+HWD),ink=ee.split(`,`).map(Number),ice=hLt()?[96,102,108]:[200,204,208],m=niF*niF*(3-2*niF),gr=p.createLinearGradient(0,y1,0,y0)
-for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;gr.addColorStop(q,`rgba(${b.map((x0,i0)=>Math.round(x0+(ice[i0]-x0)*m)).join(`,`)},${al*(1-(ngOK?.86:.88)*m)})`)}return gr}
+for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;gr.addColorStop(q,`rgba(${b.map(x0=>Math.round(x0)).join(`,`)},${al*(1-(ngOK?.86:.88)*m)})`)}return gr}
 function ng2D(yw,pt,Lay,y0,y1){if(!niOn())return;let L=t[v],lt0=hLt();if(!niTx[L.name+lt0]&&!niTx.q){niTx.q=1;setTimeout(()=>{try{niTex(L,lt0,14)}catch(e){}niTx.q=0},0)}
 if(niF<=.005||!(y1>y0))return;let tx=niTex(L,lt0),k0=d.width/g,f=niF;niGL!==L&&(niG=niGeo(L),niGL=L)
 let Pj=z=>X(z,yw,pt,Lay.scale,Lay.ox,Lay.oy),FA=niG.faces.map(pr=>pr.map(fc=>fc.map(Pj))),poly=ps=>{ps.forEach((z,k)=>k?p.lineTo(z.x,z.y):p.moveTo(z.x,z.y)),p.closePath()},hf=o/2,G0=(x,y,yy)=>Pj(niG.W(x,y,yy))
@@ -271,7 +275,7 @@ p.restore()}
    (dark theme: black room with tall softbox strips + a top strip whose falloff runs amber; light theme: white room with black flags + one hot
    strip) over the refracted far faces / background, sampled per colour channel for dispersion fringes on the chamfers. "Behind" is the page
    colour plus a quarter-res grab of the egg canvas (the faint wires and trails). Shading uses a finite camera so highlights travel across flat
-   faces as the 3/4 angle eases in. The result is drawn into the 2D canvas with globalAlpha = niF. No WebGL -> the v1 2D glass (ng2D). */
+   faces as the 3/4 angle eases in. The result is drawn into the 2D canvas with globalAlpha = niF. v3: a subtle blue cast from the N's spin blue tints the body (x.55) and the reflections/fringes (x.3) before clipping, so hot highlights still blow out white. No WebGL -> the v1 2D glass (ng2D). */
 let ngS=null,ngOK=0,ngM=null,ngML=null
 function ngMesh(L){let PP=L.parts.map(z=>z.poly),inU=(x,y)=>PP.some(P=>niIn(P,x,y)),sg=[]
 for(const P of PP)for(let k=0;k<P.length;k++){let[x1,y1]=P[k],[x2,y2]=P[(k+1)%P.length],dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy);if(l<1)continue;let nx=dy/l,ny=-dx/l,mx=(x1+x2)/2,my=(y1+y2)/2;if(inU(mx+nx*3,my+ny*3)&&inU(mx-nx*3,my-ny*3))continue;sg.push([[x1,y1],[x2,y2]])}
@@ -293,7 +297,7 @@ let VS=`attribute vec3 aP;attribute vec3 aN;uniform vec4 uRot;uniform vec4 uPrj;
 void main(){float c=aP.x*uRot.x+aP.y*uRot.y,l=-aP.x*uRot.y+aP.y*uRot.x,u=aP.z,p=u*uRot.z-l*uRot.w,q=l*uRot.z+u*uRot.w;vec2 s=vec2(uPrj.y+c*uPrj.x,uPrj.z-p*uPrj.x);
 gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,-q*uPrj.x*uPrj.w,1.);float nc=aN.x*uRot.x+aN.y*uRot.y,nl=-aN.x*uRot.y+aN.y*uRot.x,nu=aN.z;
 vN=vec3(nc,nu*uRot.z-nl*uRot.w,nl*uRot.z+nu*uRot.w);vV=vec3(c,p,q)*uPrj.x;}`
-let FS=`precision highp float;uniform sampler2D uCap;uniform sampler2D uBack;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;varying vec3 vN;varying vec3 vV;
+let FS=`precision highp float;uniform sampler2D uCap;uniform sampler2D uBack;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;uniform vec3 uTi;uniform float uTb;varying vec3 vN;varying vec3 vV;
 vec3 strip(float x,float w,float I){float k=1.-smoothstep(0.,w,abs(x));return mix(vec3(1.,.48,.16),vec3(1.),smoothstep(.3,.7,k))*I*k*k;}
 vec3 env(vec3 r){float az=atan(r.x,r.z)+uSl,el=asin(clamp(r.y,-1.,1.)),tl=1.-smoothstep(.5,1.,abs(el+.1)),ab=abs(az);
 if(uLt<.5){vec3 e=vec3(.03)+vec3(.04)*smoothstep(-.3,1.,r.y);e+=vec3(1.1)*smoothstep(2.45,2.85,ab)*smoothstep(-.35,.1,el);e+=vec3(2.6)*smoothstep(2.75,3.,ab)*smoothstep(.12,.25,el)*(1.-smoothstep(.55,.75,el));
@@ -304,11 +308,11 @@ vec3 thr(vec2 uv,vec2 o){vec3 c;vec4 b;b=texture2D(uBack,uv+o);c.r=b.a>.5?b.r:bg
 void main(){vec3 N=normalize(vN),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;
 if(uPass<.5){if(N.z>0.)discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.5),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.04+.96*pow(1.-ci,5.);vec3 c;
 if(dot(Tt,Tt)<1e-4)c=env(r)*(uLt>.5?.92:.45);else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.08).g,bgAt(uv+o*1.16).b)*(1.-Fi)*vec3(.95,.96,.965)+env(r)*max(Fi,.06);}
-gl_FragColor=vec4(min(c,vec3(1.)),1.);}else{if(N.z<=0.)discard;float cs=max(dot(N,V),0.),F=.04+.96*pow(1.-cs,5.);vec3 T=refract(-V,N,1./1.5);
+c*=mix(vec3(1.),uTi,uTb*.5);gl_FragColor=vec4(min(c,vec3(1.)),1.);}else{if(N.z<=0.)discard;float cs=max(dot(N,V),0.),F=.04+.96*pow(1.-cs,5.);vec3 T=refract(-V,N,1./1.5);
 vec3 th=thr(uv,T.xy*uK*1.6)*vec3(.95,.963,.968),R=reflect(-V,N);vec3 rf=vec3(env(R+vec3(.007,0.,0.)).r,env(R).g,env(R-vec3(.007,0.,0.)).b);
-gl_FragColor=vec4(min(th*(1.-F)+rf*F,vec3(1.)),1.);}}`
+th*=mix(vec3(1.),uTi,uTb*.55);rf*=mix(vec3(1.),uTi,uTb*.3);gl_FragColor=vec4(min(th*(1.-F)+rf*F,vec3(1.)),1.);}}`
 let sh=(t0,s0)=>{let q=gl.createShader(t0);gl.shaderSource(q,s0),gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(q);return q},pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)),gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)),gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0
-let U={};for(const k of[`uRot`,`uPrj`,`uRes`,`uCap`,`uBack`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`])U[k]=gl.getUniformLocation(pr,k)
+let U={};for(const k of[`uRot`,`uPrj`,`uRes`,`uCap`,`uBack`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uTi`,`uTb`])U[k]=gl.getUniformLocation(pr,k)
 let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const[k,v0]of[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v0);return t0}
 Object.assign(ngS,{c,gl,pr,U,vb:gl.createBuffer(),tc:tx(),tb:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),cap:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 function ngGL(yw,pt,Lay,f){let S0=ngS,gl=S0.gl,L=t[v],lt0=hLt(),kq=Math.min(1,2/(d.width/g)),W=Math.max(2,Math.round(d.width*kq)),H=Math.max(2,Math.round(d.height*kq))
@@ -318,7 +322,7 @@ let cq=S0.cap.getContext(`2d`);cq.clearRect(0,0,S0.cap.width,S0.cap.height),cq.d
 gl.activeTexture(gl.TEXTURE0),gl.bindTexture(gl.TEXTURE_2D,S0.tc),gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,S0.cap),gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false)
 gl.useProgram(S0.pr);let U=S0.U,sc=Lay.scale*kq,bw=190*a*sc;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb);let aP=gl.getAttribLocation(S0.pr,`aP`),aN=gl.getAttribLocation(S0.pr,`aN`);gl.enableVertexAttribArray(aP),gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0),gl.enableVertexAttribArray(aN),gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12)
 gl.uniform4f(U.uRot,Math.cos(yw),Math.sin(yw),Math.cos(pt),Math.sin(pt)),gl.uniform4f(U.uPrj,sc,Lay.ox*kq,Lay.oy*kq,1/(2*Math.max(W,H))),gl.uniform2f(U.uRes,W,H),gl.uniform1f(U.uD,1.4*704*a*sc),gl.uniform2f(U.uK,.22*bw/W,.22*bw/H)
-gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform1i(U.uCap,0),gl.uniform1i(U.uBack,1)
+gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform3f(U.uTi,...(lt0?[.3,.52,.9]:[.56,.8,1])),gl.uniform1f(U.uTb,(lt0?.26:.75)*(.55+.45*Math.min(1,hH))),gl.uniform1i(U.uCap,0),gl.uniform1i(U.uBack,1)
 gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewport(0,0,W,H)
 gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clearColor(0,0,0,0),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
 gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE0)

@@ -83,6 +83,14 @@
      x1 / x2.32 / x4.25, 2ms attack, ring-outs 960 / 560 / 240ms, plus a 6ms high-passed contact tick; kept about 6dB under the dings. */
   const glassBuild=(c,dst,t,lv)=>{const g=c.createGain();g.gain.value=lv;g.connect(dst);[[1,.017,.96],[2.32,.0065,.56],[4.25,.0025,.24]].forEach(([m,a0,d0])=>{const o=c.createOscillator(),a=c.createGain();o.type='sine';o.frequency.setValueAtTime(2385*m,t);o.detune.setValueAtTime(m>1?6:0,t);a.gain.setValueAtTime(0,t);a.gain.linearRampToValueAtTime(a0,t+.002);a.gain.exponentialRampToValueAtTime(a0*.001,t+d0);o.connect(a).connect(g);o.start(t);o.stop(t+d0+.02);});
     const n=Math.round(c.sampleRate*.012),b=c.createBuffer(1,n,c.sampleRate),dd=b.getChannelData(0);for(let i=0;i<n;i++)dd[i]=(Math.random()*2-1)*Math.exp(-i/(c.sampleRate*.0015));const s=c.createBufferSource(),hp=c.createBiquadFilter(),ga=c.createGain();s.buffer=b;hp.type='highpass';hp.frequency.value=5200;ga.gain.value=.015;s.connect(hp).connect(ga).connect(g);s.start(t);};
+  /* glassSet(level): v3, the glass ring as a continuous layer that swells with the glass amount (no discrete hit): the same glass partials
+     (2385Hz x1 / x2.32 / x4.25, an octave under the N's 4770Hz ding) sustained with a slow 0.5Hz beat, gain ~ level^1.5, 64ms smoothing,
+     released after 1.2s of silence; ~6dB under the dings. */
+  const glassPadBuild=(c,dst)=>{const t=c.currentTime,g=c.createGain();g.gain.value=0;g.connect(dst);const os=[[1,.006,0],[2.32,.0024,4],[4.25,.001,-3]].map(([m,a0,dt])=>{const o=c.createOscillator(),a=c.createGain(),o2=c.createOscillator(),a2=c.createGain();o.frequency.value=2385*m;o.detune.value=dt;a.gain.value=a0;o.connect(a).connect(g);o2.frequency.value=.5+m*.07;a2.gain.value=a0*.35;o2.connect(a2).connect(a.gain);o.start(t);o2.start(t);return[o,o2];});
+    return{set(lv,t0){g.gain.setTargetAtTime(Math.pow(Math.max(0,Math.min(1,lv)),1.5),t0,.064);},stop(t0){os.forEach(p=>p.forEach(o=>{try{o.stop(t0)}catch(e){}}));}};};
+  let gsN=null,gsIdle=0;
+  const glassSet=lv=>{lv=mute?0:Math.max(0,Math.min(1,lv||0));if(!ac){if(lv>0)ready(()=>{});return;}const t=ac.currentTime;if(!gsN){if(lv<=0)return;gsN=glassPadBuild(ac,out);}
+    gsN.set(lv,t);if(lv>0)gsIdle=t;else if(t-gsIdle>1.2){gsN.stop(t+.3);gsN=null;}};
   const glassTink=lv=>{ready(()=>glassBuild(ac,out,ac.currentTime+.004,Math.max(.4,Math.min(1,lv))));};
   const iceFreeze=lv=>{ready(()=>iceBuild(ac,out,ac.currentTime+.004,Math.max(.3,Math.min(1,lv))));};
   return{count:{tick:0,land:0,tap:0,kalimba:0} /* land: clunk removed, stays 0 */,
@@ -101,5 +109,5 @@
        Returns false (no sound) when the last notch note was <KGAP ms ago. */
     dingNote(g,ring,hz){const n=performance.now();if(n-kLast<KGAP)return false;kLast=n;this.count.dingNote=(this.count.dingNote||0)+1;
       ready(()=>dStrike(g,Math.max(KGAP/1e3,ring||1),hz||5300));return true;},dingStop,
-    kalimba(){this.count.kalimba++;kStart=null;ready(kalimbaOn);},get kalimbaStart(){return kStart;},kalimbaStop,kalimbaTimes,kalimbaProgress,suckSet,iceFreeze,glassTink,_layers:{iceBuild,suckBuild,glassBuild},get kalimbaLast(){return kalimbaTimes[kalimbaTimes.length-1];}};})();
+    kalimba(){this.count.kalimba++;kStart=null;ready(kalimbaOn);},get kalimbaStart(){return kStart;},kalimbaStop,kalimbaTimes,kalimbaProgress,suckSet,iceFreeze,glassTink,glassSet,_layers:{iceBuild,suckBuild,glassBuild,glassPadBuild},get kalimbaLast(){return kalimbaTimes[kalimbaTimes.length-1];}};})();
 window.dbhSfx=window.__sound=sfx;})();
