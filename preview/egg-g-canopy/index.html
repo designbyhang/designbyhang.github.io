@@ -6,6 +6,18 @@
 <meta name="robots" content="noindex,nofollow">
 <!-- preview/egg-g-canopy: throwaway preview of the green G (canopy), not a ?v slot. Opens straight into the egg on the G. -->
 <script>(function(){try{var u=new URL(location.href);if(!u.searchParams.get('fs')){u.searchParams.set('fs','hang');history.replaceState(null,'',u.href)}}catch(_){}})();</script>
+<script>/* preview sound unlock (sits above html.hegg-flow's hide-everything-but-the-egg rule) (Hang 2026-11-14 10:55 "no sounds on these preview links"): previews open straight into the egg, so on an iPhone the first
+   touch is a spin (drag), and iOS Safari never counts a drag's touchend as a user gesture: Web Audio stays suspended and every ding/bed is dropped.
+   A tap does count, so on touch screens a small "Tap for sound" pill shows until audio is running (hidden when sound is turned off). Preview only. */
+(function(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;var L=window.__pvAC=[];var K=class extends C{constructor(o){super(o);L.push(this)}};window.AudioContext=K;window.webkitAudioContext=K;
+if(!(window.matchMedia&&matchMedia('(pointer:coarse)').matches))return;
+var run=function(){return L.some(function(a){return a.state==='running'})},b=null,iv=0,st=function(){var off=window.dbhSfx&&window.dbhSfx.on===false,ok=run();b&&(b.hidden=ok||off);};
+var mk=function(){var s=document.createElement('style');s.textContent='html body>button.pv-snd.pv-snd{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 64px)!important;left:50%!important;right:auto!important;bottom:auto!important;width:auto!important;height:auto!important;min-height:0!important;overflow:visible!important;visibility:visible!important;pointer-events:auto!important;margin:0!important;transform:translateX(-50%)!important;z-index:2147483000!important}.pv-snd{font-size:11px;font-weight:500;line-height:1;font-family:inherit;letter-spacing:.12em;text-transform:uppercase;padding:10px 16px;border-radius:999px;border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.72);color:#111;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);cursor:pointer;-webkit-tap-highlight-color:transparent}html body>button.pv-snd[hidden]{display:none!important}html[data-theme=dark] .pv-snd{border-color:rgba(255,255,255,.24);background:rgba(20,20,20,.6);color:#fff}';document.head.appendChild(s);
+b=document.createElement('button');b.type='button';b.className='pv-snd';b.textContent='Tap for sound';b.setAttribute('aria-label','Turn on sound');
+b.addEventListener('click',function(e){e.stopPropagation();L.forEach(function(a){a.state!=='running'&&a.resume()});setTimeout(st,120);setTimeout(st,600)});
+['pointerdown','touchstart','touchend'].forEach(function(t){b.addEventListener(t,function(e){e.stopPropagation()},{passive:true})});
+document.body.appendChild(b);st();iv=setInterval(st,500)};
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',mk):mk()}catch(_){}})();</script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
