@@ -1,0 +1,403 @@
+/* preview/egg-n-ice3d copy of js/hang-wire.js (v514 live) with only the N changed (carved blue ice slabs, WebGL; built on preview/egg-n-glass v3 109f4f7); throwaway, not a ?v slot. */
+(function(e){Object.defineProperty(e,Symbol.toStringTag,{value:`Module`});
+/* EGG_GYRO (v512, Hang 2026-11-11): gyroscope tilt-to-rotate is PARKED for later. While false nothing asks for motion/orientation permission
+   and no deviceorientation listener is added (Ce() returns at once; the mount-time auto-arm is skipped); drag spin is unaffected. The tilt code
+   (ve roll/nod mapping, ye handler, Se listener setup, Ce permission + arm) is kept intact below. To re-enable: set EGG_GYRO=true here AND in js/hang-egg.js. */
+const EGG_GYRO=false;
+var t=[{name:`H`,w:704,parts:[{poly:[[0,0],[0,704],[184,704],[184,0]],from:[0,.22,-1.5]},{poly:[[520,0],[520,704],[704,704],[704,0]],from:[0,-.22,-1.5]},{poly:[[184,278],[520,278],[520,426],[184,426]],from:[-1.9,0,.28]}]},{name:`A`,w:776,parts:[{poly:[[0,0],[276,704],[388,704],[388,532],[286.23,250],[232.81,102],[196,0]],from:[-1.15,.16,-.35]},{poly:[[776,0],[580,0],[543.19,102],[489.77,250],[388,532],[388,704],[500,704]],from:[1.15,-.16,-.35]},{poly:[[232.81,102],[543.19,102],[489.77,250],[286.23,250]],from:[0,0,-1.4]}]},{name:`N`,w:704,parts:[{poly:[[0,0],[0,704],[192,704],[184,442.89],[184,0]],from:[-.25,0,-1.45]},{poly:[[520,261.11],[520,704],[704,704],[704,0],[512,0]],from:[.25,0,-1.45]},{poly:[[192,704],[520,261.11],[512,0],[184,442.89]],from:[0,.55,1.2]}]},{name:`G`,w:744,parts:[{poly:[[624,0],[612.47,34.59],[598.29,27.54],[579.45,19.38],[559.67,12.12],[539,5.78],[517.44,.38],[495.02,-4.06],[471.67,-7.52],[447.29,-10.01],[421.5,-11.5],[392,-12],[353.52,-11.34],[322.71,-9.35],[294.45,-6.04],[267.92,-1.42],[242.79,4.51],[218.92,11.72],[196.22,20.2],[174.68,29.94],[154.29,40.91],[135.06,53.09],[117,66.45],[100.13,80.98],[84.49,96.64],[70.1,113.41],[56.98,131.27],[45.17,150.21],[34.68,170.21],[25.54,191.28],[17.78,213.45],[11.4,236.78],[6.42,261.42],[2.86,287.66],[.71,316.26],[0,352],[.71,387.74],[2.86,416.34],[6.42,442.58],[11.4,467.22],[17.78,490.55],[25.54,512.72],[34.68,533.79],[45.17,553.79],[56.98,572.73],[70.1,590.59],[84.49,607.36],[100.13,623.02],[117,637.55],[135.06,650.91],[154.29,663.09],[174.68,674.06],[196.22,683.8],[218.92,692.28],[242.79,699.49],[267.92,705.42],[294.45,710.04],[322.71,713.35],[353.52,715.34],[392,716],[421.5,715.5],[447.29,714.01],[471.67,711.52],[495.02,708.06],[517.44,703.62],[539,698.22],[559.67,691.88],[579.45,684.62],[598.29,676.46],[616.17,667.42],[633.05,657.53],[648.87,646.81],[663.6,635.31],[677.2,623.04],[689.63,610.03],[700.85,596.33],[710.84,581.94],[719.55,566.91],[726.98,551.23],[733.08,534.92],[737.85,517.94],[741.26,500.21],[743.31,481.45],[744,460],[560,460],[559.66,468.04],[558.63,475.53],[556.92,482.77],[554.54,489.81],[551.5,496.64],[547.8,503.26],[543.46,509.66],[538.49,515.81],[532.92,521.7],[526.76,527.32],[520.04,532.64],[512.77,537.64],[504.99,542.31],[496.72,546.63],[487.99,550.59],[478.82,554.17],[469.25,557.37],[459.3,560.16],[449,562.53],[438.37,564.49],[427.43,566.02],[416.16,567.12],[404.51,567.78],[392,568],[373.7,567.6],[358.63,566.39],[344.68,564.39],[331.49,561.59],[318.95,558],[306.98,553.63],[295.58,548.49],[284.73,542.6],[274.43,535.97],[264.7,528.62],[255.55,520.55],[247,511.8],[239.05,502.37],[231.74,492.29],[225.06,481.56],[219.04,470.22],[213.7,458.26],[209.04,445.69],[205.08,432.51],[201.82,418.68],[199.28,404.15],[197.46,388.77],[196.37,372.16],[196,352],[196.37,331.84],[197.46,315.23],[199.28,299.85],[201.82,285.32],[205.08,271.49],[209.04,258.31],[213.7,245.74],[219.04,233.78],[225.06,222.44],[231.74,211.71],[239.05,201.63],[247,192.2],[255.55,183.45],[264.7,175.38],[274.43,168.03],[284.73,161.4],[295.58,155.51],[306.98,150.37],[318.95,146],[331.49,142.41],[344.68,139.61],[358.63,137.61],[373.7,136.4],[392,136],[404.51,136.22],[416.16,136.88],[427.43,137.98],[438.37,139.51],[449,141.47],[459.3,143.84],[469.25,146.63],[478.82,149.83],[487.99,153.41],[496.72,157.37],[504.99,161.69],[512.77,166.36],[520.04,171.36],[526.76,176.68],[532.92,182.3],[538.49,188.19],[543.46,194.34],[547.8,200.74],[551.5,207.36],[554.54,214.19],[556.92,221.22],[558.63,228.47],[559.66,235.96],[560,244],[624,244]],from:[-.35,-.2,.9]},{poly:[[368,244],[368,392],[744,392],[744,244]],from:[1.7,0,.12]},{poly:[[624,0],[744,0],[744,244],[624,244]],from:[.3,.2,-1.3]}]}],n=new URLSearchParams(location.search),r=matchMedia(`(prefers-reduced-motion: reduce)`).matches,i=n.has(`still`),a=2.62/704,o=160*a,s=Number(n.get(`yaw`)??.58),c=Number(n.get(`pitch`)??.22),l=2.5;function u(e){let t=e.trim();if(t.startsWith(`#`)){let e=t.slice(1);if(e.length===3&&(e=e.split(``).map(e=>e+e).join(``)),e.length>=6)return`${parseInt(e.slice(0,2),16)},${parseInt(e.slice(2,4),16)},${parseInt(e.slice(4,6),16)}`}let n=t.match(/rgba?\(([^)]+)\)/);if(n){let e=n[1].split(`,`).map(e=>e.trim());return`${e[0]},${e[1]},${e[2]}`}return`242,242,242`}function d(e){let d=document.createElement(`canvas`),f=d.getContext(`2d`);if(!f)return{destroy(){},tabs:()=>[],key:()=>!1};let p=f,m=document.createElement(`nav`);m.className=`hegg-letters`,m.setAttribute(`aria-label`,`Letters`);let h=t.map((e,t)=>{let n=document.createElement(`button`);return n.type=`button`,n.textContent=e.name,n.dataset.letter=String(t),m.appendChild(n),n});e.append(d,m);let ee=`242,242,242`,pg=`17,17,17`,g=1,te=1;function _(){let cs=getComputedStyle(document.documentElement);ee=u(cs.getPropertyValue(`--ink`)||`#f2f2f2`),pg=u(cs.getPropertyValue(`--page`)||`#111`),hP=null}/* Heat / cold (Hang): a hard, fast drag or fling colours the letter's outline from --ink through a mid stop to a full stop, then cools as the spin slows. H (v510 flame): ink to ember #E8551E -> #FF7A1A (light #B3261E -> #D9480F), only past a very high spin, see v510 below. A (v502, electric): ONE colour, Yellow GY #FFEB3B, in both themes, expressed by opacity: at level f = local fill c x charge hH the line is (ink crossfading to the lighter of ink / --page over f 0..32%) x (1-f) + #FFEB3B x f, so it never mixes with near-black ink (no olive) and reads as a translucent then solid yellow; full charge is solid #FFEB3B and the cool-down fades it back to plain ink; no underlay or dark edge on any theme (v504: yellow and glow only); a soft yellow glow (hGlow: canvas shadow, blur 4+14px x g, alpha .85 x g, g = max(hH, half the residual crackle level)) on the main pose only; plus the crackle (gZap, A only). N (v502, cold): icy blue #8FD0FF to deep blue #2F6FE0. G (v502 green, retired in v511): the G no longer uses this fill; hFill hands it to gxFill (galaxy G block). Driven only by user-imparted yaw speed (drag N / fling A; the auto-spin of a tap or the egg open never colours). Speed is smoothed over 64ms; the fill aims at smoothstep((w-HW0)/(HW1-HW0)) (HW0 720deg/s, HW1 1800deg/s) and lags it: rises with a 400ms time constant, cools with 800ms, so only sustained speed colours. Colours are interpolated in OKLCH (hP: 33-step palette per letter, rebuilt on theme or letter change) and fill the letter bottom-up (hFill); no glow (a uniform halo fights the rising fill). Hidden ?fill=0..1 locks the level for previews. Spin physics and sound untouched. */let hP=null,hH=0,hW=0,hS=null,hL=null;const GY=[235,255,31],HW0=Math.PI*4,HW1=Math.PI*10,hLock=n.has(`fill`)?Math.max(0,Math.min(1,Number(n.get(`fill`)))):null,hCols={H:[[232,85,30],[255,122,26]],A:[GY],N:[[143,208,255],[47,111,224]],G:[[178,140,255],[152,106,250]]};function hLt(){return ee.split(`,`).reduce((a0,b0)=>a0+ +b0,0)<=384}function hGlow(L,o0){if(L.name===`G`){if(gxC<=.01)return 0;let lt0=hLt();p.shadowColor=lt0?`rgba(112,62,200,${Math.min(1,.6*gxC)})`:`rgba(168,120,255,${Math.min(1,.95*gxC)})`,p.shadowBlur=(lt0?3+9*gxC:4+18*gxC)*o0;return 1}let gq=Math.max(hH,gzRes*.5);if(gq<=.01||r||L.name!==`A`)return 0;p.shadowColor=`rgba(${hWho()[0].join(`,`)},${Math.min(1,.85*gq)})`,p.shadowBlur=(4+14*gq)*o0;return 1}function hOp(){let c0=hWho();return!!c0&&c0.length===1}function hWho(){return t[v]&&(t[v].name===`H`&&hLt()?[[179,38,30],[217,72,15]]:t[v].name===`A`&&hLt()?[[235,255,31]]:hCols[t[v].name])}function hLin(c){c/=255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4}function hGam(c){c=c<=.0031308?12.92*c:1.055*c**(1/2.4)-.055;return Math.round(Math.max(0,Math.min(1,c))*255)}function hOk(rgb){let[r0,g0,b0]=rgb.map(hLin),l=Math.cbrt(.4122214708*r0+.5363325363*g0+.0514459929*b0),m=Math.cbrt(.2119034982*r0+.6806995451*g0+.1073969566*b0),q=Math.cbrt(.0883024619*r0+.2817188376*g0+.6299787005*b0),L=.2104542553*l+.793617785*m-.0040720468*q,A2=1.9779984951*l-2.428592205*m+.4505937099*q,B2=.0259040371*l+.7827717662*m-.808675766*q;return[L,Math.hypot(A2,B2),Math.atan2(B2,A2)]}function hRgb([L,Cc,hh]){let A2=Cc*Math.cos(hh),B2=Cc*Math.sin(hh),l=(L+.3963377774*A2+.2158037573*B2)**3,m=(L-.1055613458*A2-.0638541728*B2)**3,q=(L-.0894841775*A2-1.291485548*B2)**3;return[hGam(4.0767416621*l-3.3077115913*m+.2309699292*q),hGam(-1.2684380046*l+2.6097574011*m-.3413193965*q),hGam(-.0041960863*l-.7034186147*m+1.707614701*q)].join(`,`)}function hMix(a,b,f){let h1=a[2],h2=b[2];a[1]<.02&&(h1=h2),b[1]<.02&&(h2=h1);let dh=Math.atan2(Math.sin(h2-h1),Math.cos(h2-h1));return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,h1+dh*f]}function hPal(){if(hP)return hP;let col=hWho();if(!col)return hP=[];let e0=ee.split(`,`).map(Number);if(col.length===1){let b1=pg.split(`,`).map(Number),sm0=x0=>x0.reduce((a0,b0)=>a0+b0,0);sm0(e0)>sm0(b1)&&(b1=e0);hP=[];for(let k=0;k<=32;k++){let f=k/32,x1=Math.min(1,f/.32),s1=x1*x1*(3-2*x1);hP.push(e0.map((c0,k0)=>Math.round((c0+(b1[k0]-c0)*s1)*(1-f)+col[0][k0]*f)).join(`,`))}return hP}let i0=hOk(e0),g0=hOk(col[0]),r0=hOk(col[1]);hP=[];for(let k=0;k<=32;k++){let f=k/32;hP.push(hRgb(f<.5?hMix(i0,g0,f*2):hMix(g0,r0,f*2-1)))}return hP}function hStep(dt){if(hL!==v){hH=0,hW=0,hS=null,hP=null,hL=v,gzPk=0,gzT=0,gzRes=0,gzM=0,gzE=1,gzOff=0}if(hLock!=null){hH=hWho()?hLock:0,gzPk=0,gzRes=0,gzM=0,gzE=1,gzOff=0;return}let src=!!hWho()&&(N||A)&&!r&&!i;if(hS==null||!src){hW+=(0-hW)*(1-Math.exp(-dt/.064))}else{let w=Math.abs(S-hS)/Math.max(.001,dt);hW+=(w-hW)*(1-Math.exp(-dt/.064))}hS=S;let x0=Math.max(0,Math.min(1,(hW-HW0)/(HW1-HW0))),tg=x0*x0*(3-2*x0);tg=hfTg(tg);hWho()||(hH=0,tg=0);gzMs(tg,dt);hH+=(tg-hH)*(1-Math.exp(-dt/(tg>hH?(hfH()?.24:.4):(hfH()?.56:.8))));hH<.002&&tg===0&&(hH=0)
+if(hH>0&&hH>=gzPk&&!gzOff){gzPk=hH,gzT=0,gzE=1,gzRes=GZR*Math.sqrt(hH)}else if(gzPk>0){gzT+=dt;let tf=Math.round(Math.max(0,GZH*Math.log(gzPk/.06))*125)/125;gzLp=Math.min(1,gzT/(tf+GZF));let e1=gzT<tf?1:1-(gzT-tf)/GZF;e1<=0?(gzPk=0,gzT=0,gzRes=0,gzE=0,gzOff=1):(gzE=e1,gzRes=GZR*Math.sqrt(gzPk)*e1)}}/* hFill: the colour rises from the bottom of the letter on screen (screen-down, like a flame or a frost line, whatever the yaw/pitch): a vertical gradient over the pose's own screen extent (y0 top .. y1 bottom). Front F = hH*(1+HWD); at height q (0 bottom, 1 top) the palette position is clamp((F-q)/HWD): ink above the front, an 18% soft edge ink -> mid, then mid -> full below it, so the bottom is the strongest; at full the whole letter is the full stop. *//* gZap (Hang; v497 on G, moved to A in v502): the electric A crackles. Only the A, only while it holds charge, drawn over the main stroke in the main pose (not the trails). Each of the A's face outlines (3 parts x front/back) is walked by arc length in screen space; every 48px slot may carry one short crackle trace (16-56px, longer with charge) that leaps off one side of the wire and lands back on it: a 1px polyline with mitred (pointy) joins, sampled at irregular 1.8-5.4px steps, its offset a 12px value-noise wander plus jitter with an occasional 2.2x spike, ramping in and out over the first and last 31% of its length. Each slot has its own life of 192-384ms (48ms x 4..8, phase offset in 8ms steps) during which its shape holds still and its opacity decays 1 -> .2. Colour: the yellow at alpha = level x .7..1 flicker x decay, with a 6px yellow shadow. Level = max(local fill x hH, local peak fill x gzRes). Linger (v502): gzRes is the crackle's own envelope: GZR .8 x sqrt(peak charge) from the moment the charge peaks, held until the fill has visibly gone (tf = .8s x ln(peak/.06), rounded to 8ms) and then faded linearly over GZF 1000ms to 0 [v509: hold tf = .32s x ln(peak/.06), fade GZF 384ms, about half the old linger; the linger is patchy, see gzMs], over the parts the fill had reached at its peak; so the crackle outlasts the yellow by about 1s and is the last thing to go; at rest it is 0. The A's own stroke flickers too (opacity dips up to 16% x charge, every 24ms). prefers-reduced-motion: no charge, no crackle, no glow (static). Buffers are allocated once. */let gzC=null,gzB=[],gzL=[],gzPk=0,gzT=0,gzRes=0,gzM=0,gzLp=0,gzSd=0,gzE=1,gzOff=0
+const GZR=.8,GZF=.384,GZH=.32,gzS=new Float32Array(20)
+/* v509 patchy linger (Hang): once the charge cools (target below 80% of the fill), the crackle eases over 192ms (back over 128ms if the spin picks up again) from the even v506 spread to a few random hot spots picked per release (seed from Math.random at each new cool-down): 2-3 spots, each on the left leg, right leg or (12%) the crossbar, leg odds skewed per release to 15-40% / 60-85% one side so it is never symmetric, on the front face, back face or both, centred at a random point of that outline with a 7-17% radius, the first lasting the whole linger and the others dropping out at their own point (40-100%) of it. Slots outside the spots stop crackling; in the spots the v506 traces carry on unchanged. The linger envelope (gzE: 1 through the hold, then down to 0 over GZF) now scales the whole crackle, the still-cooling fill's share too, and once it reaches 0 the crackle stays off (gzOff) until the spin charges the A again, so it ends with the envelope instead of restarting on the leftover fill. */
+function gzMs(tg,dt){let cool=tg<hH*.8||tg===0&&hH>0,up=tg>hH*1.05+.02;up&&(gzOff=0,gzE=1);if(!(gzPk>0||hH>0)){gzM=0,gzOff=0,gzE=1;return}if(cool){if(gzM===0){gzSd=Math.floor(Math.random()*1e9);let lw=gzH(gzSd,1,1)<.5?.15+.25*gzH(gzSd,1,2):.6+.25*gzH(gzSd,1,2),nh=2+(gzH(gzSd,1,3)<.5?1:0);for(let k=0;k<4;k++){let b=k*5,fc=gzH(gzSd,k,12);gzS[b]=gzH(gzSd,k,10)<.12?2:gzH(gzSd,k,11)<lw?0:1,gzS[b+1]=fc<.4?1:fc<.8?2:3,gzS[b+2]=gzH(gzSd,k,13),gzS[b+3]=k<nh?.07+.1*gzH(gzSd,k,14):0,gzS[b+4]=k===0?1:.4+.6*gzH(gzSd,k,15)}}gzM=Math.min(1,gzM+dt/.192)}else if(up)gzM=Math.max(0,gzM-dt/.128)}
+function gzW(c,u){if(gzM<=0)return 1;let w=0;for(let k=0;k<4;k++){let b=k*5,rr=gzS[b+3];if(rr<=0||(c>>1)!==gzS[b]||!(gzS[b+1]&(1<<(c&1))))continue;let dd=Math.abs(u-gzS[b+2]);dd=Math.min(dd,1-dd)/rr;if(dd>=1)continue;w=Math.max(w,(1-dd*dd)*Math.max(0,Math.min(1,(gzS[b+4]-gzLp)/.12)))}return 1-gzM+gzM*w}
+function gzH(a0,b0,c0){let h=Math.imul(a0^2654435769,2246822507)^Math.imul(b0+1663821227,3266489909)^Math.imul(c0+668265263,374761393)
+h^=h>>>15,h=Math.imul(h,739982445),h^=h>>>12,h=Math.imul(h,695607609),h^=h>>>15
+return(h>>>0)/4294967296}function gzFl(L){return hH<=.01||r||L.name!==`A`?1:1-.16*hH*gzH(Math.floor(performance.now()/24),7,7)**2}function gzInit(L){gzC=[],gzB=[],gzL=[]
+for(let r1 of L.parts)for(let yy of[-o/2,o/2]){let m0=r1.poly.length,f0=new Float32Array(m0*3)
+r1.poly.forEach(([s0,c0],k0)=>{f0[k0*3]=(s0-L.w/2)*a,f0[k0*3+1]=yy,f0[k0*3+2]=(c0-352)*a})
+gzC.push(f0),gzB.push(new Float32Array(m0*2)),gzL.push(new Float32Array(m0+1))}}function gzDraw(yw,pt,Lay){let hq=Math.max(hH,gzRes);if(hq<=.01||gzE<=0||r||!t[v]||t[v].name!==`A`)return
+gzC||gzInit(t[v])
+let cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt),sc=Lay.scale,k0=d.width/g,y0=1/0,y1=-1/0
+for(let c=0;c<gzC.length;c++){let f0=gzC[c],b0=gzB[c],l0=gzL[c],m0=f0.length/3
+for(let q=0;q<m0;q++){let x0=f0[q*3],z0=f0[q*3+1],u0=x0*cy+z0*sy,w0=-x0*sy+z0*cy,yy=Lay.oy-(f0[q*3+2]*cp-w0*sp)*sc
+b0[q*2]=Lay.ox+u0*sc,b0[q*2+1]=yy,yy<y0&&(y0=yy),yy>y1&&(y1=yy)}l0[0]=0
+for(let q=0;q<m0;q++){let j0=(q+1)%m0
+l0[q+1]=l0[q]+Math.hypot(b0[j0*2]-b0[q*2],b0[j0*2+1]-b0[q*2+1])}}if(!(y1>y0))return
+let cw=hWho(),Yc=(cw.length===1?cw[0]:hLt()?cw[1]:cw[0]).join(`,`),F0=hH*(1+HWD),Fp=gzPk*(1+HWD),nw=performance.now(),hh0=y1-y0,odds=.3+.55*hq,st0=3*k0
+p.lineWidth=k0,p.lineJoin=`miter`,p.miterLimit=6,p.lineCap=`butt`
+for(let c=0;c<gzC.length;c++){let b0=gzB[c],l0=gzL[c],m0=l0.length-1,tot=l0[m0]
+if(tot<8*k0)continue
+let ns=Math.max(1,Math.round(tot/(48*k0)))
+for(let j=0;j<ns;j++){let pr=48*(4+Math.floor(5*gzH(c,j,77))),tm=nw+8*Math.floor(gzH(c,j,78)*pr/8),sd=Math.floor(tm/pr),ag=(tm-sd*pr)/pr
+if(gzH(sd,c,j*4)>odds)continue
+let s0=(j+gzH(sd,c,j*4+1))*tot/ns,len=(16+40*gzH(sd,c,j*4+2))*k0*(.6+.4*hq),sd0=gzH(sd,c,j*4+3)<.5?-1:1,wq=gzW(c,s0/tot),q=0,ch=-1,amp=0,u1=0,i0=0,ky=c*131+j
+p.beginPath()
+for(;;){let s1=s0+u1
+s1>=tot&&(s1-=tot,q>0&&s1<l0[q]&&(q=0))
+for(;q<m0-1&&l0[q+1]<s1;)q++
+let j1=(q+1)%m0,dx=b0[j1*2]-b0[q*2],dy=b0[j1*2+1]-b0[q*2+1],sl=Math.hypot(dx,dy)||1,tt=Math.max(0,Math.min(1,(s1-l0[q])/sl)),px=b0[q*2]+dx*tt,py=b0[q*2+1]+dy*tt
+if(ch<0){let qy=(y1-py)/hh0;ch=Math.max(Math.max(0,Math.min(1,(F0-qy)/HWD))*hH,Math.max(0,Math.min(1,(Fp-qy)/HWD))*gzRes)
+ch*=wq*gzE
+if(ch<=.03)break
+amp=(.6+1.6*ch)*k0}let w1=u1/(12*k0),f1=Math.floor(w1),g1=w1-f1,vn=gzH(sd,ky,f1+500),vn2=gzH(sd,ky,f1+501),sm=g1*g1*(3-2*g1),pk=gzH(sd,ky,i0),dz=(sd0*(.9+1.2*(vn+(vn2-vn)*sm))+(pk*2-1)*(pk>.82?2.2:1))*amp*Math.min(1,u1/len*3.2,(len-u1)/len*3.2)
+i0?p.lineTo(px-dy/sl*dz,py+dx/sl*dz):p.moveTo(px-dy/sl*dz,py+dx/sl*dz)
+if(u1>=len)break
+u1=Math.min(len,u1+st0*(.6+1.2*gzH(sd,ky,i0+900))),i0++}if(ch<=.03)continue
+let al0=ch*(.7+.3*gzH(sd,c,j*4+5))*(1-.8*ag)
+p.shadowColor=`rgba(${Yc},${al0})`,p.shadowBlur=hLt()?0:6*k0,p.strokeStyle=`rgba(${Yc},${al0})`
+p.stroke(),p.shadowBlur=0}}}
+/* gzElec (Hang, v503; v504 smooth + hot in light): electrons on the electric A. While the A holds charge, three streaks run along its wires: one clockwise round the front outer perimeter (up a leg, left/right across the apex, the feet and the underside of the crossbar), one anticlockwise round the back perimeter, and one up and down through the interior (the inner edges of both legs, foot -> apex -> foot, ping-pong). Perimeter lap 1200ms, interior 800ms each way. Each streak is ONE continuous path (72px of wire sampled every 3px, butt caps, round joins), stroked once per layer with a single tail->head linear gradient, so there are no per-segment alpha steps, overlapping caps or dashes (v503 drew 12 separate round-capped segments, each with its own alpha and width plus a dark #5C8A00 underlay and head on light, which read as a striped olive dash). Layers: a 2.6px (light theme 4.4px, so it swells past the 2px wire) #FFEB3B body (alpha 0 at the tail -> .22 -> .7 -> 1 at the head) with its own yellow glow (canvas shadow, blur 12px dark / 20px light), so the bloom rides the head and trail locally; a 1.2px (light 2px) hot core #FFFCE2 over the last 40% (white glow on dark, yellow glow on light); no underlay or edge on any theme (v504: yellow and glow only). Level eI = smoothstep(.2, .7, charge): they settle away as the fill cools, handing off to the lingering crackle (gZap). prefers-reduced-motion: none. Buffers are allocated once. */let geP=null,geB=null,geL=null,gex=0,gey=0,GEH=`249,255,227`,GEN=24
+const GEP=[[0,0],[276,704],[500,704],[776,0],[580,0],[543.19,102],[232.81,102],[196,0]],GEI=[[196,0],[232.81,102],[286.23,250],[388,532],[489.77,250],[543.19,102],[580,0]]
+function geLvl(){let x2=Math.max(0,Math.min(1,(hH-.2)/.5));return r||!t[v]||t[v].name!==`A`?0:x2*x2*(3-2*x2)}function geInit(L){geP=[],geB=[],geL=[]
+for(let[P2,yy]of[[GEP,-o/2],[GEP,o/2],[GEI,-o/2]]){let f0=new Float32Array(P2.length*3)
+P2.forEach(([s0,c0],k0)=>{f0[k0*3]=(s0-L.w/2)*a,f0[k0*3+1]=yy,f0[k0*3+2]=(c0-352)*a})
+geP.push(f0),geB.push(new Float32Array(P2.length*2)),geL.push(new Float32Array(P2.length+1))}}function geAt(b0,l0,m0,cl,s1){let tot=l0[cl?m0:m0-1]
+s1=cl?((s1%tot)+tot)%tot:Math.max(0,Math.min(tot,s1))
+let q=0
+for(;q<m0-1&&l0[q+1]<s1;)q++
+let j1=cl?(q+1)%m0:Math.min(m0-1,q+1),sl=l0[q+1]-l0[q]||1,tt=Math.max(0,Math.min(1,(s1-l0[q])/sl))
+gex=b0[q*2]+(b0[j1*2]-b0[q*2])*tt,gey=b0[q*2+1]+(b0[j1*2+1]-b0[q*2+1])*tt}function gzElec(yw,pt,Lay){let eI=geLvl()
+if(eI<=.01)return
+geP||geInit(t[v])
+let cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt),sc=Lay.scale,k0=d.width/g,nw=performance.now(),Yc=hWho()[0].join(`,`),lt0=hLt()
+p.lineCap=`round`,p.lineJoin=`round`
+for(let c=0;c<3;c++){let f0=geP[c],b0=geB[c],l0=geL[c],m0=f0.length/3,cl=c<2
+for(let q=0;q<m0;q++){let x0=f0[q*3],z0=f0[q*3+1],u0=x0*cy+z0*sy,w0=-x0*sy+z0*cy
+b0[q*2]=Lay.ox+u0*sc,b0[q*2+1]=Lay.oy-(f0[q*3+2]*cp-w0*sp)*sc}l0[0]=0
+for(let q=0;q<m0;q++){let j0=cl?(q+1)%m0:Math.min(m0-1,q+1)
+l0[q+1]=l0[q]+Math.hypot(b0[j0*2]-b0[q*2],b0[j0*2+1]-b0[q*2+1])}let tot=l0[cl?m0:m0-1]
+if(tot<8)continue
+let hd,dir
+if(cl){let ph=(nw%1200)/1200
+hd=(c===0?ph:1-ph)*tot,dir=c===0?1:-1}else{let ph=(nw%1600)/1600
+hd=(ph<.5?ph*2:2-ph*2)*tot,dir=ph<.5?1:-1}let tl=72*k0
+geAt(b0,l0,m0,cl,hd-dir*tl)
+let tx=gex,ty=gey
+geAt(b0,l0,m0,cl,hd)
+let hx=gex,hy=gey
+if(Math.hypot(hx-tx,hy-ty)<4*k0)continue
+let gb=p.createLinearGradient(tx,ty,hx,hy),gc=p.createLinearGradient(tx,ty,hx,hy)
+gb.addColorStop(0,`rgba(${Yc},0)`),gb.addColorStop(.45,`rgba(${Yc},${.22*eI})`),gb.addColorStop(.8,`rgba(${Yc},${.7*eI})`),gb.addColorStop(1,`rgba(${Yc},${eI})`)
+let GH=lt0?`235,255,31`:GEH;gc.addColorStop(0,`rgba(${GH},0)`),gc.addColorStop(.6,`rgba(${GH},0)`),gc.addColorStop(.9,`rgba(${GH},${.75*eI})`),gc.addColorStop(1,`rgba(${GH},${eI})`)
+p.beginPath()
+for(let kk=0;kk<=GEN;kk++){geAt(b0,l0,m0,cl,hd-dir*tl*(1-kk/GEN))
+kk?p.lineTo(gex,gey):p.moveTo(gex,gey)}p.lineCap=`butt`,p.lineJoin=`round`
+p.shadowColor=`rgba(${Yc},${Math.min(1,1.1*eI)})`,p.shadowBlur=(lt0?20:12)*k0,p.lineWidth=(lt0?4.4:2.6)*k0,p.strokeStyle=gb,p.stroke()
+p.shadowBlur=(lt0?8:4)*k0,p.shadowColor=`rgba(${lt0?Yc:GEH},${eI})`,p.lineWidth=(lt0?2:1.2)*k0,p.strokeStyle=gc,p.stroke(),p.shadowBlur=0}}
+/* v510 flame H (Hang, 2026-11-11; shipped from preview/egg-h-flame c4861df): the H rests in plain ink and stays ink at normal speeds. It ignites only past HF_ON 2160deg/s of smoothed user yaw speed (hW; hard fast fling or drag) and goes out below HF_OFF 1800deg/s (hysteresis, so it never flickers at the threshold); unlit there is no heat at all. Lit, the charge aims at max(.12, smoothstep((hW-HF_OFF)/(HF1-HF_OFF))), HF1 3600deg/s, rising with a 240ms time constant and cooling with 560ms, so the H is back to ink ~1.6s after the speed drops. The stroke heats bottom-up (hFill) from ink to ember: dark #E8551E -> #FF7A1A, light (deeper) #B3261E -> #D9480F. On top: a tight glow, a patchy corona and spark streaks (hmMol, hfCor below). No fill inside the outline; the H never distorts; prefers-reduced-motion / ?still: none. */
+const HF_ON=Math.PI*12,HF_OFF=Math.PI*10,HF1=Math.PI*20;let hfIg=0,hfE=null,hfW=null,hfWt=0
+function hfH(){return!!t[v]&&t[v].name===`H`}
+function hfTg(tg){if(!hfH())return tg;hfIg=hfIg?+(hW>HF_OFF):+(hW>HF_ON);if(!hfIg)return 0;let x0=Math.max(0,Math.min(1,(hW-HF_OFF)/(HF1-HF_OFF)));return Math.max(.12,x0*x0*(3-2*x0))}
+function hfN(x0,s0){let f0=Math.floor(x0),g0=x0-f0,a0=gzH(s0,f0,3),b0=gzH(s0,f0+1,3);return a0+(b0-a0)*g0*g0*(3-2*g0)}
+function hfDraw(yw,pt,Lay,y0,y1){if(!hfH()||r||i){hmS.length=0;return}hmMol(yw,pt,Lay,y0,y1),hfE&&hfCor(yw,pt,Lay,y0,y1)}
+/* v510 H corona (hfCor; Hang, after a fireball reference's limb): no discrete flame licks. Along every heated wire a soft, ragged band of fire hugs the line and wisps slightly off it, like the sun's limb: each edge is sampled every 7px; at each sample a smooth screen-space value-noise field (two scales, drifting upward at 0.8 and 2.4/s, so it churns rather than flickers) sets how far the band reaches to either side of the line (along its screen normal) and how far it drifts up the screen; no peaks are sharpened, so there are no spikes or rows. Tied to motion and patchy: the reach scales with heat (x min(1.25, 1.25 x charge), so it grows as the spin gets faster and shrinks away as it cools) and with a slow patch field (two broad noise scales drifting at .35 and .6/s, smoothstep .32-.74, squared), so some stretches burn hot, some barely glow, and the hot patches shift over time. Three layers, each one batched path for all edges (nonzero union) with a vertical gradient so it only shows where the heat front has reached: outer smoky orange (reach 2-11px x heat, dark .2 / light .12), inner orange-yellow (1-6px, .3 / .2), and a thin yellow-white limb right on the line (0.6-2.4px, dark .35 x top heat; light: deep orange .3). Dark additive, light normal blending; no canvas blur. */
+function hfCor(yw,pt,Lay,y0,y1){if(hH<=.02)return
+let k0=d.width/g,lt0=hLt(),tt=performance.now()/1e3,F0=hH*(1+HWD),hz=Math.min(1.25,hH*1.25),hot=Math.max(0,Math.min(1,(hH-.5)/.4)),S=[]
+for(let[q1,q2]of hfE){let A1=X(q1,yw,pt,Lay.scale,Lay.ox,Lay.oy),B1=X(q2,yw,pt,Lay.scale,Lay.ox,Lay.oy),dx=B1.x-A1.x,dy=B1.y-A1.y,ln=Math.hypot(dx,dy);if(ln<6*k0)continue
+let m0=Math.max(2,Math.ceil(ln/(7*k0))),nx=-dy/ln,ny=dx/ln;S.push([A1.x,A1.y,dx,dy,m0,nx,ny])}
+let fld=(x0,y0,sd)=>.62*hfN((x0*.8+y0*.45)/(46*k0)+tt*.8,sd)+.38*hfN((x0*.35-y0)/(19*k0)+tt*2.4,sd+1)
+let mk=(rgb,al)=>{let gr=p.createLinearGradient(0,y1,0,y0);for(let k=0;k<=8;k++){let q=k/8,c=Math.max(0,Math.min(1,(F0-q)/HWD));gr.addColorStop(q,`rgba(${rgb},${al*c*hH})`)}return gr}
+let L3=lt0?[[`217,72,15`,.12,2,9,31],[`255,122,26`,.2,1,5,47],[`179,38,30`,.3*hot,.6,1.8,61]]:[[`255,96,20`,.2,2,9,31],[`255,170,60`,.3,1,5,47],[`255,236,180`,.35*hot,.6,1.8,61]]
+p.save(),p.globalCompositeOperation=lt0?`source-over`:`lighter`
+for(let[rgb,al,r0,r1,sd]of L3){if(al<=.01)continue;p.beginPath()
+for(let[ax,ay,dx,dy,m0,nx,ny]of S){let top=[],bot=[]
+for(let k=0;k<=m0;k++){let u=k/m0,px=ax+dx*u,py=ay+dy*u,e=Math.min(1,Math.min(u,1-u)*m0*.7+.35),pq=.7*hfN((px*.5+py*.3)/(70*k0)+tt*.35,77)+.3*hfN((px*.2-py*.6)/(38*k0)-tt*.6,79),pf=Math.max(0,Math.min(1,(pq-.32)/.42)),f1=fld(px,py,sd),f2=fld(px+31*k0,py,sd+5),ra=(r0+(r1-r0)*f1*f1)*k0*e*hz*(.06+.94*pf*pf),rb=(r0+(r1-r0)*f2*f2)*k0*e*hz*(.06+.94*pf*pf),up=(r1*.7*fld(px,py-13*k0,sd+9))*k0*e*hz*pf
+top.push(px+nx*ra,py+ny*ra-up),bot.push(px-nx*rb,py-ny*rb-up*.6)}
+p.moveTo(top[0],top[1]);for(let k=2;k<top.length;k+=2)p.lineTo(top[k],top[k+1]);for(let k=bot.length-2;k>=0;k-=2)p.lineTo(bot[k],bot[k+1]);p.closePath()}
+p.fillStyle=mk(rgb,al),p.fill()}
+p.restore()}
+/* v510 H glow + sparks (hmMol). Glow: a tight glow that hugs the heated wire, three tapering strokes along every edge (dark 7/4.5/3px at .18/.35/.6; light 6/4/2.8px at .1/.2/.35), alpha x charge^1.5 so it fades quickly as the spin slows, drawn behind the stroke (destination-over) so the line keeps its exact heated colour, coloured by the same ember palette and only where the heat front has reached (alpha x local heat), with a subtle shimmer (+-8%, value noise). Sparks: fine streaks (not dots) shed from random points on the wires with the surface's own screen velocity (so they spray off trailing the spin) plus a little lift and drift, 384-896ms lives (8ms steps), up to HSP 72, drawn as 3 batched strokes by age. */
+const HSP=72;let hmPy=null,hmS=[]
+function hmMol(yw,pt,Lay,y0,y1){let L=t[v],k0=d.width/g,lt0=hLt(),nw=performance.now(),tt=nw/1e3,dt=Math.min(.05,Math.max(0,(nw-(hmMol.l||nw))/1e3));hmMol.l=nw
+if(hH<=.005&&!hmS.length){hmPy=null;return}
+hfE||(hfE=De(L,0),hfW=hfE.map(([q1,q2])=>Math.hypot(q2[0]-q1[0],q2[1]-q1[1],q2[2]-q1[2])),hfWt=hfW.reduce((a0,b0)=>a0+b0,0))
+/* tight glow */
+if(hH>.005){let P0=hPal(),F0=hH*(1+HWD),sh=.92+.16*hfN(tt*7,77),mk=al=>{let gr=p.createLinearGradient(0,y1,0,y0);for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD));gr.addColorStop(q,`rgba(${P0[Math.round(c*32)]},${al*c*hH**1.5*sh})`)}return gr}
+p.save(),p.globalCompositeOperation=`destination-over`,p.lineCap=`round`,p.lineJoin=`round`,p.beginPath()
+for(let[q1,q2]of hfE){let A1=X(q1,yw,pt,Lay.scale,Lay.ox,Lay.oy),B1=X(q2,yw,pt,Lay.scale,Lay.ox,Lay.oy);p.moveTo(A1.x,A1.y),p.lineTo(B1.x,B1.y)}
+for(let[w1,a1]of lt0?[[6,.1],[4,.2],[2.8,.35]]:[[7,.18],[4.5,.35],[3,.6]])p.lineWidth=w1*k0,p.strokeStyle=mk(a1),p.stroke();p.restore()}
+/* sparks: shed with the surface's screen velocity */
+let rate=hfIg?160*hH:0,n0=Math.min(HSP-hmS.length,Math.floor(rate*dt+Math.random()*Math.min(1,rate*dt*4)))
+if(n0>0&&hmPy!=null){for(let k=0;k<n0;k++){let rr=Math.random()*hfWt,e1=0;for(;e1<hfE.length-1&&rr>hfW[e1];e1++)rr-=hfW[e1]
+let[q1,q2]=hfE[e1],u=Math.random(),P3=[q1[0]+(q2[0]-q1[0])*u,q1[1]+(q2[1]-q1[1])*u,q1[2]+(q2[2]-q1[2])*u],A1=X(P3,yw,pt,Lay.scale,Lay.ox,Lay.oy),B1=X(P3,hmPy[0],hmPy[1],Lay.scale,Lay.ox,Lay.oy)
+let vx=(A1.x-B1.x)/Math.max(.008,dt),vy=(A1.y-B1.y)/Math.max(.008,dt),vm=Math.hypot(vx,vy),cap=(260+420*Math.random())*k0;vm>cap&&(vx*=cap/vm,vy*=cap/vm)
+hmS.push({x:A1.x,y:A1.y,vx:vx*(.5+.5*Math.random())+(Math.random()-.5)*60*k0,vy:vy*(.5+.5*Math.random())-(30+60*Math.random())*k0,a:0,l:(384+8*Math.floor(Math.random()*65))/1e3})}}
+hmPy=[yw,pt]
+for(let k=hmS.length-1;k>=0;k--){let s1=hmS[k];s1.a+=dt;if(s1.a>=s1.l){hmS.splice(k,1);continue}let dm=1-1.6*dt;s1.vx*=dm,s1.vy=s1.vy*dm-40*k0*dt,s1.x+=s1.vx*dt,s1.y+=s1.vy*dt}
+if(hmS.length){p.save(),p.globalCompositeOperation=lt0?`source-over`:`lighter`,p.lineCap=`round`,p.lineWidth=(lt0?1.1:1)*k0
+for(let b=0;b<3;b++){p.beginPath();let any=0
+for(let s1 of hmS){let f=s1.a/s1.l;if(Math.min(2,Math.floor(f*3))!==b)continue;let ln=.028;p.moveTo(s1.x,s1.y),p.lineTo(s1.x-s1.vx*ln,s1.y-s1.vy*ln),any=1}
+any&&(p.strokeStyle=lt0?`rgba(${[`217,72,15`,`179,38,30`,`140,30,20`][b]},${[.9,.6,.3][b]})`:`rgba(${[`255,214,120`,`255,150,50`,`230,80,25`][b]},${[.95,.65,.32][b]})`,p.stroke())}
+p.restore()}}
+/* v511 galaxy G (Hang, 2026-11-11, "Ship G"; from preview/egg-g-galaxy c20b815; replaces the green G fill). Purple only + glow — hGlow gives the G's main stroke a purple canvas shadow, alpha .95 x gxC / blur 4+18px x gxC on dark, .6 x gxC / 3+9px on light, none at rest): no green anywhere, and at rest the G is plain theme ink like every other letter. Its colour comes ONLY from the light it
+   absorbs: every streak swallowed at the centre adds .01 x its opacity to the charge gxC (0..1); gxC decays x exp(-dt/.48) and by .08/s, so it
+   is back to plain ink ~2s after the inflow stops. gxFill draws the wire with a radial gradient about the G's screen centre (last frame's
+   wormhole centre, radius .62 of the letter's height, out past the outer shell and its depth lines): the absorbed spectrum (v4, purple only; v6 (Hang: lighter in the centre, nothing too dark): bright pale lavender at the centre -> lavender -> lilac -> medium vivid violet at the outer shell; light theme: same direction, lifted but readable on white (#9462EA centre -> #6436C8 outer); no pink, amber or blue) is mixed over ink up to a front at gxC x 1.7 of that radius (v3: was 1.25 over .44, so only the centre coloured; now the front covers the whole G from gxC ~.8, reached in a sustained spin), with a .3
+   soft edge, so the colour spreads from the centre outward as more light is absorbed and ebbs back in as it drains. gxC = 0: plain ink. */
+const GXP=[[[234,220,255],[206,180,255],[178,140,255],[152,106,250]],[[148,98,234],[130,82,224],[114,66,212],[100,54,200]]]
+let gxC=0,gxX=0,gxY=0,gxR=1
+function gxSpec(P,q){let f=Math.max(0,Math.min(1,q))*3,k=Math.min(2,Math.floor(f)),u=f-k;return P[k].map((x0,i0)=>x0+(P[k+1][i0]-x0)*u)}
+function gxFill(y0,y1,al){if(gxC<=.002)return`rgba(${ee},${al})`
+let lt0=hLt()?1:0,P=GXP[lt0],ink=ee.split(`,`).map(Number),gr=p.createRadialGradient(gxX,gxY,0,gxX,gxY,gxR),F=gxC*1.7,sf=.3
+for(let k=0;k<=8;k++){let q=k/8,m=Math.max(0,Math.min(1,(F-q)/sf)),m2=m*m*(3-2*m),c=gxSpec(P,q).map((x0,i0)=>Math.round(ink[i0]+(x0-ink[i0])*m2))
+gr.addColorStop(q,`rgba(${c.join(`,`)},${al})`)}return gr}
+/* gxBeams/skDraw (v511 galaxy G): a dense warp field of long thin tapering streaks falling straight into a dark centre at the G's
+   screen centre, accelerating; spin ramps density, speed and length; clears ~2s after release), but in the galaxy palette only and with NO
+   head dot: pure tapered lines, tail .12 -> middle .4 -> head 1 (the head piece is the slightly brighter end), butt caps. Each streak takes one
+   of four colours: blue-white, violet, magenta, warm (light theme: navy, indigo, deep magenta, burnt amber); magenta and warm grow more
+   likely with spin. The centre stays dark with only a very faint warm core glow (alpha .06 x E) while spinning. Batched by colour x piece x 3
+   alpha levels: at most 36 paths, no gradients per streak, no blur. Energy E = smoothstep(.08,.58,charge) (rise .24s / fall .4s). Each streak
+   that reaches the centre is absorbed into gxC (see galaxy G v2). Reduced motion: no streaks, plain ink G. */
+const SKN=200,SKC=[[`222,204,255`,`186,146,255`,`156,106,252`,`128,82,238`],[`124,72,204`,`104,56,186`,`86,42,166`,`68,30,142`]]
+let skP=null,skE=0,skAcc=0,skB=null
+function skDraw(yw,pt,Lay,dt){let hq=Math.max(0,Math.min(1,(hH-.08)/.5)),tg=r?0:hq*hq*(3-2*hq)
+skE+=(tg-skE)*(1-Math.exp(-dt/(tg>skE?.24:.4)));skE<.003&&tg===0&&(skE=0)
+gxC=Math.max(0,gxC*Math.exp(-dt/.48)-.08*dt),gxX=Lay.ox,gxY=Lay.oy,gxR=Lay.scale*a*728*.62
+if(!skP){if(skE<=.1)return;skP=[];for(let k=0;k<SKN;k++)skP.push({on:0,ca:1,sa:0,rho:0,r0:1,w:1,sf:1,fi:.4,c:0});skB=[];for(let k=0;k<36;k++)skB.push([])}
+let k0=d.width/g,lt0=hLt(),rt=Math.min(1,hW/HW1),alive=0,cx=Lay.ox,cy0=Lay.oy,pal=SKC[lt0?1:0],wm=(lt0?1.3:1)*k0
+for(const q of skP)q.on&&alive++
+if(!alive&&skE<=.003)return
+if(skE>.01){let gr=p.createRadialGradient(cx,cy0,0,cx,cy0,36*k0),wc0=lt0?`110,60,190`:`176,128,255`;gr.addColorStop(0,`rgba(${wc0},${.06*skE})`),gr.addColorStop(1,`rgba(${wc0},0)`);p.fillStyle=gr,p.beginPath(),p.arc(cx,cy0,36*k0,0,6.2832),p.fill()}
+let pl=.22+.78*Math.max(rt,.55*skE),st=.08+.16*pl
+if(skE>.1){skAcc+=dt*(30+560*skE*(.3+.7*rt))*(.4+1.2*Math.random())
+let pm=.12+.33*pl,pw=.04+.1*pl
+for(const q of skP){if(skAcc<1||alive>=SKN)break;if(q.on)continue
+let an=Math.random()*6.2832,u=Math.random()
+q.ca=Math.cos(an),q.sa=Math.sin(an),q.rho=q.r0=(110+260*Math.random()**.8)*k0,q.w=.5+Math.random(),q.sf=.7+.7*Math.random(),q.fi=.15+.4*Math.random(),q.ab=0,q.c=u<pw?3:u<pw+pm?2:u<pw+pm+.35?1:0,q.on=1,alive++,skAcc-=1}skAcc=Math.min(skAcc,16)}else skAcc=0
+for(const b of skB)b.length=0
+for(const q of skP){if(!q.on)continue
+let rc=q.rho/k0,v1=(60+420*pl)*q.sf*(1+120/(rc+12))*k0
+q.rho-=v1*dt
+if(q.rho<=4*k0){q.on=0,gxC=Math.min(1,gxC+.01*q.ab);continue}
+let X=cx+q.ca*q.rho,Y=cy0+q.sa*q.rho,x1=1-q.rho/q.r0,fx=Math.min(1,x1/q.fi),nr=Math.min(1,(q.rho-4*k0)/(24*k0)),al=fx*fx*(3-2*fx)*nr
+q.ab=fx*fx*(3-2*fx)
+if(al<.05)continue
+let L=Math.min(240*k0,v1*st,q.r0-q.rho),a3=Math.min(2,Math.floor(al*3)),w=q.w*wm,e0=0
+for(let pc=0;pc<3;pc++){let e1=pc===0?.45:pc===1?.8:1,b=skB[q.c*9+pc*3+a3]
+b.push(X+q.ca*L*(1-e0),Y+q.sa*L*(1-e0),X+q.ca*L*(1-e1),Y+q.sa*L*(1-e1),w);e0=e1}}
+p.lineCap=`butt`
+for(let c=0;c<4;c++)for(let pc=0;pc<3;pc++)for(let a3=0;a3<3;a3++){let b=skB[c*9+pc*3+a3];if(!b.length)continue
+let wa=0;p.beginPath();for(let k=0;k<b.length;k+=5)p.moveTo(b[k],b[k+1]),p.lineTo(b[k+2],b[k+3]),wa+=b[k+4]
+p.lineWidth=wa/(b.length/5)*[.55,.8,1][pc],p.strokeStyle=`rgba(${pal[c]},${[.12,.4,1][pc]*(a3+1)/3})`,p.stroke()}}
+/* gxDraw (v511): runs the galaxy G each frame of the main pose; on any other letter it clears the G's charge and beams. */
+let gxT0=0
+function gxDraw(yw,pt,Lay){let nw=performance.now(),dt=gxT0?Math.min(.064,(nw-gxT0)/1e3):0;gxT0=nw
+if(!t[v]||t[v].name!==`G`){gxC=0,skE=0,skP=null,skAcc=0;return}skDraw(yw,pt,Lay,dt)}
+const HWD=.36;/* preview/egg-n-glass (throwaway; Hang: "Try this instead", clear glass chain links on black): the N only, built on preview/egg-n-ice v3.
+   At rest plain theme ink; spinning, the live N (white -> electric blue). If the spin got really fast (peak charge >= .45) then when it settles
+   it SETS INTO GLASS: niF eases 0 -> 1 over 240ms, holds to 1600ms, back to plain line art by 2400ms (8ms multiples); a fast respin cancels
+   (128ms). While set, the N also turns to a slight 3/4 angle (yaw +.36, pitch -.1 rad, eased with niF; N only) so its depth reads.
+   Glass, no grain/cracks/clouds/glow/outline: two textures per letter/theme built in row slices when the N mounts (no stalls). Base (glyph
+   space, mapped on the front face and faintly the back): each stroke shaded as a rounded solid bar from its distance to the outer edge: a thin
+   bright fresnel rim with a red/blue dispersion fringe on a few edges, a near-black refraction band just inside, a clear dark body, faint
+   micro-bubbles, fine radial fibre streaks at the inner joints. Highlights (separate texture): long continuous hot-white specular streaks along
+   the light-facing side of each bar with warm amber ends, and a soft milky sheen band on the other side; drawn through a slowly travelling mask
+   so the light slides along the bars during the hold. Side walls get a rounded-tube profile (dark edges, sheen and a streak in the middle).
+   Sound: dbhSfx.glassTink(level), a soft clean glass ring an octave under the N ding (preview sfx.js). */
+let niH0=0,niF=0,niT=0,niM=0,niPk=0,niL=0,niG=null,niGL=null,niTx={}
+function niOn(){return!!t[v]&&t[v].name===`N`}
+function niR(s){return()=>(s=(s*1103515245+12345)%2147483648)/2147483648}
+function niIn(P,x,y){let c=0;for(let i=0,j=P.length-1;i<P.length;j=i++){let[xi,yi]=P[i],[xj,yj]=P[j];yi>y!=yj>y&&x<(xj-xi)*(y-yi)/(yj-yi)+xi&&(c=!c)}return c}
+function niH(x,y,z){let h=Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(z|0,2147483647)|0;h=Math.imul(h^h>>>13,1274126177);return((h^h>>>16)>>>0)/4294967296}
+function niV(x,y,z){let xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),w=yf*yf*(3-2*yf),A=niH(xi,yi,z),B=niH(xi+1,yi,z),C=niH(xi,yi+1,z),D=niH(xi+1,yi+1,z);return A+(B-A)*u+(C-A)*w+(A-B-C+D)*u*w}
+function niB(x,y,z,n){let s0=0,am=.5,f0=1;for(let o0=0;o0<(n||5);o0++)s0+=am*niV(x*f0,y*f0,z+o0*13),am*=.5,f0*=2.03;return s0}
+function niRg(x,y,z){let s0=0,am=.55,f0=1;for(let o0=0;o0<3;o0++){let n0=1-Math.abs(2*niV(x*f0,y*f0,z+o0*7)-1);s0+=am*n0*n0,am*=.5,f0*=2.1}return s0/.8}
+function niTex(L,lt0,bud){let K=L.name+lt0;if(niTx[K])return niTx[K];let J=niTx[`j`+K]||(niTx[`j`+K]=niJob(L,lt0));for(let n0=0;J.py<J.N&&(bud==null||n0<bud);n0++)J.row();if(J.py<J.N)return null;return niTx[K]=J.fin()}
+function niJob(L,lt0){let M=16,S=.8,Wd=Math.ceil((L.w+2*M)*S),Ht=Math.ceil((704+2*M)*S),WW=256,WH=112,mk=(w,h)=>{let c=document.createElement(`canvas`);c.width=w,c.height=h;return c},cv=mk(Wd,Ht),hc=mk(Wd,Ht),wc=mk(WW,WH)
+let q=cv.getContext(`2d`),qh=hc.getContext(`2d`),qw=wc.getContext(`2d`),R=niR(lt0?733:5151),PP=L.parts.map(z=>z.poly),inU=(x,y)=>PP.some(P=>niIn(P,x,y)),E=[]
+for(const P of PP)for(let k=0;k<P.length;k++){let[x1,y1]=P[k],[x2,y2]=P[(k+1)%P.length],dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy);if(l<1)continue;let nx=dy/l,ny=-dx/l,mx=(x1+x2)/2,my=(y1+y2)/2;if(inU(mx+nx*3,my+ny*3)&&inU(mx-nx*3,my-ny*3))continue;inU(mx+nx*3,my+ny*3)&&(nx=-nx,ny=-ny);E.push([x1,y1,dx,dy,l,nx,ny])}
+let lx=-.45,ly=.9,ll=Math.hypot(lx,ly);lx/=ll,ly/=ll
+let HW=88,C0=lt0?[128,134,140]:[150,156,162],CK=lt0?[58,64,70]:[0,0,0],RIM=lt0?[60,66,72]:[255,255,255],id=q.createImageData(Wd,Ht),D0=id.data,ih=qh.createImageData(Wd,Ht),D2=ih.data,wd=qw.createImageData(WW,WH),D1=wd.data
+let px4=(Dt,o4,col,al)=>{Dt[o4]=col[0],Dt[o4+1]=col[1],Dt[o4+2]=col[2],Dt[o4+3]=Math.max(0,Math.min(1,al))*255},sm=(a0,b0,x)=>{let t0=Math.max(0,Math.min(1,(x-a0)/(b0-a0)));return t0*t0*(3-2*t0)},gs=(x,c,w)=>Math.exp(-((x-c)*(x-c))/(2*w*w))
+let J={py:0,N:Ht+WH,row(){let py=J.py++;if(py>=Ht){/* wall row: v across the depth, u along the edge: rounded-tube profile */
+let wy=py-Ht,v0=wy/(WH-1);for(let ux=0;ux<WW;ux++){let u=ux/WW,st=sm(.3,.6,niV(u*3,0,61)),col=C0.slice(),al=lt0?.12:.05,ov=(c,aa)=>{if(aa<=0)return;aa=Math.min(1,aa);let na=aa+al*(1-aa);for(let k=0;k<3;k++)col[k]=(c[k]*aa+col[k]*al*(1-aa))/na;al=na}
+let ed=Math.min(v0,1-v0);ov(CK,sm(.25,.05,ed)*(lt0?.5:.7)),ov([255,255,255],gs(v0,.5,.13)*(lt0?.4:.3)),ov(st<.5?[255,190,120]:[255,255,255],gs(v0,.36,.035)*(.25+.75*st)*.95),ov(RIM,gs(ed,0,.012)*(lt0?.6:.5))
+px4(D1,(wy*WW+ux)*4,col,al)}return}
+for(let px=0;px<Wd;px++){let x=px/S-M,y=(Ht-1-py)/S-M;if(!inU(x,y))continue;let dd=1e9,en=null,ei=0,et=0
+for(let k=0;k<E.length;k++){let e=E[k],t0=Math.max(0,Math.min(1,((x-e[0])*e[2]+(y-e[1])*e[3])/(e[4]*e[4]))),ex=e[0]+e[2]*t0-x,ey=e[1]+e[3]*t0-y,d2=ex*ex+ey*ey;d2<dd&&(dd=d2,en=e,ei=k,et=t0)}
+dd=Math.sqrt(dd);let tt=Math.min(1,dd/HW),cat=Math.max(0,en[5]*lx+en[6]*ly),ue=et*en[4],cm=sm(.58,.72,niV(ue/90,ei*3,50)),stv=niV(ue/170,ei*5,71),st=sm(.18,.5,stv)
+/* base: clear dark body, refraction band, fresnel rim, dispersion */
+let col=C0.slice(),al=(lt0?.16:.05)+(lt0?.08:.04)*(1-tt),ov=(c,aa)=>{if(aa<=0)return;aa=Math.min(1,aa);let na=aa+al*(1-aa);for(let k=0;k<3;k++)col[k]=(c[k]*aa+col[k]*al*(1-aa))/na;al=na}
+ov(CK,gs(tt,.14,.07)*(lt0?.6:.75)),ov(CK,gs(tt,1,.25)*(lt0?.12:.3))
+ov([255,85,60],gs(dd,1.4,.9)*cm*.55),ov([70,140,255],gs(dd,4.2,1.1)*cm*.5)
+ov(RIM,Math.min(1,gs(dd,0,1.6)*(lt0?.75:.55+.45*cat)+gs(dd,0,5)*(lt0?.15:.2)))
+lt0&&ov([255,255,255],gs(tt,.06,.02)*.7)
+niH(px,py,7)>.9985&&ov([255,255,255],.35)
+px4(D0,(py*Wd+px)*4,col,al)
+/* highlights: hot streak on the lit side of each bar (amber where it fades), milky sheen on the other side */
+let hc0=[255,255,255],ha=0,hs=gs(tt,.32+.08*(stv-.5),.24)*Math.min(1,.45+cat*1.5)*st,am=hs>0?sm(.5,.15,st)*Math.min(1,st*3):0
+ha=Math.min(1,hs*.6+gs(tt,.32+.08*(stv-.5),.11)*Math.min(1,.45+cat*1.5)*st*1.6);ha>0&&(hc0=[255,255-75*am,255-150*am]);let sh=gs(tt,.55,.18)*(1-.7*cat)*(lt0?.3:.3)*(.6+.4*niV(ue/240,ei,73))
+let a2=ha+sh*(1-ha),c2=a2>0?hc0.map((c,k)=>(c*ha+(lt0?235:225)*sh*(1-ha))/a2):hc0;px4(D2,(py*Wd+px)*4,c2,Math.min(1,a2))}},fin(){
+q.putImageData(id,0,0),qh.putImageData(ih,0,0),qw.putImageData(wd,0,0)
+let T=(x,y)=>[(x+M)*S,Ht-1-(y+M)*S]
+q.save(),q.beginPath();for(const P of PP){P.forEach(([x,y],k)=>{let[u0,w0]=T(x,y);k?q.lineTo(u0,w0):q.moveTo(u0,w0)}),q.closePath()}q.clip()
+/* faint radial fibre streaks fanning from the inner (reflex) joints */
+let V=[];for(const P of PP)for(const[x,y]of P){let n0=0;for(let k=0;k<16;k++)inU(x+Math.cos(k*.3927)*7,y+Math.sin(k*.3927)*7)&&n0++;n0>=10&&n0<16&&!V.some(z=>Math.hypot(z[0]-x,z[1]-y)<4)&&V.push([x,y])}
+for(const[x,y]of V)for(let k=0;k<70;k++){let an=R()*6.283,l=18+70*Math.pow(R(),.7),x1=x+Math.cos(an)*8,y1=y+Math.sin(an)*8;if(!inU(x1,y1))continue;let[u0,w0]=T(x1,y1),[u1,w1]=T(x+Math.cos(an)*l,y+Math.sin(an)*l),gr=q.createLinearGradient(u0,w0,u1,w1),c0=lt0?`90,96,102`:`255,255,255`;gr.addColorStop(0,`rgba(${c0},${.1+.12*R()})`),gr.addColorStop(1,`rgba(${c0},0)`),q.strokeStyle=gr,q.lineWidth=(.25+.35*R())*S,q.beginPath(),q.moveTo(u0,w0),q.lineTo(u1,w1),q.stroke()}
+q.restore()
+return{cv,hc,wc,M,S,Ht,E,lx,ly,sc:mk(Wd,Ht)}}};return J}
+function niGeo(L){let W=(s0,c0,yy)=>[(s0-L.w/2)*a,yy,(c0-352)*a];return{W,faces:L.parts.map(z=>[-o/2,o/2].map(yy=>z.poly.map(([s0,c0])=>W(s0,c0,yy))))}}
+/* slight 3/4 angle while set (N only; eased with niF) */
+function ngYo(){return 0}/* v3: no re-pose (Hang: it must stop in one direction, like H/A/G) */
+function ngPo(){return 0}
+function niStep(){let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(niL||nw))/1e3)),q=window.dbhSfx;niL=nw
+if(!niOn()||r||i){niF=0,niM=0,niPk=0,niH0=0;q&&q.iceSet&&q.iceSet(0);return}
+/* v3: one continuous transformation. While the N moves (drag or spin above ~180deg/s) the glass builds toward its charge share
+   min(1, hH/.45) (smoothstep), never faster than 0 -> 1 in 128ms and never down while moving, so a respin just keeps building. When it
+   stops it holds 1600ms, then thaws back to line art over 800ms (2400ms in all, 8ms multiples). The ice sound layer follows niF (iceSet: crackle while it grows, frosty hiss with the amount). */
+if(N||hW>HW0*.25){let tg=Math.min(1,hH/.45);tg=tg*tg*(3-2*tg);tg>niF&&(niF=Math.min(tg,niF+dt/.128));niM=1,niT=0,niH0=niF}
+else if(niM){niT+=dt;if(niT>=1.6){let u=Math.min(1,(niT-1.6)/.8);niF=niH0*(1-u*u*(3-2*u))}niT>=2.4&&(niM=0,niF=0)}
+else niF=Math.max(0,niF-dt/.8)
+q&&q.iceSet&&q.iceSet(niF)}
+function niFill(y0,y1,al){let P0=hPal(),F0=hH*(1+HWD),ink=ee.split(`,`).map(Number),ice=hLt()?[96,102,108]:[200,204,208],m=niF*niF*(3-2*niF),gr=p.createLinearGradient(0,y1,0,y0)
+for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;gr.addColorStop(q,`rgba(${b.map(x0=>Math.round(x0)).join(`,`)},${al*(1-(ngOK?.86:.88)*m)})`)}return gr}
+function ng2D(yw,pt,Lay,y0,y1){if(!niOn())return;let L=t[v],lt0=hLt();if(!niTx[L.name+lt0]&&!niTx.q){niTx.q=1;setTimeout(()=>{try{niTex(L,lt0,14)}catch(e){}niTx.q=0},0)}
+if(niF<=.005||!(y1>y0))return;let tx=niTex(L,lt0),k0=d.width/g,f=niF;niGL!==L&&(niG=niGeo(L),niGL=L)
+let Pj=z=>X(z,yw,pt,Lay.scale,Lay.ox,Lay.oy),FA=niG.faces.map(pr=>pr.map(fc=>fc.map(Pj))),poly=ps=>{ps.forEach((z,k)=>k?p.lineTo(z.x,z.y):p.moveTo(z.x,z.y)),p.closePath()},hf=o/2,G0=(x,y,yy)=>Pj(niG.W(x,y,yy))
+let mp=(img,iw,ih,A,B,C)=>{p.transform((B.x-A.x)/iw,(B.y-A.y)/iw,(C.x-A.x)/ih,(C.y-A.y)/ih,A.x,A.y),p.drawImage(img,0,0)}
+/* highlights through a slowly travelling mask (light sliding up the bars during the hold) */
+let sc=tx.sc,qs=sc.getContext(`2d`),u=niM?Math.min(1,niT/2.4):1,ph=1.15-1.3*u;qs.globalCompositeOperation=`copy`,qs.drawImage(tx.hc,0,0),qs.globalCompositeOperation=`destination-in`;let mg=qs.createLinearGradient(0,0,sc.width*.35,sc.height)
+for(let k=0;k<=10;k++){let z=k/10;mg.addColorStop(z,`rgba(0,0,0,${.72+.28*Math.exp(-((z-ph)*(z-ph))/.045)})`)}qs.fillStyle=mg,qs.fillRect(0,0,sc.width,sc.height),qs.globalCompositeOperation=`source-over`
+p.save()
+let face=(s0,aa,img)=>{let yy=s0?hf:-hf,sk=tx.S,Ot=G0(-tx.M,-tx.M+(tx.Ht-1)/sk,yy),Ut=G0(-tx.M+tx.cv.width/sk,-tx.M+(tx.Ht-1)/sk,yy),Vt=G0(-tx.M,-tx.M-1/sk,yy)
+p.save(),p.beginPath();for(const pr of FA)poly(pr[s0]);p.clip(),p.globalAlpha=aa*f,mp(img,tx.cv.width,tx.Ht,Ot,Ut,Vt),p.restore()}
+face(1,.3,tx.cv)
+/* side walls: rounded-tube profile, brighter where they face the light */
+for(const e of tx.E){let lit=Math.max(0,e[5]*tx.lx+e[6]*tx.ly),A=G0(e[0],e[1],-hf),B=G0(e[0]+e[2],e[1]+e[3],-hf),C=G0(e[0],e[1],hf),D=G0(e[0]+e[2],e[1]+e[3],hf)
+p.save(),p.beginPath(),p.moveTo(A.x,A.y),p.lineTo(B.x,B.y),p.lineTo(D.x,D.y),p.lineTo(C.x,C.y),p.closePath(),p.clip(),p.globalAlpha=(lt0?.5+.45*lit:.3+.7*lit)*f,mp(tx.wc,256,112,A,B,C),p.restore()}
+face(0,1,tx.cv),face(0,1,sc)
+p.restore()}
+/* egg-n-ice3d (Hang 2026-11-14, "Build the n like this": carved clear-ice slab letter; colour: blue ice cubes ref): extends the egg-n-glass v3 WebGL
+   mesh. The N outline is extruded much deeper (slab 236 glyph units thick, vs the 160-unit wire box) with a thin 4-11 unit chamfer whose width,
+   outline position (+-4) and face height (+-7) are jittered per vertex, so the slabs are slightly irregular / hand-carved and the faces facet.
+   Pass 1 (far faces) refracts the page behind, tinted by blue ice absorption, TIR shows the studio env. Pass 2 (near faces): bumpy/chipped face
+   normals + sparse scratch lines (3D value noise in object space), fresnel (ice n=1.31) reflection of a cool studio env (white/cyan strips), and
+   a 4-sample march along the refracted ray through the slab collecting milky frost (layered noise, concentrated in the slab middle via a blurred
+   N mask and the depth centre) and tiny bubbles, over Beer-style deep-blue absorption. Dark theme adds a soft cool-blue glow (a 1/8-res shadow of
+   the ice, drawn additively). DPR capped at 2; renders only while niF>0. */
+let ngS=null,ngOK=0,ngM=null,ngML=null;const NIH=118
+function ngMesh(L){let PP=L.parts.map(z=>z.poly),inU=(x,y)=>PP.some(P=>niIn(P,x,y)),sg=[]
+for(const P of PP)for(let k=0;k<P.length;k++){let[x1,y1]=P[k],[x2,y2]=P[(k+1)%P.length],dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy);if(l<1)continue;let nx=dy/l,ny=-dx/l,mx=(x1+x2)/2,my=(y1+y2)/2;if(inU(mx+nx*3,my+ny*3)&&inU(mx-nx*3,my-ny*3))continue;sg.push([[x1,y1],[x2,y2]])}
+let ky=q=>q[0].toFixed(1)+`,`+q[1].toFixed(1),lp=[sg[0][0],sg[0][1]],used=new Set([0])
+for(let g0=0;g0<sg.length;g0++){let e=lp[lp.length-1],nx=-1;for(let k=0;k<sg.length;k++){if(used.has(k))continue;if(ky(sg[k][0])===ky(e)){nx=k,lp.push(sg[k][1]);break}if(ky(sg[k][1])===ky(e)){nx=k,lp.push(sg[k][0]);break}}if(nx<0)break;used.add(nx)}
+ky(lp[0])===ky(lp[lp.length-1])&&lp.pop()
+let P=[];for(let k=0;k<lp.length;k++){let A=lp[(k+lp.length-1)%lp.length],B=lp[k],C=lp[(k+1)%lp.length],cr=(B[0]-A[0])*(C[1]-B[1])-(B[1]-A[1])*(C[0]-B[0]);Math.abs(cr)>1e-3*Math.hypot(B[0]-A[0],B[1]-A[1])*Math.hypot(C[0]-B[0],C[1]-B[1])&&P.push(B)}
+let ar=0;for(let k=0;k<P.length;k++){let A=P[k],B=P[(k+1)%P.length];ar+=A[0]*B[1]-B[0]*A[1]}ar<0&&P.reverse()
+let hs=k=>{let x=Math.sin(k*127.1+311.7)*43758.5453;return x-Math.floor(x)};P=P.map((q,k)=>[q[0]+(hs(k)-.5)*8,q[1]+(hs(k+50)-.5)*8])
+let n=P.length,CC=P.map((_,k)=>4+hs(k+300)*7),NE=P.map((A,k)=>{let B=P[(k+1)%n],l=Math.hypot(B[0]-A[0],B[1]-A[1]);return[-(B[1]-A[1])/l,(B[0]-A[0])/l]}),Pin=P.map((A,k)=>{let n1=NE[(k+n-1)%n],n2=NE[k],dt=1+n1[0]*n2[0]+n1[1]*n2[1],cc=CC[k];return[A[0]+cc*(n1[0]+n2[0])/dt,A[1]+cc*(n1[1]+n2[1])/dt]})
+let tri=[],I=Pin.map((_,k)=>k),cv=(a0,b0,c0)=>(b0[0]-a0[0])*(c0[1]-b0[1])-(b0[1]-a0[1])*(c0[0]-b0[0]),inT=(q,a0,b0,c0)=>cv(a0,b0,q)>=0&&cv(b0,c0,q)>=0&&cv(c0,a0,q)>=0
+for(let gd=0;I.length>3&&gd<500;gd++){let ok=0;for(let k=0;k<I.length;k++){let i0=I[(k+I.length-1)%I.length],i1=I[k],i2=I[(k+1)%I.length],A=Pin[i0],B=Pin[i1],C=Pin[i2];if(cv(A,B,C)<=0)continue;if(I.some(j=>j!==i0&&j!==i1&&j!==i2&&inT(Pin[j],A,B,C)))continue;tri.push([i0,i1,i2]),I.splice(k,1),ok=1;break}if(!ok)break}I.length===3&&tri.push(I.slice())
+let h=NIH*a,W=(q,y)=>[(q[0]-L.w/2)*a,y,(q[1]-352)*a],yF=k=>-h+(hs(k+100)-.5)*14*a,yB=k=>h+(hs(k+200)-.5)*14*a,out=[],T3=(A,B,C,ex)=>{let u=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],w=[C[0]-A[0],C[1]-A[1],C[2]-A[2]],nn=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]],l=Math.hypot(...nn)||1;nn=nn.map(z=>z/l);nn[0]*ex[0]+nn[1]*ex[1]+nn[2]*ex[2]<0&&(nn=nn.map(z=>-z));for(const V of[A,B,C])out.push(V[0],V[1],V[2],nn[0],nn[1],nn[2])},Q4=(A,B,C,D,ex)=>{T3(A,B,C,ex),T3(A,C,D,ex)}
+let Fi=k=>W(Pin[k],yF(k)),Bi=k=>W(Pin[k],yB(k)),Of=k=>W(P[k],yF(k)+CC[k]*a),Ob=k=>W(P[k],yB(k)-CC[k]*a)
+for(const[i0,i1,i2]of tri)T3(Fi(i0),Fi(i1),Fi(i2),[0,-1,0]),T3(Bi(i0),Bi(i1),Bi(i2),[0,1,0])
+for(let k=0;k<n;k++){let k1=(k+1)%n,on=[-NE[k][0],0,-NE[k][1]]
+Q4(Fi(k),Fi(k1),Of(k1),Of(k),[on[0],-1,on[2]]),Q4(Of(k),Of(k1),Ob(k1),Ob(k),on),Q4(Ob(k),Ob(k1),Bi(k1),Bi(k),[on[0],1,on[2]])}
+return{buf:new Float32Array(out),n:out.length/6}}
+function ngInit(){if(ngS)return;ngS={};try{let c=document.createElement(`canvas`),gl=c.getContext(`webgl`,{antialias:true,premultipliedAlpha:true,preserveDrawingBuffer:true,alpha:true,depth:true});if(!gl)return
+let VS=`attribute vec3 aP;attribute vec3 aN;uniform vec4 uRot;uniform vec4 uPrj;uniform vec2 uRes;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
+void main(){float c=aP.x*uRot.x+aP.y*uRot.y,l=-aP.x*uRot.y+aP.y*uRot.x,u=aP.z,p=u*uRot.z-l*uRot.w,q=l*uRot.z+u*uRot.w;vec2 s=vec2(uPrj.y+c*uPrj.x,uPrj.z-p*uPrj.x);
+gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,-q*uPrj.x*uPrj.w,1.);vO=aP;vNo=aN;vV=vec3(c,p,q)*uPrj.x;}`
+let FS=`precision highp float;uniform sampler2D uCap;uniform sampler2D uBack;uniform sampler2D uCore;uniform vec4 uRot;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;uniform float uH;uniform vec2 uCs;uniform float uTb;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
+float h3(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h3(i),h3(i+vec3(1.,0.,0.)),f.x),mix(h3(i+vec3(0.,1.,0.)),h3(i+vec3(1.,1.,0.)),f.x),f.y),mix(mix(h3(i+vec3(0.,0.,1.)),h3(i+vec3(1.,0.,1.)),f.x),mix(h3(i+vec3(0.,1.,1.)),h3(i+vec3(1.,1.,1.)),f.x),f.y),f.z);}
+vec3 toV(vec3 v){float c=v.x*uRot.x+v.y*uRot.y,l=-v.x*uRot.y+v.y*uRot.x;return vec3(c,v.z*uRot.z-l*uRot.w,l*uRot.z+v.z*uRot.w);}
+vec3 toO(vec3 v){return vec3(v.x*uRot.x+v.y*uRot.y*uRot.w-v.z*uRot.y*uRot.z,v.x*uRot.y-v.y*uRot.x*uRot.w+v.z*uRot.x*uRot.z,v.y*uRot.z+v.z*uRot.w);}
+float core(vec3 o){return texture2D(uCore,vec2(o.x/uCs.x*.8+.5,.5-o.z/uCs.y*.8)).r;}
+vec3 strip(float x,float w,float I){float k=1.-smoothstep(0.,w,abs(x));return mix(vec3(.5,.78,1.),vec3(1.),smoothstep(.3,.7,k))*I*k*k;}
+vec3 env(vec3 r){float az=atan(r.x,r.z)+uSl,el=asin(clamp(r.y,-1.,1.)),tl=1.-smoothstep(.5,1.,abs(el+.1)),ab=abs(az);
+if(uLt<.5){vec3 e=vec3(.02,.035,.07)+vec3(.03,.06,.14)*smoothstep(-.3,1.,r.y);e+=vec3(.9,1.,1.1)*smoothstep(2.45,2.85,ab)*smoothstep(-.35,.1,el);e+=vec3(1.5,1.6,1.7)*smoothstep(2.75,3.,ab)*smoothstep(.12,.25,el)*(1.-smoothstep(.55,.75,el));
+e+=strip(az-1.38,.045,24.)*tl;e+=strip(az-1.0,.03,16.)*tl;e+=strip(az-1.72,.035,18.)*tl;e+=vec3(.08,.14,.3)*(1.-smoothstep(0.,.7,abs(az-.95)))*tl;e+=strip(az-1.12,.025,9.)*tl;e+=strip(az+1.85,.08,26.)*tl;e+=strip(az+2.15,.03,8.)*tl;e+=strip(az+.25,.06,14.)*tl;e+=strip(az+2.55,.06,6.)*(1.-smoothstep(.3,.8,abs(el+.5)));return e;}
+vec3 e=vec3(.9,.94,1.)-vec3(.35,.3,.2)*smoothstep(-.05,-.5,el);e*=1.-.9*(1.-smoothstep(0.,.05,abs(az-1.38)))*tl;e*=1.-.75*(1.-smoothstep(0.,.03,abs(az-1.0)))*tl;e*=1.-.8*(1.-smoothstep(0.,.035,abs(az-1.72)))*tl;e*=1.-.9*(1.-smoothstep(0.,.07,abs(az+1.85)))*tl;e*=1.-.8*(1.-smoothstep(0.,.05,abs(az+.25)))*tl;e+=strip(az-1.12,.05,5.)*tl;e+=vec3(1.4)*smoothstep(2.75,3.,ab)*smoothstep(.12,.25,el);return e;}
+vec3 bgAt(vec2 uv){vec4 c=texture2D(uCap,clamp(uv,0.,1.));return mix(uBg,c.rgb,c.a);}
+vec3 thr(vec2 uv,vec2 o){vec3 c;vec4 b;b=texture2D(uBack,uv+o);c.r=b.a>.5?b.r:bgAt(uv+o).r;b=texture2D(uBack,uv+o*1.05);c.g=b.a>.5?b.g:bgAt(uv+o*1.05).g;b=texture2D(uBack,uv+o*1.1);c.b=b.a>.5?b.b:bgAt(uv+o*1.1).b;return c;}
+vec3 ABS(float l){return uLt>.5?exp(-vec3(2.2,1.,.25)*l):exp(-vec3(2.6,1.2,.3)*l);}
+void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;
+if(uPass<.5){if(N.z>0.)discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
+float cw=core(vO);
+if(dot(Tt,Tt)<1e-4)c=min(env(r),vec3(1.6))*(uLt>.5?vec3(.3,.55,1.):vec3(.22,.5,1.));else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi)+env(r)*max(Fi,.05)*vec3(.6,.8,1.);}
+c=c*ABS(.45+.4*cw)+(uLt>.5?vec3(.0,.05,.2):vec3(.02,.12,.42))*(.6+.4*cw);gl_FragColor=vec4(min(c,vec3(1.)),1.);}
+else{if(N.z<=0.)discard;
+vec3 No=normalize(vNo),O=vO;float fy=abs(No.y);
+vec3 g=vec3(n3(O*9.),n3(O*9.+5.2),n3(O*9.+11.7))-.5;g+=.5*(vec3(n3(O*23.+2.),n3(O*23.+8.),n3(O*23.+3.))-.5);
+vec3 Nb=normalize(No+g*(.004+.018*fy*smoothstep(.4,.8,n3(O*2.1))+.09*smoothstep(.6,.9,abs(No.z))));
+vec2 P2=fy>.6?O.xz:vec2(dot(O.xz,normalize(vec2(-No.z,No.x)+1e-5)),O.y);float sc=0.;vec2 sd=vec2(0.);
+for(int i=0;i<3;i++){float th=float(i)*1.13+.4;vec2 dr=vec2(cos(th),sin(th)),pr=vec2(-dr.y,dr.x);float u=dot(P2,pr)*38.,cl=floor(u);float hh=h3(vec3(cl,float(i)*7.3,3.1));
+float ln=step(hh,.05)*(1.-smoothstep(.0,.07,abs(fract(u)-.5)))*smoothstep(.62,.75,n3(vec3(dot(P2,dr)*4.,cl,float(i))));sc+=ln;sd+=pr*ln;}
+Nb=normalize(Nb+vec3(sd.x,0.,sd.y)*.35*(fy>.6?1.:0.)+vec3(0.,sd.y,0.)*.35*(fy>.6?0.:1.));
+vec3 Nv=normalize(toV(Nb));float cs=max(dot(Nv,V),0.),F=.02+.98*pow(1.-cs,5.);vec3 T=refract(-V,Nv,1./1.31);
+vec3 Vo=toO(V),To=refract(-Vo,Nb,1./1.31);float ln0=abs(To.y)>.05?((To.y>0.?uH:-uH)-O.y)/To.y:2.4*uH;ln0=clamp(ln0,.1*uH,2.4*uH);
+float fr=0.,bu=0.;for(int i=0;i<4;i++){float s=(float(i)+.5)/4.;vec3 q=O+To*ln0*s;float cy=1.-abs(q.y)/uH,cw=core(q);
+float dn=.55*n3(q*3.2)+.3*n3(q*7.9+4.)+.15*n3(q*vec3(19.,5.,19.));float cc=smoothstep(.45,.95,cw);fr+=smoothstep(.54,.7,dn+.1*cy)*cc*(.3+.7*cy)*(.45+.9*n3(q*27.+9.));fr+=(1.-smoothstep(.0,.02,abs(n3(q*vec3(3.,6.,3.)+1.3)-.5)))*smoothstep(.2,.7,cw)*smoothstep(.55,.75,n3(q*1.7+4.))*.45;
+vec3 bq=q*34.,bi=floor(bq),bf=fract(bq)-vec3(h3(bi),h3(bi+3.1),h3(bi+7.7))*.8-.1;float bh=h3(bi+1.7);bu+=step(bh,.35)*(1.-smoothstep(.06,.13,length(bf)))*(.3+.7*cw);}
+fr=min(1.,fr*.45);bu=min(1.,bu);
+vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9),fc=uLt>.5?vec3(.85,.95,1.05):vec3(.8,.94,1.1);
+body=mix(body,fc,min(1.,fr*1.1))+vec3(.85,.95,1.)*bu*.55+fc*sc*.18;
+vec3 R=reflect(-V,Nv);vec3 rf=vec3(env(R+vec3(.002,0.,0.)).r,env(R).g,env(R-vec3(.002,0.,0.)).b);
+float ed=1.-smoothstep(.0,.35,cs),chf=smoothstep(.2,.35,fy)*(1.-smoothstep(.85,.95,fy));vec3 col=body*(1.-F)+rf*F+vec3(.55,.8,1.)*ed*ed*ed*(uLt>.5?.12:.22);
+col+=(uLt>.5?vec3(.8,.93,1.)*.55:vec3(.78,.93,1.)*.9)*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
+float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)));
+gl_FragColor=vec4(min(col,vec3(1.)),1.);}}`
+let sh=(t0,s0)=>{let q=gl.createShader(t0);gl.shaderSource(q,s0),gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(q);return q},pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)),gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)),gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0
+let U={};for(const k of[`uRot`,`uPrj`,`uRes`,`uCap`,`uBack`,`uCore`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uH`,`uCs`,`uTb`])U[k]=gl.getUniformLocation(pr,k)
+let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const[k,v0]of[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v0);return t0}
+Object.assign(ngS,{c,gl,pr,U,vb:gl.createBuffer(),tc:tx(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),cap:document.createElement(`canvas`),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
+function ngCore(L){let R=128,c=document.createElement(`canvas`);c.width=c.height=R;let x=c.getContext(`2d`),sx=R*.8/L.w,sy=R*.8/704,px=R*.1;x.fillStyle=`#fff`;x.beginPath();for(const r0 of L.parts){r0.poly.forEach(([q0,q1],k)=>{let X0=px+q0*sx,Y0=R-px-q1*sy;k?x.lineTo(X0,Y0):x.moveTo(X0,Y0)});x.closePath()}x.fill()
+let D=x.getImageData(0,0,R,R).data,A=new Float32Array(R*R),B=new Float32Array(R*R);for(let k=0;k<R*R;k++)A[k]=D[k*4]/255;let M=A.slice()
+for(let it=0;it<3;it++){for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let s=0;for(let k=-6;k<=6;k++)s+=A[y*R+Math.min(R-1,Math.max(0,x0+k))];B[y*R+x0]=s/13}for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let s=0;for(let k=-6;k<=6;k++)s+=B[Math.min(R-1,Math.max(0,y+k))*R+x0];A[y*R+x0]=s/13}}
+let mx=0;for(let k=0;k<R*R;k++)mx=Math.max(mx,A[k]);let o=new Uint8Array(R*R*4);for(let k=0;k<R*R;k++){let v0=M[k]*Math.min(1,Math.max(0,(A[k]/mx-.5)/.42));o[k*4]=o[k*4+1]=o[k*4+2]=Math.round(255*v0*v0*(3-2*v0)),o[k*4+3]=255}return o}
+function ngGL(yw,pt,Lay,f){let S0=ngS,gl=S0.gl,L=t[v],lt0=hLt(),kq=Math.min(1,2/(d.width/g)),W=Math.max(2,Math.round(d.width*kq)),H=Math.max(2,Math.round(d.height*kq))
+if(ngML!==L){ngM=ngMesh(L),ngML=L;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb),gl.bufferData(gl.ARRAY_BUFFER,ngM.buf,gl.STATIC_DRAW);gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,128,128,0,gl.RGBA,gl.UNSIGNED_BYTE,ngCore(L)),gl.activeTexture(gl.TEXTURE0)}
+if(S0.W!==W||S0.H!==H){S0.W=W,S0.H=H,S0.c.width=W,S0.c.height=H;gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,W,H,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.bindRenderbuffer(gl.RENDERBUFFER,S0.rb),gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,W,H);gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,S0.tb,0),gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,S0.rb);S0.cap.width=Math.round(W/2),S0.cap.height=Math.round(H/2);S0.gw.width=Math.max(2,Math.round(W/8)),S0.gw.height=Math.max(2,Math.round(H/8))}
+let cq=S0.cap.getContext(`2d`);cq.clearRect(0,0,S0.cap.width,S0.cap.height),cq.drawImage(d,0,0,S0.cap.width,S0.cap.height)
+gl.activeTexture(gl.TEXTURE0),gl.bindTexture(gl.TEXTURE_2D,S0.tc),gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,S0.cap),gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false)
+gl.useProgram(S0.pr);let U=S0.U,sc=Lay.scale*kq,bw=190*a*sc;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb);let aP=gl.getAttribLocation(S0.pr,`aP`),aN=gl.getAttribLocation(S0.pr,`aN`);gl.enableVertexAttribArray(aP),gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0),gl.enableVertexAttribArray(aN),gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12)
+gl.uniform4f(U.uRot,Math.cos(yw),Math.sin(yw),Math.cos(pt),Math.sin(pt)),gl.uniform4f(U.uPrj,sc,Lay.ox*kq,Lay.oy*kq,1/(2*Math.max(W,H))),gl.uniform2f(U.uRes,W,H),gl.uniform1f(U.uD,1.4*704*a*sc),gl.uniform2f(U.uK,.22*bw/W,.22*bw/H)
+gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform1f(U.uH,NIH*a),gl.uniform2f(U.uCs,L.w*a,704*a),gl.uniform1f(U.uTb,Math.min(1,hH)),gl.uniform1i(U.uCap,0),gl.uniform1i(U.uBack,1),gl.uniform1i(U.uCore,2)
+gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.activeTexture(gl.TEXTURE0)
+gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewport(0,0,W,H)
+gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clearColor(0,0,0,0),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
+gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE0)
+p.save(),p.setTransform(1,0,0,1,0,0)
+if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(40,110,255)`,gx.shadowBlur=Math.max(2,gw.width*.07),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=f*.9,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
+p.globalAlpha=f,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height),p.restore()}
+function niDraw(yw,pt,Lay,y0,y1){niStep();if(!niOn())return;if(!ngS){setTimeout(ngInit,0),ngS=0}if(ngS===0)return;if(ngOK){if(niF>.005&&y1>y0)try{ngGL(yw,pt,Lay,niF)}catch(e){ngOK=0;console.warn(e)}return}ng2D(yw,pt,Lay,y0,y1)}
+/* v513 electric A arcs (shipped from preview/egg-a-arcs d6107c4; Hang: "This is what we are missing in the A", Pikachu-style electricity): the A only, on top of the live A (yellow
+   fill, gZap crackle, electrons and linger untouched). Thin jagged lightning arcs that hug the A's wires: crawl (a bolt riding along one edge,
+   sliding as it lives), jump (a bolt between a point on one wire and the nearest point on another wire 14-80px away, e.g. across a leg or the
+   bar), flick (a short bolt off a wire into the air). Each arc lives 80-240ms (8ms steps), its path re-randomised every 32ms (midpoint
+   displacement, irregular kinks) with 0-2 fine branches. Spawn rate and count follow spin speed (hW) and the A's charge; after release they thin
+   out with the live linger (gzRes x gzE) and stop. Colour = the live A's family: white-hot core GEH #FFFCE2 (~#FFFBE6) over a thin GY yellow glow
+   (two soft stroke layers, additive); light theme (Hang: like H and G, the same hues deepened, no brown): like the H (#FF7A1A -> #D9480F) the whole A deepens to #D29C00 on light, and every bolt-like thing on light (arcs and branches, crackle, electron cores) is EXACTLY #D29C00 (source-over, no underlay/glow layers or shadow, so overlaps cannot darken; arcs opaque, the crackle keeps its translucent alpha); arcs and branches also carry the dark theme's white-hot GEH #FFFCE2 core line (same 1.1px width), which flickers. Ink at rest. */
+const AAX=18;let aaA=[],aaE=null,aaEL=null,aaL=0
+function aaLv(){return r||!t[v]||t[v].name!==`A`?0:Math.max(hH,gzRes*gzE)}
+function aaPt(P2,e,u){let[A1,B1]=P2[e];return[A1.x+(B1.x-A1.x)*u,A1.y+(B1.y-A1.y)*u]}
+function aaBolt(ax,ay,bx,by,sd,rg,o){let pts=[[ax,ay],[bx,by]];for(let lv=0;lv<4;lv++){let nx=[pts[0]];for(let k=0;k<pts.length-1;k++){let[x1,y1]=pts[k],[x2,y2]=pts[k+1],dx=x2-x1,dy=y2-y1,l0=Math.hypot(dx,dy)||1,j=(gzH(sd,k,lv*31+7)*2-1)*l0*rg,m=.35+.3*gzH(sd,k,lv*31+8);nx.push([x1+dx*m-dy/l0*j,y1+dy*m+dx/l0*j]),nx.push(pts[k+1])}pts=nx}o.push(pts);return pts}
+function aaDraw(yw,pt,Lay){let lv=aaLv(),nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(aaL||nw))/1e3));aaL=nw;if(lv<=.02&&!aaA.length)return;let L=t[v],k0=d.width/g,lt0=hLt()
+aaEL!==L&&(aaE=De(L,0),aaEL=L,aaA.length=0);let P2=aaE.map(([q1,q2])=>[X(q1,yw,pt,Lay.scale,Lay.ox,Lay.oy),X(q2,yw,pt,Lay.scale,Lay.ox,Lay.oy)]),ne=P2.length
+aaA=aaA.filter(a0=>nw-a0.t0<a0.lf);let sp=Math.min(1,hW/HW1),rate=lv>.02?lv*(14+70*sp):0,n0=Math.floor(rate*dt+Math.random()*Math.min(1,rate*dt*3))
+for(let k=0;k<n0&&aaA.length<Math.round(4+AAX*lv*(.4+.6*sp));k++){let e=Math.floor(Math.random()*ne),[A1,B1]=P2[e];if(Math.hypot(B1.x-A1.x,B1.y-A1.y)<12*k0){k--;if(Math.random()<.3)break;continue}
+let ty=Math.random(),a0={t0:nw,lf:8*(10+Math.floor(21*Math.random())),e,u:Math.random(),sd:Math.floor(Math.random()*1e9),ty:ty<.5?0:ty<.82?1:2,ln:(22+48*Math.random())*k0,vu:(Math.random()<.5?-1:1)*(.6+1.2*Math.random()),ang:Math.random()*Math.PI*2}
+if(a0.ty===1){let best=null,bd=1/0,[px,py]=aaPt(P2,e,a0.u);for(let s=0;s<8;s++){let e2=Math.floor(Math.random()*ne);if(e2===e)continue;let u2=Math.random(),[qx,qy]=aaPt(P2,e2,u2),dd=Math.hypot(qx-px,qy-py);dd>14*k0&&dd<80*k0&&dd<bd&&(bd=dd,best=[e2,u2])}best?(a0.e2=best[0],a0.u2=best[1]):(a0.ty=0)}aaA.push(a0)}
+if(!aaA.length)return;let bolts=[],brs=[],sub=Math.floor(nw/32),en=Math.min(1,lv*1.6)
+for(let a0 of aaA){let ag=(nw-a0.t0)/a0.lf,sd=a0.sd+sub*7919,[A1,B1]=P2[a0.e],el=Math.hypot(B1.x-A1.x,B1.y-A1.y)||1,ax,ay,bx,by,rg=.42
+if(a0.ty===0){let uc=a0.u+a0.vu*ag*.25,du=a0.ln/el/2;uc=Math.max(du,Math.min(1-du,uc));[ax,ay]=aaPt(P2,a0.e,Math.max(0,uc-du));[bx,by]=aaPt(P2,a0.e,Math.min(1,uc+du));rg=.3}
+else if(a0.ty===1){[ax,ay]=aaPt(P2,a0.e,a0.u);[bx,by]=aaPt(P2,a0.e2,a0.u2)}
+else{[ax,ay]=aaPt(P2,a0.e,a0.u);let l2=a0.ln*.45;bx=ax+Math.cos(a0.ang)*l2,by=ay+Math.sin(a0.ang)*l2}
+let pts=aaBolt(ax,ay,bx,by,sd,rg,bolts);pts.al=(1-ag*ag)*(.75+.25*gzH(sd,1,3))
+let nb=Math.floor(gzH(sd,2,5)*2.6);for(let b=0;b<nb;b++){let i0=2+Math.floor(gzH(sd,b,9)*(pts.length-4)),[cx,cy]=pts[i0],dx=bx-ax,dy=by-ay,l0=Math.hypot(dx,dy)||1,an=Math.atan2(dy,dx)+(gzH(sd,b,11)<.5?-1:1)*(.5+.7*gzH(sd,b,12)),bl=l0*(.18+.22*gzH(sd,b,13)),bp=aaBolt(cx,cy,cx+Math.cos(an)*bl,cy+Math.sin(an)*bl,sd+b*101,.35,brs);bp.al=pts.al*.7}}
+let Yc=hWho()[0].join(`,`),LY=[[5,Yc,.2],[2.6,Yc,.45],[1.1,GEH,1]]
+p.save(),p.globalCompositeOperation=lt0?`source-over`:`lighter`,p.lineJoin=`miter`,p.miterLimit=4,p.lineCap=`round`
+if(lt0){for(let[arr,wm]of[[bolts,1],[brs,.7]])for(let q of arr){p.beginPath();q.forEach(([x,y],k)=>k?p.lineTo(x,y):p.moveTo(x,y));p.lineWidth=2.6*wm*k0,p.strokeStyle=`rgb(${Yc})`,p.stroke(),p.lineWidth=1.1*wm*k0,p.strokeStyle=`rgba(${GEH},${Math.min(1,q.al*en)})`,p.stroke()}}
+else for(let[w1,c1,a1]of LY)for(let[arr,wm]of[[bolts,1],[brs,.7]])for(let q of arr){p.beginPath();q.forEach(([x,y],k)=>k?p.lineTo(x,y):p.moveTo(x,y));p.lineWidth=w1*wm*k0,p.strokeStyle=`rgba(${c1},${Math.min(1,a1*q.al*en)})`,p.stroke()}
+p.restore()}
+function hFill(y0,y1,al){if(niOn()&&niF>0&&y1>y0)return niFill(y0,y1,al);if(t[v]&&t[v].name===`G`&&y1>y0)return gxFill(y0,y1,al);if(hH<=0||!hWho()||!(y1>y0))return`rgba(${ee},${al})`;let P0=hPal(),gr=p.createLinearGradient(0,y1,0,y0),F0=hH*(1+HWD);for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD));gr.addColorStop(q,`rgba(${P0[Math.round((hOp()?c*hH:c)*32)]},${al})`)}return gr}_();let v=t.findIndex(e=>e.name===(n.get(`letter`)||`N`).toUpperCase());v<0&&(v=0);let y=`idle`,b=0,x=s,S=s,C=c,E=0,D=0,O=0,k=0,A=null,j=0,M=0,N=null,P=[],F=0,I=!0,L=0,R=performance.now(),z=matchMedia(`(pointer: coarse)`).matches,ne=2.2,B=!1,V=!1,H=!1,re=0,ie=0,U=s,ae=c;function oe(){let n=t[v].name;h.forEach((e,t)=>e.setAttribute(`aria-pressed`,String(t===v))),e.setAttribute(`aria-label`,`Wireframe letter ${n}`)}function se(e){return e>=1?1:1-2**(-10*e)}function ce(){P.length=0,F=0}/* kalimba notches on the H (sound follows motion; the spin itself is untouched): one note each time the yaw passes a 36deg notch during the
+   auto-spin, a drag or a release fling (not tilt). Level follows angular speed, sqrt(w/1200deg/s) capped at 1; below 60deg/s no notes, so the
+   trill thins and fades as the spin decelerates. At most one note per frame; js/sfx.js dingNote() (v488: every letter, one 100ms sine ding at the letter's pitch,
+   KHZ: A 4240, N 4770, H 5300, G 6360 Hz = 1, 9/8, 5/4, 3/2 of 4240) keeps notes >=64ms apart and rings each for .8x the time to the next notch. Within 2 notches of
+   the rest pose of a spin or fling (read only: s, A.yaw0+A.dy) no audible note follows, so that note rings its full tail (ring = Infinity). */
+let kS=null,kL=0;const KSTEP=Math.PI/5,KWMIN=Math.PI/3,KW0=Math.PI*20/3;const KHZ={H:5300,A:4240,N:4770,G:6360};function kHalt(){const q=window.dbhSfx;if(q&&q.kalimbaStop)q.kalimbaStop();if(q&&q.dingStop)q.dingStop();}
+function kTick(n){const hz=t[v]&&KHZ[t[v].name],src=y===`spin`||N||A;if(!hz||kS==null||!src||r||i){kS=S,kL=n;return}
+let dt=Math.max(.001,(n-kL)/1e3),d=S-kS,c0=Math.abs(Math.floor(S/KSTEP)-Math.floor(kS/KSTEP));kS=S,kL=n;if(!c0)return;let w=Math.abs(d)/dt;if(w<KWMIN)return;
+let g=.6*Math.min(1,w/KW0)**.5,q=window.dbhSfx,end=y===`spin`?s:!N&&A?A.yaw0+A.dy:null;if(!q||!q.dingNote)return;q.dingNote(g,end!=null&&Math.abs(end-S)<2*KSTEP?1/0:KSTEP/w,hz)}
+function W(e){v=e,oe(),E=0,D=0,A=null,ce(),N=null,d.classList.remove(`is-dragging`),H=!1,V=!1;kHalt();kS=null;r||i?(S=s,C=c,y=`idle`,Q()):(C=c,x=s+Math.PI*4,S=x,b=0,y=`spin`)}h.forEach(e=>{e.addEventListener(`click`,()=>W(Number(e.dataset.letter)))});function le(){return Math.PI*2/Math.max(220,window.innerWidth*.42)}function ue(){return Math.PI*4/Math.max(220,window.innerHeight*.42)}let lm=null;function reOver(){d.classList.toggle(`is-over`,hit(lm))}function hit(e){let R0=d.getBoundingClientRect();if(!R0.width)return!1;let k=d.width/R0.width,px=(e.clientX-R0.left)*k,py=(e.clientY-R0.top)*k,L=t[v],n=ke(),tol=12*k;let pin=P2=>{let inn=!1;for(let i=0,j=P2.length-1;i<P2.length;j=i++){let A1=P2[i],B1=P2[j];A1.y>py!=B1.y>py&&px<(B1.x-A1.x)*(py-A1.y)/(B1.y-A1.y)+A1.x&&(inn=!inn)}return inn};for(let r of L.parts){let F=[-o/2,o/2].map(yy=>r.poly.map(([s0,c0])=>X([(s0-L.w/2)*a,yy,(c0-352)*a],S,C,n.scale,n.ox,n.oy)));if(pin(F[0])||pin(F[1]))return!0;for(let i=0,m=F[0].length;i<m;i++){let j=(i+1)%m;if(pin([F[0][i],F[0][j],F[1][j],F[1][i]]))return!0}}for(let[q1,q2]of De(L,0)){let A1=X(q1,S,C,n.scale,n.ox,n.oy),B1=X(q2,S,C,n.scale,n.ox,n.oy),dx=B1.x-A1.x,dy=B1.y-A1.y,l2=dx*dx+dy*dy,u=l2?Math.max(0,Math.min(1,((px-A1.x)*dx+(py-A1.y)*dy)/l2)):0;if(Math.hypot(px-A1.x-u*dx,py-A1.y-u*dy)<tol)return!0}return!1}function G(e){z&&Ce(),i||y!==`idle`||e.button!==0||!hit(e)||(d.setPointerCapture(e.pointerId),N={x:e.clientX,y:e.clientY,yaw:S,pitch:C,lx:e.clientX,ly:e.clientY,h:[{t:performance.now(),yaw:S,pitch:C}]},E=0,D=0,O=0,k=0,A=null,d.classList.add(`is-dragging`))}function K(e){lm=e.pointerType===`mouse`?{clientX:e.clientX,clientY:e.clientY}:null;if(!N){e.currentTarget.classList.toggle(`is-over`,!!lm&&hit(lm));return}let t=performance.now(),r=le(),i=ue(),a=e.clientX-N.x,o=e.clientY-N.y,s=Math.abs(a),c=Math.abs(o),l=!0,u=!0;(s>10||c>10)&&(s>c*2.4?u=!1:c>s*2.4&&(l=!1)),S=N.yaw+(l?a*r:0),C=N.pitch+(u?o*i:0);let p=l?(e.clientX-N.lx)*r:0,m=u?(e.clientY-N.ly)*i:0;O=O*.65+p,k=k*.65+m,l&&Math.abs(O)>.008&&(E=Math.sign(O)),u&&Math.abs(k)>.008&&(D=Math.sign(k)),l||(E=0),u||(D=0),N.lx=e.clientX,N.ly=e.clientY,N.h.push({t,yaw:S,pitch:C});for(;N.h.length>2&&N.h[1].t<=t-64;)N.h.shift()}function de(e,t){return Math.atan2(Math.sin(t-e),Math.cos(t-e))}function fe(e,t,n){if(n===0)return de(e,t);let r=Math.PI*2;return n>0?((t-e)%r+r)%r:-(((e-t)%r+r)%r)}function pe(e,t,n){return Math.abs(n)>=.08?Math.sign(n):t===0?Math.abs(e)>.02?Math.sign(e):0:t}function me(e,t,n,r,i){let a=Math.min(1,Math.max(0,e/t)),o=i*t,s=r,c=10*s-6*o,l=8*o-15*s,u=6*s-3*o;return n+o*a+c*a**3+l*a**4+u*a**5}function he(e,t,n,r,i,a){let o=a?0:pe(n,r,i),s=de(e,t),c=o===0?s:fe(e,t,o),l=a||Math.abs(i)<.08?0:i;for(;l&&Math.abs(c)<Math.abs(l)*.32;)c+=o*Math.PI*2;let u=Math.abs(c),d=a?1.05:Math.min(3.2,Math.max(.9,.75+u*.38),l?2*u/Math.abs(l):3.2);return{dist:c,speed:l,dur:d}}function ge(e=!1,t=0,n=0,vy=0,vp=0){let r=he(S,s,t,E,vy,e),i=he(C,c,n,D,vp,e),a=Math.hypot(r.dist,i.dist),o=Math.hypot(r.speed,i.speed);!e&&o<.02&&a<4e-4?A=null:(M=0,A={t:0,yawDur:r.dur,pitchDur:i.dur,yaw0:S,pitch0:C,dy:r.dist,dp:i.dist,vy:r.speed,vp:i.speed})}function q(){if(!N)return;let e=S-N.yaw,t=C-N.pitch,n=performance.now(),h=N.h;for(;h.length>1&&h[1].t<=n-64;)h.shift();let a=Math.max(.001,(n-h[0].t)/1e3);N=null,d.classList.remove(`is-dragging`),r||i||(B?H=!1:ge(!1,e,t,(S-h[0].yaw)/a,(C-h[0].pitch)/a))}function _e(){y===`idle`&&(N=null,d.classList.remove(`is-dragging`),E=0,D=0,r||i?(S=s,C=c,A=null,Q()):ge(!0))}function ve(e,t){let n=((screen.orientation?.angle??(Number(window.orientation)||0))%360+360)%360;return n===90?{roll:e,nod:-t}:n===270?{roll:-e,nod:t}:n===180?{roll:-t,nod:-e}:{roll:t,nod:e}}function ye(e){if(!I||N||y===`spin`||i||r||e.beta==null||e.gamma==null)return;let{roll:t,nod:n}=ve(e.beta,e.gamma);if(!H){re=t,ie=n,U=S,ae=C,H=!0,B=!0,V=!1,A=null;return}let a=Math.PI/180,o=U-(t-re)*a*ne,s=ae+(n-ie)*a*ne,c=o-S,l=s-C;Math.hypot(c,l)<.012?V=!1:(S+=c*.45,C+=l*.45,V=!0,A=null)}function J(){H=!1}let be=!1,xe=!1;function Se(){be||(be=!0,window.addEventListener(`deviceorientation`,ye),window.addEventListener(`orientationchange`,J),screen.orientation?.addEventListener(`change`,J))}function Ce(){if(!EGG_GYRO||!z||r||i||xe)return;xe=!0;let e=window.__dbhMotion,t=DeviceOrientationEvent;(e??(t!==void 0&&typeof t.requestPermission==`function`?t.requestPermission().catch(()=>`denied`):Promise.resolve(`granted`))).then(e=>{I&&e===`granted`&&Se()})}EGG_GYRO&&z&&(window.__dbhMotion||typeof DeviceOrientationEvent.requestPermission!=`function`)&&Ce(),d.addEventListener(`pointerdown`,G),d.addEventListener(`pointermove`,K),d.addEventListener(`pointerleave`,()=>{lm=null,d.classList.remove(`is-over`)}),d.addEventListener(`pointerup`,q),d.addEventListener(`pointercancel`,q),d.addEventListener(`dblclick`,_e);function Y(){let t=Math.min(2,devicePixelRatio||1);g=Math.max(1,e.clientWidth),te=Math.max(1,e.clientHeight),d.width=Math.floor(g*t),d.height=Math.floor(te*t)}function X(e,t,n,r,i,a){let o=Math.cos(t),s=Math.sin(t),c=e[0]*o+e[1]*s,l=-e[0]*s+e[1]*o,u=e[2],d=Math.cos(n),f=Math.sin(n),p=u*d-l*f;return{x:i+c*r,y:a-p*r}}function we(e,t){let n=e.length,r=e[(t+n-1)%n],i=e[t],a=e[(t+1)%n],o=r[0]-i[0],s=r[1]-i[1],c=a[0]-i[0],l=a[1]-i[1],u=Math.hypot(o,s),d=Math.hypot(c,l);if(u<1e-6||d<1e-6)return Math.PI;let f=Math.max(-1,Math.min(1,(o*c+s*l)/(u*d)));return Math.acos(f)}function Te(e,t){return e.length<=12||we(e,t)<2.55||t%11==0}function Ee(e,t,n){let r=[],i=[];for(let[s,c]of e){let e=(s-t/2)*a+n[0],l=(c-352)*a+n[2],u=n[1];r.push([e,u-o/2,l]),i.push([e,u+o/2,l])}let s=[],c=e.length;for(let t=0;t<c;t++){let n=(t+1)%c;(r[t][0]!==r[n][0]||r[t][2]!==r[n][2])&&(s.push([r[t],r[n]],[i[t],i[n]]),Te(e,t)&&s.push([r[t],i[t]]))}return s}function De(e,t){let n=[];for(let r of e.parts){let i=[r.from[0]*t,r.from[1]*t,r.from[2]*t];n.push(...Ee(r.poly,e.w,i))}return n}let Z=null;function Oe(){if(Z)return Z;let e=1,n=1;for(let r of t){let t=De(r,0);for(let r=0;r<8;r++){let i=Math.PI*2*r/8;for(let r of[0,Math.PI/2,Math.PI])for(let[a,o]of t)for(let t of[a,o]){let a=X(t,i,r,1,0,0);e=Math.max(e,Math.abs(a.x)),n=Math.max(n,Math.abs(a.y))}}}return Z={mx:e,my:n},Z}function ke(){let e=d.width,t=d.height,n=e/g,r=28*n,i=64*n,a=100*n,{mx:o,my:s}=Oe();return{scale:Math.min((e-r*2)/(2*o),(t-i-a)/(2*s))*.94,ox:e/2,oy:i+(t-i-a)/2}}function Ae(e,t,n,r,i,a){p.beginPath();let o=d.width/g;p.lineWidth=2*o,p.lineJoin=`round`,p.lineCap=`round`;let y0=1/0,y1=-1/0;for(let[i,o]of De(e,t)){let e=X(i,n,r,a.scale,a.ox,a.oy),t=X(o,n,r,a.scale,a.ox,a.oy);p.moveTo(e.x,e.y),p.lineTo(t.x,t.y);y0=Math.min(y0,e.y,t.y),y1=Math.max(y1,e.y,t.y)}p.strokeStyle=hFill(y0,y1,i===1?gzFl(e):i);let gw0=i===1?hGlow(e,o):0;p.stroke();gw0&&(p.shadowBlur=0)
+i===1&&(gzDraw(n,r,a),gzElec(n,r,a),hfDraw(n,r,a,y0,y1),gxDraw(n,r,a),aaDraw(n,r,a),niDraw(n,r,a,y0,y1))}function je(e){if(!(r||i)){if(!(N||A||y===`spin`||V))F+=e,F>.045&&P.length&&(P.shift(),F=0);else if(F+=e,!(P.length&&F<.032))for(F=0,P.push({yaw:S,pitch:C});P.length>14;)P.shift()}}function Q(){let e=y===`idle`&&!N&&!A&&!B&&!r&&!i?Math.sin(j*.35)*.04*Math.min(1,M/1.6):0;p.setTransform(1,0,0,1,0,0),p.clearRect(0,0,d.width,d.height);let n=ke(),a=P.length;for(let e=0;e<a;e++){let r=P[e],i=((e+1)/(a+1))**1.35;Ae(t[v],0,r.yaw+ngYo(),r.pitch+ngPo(),.05+i*.34,n)}Ae(t[v],0,S+e+ngYo(),C+ngPo(),1,n)}function Me(e){if(!I)return;let t=Math.min(.05,(e-R)/1e3);if(R=e,_(),!i&&!r){if(j+=t,y===`spin`){b+=t;let e=Math.min(1,b/l);S=x+(s-x)*se(e),e>=1&&(S=s,y=`idle`)}else if(!N&&A){A.t+=t;let e=A.t>=A.yawDur,n=A.t>=A.pitchDur;S=e?A.yaw0+A.dy:me(A.t,A.yawDur,A.yaw0,A.dy,A.vy),C=n?A.pitch0+A.dp:me(A.t,A.pitchDur,A.pitch0,A.dp,A.vp),e&&n&&(A=null,E=0,D=0,M=0)}y===`idle`&&!N&&!A&&!V?M+=t:M=0,je(t)}kTick(e),hStep(t),Q(),!N&&lm&&reOver(),i||(L=requestAnimationFrame(Me))}let Ne=new ResizeObserver(()=>{Y(),(i||r)&&Q()});Ne.observe(e);let Pe=new MutationObserver(_);Pe.observe(document.documentElement,{attributes:!0,attributeFilter:[`data-theme`]});let $=()=>Y();window.addEventListener(`resize`,$);function Fe(e){return e.key===`ArrowRight`?(e.preventDefault(),e.stopPropagation(),W((v+1)%t.length),!0):e.key===`ArrowLeft`&&(e.preventDefault(),e.stopPropagation(),W((v+t.length-1)%t.length),!0)}return W(v,!0),Y(),R=performance.now(),L=requestAnimationFrame(Me),{destroy(){I=!1,cancelAnimationFrame(L),Ne.disconnect(),Pe.disconnect(),window.removeEventListener(`resize`,$),window.removeEventListener(`deviceorientation`,ye),window.removeEventListener(`orientationchange`,J),screen.orientation?.removeEventListener(`change`,J),d.removeEventListener(`pointerdown`,G),d.removeEventListener(`pointermove`,K),d.removeEventListener(`pointerup`,q),d.removeEventListener(`pointercancel`,q),d.removeEventListener(`dblclick`,_e),e.replaceChildren()},tabs:()=>h.filter(e=>e.isConnected),key:Fe}}e.mount=d})(this.HangWire=this.HangWire||{});
