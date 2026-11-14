@@ -189,43 +189,73 @@ const HWD=.36;/* preview/egg-n-ice (throwaway; Hang: "turn the N into ice", 404 
    2400ms (all 8ms multiples); spinning fast again cancels the freeze (128ms). Frozen look, over the line art and inside the N's own outline
    (front/back face polygons, no distortion): translucent pale-cyan ice body (two face fills, so the overlap reads thicker), cloudy white frost
    patches and internal fracture lines (fixed per letter, on the mid-depth plane, cracks grow in as it freezes), one glint sweeping across,
-   bright frosted rims (white core + faint cyan glow on dark; deeper ice blue on light). Sound: dbhSfx.iceFreeze(level) at the freeze (preview sfx.js). */
+   v2 (Hang, build v1 vs the clear-ice 404 ref): no glowing outline; the wires fade to ~40% under the ice; the ice is a procedural texture made once per
+   letter/theme (niTex) in glyph space and mapped onto the front face (and, fainter, the back face) with the face's own affine transform, plus side
+   walls: clear tinted base, milky fbm frost denser in each stroke's core (clear toward the edges), darker refraction bands, soft chipped frosty bevels
+   bright where they face the top-left light and fading elsewhere, feathery internal fractures at several depths (blurred / sharp), tiny trapped
+   bubbles and frozen-air clusters, a few sun-catch hotspots. Sound: dbhSfx.iceFreeze(level) at the freeze (preview sfx.js). */
 let niF=0,niT=0,niM=0,niPk=0,niL=0,niG=null,niGL=null
 function niOn(){return!!t[v]&&t[v].name===`N`}
 function niR(s){return()=>(s=(s*1103515245+12345)%2147483648)/2147483648}
 function niIn(P,x,y){let c=0;for(let i=0,j=P.length-1;i<P.length;j=i++){let[xi,yi]=P[i],[xj,yj]=P[j];yi>y!=yj>y&&x<(xj-xi)*(y-yi)/(yj-yi)+xi&&(c=!c)}return c}
-function niGeo(L){let R=niR(7331),W=(s0,c0,yy)=>[(s0-L.w/2)*a,yy,(c0-352)*a],cr=[],fr=[]
-for(let pi=0;pi<L.parts.length;pi++){let P=L.parts[pi].poly,xs=P.map(q=>q[0]),ys=P.map(q=>q[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),rp=()=>{for(let k=0;k<40;k++){let x=x0+(x1-x0)*R(),y=y0+(y1-y0)*R();if(niIn(P,x,y))return[x,y]}return null}
-for(let k=0;k<5;k++){let s=rp();if(!s)continue;let pts=[s],an=R()*6.283,[x,y]=s;for(let st=0;st<4+Math.floor(R()*4);st++){an+=(R()-.5)*1.4;let l=30+60*R(),nx=x+Math.cos(an)*l,ny=y+Math.sin(an)*l;if(!niIn(P,nx,ny))break;x=nx,y=ny,pts.push([x,y])
-if(R()<.35){let b=an+(R()<.5?-1:1)*(.6+.6*R()),bl=20+35*R(),bx=x+Math.cos(b)*bl,by=y+Math.sin(b)*bl;niIn(P,bx,by)&&cr.push([W(x,y,0),W(bx,by,0)].map(q=>q))}}
-pts.length>1&&cr.push(pts.map(([x,y])=>W(x,y,(R()-.5)*o*.6)))}
-for(let k=0;k<4;k++){let s=rp();s&&fr.push({c:W(s[0],s[1],(R()-.5)*o*.4),r:(50+80*R())*a})}}
-return{faces:L.parts.map(q=>[-o/2,o/2].map(yy=>q.poly.map(([s0,c0])=>W(s0,c0,yy)))),cr,fr}}
+let niTx={}
+function niTex(L,lt0,bud){let K=L.name+lt0;if(niTx[K])return niTx[K];let J=niTx[`j`+K]||(niTx[`j`+K]=niJob(L,lt0));for(let n0=0;J.py<J.Ht&&(bud==null||n0<bud);n0++)J.row();if(J.py<J.Ht)return null;return niTx[K]=J.fin()}
+function niJob(L,lt0){let M=40,S=.62,Wd=Math.ceil((L.w+2*M)*S),Ht=Math.ceil((704+2*M)*S),cv=document.createElement(`canvas`);cv.width=Wd,cv.height=Ht;let q=cv.getContext(`2d`),R=niR(lt0?911:4242)
+let PP=L.parts.map(z=>z.poly),inU=(x,y)=>PP.some(P=>niIn(P,x,y)),E=[]
+for(const P of PP)for(let k=0;k<P.length;k++){let[x1,y1]=P[k],[x2,y2]=P[(k+1)%P.length],dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy);if(l<1)continue;let nx=dy/l,ny=-dx/l,mx=(x1+x2)/2,my=(y1+y2)/2;if(inU(mx+nx*3,my+ny*3)&&inU(mx-nx*3,my-ny*3))continue;inU(mx+nx*3,my+ny*3)&&(nx=-nx,ny=-ny);E.push([x1,y1,dx,dy,l,nx,ny])}
+let hs=(x,y,z)=>{let h=Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(z|0,2147483647)|0;h=Math.imul(h^h>>>13,1274126177);return((h^h>>>16)>>>0)/4294967296},vn=(x,y,z)=>{let xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),w=yf*yf*(3-2*yf),A=hs(xi,yi,z),B=hs(xi+1,yi,z),C=hs(xi,yi+1,z),D=hs(xi+1,yi+1,z);return A+(B-A)*u+(C-A)*w+(A-B-C+D)*u*w},fb=(x,y,z)=>{let s0=0,am=.5,f0=1;for(let o0=0;o0<5;o0++)s0+=am*vn(x*f0,y*f0,z+o0*13),am*=.5,f0*=2.03;return s0}
+let lx=-.45,ly=.9,ll=Math.hypot(lx,ly);lx/=ll,ly/=ll
+let C0=lt0?[118,174,222]:[110,175,225],CD=lt0?[34,98,172]:[40,108,190],CF=lt0?[248,251,255]:[240,248,255],id=q.createImageData(Wd,Ht),D0=id.data
+let J={py:0,Ht,row(){let py=J.py++;for(let px=0;px<Wd;px++){let x=px/S-M,y=(Ht-1-py)/S-M;if(!inU(x,y))continue;let dd=1e9,en=null
+for(const e of E){let t0=Math.max(0,Math.min(1,((x-e[0])*e[2]+(y-e[1])*e[3])/(e[4]*e[4]))),ex=e[0]+e[2]*t0-x,ey=e[1]+e[3]*t0-y,d2=ex*ex+ey*ey;d2<dd&&(dd=d2,en=e)}
+dd=Math.sqrt(dd);let core=Math.min(1,dd/70),cs=core*core*(3-2*core),wx=fb(x/150,y/150,3)*60,wy=fb(x/150,y/150,9)*60,F=fb((x+wx)/85,(y+wy)/85,1),Fh=fb(x/22+9,y/22,5),rg=(x0,y0,z)=>{let s0=0,am=.55,f0=1;for(let o0=0;o0<4;o0++){let n0=1-Math.abs(2*vn(x0*f0,y0*f0,z+o0*7)-1);s0+=am*n0*n0,am*=.5,f0*=2.1}return s0},Cr=Math.pow(Math.min(1,rg((x+wx*.5)/38,(y+wy*.5)/70,11)/.8),4),Rr=fb(x/170+4,y/120,7)
+let cloud=Math.max(0,Math.min(1,(F*.9+cs*.55-.64)/.34)),aF=cloud*(lt0?.5:.62)*(.5+.7*Fh)*(1-.45*Cr)+(lt0?.08:.1)*cs+Cr*(lt0?.7:.55)*(.35+.65*cs),band=Math.max(0,Math.min(1,(Rr-.55)/.12)),aD=band*band*(lt0?.4:.3)*(.3+.7*(1-cloud))
+let cat=Math.max(0,en[5]*lx+en[6]*ly),chip=.55+.9*vn(x/14,y/14,2)*vn(x/40,y/40,8),aB=Math.min(1,(Math.exp(-dd/7)*1.1+Math.exp(-dd/24)*.4)*(.12+.88*cat)*chip),aS=Math.exp(-dd/10)*(1-cat)*(lt0?.55:.3)
+let a0=(lt0?.3:.24)+(lt0?.08:.06)*(1-cs),col=C0.slice(),al=a0,ov=(c,aa)=>{let na=aa+al*(1-aa);if(na<=0)return;for(let k=0;k<3;k++)col[k]=(c[k]*aa+col[k]*al*(1-aa))/na;al=na}
+ov(CD,aD),ov(CF,aF),aS&&ov(CD,aS),ov([255,255,255],aB*(lt0?.9:.85))
+let o4=(py*Wd+px)*4;D0[o4]=col[0],D0[o4+1]=col[1],D0[o4+2]=col[2],D0[o4+3]=al*255}},fin(){
+q.putImageData(id,0,0)
+let T=(x,y)=>[(x+M)*S,Ht-1-(y+M)*S],ink=lt0?`255,255,255`:`250,253,255`,sk=lt0?`40,100,170`:`200,235,255`
+q.save(),q.beginPath();for(const P of PP){P.forEach(([x,y],k)=>{let[u,w]=T(x,y);k?q.lineTo(u,w):q.moveTo(u,w)}),q.closePath()}q.clip()
+let rp=()=>{for(let k=0;k<60;k++){let P=PP[Math.floor(R()*PP.length)],xs=P.map(z=>z[0]),ys=P.map(z=>z[1]),x=Math.min(...xs)+(Math.max(...xs)-Math.min(...xs))*R(),y=Math.min(...ys)+(Math.max(...ys)-Math.min(...ys))*R();if(niIn(P,x,y))return[x,y]}return[L.w/2,352]}
+/* feathery internal fractures: 3 depths (deep = blurred, faint; near = sharp) */
+for(let k=0;k<22;k++){let dp=k%3,[x,y]=rp(),an=R()*6.283,n0=3+Math.floor(R()*4),bl=[3.2,1.4,0][dp],al0=[.26,.42,.62][dp]*(lt0?.9:1),lw=[2.2,1.3,.8][dp]*(.6+.8*R())
+q.shadowBlur=bl*S*2,q.shadowColor=`rgba(${ink},${al0})`;for(let st=0;st<n0;st++){an+=(R()-.5)*1.1;let l=(14+30*R()),nx=x+Math.cos(an)*l,ny=y+Math.sin(an)*l,[u0,w0]=T(x,y),[u1,w1]=T(nx,ny)
+q.lineWidth=lw*S*(1-st/n0*.6),q.strokeStyle=`rgba(${ink},${al0*(1-st/n0*.5)})`,q.beginPath(),q.moveTo(u0,w0),q.lineTo(u1,w1),q.stroke()
+for(let fe=0;fe<3;fe++){if(R()<.45)continue;let fa=an+(R()<.5?-1:1)*(.5+.7*R()),fl=5+12*R(),t0=R(),bx=x+(nx-x)*t0,by=y+(ny-y)*t0,[u2,w2]=T(bx,by),[u3,w3]=T(bx+Math.cos(fa)*fl,by+Math.sin(fa)*fl),[u4,w4]=T(bx+Math.cos(fa+.25)*fl*.8,by+Math.sin(fa+.25)*fl*.8)
+q.fillStyle=`rgba(${ink},${al0*.45})`,q.beginPath(),q.moveTo(u2,w2),q.lineTo(u3,w3),q.lineTo(u4,w4),q.closePath(),q.fill()}
+x=nx,y=ny}}
+q.shadowBlur=0
+/* trapped bubbles + frozen-air clusters (denser toward stroke cores) */
+for(let k=0;k<14;k++){let[cx,cy]=rp(),nb=6+Math.floor(R()*14);for(let b0=0;b0<nb;b0++){let rr=Math.pow(R(),2.2)*3.4+.5,bx=cx+(R()-.5)*(30+40*R()),by=cy+(R()-.5)*(30+40*R()),[u,w]=T(bx,by),r1=rr*S
+if(rr>2){q.lineWidth=.6*S,q.strokeStyle=`rgba(${ink},.55)`,q.beginPath(),q.arc(u,w,r1,0,6.283),q.stroke(),q.fillStyle=`rgba(${sk},.12)`,q.fill(),q.fillStyle=`rgba(255,255,255,.8)`,q.beginPath(),q.arc(u-r1*.35,w-r1*.35,r1*.28,0,6.283),q.fill()}
+else q.fillStyle=`rgba(${ink},${.25+.35*R()})`,q.beginPath(),q.arc(u,w,r1*.7,0,6.283),q.fill()}}
+/* sun-catch hotspots near light-facing bevels */
+for(const e of E){let cat=Math.max(0,e[5]*lx+e[6]*ly);if(cat<.35||e[4]<80||R()<.3)continue;let t0=.2+.6*R(),hx=e[0]+e[2]*t0-e[5]*6,hy=e[1]+e[3]*t0-e[6]*6,[u,w]=T(hx,hy),rr=(18+20*R())*S,gr=q.createRadialGradient(u,w,0,u,w,rr);gr.addColorStop(0,`rgba(255,255,255,${.75*cat})`),gr.addColorStop(.35,`rgba(255,255,255,${.22*cat})`),gr.addColorStop(1,`rgba(255,255,255,0)`),q.fillStyle=gr,q.fillRect(u-rr,w-rr,2*rr,2*rr)}
+q.restore()
+return{cv,M,S,Ht}}};return J}
+function niGeo(L){let W=(s0,c0,yy)=>[(s0-L.w/2)*a,yy,(c0-352)*a];return{W,faces:L.parts.map(z=>[-o/2,o/2].map(yy=>z.poly.map(([s0,c0])=>W(s0,c0,yy))))}}
 function niStep(){let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(niL||nw))/1e3));niL=nw
 if(!niOn()||r||i){niF=0,niM=0,niPk=0;return}
 if(hW>HW0){niPk=Math.max(niPk,hH);niM&&(niM=0,niT=0)}
 if(!niM&&niPk>=.45&&!N&&hW<Math.PI){niM=1,niT=0;let q=window.dbhSfx;q&&q.iceFreeze&&q.iceFreeze(Math.min(1,niPk));niPk=0}
 if(niM){niT+=dt;let tg=niT<.24?(x=>x*x*(3-2*x))(niT/.24):niT<1.6?1:niT<2.4?(x=>1-x*x*(3-2*x))((niT-1.6)/.8):0;niF=tg;niT>=2.4&&(niM=0,niF=0)}else niF=Math.max(0,niF-dt/.128)}
-function niFill(y0,y1,al){let P0=hPal(),F0=hH*(1+HWD),ink=ee.split(`,`).map(Number),ice=hLt()?[36,110,180]:[214,240,255],m=niF*niF*(3-2*niF),gr=p.createLinearGradient(0,y1,0,y0)
-for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;gr.addColorStop(q,`rgba(${b.map((x0,i0)=>Math.round(x0+(ice[i0]-x0)*m)).join(`,`)},${al})`)}return gr}
-function niDraw(yw,pt,Lay,y0,y1){niStep();if(niF<=.005||!(y1>y0))return;let L=t[v],k0=d.width/g,lt0=hLt(),f=niF,tt=performance.now()/1e3;niGL!==L&&(niG=niGeo(L),niGL=L)
-let Pj=q=>X(q,yw,pt,Lay.scale,Lay.ox,Lay.oy),FA=niG.faces.map(pr=>pr.map(fc=>fc.map(Pj))),poly=ps=>{ps.forEach((q,k)=>k?p.lineTo(q.x,q.y):p.moveTo(q.x,q.y)),p.closePath()}
+function niFill(y0,y1,al){let P0=hPal(),F0=hH*(1+HWD),ink=ee.split(`,`).map(Number),ice=hLt()?[70,130,190]:[214,236,250],m=niF*niF*(3-2*niF),gr=p.createLinearGradient(0,y1,0,y0)
+for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;gr.addColorStop(q,`rgba(${b.map((x0,i0)=>Math.round(x0+(ice[i0]-x0)*m)).join(`,`)},${al*(1-.72*m)})`)}return gr}
+function niDraw(yw,pt,Lay,y0,y1){niStep();if(!niOn())return;let L=t[v],lt0=hLt();if(!niTx[L.name+lt0]&&!niTx.q){niTx.q=1;setTimeout(()=>{try{niTex(L,lt0,24)}catch(e){}niTx.q=0},0)}
+if(niF<=.005||!(y1>y0))return;let tx=niTex(L,lt0),k0=d.width/g,f=niF;niGL!==L&&(niG=niGeo(L),niGL=L)
+let Pj=z=>X(z,yw,pt,Lay.scale,Lay.ox,Lay.oy),FA=niG.faces.map(pr=>pr.map(fc=>fc.map(Pj))),poly=ps=>{ps.forEach((z,k)=>k?p.lineTo(z.x,z.y):p.moveTo(z.x,z.y)),p.closePath()}
 p.save()
-/* ice body behind the wires: one fill per face set */
-let sh=.5+.5*Math.sin(tt*Math.PI*2/1.6),gb=()=>{let gr=p.createLinearGradient(0,y0,0,y1),C=lt0?[[160,206,238,.42],[120,178,228,.3],[92,156,218,.46]]:[[190,232,255,.32],[110,190,245,.18],[80,165,245,.3]];C.forEach((c,k)=>gr.addColorStop(Math.min(1,Math.max(0,k/2+(k===1?.08*(sh-.5):0))),`rgba(${c[0]},${c[1]},${c[2]},${c[3]*f})`));return gr}
-p.globalCompositeOperation=`destination-over`
-for(let s0=0;s0<2;s0++){p.beginPath();for(const pr of FA)poly(pr[s0]);p.fillStyle=gb(),p.fill()}
-/* rim glow (dark) behind */
-if(!lt0){p.beginPath();for(const pr of FA)for(const fc of pr)poly(fc);p.lineJoin=`round`;for(const[w1,a1]of[[7,.1],[3.6,.2]])p.lineWidth=w1*k0,p.strokeStyle=`rgba(150,220,255,${a1*f})`,p.stroke()}
-/* inside the N only: frost, cracks, glint */
-p.globalCompositeOperation=`source-over`,p.beginPath();for(const pr of FA)for(const fc of pr)poly(fc);p.clip()
-for(const q of niG.fr){let c=Pj(q.c),rr=q.r*Lay.scale,gr=p.createRadialGradient(c.x,c.y,0,c.x,c.y,rr);gr.addColorStop(0,`rgba(255,255,255,${(lt0?.5:.34)*f})`),gr.addColorStop(.5,`rgba(235,248,255,${(lt0?.22:.14)*f})`),gr.addColorStop(1,`rgba(235,248,255,0)`),p.fillStyle=gr,p.fillRect(c.x-rr,c.y-rr,2*rr,2*rr)}
-let gw=Math.min(1,niM?niT/.24:1);p.beginPath();for(const cl of niG.cr){let n0=Math.max(2,Math.round(cl.length*gw));cl.slice(0,n0).forEach((q,k)=>{let s=Pj(q);k?p.lineTo(s.x,s.y):p.moveTo(s.x,s.y)})}
-p.lineJoin=`miter`,p.lineWidth=(lt0?1.1:1)*k0,p.strokeStyle=lt0?`rgba(46,120,190,${.55*f})`:`rgba(240,250,255,${.55*f})`,p.stroke()
-if(niM&&niT>.16&&niT<1.12){let u=(niT-.16)/.96,xs=Lay.ox-Lay.scale*a*900+u*Lay.scale*a*1800,gl=p.createLinearGradient(xs-60*k0,Lay.oy-80*k0,xs+60*k0,Lay.oy+80*k0);gl.addColorStop(0,`rgba(255,255,255,0)`),gl.addColorStop(.5,`rgba(255,255,255,${(lt0?.55:.4)*f})`),gl.addColorStop(1,`rgba(255,255,255,0)`);p.fillStyle=gl,p.fillRect(0,0,d.width,d.height)}
-p.restore()
-/* bright frosted rim core over the wires */
-p.save(),p.beginPath();for(const pr of FA)for(const fc of pr)poly(fc);p.lineJoin=`round`,p.lineWidth=(lt0?.9:1)*k0,p.strokeStyle=lt0?`rgba(255,255,255,${.7*f})`:`rgba(255,255,255,${.85*f})`,p.stroke(),p.restore()}
+/* side walls: the ice's thickness, lighter where they face up */
+for(const pr of FA){let A0=pr[0],B0=pr[1];for(let k=0;k<A0.length;k++){let k1=(k+1)%A0.length,up=Math.max(0,Math.min(1,.5-(A0[k].y+A0[k1].y-B0[k].y-B0[k1].y)/(4*k0*20)));p.beginPath(),p.moveTo(A0[k].x,A0[k].y),p.lineTo(A0[k1].x,A0[k1].y),p.lineTo(B0[k1].x,B0[k1].y),p.lineTo(B0[k].x,B0[k].y),p.closePath()
+p.fillStyle=lt0?`rgba(120,175,220,${(.14+.1*up)*f})`:`rgba(190,228,250,${(.07+.09*up)*f})`,p.fill()}}
+/* back face (fainter) then front face, texture mapped by the face plane's affine */
+for(const[s0,aa]of[[1,.4],[0,1]]){let yy=s0?o/2:-o/2,Ot=Pj(niG.W(-tx.M,-tx.M,yy)),Ut=Pj(niG.W(-tx.M+100,-tx.M,yy)),Vt=Pj(niG.W(-tx.M,-tx.M+100,yy)),sc=1/(100*tx.S)
+p.save(),p.beginPath();for(const pr of FA)poly(pr[s0]);p.clip(),p.globalAlpha=aa*f
+p.transform((Ut.x-Ot.x)*sc,(Ut.y-Ot.y)*sc,-(Vt.x-Ot.x)*sc,-(Vt.y-Ot.y)*sc,Ot.x+(Vt.x-Ot.x)*(tx.Ht-1)*sc,Ot.y+(Vt.y-Ot.y)*(tx.Ht-1)*sc),p.drawImage(tx.cv,0,0),p.restore()}
+/* one soft glint sweeping across as it sets */
+if(niM&&niT>.16&&niT<1.12){p.beginPath();for(const pr of FA)poly(pr[0]);p.clip();let u=(niT-.16)/.96,xs=Lay.ox-Lay.scale*a*900+u*Lay.scale*a*1800,gl=p.createLinearGradient(xs-60*k0,Lay.oy-80*k0,xs+60*k0,Lay.oy+80*k0);gl.addColorStop(0,`rgba(255,255,255,0)`),gl.addColorStop(.5,`rgba(255,255,255,${(lt0?.4:.26)*f})`),gl.addColorStop(1,`rgba(255,255,255,0)`);p.fillStyle=gl,p.fillRect(0,0,d.width,d.height)}
+p.restore()}
 /* v513 electric A arcs (shipped from preview/egg-a-arcs d6107c4; Hang: "This is what we are missing in the A", Pikachu-style electricity): the A only, on top of the live A (yellow
    fill, gZap crackle, electrons and linger untouched). Thin jagged lightning arcs that hug the A's wires: crawl (a bolt riding along one edge,
    sliding as it lives), jump (a bolt between a point on one wire and the nearest point on another wire 14-80px away, e.g. across a leg or the
