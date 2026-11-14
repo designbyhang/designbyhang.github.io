@@ -88,7 +88,7 @@
      released after 1.2s of silence; ~6dB under the dings. */
   const glassPadBuild=(c,dst)=>{const t=c.currentTime,g=c.createGain();g.gain.value=0;g.connect(dst);const os=[[1,.006,0],[2.32,.0024,4],[4.25,.001,-3]].map(([m,a0,dt])=>{const o=c.createOscillator(),a=c.createGain(),o2=c.createOscillator(),a2=c.createGain();o.frequency.value=2385*m;o.detune.value=dt;a.gain.value=a0;o.connect(a).connect(g);o2.frequency.value=.5+m*.07;a2.gain.value=a0*.35;o2.connect(a2).connect(a.gain);o.start(t);o2.start(t);return[o,o2];});
     return{set(lv,t0){g.gain.setTargetAtTime(Math.pow(Math.max(0,Math.min(1,lv)),1.5),t0,.064);},stop(t0){os.forEach(p=>p.forEach(o=>{try{o.stop(t0)}catch(e){}}));}};};
-  /* iceSet(level): egg-n-ice3d, the ice as a continuous layer that follows the build (no discrete hit). Two loops: a crackle bed (sparse ice-tick
+  /* iceSet(level, liquid): egg-n-ice3d v2: while liquid (spinning fast) a watery slosh (band-passed noise ~480-840Hz, 3.1Hz swell) ~ level x liquid replaces the ice, and the crackle follows the SOLID amount level x (1-liquid), loudest while it refreezes. v1 text:  the ice as a continuous layer that follows the build (no discrete hit). Two loops: a crackle bed (sparse ice-tick
      micro-bursts, the n-ice freeze crackle made endless, highpassed at 2.2kHz) that is loudest while the ice is GROWING (gain ~ level x (0.35 +
      growth rate), so the freeze crackles as it sets and goes quiet while held) and a frosty band-passed hiss (~5.2kHz) ~ level^1.5 that swells and
      fades with the ice; 64ms smoothing, released after 1.2s of silence; ~6dB under the dings. */
@@ -98,10 +98,11 @@
     const cs=c.createBufferSource(),hp=c.createBiquadFilter(),cg=c.createGain(),hs=c.createBufferSource(),bp=c.createBiquadFilter(),hg=c.createGain();
     cs.buffer=b;cs.loop=true;hp.type='highpass';hp.frequency.value=2200;hp.Q.value=.6;cg.gain.value=0;cs.connect(hp).connect(cg).connect(dst);
     hs.buffer=LNB(c,2,4242);hs.loop=true;bp.type='bandpass';bp.frequency.value=5200;bp.Q.value=.9;hg.gain.value=0;hs.connect(bp).connect(hg).connect(dst);cs.start(t);hs.start(t);let lv0=0,t0=t;
-    return{set(lv,tt){lv=Math.max(0,Math.min(1,lv));const dt=Math.max(.008,tt-t0),gr=Math.max(0,(lv-lv0)/dt);lv0=lv;t0=tt;cg.gain.setTargetAtTime(.04*lv*Math.min(1.6,.35+gr*.5),tt,.064);hg.gain.setTargetAtTime(.0143*Math.pow(lv,1.5),tt,.064);},stop(tt){try{cs.stop(tt);hs.stop(tt)}catch(e){}}};};
+    const ws=c.createBufferSource(),wb=c.createBiquadFilter(),wl=c.createBiquadFilter(),wg=c.createGain(),wa=c.createGain(),lf=c.createOscillator(),lg=c.createGain();ws.buffer=LNB(c,2,5151);ws.loop=true;wb.type='bandpass';wb.frequency.value=620;wb.Q.value=1.4;wl.type='lowpass';wl.frequency.value=1500;wg.gain.value=0;wa.gain.value=.5;lf.frequency.value=3.1;lg.gain.value=.45;lf.connect(lg).connect(wa.gain);ws.connect(wb).connect(wl).connect(wa).connect(wg).connect(dst);ws.start(t);lf.start(t);
+    return{set(lv,tt,lq){lv=Math.max(0,Math.min(1,lv));lq=Math.max(0,Math.min(1,lq||0));const so=lv*(1-lq),dt=Math.max(.008,tt-t0),gr=Math.max(0,(so-lv0)/dt);lv0=so;t0=tt;cg.gain.setTargetAtTime(.04*so*Math.min(1.6,.35+gr*.5),tt,.064);hg.gain.setTargetAtTime(.0143*Math.pow(so,1.5),tt,.064);wg.gain.setTargetAtTime(.072*lv*lq,tt,.064);wb.frequency.setTargetAtTime(480+360*lq,tt,.064);},stop(tt){try{cs.stop(tt);hs.stop(tt);ws.stop(tt);lf.stop(tt)}catch(e){}}};};
   let isN=null,isIdle=0;
-  const iceSet=lv=>{lv=mute?0:Math.max(0,Math.min(1,lv||0));if(!ac){if(lv>0)ready(()=>{});return;}const t=ac.currentTime;if(!isN){if(lv<=0)return;isN=iceBedBuild(ac,out);}
-    isN.set(lv,t);if(lv>0)isIdle=t;else if(t-isIdle>1.2){isN.stop(t+.3);isN=null;}};
+  const iceSet=(lv,lq)=>{lv=mute?0:Math.max(0,Math.min(1,lv||0));if(!ac){if(lv>0)ready(()=>{});return;}const t=ac.currentTime;if(!isN){if(lv<=0)return;isN=iceBedBuild(ac,out);}
+    isN.set(lv,t,mute?0:lq);if(lv>0)isIdle=t;else if(t-isIdle>1.2){isN.stop(t+.3);isN=null;}};
   let gsN=null,gsIdle=0;
   const glassSet=lv=>{lv=mute?0:Math.max(0,Math.min(1,lv||0));if(!ac){if(lv>0)ready(()=>{});return;}const t=ac.currentTime;if(!gsN){if(lv<=0)return;gsN=glassPadBuild(ac,out);}
     gsN.set(lv,t);if(lv>0)gsIdle=t;else if(t-gsIdle>1.2){gsN.stop(t+.3);gsN=null;}};
