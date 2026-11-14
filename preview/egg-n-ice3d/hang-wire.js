@@ -214,22 +214,21 @@ else if(niM){niT+=dt;if(niT>=1.6){let u=Math.min(1,(niT-1.6)/1.44);niF=niH0*(1-u
 else niF=Math.max(0,niF-dt/1.44)
 niPhys(dt)}
 /* v5 (Hang 11:01-11:05): ONE frost line. niS() is the single boundary, in the letter's own height (fraction, local space): ice below; above it
-   either nothing (line art) or, while liquid, clear water over the whole letter at alpha niW() (no top edge, so no second front). Melting lowers
-   niS from the top, refreezing raises it again. niSt() = stagger amplitude of the line during the exit (smooth, a few % of the height, 0 at
+   only line art (v6: the v5 water layer above the line, the 'mirror effect', is deleted, and the line no longer drops while melting: liquid
+   (niLq) just clears the ice below the line and flings droplets). niSt() = stagger amplitude of the line during the exit (smooth, a few % of the height, 0 at
    both ends) so parts lead/lag but stay one connected line. */
-function niS(){return niLev()*(1-niLq)-.08*niLq}
-function niW(){return Math.min(1,niLq*6)*Math.min(1,niF*3)}
+function niS(){return niLev()}
 function niSt(){return niM&&niT>1.6?.06*Math.sin(Math.min(1,(niT-1.6)/1.44)*Math.PI):0}
 /* v5 (Hang 11:01 'the wireframe ghost must not look like a second layer'): while the ice is on, every wire segment is stroked on its own
    with a gradient by its endpoints' letter-local height, so the wires vanish below the one frost line (and fade under the water) in the
    letter's own space at any rotation, incl. top-down; a screen-vertical gradient (niFill) could not follow a rotated letter. */
 function niSegOn(){return niOn()&&ngOK&&niF>.005}
 function niCb(q){let P0=hPal(),F0=hH*(1+HWD),c=Math.max(0,Math.min(1,(F0-q)/HWD));return hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ee.split(`,`).map(Number)}
-function niLA(q){let lv=niS(),sa=niSt()+.04,cv=1-Math.max(0,Math.min(1,(q-lv+sa)/(2*sa)));return 1-(cv+(1-cv)*.9*niW())}
+function niLA(q){let lv=niS(),sa=niSt()+.04,cv=1-Math.max(0,Math.min(1,(q-lv+sa)/(2*sa)));return 1-cv}
 function niSegs(e,t0,n,r0,a0,al){let H=704*a;for(const[P,Q]of De(e,t0)){let A=X(P,n,r0,a0.scale,a0.ox,a0.oy),B=X(Q,n,r0,a0.scale,a0.ox,a0.oy),qa=P[2]/H+.5,qb=Q[2]/H+.5,mx=Math.max(niLA(qa),niLA(qb),niLA((qa+qb)/2));if(mx<=.004)continue
 let g0=p.createLinearGradient(A.x,A.y,B.x+.01,B.y+.01);for(let k=0;k<=4;k++){let q=qa+(qb-qa)*k/4;g0.addColorStop(k/4,`rgba(${niCb(q).map(x0=>Math.round(x0)).join(`,`)},${al*niLA(q)})`)}p.beginPath(),p.moveTo(A.x,A.y),p.lineTo(B.x,B.y),p.strokeStyle=g0,p.stroke()}}
 function niFill(y0,y1,al){let P0=hPal(),F0=hH*(1+HWD),ink=ee.split(`,`).map(Number),ice=hLt()?[96,102,108]:[200,204,208],gr=p.createLinearGradient(0,y1,0,y0)
-for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;let lv=niS(),sa=niSt()+.04,cv=1-Math.max(0,Math.min(1,(q-lv+sa)/(2*sa)));gr.addColorStop(q,`rgba(${b.map(x0=>Math.round(x0)).join(`,`)},${al*(1-(ngOK&&niF>.005?1:0)*(cv+(1-cv)*.9*niW()))})`)}return gr}
+for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P0.length?P0[Math.round((hOp()?c*hH:c)*32)].split(`,`).map(Number):ink;let lv=niS(),sa=niSt()+.04,cv=1-Math.max(0,Math.min(1,(q-lv+sa)/(2*sa)));gr.addColorStop(q,`rgba(${b.map(x0=>Math.round(x0)).join(`,`)},${al*(1-(ngOK&&niF>.005?1:0)*cv)})`)}return gr}
 /* egg-n-ice3d WebGL ice (Hang 2026-11-14). Geometry = the line-art N exactly: the glyph outline extruded between the wire's front plane
    (y=+80 glyph units, camera side) and back plane (-80); only thin 4-11 unit chamfers, inset (they never grow the outline). Flat faces, hard
    edges in every phase: no vertex displacement and no normal rounding anywhere (v4: the v2 rounded/inflated liquid normal, the wobble and the
@@ -238,10 +237,11 @@ for(let k=0;k<=16;k++){let q=k/16,c=Math.max(0,Math.min(1,(F0-q)/HWD)),b=hH>0&&P
    radial hair-thin fibres near edges/corners/joins, sparse speckle, smooth fracture veils, random white 'pierce' needles (reseeded every
    build), fine bump/chips/scratches on the solid part. v5 (Hang 11:01-11:05): ONE frost line, lvl(): uS (niS, letter-local height fraction)
    + a small jag + during the exit a smooth stagger across the letter (uSt, a few % of the height, left stem leads, right stem lags, slowly
-   varying) - one connected boundary in the letter's own space. Ice below it; above it nothing, or while liquid clear water over the whole
-   letter at alpha uW (no wavy streaks, no second front). Draw: pass 0 far faces -> texture for refraction (unclipped, so no hidden second
+   varying) - one connected boundary in the letter's own space. Ice below it; above it nothing at all (v6, Hang 12:38: the v5 'water over the
+   whole letter' layer above the line - dark refracted page + glossy env-strip reflections, the 'mirror effect' - is deleted; plain line art
+   shows there). While spinning fast (uLq) the ice below the line only clears (frost/needles fade); it never renders above the line. Draw: pass 0 far faces -> texture for refraction (unclipped, so no hidden second
    edge inside); pass 2 far faces to screen below the line, shaded as the frosted top surface the ray entered through (so the ice reads on
-   every face/angle, incl. top-down); pass 1 near faces blended over (water premultiplied). v4: tints and glow cut to a light cool tint.
+   every face/angle, incl. top-down); pass 1 near faces over them. v4: tints and glow cut to a light cool tint.
    Dark theme adds a pale glow (1/8-res shadow, additive). DPR capped at 2; renders only while niF>0. */
 let ngS=null,ngOK=0,ngM=null,ngML=null,ngDp=[],ngDL=0,ngSd=Math.floor(Math.random()*97),ngF0=0;const NIH=80,NIF=80
 function ngMesh(L){let PP=L.parts.map(z=>z.poly),inU=(x,y)=>PP.some(P=>niIn(P,x,y)),sg=[]
@@ -266,7 +266,7 @@ let VS=`attribute vec3 aP;attribute vec3 aN;uniform vec4 uRot;uniform vec4 uPrj;
 void main(){vec3 P=aP;
 float c=P.x*uRot.x+P.y*uRot.y,l=-P.x*uRot.y+P.y*uRot.x,u=P.z,p=u*uRot.z-l*uRot.w,q=l*uRot.z+u*uRot.w;vec2 s=vec2(uPrj.y+c*uPrj.x,uPrj.z-p*uPrj.x);
 gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,-q*uPrj.x*uPrj.w,1.);vO=aP;vNo=aN;vV=vec3(c,p,q)*uPrj.x;}`
-let FS=`precision highp float;uniform sampler2D uCap;uniform sampler2D uBack;uniform sampler2D uCore;uniform vec4 uRot;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;uniform float uH;uniform vec2 uCs;uniform float uTb;uniform float uTm;uniform float uS;uniform float uW;uniform float uSt;uniform float uSd;uniform float uYc;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
+let FS=`precision highp float;uniform sampler2D uCap;uniform sampler2D uBack;uniform sampler2D uCore;uniform vec4 uRot;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;uniform float uH;uniform vec2 uCs;uniform float uTb;uniform float uTm;uniform float uS;uniform float uLq;uniform float uSt;uniform float uSd;uniform float uYc;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
 float h3(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
 float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h3(i),h3(i+vec3(1.,0.,0.)),f.x),mix(h3(i+vec3(0.,1.,0.)),h3(i+vec3(1.,1.,0.)),f.x),f.y),mix(mix(h3(i+vec3(0.,0.,1.)),h3(i+vec3(1.,0.,1.)),f.x),mix(h3(i+vec3(0.,1.,1.)),h3(i+vec3(1.,1.,1.)),f.x),f.y),f.z);}
 vec3 toV(vec3 v){float c=v.x*uRot.x+v.y*uRot.y,l=-v.x*uRot.y+v.y*uRot.x;return vec3(c,v.z*uRot.z-l*uRot.w,l*uRot.z+v.z*uRot.w);}
@@ -302,8 +302,8 @@ float ck=smoothstep(.55,.85,n3(vec3(Ob.x*60.,Ob.y*60.,uSd))),sp=step(.97,h3(floo
 c=mix(c,fc,.28+.3*ck+.25*nb)+vec3(.9,.95,1.)*sp*.5;}
 gl_FragColor=vec4(min(c,vec3(1.)),1.);}
 else{if(N.z<=0.)discard;
-vec3 No=normalize(vNo),O=vO-vec3(0.,uYc,0.);float sz=lvl(O)-zq(O);if(sz<0.&&uW<.01)discard;
-float lq=sz<0.?1.:0.,fb=sz<0.?0.:1.-smoothstep(0.,.05,sz),fy=abs(No.y),sl=1.-lq;
+vec3 No=normalize(vNo),O=vO-vec3(0.,uYc,0.);float sz=lvl(O)-zq(O);if(sz<0.)discard;
+float fb=1.-smoothstep(0.,.05,sz),fy=abs(No.y),sl=1.-.7*uLq;
 vec3 g=vec3(n3(O*9.),n3(O*9.+5.2),n3(O*9.+11.7))-.5;g+=.5*(vec3(n3(O*23.+2.),n3(O*23.+8.),n3(O*23.+3.))-.5);
 float ef=1.-smoothstep(.5,.92,edg(O)),cn=n3(O*vec3(11.,4.,11.)+3.7);
 float chip=sl*max(fy>.6?ef*smoothstep(.5,.66,cn):0.,smoothstep(uH*.8,uH*.97,abs(O.y))*smoothstep(.55,.7,n3(O*vec3(9.,2.,9.)+1.1))*(1.-step(.6,fy)));
@@ -312,7 +312,7 @@ vec2 P2=fy>.6?O.xz:vec2(dot(O.xz,normalize(vec2(-No.z,No.x)+1e-5)),O.y);float sc
 for(int i=0;i<3;i++){float th=float(i)*1.13+.4;vec2 dr=vec2(cos(th),sin(th)),pr=vec2(-dr.y,dr.x);float u=dot(P2,pr)*38.,cl=floor(u);float hh=h3(vec3(cl,float(i)*7.3,3.1));
 float ln=step(hh,.05)*(1.-smoothstep(.0,.07,abs(fract(u)-.5)))*smoothstep(.62,.75,n3(vec3(dot(P2,dr)*4.,cl,float(i))));sc+=ln;sd+=pr*ln;}
 sc*=sl;Nb=normalize(Nb+(vec3(sd.x,0.,sd.y)*(fy>.6?1.:0.)+vec3(0.,sd.y,0.)*(fy>.6?0.:1.))*.35*sl);
-vec3 Nv=normalize(toV(Nb));float cs=max(dot(Nv,V),0.),F=.02+.98*pow(1.-cs,5.);vec3 T=refract(-V,Nv,1./(1.31+.02*lq));
+vec3 Nv=normalize(toV(Nb));float cs=max(dot(Nv,V),0.),F=.02+.98*pow(1.-cs,5.);vec3 T=refract(-V,Nv,1./1.31);
 vec3 Vo=toO(V),To=refract(-Vo,Nb,1./1.31);float ln0=abs(To.y)>.05?((To.y>0.?uH:-uH)-O.y)/To.y:2.4*uH;ln0=clamp(ln0,.1*uH,2.4*uH);
 float fr=0.,bu=0.;if(sl>.01){for(int i=0;i<4;i++){float s=(float(i)+.5)/4.;vec3 q=O+To*ln0*s;float cy=1.-abs(q.y)/uH,cw=core(q),cc=smoothstep(.4,.9,cw);
 float clu=smoothstep(.5,.75,n3(q*2.4)+.24*cw+.1*cy-.15)*cc;
@@ -327,18 +327,18 @@ fr=min(1.,fr*.38)*sl;bu=min(1.,bu)*sl;}
 float fp=0.;for(int i=0;i<3;i++){vec3 pn=normalize(i==0?vec3(.38,.75,.5):i==1?vec3(-.62,.32,.72):vec3(.15,-.55,.82));float pd=i==0?.03:i==1?-.18:.22,dd=dot(pn,To);
 if(abs(dd)>.05){float t=(pd-dot(pn,O))/dd;if(t>0.&&t<ln0){vec3 q=O+To*t;float w=smoothstep(.35,.7,core(q))*smoothstep(.45,.62,n3(q*2.+float(i)*3.7));fp+=w*(.3+.7*pow(1.-abs(dd),2.))*(.4+.6*n3(q*vec3(40.,6.,40.)))*.6;}}}
 fp=min(1.,fp)*sl;float pc=pierce(O,To,ln0)*sl;
-vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*mix(.9,.55,lq))+(uLt>.5?vec3(.015,.025,.05):vec3(.02,.03,.06))*lq*.6,fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
+vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9),fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
 body=mix(mix(body,fc,min(1.,fr*1.1)),vec3(.97,.99,1.),min(1.,pc*1.2))+fc*fp*.55+vec3(.85,.95,1.)*bu*.55+fc*sc*.18;
 vec3 R=reflect(-V,Nv);vec3 rf=vec3(env(R+vec3(.002,0.,0.)).r,env(R).g,env(R-vec3(.002,0.,0.)).b);
-float ed=1.-smoothstep(.0,.35,cs),chf=smoothstep(.2,.35,fy)*(1.-smoothstep(.85,.95,fy));vec3 col=body*(1.-F)+rf*mix(F,min(1.,F*1.6+.04),lq)+vec3(.75,.88,1.)*ed*ed*ed*(uLt>.5?.12:.22);
+float ed=1.-smoothstep(.0,.35,cs),chf=smoothstep(.2,.35,fy)*(1.-smoothstep(.85,.95,fy));vec3 col=body*(1.-F)+rf*F+vec3(.75,.88,1.)*ed*ed*ed*(uLt>.5?.12:.22);
 col+=(uLt>.5?vec3(.88,.95,1.)*.55:vec3(.88,.95,1.)*.9)*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
 col+=mix(fc,vec3(1.),.5)*chip*(.45+.6*(1.-smoothstep(.0,.35,zq(O))));
 float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)))*sl;
 {float fx=fb;if(fx>.001){float ck3=smoothstep(.62,.85,n3(vec3(O.x*170.+O.y*60.,O.z*9.,uSd))),sp3=step(.93,h3(floor(O*120.)));
 col=mix(col,fc*1.05,fx*(.22+.55*ck3+.4*sp3));col+=vec3(.85,.94,1.)*fx*fx*.25;}}
-float wa=sz<0.?uW:1.;gl_FragColor=vec4(min(col,vec3(1.))*wa,wa);}}`
+gl_FragColor=vec4(min(col,vec3(1.)),1.);}}`
 let sh=(t0,s0)=>{let q=gl.createShader(t0);gl.shaderSource(q,s0),gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(q);return q},pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)),gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)),gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0
-let U={};for(const k of[`uRot`,`uPrj`,`uRes`,`uCap`,`uBack`,`uCore`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uH`,`uCs`,`uTb`,`uTm`,`uS`,`uW`,`uSt`,`uSd`,`uYc`])U[k]=gl.getUniformLocation(pr,k)
+let U={};for(const k of[`uRot`,`uPrj`,`uRes`,`uCap`,`uBack`,`uCore`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uH`,`uCs`,`uTb`,`uTm`,`uS`,`uLq`,`uSt`,`uSd`,`uYc`])U[k]=gl.getUniformLocation(pr,k)
 let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const[k,v0]of[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v0);return t0}
 Object.assign(ngS,{c,gl,pr,U,vb:gl.createBuffer(),tc:tx(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),cap:document.createElement(`canvas`),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 function ngCore(L){let R=128,c=document.createElement(`canvas`);c.width=c.height=R;let x=c.getContext(`2d`),sx=R*.8/L.w,sy=R*.8/704,px=R*.1;x.fillStyle=`#fff`;x.beginPath();for(const r0 of L.parts){r0.poly.forEach(([q0,q1],k)=>{let X0=px+q0*sx,Y0=R-px-q1*sy;k?x.lineTo(X0,Y0):x.moveTo(X0,Y0)});x.closePath()}x.fill()
@@ -353,11 +353,11 @@ let cq=S0.cap.getContext(`2d`);cq.clearRect(0,0,S0.cap.width,S0.cap.height),cq.d
 gl.activeTexture(gl.TEXTURE0),gl.bindTexture(gl.TEXTURE_2D,S0.tc),gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,S0.cap),gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false)
 gl.useProgram(S0.pr);let U=S0.U,sc=Lay.scale*kq,bw=190*a*sc;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb);let aP=gl.getAttribLocation(S0.pr,`aP`),aN=gl.getAttribLocation(S0.pr,`aN`);gl.enableVertexAttribArray(aP),gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0),gl.enableVertexAttribArray(aN),gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12)
 gl.uniform4f(U.uRot,Math.cos(yw),Math.sin(yw),Math.cos(pt),Math.sin(pt)),gl.uniform4f(U.uPrj,sc,Lay.ox*kq,Lay.oy*kq,1/(2*Math.max(W,H))),gl.uniform2f(U.uRes,W,H),gl.uniform1f(U.uD,1.4*704*a*sc),gl.uniform2f(U.uK,.22*bw/W,.22*bw/H)
-gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform1f(U.uH,NIH*a),gl.uniform2f(U.uCs,L.w*a,704*a),gl.uniform1f(U.uTb,Math.min(1,hH)),gl.uniform1f(U.uS,niS()),gl.uniform1f(U.uW,niW()),gl.uniform1f(U.uSt,niSt()),gl.uniform1f(U.uSd,ngSd),gl.uniform1f(U.uYc,(NIF-NIH)*a),gl.uniform1f(U.uTm,performance.now()/1e3%600),gl.uniform1i(U.uCap,0),gl.uniform1i(U.uBack,1),gl.uniform1i(U.uCore,2)
+gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform1f(U.uH,NIH*a),gl.uniform2f(U.uCs,L.w*a,704*a),gl.uniform1f(U.uTb,Math.min(1,hH)),gl.uniform1f(U.uS,niS()),gl.uniform1f(U.uLq,niLq),gl.uniform1f(U.uSt,niSt()),gl.uniform1f(U.uSd,ngSd),gl.uniform1f(U.uYc,(NIF-NIH)*a),gl.uniform1f(U.uTm,performance.now()/1e3%600),gl.uniform1i(U.uCap,0),gl.uniform1i(U.uBack,1),gl.uniform1i(U.uCore,2)
 gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.activeTexture(gl.TEXTURE0)
 gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewport(0,0,W,H)
 gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clearColor(0,0,0,0),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
-gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.enable(gl.BLEND),gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.disable(gl.BLEND),gl.activeTexture(gl.TEXTURE0)
+gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE0)
 p.save(),p.setTransform(1,0,0,1,0,0)
 if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(150,185,235)`,gx.shadowBlur=Math.max(2,gw.width*.07),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=.38,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
 p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)
