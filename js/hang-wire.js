@@ -86,7 +86,10 @@ p.shadowBlur=(lt0?8:4)*k0,p.shadowColor=`rgba(${lt0?Yc:GEH},${eI})`,p.lineWidth=
 /* v510 flame H (Hang, 2026-11-11; shipped from preview/egg-h-flame c4861df): the H rests in plain ink and stays ink at normal speeds. It ignites only past HF_ON 2160deg/s of smoothed user yaw speed (hW; hard fast fling or drag) and goes out below HF_OFF 1800deg/s (hysteresis, so it never flickers at the threshold); unlit there is no heat at all. Lit, the charge aims at max(.12, smoothstep((hW-HF_OFF)/(HF1-HF_OFF))), HF1 3600deg/s, rising with a 240ms time constant and cooling with 560ms, so the H is back to ink ~1.6s after the speed drops. The stroke heats bottom-up (hFill) from ink to ember: dark #E8551E -> #FF7A1A, light (deeper) #B3261E -> #D9480F. On top: a tight glow, a patchy corona and spark streaks (hmMol, hfCor below). No fill inside the outline; the H never distorts; prefers-reduced-motion / ?still: none. */
 const HF_ON=Math.PI*12,HF_OFF=Math.PI*10,HF1=Math.PI*20;let hfIg=0,hfE=null,hfW=null,hfWt=0
 function hfH(){return!!t[v]&&t[v].name===`H`}
-function hfTg(tg){if(!hfH())return tg;hfIg=hfIg?+(hW>HF_OFF):+(hW>HF_ON);if(!hfIg)return 0;let x0=Math.max(0,Math.min(1,(hW-HF_OFF)/(HF1-HF_OFF)));return Math.max(.12,x0*x0*(3-2*x0))}
+/* v517 (Hang 2026-11-15 "Ship", from preview/egg-n-ice-blue2 1daeb89; hard-freeze as preview/egg-n-ice-hard 908cdfc): the N rides the H's heat scale. Its heat target is the same smoothstep of the spin speed hW,
+   starting where every letter starts (HW0 = 2 rev/s) but only full at the H's full-flame speed HF1 (20pi rad/s = 10 rev/s); the ice follows that heat 1:1. */
+function niHt(){let x=Math.max(0,Math.min(1,(hW-HW0)/(HF1-HW0)));return x*x*(3-2*x)}
+function hfTg(tg){if(niOn())return niHt();if(!hfH())return tg;hfIg=hfIg?+(hW>HF_OFF):+(hW>HF_ON);if(!hfIg)return 0;let x0=Math.max(0,Math.min(1,(hW-HF_OFF)/(HF1-HF_OFF)));return Math.max(.12,x0*x0*(3-2*x0))}
 function hfN(x0,s0){let f0=Math.floor(x0),g0=x0-f0,a0=gzH(s0,f0,3),b0=gzH(s0,f0+1,3);return a0+(b0-a0)*g0*g0*(3-2*g0)}
 function hfDraw(yw,pt,Lay,y0,y1){if(!hfH()||r||i){hmS.length=0;return}hmMol(yw,pt,Lay,y0,y1),hfE&&hfCor(yw,pt,Lay,y0,y1)}
 /* v510 H corona (hfCor; Hang, after a fireball reference's limb): no discrete flame licks. Along every heated wire a soft, ragged band of fire hugs the line and wisps slightly off it, like the sun's limb: each edge is sampled every 7px; at each sample a smooth screen-space value-noise field (two scales, drifting upward at 0.8 and 2.4/s, so it churns rather than flickers) sets how far the band reaches to either side of the line (along its screen normal) and how far it drifts up the screen; no peaks are sharpened, so there are no spikes or rows. Tied to motion and patchy: the reach scales with heat (x min(1.25, 1.25 x charge), so it grows as the spin gets faster and shrinks away as it cools) and with a slow patch field (two broad noise scales drifting at .35 and .6/s, smoothstep .32-.74, squared), so some stretches burn hot, some barely glow, and the hot patches shift over time. Three layers, each one batched path for all edges (nonzero union) with a vertical gradient so it only shows where the heat front has reached: outer smoky orange (reach 2-11px x heat, dark .2 / light .12), inner orange-yellow (1-6px, .3 / .2), and a thin yellow-white limb right on the line (0.6-2.4px, dark .35 x top heat; light: deep orange .3). Dark additive, light normal blending; no canvas blur. */
@@ -208,7 +211,7 @@ if(!niOn()||r||i){niF=0,niM=0,niPk=0,niH0=0,niLq=0;return}
    min(1, hH/.45) (smoothstep), never faster than 0 -> 1 in 128ms (v4: 480ms, so the bottom-up fill is visible) and never down while moving, so a respin just keeps building. When it
    stops it holds 1600ms, then thaws back to line art over 800ms (2400ms in all, 8ms multiples; v4: exit 960ms, 2560ms in all; v5: exit 1440ms with a smooth start and a soft ease-out tail, 3040ms in all). v5: no ice sound layer (Hang 11:06): only the
    letters' own spin dings (main js/sfx.js). */
-if(N||hW>HW0*.25){let tg=Math.min(1,hH/.45);tg=tg*tg*(3-2*tg);tg>niF&&(niF=Math.min(tg,niF+dt/.48));niM=1,niT=0,niH0=niF}
+if(N||hW>HW0*.25){let tg=hH;tg>niF&&(niF=Math.min(tg,niF+dt/.48));niM=1,niT=0,niH0=niF}
 else if(niM){niT+=dt;if(niT>=1.6){let u=Math.min(1,(niT-1.6)/1.44);niF=niH0*(1-u)*(1-u)*(1+2*u)}niT>=3.04&&(niM=0,niF=0)}
 else niF=Math.max(0,niF-dt/1.44)
 niPhys(dt)}
@@ -272,6 +275,10 @@ return{buf:new Float32Array(out),n:out.length/6}}
    slightly blue middle ground between v515 (white glare) and the old blue v6 look - glare stripes, far-face glare/base pools, the white-ified
    refracted glare and the reflections carry a light cool-blue tint and ~10-15% less intensity, the ice body a subtle cool tint, the rim light
    is 16% softer, the dark-theme outer glow .38 -> .30 and (light theme) the navy total-reflection band a little lighter. */
+/* v517 (Hang 2026-11-15 "Ship"; preview/egg-n-ice-blue2 1daeb89, baked in): the ice N takes the earlier wireframe N heat blue (hCols.N v502-v514,
+   #8FD0FF top -> #2F6FE0 bottom) as a height gradient (nBl) on the body tint, glare/pools, reflections, rim and the dark glow (rgb 120,170,245);
+   far-face total reflection now shows the background instead of the env ground (fixes the light-theme navy line on the stem top-cap edge, the
+   floor-edge line and the diagonal navy shard); full ice needs the H's full-flame spin (niHt via hfTg, ~10 rev/s). */
 function ngInit(){if(ngS)return;ngS={};try{let c=document.createElement(`canvas`),gl=c.getContext(`webgl`,{antialias:true,premultipliedAlpha:true,preserveDrawingBuffer:true,alpha:true,depth:true});if(!gl)return
 let VS=`attribute vec3 aP;attribute vec3 aN;uniform vec4 uRot;uniform vec4 uPrj;uniform vec2 uRes;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
 void main(){vec3 P=aP;
@@ -301,16 +308,18 @@ if(uLt<.5){vec3 e=vec3(.025,.032,.045)+vec3(.05,.065,.09)*smoothstep(-.3,1.,r.y)
 e+=strip(az-1.0,.03,16.)*tl;e+=strip(az-1.72,.035,18.)*tl;e+=vec3(.1,.13,.18)*(1.-smoothstep(0.,.7,abs(az-.95)))*tl;e+=strip(az-1.12,.025,9.)*tl;e+=strip(az+1.85,.08,26.)*tl;e+=strip(az+2.15,.03,8.)*tl;e+=strip(az+.25,.06,14.)*tl;e+=strip(az+2.55,.06,6.)*(1.-smoothstep(.3,.8,abs(el+.5)));return e;}
 vec3 e=vec3(.9,.94,1.)-vec3(.35,.3,.2)*smoothstep(-.05,-.5,el);e*=1.-.75*(1.-smoothstep(0.,.03,abs(az-1.0)))*tl;e*=1.-.8*(1.-smoothstep(0.,.035,abs(az-1.72)))*tl;e*=1.-.9*(1.-smoothstep(0.,.07,abs(az+1.85)))*tl;e*=1.-.8*(1.-smoothstep(0.,.05,abs(az+.25)))*tl;e+=strip(az-1.12,.05,5.)*tl;e+=vec3(1.4)*smoothstep(2.75,3.,ab)*smoothstep(.12,.25,el);return e;}
 vec3 bgAt(vec2 uv){return uBg;}
+const vec3 NL=vec3(.561,.816,1.),NB=vec3(.184,.435,.878);vec3 nBl(float z){return mix(NB,mix(NL,vec3(1.),.3),pow(smoothstep(-.05,1.05,z),1.4));}
 vec3 thr(vec2 uv,vec2 o){vec3 c;vec4 b;b=texture2D(uBack,uv+o);c.r=b.a>.5?b.r:bgAt(uv+o).r;b=texture2D(uBack,uv+o*1.05);c.g=b.a>.5?b.g:bgAt(uv+o*1.05).g;b=texture2D(uBack,uv+o*1.1);c.b=b.a>.5?b.b:bgAt(uv+o*1.1).b;return c;}
 vec3 ABS(float l){return uLt>.5?exp(-vec3(.3,.23,.16)*l):exp(-vec3(.36,.27,.18)*l);}
 void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;
 if(uPass<.5||uPass>1.5){if(N.z>0.)discard;vec3 Ob=vO-vec3(0.,uYc,0.);if(zq(Ob)>lvl(Ob))discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
 float cw=core(vO);
 /* v10: no TIR on the back/front-plane faces (|n.y|=1): light entering the parallel front face can't totally reflect off the back wall; the unrefracted view ray made a dark TIR wedge there (the exit triangle) */
-bool tir=dot(Tt,Tt)<1e-4&&abs(vNo.y)<.9;vec3 gw=vec3(0.);if(uLt>.5){if(tir)c=min(env(r),vec3(1.6))*vec3(.76,.83,.94);else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi)+env(r)*max(Fi,.05)*vec3(.82,.9,1.);}}
-else if(tir){c=vec3(0.);gw=min(env(r),vec3(1.6))*.6;}else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi);gw=env(r)*max(Fi,.05)*.76;}
+/* blue2: TIR-reflected light stays inside the ice and leaves through another face, so it shows the background (slightly tinted), never the env ground/dark bands; sampling env here made the thin navy cap-edge and floor-edge lines and the diagonal navy shard */
+bool tir=dot(Tt,Tt)<1e-4&&abs(vNo.y)<.9;vec3 gw=vec3(0.);if(uLt>.5){if(tir)c=bgAt(uv)*vec3(.9,.94,1.)+max(env(r)-vec3(1.),0.)*.3;else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi)+env(r)*max(Fi,.05)*vec3(.82,.9,1.);}}
+else if(tir){c=bgAt(uv)*vec3(.9,.94,1.);gw=min(env(r),vec3(1.6))*.6;}else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi);gw=env(r)*max(Fi,.05)*.76;}
 /* v9 (dark theme, where the glare is bright stripes; light theme far faces stay v6): the glare (env) part is neutral white and skips the blue absorption; its share rides in alpha for the near pass */
-c=c*ABS(.45+.4*cw)+(uLt>.5?vec3(.02,.035,.07):vec3(.03,.05,.1))*(.6+.4*cw);gw*=vec3(.78,.88,1.)*.92;float gs=clamp(dot(gw,vec3(.33))/max(dot(c+gw,vec3(.33)),1e-3),0.,1.);c+=gw;
+c=c*ABS(.45+.4*cw)+(uLt>.5?vec3(.02,.035,.07):vec3(.03,.05,.1))*(.6+.4*cw);gw*=mix(vec3(.78,.88,1.),NL,0.700)*.92;float gs=clamp(dot(gw,vec3(.33))/max(dot(c+gw,vec3(.33)),1e-3),0.,1.);c+=gw;
 if(uPass>1.5){/* v5: a far face seen directly = the ray entered the ice through its top (the frost-line surface): shade it as that frosted cap */
 float ck=smoothstep(.55,.85,n3(vec3(Ob.x*60.,Ob.y*60.,uSd))),sp=step(.97,h3(floor(Ob*140.+uSd))),nb=1.-smoothstep(0.,.06,lvl(Ob)-zq(Ob));vec3 fc=uLt>.5?vec3(.86,.91,.97):vec3(.8,.88,.97);
 c=mix(c,fc,.28+.3*ck+.25*nb)+vec3(.9,.95,1.)*sp*.5;}
@@ -343,11 +352,11 @@ fr=min(1.,fr*.38)*sl;bu=min(1.,bu)*sl;}
 float fp=0.;for(int i=0;i<3;i++){vec3 pn=normalize(i==0?vec3(.38,.75,.5):i==1?vec3(-.62,.32,.72):vec3(.15,-.55,.82));float pd=i==0?.03:i==1?-.18:.22,dd=dot(pn,To);
 if(abs(dd)>.05){float t=(pd-dot(pn,O))/dd;if(t>0.&&t<ln0){vec3 q=O+To*t;float w=smoothstep(.35,.7,core(q))*smoothstep(.45,.62,n3(q*2.+float(i)*3.7));fp+=w*(.3+.7*pow(1.-abs(dd),2.))*(.4+.6*n3(q*vec3(40.,6.,40.)))*.6;}}}
 fp=min(1.,fp)*sl;float pc=pierce(O,To,ln0)*sl;
-vec2 tq=uv+T.xy*uK*1.4*1.05;vec4 tb=texture2D(uBack,tq);float gq=tb.a>.5?(tb.a-.55)/.45:0.;vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9);body=mix(body,vec3(dot(th,vec3(.33))*.88)*vec3(.8,.9,1.),gq);body*=vec3(.93,.97,1.03);body+=vec3(0.,.006,.02)*(1.-uLt);vec3 fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
+vec2 tq=uv+T.xy*uK*1.4*1.05;vec4 tb=texture2D(uBack,tq);float gq=tb.a>.5?(tb.a-.55)/.45:0.;vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9);body=mix(body,vec3(dot(th,vec3(.33))*.88)*vec3(.8,.9,1.),gq);{float hz=clamp(zq(O),0.,1.);vec3 nb=nBl(hz);body=mix(body,dot(body,vec3(.333))*nb*1.22,uLt>.5?0.850:0.900);body+=NB*0.320*(1.-.6*hz)*(1.-uLt);}vec3 fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
 body=mix(mix(body,fc,min(1.,fr*1.1)),vec3(.97,.99,1.),min(1.,pc*1.2))+fc*fp*.55+vec3(.85,.95,1.)*bu*.55+fc*sc*.18;
-vec3 R=reflect(-V,Nvr);vec3 rf=env(R)*vec3(.84,.92,1.)*.88;
+vec3 R=reflect(-V,Nvr);vec3 rf=env(R)*mix(vec3(.84,.92,1.),NL,0.500)*.88;
 float ed=1.-smoothstep(.0,.35,cs),chf=smoothstep(.2,.35,fy)*(1.-smoothstep(.85,.95,fy));vec3 col=body*(1.-Fr)+rf*Fr+vec3(.75,.88,1.)*ed*ed*ed*(uLt>.5?.12:.22);
-col+=(uLt>.5?vec3(.88,.95,1.)*.55:vec3(.88,.95,1.)*.9)*.84*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
+col+=mix(vec3(.88,.95,1.),NL,0.700)*(uLt>.5?.55:.9)*.84*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
 col+=mix(fc,vec3(1.),.5)*chip*(.45+.6*(1.-smoothstep(.0,.35,zq(O))));
 float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)))*sl;
 {float fx=fb;if(fx>.001){float ck3=smoothstep(.62,.85,n3(vec3(O.x*170.+O.y*60.,O.z*9.,uSd))),sp3=step(.93,h3(floor(O*120.)));
@@ -373,7 +382,7 @@ gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewp
 gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clearColor(0,0,0,0),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
 gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE0)
 p.save(),p.setTransform(1,0,0,1,0,0)
-if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(150,185,235)`,gx.shadowBlur=Math.max(2,gw.width*.07),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=.3,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
+if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(120,170,245)`,gx.shadowBlur=Math.max(2,gw.width*.07),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=.3,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
 p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)
 /* v2: a few tiny droplets flung off while liquid (<=12 alive, 320-620ms life, gravity), subtle */
 {let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(ngDL||nw))/1e3)),k0=d.width/g,cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt);ngDL=nw
