@@ -182,7 +182,7 @@ p.lineWidth=wa/(b.length/5)*[.55,.8,1][pc],p.strokeStyle=`rgba(${pal[c]},${[.12,
 let gxT0=0
 function gxDraw(yw,pt,Lay){let nw=performance.now(),dt=gxT0?Math.min(.064,(nw-gxT0)/1e3):0;gxT0=nw
 if(!t[v]||t[v].name!==`G`){gxC=0,skE=0,skP=null,skAcc=0;return}skDraw(yw,pt,Lay,dt)}
-const HWD=.36;/* v515 egg ice N (Hang 2026-11-15 "Ship"; from preview/egg-n-ice3d v10 cd28ddc, code unchanged): the N only. At rest plain theme ink; spinning, the live N (white -> blue); the ice builds in
+const HWD=.36;/* v515 egg ice N (Hang 2026-11-15 "Ship"; from preview/egg-n-ice3d v10 cd28ddc; v516 colour = blue middle ground, see below): the N only. At rest plain theme ink; spinning, the live N (white -> blue); the ice builds in
    continuously with spin charge as a bottom-up fill, melts to clear water inside the same sharp prism while it spins hard, refreezes
    upward as it slows, holds 1600ms, then exits top-down over 960ms. Rendering is WebGL only (ngi part below: exact line-art N prism,
    flat faces, hard edges); if WebGL is unavailable the N just stays line art. v4 (Hang 9:16): the old 2D glass fallback (rounded-bar /
@@ -268,6 +268,10 @@ for(const[i0,i1,i2]of tri)T3(Fi(i0),Fi(i1),Fi(i2),[0,-1,0]),T3(Bi(i0),Bi(i1),Bi(
 for(let k=0;k<n;k++){let k1=(k+1)%n,on=[-NE[k][0],0,-NE[k][1]]
 Q4(Fi(k),Fi(k1),Of(k1),Of(k),[on[0],-1,on[2]]),Q4(Of(k),Of(k1),Ob(k1),Ob(k),on),Q4(Ob(k),Ob(k1),Bi(k1),Bi(k),[on[0],1,on[2]])}
 return{buf:new Float32Array(out),n:out.length/6}}
+/* v516 blue ice N (Hang 2026-11-15 "Ship"; the 'blue' look of preview/egg-n-ice-blue a13ed1a, baked in, no ?look toggle): a calmer,
+   slightly blue middle ground between v515 (white glare) and the old blue v6 look - glare stripes, far-face glare/base pools, the white-ified
+   refracted glare and the reflections carry a light cool-blue tint and ~10-15% less intensity, the ice body a subtle cool tint, the rim light
+   is 16% softer, the dark-theme outer glow .38 -> .30 and (light theme) the navy total-reflection band a little lighter. */
 function ngInit(){if(ngS)return;ngS={};try{let c=document.createElement(`canvas`),gl=c.getContext(`webgl`,{antialias:true,premultipliedAlpha:true,preserveDrawingBuffer:true,alpha:true,depth:true});if(!gl)return
 let VS=`attribute vec3 aP;attribute vec3 aN;uniform vec4 uRot;uniform vec4 uPrj;uniform vec2 uRes;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
 void main(){vec3 P=aP;
@@ -291,7 +295,7 @@ vec2 pc=(cid+.2+.6*vec2(h2,h4))*.07;float tz=(zc-O.z)/max(abs(To.z),.05)*sign(To
 for(int j=0;j<2;j++){float t=clamp(tz,0.,ln0);vec3 r=O+To*t;vec2 pp=pc+vec2(tl,tl*.4)*(r.z-zc);vec2 dxy=r.xy-pp;float dl=dot(To.xy,To.xy);t=dl>1e-4?clamp(t-dot(dxy,To.xy)/dl,0.,ln0):t;tz=t;}
 vec3 r=O+To*tz;vec2 pp=pc+vec2(tl,tl*.4)*(r.z-zc);float d=length(r.xy-pp),u=(r.z-zc)/hl*.5+.5;
 acc+=(1.-smoothstep(w*.35,w,d))*smoothstep(0.,.3,u)*(1.-smoothstep(.7,1.,u))*(.6+.4*h);}}return min(1.,acc);}
-vec3 strip(float x,float w,float I){float k=1.-smoothstep(0.,w,abs(x));return vec3(I*k*k);}
+vec3 strip(float x,float w,float I){float k=1.-smoothstep(0.,w,abs(x));return vec3(I*k*k)*vec3(.8,.89,1.)*.86;}
 vec3 env(vec3 r){float az=atan(r.x,r.z)+uSl,el=asin(clamp(r.y,-1.,1.)),tl=1.-smoothstep(.5,1.,abs(el+.1)),ab=abs(az);
 if(uLt<.5){vec3 e=vec3(.025,.032,.045)+vec3(.05,.065,.09)*smoothstep(-.3,1.,r.y);e+=vec3(.9,1.,1.1)*smoothstep(2.45,2.85,ab)*smoothstep(-.35,.1,el);e+=vec3(1.5,1.6,1.7)*smoothstep(2.75,3.,ab)*smoothstep(.12,.25,el)*(1.-smoothstep(.55,.75,el));
 e+=strip(az-1.0,.03,16.)*tl;e+=strip(az-1.72,.035,18.)*tl;e+=vec3(.1,.13,.18)*(1.-smoothstep(0.,.7,abs(az-.95)))*tl;e+=strip(az-1.12,.025,9.)*tl;e+=strip(az+1.85,.08,26.)*tl;e+=strip(az+2.15,.03,8.)*tl;e+=strip(az+.25,.06,14.)*tl;e+=strip(az+2.55,.06,6.)*(1.-smoothstep(.3,.8,abs(el+.5)));return e;}
@@ -303,10 +307,10 @@ void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl
 if(uPass<.5||uPass>1.5){if(N.z>0.)discard;vec3 Ob=vO-vec3(0.,uYc,0.);if(zq(Ob)>lvl(Ob))discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
 float cw=core(vO);
 /* v10: no TIR on the back/front-plane faces (|n.y|=1): light entering the parallel front face can't totally reflect off the back wall; the unrefracted view ray made a dark TIR wedge there (the exit triangle) */
-bool tir=dot(Tt,Tt)<1e-4&&abs(vNo.y)<.9;vec3 gw=vec3(0.);if(uLt>.5){if(tir)c=min(env(r),vec3(1.6))*vec3(.68,.76,.9);else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi)+env(r)*max(Fi,.05)*vec3(.82,.9,1.);}}
+bool tir=dot(Tt,Tt)<1e-4&&abs(vNo.y)<.9;vec3 gw=vec3(0.);if(uLt>.5){if(tir)c=min(env(r),vec3(1.6))*vec3(.76,.83,.94);else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi)+env(r)*max(Fi,.05)*vec3(.82,.9,1.);}}
 else if(tir){c=vec3(0.);gw=min(env(r),vec3(1.6))*.6;}else{vec2 o=Tt.xy*uK;c=vec3(bgAt(uv+o).r,bgAt(uv+o*1.05).g,bgAt(uv+o*1.1).b)*(1.-Fi);gw=env(r)*max(Fi,.05)*.76;}
 /* v9 (dark theme, where the glare is bright stripes; light theme far faces stay v6): the glare (env) part is neutral white and skips the blue absorption; its share rides in alpha for the near pass */
-c=c*ABS(.45+.4*cw)+(uLt>.5?vec3(.02,.035,.07):vec3(.03,.05,.1))*(.6+.4*cw);float gs=clamp(dot(gw,vec3(.33))/max(dot(c+gw,vec3(.33)),1e-3),0.,1.);c+=gw;
+c=c*ABS(.45+.4*cw)+(uLt>.5?vec3(.02,.035,.07):vec3(.03,.05,.1))*(.6+.4*cw);gw*=vec3(.78,.88,1.)*.92;float gs=clamp(dot(gw,vec3(.33))/max(dot(c+gw,vec3(.33)),1e-3),0.,1.);c+=gw;
 if(uPass>1.5){/* v5: a far face seen directly = the ray entered the ice through its top (the frost-line surface): shade it as that frosted cap */
 float ck=smoothstep(.55,.85,n3(vec3(Ob.x*60.,Ob.y*60.,uSd))),sp=step(.97,h3(floor(Ob*140.+uSd))),nb=1.-smoothstep(0.,.06,lvl(Ob)-zq(Ob));vec3 fc=uLt>.5?vec3(.86,.91,.97):vec3(.8,.88,.97);
 c=mix(c,fc,.28+.3*ck+.25*nb)+vec3(.9,.95,1.)*sp*.5;}
@@ -339,11 +343,11 @@ fr=min(1.,fr*.38)*sl;bu=min(1.,bu)*sl;}
 float fp=0.;for(int i=0;i<3;i++){vec3 pn=normalize(i==0?vec3(.38,.75,.5):i==1?vec3(-.62,.32,.72):vec3(.15,-.55,.82));float pd=i==0?.03:i==1?-.18:.22,dd=dot(pn,To);
 if(abs(dd)>.05){float t=(pd-dot(pn,O))/dd;if(t>0.&&t<ln0){vec3 q=O+To*t;float w=smoothstep(.35,.7,core(q))*smoothstep(.45,.62,n3(q*2.+float(i)*3.7));fp+=w*(.3+.7*pow(1.-abs(dd),2.))*(.4+.6*n3(q*vec3(40.,6.,40.)))*.6;}}}
 fp=min(1.,fp)*sl;float pc=pierce(O,To,ln0)*sl;
-vec2 tq=uv+T.xy*uK*1.4*1.05;vec4 tb=texture2D(uBack,tq);float gq=tb.a>.5?(tb.a-.55)/.45:0.;vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9);body=mix(body,vec3(dot(th,vec3(.33))*.88),gq);vec3 fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
+vec2 tq=uv+T.xy*uK*1.4*1.05;vec4 tb=texture2D(uBack,tq);float gq=tb.a>.5?(tb.a-.55)/.45:0.;vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9);body=mix(body,vec3(dot(th,vec3(.33))*.88)*vec3(.8,.9,1.),gq);body*=vec3(.93,.97,1.03);body+=vec3(0.,.006,.02)*(1.-uLt);vec3 fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
 body=mix(mix(body,fc,min(1.,fr*1.1)),vec3(.97,.99,1.),min(1.,pc*1.2))+fc*fp*.55+vec3(.85,.95,1.)*bu*.55+fc*sc*.18;
-vec3 R=reflect(-V,Nvr);vec3 rf=env(R);
+vec3 R=reflect(-V,Nvr);vec3 rf=env(R)*vec3(.84,.92,1.)*.88;
 float ed=1.-smoothstep(.0,.35,cs),chf=smoothstep(.2,.35,fy)*(1.-smoothstep(.85,.95,fy));vec3 col=body*(1.-Fr)+rf*Fr+vec3(.75,.88,1.)*ed*ed*ed*(uLt>.5?.12:.22);
-col+=(uLt>.5?vec3(.88,.95,1.)*.55:vec3(.88,.95,1.)*.9)*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
+col+=(uLt>.5?vec3(.88,.95,1.)*.55:vec3(.88,.95,1.)*.9)*.84*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
 col+=mix(fc,vec3(1.),.5)*chip*(.45+.6*(1.-smoothstep(.0,.35,zq(O))));
 float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)))*sl;
 {float fx=fb;if(fx>.001){float ck3=smoothstep(.62,.85,n3(vec3(O.x*170.+O.y*60.,O.z*9.,uSd))),sp3=step(.93,h3(floor(O*120.)));
@@ -369,7 +373,7 @@ gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewp
 gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clearColor(0,0,0,0),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
 gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE0)
 p.save(),p.setTransform(1,0,0,1,0,0)
-if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(150,185,235)`,gx.shadowBlur=Math.max(2,gw.width*.07),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=.38,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
+if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(150,185,235)`,gx.shadowBlur=Math.max(2,gw.width*.07),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=.3,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
 p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)
 /* v2: a few tiny droplets flung off while liquid (<=12 alive, 320-620ms life, gravity), subtle */
 {let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(ngDL||nw))/1e3)),k0=d.width/g,cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt);ngDL=nw
