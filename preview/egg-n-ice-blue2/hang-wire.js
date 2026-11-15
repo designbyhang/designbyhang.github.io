@@ -1,4 +1,4 @@
-/* preview/egg-n-ice-blue2 copy of js/hang-wire.js (v516 live) with only the ice N colour (earlier-N heat blue) and the cap-edge line fix changed; throwaway, not a ?v slot. */
+/* preview/egg-n-ice-blue2 copy of js/hang-wire.js (v516 live) with only the ice N colour (earlier-N heat blue), the cap-edge line fix and the hard-freeze spin threshold (as egg-n-ice-hard) changed; throwaway, not a ?v slot. */
 (function(e){Object.defineProperty(e,Symbol.toStringTag,{value:`Module`});
 /* EGG_GYRO (v512, Hang 2026-11-11): gyroscope tilt-to-rotate is PARKED for later. While false nothing asks for motion/orientation permission
    and no deviceorientation listener is added (Ce() returns at once; the mount-time auto-arm is skipped); drag spin is unaffected. The tilt code
@@ -87,7 +87,10 @@ p.shadowBlur=(lt0?8:4)*k0,p.shadowColor=`rgba(${lt0?Yc:GEH},${eI})`,p.lineWidth=
 /* v510 flame H (Hang, 2026-11-11; shipped from preview/egg-h-flame c4861df): the H rests in plain ink and stays ink at normal speeds. It ignites only past HF_ON 2160deg/s of smoothed user yaw speed (hW; hard fast fling or drag) and goes out below HF_OFF 1800deg/s (hysteresis, so it never flickers at the threshold); unlit there is no heat at all. Lit, the charge aims at max(.12, smoothstep((hW-HF_OFF)/(HF1-HF_OFF))), HF1 3600deg/s, rising with a 240ms time constant and cooling with 560ms, so the H is back to ink ~1.6s after the speed drops. The stroke heats bottom-up (hFill) from ink to ember: dark #E8551E -> #FF7A1A, light (deeper) #B3261E -> #D9480F. On top: a tight glow, a patchy corona and spark streaks (hmMol, hfCor below). No fill inside the outline; the H never distorts; prefers-reduced-motion / ?still: none. */
 const HF_ON=Math.PI*12,HF_OFF=Math.PI*10,HF1=Math.PI*20;let hfIg=0,hfE=null,hfW=null,hfWt=0
 function hfH(){return!!t[v]&&t[v].name===`H`}
-function hfTg(tg){if(!hfH())return tg;hfIg=hfIg?+(hW>HF_OFF):+(hW>HF_ON);if(!hfIg)return 0;let x0=Math.max(0,Math.min(1,(hW-HF_OFF)/(HF1-HF_OFF)));return Math.max(.12,x0*x0*(3-2*x0))}
+/* preview/egg-n-ice-blue2 (Hang 2026-11-15 09:30, as preview/egg-n-ice-hard 908cdfc): the N rides the H's heat scale. Its heat target is the same smoothstep of the spin speed hW,
+   starting where every letter starts (HW0 = 2 rev/s) but only full at the H's full-flame speed HF1 (20pi rad/s = 10 rev/s); the ice follows that heat 1:1. */
+function niHt(){let x=Math.max(0,Math.min(1,(hW-HW0)/(HF1-HW0)));return x*x*(3-2*x)}
+function hfTg(tg){if(niOn())return niHt();if(!hfH())return tg;hfIg=hfIg?+(hW>HF_OFF):+(hW>HF_ON);if(!hfIg)return 0;let x0=Math.max(0,Math.min(1,(hW-HF_OFF)/(HF1-HF_OFF)));return Math.max(.12,x0*x0*(3-2*x0))}
 function hfN(x0,s0){let f0=Math.floor(x0),g0=x0-f0,a0=gzH(s0,f0,3),b0=gzH(s0,f0+1,3);return a0+(b0-a0)*g0*g0*(3-2*g0)}
 function hfDraw(yw,pt,Lay,y0,y1){if(!hfH()||r||i){hmS.length=0;return}hmMol(yw,pt,Lay,y0,y1),hfE&&hfCor(yw,pt,Lay,y0,y1)}
 /* v510 H corona (hfCor; Hang, after a fireball reference's limb): no discrete flame licks. Along every heated wire a soft, ragged band of fire hugs the line and wisps slightly off it, like the sun's limb: each edge is sampled every 7px; at each sample a smooth screen-space value-noise field (two scales, drifting upward at 0.8 and 2.4/s, so it churns rather than flickers) sets how far the band reaches to either side of the line (along its screen normal) and how far it drifts up the screen; no peaks are sharpened, so there are no spikes or rows. Tied to motion and patchy: the reach scales with heat (x min(1.25, 1.25 x charge), so it grows as the spin gets faster and shrinks away as it cools) and with a slow patch field (two broad noise scales drifting at .35 and .6/s, smoothstep .32-.74, squared), so some stretches burn hot, some barely glow, and the hot patches shift over time. Three layers, each one batched path for all edges (nonzero union) with a vertical gradient so it only shows where the heat front has reached: outer smoky orange (reach 2-11px x heat, dark .2 / light .12), inner orange-yellow (1-6px, .3 / .2), and a thin yellow-white limb right on the line (0.6-2.4px, dark .35 x top heat; light: deep orange .3). Dark additive, light normal blending; no canvas blur. */
@@ -209,7 +212,7 @@ if(!niOn()||r||i){niF=0,niM=0,niPk=0,niH0=0,niLq=0;return}
    min(1, hH/.45) (smoothstep), never faster than 0 -> 1 in 128ms (v4: 480ms, so the bottom-up fill is visible) and never down while moving, so a respin just keeps building. When it
    stops it holds 1600ms, then thaws back to line art over 800ms (2400ms in all, 8ms multiples; v4: exit 960ms, 2560ms in all; v5: exit 1440ms with a smooth start and a soft ease-out tail, 3040ms in all). v5: no ice sound layer (Hang 11:06): only the
    letters' own spin dings (main js/sfx.js). */
-if(N||hW>HW0*.25){let tg=Math.min(1,hH/.45);tg=tg*tg*(3-2*tg);tg>niF&&(niF=Math.min(tg,niF+dt/.48));niM=1,niT=0,niH0=niF}
+if(N||hW>HW0*.25){let tg=hH;tg>niF&&(niF=Math.min(tg,niF+dt/.48));niM=1,niT=0,niH0=niF}
 else if(niM){niT+=dt;if(niT>=1.6){let u=Math.min(1,(niT-1.6)/1.44);niF=niH0*(1-u)*(1-u)*(1+2*u)}niT>=3.04&&(niM=0,niF=0)}
 else niF=Math.max(0,niF-dt/1.44)
 niPhys(dt)}
