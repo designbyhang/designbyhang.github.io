@@ -262,15 +262,15 @@ ky(lp[0])===ky(lp[lp.length-1])&&lp.pop()
 let P=[];for(let k=0;k<lp.length;k++){let A=lp[(k+lp.length-1)%lp.length],B=lp[k],C=lp[(k+1)%lp.length],cr=(B[0]-A[0])*(C[1]-B[1])-(B[1]-A[1])*(C[0]-B[0]);Math.abs(cr)>1e-3*Math.hypot(B[0]-A[0],B[1]-A[1])*Math.hypot(C[0]-B[0],C[1]-B[1])&&P.push(B)}
 let ar=0;for(let k=0;k<P.length;k++){let A=P[k],B=P[(k+1)%P.length];ar+=A[0]*B[1]-B[0]*A[1]}ar<0&&P.reverse()
 let hs=k=>{let x=Math.sin(k*127.1+311.7)*43758.5453;return x-Math.floor(x)};/* v3: outline exact (no jitter) */
-let n=P.length,CC=P.map((_,k)=>4+hs(k+300)*7),NE=P.map((A,k)=>{let B=P[(k+1)%n],l=Math.hypot(B[0]-A[0],B[1]-A[1]);return[-(B[1]-A[1])/l,(B[0]-A[0])/l]}),Pin=P.map((A,k)=>{let n1=NE[(k+n-1)%n],n2=NE[k],dt=1+n1[0]*n2[0]+n1[1]*n2[1],cc=CC[k];return[A[0]+cc*(n1[0]+n2[0])/dt,A[1]+cc*(n1[1]+n2[1])/dt]})
+let n=P.length,CC=P.map(()=>7.5),NE=P.map((A,k)=>{let B=P[(k+1)%n],l=Math.hypot(B[0]-A[0],B[1]-A[1]);return[-(B[1]-A[1])/l,(B[0]-A[0])/l]}),Pin=P.map((A,k)=>{let n1=NE[(k+n-1)%n],n2=NE[k],dt=1+n1[0]*n2[0]+n1[1]*n2[1],cc=CC[k];return[A[0]+cc*(n1[0]+n2[0])/dt,A[1]+cc*(n1[1]+n2[1])/dt]})
 let tri=[],I=Pin.map((_,k)=>k),cv=(a0,b0,c0)=>(b0[0]-a0[0])*(c0[1]-b0[1])-(b0[1]-a0[1])*(c0[0]-b0[0]),inT=(q,a0,b0,c0)=>cv(a0,b0,q)>=0&&cv(b0,c0,q)>=0&&cv(c0,a0,q)>=0
 for(let gd=0;I.length>3&&gd<500;gd++){let ok=0;for(let k=0;k<I.length;k++){let i0=I[(k+I.length-1)%I.length],i1=I[k],i2=I[(k+1)%I.length],A=Pin[i0],B=Pin[i1],C=Pin[i2];if(cv(A,B,C)<=0)continue;if(I.some(j=>j!==i0&&j!==i1&&j!==i2&&inT(Pin[j],A,B,C)))continue;tri.push([i0,i1,i2]),I.splice(k,1),ok=1;break}if(!ok)break}I.length===3&&tri.push(I.slice())
-let h=NIH*a,W=(q,y)=>[(q[0]-L.w/2)*a,y,(q[1]-352)*a],yF=k=>(NIF-2*NIH)*a,yB=k=>NIF*a,out=[],T3=(A,B,C,ex)=>{let u=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],w=[C[0]-A[0],C[1]-A[1],C[2]-A[2]],nn=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]],l=Math.hypot(...nn)||1;nn=nn.map(z=>z/l);nn[0]*ex[0]+nn[1]*ex[1]+nn[2]*ex[2]<0&&(nn=nn.map(z=>-z));for(const V of[A,B,C])out.push(V[0],V[1],V[2],nn[0],nn[1],nn[2])},Q4=(A,B,C,D,ex)=>{T3(A,B,C,ex),T3(A,C,D,ex)}
+let h=NIH*a,W=(q,y)=>[(q[0]-L.w/2)*a,y,(q[1]-352)*a],yF=k=>(NIF-2*NIH)*a,yB=k=>NIF*a,out=[],E0=[0,0,0,0,0,0,0,0],T3=(A,B,C,ex,EA=E0,EB=E0,EC=E0)=>{let u=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],w=[C[0]-A[0],C[1]-A[1],C[2]-A[2]],nn=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]],l=Math.hypot(...nn)||1;nn=nn.map(z=>z/l);nn[0]*ex[0]+nn[1]*ex[1]+nn[2]*ex[2]<0&&(nn=nn.map(z=>-z));[[A,EA],[B,EB],[C,EC]].forEach(([V,X])=>out.push(V[0],V[1],V[2],nn[0],nn[1],nn[2],...X))},Q4=(A,B,C,D,ex,X)=>{X=X||[E0,E0,E0,E0];T3(A,B,C,ex,X[0],X[1],X[2]),T3(A,C,D,ex,X[0],X[2],X[3])}
 let Fi=k=>W(Pin[k],yF(k)),Bi=k=>W(Pin[k],yB(k)),Of=k=>W(P[k],yF(k)+CC[k]*a),Ob=k=>W(P[k],yB(k)-CC[k]*a)
 for(const[i0,i1,i2]of tri)T3(Fi(i0),Fi(i1),Fi(i2),[0,-1,0]),T3(Bi(i0),Bi(i1),Bi(i2),[0,1,0])
-for(let k=0;k<n;k++){let k1=(k+1)%n,on=[-NE[k][0],0,-NE[k][1]]
-Q4(Fi(k),Fi(k1),Of(k1),Of(k),[on[0],-1,on[2]]),Q4(Of(k),Of(k1),Ob(k1),Ob(k),on),Q4(Ob(k),Ob(k1),Bi(k1),Bi(k),[on[0],1,on[2]])}
-return{buf:new Float32Array(out),n:out.length/6}}
+for(let k=0;k<n;k++){let k1=(k+1)%n,on=[-NE[k][0],0,-NE[k][1]],l=Math.hypot(P[k1][0]-P[k][0],P[k1][1]-P[k][1])*a,np=NE[(k+n-1)%n],nq=NE[k1],M=[-np[0],-np[1],-nq[0],-nq[1]],C2=(u,t)=>[2,u,l,t,0,0,0,0],W1=u=>[1,u,l,0,...M]
+Q4(Fi(k),Fi(k1),Of(k1),Of(k),[on[0],-1,on[2]],[C2(0,0),C2(l,0),C2(l,1),C2(0,1)]),Q4(Of(k),Of(k1),Ob(k1),Ob(k),on,[W1(0),W1(l),W1(l),W1(0)]),Q4(Ob(k),Ob(k1),Bi(k1),Bi(k),[on[0],1,on[2]],[C2(0,1),C2(l,1),C2(l,0),C2(0,0)])}
+return{buf:new Float32Array(out),n:out.length/14}}
 /* v516 blue ice N (Hang 2026-11-15 "Ship"; the 'blue' look of preview/egg-n-ice-blue a13ed1a, baked in, no ?look toggle): a calmer,
    slightly blue middle ground between v515 (white glare) and the old blue v6 look - glare stripes, far-face glare/base pools, the white-ified
    refracted glare and the reflections carry a light cool-blue tint and ~10-15% less intensity, the ice body a subtle cool tint, the rim light
@@ -280,11 +280,11 @@ return{buf:new Float32Array(out),n:out.length/6}}
    far-face total reflection now shows the background instead of the env ground (fixes the light-theme navy line on the stem top-cap edge, the
    floor-edge line and the diagonal navy shard); full ice needs the H's full-flame spin (niHt via hfTg, ~10 rev/s). */
 function ngInit(){if(ngS)return;ngS={};try{let c=document.createElement(`canvas`),gl=c.getContext(`webgl`,{antialias:true,premultipliedAlpha:true,preserveDrawingBuffer:true,alpha:true,depth:true});if(!gl)return
-let VS=`attribute vec3 aP;attribute vec3 aN;uniform vec4 uRot;uniform vec4 uPrj;uniform vec2 uRes;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
+let VS=`attribute vec3 aP;attribute vec3 aN;attribute vec4 aE;attribute vec4 aM;varying vec4 vE;varying vec4 vM;uniform vec4 uRot;uniform vec4 uPrj;uniform vec2 uRes;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
 void main(){vec3 P=aP;
 float c=P.x*uRot.x+P.y*uRot.y,l=-P.x*uRot.y+P.y*uRot.x,u=P.z,p=u*uRot.z-l*uRot.w,q=l*uRot.z+u*uRot.w;vec2 s=vec2(uPrj.y+c*uPrj.x,uPrj.z-p*uPrj.x);
-gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,-q*uPrj.x*uPrj.w,1.);vO=aP;vNo=aN;vV=vec3(c,p,q)*uPrj.x;}`
-let FS=`precision highp float;uniform sampler2D uBack;uniform sampler2D uCore;uniform vec4 uRot;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;uniform float uH;uniform vec2 uCs;uniform float uTb;uniform float uTm;uniform float uS;uniform float uLq;uniform float uSt;uniform float uSd;uniform float uYc;varying vec3 vV;varying vec3 vO;varying vec3 vNo;
+gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,-q*uPrj.x*uPrj.w,1.);vO=aP;vNo=aN;vE=aE;vM=aM;vV=vec3(c,p,q)*uPrj.x;}`
+let FS=`precision highp float;uniform sampler2D uBack;uniform sampler2D uCore;uniform vec4 uRot;uniform vec3 uBg;uniform float uLt;uniform float uPass;uniform float uD;uniform vec2 uK;uniform vec2 uRes;uniform float uSl;uniform float uH;uniform vec2 uCs;uniform float uTb;uniform float uTm;uniform float uS;uniform float uLq;uniform float uSt;uniform float uSd;uniform float uYc;varying vec3 vV;varying vec3 vO;varying vec3 vNo;varying vec4 vE;varying vec4 vM;uniform float uEw;
 float h3(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
 float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h3(i),h3(i+vec3(1.,0.,0.)),f.x),mix(h3(i+vec3(0.,1.,0.)),h3(i+vec3(1.,1.,0.)),f.x),f.y),mix(mix(h3(i+vec3(0.,0.,1.)),h3(i+vec3(1.,0.,1.)),f.x),mix(h3(i+vec3(0.,1.,1.)),h3(i+vec3(1.,1.,1.)),f.x),f.y),f.z);}
 vec3 toV(vec3 v){float c=v.x*uRot.x+v.y*uRot.y,l=-v.x*uRot.y+v.y*uRot.x;return vec3(c,v.z*uRot.z-l*uRot.w,l*uRot.z+v.z*uRot.w);}
@@ -326,11 +326,21 @@ c=mix(c,fc,.28+.3*ck+.25*nb)+vec3(.9,.95,1.)*sp*.5;}
 gl_FragColor=vec4(min(c,vec3(1.)),uPass<.5?.55+.45*gs:1.);}
 else{if(N.z<=0.)discard;
 vec3 No=normalize(vNo),O=vO-vec3(0.,uYc,0.);float sz=lvl(O)-zq(O);if(sz<0.)discard;
+/* v518 edges (Hang 2026-11-15 "Ship", from preview/egg-n-ice-edges 0faf196; asks 10:31-10:47): every prism edge gets the one edge band the front/back chamfers (the verticals) have. Chamfers: the band runs across the
+   strip (vE.w 0..1). Wall corners (the depth edges, no chamfer in the mesh): a band of the chamfer's width uEw along the wall from the corner, with the
+   normal rounded toward the neighbour wall (vM) so it refracts/reflects like a chamfer. Width and brightness vary along the edge with object-space
+   (seeded, frame-stable) noise: soft breaks, small chips, a little width wobble - natural ice, not a ruled line. */
+float eB=0.,eR=0.;{vec3 eq=O+uSd*.13;float wv=.72+.35*n3(eq*5.3+1.7)+.3*n3(eq*19.+3.3),bk=smoothstep(.22,.6,n3(eq*3.1+4.2))*(.55+.45*smoothstep(.3,.6,n3(eq*11.+6.))),
+nk=1.-.85*smoothstep(.6,.72,n3(eq*41.+9.1))*step(.45,n3(eq*9.+2.)),ag=.18*(n3(eq*70.+5.)-.5);
+if(vE.x>1.5){float tc=abs(vE.w-.5+ag)*2.;eB=1.-smoothstep(wv*.5,min(1.,wv),tc);eR=1.-smoothstep(.6,1.,tc);}
+else if(vE.x>.5){float d0=vE.y,d1=vE.z-vE.y;vec2 nq=d0<d1?vM.xy:vM.zw;float dd=min(d0,d1)+ag*uEw,w=uEw*wv;eB=1.-smoothstep(w*.5,w,dd);eR=1.-smoothstep(uEw*.6,uEw*1.05,dd);
+vec3 nb=normalize(No+vec3(nq.x,0.,nq.y));No=normalize(mix(No,nb,.5*(1.-smoothstep(0.,uEw*1.1,dd))));}
+eB*=bk*nk;}
 float fb=1.-smoothstep(0.,.05,sz),fy=abs(No.y),sl=1.-.7*uLq;
 vec3 g=vec3(n3(O*9.),n3(O*9.+5.2),n3(O*9.+11.7))-.5;g+=.5*(vec3(n3(O*23.+2.),n3(O*23.+8.),n3(O*23.+3.))-.5);
 float ef=1.-smoothstep(.5,.92,edg(O)),cn=n3(O*vec3(11.,4.,11.)+3.7);
 float chip=sl*max(fy>.6?ef*smoothstep(.5,.66,cn):0.,smoothstep(uH*.8,uH*.97,abs(O.y))*smoothstep(.55,.7,n3(O*vec3(9.,2.,9.)+1.1))*(1.-step(.6,fy)));
-vec3 Nb=normalize(No+g*sl*(.004+.018*fy*smoothstep(.4,.8,n3(O*2.1))+.09*smoothstep(.6,.9,abs(No.z)))+g*chip*1.3);
+vec3 Nb=normalize(No+g*sl*(.004+.018*fy*smoothstep(.4,.8,n3(O*2.1))+.09*smoothstep(.6,.9,abs(No.z)))+g*chip*1.3+g*eR*.55);
 vec2 P2=fy>.6?O.xz:vec2(dot(O.xz,normalize(vec2(-No.z,No.x)+1e-5)),O.y);float sc=0.;vec2 sd=vec2(0.);
 for(int i=0;i<3;i++){float th=float(i)*1.13+.4;vec2 dr=vec2(cos(th),sin(th)),pr=vec2(-dr.y,dr.x);float u=dot(P2,pr)*38.,cl=floor(u);float hh=h3(vec3(cl,float(i)*7.3,3.1));
 float ln=step(hh,.05)*(1.-smoothstep(.0,.07,abs(fract(u)-.5)))*smoothstep(.62,.75,n3(vec3(dot(P2,dr)*4.,cl,float(i))));sc+=ln;sd+=pr*ln;}
@@ -355,15 +365,15 @@ fp=min(1.,fp)*sl;float pc=pierce(O,To,ln0)*sl;
 vec2 tq=uv+T.xy*uK*1.4*1.05;vec4 tb=texture2D(uBack,tq);float gq=tb.a>.5?(tb.a-.55)/.45:0.;vec3 th=thr(uv,T.xy*uK*1.4),body=th*ABS(ln0*.9);body=mix(body,vec3(dot(th,vec3(.33))*.88)*vec3(.8,.9,1.),gq);{float hz=clamp(zq(O),0.,1.);vec3 nb=nBl(hz);body=mix(body,dot(body,vec3(.333))*nb*1.22,uLt>.5?0.850:0.900);body+=NB*0.320*(1.-.6*hz)*(1.-uLt);}vec3 fc=uLt>.5?vec3(.9,.95,1.):vec3(.88,.95,1.02);
 body=mix(mix(body,fc,min(1.,fr*1.1)),vec3(.97,.99,1.),min(1.,pc*1.2))+fc*fp*.55+vec3(.85,.95,1.)*bu*.55+fc*sc*.18;
 vec3 R=reflect(-V,Nvr);vec3 rf=env(R)*mix(vec3(.84,.92,1.),NL,0.500)*.88;
-float ed=1.-smoothstep(.0,.35,cs),chf=smoothstep(.2,.35,fy)*(1.-smoothstep(.85,.95,fy));vec3 col=body*(1.-Fr)+rf*Fr+vec3(.75,.88,1.)*ed*ed*ed*(uLt>.5?.12:.22);
+float ed=1.-smoothstep(.0,.35,cs),chf=eB*2.1;vec3 col=body*(1.-Fr)+rf*Fr+vec3(.75,.88,1.)*ed*ed*ed*(uLt>.5?.12:.22);
 col+=mix(vec3(.88,.95,1.),NL,0.700)*(uLt>.5?.55:.9)*.84*chf*(.25+.75*smoothstep(.3,.75,n3(O*5.+2.)))*(.7+.3*n3(O*40.));
 col+=mix(fc,vec3(1.),.5)*chip*(.45+.6*(1.-smoothstep(.0,.35,zq(O))));
-float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)))*sl;
+{float rb=eR*(smoothstep(.6,.8,n3(O*85.+uSd*.37))*(.4+.6*n3(O*23.+1.))+step(.94,h3(floor(O*190.+uSd)))*.7);col=mix(col,fc*1.04,min(1.,rb*.75));}float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)))*sl;
 {float fx=fb;if(fx>.001){float ck3=smoothstep(.62,.85,n3(vec3(O.x*170.+O.y*60.,O.z*9.,uSd))),sp3=step(.93,h3(floor(O*120.)));
 col=mix(col,fc*1.05,fx*(.22+.55*ck3+.4*sp3));col+=vec3(.85,.94,1.)*fx*fx*.25;}}
 gl_FragColor=vec4(min(col,vec3(1.)),1.);}}`
 let sh=(t0,s0)=>{let q=gl.createShader(t0);gl.shaderSource(q,s0),gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(q);return q},pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)),gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)),gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0
-let U={};for(const k of[`uRot`,`uPrj`,`uRes`,`uBack`,`uCore`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uH`,`uCs`,`uTb`,`uTm`,`uS`,`uLq`,`uSt`,`uSd`,`uYc`])U[k]=gl.getUniformLocation(pr,k)
+let U={};for(const k of[`uEw`,`uRot`,`uPrj`,`uRes`,`uBack`,`uCore`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uH`,`uCs`,`uTb`,`uTm`,`uS`,`uLq`,`uSt`,`uSd`,`uYc`])U[k]=gl.getUniformLocation(pr,k)
 let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const[k,v0]of[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v0);return t0}
 Object.assign(ngS,{c,gl,pr,U,vb:gl.createBuffer(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 function ngCore(L){let R=128,c=document.createElement(`canvas`);c.width=c.height=R;let x=c.getContext(`2d`),sx=R*.8/L.w,sy=R*.8/704,px=R*.1;x.fillStyle=`#fff`;x.beginPath();for(const r0 of L.parts){r0.poly.forEach(([q0,q1],k)=>{let X0=px+q0*sx,Y0=R-px-q1*sy;k?x.lineTo(X0,Y0):x.moveTo(X0,Y0)});x.closePath()}x.fill()
@@ -374,8 +384,8 @@ let mx=0;for(let k=0;k<R*R;k++)mx=Math.max(mx,A[k]);let o=new Uint8Array(R*R*4);
 function ngGL(yw,pt,Lay,f){let S0=ngS,gl=S0.gl,L=t[v],lt0=hLt(),kq=Math.min(1,2/(d.width/g)),W=Math.max(2,Math.round(d.width*kq)),H=Math.max(2,Math.round(d.height*kq))
 if(ngML!==L){ngM=ngMesh(L),ngML=L;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb),gl.bufferData(gl.ARRAY_BUFFER,ngM.buf,gl.STATIC_DRAW);gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,128,128,0,gl.RGBA,gl.UNSIGNED_BYTE,ngCore(L)),gl.activeTexture(gl.TEXTURE0)}
 if(S0.W!==W||S0.H!==H){S0.W=W,S0.H=H,S0.c.width=W,S0.c.height=H;gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,W,H,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.bindRenderbuffer(gl.RENDERBUFFER,S0.rb),gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,W,H);gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,S0.tb,0),gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,S0.rb);S0.gw.width=Math.max(2,Math.round(W/8)),S0.gw.height=Math.max(2,Math.round(H/8))}
-gl.useProgram(S0.pr);let U=S0.U,sc=Lay.scale*kq,bw=190*a*sc;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb);let aP=gl.getAttribLocation(S0.pr,`aP`),aN=gl.getAttribLocation(S0.pr,`aN`);gl.enableVertexAttribArray(aP),gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0),gl.enableVertexAttribArray(aN),gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12)
-gl.uniform4f(U.uRot,Math.cos(yw),Math.sin(yw),Math.cos(pt),Math.sin(pt)),gl.uniform4f(U.uPrj,sc,Lay.ox*kq,Lay.oy*kq,1/(2*Math.max(W,H))),gl.uniform2f(U.uRes,W,H),gl.uniform1f(U.uD,1.4*704*a*sc),gl.uniform2f(U.uK,.22*bw/W,.22*bw/H)
+gl.useProgram(S0.pr);let U=S0.U,sc=Lay.scale*kq,bw=190*a*sc;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb);let aP=gl.getAttribLocation(S0.pr,`aP`),aN=gl.getAttribLocation(S0.pr,`aN`),aE=gl.getAttribLocation(S0.pr,`aE`),aM=gl.getAttribLocation(S0.pr,`aM`);gl.enableVertexAttribArray(aP),gl.vertexAttribPointer(aP,3,gl.FLOAT,false,56,0),gl.enableVertexAttribArray(aN),gl.vertexAttribPointer(aN,3,gl.FLOAT,false,56,12),gl.enableVertexAttribArray(aE),gl.vertexAttribPointer(aE,4,gl.FLOAT,false,56,24),gl.enableVertexAttribArray(aM),gl.vertexAttribPointer(aM,4,gl.FLOAT,false,56,40)
+gl.uniform4f(U.uRot,Math.cos(yw),Math.sin(yw),Math.cos(pt),Math.sin(pt)),gl.uniform4f(U.uPrj,sc,Lay.ox*kq,Lay.oy*kq,1/(2*Math.max(W,H))),gl.uniform2f(U.uRes,W,H),gl.uniform1f(U.uEw,7.5*a),gl.uniform1f(U.uD,1.4*704*a*sc),gl.uniform2f(U.uK,.22*bw/W,.22*bw/H)
 gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform1f(U.uH,NIH*a),gl.uniform2f(U.uCs,L.w*a,704*a),gl.uniform1f(U.uTb,Math.min(1,hH)),gl.uniform1f(U.uS,niS()),gl.uniform1f(U.uLq,niLq),gl.uniform1f(U.uSt,niSt()),gl.uniform1f(U.uSd,ngSd),gl.uniform1f(U.uYc,(NIF-NIH)*a),gl.uniform1f(U.uTm,performance.now()/1e3%600),gl.uniform1i(U.uBack,1),gl.uniform1i(U.uCore,2)
 gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.activeTexture(gl.TEXTURE0)
 gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewport(0,0,W,H)
