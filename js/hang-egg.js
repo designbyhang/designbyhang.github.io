@@ -39,6 +39,24 @@ const keys=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(e.key)){e.preventDefault();e.stopPropagation();}}; /* page behind stays put */
 /* nosel (the egg, v502): nothing on the page is selectable while the egg is open (Hang: an iPhone long-press showed the blue selection handles and the Copy / Look Up / Translate callout). html.hegg-nosel (css/hang-egg.css) sets user-select, -webkit-touch-callout and the tap highlight off on everything; selectstart and contextmenu are cancelled in the capture phase while open; any selection is cleared on open. Pointer drag/fling and taps are untouched. */
 const noSel=e=>e.preventDefault(),selOff=on=>{de.classList.toggle('hegg-nosel',on);const f=on?'addEventListener':'removeEventListener';document[f]('selectstart',noSel,true);document[f]('contextmenu',noSel,true);if(on){const g=window.getSelection&&window.getSelection();if(g)g.removeAllRanges();}};
+/* v521 (Hang 2026-11-16 14:43-14:45, "clearly noticeable oval bands" on a large monitor): the egg's centre glow was a CSS
+   radial-gradient (ellipse 60% x 43%, white 4% -> 2% -> 0 over #111; light 45% -> 22.5% -> 0 over #ededed). In 8 bits that is only 9 grey
+   levels (dark 17 -> 26, light 237 -> 245) spread over the whole oval, so every level is a flat ring ~170 CSS px wide on a 2560 window (~90 at
+   1440) with a hard 1-LSB step between rings; the paper grain (overlay blend, near-black/near-white) barely moves those values, so it does not
+   break them. eggBg() draws the same gradient (same stops, same premultiplied white-over-page maths, read from the same --page/--egg-glow
+   variables) into a canvas behind the grain, with a static interleaved-gradient-noise dither of +-.5 LSB added before rounding (Uint8ClampedArray rounds to nearest): the same mean
+   colour, no steps, no visible noise, no flicker (the pattern is fixed per pixel). One CSS px per canvas px, drawn pixelated so the dither
+   reaches the screen unsmoothed (Safari included). Redrawn only on theme change (at once) or resize (128ms after it settles): ~60ms of JS for a 2560x1440 window, 15MB canvas, nothing per frame. */
+function eggBg(o){const cv=document.createElement('canvas');cv.className='hegg-bg';cv.setAttribute('aria-hidden','true');o.insertBefore(cv,o.firstChild);o.classList.add('egg-dith');
+ let key='',rq=0;const fr=v=>v-Math.floor(v),al=s0=>{const m=/rgba?\(([^)]*)\)/.exec(s0||'');if(!m)return 0;const p=m[1].split(',');return p.length>3?parseFloat(p[3]):1};
+ const draw=()=>{rq=0;if(!o.isConnected){ro.disconnect();mo.disconnect();return}const W=Math.max(1,Math.round(o.clientWidth)),H=Math.max(1,Math.round(o.clientHeight)),cs=getComputedStyle(o),
+  pg=cs.getPropertyValue('--page').trim(),g0=cs.getPropertyValue('--egg-glow'),g1=cs.getPropertyValue('--egg-glow-mid'),k=[W,H,pg,g0,g1].join('|');if(k===key)return;key=k;
+  cv.width=W,cv.height=H;const x=cv.getContext('2d');x.fillStyle=pg;const hx=x.fillStyle,P=/^#[0-9a-f]{6}$/i.test(hx)?[1,3,5].map(i=>parseInt(hx.substr(i,2),16)):[17,17,17],a0=al(g0),a1=al(g1);
+  const im=x.createImageData(W,H),D=im.data,rx=.6*W,ry=.43*H,cx=W/2,cy=H/2;
+  for(let j=0;j<H;j++){const dy=(j+.5-cy)/ry,dy2=dy*dy;for(let i=0;i<W;i++){const dx=(i+.5-cx)/rx,t=Math.sqrt(dx*dx+dy2),a=t>=1?0:t<.45?a0+(a1-a0)*t/.45:a1*(1-(t-.45)/.55),
+   n=fr(52.9829189*fr(.06711056*i+.00583715*j))-.5,q=(j*W+i)*4;D[q]=P[0]+a*(255-P[0])+n,D[q+1]=P[1]+a*(255-P[1])+n,D[q+2]=P[2]+a*(255-P[2])+n,D[q+3]=255}}
+  x.putImageData(im,0,0)};
+ const go=()=>{clearTimeout(rq),rq=setTimeout(draw,128)},now=()=>{clearTimeout(rq),draw()},ro=new ResizeObserver(go),mo=new MutationObserver(now);ro.observe(o);mo.observe(de,{attributes:true,attributeFilter:['data-theme','class']});draw()}
 function open(c){if(ov)return;cfg=c;ret=document.activeElement;if(c.nosel)selOff(true);
   const o=ov=document.createElement('div');o.className='hegg'+(c.cls?' '+c.cls:'');o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',c.label);
   o.innerHTML='<i class="hegg-edge hegg-edge-t" aria-hidden="true"></i><i class="hegg-edge hegg-edge-b" aria-hidden="true"></i>'+(c.stage||'')+'<div class="bar hegg-bar"><nav class="bar-right" aria-label="'+c.label+'"><a class="ax hegg-x" href="#" role="button" aria-label="Close"><span class="arr arr-back" aria-hidden="true"><svg viewBox="0 0 20 16" fill="none"><path d="M2 0L18 16M18 0L2 16"/></svg></span><span class="t">CLOSE</span></a></nav></div>';
@@ -49,7 +67,7 @@ function open(c){if(ov)return;cfg=c;ret=document.activeElement;if(c.nosel)selOff
   o.addEventListener('pointermove',e=>e.stopPropagation());
   o.addEventListener('touchmove',e=>e.stopPropagation());
   if(c.grow)o.classList.add('hegg-grow');
-  document.body.appendChild(o);lock();adoptToggle(o);
+  document.body.appendChild(o);if(c.cls==='hegg-egg')eggBg(o);lock();adoptToggle(o);
   document.addEventListener('keydown',keys,true);o.querySelector('.hegg-x').focus({preventScroll:true});
   if(c.view)window.dbhView.set(c.view);
   const on=()=>{o.classList.add('on');if(c.show)c.show(o);};
