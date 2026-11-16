@@ -1,4 +1,4 @@
-/* preview/egg-n-ice-edgeonly copy of js/hang-wire.js (v521 live) + the irregular crystal frost line (as preview/egg-desktop-v2) + ice only as white frost grown along the N's edges (NI_CRUST; v2 white frost); throwaway, not a ?v slot. */
+/* preview/egg-n-ice-edgeonly copy of js/hang-wire.js (v521 live) + the irregular crystal frost line (as preview/egg-desktop-v2) + ice only as white frost grown along the N's edges (NI_CRUST; v3 thinner irregular white frost); throwaway, not a ?v slot. */
 (function(e){Object.defineProperty(e,Symbol.toStringTag,{value:`Module`});
 /* EGG_GYRO (v512, Hang 2026-11-11): gyroscope tilt-to-rotate is PARKED for later. While false nothing asks for motion/orientation permission
    and no deviceorientation listener is added (Ce() returns at once; the mount-time auto-arm is skipped); drag spin is unaffected. The tilt code
@@ -360,26 +360,34 @@ vec3 ABS(float l){return uLt>.5?exp(-vec3(.3,.23,.16)*l):exp(-vec3(.36,.27,.18)*
    (seeded object-space noise, .55-1.4) x up to 1.8 at wall corners (both edge distances small). The inner boundary is not a cut: t = e/w,
    solid crust to t ~ .8, then dendritic fingers (domain-warped ridged noise, two octaves, whose threshold rises with t so the branches thin out
    and stop by t 2), then scattered crystal specks (per-cell hash, density falling to 0 by t 3), then clear. Returns coverage; sol = solidity. */
+/* v3 (Hang 17:17 "thinner frozen stroke, strokes and spikes more irregular"): the solid band is ~60% as wide (NI_CRUST .016) and varies more
+   along the edge; the fur/hatching noise is replaced by explicit grown spikes, two size octaves, one per seeded cell along the edge: gaps,
+   clustered spacing (low-frequency cluster mask), heavy-tailed lengths (many short, few long), random widths, lean angles and jitter,
+   tapering to sharp tips, and some spikes branch once. Specks still fade to clear past the spikes. */
+float spk(float ac,float d,float s,float Lm,float gp,float sd){float u=ac/s,dd=d/s,best=0.;if(dd<-.5)return 0.;
+for(int i=-2;i<=2;i++){float c=floor(u)+float(i),h1=h3(vec3(c,sd,1.)),h2=h3(vec3(c,sd,2.)),hl=h3(vec3(c,sd,3.)),h4=h3(vec3(c,sd,4.));if(h1<gp)continue;
+float Lg=Lm/s*(.06+.94*pow(h2,2.8)),ln=(hl-.5)*.8,W=.09+.3*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
+if(tp>0.){float wd=W*pow(tp,.75)+.02;best=max(best,1.-smoothstep(wd*.55,wd,abs(u-x0-ln*max(dd,0.))));}
+float bp=(.2+.5*h3(vec3(c,sd,5.)))*Lg;if(h2>.42&&dd>bp){float db=dd-bp,bl=(Lg-bp)*(.35+.4*h4),sg=fract(h4*5.3)>.5?1.:-1.,tb=1.-db/bl;
+if(tb>0.){float wb=W*.6*pow(tb,.75)+.015;best=max(best,1.-smoothstep(wb*.55,wb,abs(u-x0-ln*bp-(ln+sg*(.5+.5*hl))*db)));}}}return best;}
 float crustM(vec3 O,out float sol){sol=1.;if(uCt<=0.)return 1.;float e,cr=1.;vec3 g;if(abs(vNo.y)>.6){e=texture2D(uCore,cuv(O)).b*64.*uCs.y/704.;
 float k=uCs.x/.8/128.;vec2 dg=vec2(texture2D(uCore,cuv(O+vec3(k,0.,0.))).b-texture2D(uCore,cuv(O-vec3(k,0.,0.))).b,texture2D(uCore,cuv(O+vec3(0.,0.,k))).b-texture2D(uCore,cuv(O-vec3(0.,0.,k))).b);
 g=length(dg)>1e-5?normalize(vec3(dg.x,0.,dg.y)):vec3(1.,0.,0.);}
-else{float a0=uH-abs(O.y),b0=vE.x>1.5?0.:vE.x>.5?min(vE.y,vE.z-vE.y):1e3;e=min(a0,b0);cr=1.+.8*(1.-smoothstep(0.,uCt*2.4,max(a0,b0)));
+else{float a0=uH-abs(O.y),b0=vE.x>1.5?0.:vE.x>.5?min(vE.y,vE.z-vE.y):1e3;e=min(a0,b0);cr=1.+.7*(1.-smoothstep(0.,uCt*3.,max(a0,b0)));
 g=a0<b0?vec3(0.,1.,0.):normalize(cross(normalize(vNo),vec3(0.,1.,0.)));}
-vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));float w=uCt*cr*(.55+.55*n3(eq*3.7+1.7)+.3*n3(eq*13.+3.3)),t=e/w;if(t>3.2)return 0.;
-sol=1.-smoothstep(.6,.84,t+.22*(n3(eq*70.+2.)-.5));
-float al=dot(eq,g),ac=dot(eq,tg);
-float ln=n3(vec3(ac*9.,al*.5,uSd)+4.)*.9+n3(vec3(ac*31.,al*1.,uSd*1.7)+7.)*.5,tf=t-ln*.9;
-float sn=n3(vec3(ac*95.,al*9.,0.)+eq*3.),br=1.-abs(2.*sn-1.);
-float sg=n3(eq*21.+6.)>.5?1.:-1.,bb=n3(vec3((ac+sg*al*.7)*130.,(al-sg*ac*.7)*10.,1.)+eq*11.+n3(eq*30.)*2.),bq=(1.-abs(2.*bb-1.))*smoothstep(.7,.8,br)*step(.55,n3(eq*17.+2.));
-float thr=mix(.86,.985,clamp((tf-.45)/.8,0.,1.));float fg=max(smoothstep(thr,thr+.03,br),smoothstep(thr+.02,thr+.05,bq)*.9)*(1.-smoothstep(1.05,1.3,tf));
-float sp=step(mix(.988,1.,smoothstep(1.,3.,t)),h3(floor(eq*170.)))*step(.75,t);
-return max(sol,max(fg*.96,sp*.9));}
+vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));float U0=uCt*2.25,ac=dot(eq,tg);
+float w=uCt*cr*(.3+.95*n3(eq*3.1+1.7)+.4*n3(eq*11.+3.3)+.25*n3(eq*29.+8.)),tq=e/U0;if(tq>3.2)return 0.;
+sol=1.-smoothstep(.82,1.06,e/w+.3*(n3(eq*60.+2.)-.5));float d=e-w*.9;
+float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n3(vec3(ac*17.,uSd*1.3,5.)));
+float fg=max(spk(ac,d,U0*.4,U0*mix(.55,2.5,cl),mix(.55,.08,cl),uSd+1.),spk(ac+.37,d,U0*.16,U0*mix(.25,1.1,cl2),mix(.6,.12,cl2*.6+cl*.4),uSd+7.)*.95);
+float sp=step(mix(.986,1.,smoothstep(.9,3.,tq)),h3(floor(eq*170.)))*step(.5,tq);
+return max(sol,max(fg*.97,sp*.9));}
 /* frost shading: bright white crystal, faint cool hint only, never grey. A lumpy raised surface (small-scale normal bumps, stronger where solid),
    soft wrap light, small specular highlights on the lumps and seeded sparkle glints that flash with the view angle. Premultiplied by coverage. */
 vec4 frost(vec3 O,vec3 No,vec3 V,float m,float sol){vec3 eq=O+uSd*.13;vec3 lb=vec3(n3(eq*64.),n3(eq*64.+3.1),n3(eq*64.+6.7))-.5,lb2=vec3(n3(eq*150.+1.),n3(eq*150.+4.),n3(eq*150.+7.))-.5;
 vec3 Nf=normalize(No+lb*(.35+.45*sol)+lb2*.3);vec3 Nv=normalize(toV(Nf));if(dot(Nv,V)<0.)Nv=-Nv;vec3 Ld=normalize(vec3(-.35,.6,.72));
 float wr=.9+.1*max(0.,dot(Nv,Ld)),hi=pow(max(0.,dot(reflect(-V,Nv),Ld)),28.)*.55;float gl0=h3(floor(eq*330.)),gn=step(.975,gl0)*pow(max(0.,dot(normalize(lb2+vec3(0.,0.,.6)),V)),6.)*1.6;
-float lw=max(0.,dot(Nv,Ld));vec3 c=(uLt>.5?mix(vec3(.9,.935,.985),vec3(1.),smoothstep(.1,.8,lw)*.8+.2*sol):vec3(.965,.98,1.)*wr*(.94+.06*sol))+vec3(1.)*(hi+gn);
+float lw=max(0.,dot(Nv,Ld));vec3 c=uLt>.5?mix(vec3(.9,.935,.985),vec3(1.),smoothstep(.1,.8,lw)*.8+.2*sol):vec3(.965,.98,1.)*wr*(.94+.06*sol);/* v3 (Hang 17:21): subtle icy blue-white, hue family #8FD0FF..#2F6FE0 at low strength, deeper in the hollows; highlights and glints stay pure white */vec3 ib=mix(vec3(.561,.816,1.),vec3(.184,.435,.878),.3*(1.-lw));c=mix(c,c*ib*1.08,uLt>.5?.15+.07*(1.-lw):.2+.1*(1.-lw));c+=vec3(1.)*(hi+gn);
 float a=m*(uLt>.5?1.:.97);return vec4(min(c,vec3(1.))*a,a);}
 void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;float cS,cM=crustM(vO-vec3(0.,uYc,0.),cS);if(cM<(uPass<.5?.5:.02))discard;
 if(uPass<.5||uPass>1.5){if(N.z>0.)discard;vec3 Ob=vO-vec3(0.,uYc,0.);if(zq(Ob)>lvl(Ob))discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
@@ -447,7 +455,7 @@ let U={};for(const k of[`uEw`,`uCr`,`uCt`,`uRot`,`uPrj`,`uRes`,`uBack`,`uCore`,`
 let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const[k,v0]of[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v0);return t0}
 Object.assign(ngS,{c,gl,pr,U,vb:gl.createBuffer(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 /* preview/egg-n-ice-edgeonly: the ice crust width along the edges, as a fraction of the letter height (0 = the full-surface ice of v521) */
-const NI_CRUST=.036;
+const NI_CRUST=.016;
 function ngCore(L){let R=128,c=document.createElement(`canvas`);c.width=c.height=R;let x=c.getContext(`2d`),sx=R*.8/L.w,sy=R*.8/704,px=R*.1;x.fillStyle=`#fff`;x.beginPath();for(const r0 of L.parts){r0.poly.forEach(([q0,q1],k)=>{let X0=px+q0*sx,Y0=R-px-q1*sy;k?x.lineTo(X0,Y0):x.moveTo(X0,Y0)});x.closePath()}x.fill()
 let D=x.getImageData(0,0,R,R).data,A=new Float32Array(R*R),B=new Float32Array(R*R);for(let k=0;k<R*R;k++)A[k]=D[k*4]/255;let M=A.slice()
 for(let it=0;it<3;it++){for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let s=0;for(let k=-6;k<=6;k++)s+=A[y*R+Math.min(R-1,Math.max(0,x0+k))];B[y*R+x0]=s/13}for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let s=0;for(let k=-6;k<=6;k++)s+=B[Math.min(R-1,Math.max(0,y+k))*R+x0];A[y*R+x0]=s/13}}
