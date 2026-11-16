@@ -39,7 +39,7 @@ const keys=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(e.key)){e.preventDefault();e.stopPropagation();}}; /* page behind stays put */
 /* nosel (the egg, v502): nothing on the page is selectable while the egg is open (Hang: an iPhone long-press showed the blue selection handles and the Copy / Look Up / Translate callout). html.hegg-nosel (css/hang-egg.css) sets user-select, -webkit-touch-callout and the tap highlight off on everything; selectstart and contextmenu are cancelled in the capture phase while open; any selection is cleared on open. Pointer drag/fling and taps are untouched. */
 const noSel=e=>e.preventDefault(),selOff=on=>{de.classList.toggle('hegg-nosel',on);const f=on?'addEventListener':'removeEventListener';document[f]('selectstart',noSel,true);document[f]('contextmenu',noSel,true);if(on){const g=window.getSelection&&window.getSelection();if(g)g.removeAllRanges();}};
-/* preview/egg-desktop-v2 (Hang 2026-11-16 14:43-14:45, "clearly noticeable oval bands" on a large monitor): the egg's centre glow was a CSS
+/* v521 (Hang 2026-11-16 14:43-14:45, "clearly noticeable oval bands" on a large monitor): the egg's centre glow was a CSS
    radial-gradient (ellipse 60% x 43%, white 4% -> 2% -> 0 over #111; light 45% -> 22.5% -> 0 over #ededed). In 8 bits that is only 9 grey
    levels (dark 17 -> 26, light 237 -> 245) spread over the whole oval, so every level is a flat ring ~170 CSS px wide on a 2560 window (~90 at
    1440) with a hard 1-LSB step between rings; the paper grain (overlay blend, near-black/near-white) barely moves those values, so it does not
