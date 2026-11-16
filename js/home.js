@@ -135,7 +135,9 @@ const ZH={Strategy:'策略',Vision:'遠見',Systems:'結構',Creativity:'創意'
 const swOn=()=>!mqR.matches;let swEnd=0 /* first crossfade to Chinese done (mobile auto-scroll waits for it) */;
 {const b=root.querySelector('.poster-cta');if(b&&swOn()){const en=document.createElement('span'),zh=document.createElement('span');en.className='sw cta-en';zh.className='sw cta-zh';zh.lang='zh-Hant';zh.setAttribute('aria-hidden','true');
   while(b.firstChild)en.appendChild(b.firstChild);const ar=en.querySelector('.arr');zh.innerHTML=`<span class="cta-t">${ZCTA}</span>`;if(ar)zh.appendChild(ar.cloneNode(true));b.append(en,zh);}}
-document.addEventListener('visibilitychange',()=>document.documentElement.classList.toggle('swp',document.hidden));
+/* v519 (QA 2026-11-16): html.swp (css/home.css: the .sw word loop paused) is set while the tab is hidden OR the poster is out of the viewport
+   (phones scrolled past it, desktop rail moved on); it was tab-hidden only, so the loop ran offscreen. One state, two inputs. */
+{let inV=true;const sp=()=>document.documentElement.classList.toggle('swp',document.hidden||!inV);document.addEventListener('visibilitychange',sp);if('IntersectionObserver' in window)new IntersectionObserver(es=>{inV=es[es.length-1].isIntersecting;sp()}).observe(root);}
 const L={W:1200,H:683.4,
   xs:[110,330,392,610,830,880,1060],xe:[110,319.5,381.5,591,800.5,850.5,1060] /* v17: four letter columns equal (209.5) */,ys:[64,244,284,452,492,622],
   letters:[ // glyph, crop cell [x0,y0,x1,y1], font-size, x, baseline

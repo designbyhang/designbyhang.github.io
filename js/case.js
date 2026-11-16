@@ -373,3 +373,12 @@ ms.forEach(function(m){var f=m.querySelector('iframe');if(!f)return;var b=docume
   if(side)o.s=side;else if(!o.s)o.s=1})}
  var req=function(){if(!q)q=requestAnimationFrame(tick)};
  addEventListener('scroll',req,{passive:true});addEventListener('resize',req);addEventListener('load',req);addEventListener('pageshow',req);tick()})();
+
+/* v519 shared loop gate (QA 2026-11-16): any box listed in LOOP holds infinite CSS loops; it gets .loop-off (css/case.css: every animation inside
+   paused) while it is out of the viewport or the tab is hidden, so no CSS loop runs offscreen. Add a selector here for new looping boxes.
+   Not in the demo pool (these are ambient micro-loops, not demos). */
+(function(){var LOOP='.iter-grid',bx=[].slice.call(document.querySelectorAll(LOOP));if(!bx.length)return;var inV=bx.map(function(){return true}),
+ sync=function(){bx.forEach(function(b,i){b.classList.toggle('loop-off',document.hidden||!inV[i])})};
+ document.addEventListener('visibilitychange',sync);
+ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){inV[bx.indexOf(e.target)]=e.isIntersecting});sync()});bx.forEach(function(b){io.observe(b)})}
+ sync()})();

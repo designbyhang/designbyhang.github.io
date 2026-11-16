@@ -376,6 +376,9 @@ html[data-theme=dark] .iter-vis{--iv-ph-bg:var(--frame);--iv-ph-bd:var(--frame-l
 .iv-mf-2{animation:ivMf2 7.68s cubic-bezier(.4,0,.2,1) infinite}
 .iv-mf-3{animation:ivMf3 7.68s cubic-bezier(.4,0,.2,1) infinite}
 .iv-mf-4{animation:ivMf4 7.68s cubic-bezier(.4,0,.2,1) infinite}
+/* v519: infinite CSS loops on case pages pause while their box is out of the viewport or the tab is hidden (.loop-off, set by the shared
+   loop gate in js/case.js; QA 2026-11-16: the 07 Scale diagrams ran offscreen); in view they resume where they stopped */
+.loop-off,.loop-off *{animation-play-state:paused!important}
 @media (prefers-reduced-motion:reduce){.iter-vis *{animation:none!important}}
 /* 8. Split Screen on iPad: one iPad that shows Portrait split screen, rotates -90deg into Landscape 2-column split screen, and loops */
 .iter-grid li.iter-ipad{padding:24px 180px 24px 24px;height:auto;min-height:208px}
