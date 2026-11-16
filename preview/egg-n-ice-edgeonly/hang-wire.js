@@ -370,12 +370,20 @@ float Lg=Lm/s*(.06+.94*pow(h2,2.8)),ln=(hl-.5)*.8,W=.09+.3*h4*h4,x0=c+.5+(fract(
 if(tp>0.){float wd=W*pow(tp,.75)+.02;best=max(best,1.-smoothstep(wd*.55,wd,abs(u-x0-ln*max(dd,0.))));}
 float bp=(.2+.5*h3(vec3(c,sd,5.)))*Lg;if(h2>.42&&dd>bp){float db=dd-bp,bl=(Lg-bp)*(.35+.4*h4),sg=fract(h4*5.3)>.5?1.:-1.,tb=1.-db/bl;
 if(tb>0.){float wb=W*.6*pow(tb,.75)+.015;best=max(best,1.-smoothstep(wb*.55,wb,abs(u-x0-ln*bp-(ln+sg*(.5+.5*hl))*db)));}}}return best;}
+/* v3b (Hang 17:27 "when the froze grows from the bottom up let's make them more pointing"): the rising front of each edge stroke ends in
+   sharp crystal points instead of the flat jag cut. ptk() adds, across the stroke (edge distance gE, cells ~half the band wide), seeded
+   points with heavy-tailed heights, asymmetric slopes (lean) and jittered apexes; ~8% of cells run ahead as tall spikes. Level units. */
+float gE=0.,gW=0.;
+float ptk(vec3 o){if(uCt<=0.)return 0.;float s=uCt*.55,u=gE/s,b=0.;vec2 sc=floor(o.xy*5.);for(int i=-1;i<=1;i++){float c=floor(u)+float(i);
+float h1=h3(vec3(c,sc.x+uSd,sc.y+11.)),h2=h3(vec3(c,sc.y+uSd,sc.x+23.)),h4=h3(vec3(c,sc.x-sc.y,uSd+37.)),hk=h3(vec3(c,sc.x*1.7+sc.y,uSd+51.));
+float H=s/uCs.y*(2.+9.*pow(h1,2.4))+step(.86,hk)*(.04+.11*h2),ap=c+.15+.7*h2,wl=.35+.9*h4,wr=.35+.9*fract(h4*7.31+h1),x=u-ap;
+b=max(b,H*max(0.,1.-(x<0.?-x/wl:x/wr)));}return b*gW;}
 float crustM(vec3 O,out float sol){sol=1.;if(uCt<=0.)return 1.;float e,cr=1.;vec3 g;if(abs(vNo.y)>.6){e=texture2D(uCore,cuv(O)).b*64.*uCs.y/704.;
 float k=uCs.x/.8/128.;vec2 dg=vec2(texture2D(uCore,cuv(O+vec3(k,0.,0.))).b-texture2D(uCore,cuv(O-vec3(k,0.,0.))).b,texture2D(uCore,cuv(O+vec3(0.,0.,k))).b-texture2D(uCore,cuv(O-vec3(0.,0.,k))).b);
 g=length(dg)>1e-5?normalize(vec3(dg.x,0.,dg.y)):vec3(1.,0.,0.);}
 else{float a0=uH-abs(O.y),b0=vE.x>1.5?0.:vE.x>.5?min(vE.y,vE.z-vE.y):1e3;e=min(a0,b0);cr=1.+.7*(1.-smoothstep(0.,uCt*3.,max(a0,b0)));
 g=a0<b0?vec3(0.,1.,0.):normalize(cross(normalize(vNo),vec3(0.,1.,0.)));}
-vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));float U0=uCt*2.25,ac=dot(eq,tg);
+gE=e;vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));gW=smoothstep(.55,.85,abs(tg.z));float U0=uCt*2.25,ac=dot(eq,tg);
 float w=uCt*cr*(.3+.95*n3(eq*3.1+1.7)+.4*n3(eq*11.+3.3)+.25*n3(eq*29.+8.)),tq=e/U0;if(tq>3.2)return 0.;
 sol=1.-smoothstep(.82,1.06,e/w+.3*(n3(eq*60.+2.)-.5));float d=e-w*.9;
 float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n3(vec3(ac*17.,uSd*1.3,5.)));
@@ -390,7 +398,7 @@ float wr=.9+.1*max(0.,dot(Nv,Ld)),hi=pow(max(0.,dot(reflect(-V,Nv),Ld)),28.)*.55
 float lw=max(0.,dot(Nv,Ld));vec3 c=uLt>.5?mix(vec3(.9,.935,.985),vec3(1.),smoothstep(.1,.8,lw)*.8+.2*sol):vec3(.965,.98,1.)*wr*(.94+.06*sol);/* v3 (Hang 17:21): subtle icy blue-white, hue family #8FD0FF..#2F6FE0 at low strength, deeper in the hollows; highlights and glints stay pure white */vec3 ib=mix(vec3(.561,.816,1.),vec3(.184,.435,.878),.3*(1.-lw));c=mix(c,c*ib*1.08,uLt>.5?.15+.07*(1.-lw):.2+.1*(1.-lw));c+=vec3(1.)*(hi+gn);
 float a=m*(uLt>.5?1.:.97);return vec4(min(c,vec3(1.))*a,a);}
 void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;float cS,cM=crustM(vO-vec3(0.,uYc,0.),cS);if(cM<(uPass<.5?.5:.02))discard;
-if(uPass<.5||uPass>1.5){if(N.z>0.)discard;vec3 Ob=vO-vec3(0.,uYc,0.);if(zq(Ob)>lvl(Ob))discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
+if(uPass<.5||uPass>1.5){if(N.z>0.)discard;vec3 Ob=vO-vec3(0.,uYc,0.);if(zq(Ob)>lvl(Ob)+ptk(Ob))discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
 float cw=core(vO);
 /* v10: no TIR on the back/front-plane faces (|n.y|=1): light entering the parallel front face can't totally reflect off the back wall; the unrefracted view ray made a dark TIR wedge there (the exit triangle) */
 /* blue2: TIR-reflected light stays inside the ice and leaves through another face, so it shows the background (slightly tinted), never the env ground/dark bands; sampling env here made the thin navy cap-edge and floor-edge lines and the diagonal navy shard */
@@ -403,7 +411,7 @@ float ck=smoothstep(.55,.85,n3(vec3(Ob.x*60.,Ob.y*60.,uSd))),sp=step(.97,h3(floo
 c=mix(c,fc,.28+.3*ck+.25*nb)+vec3(.9,.95,1.)*sp*.5;}
 gl_FragColor=vec4(min(c,vec3(1.)),uPass<.5?.55+.45*gs:1.);if(uCt>0.&&uPass>.5)gl_FragColor=frost(vO-vec3(0.,uYc,0.),vNo,V,cM,cS);}
 else{if(N.z<=0.)discard;
-vec3 No=normalize(vNo),O=vO-vec3(0.,uYc,0.);float sz=lvl(O)-zq(O);if(sz<0.)discard;
+vec3 No=normalize(vNo),O=vO-vec3(0.,uYc,0.);float sz=lvl(O)+ptk(O)-zq(O);if(sz<0.)discard;
 /* v518 edges (Hang 2026-11-15 "Ship", from preview/egg-n-ice-edges 0faf196; asks 10:31-10:47): every prism edge gets the one edge band the front/back chamfers (the verticals) have. Chamfers: the band runs across the
    strip (vE.w 0..1). Wall corners (the depth edges, no chamfer in the mesh): a band of the chamfer's width uEw along the wall from the corner, with the
    normal rounded toward the neighbour wall (vM) so it refracts/reflects like a chamfer. Width and brightness vary along the edge with object-space
