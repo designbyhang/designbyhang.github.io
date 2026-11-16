@@ -22,18 +22,27 @@ const NS='http://www.w3.org/2000/svg';
 const $=id=>document.getElementById('ui-'+id);
 const CFG={hBase:513.5,hSize:161,hCap:113};
 // headline letter x positions (1920x1080 space), fixed so the letters sit on the GUIDES below in every browser
+// HG: UspsMontserrat (assets/usps-intro/montserrat-latin.woff2) glyph outlines at wght 800, 161px, origin at the baseline (fontTools, same contour starts and
+// directions as the font, so the draw-on runs exactly as the text stroke did)
+const HG={I:'M11.33 0V-112.7H43.23V0Z',N:'M11.33 0V-112.7H37.56L99.63 -37.62H87.23V-112.7H118.47V0H92.23L30.17 -75.08H42.56V0Z',O:'M68.18 2.23Q54.65 2.23 43.17 -2.12Q31.68 -6.47 23.28 -14.39Q14.87 -22.31 10.19 -33Q5.52 -43.7 5.52 -56.4Q5.52 -69.1 10.19 -79.73Q14.87 -90.35 23.28 -98.3Q31.7 -106.25 43.15 -110.59Q54.61 -114.93 68.11 -114.93Q81.71 -114.93 93.11 -110.6Q104.5 -106.26 112.91 -98.33Q121.31 -90.4 125.99 -79.76Q130.66 -69.12 130.66 -56.4Q130.66 -43.67 125.99 -32.97Q121.31 -22.26 112.91 -14.35Q104.5 -6.44 93.11 -2.1Q81.71 2.23 68.18 2.23ZM68.11 -24.08Q74.58 -24.08 80.09 -26.37Q85.61 -28.66 89.74 -32.9Q93.87 -37.14 96.18 -43.08Q98.49 -49.03 98.49 -56.37Q98.49 -63.7 96.19 -69.63Q93.88 -75.56 89.75 -79.8Q85.62 -84.04 80.1 -86.33Q74.59 -88.62 68.12 -88.62Q61.65 -88.62 56.12 -86.33Q50.59 -84.04 46.45 -79.79Q42.3 -75.55 40 -69.62Q37.69 -63.68 37.69 -56.37Q37.69 -49.05 39.99 -43.1Q42.3 -37.16 46.44 -32.9Q50.58 -28.64 56.11 -26.36Q61.64 -24.08 68.11 -24.08Z',V:'M45.95 0 -2.26 -112.7H32.14L72.79 -15.15H52.47L94.05 -112.7H125.51L77.35 0Z',A:'M-2.26 0 47.51 -112.7H78.91L128.73 0H95.64L56.71 -97.12H69.22L30.29 0ZM24.94 -21.94 33.16 -45.41H88.19L96.46 -21.94Z',T:'M35.2 0V-87.43H0.64V-112.7H101.65V-87.43H67.1V0Z',S:'M50.8 2.23Q36.98 2.23 24.18 -1.19Q11.38 -4.61 3.34 -10.07L13.83 -33.66Q21.43 -28.74 31.36 -25.67Q41.28 -22.61 51.02 -22.61Q57.69 -22.61 61.66 -23.76Q65.62 -24.91 67.47 -26.97Q69.32 -29.04 69.32 -31.77Q69.32 -35.58 65.84 -37.83Q62.36 -40.07 56.68 -41.53Q51 -42.99 44.2 -44.43Q37.4 -45.87 30.54 -48.1Q23.68 -50.33 18 -53.96Q12.32 -57.59 8.84 -63.53Q5.36 -69.46 5.36 -78.48Q5.36 -88.49 10.89 -96.76Q16.42 -105.02 27.51 -109.97Q38.61 -114.93 55.3 -114.93Q66.28 -114.93 76.99 -112.46Q87.7 -110 96.06 -105.06L86.32 -81.52Q78.25 -85.86 70.37 -87.98Q62.48 -90.09 55.03 -90.09Q48.46 -90.09 44.44 -88.73Q40.42 -87.36 38.65 -85.1Q36.88 -82.84 36.88 -80.06Q36.88 -76.36 40.36 -74.17Q43.84 -71.98 49.52 -70.61Q55.2 -69.23 62.06 -67.82Q68.91 -66.4 75.71 -64.2Q82.52 -62 88.19 -58.39Q93.87 -54.79 97.36 -48.91Q100.84 -43.03 100.84 -34.17Q100.84 -24.32 95.28 -16.05Q89.73 -7.79 78.67 -2.78Q67.6 2.23 50.8 2.23Z'};
 const HL='INNOVATIONS', HX=['345.50','401.04','531.77','662.51','795.81','913.81','1035.68','1138.88','1194.43','1331.59','1462.33'];
 
 function build(){
-  // headline: one <text> per letter so each can be drawn independently
+  // headline: per letter, a <text> for the fill and a <path> of the same glyph outline for the drawn stroke. The stroke is drawn on a path, not on the
+  // text: WebKit paints SVG text in a context scaled down by the device scale and rescales only the stroke width, so stroke-dasharray/-dashoffset on text
+  // shrink by that scale; at Safari desktop sizes the 900 gap no longer covers N's 710 outline and its tail shows as a stray bracket before the draw.
   const g=$('headline'); g.innerHTML='';
   for(let i=0;i<HL.length;i++){
     const t=document.createElementNS(NS,'text');
     t.setAttribute('x',HX[i]); t.setAttribute('y',CFG.hBase);
     t.setAttribute('font-size',CFG.hSize); t.setAttribute('font-weight',800);
-    t.setAttribute('fill','#F8F7FC'); t.setAttribute('stroke','#FFFFFF'); t.setAttribute('stroke-width','1.6');
+    t.setAttribute('fill','#F8F7FC');
     t.setAttribute('class','hl'); t.textContent=HL[i];
-    g.appendChild(t);
+    const s=document.createElementNS(NS,'path');
+    s.setAttribute('d',HG[HL[i]]); s.setAttribute('transform','translate('+HX[i]+' '+CFG.hBase+')');
+    s.setAttribute('fill','none'); s.setAttribute('stroke','#FFFFFF'); s.setAttribute('stroke-width','1.6');
+    s.setAttribute('class','hs');
+    g.appendChild(t); g.appendChild(s);
   }
   // construction (blueprint) guides
   const G=$('guides'); G.innerHTML='';
@@ -50,14 +59,15 @@ function build(){
 let tl;
 function makeTimeline(){
   if(tl){tl.kill();}
-  const hls=[...root.querySelectorAll('.hl')];
+  const hls=[...root.querySelectorAll('.hl')], hss=[...root.querySelectorAll('.hs')];
   const guides=[...root.querySelectorAll('#ui-guides line')];
   const lineLen=el=>Math.hypot(el.x2.baseVal.value-el.x1.baseVal.value,el.y2.baseVal.value-el.y1.baseVal.value);
   const prep=el=>{const L=lineLen(el);gsap.set(el,{attr:{'stroke-dasharray':L+' '+L,'stroke-dashoffset':L}});return L;};
   // reset
   gsap.set('#ui-logoWrap',{y:225});
   gsap.set('#ui-logo',{opacity:0,scale:0.94,transformOrigin:'50% 50%'});
-  hls.forEach(t=>gsap.set(t,{attr:{'stroke-dasharray':'900 900','stroke-dashoffset':900},fillOpacity:0,strokeOpacity:1}));
+  gsap.set(hls,{fillOpacity:0});
+  hss.forEach(t=>gsap.set(t,{attr:{'stroke-dasharray':'900 900','stroke-dashoffset':900},strokeOpacity:1}));
   const clamp=v=>Math.max(0,Math.min(1,v));
   // v7: guides grow upward in place from their bottom endpoints (verticals + diagonals travel upward along their own angle; horizontals from the left)
   const gGeo=guides.map(g=>{let a=[+g.dataset.x1,+g.dataset.y1],b=[+g.dataset.x2,+g.dataset.y2];
@@ -78,7 +88,7 @@ function makeTimeline(){
   tl.to('#ui-logo',{opacity:1,scale:1,duration:0.7,ease:'power2.out'},0.05);
   // 2. logo pushed up as INNOVATIONS is drawn
   tl.to('#ui-logoWrap',{y:0,duration:1.0,ease:'power3.inOut'},0.85);
-  tl.to(hls,{attr:{'stroke-dashoffset':0},duration:0.95,ease:'power1.inOut',stagger:0.04},3.07);  // letters start after guides settle (~3.04)
+  tl.to(hss,{attr:{'stroke-dashoffset':0},duration:0.95,ease:'power1.inOut',stagger:0.04},3.07);  // letters start after guides settle (~3.04)
   const gStep=Math.min(0.06,0.5/Math.max(1,guides.length-1));
   // guides: CTA-style — each slides in along its own path (tail and tip travel from an offset start) and settles, staggered
   const GD=0.65, gE=gsap.parseEase('expo.out'), GP={t:0}, gTotal=GD+gStep*(guides.length-1);
@@ -88,7 +98,7 @@ function makeTimeline(){
       g.setAttribute('opacity',q<=0?0:Math.min(1,q/0.12));});};
   tl.to(GP,{t:gTotal,duration:gTotal,ease:'none',onUpdate:updG,onStart:updG},1.9);  // starts after logo has settled (push ends 1.85); all grown by ~3.04
   tl.to(hls,{fillOpacity:1,duration:0.5,ease:'power1.inOut',stagger:0.03},3.8);
-  tl.to(hls,{strokeOpacity:0,duration:0.4,stagger:0.03},4.1);
+  tl.to(hss,{strokeOpacity:0,duration:0.4,stagger:0.03},4.1);
   // guides fade away once the letters are filled (same exit as the CTA outline)
   tl.to('#ui-guides',{opacity:0,duration:0.45,ease:'power1.inOut'},4.9);  // ~0.3s breath after fill completes (~4.6), guides fade out by 5.35
   // 3. two light lines converge & reveal THAT DELIVER
