@@ -1,4 +1,4 @@
-/* preview/egg-n-ice-edgeonly copy of js/hang-wire.js (v521 live) + the irregular crystal frost line (as preview/egg-desktop-v2) + ice only as a rough crust along the N's edges (NI_CRUST); throwaway, not a ?v slot. */
+/* preview/egg-n-ice-edgeonly copy of js/hang-wire.js (v521 live) + the irregular crystal frost line (as preview/egg-desktop-v2) + ice only as white frost grown along the N's edges (NI_CRUST; v2 white frost); throwaway, not a ?v slot. */
 (function(e){Object.defineProperty(e,Symbol.toStringTag,{value:`Module`});
 /* EGG_GYRO (v512, Hang 2026-11-11): gyroscope tilt-to-rotate is PARKED for later. While false nothing asks for motion/orientation permission
    and no deviceorientation listener is added (Ce() returns at once; the mount-time auto-arm is skipped); drag spin is unaffected. The tilt code
@@ -355,9 +355,33 @@ vec3 ABS(float l){return uLt>.5?exp(-vec3(.3,.23,.16)*l):exp(-vec3(.36,.27,.18)*
    = the outline distance field (core texture blue); walls, caps and bases = min(distance to the front/back plane, distance along the wall to its
    corners), chamfer strips are all edge. Crust width uCt = NI_CRUST x letter height, broken up with the same seeded object-space noise as the edge
    band (width wobble, chips, nicks), so it is rough, irregular and stable while spinning. */
-bool crustOff(vec3 O){if(uCt<=0.)return false;float e;if(abs(vNo.y)>.6)e=texture2D(uCore,cuv(O)).b*64.*uCs.y/704.;else e=min(uH-abs(O.y),vE.x>1.5?0.:vE.x>.5?min(vE.y,vE.z-vE.y):1e3);
-vec3 eq=O+uSd*.13;float w=uCt*(.7+.35*n3(eq*5.3+1.7)+.3*n3(eq*19.+3.3))*(1.-.55*smoothstep(.6,.72,n3(eq*41.+9.1))*step(.45,n3(eq*9.+2.)))+uCt*.25*(n3(eq*70.+5.)-.5);return e>w;}
-void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;if(crustOff(vO-vec3(0.,uYc,0.)))discard;
+/* preview/egg-n-ice-edgeonly v2 (Hang 16:52 "grey, glued together, like an eraser"; "real frost on roof edges is white crystal"):
+   crustM() = frost that GREW from every edge. e = distance to the nearest edge (as v1); thickness w = uCt x an irregular along-edge factor
+   (seeded object-space noise, .55-1.4) x up to 1.8 at wall corners (both edge distances small). The inner boundary is not a cut: t = e/w,
+   solid crust to t ~ .8, then dendritic fingers (domain-warped ridged noise, two octaves, whose threshold rises with t so the branches thin out
+   and stop by t 2), then scattered crystal specks (per-cell hash, density falling to 0 by t 3), then clear. Returns coverage; sol = solidity. */
+float crustM(vec3 O,out float sol){sol=1.;if(uCt<=0.)return 1.;float e,cr=1.;vec3 g;if(abs(vNo.y)>.6){e=texture2D(uCore,cuv(O)).b*64.*uCs.y/704.;
+float k=uCs.x/.8/128.;vec2 dg=vec2(texture2D(uCore,cuv(O+vec3(k,0.,0.))).b-texture2D(uCore,cuv(O-vec3(k,0.,0.))).b,texture2D(uCore,cuv(O+vec3(0.,0.,k))).b-texture2D(uCore,cuv(O-vec3(0.,0.,k))).b);
+g=length(dg)>1e-5?normalize(vec3(dg.x,0.,dg.y)):vec3(1.,0.,0.);}
+else{float a0=uH-abs(O.y),b0=vE.x>1.5?0.:vE.x>.5?min(vE.y,vE.z-vE.y):1e3;e=min(a0,b0);cr=1.+.8*(1.-smoothstep(0.,uCt*2.4,max(a0,b0)));
+g=a0<b0?vec3(0.,1.,0.):normalize(cross(normalize(vNo),vec3(0.,1.,0.)));}
+vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));float w=uCt*cr*(.55+.55*n3(eq*3.7+1.7)+.3*n3(eq*13.+3.3)),t=e/w;if(t>3.2)return 0.;
+sol=1.-smoothstep(.6,.84,t+.22*(n3(eq*70.+2.)-.5));
+float al=dot(eq,g),ac=dot(eq,tg);
+float ln=n3(vec3(ac*9.,al*.5,uSd)+4.)*.9+n3(vec3(ac*31.,al*1.,uSd*1.7)+7.)*.5,tf=t-ln*.9;
+float sn=n3(vec3(ac*95.,al*9.,0.)+eq*3.),br=1.-abs(2.*sn-1.);
+float sg=n3(eq*21.+6.)>.5?1.:-1.,bb=n3(vec3((ac+sg*al*.7)*130.,(al-sg*ac*.7)*10.,1.)+eq*11.+n3(eq*30.)*2.),bq=(1.-abs(2.*bb-1.))*smoothstep(.7,.8,br)*step(.55,n3(eq*17.+2.));
+float thr=mix(.86,.985,clamp((tf-.45)/.8,0.,1.));float fg=max(smoothstep(thr,thr+.03,br),smoothstep(thr+.02,thr+.05,bq)*.9)*(1.-smoothstep(1.05,1.3,tf));
+float sp=step(mix(.988,1.,smoothstep(1.,3.,t)),h3(floor(eq*170.)))*step(.75,t);
+return max(sol,max(fg*.96,sp*.9));}
+/* frost shading: bright white crystal, faint cool hint only, never grey. A lumpy raised surface (small-scale normal bumps, stronger where solid),
+   soft wrap light, small specular highlights on the lumps and seeded sparkle glints that flash with the view angle. Premultiplied by coverage. */
+vec4 frost(vec3 O,vec3 No,vec3 V,float m,float sol){vec3 eq=O+uSd*.13;vec3 lb=vec3(n3(eq*64.),n3(eq*64.+3.1),n3(eq*64.+6.7))-.5,lb2=vec3(n3(eq*150.+1.),n3(eq*150.+4.),n3(eq*150.+7.))-.5;
+vec3 Nf=normalize(No+lb*(.35+.45*sol)+lb2*.3);vec3 Nv=normalize(toV(Nf));if(dot(Nv,V)<0.)Nv=-Nv;vec3 Ld=normalize(vec3(-.35,.6,.72));
+float wr=.9+.1*max(0.,dot(Nv,Ld)),hi=pow(max(0.,dot(reflect(-V,Nv),Ld)),28.)*.55;float gl0=h3(floor(eq*330.)),gn=step(.975,gl0)*pow(max(0.,dot(normalize(lb2+vec3(0.,0.,.6)),V)),6.)*1.6;
+float lw=max(0.,dot(Nv,Ld));vec3 c=(uLt>.5?mix(vec3(.9,.935,.985),vec3(1.),smoothstep(.1,.8,lw)*.8+.2*sol):vec3(.965,.98,1.)*wr*(.94+.06*sol))+vec3(1.)*(hi+gn);
+float a=m*(uLt>.5?1.:.97);return vec4(min(c,vec3(1.))*a,a);}
+void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;float cS,cM=crustM(vO-vec3(0.,uYc,0.),cS);if(cM<(uPass<.5?.5:.02))discard;
 if(uPass<.5||uPass>1.5){if(N.z>0.)discard;vec3 Ob=vO-vec3(0.,uYc,0.);if(zq(Ob)>lvl(Ob))discard;vec3 d=-V,Ni=-N,Tt=refract(d,Ni,1.31),r=reflect(d,Ni);float ci=abs(dot(d,N)),Fi=.02+.98*pow(1.-ci,5.);vec3 c;
 float cw=core(vO);
 /* v10: no TIR on the back/front-plane faces (|n.y|=1): light entering the parallel front face can't totally reflect off the back wall; the unrefracted view ray made a dark TIR wedge there (the exit triangle) */
@@ -369,7 +393,7 @@ c=c*ABS(.45+.4*cw)+(uLt>.5?vec3(.02,.035,.07):vec3(.03,.05,.1))*(.6+.4*cw);gw*=m
 if(uPass>1.5){/* v5: a far face seen directly = the ray entered the ice through its top (the frost-line surface): shade it as that frosted cap */
 float ck=smoothstep(.55,.85,n3(vec3(Ob.x*60.,Ob.y*60.,uSd))),sp=step(.97,h3(floor(Ob*140.+uSd))),nb=1.-smoothstep(0.,.06*uCr,lvl(Ob)-zq(Ob));vec3 fc=uLt>.5?vec3(.86,.91,.97):vec3(.8,.88,.97);
 c=mix(c,fc,.28+.3*ck+.25*nb)+vec3(.9,.95,1.)*sp*.5;}
-gl_FragColor=vec4(min(c,vec3(1.)),uPass<.5?.55+.45*gs:1.);}
+gl_FragColor=vec4(min(c,vec3(1.)),uPass<.5?.55+.45*gs:1.);if(uCt>0.&&uPass>.5)gl_FragColor=frost(vO-vec3(0.,uYc,0.),vNo,V,cM,cS);}
 else{if(N.z<=0.)discard;
 vec3 No=normalize(vNo),O=vO-vec3(0.,uYc,0.);float sz=lvl(O)-zq(O);if(sz<0.)discard;
 /* v518 edges (Hang 2026-11-15 "Ship", from preview/egg-n-ice-edges 0faf196; asks 10:31-10:47): every prism edge gets the one edge band the front/back chamfers (the verticals) have. Chamfers: the band runs across the
@@ -417,13 +441,13 @@ col+=mix(fc,vec3(1.),.5)*chip*(.45+.6*(1.-smoothstep(.0,.35,zq(O))));
 {float rb=eR*(smoothstep(.6,.8,n3(O*85.+uSd*.37))*(.4+.6*n3(O*23.+1.))+step(.94,h3(floor(O*190.+uSd)))*.7);col=mix(col,fc*1.04,min(1.,rb*.75));}float tp=smoothstep(.6,.9,No.z);col*=1.-tp*.18*smoothstep(.4,.8,n3(O*vec3(28.,60.,28.)))*sl;
 {float fx=fb;if(fx>.001){float ck3=smoothstep(.62,.85,n3(vec3(O.x*170.+O.y*60.,O.z*9.,uSd))),sp3=step(.93,h3(floor(O*120.)));
 col=mix(col,fc*1.05,fx*(.22+.55*ck3+.4*sp3));col+=vec3(.85,.94,1.)*fx*fx*.25;}}
-gl_FragColor=vec4(min(col,vec3(1.)),1.);}}`
+gl_FragColor=vec4(min(col,vec3(1.)),1.);if(uCt>0.)gl_FragColor=frost(O,vNo,V,cM,cS);}}`
 let sh=(t0,s0)=>{let q=gl.createShader(t0);gl.shaderSource(q,s0),gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(q);return q},pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS)),gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS)),gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 0
 let U={};for(const k of[`uEw`,`uCr`,`uCt`,`uRot`,`uPrj`,`uRes`,`uBack`,`uCore`,`uBg`,`uLt`,`uPass`,`uD`,`uK`,`uSl`,`uH`,`uCs`,`uTb`,`uTm`,`uS`,`uLq`,`uSt`,`uSd`,`uYc`])U[k]=gl.getUniformLocation(pr,k)
 let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const[k,v0]of[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v0);return t0}
 Object.assign(ngS,{c,gl,pr,U,vb:gl.createBuffer(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 /* preview/egg-n-ice-edgeonly: the ice crust width along the edges, as a fraction of the letter height (0 = the full-surface ice of v521) */
-const NI_CRUST=.035;
+const NI_CRUST=.036;
 function ngCore(L){let R=128,c=document.createElement(`canvas`);c.width=c.height=R;let x=c.getContext(`2d`),sx=R*.8/L.w,sy=R*.8/704,px=R*.1;x.fillStyle=`#fff`;x.beginPath();for(const r0 of L.parts){r0.poly.forEach(([q0,q1],k)=>{let X0=px+q0*sx,Y0=R-px-q1*sy;k?x.lineTo(X0,Y0):x.moveTo(X0,Y0)});x.closePath()}x.fill()
 let D=x.getImageData(0,0,R,R).data,A=new Float32Array(R*R),B=new Float32Array(R*R);for(let k=0;k<R*R;k++)A[k]=D[k*4]/255;let M=A.slice()
 for(let it=0;it<3;it++){for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let s=0;for(let k=-6;k<=6;k++)s+=A[y*R+Math.min(R-1,Math.max(0,x0+k))];B[y*R+x0]=s/13}for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let s=0;for(let k=-6;k<=6;k++)s+=B[Math.min(R-1,Math.max(0,y+k))*R+x0];A[y*R+x0]=s/13}}
@@ -442,10 +466,10 @@ gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f
 gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.activeTexture(gl.TEXTURE0)
 gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewport(0,0,W,H)
 gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clearColor(0,0,0,0),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
-gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE0)
+gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),NI_CRUST>0&&(gl.enable(gl.BLEND),gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA)),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.disable(gl.BLEND),gl.activeTexture(gl.TEXTURE0)
 p.save(),p.setTransform(1,0,0,1,0,0)
 if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(120,170,245)`,gx.shadowBlur=Math.max(2,gw.width*.07*eS()),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore(),p.globalCompositeOperation=`lighter`,p.globalAlpha=.3,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
-p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)
+p.globalAlpha=1;if(lt0&&NI_CRUST>0){let k=Math.max(1,Math.min(3,devicePixelRatio||1));p.shadowColor=`rgba(64,96,140,.34)`,p.shadowBlur=3*k,p.shadowOffsetY=k}p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height),p.shadowColor=`transparent`,p.shadowBlur=0,p.shadowOffsetY=0
 /* v2: a few tiny droplets flung off while liquid (<=12 alive, 320-620ms life, gravity), subtle */
 {let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(ngDL||nw))/1e3)),k0=d.width/g*eS(),cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt);ngDL=nw
 if(niLq>.35&&ngDp.length<12&&Math.random()<niLq*dt*16){let n0=ngM.n,k=Math.floor(Math.random()*n0)*6,B=ngM.buf,x=B[k],y=B[k+1],z=B[k+2],c0=x*cy+y*sy,l0=-x*sy+y*cy,pp=z*cp-l0*sp,X0=Lay.ox+c0*Lay.scale,Y0=Lay.oy-pp*Lay.scale,dx=X0-Lay.ox,dy=Y0-Lay.oy,dl=Math.hypot(dx,dy)||1,sv=(240+320*Math.random())*k0;ngDp.push({x:X0,y:Y0,vx:dx/dl*sv,vy:dy/dl*sv-120*k0,t:0,l:.32+.3*Math.random(),r:(.7+1.3*Math.random())*k0})}
