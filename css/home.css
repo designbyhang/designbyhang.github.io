@@ -131,9 +131,9 @@ html.ret .poster-ov{animation:none!important;opacity:1!important}
 .poster-svg .w{font-family:var(--sans);fill:var(--c-strong);letter-spacing:-.035em}
 .poster-svg .m{font-family:var(--sans);font-weight:500;fill:var(--c-strong);letter-spacing:-.01em;word-spacing:0} /* keywords: Instrument Sans 500 (one weight above the CTA), title case (size + place: js/home.js wc/wb) */
 /* Second-language (Traditional Chinese) swap (js/home.js): labels and CTA in Noto Sans TC (OFL; labels 500, CTA 400), self-hosted subsets of only the
-   used glyphs, preloaded (index.html). The labels take the CTA's type (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased
+   used glyphs (500: 策略遠見系統創意匠心; 400 CTA: 瀏覽作品選輯), preloaded (index.html). The labels take the CTA's type (.cta-zh below): family, weight, .02em tracking, --c-strong, the body's antialiased
    smoothing; size and place set in js/home.js (wj) */
-@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-400-sub.woff2?v=395) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-500-sub.woff2?v=395) format("woff2");font-weight:500;font-display:block}
+@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-400-sub.woff2?v=525) format("woff2");font-weight:400;font-display:block}@font-face{font-family:"Noto Sans TC Sub";src:url(../assets/fonts/noto-sans-tc-500-sub.woff2?v=525) format("woff2");font-weight:500;font-display:block}
 .poster-svg .m.zh{font-family:"Noto Sans TC Sub",var(--sans);font-weight:500;letter-spacing:.02em;word-spacing:0;fill:var(--c-strong)}
 /* language loop (js/home.js): every word runs the same infinite 8960ms cycle from its --s (ms; 160ms apart, CTA last). Every time below is a multiple of 8ms.
    A swap, from its start t: the old text rises --ty (16 screen px) and leaves, transform 560ms ease-in (.32,0,.67,0), opacity a little ahead of it,

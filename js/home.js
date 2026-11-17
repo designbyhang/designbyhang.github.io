@@ -131,7 +131,7 @@ addEventListener('pageshow',e=>{if(e.persisted)try{sessionStorage.removeItem('db
    each label in reading order, then the CTA, slides in place to its Traditional Chinese word (160ms apart), holds, slides back to English the same way, holds,
    and repeats. One mechanism for every word (css/home.css .sw): an infinite 8.96s cycle started at --s.
    Paused while the tab is hidden. Reduced motion: stays English, static (no Chinese is built) */
-const ZH={Strategy:'策略',Vision:'遠見',Systems:'結構',Creativity:'創意',Craft:'匠心'},ZCTA='設計作品回顧' /* second language: Traditional Chinese (Hang 2026-11-03) */,SWD=4000,SWS=160,SWF=1120 /* dwell, stagger, one swap: 560ms out + 720ms in from 400ms (css .sw) */;
+const ZH={Strategy:'策略',Vision:'遠見',Systems:'系統',Creativity:'創意',Craft:'匠心'},ZCTA='瀏覽作品選輯' /* second language: Traditional Chinese (Hang 2026-11-03; Hang 2026-11-16 20:29: Systems 結構 -> 系統; Hang 2026-11-16 20:41 / 20:46 SHIP: CTA 設計作品回顧 -> 瀏覽作品選輯) */,SWD=4000,SWS=160,SWF=1120 /* dwell, stagger, one swap: 560ms out + 720ms in from 400ms (css .sw) */;
 const swOn=()=>!mqR.matches;let swEnd=0 /* first crossfade to Chinese done (mobile auto-scroll waits for it) */;
 {const b=root.querySelector('.poster-cta');if(b&&swOn()){const en=document.createElement('span'),zh=document.createElement('span');en.className='sw cta-en';zh.className='sw cta-zh';zh.lang='zh-Hant';zh.setAttribute('aria-hidden','true');
   while(b.firstChild)en.appendChild(b.firstChild);const ar=en.querySelector('.arr');zh.innerHTML=`<span class="cta-t">${ZCTA}</span>`;if(ar)zh.appendChild(ar.cloneNode(true));b.append(en,zh);}}
