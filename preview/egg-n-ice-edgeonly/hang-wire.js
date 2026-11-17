@@ -402,8 +402,13 @@ float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n
    v5: each spike octave is skipped outright where no spike of it can reach (d beyond its max length). */
 float L1=U0*mix(.55,2.5,cl)*(1.+.9*uSp),L2=U0*mix(.25,1.1,cl2)*(1.+.7*uSp),fg=0.;
 if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.55,.08,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.16,L2,mix(.6,.12,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
-float st=mix(.986-.07*uSp,1.,smoothstep(.9,3.+6.*uSp,tq)),sp=smoothstep(st,st+.004,h3(floor(eq*170.)))*step(.5,tq);
-float ch=1.-.06*uSp*(1.-smoothstep(1.,3.+6.*uSp,tq)),cq=h3(floor(eq*55.)+3.);vec3 cf=fract(eq*55.)-.5;float chp=smoothstep(ch,ch+.004,cq)*(1.-smoothstep(.18,.3,max(abs(cf.x),max(abs(cf.y),abs(cf.z)))*(1.+.5*fract(cq*91.))))*step(.6,tq);sp=max(sp,chp);
+/* v6b (Hang 19:28 "too many particles inside ... more pure", 19:29 keep + strengthen the fast-spin splash): resting specks ~80% fewer
+   (density 1.4% -> .3%, gone by ~1.7 band units instead of 3) so face interiors stay clear. The speed-linked chips are now pointed shards
+   (cells stretched ~2.4x across the edge, tapering to a tip, seeded direction/size), ~2.7x denser than v4 at full spin, and confined to a
+   strip hugging each edge (fade by 1.5-3 band units) so they splash along the edges instead of filling the faces. Same per-pixel cost. */
+float st=mix(.997-.03*uSp,1.,smoothstep(.7,1.7+1.5*uSp,tq)),sp=smoothstep(st,st+.004,h3(floor(eq*170.)))*step(.5,tq);
+float ch=1.-.16*uSp*(1.-smoothstep(.5,1.5+1.5*uSp,tq));vec3 qq=eq*55.-g*dot(eq,g)*32.;float cq=h3(floor(qq)+3.);vec3 cf=fract(qq)-.5;float t=dot(cf,g),sg=fract(cq*37.)>.5?1.:-1.,ax=length(cf-g*t),wd=(.05+.34*clamp(.5+t*sg,0.,1.))*(.7+.6*fract(cq*91.));
+float chp=smoothstep(ch,ch+.004,cq)*(1.-smoothstep(wd*.7,wd,ax))*(1.-smoothstep(.4,.48,abs(t)))*step(.4,tq);sp=max(sp,chp);
 return max(sol,max(fg*.97,sp*.9));}
 /* frost shading: bright white crystal, faint cool hint only, never grey. A lumpy raised surface (small-scale normal bumps, stronger where solid),
    soft wrap light, small specular highlights on the lumps and seeded sparkle glints that flash with the view angle. Premultiplied by coverage. */
