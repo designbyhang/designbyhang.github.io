@@ -400,7 +400,9 @@ sol=1.-smoothstep(.86,1.04,e/w+.4*(nzT(eq,vNo,7.3).g-.5));float d=e-w*.9;
 float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n3(vec3(ac*17.,uSd*1.3,5.)));
 /* v4 (Hang 17:56 "when spinning fast"): uSp = smoothed spin speed 0..1 (niSpU); more/longer spikes and farther, denser specks and chips when fast.
    v5: each spike octave is skipped outright where no spike of it can reach (d beyond its max length). */
-float L1=U0*mix(.55,2.5,cl)*(1.+.9*uSp),L2=U0*mix(.25,1.1,cl2)*(1.+.7*uSp),fg=0.;
+/* v11 (Hang 20:44 "let's shorten the spikes"): spike reach ~55% of v10 - big octave .55-2.5 -> .4-1.25 band units (the long cluster
+   outliers halve, short ones ~73%), small octave .25-1.1 -> .18-.6; heavy-tailed per-spike lengths and the spin lengthening kept. */
+float L1=U0*mix(.4,1.25,cl)*(1.+.9*uSp),L2=U0*mix(.18,.6,cl2)*(1.+.7*uSp),fg=0.;
 if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.55,.08,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.16,L2,mix(.6,.12,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
 /* v6b (Hang 19:28 "too many particles inside ... more pure", 19:29 keep + strengthen the fast-spin splash): resting specks ~80% fewer
    (density 1.4% -> .3%, gone by ~1.7 band units instead of 3) so face interiors stay clear. The speed-linked chips are now pointed shards
@@ -555,11 +557,17 @@ p.save(),p.setTransform(1,0,0,1,0,0)
    the freeze ramp now also masks the halo bottom-up to the frost line (soft 8% band) so a half-frozen N only glows where frozen.
    Still rebuilt only when niRd() re-renders. */
 {let gw=S0.gw,gx=gw.getContext(`2d`),gq=Math.min(1,Math.max(0,niS()));if(gq>.01){if(rnd){let kc=gw.width/g*eS(),kd=gw.width/d.width,ox=gw.width*2,Y0=1/0,Y1=-1/0;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.beginPath()
-for(let[q0,q1]of De(L,0)){let A0=X(q0,yw,pt,Lay.scale,Lay.ox,Lay.oy),B0=X(q1,yw,pt,Lay.scale,Lay.ox,Lay.oy);gx.moveTo(A0.x*kd-ox,A0.y*kd),gx.lineTo(B0.x*kd-ox,B0.y*kd);Y0=Math.min(Y0,A0.y,B0.y),Y1=Math.max(Y1,A0.y,B0.y)}
-Y0*=kd,Y1*=kd;let gr=gx.createLinearGradient(0,Y0,0,Y1);gr.addColorStop(0,lt0?`#5FA2EC`:`#8FD0FF`),gr.addColorStop(1,`#2F6FE0`)
-gx.lineWidth=Math.max(1,2.4*kc),gx.lineJoin=`round`,gx.lineCap=`round`,gx.strokeStyle=`#000`,gx.shadowColor=`#000`,gx.shadowBlur=(lt0?3+9*gq:4+14*gq)*kc,gx.shadowOffsetX=ox,gx.stroke()
+/* v11 (Hang 20:46 "remove these 4 glows"): the v10 halo came from every wire edge, so the inner/back verticals glowed through the faces
+   as soft columns. Now the source is the letter's filled SILHOUETTE (per part: front cap, back cap and every side quad, each filled on
+   its own so windings can't cancel), shadow-cast for the halo, and the same silhouette is then cut out (destination-out), so there is
+   no glow anywhere inside the letter - only outside its outer outline. */
+let sil=(dx0)=>{for(let pr of L.parts){let Q=pr.poly,nq=Q.length,F0=[],B0=[];for(let[s0,c0]of Q){let x=(s0-L.w/2)*a,z=(c0-352)*a,A0=X([x,-o/2,z],yw,pt,Lay.scale,Lay.ox,Lay.oy),A1=X([x,o/2,z],yw,pt,Lay.scale,Lay.ox,Lay.oy);F0.push(A0.x*kd-dx0,A0.y*kd),B0.push(A1.x*kd-dx0,A1.y*kd);Y0=Math.min(Y0,A0.y*kd,A1.y*kd),Y1=Math.max(Y1,A0.y*kd,A1.y*kd)}
+for(let C0 of[F0,B0]){gx.beginPath(),gx.moveTo(C0[0],C0[1]);for(let k=1;k<nq;k++)gx.lineTo(C0[2*k],C0[2*k+1]);gx.closePath(),gx.fill()}
+for(let k=0;k<nq;k++){let m=(k+1)%nq;gx.beginPath(),gx.moveTo(F0[2*k],F0[2*k+1]),gx.lineTo(F0[2*m],F0[2*m+1]),gx.lineTo(B0[2*m],B0[2*m+1]),gx.lineTo(B0[2*k],B0[2*k+1]),gx.closePath(),gx.fill()}}}
+gx.fillStyle=`#000`,gx.shadowColor=`#000`,gx.shadowBlur=(lt0?3+9*gq:4+14*gq)*kc,gx.shadowOffsetX=ox,sil(ox);let gr=gx.createLinearGradient(0,Y0,0,Y1);gr.addColorStop(0,lt0?`#5FA2EC`:`#8FD0FF`),gr.addColorStop(1,`#2F6FE0`)
 gx.shadowColor=`transparent`,gx.shadowBlur=0,gx.shadowOffsetX=0,gx.globalCompositeOperation=`source-atop`,gx.fillStyle=gr,gx.fillRect(0,0,gw.width,gw.height)
 let lv=niS();if(lv<1.02){let yl=Y1-(Y1-Y0)*lv,hm=(Y1-Y0)*.08,mk=gx.createLinearGradient(0,yl-hm,0,yl+hm);mk.addColorStop(0,`rgba(0,0,0,0)`),mk.addColorStop(1,`#000`),gx.globalCompositeOperation=`destination-in`,gx.fillStyle=mk,gx.fillRect(0,0,gw.width,gw.height)}
+gx.globalCompositeOperation=`destination-out`,gx.fillStyle=`#000`,sil(0)
 gx.restore()}
 p.globalAlpha=Math.min(1,(lt0?.6:.85)*gq),p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height)}}
 p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)/* v4 (Hang 17:58): light-theme drop shadow removed; the blue frost carries the contrast */
