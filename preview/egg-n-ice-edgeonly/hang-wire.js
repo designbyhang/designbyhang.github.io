@@ -373,7 +373,7 @@ vec4 nzT(vec3 o,vec3 n,float k){vec2 q;if(abs(n.z)>.9)q=o.xy;else{vec3 t=normali
 float gB=0.,gT=0.;
 float spk(float ac,float d,float s,float Lm,float gp,float sd){float u=ac/s,dd=d/s,best=0.;if(dd<-.5)return 0.;
 for(int i=-2;i<=2;i++){float c=floor(u)+float(i),h1=h3(vec3(c,sd,1.)),h2=h3(vec3(c,sd,2.)),hl=h3(vec3(c,sd,3.)),h4=h3(vec3(c,sd,4.));float fa=smoothstep(gp,gp+.1,h1);if(fa<=0.)continue;
-float Lg=Lm/s*(.06+.94*pow(h2,2.8)),ln=(hl-.5)*.8,W=.055+.2*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
+float Lg=Lm/s*(.06+.94*pow(h2,2.3)),ln=(hl-.5)*.8,W=.062+.22*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
 if(tp>0.){float wd=W*pow(tp,.75)+.012,cv=fa*(1.-smoothstep(wd*.55,wd,abs(u-x0-ln*max(dd,0.))));best=max(best,cv);if(cv>gB){gB=cv;gT=max(step(.8,fract(h2*13.7)),(1.-smoothstep(.15,.6,tp))*step(.35,fract(h4*3.1)));}}
 float bp=(.2+.5*h3(vec3(c,sd,5.)))*Lg;if(h2>.42&&dd>bp){float db=dd-bp,bl=(Lg-bp)*(.35+.4*h4),sg=fract(h4*5.3)>.5?1.:-1.,tb=1.-db/bl;
 if(tb>0.){float wb=W*.5*pow(tb,.75)+.01,cv=fa*(1.-smoothstep(wb*.55,wb,abs(u-x0-ln*bp-(ln+sg*(.5+.5*hl))*db)));best=max(best,cv);if(cv>gB){gB=cv;gT=max(step(.7,fract(hl*5.7)),1.-smoothstep(.1,.5,tb));}}}}return best;}
@@ -401,13 +401,16 @@ float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n
 /* v4 (Hang 17:56 "when spinning fast"): uSp = smoothed spin speed 0..1 (niSpU); more/longer spikes and farther, denser specks and chips when fast.
    v5: each spike octave is skipped outright where no spike of it can reach (d beyond its max length). */
 float L1=U0*mix(.55,2.5,cl)*(1.+.9*uSp),L2=U0*mix(.25,1.1,cl2)*(1.+.7*uSp),fg=0.;
-if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.55,.08,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.16,L2,mix(.6,.12,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
+/* v9 (Hang 20:00 "more sheds"): ~1.9x the edge spikes - each octave's empty-cell threshold drops (big .55-.08 -> .22-(-.12), small
+   .6-.12 -> .3-(-.06)), so most cells along the edge carry a spike while the cluster masks still vary length/density; the small octave's cells are
+   ~30% closer (U0*.16 -> .11) and lengths a little less heavy-tailed (h^2.8 -> h^2.3), spikes ~12% wider at the base; same loops. */
+if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.22,-.12,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.11,L2,mix(.3,-.06,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
 /* v6b (Hang 19:28 "too many particles inside ... more pure", 19:29 keep + strengthen the fast-spin splash): resting specks ~80% fewer
    (density 1.4% -> .3%, gone by ~1.7 band units instead of 3) so face interiors stay clear. The speed-linked chips are now pointed shards
    (cells stretched ~2.4x across the edge, tapering to a tip, seeded direction/size), ~2.7x denser than v4 at full spin, and confined to a
    strip hugging each edge (fade by 1.5-3 band units) so they splash along the edges instead of filling the faces. Same per-pixel cost. */
 float st=mix(.997-.03*uSp,1.,smoothstep(.7,1.7+1.5*uSp,tq)),sp=smoothstep(st,st+.004,h3(floor(eq*170.)))*step(.5,tq);
-float ch=1.-.16*uSp*(1.-smoothstep(.5,1.5+1.5*uSp,tq));vec3 qq=eq*55.-g*dot(eq,g)*32.;float cq=h3(floor(qq)+3.);vec3 cf=fract(qq)-.5;float t=dot(cf,g),sg=fract(cq*37.)>.5?1.:-1.,ax=length(cf-g*t),wd=(.05+.34*clamp(.5+t*sg,0.,1.))*(.7+.6*fract(cq*91.));
+float ch=1.-.3*uSp*(1.-smoothstep(.5,1.5+1.5*uSp,tq));/* v9: fast-spin shards ~1.9x (.16 -> .3) */vec3 qq=eq*55.-g*dot(eq,g)*32.;float cq=h3(floor(qq)+3.);vec3 cf=fract(qq)-.5;float t=dot(cf,g),sg=fract(cq*37.)>.5?1.:-1.,ax=length(cf-g*t),wd=(.05+.34*clamp(.5+t*sg,0.,1.))*(.7+.6*fract(cq*91.));
 float chp=smoothstep(ch,ch+.004,cq)*(1.-smoothstep(wd*.7,wd,ax))*(1.-smoothstep(.4,.48,abs(t)))*step(.4,tq);sp=max(sp,chp);
 return max(sol,max(fg*.97,sp*.9));}
 /* frost shading: bright white crystal, faint cool hint only, never grey. A lumpy raised surface (small-scale normal bumps, stronger where solid),
