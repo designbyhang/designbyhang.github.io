@@ -212,7 +212,7 @@ const HWD=.36;/* v515 egg ice N (Hang 2026-11-15 "Ship"; from preview/egg-n-ice3
    flat faces, hard edges); if WebGL is unavailable the N just stays line art. v4 (Hang 9:16): the old 2D glass fallback (rounded-bar /
    rounded-tube shading) and every gel/jiggle/inflate leftover were deleted. v5: one frost line (niS), stagger-eased 1.44s exit, no ice
    sound layer: the preview uses the main site's js/sfx.js, so only the letters' spin dings play. */
-let niH0=0,niF=0,niT=0,niM=0,niPk=0,niL=0
+let ncP=null,ncN=0,ncA=0,ncL=0,ncPal=null,ncPt=-1,ngEd=null,ngEdL=null;let niH0=0,niF=0,niT=0,niM=0,niPk=0,niL=0
 function niOn(){return!!t[v]&&t[v].name===`N`}
 function niIn(P,x,y){let c=0;for(let i=0,j=P.length-1;i<P.length;j=i++){let[xi,yi]=P[i],[xj,yj]=P[j];yi>y!=yj>y&&x<(xj-xi)*(y-yi)/(yj-yi)+xi&&(c=!c)}return c}
 function ngYo(){return 0}/* v3: no re-pose (Hang: it must stop in one direction, like H/A/G) */
@@ -373,7 +373,7 @@ vec4 nzT(vec3 o,vec3 n,float k){vec2 q;if(abs(n.z)>.9)q=o.xy;else{vec3 t=normali
 float gB=0.,gT=0.;
 float spk(float ac,float d,float s,float Lm,float gp,float sd){float u=ac/s,dd=d/s,best=0.;if(dd<-.5)return 0.;
 for(int i=-2;i<=2;i++){float c=floor(u)+float(i),h1=h3(vec3(c,sd,1.)),h2=h3(vec3(c,sd,2.)),hl=h3(vec3(c,sd,3.)),h4=h3(vec3(c,sd,4.));float fa=smoothstep(gp,gp+.1,h1);if(fa<=0.)continue;
-float Lg=Lm/s*(.06+.94*pow(h2,2.3)),ln=(hl-.5)*.8,W=.062+.22*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
+float Lg=Lm/s*(.06+.94*pow(h2,2.8)),ln=(hl-.5)*.8,W=.055+.2*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
 if(tp>0.){float wd=W*pow(tp,.75)+.012,cv=fa*(1.-smoothstep(wd*.55,wd,abs(u-x0-ln*max(dd,0.))));best=max(best,cv);if(cv>gB){gB=cv;gT=max(step(.8,fract(h2*13.7)),(1.-smoothstep(.15,.6,tp))*step(.35,fract(h4*3.1)));}}
 float bp=(.2+.5*h3(vec3(c,sd,5.)))*Lg;if(h2>.42&&dd>bp){float db=dd-bp,bl=(Lg-bp)*(.35+.4*h4),sg=fract(h4*5.3)>.5?1.:-1.,tb=1.-db/bl;
 if(tb>0.){float wb=W*.5*pow(tb,.75)+.01,cv=fa*(1.-smoothstep(wb*.55,wb,abs(u-x0-ln*bp-(ln+sg*(.5+.5*hl))*db)));best=max(best,cv);if(cv>gB){gB=cv;gT=max(step(.7,fract(hl*5.7)),1.-smoothstep(.1,.5,tb));}}}}return best;}
@@ -401,25 +401,22 @@ float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n
 /* v4 (Hang 17:56 "when spinning fast"): uSp = smoothed spin speed 0..1 (niSpU); more/longer spikes and farther, denser specks and chips when fast.
    v5: each spike octave is skipped outright where no spike of it can reach (d beyond its max length). */
 float L1=U0*mix(.55,2.5,cl)*(1.+.9*uSp),L2=U0*mix(.25,1.1,cl2)*(1.+.7*uSp),fg=0.;
-/* v9 (Hang 20:00 "more sheds"): ~1.9x the edge spikes - each octave's empty-cell threshold drops (big .55-.08 -> .22-(-.12), small
-   .6-.12 -> .3-(-.06)), so most cells along the edge carry a spike while the cluster masks still vary length/density; the small octave's cells are
-   ~30% closer (U0*.16 -> .11) and lengths a little less heavy-tailed (h^2.8 -> h^2.3), spikes ~12% wider at the base; same loops. */
-if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.22,-.12,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.11,L2,mix(.3,-.06,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
+if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.55,.08,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.16,L2,mix(.6,.12,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
 /* v6b (Hang 19:28 "too many particles inside ... more pure", 19:29 keep + strengthen the fast-spin splash): resting specks ~80% fewer
    (density 1.4% -> .3%, gone by ~1.7 band units instead of 3) so face interiors stay clear. The speed-linked chips are now pointed shards
    (cells stretched ~2.4x across the edge, tapering to a tip, seeded direction/size), ~2.7x denser than v4 at full spin, and confined to a
    strip hugging each edge (fade by 1.5-3 band units) so they splash along the edges instead of filling the faces. Same per-pixel cost. */
 float st=mix(.997-.03*uSp,1.,smoothstep(.7,1.7+1.5*uSp,tq)),sp=smoothstep(st,st+.004,h3(floor(eq*170.)))*step(.5,tq);
-float ch=1.-.3*uSp*(1.-smoothstep(.5,1.5+1.5*uSp,tq));/* v9: fast-spin shards ~1.9x (.16 -> .3) */vec3 qq=eq*55.-g*dot(eq,g)*32.;float cq=h3(floor(qq)+3.);vec3 cf=fract(qq)-.5;float t=dot(cf,g),sg=fract(cq*37.)>.5?1.:-1.,ax=length(cf-g*t),wd=(.05+.34*clamp(.5+t*sg,0.,1.))*(.7+.6*fract(cq*91.));
+float ch=1.-.16*uSp*(1.-smoothstep(.5,1.5+1.5*uSp,tq));vec3 qq=eq*55.-g*dot(eq,g)*32.;float cq=h3(floor(qq)+3.);vec3 cf=fract(qq)-.5;float t=dot(cf,g),sg=fract(cq*37.)>.5?1.:-1.,ax=length(cf-g*t),wd=(.05+.34*clamp(.5+t*sg,0.,1.))*(.7+.6*fract(cq*91.));
 float chp=smoothstep(ch,ch+.004,cq)*(1.-smoothstep(wd*.7,wd,ax))*(1.-smoothstep(.4,.48,abs(t)))*step(.4,tq);sp=max(sp,chp);
 return max(sol,max(fg*.97,sp*.9));}
 /* frost shading: bright white crystal, faint cool hint only, never grey. A lumpy raised surface (small-scale normal bumps, stronger where solid),
    soft wrap light, small specular highlights on the lumps and seeded sparkle glints that flash with the view angle. Premultiplied by coverage. */
 vec4 frost(vec3 O,vec3 No,vec3 V,float m,float sol,float df){vec3 eq=O+uSd*.13;
-vec4 nA=nzT(eq,No,.385),nC=nzT(eq,No,8.1),nD=nzT(eq,No,19.3),nE=nzT(eq+(nA.bgr-.5)*.6,No,1.7),nF=nzT(eq+(nE.gbr-.5)*.25,No,4.3);
+vec4 nC=nzT(eq,No,8.1),nD=nzT(eq,No,19.3);
 vec3 lb=(nC.rgb-.5)*2.4,lb2=(nD.rgb-.5)*2.4;
-vec3 Nf=normalize(No+lb*(.35+.45*sol)+lb2*.3);vec3 Nv=normalize(toV(Nf));if(dot(Nv,V)<0.)Nv=-Nv;vec3 Ld=normalize(vec3(-.35,.6,.72));
-float hi=pow(max(0.,dot(reflect(-V,Nv),Ld)),28.)*.55;float gl0=h3(floor(eq*330.)),gn=step(.975,gl0)*pow(max(0.,dot(normalize(lb2+vec3(0.,0.,.6)),V)),6.)*1.6;
+vec3 Nf=normalize(No+lb*.14+lb2*.08);vec3 Nv=normalize(toV(Nf));if(dot(Nv,V)<0.)Nv=-Nv;vec3 Ld=normalize(vec3(-.35,.6,.72));
+float hi=pow(max(0.,dot(reflect(-V,Nv),Ld)),28.)*.55;float gl0=h3(floor(eq*330.)),gn=step(.994,gl0)*pow(max(0.,dot(normalize(lb2+vec3(0.,0.,.6)),V)),6.)*1.6;
 float lw=max(0.,dot(Nv,Ld));
 /* v4: the frost IS the blue (#8FD0FF top -> #2F6FE0 bottom), lump-shaded, white highlights/glints; just below the moving front the tips start
    near-white and turn blue. v5 (Hang 18:18 "too uniform blue", "white intertwined", "gradient of blue and white, irregular"): marbled ice -
@@ -428,11 +425,14 @@ float lw=max(0.,dot(Nv,Ld));
    v6 (Hang 19:25 "more white plse"): ~40-55% white (lower vein thresholds, wider patches, every spike more white); in the light theme the
    "white" is a pale icy blue (#9EC9F5) so it keeps contrast on the light page; band firmer (width .68-1.68 not .3-1.9, softer solidity
    noise, projection cap at 60%) and NI_CRUST .0105 (~66% of v4). */
-float hz=clamp(zq(O),0.,1.);vec3 B0=vec3(.561,.816,1.),B1=vec3(.184,.435,.878),bl=mix(B1,B0,smoothstep(.05,.95,hz));
-vec3 c=bl*(.74+.3*lw+.06*sol);c=mix(c,B1*.82,.22*(1.-lw));c=mix(c,vec3(.94,.97,1.),(uLt>.5?.1:.14)+.08*lb.x);
-float v1=1.-abs((nE.r-.5)*5.),v2=1.-abs((nF.g-.5)*5.5),wv=clamp((nA.g-.5)*2.4+.5,0.,1.);
-float wf=smoothstep(.45,.85,v1)*.85+smoothstep(.52,.9,v2)*.65+smoothstep(.5,.66,nE.b)*.55;
-wf=clamp(wf*(.55+.9*wv)+gT*(1.-sol)+.12,0.,1.);vec3 Wc=uLt>.5?vec3(.62,.79,.96):vec3(.93,.965,1.);c=mix(c,Wc*(.9+.1*lw),wf*.92);
+/* v10 (Hang 20:24 "white to blue gradient ... a gradual transformation along the stroke, not peppering the blue"): marbling, veins,
+   white patches and white spikes removed. Colour is one smooth field over the letter, gt = .78 x height + .22 x (left->right, reversed):
+   white (light theme: pale icy blue #9EC9F5) at the top-left end -> #8FD0FF -> saturated #2F6FE0 at the bottom-right, so every
+   stroke changes gradually along its length (verticals by height, horizontals across, the diagonal both) and spikes take the colour of
+   where they sit, continuous with their stroke. Lump bumps and glints cut way down so nothing speckles; 3 fewer texture taps. */
+float gt=clamp(zq(O)*.78+(.5-O.x/uCs.x)*.22+.11,0.,1.);vec3 B0=vec3(.561,.816,1.),B1=vec3(.184,.435,.878),Wc=uLt>.5?vec3(.62,.79,.96):vec3(.95,.975,1.);
+vec3 bl=gt>.55?mix(B0,Wc,smoothstep(.55,1.,gt)):mix(B1,B0,smoothstep(0.,.55,gt));
+vec3 c=bl*(.86+.18*lw);
 {float kw=(1.-smoothstep(0.,.045,df))*(uLt>.5?.5:.82);c=mix(c,uLt>.5?vec3(.6,.78,.96):vec3(.97,.985,1.),kw);}
 c+=(uLt>.5?vec3(.55,.75,1.):vec3(1.))*(hi+gn)*(uLt>.5?.6:1.);
 float a=m*(uLt>.5?1.:.97);return vec4(min(c,vec3(1.))*a,a);}
@@ -549,8 +549,18 @@ p.save(),p.setTransform(1,0,0,1,0,0)
    canvas (shadow only, the source is drawn off-canvas), recoloured source-atop with the frost's own height gradient #8FD0FF top -> #2F6FE0
    bottom (light theme a step deeper, #5FA2EC -> #2F6FE0), then laid under the ice. g = freeze level (0 -> no glow). Rebuilt only when
    niRd() re-renders the ice; at rest the cached glow is just composited. Replaces the flat dark-only .3 halo. */
-{let gw=S0.gw,gx=gw.getContext(`2d`),gq=Math.min(1,Math.max(0,niS()));if(gq>.01){if(rnd){let kc=gw.width/g*eS(),kg=gw.height/H*kq,yc=Lay.oy*kg,hh=352*a*Lay.scale*kg,gr=gx.createLinearGradient(0,yc-hh,0,yc+hh);gr.addColorStop(0,lt0?`#5FA2EC`:`#8FD0FF`),gr.addColorStop(1,`#2F6FE0`)
-gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`#000`,gx.shadowBlur=(lt0?3+9*gq:4+14*gq)*kc,gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.shadowColor=`transparent`,gx.shadowBlur=0,gx.shadowOffsetX=0,gx.globalCompositeOperation=`source-atop`,gx.fillStyle=gr,gx.fillRect(0,0,gw.width,gw.height),gx.restore()}
+/* v10 (Hang 20:23 "glow is to be around the letter, not the specticles"): the glow source is now the N's own projected wire edges
+   (De/X, the same segments Ae strokes; 2.4px round stroke), not the frost/shard layer - so it is ONE soft halo around the letter's
+   silhouette and edges, exactly how the A's hGlow haloes its stroke; spikes and specks get no glow of their own. Same blur/alpha/colours;
+   the freeze ramp now also masks the halo bottom-up to the frost line (soft 8% band) so a half-frozen N only glows where frozen.
+   Still rebuilt only when niRd() re-renders. */
+{let gw=S0.gw,gx=gw.getContext(`2d`),gq=Math.min(1,Math.max(0,niS()));if(gq>.01){if(rnd){let kc=gw.width/g*eS(),kd=gw.width/d.width,ox=gw.width*2,Y0=1/0,Y1=-1/0;gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.beginPath()
+for(let[q0,q1]of De(L,0)){let A0=X(q0,yw,pt,Lay.scale,Lay.ox,Lay.oy),B0=X(q1,yw,pt,Lay.scale,Lay.ox,Lay.oy);gx.moveTo(A0.x*kd-ox,A0.y*kd),gx.lineTo(B0.x*kd-ox,B0.y*kd);Y0=Math.min(Y0,A0.y,B0.y),Y1=Math.max(Y1,A0.y,B0.y)}
+Y0*=kd,Y1*=kd;let gr=gx.createLinearGradient(0,Y0,0,Y1);gr.addColorStop(0,lt0?`#5FA2EC`:`#8FD0FF`),gr.addColorStop(1,`#2F6FE0`)
+gx.lineWidth=Math.max(1,2.4*kc),gx.lineJoin=`round`,gx.lineCap=`round`,gx.strokeStyle=`#000`,gx.shadowColor=`#000`,gx.shadowBlur=(lt0?3+9*gq:4+14*gq)*kc,gx.shadowOffsetX=ox,gx.stroke()
+gx.shadowColor=`transparent`,gx.shadowBlur=0,gx.shadowOffsetX=0,gx.globalCompositeOperation=`source-atop`,gx.fillStyle=gr,gx.fillRect(0,0,gw.width,gw.height)
+let lv=niS();if(lv<1.02){let yl=Y1-(Y1-Y0)*lv,hm=(Y1-Y0)*.08,mk=gx.createLinearGradient(0,yl-hm,0,yl+hm);mk.addColorStop(0,`rgba(0,0,0,0)`),mk.addColorStop(1,`#000`),gx.globalCompositeOperation=`destination-in`,gx.fillStyle=mk,gx.fillRect(0,0,gw.width,gw.height)}
+gx.restore()}
 p.globalAlpha=Math.min(1,(lt0?.6:.85)*gq),p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height)}}
 p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)/* v4 (Hang 17:58): light-theme drop shadow removed; the blue frost carries the contrast */
 /* v2: a few tiny droplets flung off while liquid (<=12 alive, 320-620ms life, gravity), subtle */
@@ -558,6 +568,24 @@ p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)/* v4 (Hang 17:58)
 if(niLq>.35&&ngDp.length<12&&Math.random()<niLq*dt*16){let n0=ngM.n,k=Math.floor(Math.random()*n0)*6,B=ngM.buf,x=B[k],y=B[k+1],z=B[k+2],c0=x*cy+y*sy,l0=-x*sy+y*cy,pp=z*cp-l0*sp,X0=Lay.ox+c0*Lay.scale,Y0=Lay.oy-pp*Lay.scale,dx=X0-Lay.ox,dy=Y0-Lay.oy,dl=Math.hypot(dx,dy)||1,sv=(240+320*Math.random())*k0;ngDp.push({x:X0,y:Y0,vx:dx/dl*sv,vy:dy/dl*sv-120*k0,t:0,l:.32+.3*Math.random(),r:(.7+1.3*Math.random())*k0})}
 for(const q0 of ngDp){q0.vy+=1600*k0*dt,q0.x+=q0.vx*dt,q0.y+=q0.vy*dt,q0.t+=dt;let al=Math.max(0,1-q0.t/q0.l)*f*.85;p.globalAlpha=al,p.fillStyle=lt0?`rgb(120,158,205)`:`rgb(222,236,250)`,p.beginPath(),p.arc(q0.x,q0.y,q0.r,0,6.2832),p.fill()}
 ngDp=ngDp.filter(q0=>q0.t<q0.l)}
+/* v10 (Hang 20:26 "sheds" = the small pieces that spin out; "add those chips"): flying ice chips on the 2D layer, so they leave the
+   letter. A fixed pool (Float32Array, 150 x 12, allocated once; swap-remove, no per-frame allocation). Emission ~220/s x speed^2
+   (niSpk, the smoothed spin speed; x freeze) from random points on the N's projected wire edges: none at rest, a lively spray when fast.
+   Each chip flies out radially from the letter centre plus the spin's tangential throw, falls a little (700px/s^2), drags, tumbles
+   (rotation + a cos flip that flattens it) and fades over 512-1088ms (64-136 x 8ms). Shape: a small irregular shard triangle, 2-6px, fading as 1-t^2.
+   Colour = the frost's white -> #8FD0FF -> #2F6FE0 field at the emission point (light theme: pale icy blue end), 16-step palette strings
+   built once per theme; no glow. Skipped entirely when no chip is alive and the spin is slow; prefers-reduced-motion: none. */
+{if(!ncP)ncP=new Float32Array(150*12);let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(ncL||nw))/1e3)),sp0=r?0:niSpk*Math.min(1,Math.max(f,niS())*1.25);ncL=nw
+if(sp0>.06||ncN>0){let lp=lt0?1:0;if(ncPt!==lp){ncPt=lp,ncPal=[];let Wc=lp?[158,201,245]:[242,249,255],B0=[143,208,255],B1=[47,111,224],ss=(a0,b0,x)=>{x=Math.max(0,Math.min(1,(x-a0)/(b0-a0)));return x*x*(3-2*x)};for(let k=0;k<16;k++){let u=k/15,A0=u>.55?B0:B1,C0=u>.55?Wc:B0,m0=u>.55?ss(.55,1,u):ss(0,.55,u);ncPal.push(`rgb(${A0.map((z,j)=>Math.round(z+(C0[j]-z)*m0)).join(`,`)})`)}}
+let k0=d.width/g*eS(),cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sn=Math.sin(pt);if(ngEdL!==L)ngEd=De(L,0),ngEdL=L;let E=ngEd,hw=L.w*a*Lay.scale*.5,hh=352*a*Lay.scale,sg=eHv()<0?-1:1,P=ncP
+ncA=Math.min(16,ncA+dt*220*sp0*sp0);while(ncA>=1&&ncN<150&&sp0>.06){ncA-=1;let e0=E[Math.floor(Math.random()*E.length)],q0=e0[0],q1=e0[1],u=Math.random(),x=q0[0]+(q1[0]-q0[0])*u,y=q0[1]+(q1[1]-q0[1])*u,z=q0[2]+(q1[2]-q0[2])*u,c0=x*cy+y*sy,l0=-x*sy+y*cy,pp=z*cp-l0*sn,X0=Lay.ox+c0*Lay.scale,Y0=Lay.oy-pp*Lay.scale,dx=X0-Lay.ox,dy=Y0-Lay.oy,dl=Math.hypot(dx,dy)||1,sv=(60+260*sp0)*(.5+Math.random())*k0,tn=sg*Math.max(-1,Math.min(1,l0*Lay.scale/hw)),o=ncN*12
+let gt=Math.max(0,Math.min(1,(Lay.oy-Y0)/(2*hh)+.5))*.78+Math.max(-.5,Math.min(.5,(Lay.ox-X0)/(2*hw)))*.22+.11
+P[o]=X0,P[o+1]=Y0,P[o+2]=dx/dl*sv+tn*(100+220*sp0)*k0,P[o+3]=dy/dl*sv-60*k0*Math.random(),P[o+4]=0,P[o+5]=(64+Math.floor(Math.random()*73))*.008,P[o+6]=Math.random()*6.2832,P[o+7]=(Math.random()<.5?-1:1)*(5+12*Math.random()),P[o+8]=Math.random()*6.2832,P[o+9]=4+8*Math.random(),P[o+10]=(2+4*Math.random()**2)*(.8+.4*sp0)*k0,P[o+11]=Math.round(Math.max(0,Math.min(1,gt))*15),ncN++}
+for(let i0=0;i0<ncN;i0++){let o=i0*12;P[o+4]+=dt;if(P[o+4]>=P[o+5]){ncN--;if(i0<ncN)P.copyWithin(o,ncN*12,ncN*12+12);i0--;continue}
+let dr=1-Math.min(1,1.2*dt);P[o+2]*=dr,P[o+3]=P[o+3]*dr+700*k0*dt,P[o]+=P[o+2]*dt,P[o+1]+=P[o+3]*dt,P[o+6]+=P[o+7]*dt,P[o+8]+=P[o+9]*dt
+let s0=P[o+10],ca=Math.cos(P[o+6]),sa=Math.sin(P[o+6]),fq=.2+.8*Math.abs(Math.cos(P[o+8])),x=P[o],y=P[o+1],ax=s0,ay=0,bx=-.55*s0,by=.75*s0*fq,cx=-.7*s0,cy0=-.6*s0*fq
+p.globalAlpha=1-(P[o+4]/P[o+5])**2,p.fillStyle=ncPal[P[o+11]],p.beginPath(),p.moveTo(x+ax*ca-ay*sa,y+ax*sa+ay*ca),p.lineTo(x+bx*ca-by*sa,y+bx*sa+by*ca),p.lineTo(x+cx*ca-cy0*sa,y+cx*sa+cy0*ca),p.closePath(),p.fill()}
+p.globalAlpha=1}}
 p.restore()}
 function niDraw(yw,pt,Lay,y0,y1){niStep();ngF0<=.005&&niF>.005&&(ngSd=Math.floor(Math.random()*97));ngF0=niF;if(!niOn())return;if(!ngS){setTimeout(ngInit,0),ngS=0}if(ngS===0)return;if(ngOK){if(niF>.005&&y1>y0)try{ngGL(yw,pt,Lay,niF)}catch(e){ngOK=0;console.warn(e)}}}
 /* v513 electric A arcs (shipped from preview/egg-a-arcs d6107c4; Hang: "This is what we are missing in the A", Pikachu-style electricity): the A only, on top of the live A (yellow
