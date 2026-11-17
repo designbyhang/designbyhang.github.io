@@ -394,9 +394,9 @@ gE=e;vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));gW=smoothstep(.55,.
 /* v5 thinner (Hang 18:19 "too heavy handed at some angles"): NI_CRUST .016 -> .009 (~56%; spike/point/speck scale U0 kept at v4's size), and the
    band is capped in projection: an edge shows this side's band (across g, projected sqrt(1-(g.v)^2)) plus the neighbour's (across ~this normal,
    sqrt(1-(n.v)^2)); dividing w by that sum (>=1, up to 1.41 when the edge faces the camera) keeps the visible stroke ~one band wide at any angle. */
-float pv=dot(normalize(toV(g)),V),nv=dot(normalize(toV(vNo)),V),Tp=max(1.,sqrt(max(0.,1.-pv*pv))+sqrt(max(0.,1.-nv*nv)));
-vec4 nA=nzT(eq,vNo,.385);float w=uCt*cr*(.3+1.6*clamp((nA.r-.5)*2.2+.5,0.,1.))/Tp,tq=e/U0;if(tq>3.2+6.*uSp)return 0.;
-sol=1.-smoothstep(.82,1.06,e/w+.75*(nzT(eq,vNo,7.3).g-.5));float d=e-w*.9;
+float pv=dot(normalize(toV(g)),V),nv=dot(normalize(toV(vNo)),V),Tp=max(1.,1.+.6*(sqrt(max(0.,1.-pv*pv))+sqrt(max(0.,1.-nv*nv))-1.));
+vec4 nA=nzT(eq,vNo,.385);float w=uCt*cr*(.68+1.*clamp((nA.r-.5)*2.2+.5,0.,1.))/Tp,tq=e/U0;if(tq>3.2+6.*uSp)return 0.;
+sol=1.-smoothstep(.86,1.04,e/w+.4*(nzT(eq,vNo,7.3).g-.5));float d=e-w*.9;
 float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n3(vec3(ac*17.,uSd*1.3,5.)));
 /* v4 (Hang 17:56 "when spinning fast"): uSp = smoothed spin speed 0..1 (niSpU); more/longer spikes and farther, denser specks and chips when fast.
    v5: each spike octave is skipped outright where no spike of it can reach (d beyond its max length). */
@@ -416,14 +416,17 @@ float lw=max(0.,dot(Nv,Ld));
 /* v4: the frost IS the blue (#8FD0FF top -> #2F6FE0 bottom), lump-shaded, white highlights/glints; just below the moving front the tips start
    near-white and turn blue. v5 (Hang 18:18 "too uniform blue", "white intertwined", "gradient of blue and white, irregular"): marbled ice -
    white veins/strands (two warped ridged layers of the baked noise), soft cloudy white patches, a slow location-varying white amount, and
-   white or white-tipped spikes (gT from spk) - roughly a quarter to two fifths white, uneven along and across each stroke. */
+   white or white-tipped spikes (gT from spk) - roughly a quarter to two fifths white, uneven along and across each stroke.
+   v6 (Hang 19:25 "more white plse"): ~40-55% white (lower vein thresholds, wider patches, every spike more white); in the light theme the
+   "white" is a pale icy blue (#9EC9F5) so it keeps contrast on the light page; band firmer (width .68-1.68 not .3-1.9, softer solidity
+   noise, projection cap at 60%) and NI_CRUST .0105 (~66% of v4). */
 float hz=clamp(zq(O),0.,1.);vec3 B0=vec3(.561,.816,1.),B1=vec3(.184,.435,.878),bl=mix(B1,B0,smoothstep(.05,.95,hz));
 vec3 c=bl*(.74+.3*lw+.06*sol);c=mix(c,B1*.82,.22*(1.-lw));c=mix(c,vec3(.94,.97,1.),(uLt>.5?.1:.14)+.08*lb.x);
 float v1=1.-abs((nE.r-.5)*5.),v2=1.-abs((nF.g-.5)*5.5),wv=clamp((nA.g-.5)*2.4+.5,0.,1.);
-float wf=smoothstep(.62,.93,v1)*.75+smoothstep(.68,.95,v2)*.55+smoothstep(.6,.72,nE.b)*.35;
-wf=clamp(wf*(.35+.95*wv)+gT*(1.-sol)*.85,0.,1.);c=mix(c,vec3(.93,.965,1.)*(.9+.1*lw),wf*.8);
-{float kw=(1.-smoothstep(0.,.045,df))*(uLt>.5?.5:.82);c=mix(c,vec3(.97,.985,1.),kw);}
-c+=vec3(1.)*(hi+gn);
+float wf=smoothstep(.45,.85,v1)*.85+smoothstep(.52,.9,v2)*.65+smoothstep(.5,.66,nE.b)*.55;
+wf=clamp(wf*(.55+.9*wv)+gT*(1.-sol)+.12,0.,1.);vec3 Wc=uLt>.5?vec3(.62,.79,.96):vec3(.93,.965,1.);c=mix(c,Wc*(.9+.1*lw),wf*.92);
+{float kw=(1.-smoothstep(0.,.045,df))*(uLt>.5?.5:.82);c=mix(c,uLt>.5?vec3(.6,.78,.96):vec3(.97,.985,1.),kw);}
+c+=(uLt>.5?vec3(.55,.75,1.):vec3(1.))*(hi+gn)*(uLt>.5?.6:1.);
 float a=m*(uLt>.5?1.:.97);return vec4(min(c,vec3(1.))*a,a);}
 void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;
 /* v5 perf: edge-only fast path. The frost replaces the whole ice shading, so pass 0 (refraction buffer) is not drawn at all (JS) and passes 2/1
@@ -498,7 +501,7 @@ let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const
 let tn=tx();gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT),gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,256,256,0,gl.RGBA,gl.UNSIGNED_BYTE,niNz());
 Object.assign(ngS,{c,gl,pr,U,tn,vb:gl.createBuffer(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 /* preview/egg-n-ice-edgeonly: the ice crust width along the edges, as a fraction of the letter height (0 = the full-surface ice of v521) */
-const NI_CRUST=.009;
+const NI_CRUST=.0105;
 /* v5 perf (Hang 18:17 "the N spin is dragging down my computer"):
    niNz(): the 256x256 RGBA tileable fbm (4 independent channels, 4 octaves, deterministic hash) baked once at GL init -> uNz (texture unit 3).
    niRd(): the GL ice + its glow are re-rendered only when something they depend on moved (yaw/pitch > .001 rad ~ < .6 device px, layout, size,
