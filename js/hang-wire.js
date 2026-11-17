@@ -1,4 +1,4 @@
-/* v523: edge-only ice N from preview/egg-n-ice-edgeonly v5 (80f5d04; Hang 2026-11-16 19:31 "ship the latest one"): irregular crystal frost line + ice only as frost grown along the N's edges (NI_CRUST), with v5 perf (frost fast path, no pass 0, cached noise texture, render reuse when static, frame-time governor). */
+/* v524: edge-only ice N from preview/egg-n-ice-edgeonly v9 (fd71460; Hang 2026-11-16 20:20 SHIP): v5 edge-only crust plus v6–v9 look (more white marbling, firmer strokes, clean faces, stronger/more fast-spin shards, A-style blue glow, light-theme pale icy blue, no drop shadow) and v5 perf (frost fast path, no pass 0, cached noise texture, render reuse when static, frame-time governor). */
 (function(e){Object.defineProperty(e,Symbol.toStringTag,{value:`Module`});
 /* EGG_GYRO (v512, Hang 2026-11-11): gyroscope tilt-to-rotate is PARKED for later. While false nothing asks for motion/orientation permission
    and no deviceorientation listener is added (Ce() returns at once; the mount-time auto-arm is skipped); drag spin is unaffected. The tilt code
@@ -374,7 +374,7 @@ vec4 nzT(vec3 o,vec3 n,float k){vec2 q;if(abs(n.z)>.9)q=o.xy;else{vec3 t=normali
 float gB=0.,gT=0.;
 float spk(float ac,float d,float s,float Lm,float gp,float sd){float u=ac/s,dd=d/s,best=0.;if(dd<-.5)return 0.;
 for(int i=-2;i<=2;i++){float c=floor(u)+float(i),h1=h3(vec3(c,sd,1.)),h2=h3(vec3(c,sd,2.)),hl=h3(vec3(c,sd,3.)),h4=h3(vec3(c,sd,4.));float fa=smoothstep(gp,gp+.1,h1);if(fa<=0.)continue;
-float Lg=Lm/s*(.06+.94*pow(h2,2.8)),ln=(hl-.5)*.8,W=.055+.2*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
+float Lg=Lm/s*(.06+.94*pow(h2,2.3)),ln=(hl-.5)*.8,W=.062+.22*h4*h4,x0=c+.5+(fract(h1*7.13)-.5)*.7,tp=1.-dd/Lg;
 if(tp>0.){float wd=W*pow(tp,.75)+.012,cv=fa*(1.-smoothstep(wd*.55,wd,abs(u-x0-ln*max(dd,0.))));best=max(best,cv);if(cv>gB){gB=cv;gT=max(step(.8,fract(h2*13.7)),(1.-smoothstep(.15,.6,tp))*step(.35,fract(h4*3.1)));}}
 float bp=(.2+.5*h3(vec3(c,sd,5.)))*Lg;if(h2>.42&&dd>bp){float db=dd-bp,bl=(Lg-bp)*(.35+.4*h4),sg=fract(h4*5.3)>.5?1.:-1.,tb=1.-db/bl;
 if(tb>0.){float wb=W*.5*pow(tb,.75)+.01,cv=fa*(1.-smoothstep(wb*.55,wb,abs(u-x0-ln*bp-(ln+sg*(.5+.5*hl))*db)));best=max(best,cv);if(cv>gB){gB=cv;gT=max(step(.7,fract(hl*5.7)),1.-smoothstep(.1,.5,tb));}}}}return best;}
@@ -395,16 +395,24 @@ gE=e;vec3 eq=O+uSd*.13,tg=normalize(cross(normalize(vNo),g));gW=smoothstep(.55,.
 /* v5 thinner (Hang 18:19 "too heavy handed at some angles"): NI_CRUST .016 -> .009 (~56%; spike/point/speck scale U0 kept at v4's size), and the
    band is capped in projection: an edge shows this side's band (across g, projected sqrt(1-(g.v)^2)) plus the neighbour's (across ~this normal,
    sqrt(1-(n.v)^2)); dividing w by that sum (>=1, up to 1.41 when the edge faces the camera) keeps the visible stroke ~one band wide at any angle. */
-float pv=dot(normalize(toV(g)),V),nv=dot(normalize(toV(vNo)),V),Tp=max(1.,sqrt(max(0.,1.-pv*pv))+sqrt(max(0.,1.-nv*nv)));
-vec4 nA=nzT(eq,vNo,.385);float w=uCt*cr*(.3+1.6*clamp((nA.r-.5)*2.2+.5,0.,1.))/Tp,tq=e/U0;if(tq>3.2+6.*uSp)return 0.;
-sol=1.-smoothstep(.82,1.06,e/w+.75*(nzT(eq,vNo,7.3).g-.5));float d=e-w*.9;
+float pv=dot(normalize(toV(g)),V),nv=dot(normalize(toV(vNo)),V),Tp=max(1.,1.+.6*(sqrt(max(0.,1.-pv*pv))+sqrt(max(0.,1.-nv*nv))-1.));
+vec4 nA=nzT(eq,vNo,.385);float w=uCt*cr*(.68+1.*clamp((nA.r-.5)*2.2+.5,0.,1.))/Tp,tq=e/U0;if(tq>3.2+6.*uSp)return 0.;
+sol=1.-smoothstep(.86,1.04,e/w+.4*(nzT(eq,vNo,7.3).g-.5));float d=e-w*.9;
 float cl=smoothstep(.3,.72,n3(vec3(ac*5.,uSd,2.)+eq*1.3)),cl2=smoothstep(.2,.8,n3(vec3(ac*17.,uSd*1.3,5.)));
 /* v4 (Hang 17:56 "when spinning fast"): uSp = smoothed spin speed 0..1 (niSpU); more/longer spikes and farther, denser specks and chips when fast.
    v5: each spike octave is skipped outright where no spike of it can reach (d beyond its max length). */
 float L1=U0*mix(.55,2.5,cl)*(1.+.9*uSp),L2=U0*mix(.25,1.1,cl2)*(1.+.7*uSp),fg=0.;
-if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.55,.08,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.16,L2,mix(.6,.12,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
-float st=mix(.986-.07*uSp,1.,smoothstep(.9,3.+6.*uSp,tq)),sp=smoothstep(st,st+.004,h3(floor(eq*170.)))*step(.5,tq);
-float ch=1.-.06*uSp*(1.-smoothstep(1.,3.+6.*uSp,tq)),cq=h3(floor(eq*55.)+3.);vec3 cf=fract(eq*55.)-.5;float chp=smoothstep(ch,ch+.004,cq)*(1.-smoothstep(.18,.3,max(abs(cf.x),max(abs(cf.y),abs(cf.z)))*(1.+.5*fract(cq*91.))))*step(.6,tq);sp=max(sp,chp);
+/* v9 (Hang 20:00 "more sheds"): ~1.9x the edge spikes - each octave's empty-cell threshold drops (big .55-.08 -> .22-(-.12), small
+   .6-.12 -> .3-(-.06)), so most cells along the edge carry a spike while the cluster masks still vary length/density; the small octave's cells are
+   ~30% closer (U0*.16 -> .11) and lengths a little less heavy-tailed (h^2.8 -> h^2.3), spikes ~12% wider at the base; same loops. */
+if(d<L1)fg=spk(ac,d,U0*.4,L1,mix(.22,-.12,cl)-.4*uSp,uSd+1.);if(d<L2)fg=max(fg,spk(ac+.37,d,U0*.11,L2,mix(.3,-.06,cl2*.6+cl*.4)-.4*uSp,uSd+7.)*.95);
+/* v6b (Hang 19:28 "too many particles inside ... more pure", 19:29 keep + strengthen the fast-spin splash): resting specks ~80% fewer
+   (density 1.4% -> .3%, gone by ~1.7 band units instead of 3) so face interiors stay clear. The speed-linked chips are now pointed shards
+   (cells stretched ~2.4x across the edge, tapering to a tip, seeded direction/size), ~2.7x denser than v4 at full spin, and confined to a
+   strip hugging each edge (fade by 1.5-3 band units) so they splash along the edges instead of filling the faces. Same per-pixel cost. */
+float st=mix(.997-.03*uSp,1.,smoothstep(.7,1.7+1.5*uSp,tq)),sp=smoothstep(st,st+.004,h3(floor(eq*170.)))*step(.5,tq);
+float ch=1.-.3*uSp*(1.-smoothstep(.5,1.5+1.5*uSp,tq));/* v9: fast-spin shards ~1.9x (.16 -> .3) */vec3 qq=eq*55.-g*dot(eq,g)*32.;float cq=h3(floor(qq)+3.);vec3 cf=fract(qq)-.5;float t=dot(cf,g),sg=fract(cq*37.)>.5?1.:-1.,ax=length(cf-g*t),wd=(.05+.34*clamp(.5+t*sg,0.,1.))*(.7+.6*fract(cq*91.));
+float chp=smoothstep(ch,ch+.004,cq)*(1.-smoothstep(wd*.7,wd,ax))*(1.-smoothstep(.4,.48,abs(t)))*step(.4,tq);sp=max(sp,chp);
 return max(sol,max(fg*.97,sp*.9));}
 /* frost shading: bright white crystal, faint cool hint only, never grey. A lumpy raised surface (small-scale normal bumps, stronger where solid),
    soft wrap light, small specular highlights on the lumps and seeded sparkle glints that flash with the view angle. Premultiplied by coverage. */
@@ -417,14 +425,17 @@ float lw=max(0.,dot(Nv,Ld));
 /* v4: the frost IS the blue (#8FD0FF top -> #2F6FE0 bottom), lump-shaded, white highlights/glints; just below the moving front the tips start
    near-white and turn blue. v5 (Hang 18:18 "too uniform blue", "white intertwined", "gradient of blue and white, irregular"): marbled ice -
    white veins/strands (two warped ridged layers of the baked noise), soft cloudy white patches, a slow location-varying white amount, and
-   white or white-tipped spikes (gT from spk) - roughly a quarter to two fifths white, uneven along and across each stroke. */
+   white or white-tipped spikes (gT from spk) - roughly a quarter to two fifths white, uneven along and across each stroke.
+   v6 (Hang 19:25 "more white plse"): ~40-55% white (lower vein thresholds, wider patches, every spike more white); in the light theme the
+   "white" is a pale icy blue (#9EC9F5) so it keeps contrast on the light page; band firmer (width .68-1.68 not .3-1.9, softer solidity
+   noise, projection cap at 60%) and NI_CRUST .0105 (~66% of v4). */
 float hz=clamp(zq(O),0.,1.);vec3 B0=vec3(.561,.816,1.),B1=vec3(.184,.435,.878),bl=mix(B1,B0,smoothstep(.05,.95,hz));
 vec3 c=bl*(.74+.3*lw+.06*sol);c=mix(c,B1*.82,.22*(1.-lw));c=mix(c,vec3(.94,.97,1.),(uLt>.5?.1:.14)+.08*lb.x);
 float v1=1.-abs((nE.r-.5)*5.),v2=1.-abs((nF.g-.5)*5.5),wv=clamp((nA.g-.5)*2.4+.5,0.,1.);
-float wf=smoothstep(.62,.93,v1)*.75+smoothstep(.68,.95,v2)*.55+smoothstep(.6,.72,nE.b)*.35;
-wf=clamp(wf*(.35+.95*wv)+gT*(1.-sol)*.85,0.,1.);c=mix(c,vec3(.93,.965,1.)*(.9+.1*lw),wf*.8);
-{float kw=(1.-smoothstep(0.,.045,df))*(uLt>.5?.5:.82);c=mix(c,vec3(.97,.985,1.),kw);}
-c+=vec3(1.)*(hi+gn);
+float wf=smoothstep(.45,.85,v1)*.85+smoothstep(.52,.9,v2)*.65+smoothstep(.5,.66,nE.b)*.55;
+wf=clamp(wf*(.55+.9*wv)+gT*(1.-sol)+.12,0.,1.);vec3 Wc=uLt>.5?vec3(.62,.79,.96):vec3(.93,.965,1.);c=mix(c,Wc*(.9+.1*lw),wf*.92);
+{float kw=(1.-smoothstep(0.,.045,df))*(uLt>.5?.5:.82);c=mix(c,uLt>.5?vec3(.6,.78,.96):vec3(.97,.985,1.),kw);}
+c+=(uLt>.5?vec3(.55,.75,1.):vec3(1.))*(hi+gn)*(uLt>.5?.6:1.);
 float a=m*(uLt>.5?1.:.97);return vec4(min(c,vec3(1.))*a,a);}
 void main(){vec3 N=normalize(toV(vNo)),V=normalize(vec3(0.,0.,uD)-vV);vec2 uv=gl_FragCoord.xy/uRes;
 /* v5 perf: edge-only fast path. The frost replaces the whole ice shading, so pass 0 (refraction buffer) is not drawn at all (JS) and passes 2/1
@@ -499,7 +510,7 @@ let tx=()=>{let t0=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t0);for(const
 let tn=tx();gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT),gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,256,256,0,gl.RGBA,gl.UNSIGNED_BYTE,niNz());
 Object.assign(ngS,{c,gl,pr,U,tn,vb:gl.createBuffer(),tb:tx(),tk:tx(),fb:gl.createFramebuffer(),rb:gl.createRenderbuffer(),gw:document.createElement(`canvas`),W:0,H:0});ngOK=1}catch(e){ngOK=0}}
 /* preview/egg-n-ice-edgeonly: the ice crust width along the edges, as a fraction of the letter height (0 = the full-surface ice of v521) */
-const NI_CRUST=.009;
+const NI_CRUST=.0105;
 /* v5 perf (Hang 18:17 "the N spin is dragging down my computer"):
    niNz(): the 256x256 RGBA tileable fbm (4 independent channels, 4 octaves, deterministic hash) baked once at GL init -> uNz (texture unit 3).
    niRd(): the GL ice + its glow are re-rendered only when something they depend on moved (yaw/pitch > .001 rad ~ < .6 device px, layout, size,
@@ -525,7 +536,7 @@ for(let y=0;y<R;y++)for(let x0=0;x0<R;x0++){let q0=(x0+.5-px)/sx,q1=(R-px-(y+.5)
 return o}
 function ngGL(yw,pt,Lay,f){let S0=ngS,gl=S0.gl,L=t[v],lt0=hLt(),kq=Math.max(1,2/(d.width/g))*niQL[niQi] /* v521: the ice renders at >= 2 device px per CSS px everywhere (was 1x on DPR1 desktops; phones and retina were already 2x), then draws down */,W=Math.max(2,Math.round(d.width*kq)),H=Math.max(2,Math.round(d.height*kq))
 if(ngML!==L){ngM=ngMesh(L),ngML=L;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb),gl.bufferData(gl.ARRAY_BUFFER,ngM.buf,gl.STATIC_DRAW);gl.activeTexture(gl.TEXTURE2),gl.bindTexture(gl.TEXTURE_2D,S0.tk),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,128,128,0,gl.RGBA,gl.UNSIGNED_BYTE,ngCore(L)),gl.activeTexture(gl.TEXTURE0)}
-if(S0.W!==W||S0.H!==H){S0.W=W,S0.H=H,S0.c.width=W,S0.c.height=H;gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,W,H,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.bindRenderbuffer(gl.RENDERBUFFER,S0.rb),gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,W,H);gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,S0.tb,0),gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,S0.rb);S0.gw.width=Math.max(2,Math.round(W/8)),S0.gw.height=Math.max(2,Math.round(H/8))}
+if(S0.W!==W||S0.H!==H){S0.W=W,S0.H=H,S0.c.width=W,S0.c.height=H;gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,W,H,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.bindRenderbuffer(gl.RENDERBUFFER,S0.rb),gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,W,H);gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,S0.tb,0),gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,S0.rb);S0.gw.width=Math.max(2,Math.round(W/4)),S0.gw.height=Math.max(2,Math.round(H/4))}
 let rnd=niRd(S0,yw,pt,Lay,W,H,lt0);if(rnd){gl.useProgram(S0.pr);let U=S0.U,sc=Lay.scale*kq,bw=190*a*sc;gl.bindBuffer(gl.ARRAY_BUFFER,S0.vb);let aP=gl.getAttribLocation(S0.pr,`aP`),aN=gl.getAttribLocation(S0.pr,`aN`),aE=gl.getAttribLocation(S0.pr,`aE`),aM=gl.getAttribLocation(S0.pr,`aM`);gl.enableVertexAttribArray(aP),gl.vertexAttribPointer(aP,3,gl.FLOAT,false,56,0),gl.enableVertexAttribArray(aN),gl.vertexAttribPointer(aN,3,gl.FLOAT,false,56,12),gl.enableVertexAttribArray(aE),gl.vertexAttribPointer(aE,4,gl.FLOAT,false,56,24),gl.enableVertexAttribArray(aM),gl.vertexAttribPointer(aM,4,gl.FLOAT,false,56,40)
 gl.uniform4f(U.uRot,Math.cos(yw),Math.sin(yw),Math.cos(pt),Math.sin(pt)),gl.uniform4f(U.uPrj,sc,Lay.ox*kq,Lay.oy*kq,1/(2*Math.max(W,H))),gl.uniform2f(U.uRes,W,H),gl.uniform1f(U.uEw,7.5*a),gl.uniform1f(U.uCt,NI_CRUST*704*a),gl.uniform1f(U.uSp,niSpk),gl.uniform1i(U.uNz,3),gl.activeTexture(gl.TEXTURE3),gl.bindTexture(gl.TEXTURE_2D,S0.tn),gl.activeTexture(gl.TEXTURE0),gl.uniform1f(U.uCr,Math.min(1,340/Math.max(1,704*a*sc/(d.width/g)))),gl.uniform1f(U.uD,1.4*704*a*sc),gl.uniform2f(U.uK,.22*bw/W,.22*bw/H)
 gl.uniform3f(U.uBg,...(lt0?[237,237,237]:[17,17,17]).map(z=>z/255)),gl.uniform1f(U.uLt,lt0?1:0),gl.uniform1f(U.uSl,niM?.1*Math.sin(Math.min(1,niT/2.4)*Math.PI-1.2):0),gl.uniform1f(U.uH,NIH*a),gl.uniform2f(U.uCs,L.w*a,704*a),gl.uniform1f(U.uTb,Math.min(1,hH)),gl.uniform1f(U.uS,niS()),gl.uniform1f(U.uLq,niLq),gl.uniform1f(U.uSt,niSt()),gl.uniform1f(U.uSd,ngSd),gl.uniform1f(U.uYc,(NIF-NIH)*a),gl.uniform1f(U.uTm,performance.now()/1e3%600),gl.uniform1i(U.uBack,1),gl.uniform1i(U.uCore,2)
@@ -534,7 +545,14 @@ gl.enable(gl.DEPTH_TEST),gl.depthFunc(gl.LESS),gl.disable(gl.CULL_FACE),gl.viewp
 gl.clearColor(0,0,0,0);if(!(NI_CRUST>0))gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,null),gl.activeTexture(gl.TEXTURE0),gl.bindFramebuffer(gl.FRAMEBUFFER,S0.fb),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),gl.uniform1f(U.uPass,0),gl.drawArrays(gl.TRIANGLES,0,ngM.n)
 gl.bindFramebuffer(gl.FRAMEBUFFER,null),gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT),NI_CRUST>0&&(gl.enable(gl.BLEND),gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA)),gl.uniform1f(U.uPass,2),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.activeTexture(gl.TEXTURE1),gl.bindTexture(gl.TEXTURE_2D,S0.tb),gl.uniform1f(U.uPass,1),gl.drawArrays(gl.TRIANGLES,0,ngM.n),gl.disable(gl.BLEND),gl.activeTexture(gl.TEXTURE0)}
 p.save(),p.setTransform(1,0,0,1,0,0)
-if(!lt0){let gw=S0.gw,gx=gw.getContext(`2d`),k0=gw.width/W;rnd&&(gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`rgb(120,170,245)`,gx.shadowBlur=Math.max(2,gw.width*.07*eS()),gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.restore()),p.globalCompositeOperation=`lighter`,p.globalAlpha=.3,p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height),p.globalCompositeOperation=`source-over`}
+/* v6c (Hang 19:37 "add a blue glow to the N, like you have on the A and H"): the A's glow recipe (hGlow: canvas shadow, blur 4+14px x g,
+   alpha .85 x g; light theme like the G's, 3+9px x g at .6 x g) applied to the frost: the ice canvas is shadow-cast into the half-res glow
+   canvas (shadow only, the source is drawn off-canvas), recoloured source-atop with the frost's own height gradient #8FD0FF top -> #2F6FE0
+   bottom (light theme a step deeper, #5FA2EC -> #2F6FE0), then laid under the ice. g = freeze level (0 -> no glow). Rebuilt only when
+   niRd() re-renders the ice; at rest the cached glow is just composited. Replaces the flat dark-only .3 halo. */
+{let gw=S0.gw,gx=gw.getContext(`2d`),gq=Math.min(1,Math.max(0,niS()));if(gq>.01){if(rnd){let kc=gw.width/g*eS(),kg=gw.height/H*kq,yc=Lay.oy*kg,hh=352*a*Lay.scale*kg,gr=gx.createLinearGradient(0,yc-hh,0,yc+hh);gr.addColorStop(0,lt0?`#5FA2EC`:`#8FD0FF`),gr.addColorStop(1,`#2F6FE0`)
+gx.clearRect(0,0,gw.width,gw.height),gx.save(),gx.shadowColor=`#000`,gx.shadowBlur=(lt0?3+9*gq:4+14*gq)*kc,gx.shadowOffsetX=gw.width*2,gx.drawImage(S0.c,-gw.width*2,0,gw.width,gw.height),gx.shadowColor=`transparent`,gx.shadowBlur=0,gx.shadowOffsetX=0,gx.globalCompositeOperation=`source-atop`,gx.fillStyle=gr,gx.fillRect(0,0,gw.width,gw.height),gx.restore()}
+p.globalAlpha=Math.min(1,(lt0?.6:.85)*gq),p.drawImage(gw,0,0,gw.width,gw.height,0,0,d.width,d.height)}}
 p.globalAlpha=1,p.drawImage(S0.c,0,0,W,H,0,0,d.width,d.height)/* v4 (Hang 17:58): light-theme drop shadow removed; the blue frost carries the contrast */
 /* v2: a few tiny droplets flung off while liquid (<=12 alive, 320-620ms life, gravity), subtle */
 {let nw=performance.now(),dt=Math.min(.05,Math.max(0,(nw-(ngDL||nw))/1e3)),k0=d.width/g*eS(),cy=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pt),sp=Math.sin(pt);ngDL=nw
