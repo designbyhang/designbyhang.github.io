@@ -26,6 +26,8 @@ try{frameElement&&frameElement.dispatchEvent(new Event('proto-doc'))}catch(_){}
 <link rel="stylesheet" href="../shared/iab/iab.css?v=389">
 <script src="../../js/squircle.js?v=389"></script><script src="../shared/backdrop/backdrop.js?v=402"></script><script src="../shared/iab/header.js?v=137"></script><script src="../shared/iab/iab.js?v=479"></script><script src="../shared/caret/caret.js?v=398"></script>
 <script src="../../js/video-scrubber.js?v=424"></script><script src="../shared/pause/pause.js?v=423"></script>
+<!-- the shared inline autoplay runner (preview/shared/demo): the scripted loop + touch indicator, inline on the case page only -->
+<link rel="stylesheet" href="../shared/demo/demo-loop.css?v=1"><script src="../shared/demo/demo-loop.js?v=1"></script>
 <link rel="stylesheet" href="../shared/device/device.css?v=499"><script src="../shared/device/snap.js?v=389"></script>
 <!-- the shared Reels text roles and header badges (preview/shared/reel: verified.png, the Figma 24×24 alpha mask shown at 12×12 as .rl-ico) -->
 <link rel="stylesheet" href="../shared/reel/reel.css?v=389">
@@ -185,6 +187,7 @@ html.embed-full,html.embed-full body,html.embed-full .mframe{background:transpar
    the status bar's right icons (the shared .sb mask; its time slot is the pill's) for a sheet that brings its own white status band (the IAB),
    and the one home bar (Figma: 134×5 at 121,798), black over a light screen, white over a dark one */
 .dc{width:375px;height:812px;z-index:110;pointer-events:none}
+.phone{--dl-z:120;--dl-xz:130}   /* the inline demo's touch indicator and resume cover (../shared/demo/demo-loop.css): over the menu and the chrome */
 .dc .sb{left:0;top:0;clip-path:inset(0 0 0 96px);opacity:0;transition:opacity .32s cubic-bezier(.22,1,.36,1)}
 .dc .hm{position:absolute;left:121px;top:798px;width:134px;height:5px;border-radius:2.5px;background:#000;transition:background-color .32s cubic-bezier(.22,1,.36,1)}
 
@@ -941,7 +944,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(menuOpen){
   else if(cur.state===3)cur.sheet.go(cur.ctaFrom==='feed'?1:2);else if(cur.state===2)close(cur)});
 
 /* ---------- video: the current experience's videos play while the phone is on screen ---------- */
-let seen=false,held=false;
+let seen=false,held=false,AUTO=null;
 function vidSync(){if(!cur)return;const full=document.documentElement.classList.contains('embed-full');
   const on=(seen||demoClock.hosted||full)&&!document.hidden&&!held&&!(window.demoClock&&demoClock.paused),C=cur.E.c;
   cur.vids.forEach(v=>{const vsHeld=v===cur.video&&((cur.vs&&(cur.vs.paused()||cur.vs.dragging()))||(cur.vw&&(cur.vwCta||(cur.vs&&(cur.vs.paused()||cur.vs.dragging())))));
@@ -967,7 +970,7 @@ function vidSync(){if(!cur)return;const full=document.documentElement.classList.
       if(on&&a>.01){if(!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}cur._thumbWas=1}
       else{if(!v.paused)v.pause();cur._thumbWas=0}
       return}
-    if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()})}
+    if(on&&!vsHeld&&v.paused){const p=v.play();p&&p.catch&&p.catch(()=>{})}else if(!on&&!v.paused)v.pause()});AUTO&&AUTO.sync()}
 new IntersectionObserver(es=>{seen=es[es.length-1].isIntersecting;vidSync()},{threshold:.35}).observe(frame);
 document.addEventListener('visibilitychange',vidSync);addEventListener('demo:host',vidSync);addEventListener('demo:play',vidSync);addEventListener('demo:pause',vidSync);addEventListener('pageshow',vidSync);
 addEventListener('embed:hold',()=>{held=true;vidSync()});addEventListener('embed:release',()=>{held=false;vidSync()});
@@ -978,9 +981,49 @@ if(INLP)new MutationObserver(()=>{const i=INL();if(i===wasInl)return;wasInl=i;
   picked=false;show(0);homeS=null;setMenuNow(true)}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 
 function say(t){$('live').textContent=t}
+
+/* ---------- the inline demo (case page, ?inline=1, not full screen): autoplay only, no input; full screen moves only on real input ----------
+   The tab-based demos step through their states on a scripted loop; this prototype has no tabs, so the loop walks its Menu instead: one
+   experience per main area (the Menu's groups, in their order), each played through its split screen, then back to the Menu for the next.
+   It drives the prototype's own functions (pick, open via the surface's real tap handler, vwOpen / vwBack, close, openMenu, the dwells)
+   on the shared runner (../shared/demo/demo-loop.js: 1032ms taps with the touch indicator, the host's pause, the clean-start rules).
+   One loop (every scripted time a multiple of 8ms; the dwells are the experiences' own 4400):
+     Menu (home) 1200 · tap Feed › Watch & Browse (Nike, Video Tap) · Feed 1200 · tap the video → split screen · 1440 · tap expand →
+     full-screen viewer · 2000 · tap collapse → back to split · 1440 · tap × → Feed · 960 · tap Menu · 1200 ·
+     tap Reels › Watch & Navigate (Outdoor Voices ad, On Dwell) · the reel plays until its dwell splits it by itself, lands · 1600 · tap × → the reel · 960 · tap Menu · 1200 ·
+     tap Stories › Watch & Browse (Away, On Dwell) · the Story plays until its dwell raises the peek, lands · 1600 · tap × → the Story · 960 · tap Menu · 1200 ·
+     tap Marketplace › Watch & Browse (Nike tile, Video Tap) · 1200 · tap the tile → split screen · 2000 · tap × → Marketplace · 960 · tap Menu · 1200 ·
+     tap Search › Watch & Browse (Nike Pegasus, Video Tap) · 1200 · tap the video → split screen · 2000 · tap × → Search · 960 · tap Menu,
+   and round again from the Menu: no cut anywhere in the loop. */
+const AREAS=[0,5,7,8,9];   // Feed · Reels · Stories · Marketplace · Search: one representative experience each (the Menu's first row per group, Reels its ad)
+const D=window.DemoLoop&&DemoLoop.create({phone,frame,
+  canRun:()=>(seen||demoClock.hosted)&&!held,
+  clean:()=>!picked&&menuOpen&&curI===0&&!!cur&&cur.state===1&&!cur.vw,
+  reset:()=>{picked=false;show(0);homeS=null;setMenuNow(true)}});
+if(D){
+  const mid=r=>[r[0]+r[2]/2,r[1]+r[3]/2];
+  const item=i=>mmLs.querySelector(`.mm-it[data-i="${i}"]`);
+  const landed=()=>cur.state===2&&!cur.sheet.busy;
+  const pickArea=i=>tk=>D.tap(()=>D.at(item(i)),tk,()=>pick(i,item(i)));
+  const tapMenu=tk=>D.tap(()=>D.at(mpEl),tk,()=>openMenu());
+  /* the surface's own tap handler (a synthetic touch on its hit layer): Feed media → split, Marketplace tile → split, Search video → split */
+  const tapMedia=tk=>D.tap(()=>mid(cur.E.c.m.a),tk,xy=>D.press(cur.els.hit,xy[0],xy[1]));
+  const tapExpand=tk=>D.tap(()=>D.at(cur._ctlEx),tk,()=>vwOpen(cur));
+  const tapCollapse=tk=>D.tap(()=>D.at(cur._ctlEx),tk,()=>vwBack(cur));
+  const tapClose=tk=>D.tap(()=>D.at(cur.els.splx),tk,()=>close(cur));
+  const dwellSplit=tk=>D.until(landed,tk,9600);   // On Dwell: no tap, the experience splits by itself (4400) and its spring lands
+  const area=(i,...play)=>[1200,pickArea(i),...play,960,tapMenu];
+  D.play([
+    ...area(AREAS[0],1200,tapMedia,1440,tapExpand,2000,tapCollapse,1440,tapClose),   // Feed: split → viewer → split → Feed
+    ...area(AREAS[1],dwellSplit,1600,tapClose),                                      // Reels: the ad splits on dwell
+    ...area(AREAS[2],dwellSplit,1600,tapClose),                                      // Stories: the peek on dwell
+    ...area(AREAS[3],1200,tapMedia,2000,tapClose),                                   // Marketplace: the tile → split
+    ...area(AREAS[4],1200,tapMedia,2000,tapClose)]);                                 // Search: the video → split
+  AUTO=D;
+}
 const q0=+new URLSearchParams(location.search).get('x');
 if(q0>=1&&q0<=EXP.length){document.documentElement.classList.add('has-x');picked=true;show(q0-1)}else{show(0);setMenuNow(true)}
-window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen}};   // for checks
+window.FMSSAll={EXP,show,openMenu,closeMenu,get cur(){return cur},get i(){return curI},get menuOpen(){return menuOpen},get auto(){return AUTO&&AUTO.on},get stepI(){return AUTO?AUTO.stepI:-1}};   // for checks
 
 
 })();
